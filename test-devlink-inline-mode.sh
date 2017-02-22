@@ -94,6 +94,7 @@ echo "try to change inline-mode"
 devlink dev eswitch set pci/$PCI inline-mode network || success "Failed set inline-mode as expected"
 get_inline_mode
 test $mode = "transport" || fail "Expected mode transport"
+success
 
 if [ -e /sys/class/net/$rep ]; then
     title "test add ipv6 rule"
@@ -103,11 +104,14 @@ if [ -e /sys/class/net/$rep ]; then
         dst_mac e2:22:33:44:00:00 \
         src_ip 2001:0db8:85a3::8a2e:0370:7334 \
         action drop || fail "Failed to add rule"
+    success
 else
     warn "skip rule ipv6 test - cannot find $rep"
 fi
 
 echo "* reset"
+reset_tc_nic $NIC
+reset_tc_nic $rep
 echo $vfpci > /sys/bus/pci/drivers/mlx5_core/unbind
 devlink dev eswitch set pci/$PCI inline-mode link
 echo "done"
