@@ -16,39 +16,40 @@ BRIDGE="ovs-vx"
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-bind_vfs
-reset_tc_nic $NIC
+function pidof_ovs_vswitchd() {
+    pidof ovs-vswitchd || pgrep -f valgrind.*ovs-vswitchd || fail "ovs-vswitchd not running"
+}
 
 set -e
-title2
+
+reset_tc_nic $NIC
 
 title "verify ovs is running"
 service openvswitch restart
 sleep 2
-pidof ovs-vswitchd || fail "ovs-vswitchd not running"
+pidof_ovs_vswitchd
 
 title "set mode switchdev"
 unbind_vfs
 switch_mode_switchdev
 
 title "add bridge"
-ovs-vsctl del-br $BRIDGE || true
+# del all bridges
+ovs-vsctl show|grep Bridge | awk {'print $2'} | xargs -I {} ovs-vsctl del-br {}
 ovs-vsctl add-br $BRIDGE
-
-title "add bridge ports"
-ovs-vsctl -- add-port $BRIDGE ${NIC}_0
-ovs-vsctl -- add-port $BRIDGE ${NIC}_1
-ovs-vsctl -- add-port $BRIDGE $NIC
+ovs-vsctl add-port $BRIDGE ${NIC}_0
+ovs-vsctl add-port $BRIDGE ${NIC}_1
+ovs-vsctl add-port $BRIDGE $NIC
 ovs-vsctl show
 
 title "set mode legacy"
 switch_mode_legacy
 
-# ovs catch crashes and restart it self but it takes a second.
+# ovs crashes and restart itself but it takes a second.
 sleep 2
 
 title "verify ovs is running and no crashes"
-pidof ovs-vswitchd || fail "ovs-vswitchd not running"
+pidof_ovs_vswitchd
 # I dont see this anymore. belongs to v2.5 ?
 # ps aux | grep ovs-vswitchd | grep healthy || fail "ovs-vswitchd is not healthy"
 
