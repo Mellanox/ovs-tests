@@ -1,0 +1,2 @@
+BRIDGE=ovs-vx
+#BRIDGE=skip_hw
