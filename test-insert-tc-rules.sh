@@ -221,8 +221,6 @@ function test_simple_insert_missing_action() {
 }
 
 
-# TODO change inline mode to transport before testing?
-
 switch_mode_switchdev
 devlink dev eswitch set pci/$PCI inline-mode transport || fail "Failed to set mode link"
 

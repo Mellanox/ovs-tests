@@ -30,7 +30,6 @@ reset_tc_nic $NIC
 reset_tc_nic $rep
 
 set -e
-echo "********** TEST `basename $0` **************" > /dev/kmsg
 
 function add_rules() {
     for i in `seq $COUNT`; do

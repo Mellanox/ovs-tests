@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #service openvswitch restart
 #sleep 2
 
