@@ -50,6 +50,25 @@ title "test show"
 devlink dev eswitch set pci/$PCI inline-mode link || fail "Failed to set mode link"
 get_inline_mode
 test $mode = "link" || fail "Expected mode link"
+success
+
+title "test fail change mode when flows are configured"
+tc filter add dev $NIC protocol ipv6 parent ffff: \
+    flower skip_sw indev $NIC \
+    src_mac e1:22:33:44:00:01 \
+    dst_mac e2:22:33:44:00:01 \
+    action drop || fail "Failed to add rule"
+devlink dev eswitch set pci/$PCI inline-mode transport && fail "Expected to fail changing mode"
+get_inline_mode
+test $mode = "link" || fail "Expected mode link"
+success
+
+reset_tc_nic $NIC
+title "test set inline-mode transport"
+devlink dev eswitch set pci/$PCI inline-mode transport || fail "Failed to set mode transport"
+get_inline_mode
+test $mode = "transport" || fail "Expected mode transport"
+success
 
 if [ -e /sys/class/net/$rep ]; then
     title "test fail to add ipv4 rule to rep"
@@ -81,11 +100,7 @@ tc filter add dev $NIC protocol ipv6 parent ffff: \
     src_ip 2001:0db8:85a3::8a2e:0370:7334 \
     dst_ip 2001:0db8:85a3::8a2e:0370:7335 \
     action drop || fail "Failed to add rule"
-
-title "test set inline-mode transport"
-devlink dev eswitch set pci/$PCI inline-mode transport
-get_inline_mode
-test $mode = "transport" || fail "Expected mode transport"
+success
 
 title "test revert on set failure"
 echo "bind last vf $vfpci"
