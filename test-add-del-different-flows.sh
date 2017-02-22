@@ -19,7 +19,6 @@ my_dir="$(dirname "$0")"
 reset_tc_nic $NIC
 
 set -e
-echo "********** TEST `basename $0` **************" > /dev/kmsg
 
 COUNT=5
 
