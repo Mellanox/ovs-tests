@@ -23,15 +23,7 @@ NIC=${1:-ens5f0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-vf=virtfn0
-vfpci=$(basename `readlink /sys/class/net/$NIC/device/$vf`)
-if [ ! -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
-    echo "bind vf $vfpci"
-    echo $vfpci > /sys/bus/pci/drivers/mlx5_core/bind
-fi
-
 set -e
-echo "********** TEST `basename $0` **************" > /dev/kmsg
 
 function add_tc_rule_to_rep() {
     title "add tc rule to rep $rep"
@@ -57,35 +49,45 @@ function reload_mlx5() {
     title "test reload modules"
     modprobe -r mlx5_ib mlx5_core devlink || fail "Failed to unload modules"
     modprobe -a devlink mlx5_core mlx5_ib || fail "Failed to load modules"
-    a=`journalctl -n200 | grep KASAN || true`
-    if [ "$a" != "" ]; then
-        fail "Detected KASAN in journalctl"
-    fi
-    success "success"
+    check_kasan
 }
 
+function testA() {
+    title "TEST A - switchdev mode without tc rules"
+    unbind_vfs
+    switch_mode_switchdev
+    reload_mlx5
+}
 
-title "TEST A - switchdev mode without tc rules"
-switch_mode_switchdev
-reload_mlx5
+function testB() {
+    title "TEST B - switchdev mode with tc rules"
+    unbind_vfs
+    switch_mode_switchdev
+    rep=${NIC}_0
+    echo "lookg for $rep"
+    sleep 0.5
+#    if [ ! -e /sys/class/net/$rep ]; then
+#        set_macs 1
+#    fi
+    if [ ! -e /sys/class/net/$rep ]; then
+        fail "Missing rep $rep"
+    fi
+    add_tc_rule_to_rep
+    add_tc_rule_to_pf
+    reload_mlx5
+}
 
-title "TEST B - switchdev mode with tc rules"
-switch_mode_switchdev
-rep=${NIC}_0
-if [ ! -e /sys/class/net/$rep ]; then
-    set_macs 1
-fi
-if [ ! -e /sys/class/net/$rep ]; then
-    fail "Missing rep $rep"
-fi
-add_tc_rule_to_rep
-add_tc_rule_to_pf
-reload_mlx5
+function testC() {
+    title "TEST C - legacy mode with tc rules"
+    unbind_vfs
+    switch_mode_legacy
+    add_tc_rule_to_pf
+    reload_mlx5
+}
 
-title "TEST C - legacy mode with tc rules"
-switch_mode_legacy
-add_tc_rule_to_pf
-reload_mlx5
+testA
+testB
+testC
 
 success "Test success"
 echo "done"
