@@ -220,9 +220,10 @@ function test_simple_insert_missing_action() {
     tc filter add dev $NIC protocol ip parent ffff: flower indev $NIC && success || err "Failed"
 }
 
-
+mode=`get_eswitch_mode`
 switch_mode_switchdev
-devlink dev eswitch set pci/$PCI inline-mode transport || fail "Failed to set mode link"
+mode=`get_eswitch_inline_mode`
+test "$mode" != "transport" && (devlink dev eswitch set pci/$PCI inline-mode transport || fail "Failed to set mode link")
 
 # Execute all test_* functions
 for i in `declare -F | awk {'print $3'} | grep ^test_`; do
@@ -230,5 +231,6 @@ for i in `declare -F | awk {'print $3'} | grep ^test_`; do
     eval $i
 done
 
+reset_tc_nic $NIC
 echo "done"
 test $TEST_FAILED == 0 || fail "TEST FAILED"

@@ -84,6 +84,14 @@ function switch_mode_switchdev() {
     switch_mode switchdev "$1"
 }
 
+function get_eswitch_mode() {
+    devlink dev eswitch show pci/0000:24:00.0 |grep -o "\bmode [a-z]\+" | awk {'print $2'}
+}
+
+function get_eswitch_inline_mode() {
+    devlink dev eswitch show pci/0000:24:00.0 |grep -o "\binline-mode [a-z]\+" | awk {'print $2'}
+}
+
 function set_macs() {
     local count=$1
     $SET_MACS $NIC $count
