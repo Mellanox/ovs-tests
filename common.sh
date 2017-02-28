@@ -22,8 +22,6 @@ function title2() {
     echo "************** TEST $title **************" > /dev/kmsg
 }
 
-title2 `basename $0`
-
 function reset_tc_nic() {
     local nic1="$1"
 
@@ -117,12 +115,22 @@ function bind_vfs() {
     done
 }
 
+function start_test_timestamp() {
+    # sleep to get a unique timestamp
+    sleep 1
+    _check_start_ts=`date +"%s"`
+}
+
 function check_kasan() {
-    a=`journalctl -n200 | grep KASAN || true`
+    now=`date +"%s"`
+    sec=`echo $now - $_check_start_ts + 1 | bc`
+    a=`journalctl --since="$sec seconds ago" | grep -m1 KASAN || true`
     if [ "$a" != "" ]; then
-        fail "Detected KASAN in journalctl"
+        err $a
+        return 1
     fi
     success "success"
+    return 0
 }
 
 function start_check_syndrome() {
@@ -146,3 +154,7 @@ function check_syndrome() {
     fi
     return 0
 }
+
+### common
+title2 `basename $0`
+start_test_timestamp
