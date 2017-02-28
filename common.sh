@@ -41,14 +41,14 @@ function warn() {
 
 # print error and exit
 function fail() {
-    local m=${1-Failed}
+    local m=${*-Failed}
     TEST_FAILED=1
     echo -e "${RED}ERROR: $m$BLACK"
     exit 1
 }
 
 function err() {
-    local m=${1-Failed}
+    local m=${*-Failed}
     TEST_FAILED=1
     echo -e "${RED}ERROR: $m$BLACK"
 }
