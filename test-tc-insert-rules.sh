@@ -11,50 +11,62 @@ my_dir="$(dirname "$0")"
 
 
 function test_basic_L2() {
-    reset_tc_nic ${NIC}_0
-    tc filter add dev ${NIC}_0 protocol ip parent ffff: \
+    for skip in "" skip_sw skip_hw; do
+        title "    - skip:$skip"
+        reset_tc_nic ${NIC}_0
+        tc filter add dev ${NIC}_0 protocol ip parent ffff: \
                 flower \
-                        skip_sw \
+                        $skip \
 			dst_mac e4:11:22:11:4a:51 \
 			src_mac e4:11:22:11:4a:50 \
                 action drop && success "OK" || err "Failed"
+    done
 }
 
 function test_basic_L3() {
-    reset_tc_nic ${NIC}_0
-    tc filter add dev ${NIC}_0 protocol ip parent ffff: \
+    for skip in "" skip_sw skip_hw; do
+        title "    - skip:$skip"
+        reset_tc_nic ${NIC}_0
+        tc filter add dev ${NIC}_0 protocol ip parent ffff: \
                 flower \
-                        skip_sw \
+                        $skip \
 			dst_mac e4:11:22:11:4a:51 \
 			src_mac e4:11:22:11:4a:50 \
                         src_ip 1.1.1.1 \
                         dst_ip 2.2.2.2 \
                 action drop && success || err "Failed"
+    done
 }
 
 function test_basic_L3_ipv6() {
-    reset_tc_nic ${NIC}_0
-    tc filter add dev ${NIC}_0 protocol ipv6 parent ffff: \
+    for skip in "" skip_sw skip_hw; do
+        title "    - skip:$skip"
+        reset_tc_nic ${NIC}_0
+        tc filter add dev ${NIC}_0 protocol ipv6 parent ffff: \
                 flower \
-                        skip_sw \
+                        $skip \
 			dst_mac e4:11:22:11:4a:51 \
 			src_mac e4:11:22:11:4a:50 \
                         src_ip 2001:0db8:85a3::8a2e:0370:7334\
                         dst_ip 2001:0db8:85a3::8a2e:0370:7335 \
                 action drop && success || err "Failed"
+    done
 }
 
 function test_basic_L4() {
-    reset_tc_nic ${NIC}_0
-    tc filter add dev ${NIC}_0 protocol ip parent ffff: \
+    for skip in "" skip_sw skip_hw; do
+        title "    - skip:$skip"
+        reset_tc_nic ${NIC}_0
+        tc filter add dev ${NIC}_0 protocol ip parent ffff: \
                 flower \
-                        skip_sw \
+                        $skip \
 			dst_mac e4:11:22:11:4a:51 \
 			src_mac e4:11:22:11:4a:50 \
                         ip_proto tcp \
                         src_ip 1.1.1.1 \
                         dst_ip 2.2.2.2 \
                 action drop && success || err "Failed"
+    done
 }
 
 function __test_basic_vlan() {
@@ -70,8 +82,7 @@ function __test_basic_vlan() {
                         $skip \
                         dst_mac e4:11:22:11:4a:51 \
                         src_mac e4:11:22:11:4a:50 \
-                        vlan_ethtype 0x800 \
-                        vlan_id 100 \
+                action vlan push id 100 \
                 action drop && success || err "Failed"
     title "    - vlan pop"
     tc filter add dev $nic1 protocol 802.1Q parent ffff: \
@@ -92,11 +103,10 @@ function test_basic_vlan() {
     # 1. VF/VF no pop no push
     # 2. VF/outer push
     # 3. outer/VF pop
-    # note: we support adding decap to ovs vxlan interface.
     for skip in "" skip_hw skip_sw ; do
         __test_basic_vlan ${NIC} ${NIC}_0 $skip
         if [ "$skip" == "skip_sw" ]; then
-            warn "- skip skip_sw VF/outer - not supported - its ok"
+            warn "- skip vlan skip_sw VF/outer - not supported - its ok"
             continue
         fi
         __test_basic_vlan ${NIC}_0 ${NIC} $skip
@@ -105,6 +115,12 @@ function test_basic_vlan() {
 
 function test_basic_vxlan() {
     local skip
+    # note: we support adding decap to vxlan interface only.
+    vx=vxlan1
+    ip link del $vx >/dev/null 2>&1
+    ip link add $vx type vxlan dstport 4789 external
+    ip link set dev $vx up
+    tc qdisc add dev $vx ingress
     for skip in "" skip_hw skip_sw ; do
         title "- skip:$skip"
         reset_tc_nic ${NIC}
@@ -121,7 +137,7 @@ function test_basic_vxlan() {
                     id 100 \
                     action mirred egress redirect dev ${NIC} && success || err "Failed"
         title "    - decap"
-        tc filter add dev ${NIC} protocol 0x806 parent ffff: \
+        tc filter add dev $NIC protocol 0x806 parent ffff: \
                     flower \
                             $skip \
                             dst_mac e4:11:22:11:4a:51 \
@@ -133,6 +149,7 @@ function test_basic_vxlan() {
                     action tunnel_key unset \
                     action mirred egress redirect dev ${NIC}_0 && success || err "Failed"
     done
+    ip link del $vx
 }
 
 function test_duplicate_vlan() {
