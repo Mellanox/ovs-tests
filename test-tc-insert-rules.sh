@@ -64,6 +64,7 @@ function __test_basic_vlan() {
     title "- nic1:$nic1 nic2:$nic2 skip:$skip"
     reset_tc_nic $nic1
     reset_tc_nic $nic2
+    title "    - vlan push"
     tc filter add dev $nic1 protocol 802.1Q parent ffff: \
                 flower \
                         $skip \
@@ -108,6 +109,7 @@ function test_basic_vxlan() {
         title "- skip:$skip"
         reset_tc_nic ${NIC}
         reset_tc_nic ${NIC}_0
+        title "    - encap"
         tc filter add dev ${NIC}_0 protocol 0x806 parent ffff: \
                     flower \
                             $skip \
@@ -118,7 +120,7 @@ function test_basic_vxlan() {
                     dst_ip 20.1.11.1 \
                     id 100 \
                     action mirred egress redirect dev ${NIC} && success || err "Failed"
-        title "    - tunnel_key unset"
+        title "    - decap"
         tc filter add dev ${NIC} protocol 0x806 parent ffff: \
                     flower \
                             $skip \
