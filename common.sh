@@ -153,7 +153,6 @@ function check_syndrome() {
     a=`journalctl -n20 --since="$sec seconds ago" | grep -m1 syndrome || true`
     if [ "$a" != "" ]; then
         echo $a
-        err "Detected syndrome error in journalctl"
         return 1
     fi
     return 0
