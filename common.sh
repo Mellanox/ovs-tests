@@ -11,7 +11,11 @@ GREEN="\033[0;32m"
 YELLOW="\033[0;33m"
 BLUE="\033[01;94m"
 
+# global var to set if test fails. should change to error but never back to
+# success.
 TEST_FAILED=0
+# global var to use for last error msg. like errno and %m.
+ERRMSG=""
 
 
 function title2() {
