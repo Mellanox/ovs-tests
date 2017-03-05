@@ -5,7 +5,7 @@ BRIDGE=${2:-t_br0}
 
 
 # del all bridges
-ovs-vsctl show|grep Bridge | awk {'print $2'} | xargs -I {} ovs-vsctl del-br {}
+ovs-vsctl list-br | xargs -r -l ovs-vsctl del-br
 #ovs-vsctl del-br $BRIDGE
 ovs-vsctl -- add-br $BRIDGE -- set bridge $BRIDGE datapath_type=hw_netlink
 ovs-vsctl -- add-port $BRIDGE ${PF0}_0

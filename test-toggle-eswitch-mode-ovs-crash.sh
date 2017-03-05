@@ -34,8 +34,7 @@ unbind_vfs
 switch_mode_switchdev
 
 title "add bridge"
-# del all bridges
-ovs-vsctl show|grep Bridge | awk {'print $2'} | xargs -I {} ovs-vsctl del-br {}
+del_all_bridges
 ovs-vsctl add-br $BRIDGE
 ovs-vsctl add-port $BRIDGE ${NIC}_0
 ovs-vsctl add-port $BRIDGE ${NIC}_1

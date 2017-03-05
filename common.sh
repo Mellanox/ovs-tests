@@ -158,6 +158,10 @@ function check_syndrome() {
     return 0
 }
 
+function del_all_bridges() {
+    ovs-vsctl list-br | xargs -r -l ovs-vsctl del-br
+}
+
 ### common
 title2 `basename $0`
 start_test_timestamp

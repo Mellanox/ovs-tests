@@ -34,10 +34,10 @@ ifconfig veth2 up
 ifconfig veth0 up
 
 echo "clean ovs"
-ovs-vsctl list-br | xargs -r ovs-vsctl del-br
+del_all_bridges
 systemctl restart openvswitch
 sleep 1
-ovs-vsctl list-br | xargs -r ovs-vsctl del-br
+del_all_bridges
 
 echo "prep ovs"
 ovs-vsctl add-br br3
