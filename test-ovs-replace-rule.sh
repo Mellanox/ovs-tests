@@ -48,7 +48,7 @@ ovs-vsctl add-port br3 veth2
 ip netns exec red ping $REMOTE_IP -i 0.25 -c 8 
 
 function check_offloaded_rules() {
-    title "check for $1 offloaded rules"
+    title " - check for $1 offloaded rules"
     RES="ovs-dpctl dump-flows type=offloaded | grep 0x0800 | $CLEAN"
     eval $RES
     RES=`eval $RES | wc -l`
@@ -56,7 +56,7 @@ function check_offloaded_rules() {
 }
 
 function check_ovs_rules() {
-    title "check for $1 ovs dp rules"
+    title " - check for $1 ovs dp rules"
     RES="ovs-dpctl dump-flows type=ovs | grep 0x0800 | $CLEAN"
     eval $RES
     RES=`eval $RES | wc -l`
@@ -68,20 +68,26 @@ function check_ovs_rules() {
 check_offloaded_rules 2
 check_ovs_rules 0
 
-echo "change ofctl normal rule to all"
+title "change ofctl normal rule to all"
 ovs-ofctl del-flows br3
 ovs-ofctl add-flow br3 dl_type=0x0800,actions=all
 sleep 1
-
 check_offloaded_rules 0
 check_ovs_rules 2
 
-echo "change ofctl all rule to normal"
+title "change ofctl all rule to normal"
 ovs-ofctl del-flows br3
 ovs-ofctl add-flow br3 dl_type=0x0800,actions=normal
 sleep 1
-
 check_offloaded_rules 2
 check_ovs_rules 0
 
+title "change ofctl normal rule to drop"
+ovs-ofctl del-flows br3
+ovs-ofctl add-flow br3 dl_type=0x0800,actions=drop
+sleep 1
+check_offloaded_rules 2
+check_ovs_rules 0
+
+del_all_bridges
 echo "done"
