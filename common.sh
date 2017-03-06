@@ -20,9 +20,9 @@ ERRMSG=""
 
 function title2() {
     local title=${1:-`basename $0`}
-    echo "#############################################"
-    echo "# TEST $title"
-    echo "#############################################"
+    echo -e "${YELLOW}#############################################${BLACK}"
+    echo -e "${YELLOW}# TEST $title${BLACK}"
+    echo -e "${YELLOW}#############################################${BLACK}"
     echo "************** TEST $title **************" > /dev/kmsg
 }
 
