@@ -87,9 +87,9 @@ function __test_basic_vlan() {
                         dst_mac e4:11:22:11:4a:51 \
                         src_mac e4:11:22:11:4a:50 \
                 action vlan push id 100 \
-                action drop
+                action mirred egress redirect dev $nic2
     title "    - vlan pop"
-    tc_filter add dev $nic1 protocol 802.1Q parent ffff: \
+    tc_filter add dev $nic2 protocol 802.1Q parent ffff: \
                 flower \
                         $skip \
                         dst_mac e4:11:22:11:4a:51 \
@@ -98,7 +98,7 @@ function __test_basic_vlan() {
                         vlan_id 100 \
                         vlan_prio 0 \
                 action vlan pop \
-                action mirred egress redirect dev $nic2
+                action mirred egress redirect dev $nic1
 }
 
 function test_basic_vlan() {
@@ -108,12 +108,12 @@ function test_basic_vlan() {
     # 2. VF/outer push
     # 3. outer/VF pop
     for skip in "" skip_hw skip_sw ; do
-        __test_basic_vlan ${NIC} ${NIC}_0 $skip
-        if [ "$skip" == "skip_sw" ]; then
-            warn "- skip vlan skip_sw VF/outer - not supported - its ok"
-            continue
-        fi
         __test_basic_vlan ${NIC}_0 ${NIC} $skip
+        #if [ "$skip" == "skip_sw" ]; then
+        #    warn "- skip vlan skip_sw VF/outer - not supported - its ok"
+        #    continue
+        #fi
+        #__test_basic_vlan ${NIC}_0 ${NIC} $skip
     done
 }
 
