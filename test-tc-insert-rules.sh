@@ -10,16 +10,20 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 
+function tc_filter() {
+    eval2 tc filter $@ && success || err
+}
+
 function test_basic_L2() {
     for skip in "" skip_sw skip_hw; do
         title "    - skip:$skip"
         reset_tc_nic ${NIC}_0
-        tc filter add dev ${NIC}_0 protocol ip parent ffff: \
+        tc_filter add dev ${NIC}_0 protocol ip parent ffff: \
                 flower \
                         $skip \
 			dst_mac e4:11:22:11:4a:51 \
 			src_mac e4:11:22:11:4a:50 \
-                action drop && success "OK" || err "Failed"
+                action drop
     done
 }
 
@@ -27,14 +31,14 @@ function test_basic_L3() {
     for skip in "" skip_sw skip_hw; do
         title "    - skip:$skip"
         reset_tc_nic ${NIC}_0
-        tc filter add dev ${NIC}_0 protocol ip parent ffff: \
+        tc_filter add dev ${NIC}_0 protocol ip parent ffff: \
                 flower \
                         $skip \
 			dst_mac e4:11:22:11:4a:51 \
 			src_mac e4:11:22:11:4a:50 \
                         src_ip 1.1.1.1 \
                         dst_ip 2.2.2.2 \
-                action drop && success || err "Failed"
+                action drop
     done
 }
 
@@ -42,14 +46,14 @@ function test_basic_L3_ipv6() {
     for skip in "" skip_sw skip_hw; do
         title "    - skip:$skip"
         reset_tc_nic ${NIC}_0
-        tc filter add dev ${NIC}_0 protocol ipv6 parent ffff: \
+        tc_filter add dev ${NIC}_0 protocol ipv6 parent ffff: \
                 flower \
                         $skip \
 			dst_mac e4:11:22:11:4a:51 \
 			src_mac e4:11:22:11:4a:50 \
                         src_ip 2001:0db8:85a3::8a2e:0370:7334\
                         dst_ip 2001:0db8:85a3::8a2e:0370:7335 \
-                action drop && success || err "Failed"
+                action drop
     done
 }
 
@@ -57,7 +61,7 @@ function test_basic_L4() {
     for skip in "" skip_sw skip_hw; do
         title "    - skip:$skip"
         reset_tc_nic ${NIC}_0
-        tc filter add dev ${NIC}_0 protocol ip parent ffff: \
+        tc_filter add dev ${NIC}_0 protocol ip parent ffff: \
                 flower \
                         $skip \
 			dst_mac e4:11:22:11:4a:51 \
@@ -65,7 +69,7 @@ function test_basic_L4() {
                         ip_proto tcp \
                         src_ip 1.1.1.1 \
                         dst_ip 2.2.2.2 \
-                action drop && success || err "Failed"
+                action drop
     done
 }
 
@@ -77,15 +81,15 @@ function __test_basic_vlan() {
     reset_tc_nic $nic1
     reset_tc_nic $nic2
     title "    - vlan push"
-    tc filter add dev $nic1 protocol 802.1Q parent ffff: \
+    tc_filter add dev $nic1 protocol 802.1Q parent ffff: \
                 flower \
                         $skip \
                         dst_mac e4:11:22:11:4a:51 \
                         src_mac e4:11:22:11:4a:50 \
                 action vlan push id 100 \
-                action drop && success || err "Failed"
+                action drop
     title "    - vlan pop"
-    tc filter add dev $nic1 protocol 802.1Q parent ffff: \
+    tc_filter add dev $nic1 protocol 802.1Q parent ffff: \
                 flower \
                         $skip \
                         dst_mac e4:11:22:11:4a:51 \
@@ -94,7 +98,7 @@ function __test_basic_vlan() {
                         vlan_id 100 \
                         vlan_prio 0 \
                 action vlan pop \
-                action mirred egress redirect dev $nic2 && success || err "Failed"
+                action mirred egress redirect dev $nic2
 }
 
 function test_basic_vlan() {
@@ -126,7 +130,7 @@ function test_basic_vxlan() {
         reset_tc_nic ${NIC}
         reset_tc_nic ${NIC}_0
         title "    - encap"
-        tc filter add dev ${NIC}_0 protocol 0x806 parent ffff: \
+        tc_filter add dev ${NIC}_0 protocol 0x806 parent ffff: \
                     flower \
                             $skip \
                             dst_mac e4:11:22:11:4a:51 \
@@ -135,9 +139,9 @@ function test_basic_vxlan() {
                     src_ip 20.1.12.1 \
                     dst_ip 20.1.11.1 \
                     id 100 \
-                    action mirred egress redirect dev ${NIC} && success || err "Failed"
+                    action mirred egress redirect dev ${NIC}
         title "    - decap"
-        tc filter add dev $NIC protocol 0x806 parent ffff: \
+        tc_filter add dev $NIC protocol 0x806 parent ffff: \
                     flower \
                             $skip \
                             dst_mac e4:11:22:11:4a:51 \
@@ -147,7 +151,7 @@ function test_basic_vxlan() {
                             enc_key_id 100 \
                             enc_dst_port 4789 \
                     action tunnel_key unset \
-                    action mirred egress redirect dev ${NIC}_0 && success || err "Failed"
+                    action mirred egress redirect dev ${NIC}_0
     done
     ip link del $vx
 }
@@ -204,13 +208,13 @@ function test_duplicate_vxlan() {
 # test insert ip no ip_proto
 function test_insert_ip_no_ip_proto() {
     reset_tc_nic ${NIC}_0
-    tc filter add dev ${NIC}_0 protocol ip parent ffff: \
+    tc_filter add dev ${NIC}_0 protocol ip parent ffff: \
                 flower \
                         skip_sw \
 			dst_mac e4:11:22:11:4a:51 \
 			src_mac e4:11:22:11:4a:50 \
 			src_ip 1.1.1.5 \
-                action drop && success || err "Failed"
+                action drop
     # TODO test result?
 }
 
@@ -220,13 +224,13 @@ function test_insert_ip_no_ip_proto() {
 function test_insert_ip_with_unmatched_bits_mask() {
     start_check_syndrome
     reset_tc_nic ${NIC}_0
-    tc filter add dev ${NIC}_0 protocol ip parent ffff: \
+    tc_filter add dev ${NIC}_0 protocol ip parent ffff: \
                 flower \
                         skip_sw \
 			dst_mac e4:11:22:11:4a:51 \
 			src_mac e4:11:22:11:4a:50 \
 			src_ip 1.1.1.5/24 \
-                action drop && success || err "Failed"
+                action drop
     title "-check syndrome"
     check_syndrome && success || err "Failed"
 }
@@ -236,7 +240,7 @@ function test_insert_ip_with_unmatched_bits_mask() {
 # Simon Horman <horms@verge.net.au>
 function test_simple_insert_missing_action() {
     reset_tc_nic ${NIC}
-    tc filter add dev $NIC protocol ip parent ffff: flower indev $NIC && success || err "Failed"
+    tc_filter add dev $NIC protocol ip parent ffff: flower indev $NIC
 }
 
 mode=`get_eswitch_mode`
@@ -251,5 +255,4 @@ for i in `declare -F | awk {'print $3'} | grep ^test_`; do
 done
 
 reset_tc_nic $NIC
-echo "done"
-test $TEST_FAILED == 0 || fail "TEST FAILED"
+done2

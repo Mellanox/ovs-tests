@@ -185,7 +185,21 @@ function del_all_bridges() {
     ovs-vsctl list-br | xargs -r -l ovs-vsctl del-br
 }
 
-### common
+function eval2() {
+    local err
+    eval $@
+    err=$?
+    test $err != 0 && err "Command failed: $@"
+    return $err
+}
+
+function done2() {
+    echo "done"
+    test $TEST_FAILED == 0 || fail "TEST FAILED"
+}
+
+
+### main
 title2 `basename $0`
 __setup_common
 start_test_timestamp
