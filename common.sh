@@ -1,9 +1,6 @@
 #!/bin/bash
 
-PCI=$(basename `readlink /sys/class/net/$NIC/device`)
-echo "NIC $NIC PCI $PCI"
 SET_MACS="/labhome/roid/scripts/ovs/set-macs.sh"
-
 
 BLACK="\033[0;0m"
 RED="\033[0;31m"
@@ -17,6 +14,32 @@ TEST_FAILED=0
 # global var to use for last error msg. like errno and %m.
 ERRMSG=""
 
+
+DRIVER_CX4="0x1015"
+DRIVER_CX5="0x1019"
+
+
+function __setup_common() {
+    if [ "$NIC" == "" ]; then
+        return
+    fi
+
+    if [ ! -e /sys/class/net/$NIC/device ]; then
+        fail "Cannot find NIC $NIC"
+    fi
+
+    PCI=$(basename `readlink /sys/class/net/$NIC/device`)
+    echo "NIC $NIC PCI $PCI"
+
+    DEVICE=`cat /sys/class/net/$NIC/device/device`
+    DEVICE_IS_CX4=0
+    DEVICE_IS_CX5=0
+    if [ "$DEVICE" == "$DRIVER_CX4" ]; then
+        DEVICE_IS_CX4=1
+    elif [ "$DEVICE" == "$DRIVER_CX5" ]; then
+        DEVICE_IS_CX5=1
+    fi
+}
 
 function title2() {
     local title=${1:-`basename $0`}
@@ -164,4 +187,5 @@ function del_all_bridges() {
 
 ### common
 title2 `basename $0`
+__setup_common
 start_test_timestamp
