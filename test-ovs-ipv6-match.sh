@@ -24,7 +24,6 @@ function cleanup() {
     echo "cleanup"
     ip netns del ns0 &> /dev/null
 
-    echo "setup veth 0-7"
     for i in `seq 0 7`; do
         ip link del veth$i &> /dev/null
     done
