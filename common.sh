@@ -195,7 +195,7 @@ function eval2() {
 
 function done2() {
     echo "done"
-    test $TEST_FAILED == 0 || fail "TEST FAILED"
+    test $TEST_FAILED == 0 && success "TEST PASSED" || fail "TEST FAILED"
 }
 
 
