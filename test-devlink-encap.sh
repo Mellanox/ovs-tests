@@ -20,13 +20,13 @@ function get_encap() {
 
 function set_encap() {
     local val="$1"
-    title "test set encap $val"
+    title " - test set encap $val"
     devlink dev eswitch set pci/$PCI encap $val && success || fail "Failed to set encap"
 }
 
 function test_encap() {
     local val="$1"
-    title "verify encap is $val"
+    title " - verify encap is $val"
     get_encap
     test "$encap" = "$val" && success || fail "Expected encap '$val' and got '$encap'"
 }
@@ -44,7 +44,7 @@ unbind_vfs
 switch_mode_switchdev
 
 title "Test toggle encap few times"
-for i in `seq 2`; do
+for i in `seq 4`; do
     set_encap no
     test_encap no
 
@@ -52,7 +52,7 @@ for i in `seq 2`; do
     test_encap yes
 done
 
-title "switch mode to legacy and back to switchdev while encap enabled"
+title "Switch mode to legacy and back to switchdev while encap enabled"
 test_encap yes
 switch_mode_legacy
 switch_mode_switchdev
@@ -66,4 +66,4 @@ switch_mode_switchdev "encap yes"
 test_encap yes
 check_syndrome
 
-echo "done"
+done2
