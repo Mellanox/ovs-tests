@@ -65,6 +65,11 @@ UFID2=`ovs-dpctl dump-flows -m type=offloaded | grep 0x0800 | grep "in_port(veth
 echo $UFID2
 test -n "$UFID2" && success || fail
 
+title "Check tc show can see a cookie"
+COOKIE=`tc -s filter show  dev veth2 protocol ip ingress | grep cookie`
+echo $COOKIE
+test -n "$COOKIE" && success || fail
+
 # end test
 
 del_all_bridges
