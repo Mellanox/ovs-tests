@@ -3,6 +3,7 @@
 # Test max rules in skip_sw and skip_hw on single port.
 # Test max rules in 2 ports.
 #
+# Bug SW #900706: Adding 42K flows results in a fw error
 
 NIC=${1:-ens5f0}
 NIC2=${2:-ens5f1}
