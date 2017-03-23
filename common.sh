@@ -1,6 +1,7 @@
 #!/bin/bash
 
-SET_MACS="/labhome/roid/scripts/ovs/set-macs.sh"
+DIR=$(cd `dirname $0` ; pwd)
+SET_MACS="$DIR/set-macs.sh"
 
 BLACK="\033[0;0m"
 RED="\033[0;31m"
