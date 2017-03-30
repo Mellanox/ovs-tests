@@ -4,8 +4,6 @@
 # Bug SW #988519: Trying to replace a flower rule cause a syndrome and rule to be deleted
 #
 
-NIC=${1:-ens5f0}
-
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
@@ -25,6 +23,18 @@ function clean_ns() {
     ip netns del blue &> /dev/null
 }
 clean_ns
+
+err=0
+for i in port1 port2 port3 port4; do
+    if [ ! -e /sys/class/net/${!i} ]; then
+        err "Cannot find interface ${!i}"
+        err=1
+    fi
+done
+
+if [ "$err" = 1 ]; then
+    done2
+fi
 
 echo "setup netns"
 ip netns add red
