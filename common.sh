@@ -47,7 +47,9 @@ function title2() {
     echo -e "${YELLOW}#############################################${BLACK}"
     echo -e "${YELLOW}# TEST $title${BLACK}"
     echo -e "${YELLOW}#############################################${BLACK}"
-    echo "************** TEST $title **************" > /dev/kmsg
+    if [ -w /dev/kmsg ]; then
+        echo "************** TEST $title **************" > /dev/kmsg
+    fi
 }
 
 function reset_tc_nic() {
