@@ -4,7 +4,7 @@
 #
 #setup:
 #       veth0 <-> veth1 <-> OVS <-> veth2 <-> veth3@ns0
-#       VM1_IP                                   VM2_IP
+#       VM1_IP                                VM2_IP,VM2_IP2
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
