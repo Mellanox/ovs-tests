@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Test reload of mlx5 core module while deleting tc flows from userspace
 # 1. add many tc rules

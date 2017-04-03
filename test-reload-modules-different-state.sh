@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Test reload of mlx5 core module
 # A

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Test that verified tc replace flower rule cause syndrome
 #

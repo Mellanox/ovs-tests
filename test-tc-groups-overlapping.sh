@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Test that verified groups overlapping syndrome
 #

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # 1. set legacy mode
 # 2. add tc rule

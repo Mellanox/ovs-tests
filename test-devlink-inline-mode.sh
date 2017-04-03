@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Test setting inline-mode through devlink
 # 1. while vfs are bound (expected to fail)

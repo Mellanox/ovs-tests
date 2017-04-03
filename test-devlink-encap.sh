@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Test setting encap through devlink
 # Requires CX-4 LX (MT4117)

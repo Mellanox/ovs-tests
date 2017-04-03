@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Test add and del flows at the same time
 # 2. start adding rules in bg

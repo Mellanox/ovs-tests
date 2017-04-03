@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 #
 # Test ufid is the same when queried from ovs-vswitchd and ovs-dpctl

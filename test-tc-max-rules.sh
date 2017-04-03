@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Test max rules in skip_sw and skip_hw on single port.
 # Test max rules in 2 ports.

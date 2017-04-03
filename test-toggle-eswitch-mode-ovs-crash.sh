@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Test toggle e-switch mode
 # - Set mode switchdev

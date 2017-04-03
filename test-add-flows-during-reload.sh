@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Test reload of mlx5 core module while adding tc flows from userspace
 # 2. start reload of mlx5 core module in the background

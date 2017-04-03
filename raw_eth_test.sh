@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 export MLX5_WQE_MIN_INLINE_SIZE=40
 export MLX5_DEBUG_MASK=4

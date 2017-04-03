@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # XXXXXXXXXXXXXXX
 #  need to test this with traffic so flows are actually being added to hw

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Bug SW #984397: OVS reports failed to put[modify] (No such file or directory)
 # Bug SW #988519: Trying to replace a flower rule cause a syndrome and rule to be deleted

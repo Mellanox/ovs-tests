@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # 1. shuffle tc commands
 # 2. check for syndromes
