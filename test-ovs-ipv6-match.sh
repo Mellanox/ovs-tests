@@ -88,4 +88,4 @@ check_offloaded_rules 3
 
 del_all_bridges
 cleanup
-done2
+test_done

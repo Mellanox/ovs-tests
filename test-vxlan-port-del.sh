@@ -41,4 +41,4 @@ ip link del $IFACE
 check_syndrome && success || err
 
 check_kasan
-done2
+test_done

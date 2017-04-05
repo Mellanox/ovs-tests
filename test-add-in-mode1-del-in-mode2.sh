@@ -85,5 +85,4 @@ switch_mode_legacy
 reset_tc_nic $NIC
 success
 
-success "Test success"
-echo "done"
+test_done

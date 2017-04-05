@@ -66,4 +66,4 @@ switch_mode_switchdev "encap yes"
 test_encap yes
 check_syndrome
 
-done2
+test_done

@@ -33,7 +33,7 @@ for i in port1 port2 port3 port4; do
 done
 
 if [ "$err" = 1 ]; then
-    done2
+    test_done
 fi
 
 echo "setup netns"

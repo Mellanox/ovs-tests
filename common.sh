@@ -196,7 +196,7 @@ function eval2() {
     return $err
 }
 
-function done2() {
+function test_done() {
     echo "done"
     test $TEST_FAILED == 0 && success "TEST PASSED" || fail "TEST FAILED"
 }

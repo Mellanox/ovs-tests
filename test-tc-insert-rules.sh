@@ -255,4 +255,4 @@ for i in `declare -F | awk {'print $3'} | grep ^test_`; do
 done
 
 reset_tc_nic $NIC
-done2
+test_done
