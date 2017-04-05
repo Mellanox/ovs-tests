@@ -65,6 +65,7 @@ reload_modules &
 sleep 5
 title "add $COUNT rules"
 add_rules
-#reset_tc_nic $rep
-success "Test success"
-echo "done"
+sleep 5
+reset_tc_nic $rep
+
+test_done
