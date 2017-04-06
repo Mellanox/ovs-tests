@@ -78,9 +78,6 @@ function del_rules() {
 
 rep=${NIC}_0
 if [ ! -e /sys/class/net/$rep ]; then
-    set_macs 1
-fi
-if [ ! -e /sys/class/net/$rep ]; then
     fail "Missing rep $rep"
 fi
 
@@ -97,5 +94,4 @@ for NIC1 in $NIC $rep ; do
     reset_tc_nic $NIC1
 done
 
-success "Test success"
-echo "done"
+test_done
