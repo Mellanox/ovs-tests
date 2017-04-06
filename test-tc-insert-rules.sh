@@ -248,7 +248,7 @@ unbind_vfs
 reset_tc_nic $NIC
 reset_tc_nic ${NIC}_0
 mode=`get_eswitch_inline_mode`
-test "$mode" != "transport" && (devlink dev eswitch set pci/$PCI inline-mode transport || fail "Failed to set mode link")
+test "$mode" != "transport" && (devlink dev eswitch set pci/$PCI inline-mode transport || fail "Failed to set inline mode transport")
 
 # Execute all test_* functions
 for i in `declare -F | awk {'print $3'} | grep ^test_`; do
