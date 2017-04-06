@@ -243,16 +243,22 @@ function test_simple_insert_missing_action() {
     tc_filter add dev $NIC protocol ip parent ffff: flower indev $NIC
 }
 
-mode=`get_eswitch_mode`
-switch_mode_switchdev
+enable_switchdev_if_no_rep ${NIC}_0
+unbind_vfs
+reset_tc_nic $NIC
+reset_tc_nic ${NIC}_0
 mode=`get_eswitch_inline_mode`
 test "$mode" != "transport" && (devlink dev eswitch set pci/$PCI inline-mode transport || fail "Failed to set mode link")
 
 # Execute all test_* functions
 for i in `declare -F | awk {'print $3'} | grep ^test_`; do
+    if [ "$i" == "test_done" ]; then
+        continue
+    fi
     title $i
     eval $i
 done
 
 reset_tc_nic $NIC
+reset_tc_nic ${NIC}_0
 test_done
