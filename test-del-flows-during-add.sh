@@ -16,15 +16,10 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 rep=${NIC}_0
+enable_switchdev_if_no_rep $rep
 if [ ! -e /sys/class/net/$rep ]; then
     fail "Missing rep $rep"
     exit 1
-fi
-vf=virtfn0
-vfpci=$(basename `readlink /sys/class/net/$NIC/device/$vf`)
-if [ ! -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
-    echo "bind vf $vfpci"
-    echo $vfpci > /sys/bus/pci/drivers/mlx5_core/bind
 fi
 reset_tc_nic $NIC
 reset_tc_nic $rep
@@ -61,5 +56,5 @@ sleep $ADD_DEL_SLEEP
 title "start deleting rules"
 del_rules
 reset_tc_nic $rep
-success "Test success"
-echo "done"
+
+test_done
