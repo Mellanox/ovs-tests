@@ -2,7 +2,7 @@
 #
 # Test reload of mlx5 core module while adding tc flows from userspace
 # 2. start reload of mlx5 core module in the background
-# 3. sleep 5 seconds and start adding tc rules
+# 3. start adding tc rules
 # 4. reset tc
 #
 # Expected result: not to crash
@@ -16,14 +16,13 @@ my_dir="$(dirname "$0")"
 
 rep=${NIC}_0
 if [ ! -e /sys/class/net/$rep ]; then
+    unbind_vfs
+    switch_mode_switchdev
+    sleep 2
+fi
+if [ ! -e /sys/class/net/$rep ]; then
     fail "Missing rep $rep"
     exit 1
-fi
-vf=virtfn0
-vfpci=$(basename `readlink /sys/class/net/$NIC/device/$vf`)
-if [ ! -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
-    echo "bind vf $vfpci"
-    echo $vfpci > /sys/bus/pci/drivers/mlx5_core/bind
 fi
 reset_tc_nic $NIC
 reset_tc_nic $rep
@@ -31,7 +30,7 @@ reset_tc_nic $rep
 echo "********** TEST `basename $0` **************" > /dev/kmsg
 
 function add_rules() {
-    local first=1
+    local first=true
     for i in `seq $COUNT`; do
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
@@ -41,7 +40,7 @@ function add_rules() {
             dst_mac e2:22:33:44:${num1}:$num2 \
             action drop
         if [ "$?" != 0 ]; then
-            if [ "$first" == 1 ]; then
+            if [ $first = true ]; then
                 fail "Failed to add rule"
             fi
             break
@@ -62,7 +61,7 @@ function reload_modules() {
 
 title "test reload modules"
 reload_modules &
-sleep 5
+sleep 1
 title "add $COUNT rules"
 add_rules
 sleep 5
