@@ -97,7 +97,7 @@ class TestResult(object):
 tests_results = []
 
 args = parse_args()
-
+ignore = False
 if args.from_test:
     ignore = True
 
