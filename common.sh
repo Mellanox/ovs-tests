@@ -195,11 +195,13 @@ function check_syndrome() {
 }
 
 function del_all_bridges() {
-    ovs-vsctl list-br | xargs -r -l ovs-vsctl del-br
+    ovs-vsctl list-br | xargs -r -l ovs-vsctl del-br 2>/dev/null
 }
 
 function start_clean_openvswitch() {
+    del_all_bridges
     service openvswitch restart
+    sleep 1
     del_all_bridges
 }
 

@@ -4,6 +4,8 @@
 # Bug SW #988519: Trying to replace a flower rule cause a syndrome and rule to be deleted
 #
 
+NIC=${1:-ens5f0}
+
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
@@ -16,6 +18,14 @@ port1=ens5f2
 port2=ens5f0_0
 port3=ens5f3
 port4=ens5f0_1
+
+rep=${NIC}_0
+enable_switchdev_if_no_rep $rep
+if [ ! -e /sys/class/net/$rep ]; then
+    fail "Missing rep $rep"
+    exit 1
+fi
+bind_vfs
 
 echo "clean netns"
 function clean_ns() {
@@ -47,10 +57,7 @@ ifconfig $port2 up
 ifconfig $port4 up
 
 echo "clean ovs"
-del_all_bridges
-systemctl restart openvswitch
-sleep 1
-del_all_bridges
+start_clean_openvswitch
 
 echo "prep ovs"
 ovs-vsctl add-br br3
@@ -113,4 +120,5 @@ check_syndrome || err
 
 del_all_bridges
 clean_ns
-echo "done"
+
+test_done
