@@ -1,17 +1,19 @@
 #!/usr/bin/python
 
 import os
+import sys
+import argparse
 import subprocess
 from glob import glob
 
 MYNAME = os.path.basename(__file__)
 MYDIR = os.path.abspath(os.path.dirname(__file__))
 
-tests = sorted(glob(MYDIR + '/test-*'))
-ignore = [MYNAME]
-skip = []
-
-
+TESTS = sorted(glob(MYDIR + '/test-*'))
+IGNORE_TESTS = [MYNAME]
+SKIP_TESTS = [
+    "test-tc-max-rules.sh"
+]
 
 COLOURS = {
     "black": 30,
@@ -45,6 +47,21 @@ class ExecCmdFailed(Exception):
         return "Command execution failed%s%s" % (retval, stderr)
 
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--verbose', '-v', action='store_true',
+                        help='verbose output')
+    parser.add_argument('--stop', '-s', action='store_true',
+                        help='stop on first error')
+    parser.add_argument('--dry', '-d', action='store_true',
+                        help='not to actually run the test')
+    parser.add_argument('--from_test', '-f',
+                        help='start from test')
+
+    args = parser.parse_args()
+    return args
+
+
 def run(cmd):
   subp = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE, close_fds=True)
@@ -60,17 +77,52 @@ def deco(line, color):
     return "\033[%dm%s\033[0m" % (COLOURS[color], line)
 
 
-for test in tests:
+class TestResult(object):
+    def __init__(self, name, res):
+        self._name = name
+        self._res = res
+
+    def __str__(self):
+        res_color = {
+            'SKIP': 'yellow',
+            'OK': 'green',
+            'DRY': 'yellow'
+        }
+        color = res_color.get(self._res, 'red')
+        res = deco(self._res, color)
+        name = deco(self._name, 'blue')
+        return "Test: %-50s  %s" % (name, res)
+
+
+tests_results = []
+
+args = parse_args()
+
+if args.from_test:
+    ignore = True
+
+for test in TESTS:
     name = os.path.basename(test)
-    if name in ignore:
+    if name in IGNORE_TESTS:
         continue
+    if ignore:
+        if args.from_test != name:
+            continue
+        ignore = False
     print "Execute test: %s" % name
-    if name in skip:
-        res = deco("SKIP", 'yellow')
+    failed = False
+    res = 'OK'
+    if args.dry:
+        res = 'DRY'
+    elif name in SKIP_TESTS:
+        res = 'SKIP'
     else:
-        res = deco("OK", 'green')
         try:
             run(test)
         except ExecCmdFailed, e:
-            res = deco(str(e), 'red')
-    print "Result: %s" % res
+            failed = True
+            res = str(e)
+    testob = TestResult(name, res)
+    print testob
+    if args.stop and failed:
+        sys.exit(1)
