@@ -74,6 +74,7 @@ function fail() {
     local m=${*-Failed}
     TEST_FAILED=1
     echo -e "${RED}ERROR: $m$BLACK"
+    wait
     exit 1
 }
 
@@ -197,7 +198,7 @@ function eval2() {
 }
 
 function test_done() {
-    echo "done"
+    wait
     test $TEST_FAILED == 0 && success "TEST PASSED" || fail "TEST FAILED"
 }
 
