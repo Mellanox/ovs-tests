@@ -167,14 +167,17 @@ function test_duplicate_vlan() {
                         $skip \
                         dst_mac e4:11:22:11:4a:51 \
                         src_mac e4:11:22:11:4a:50 \
-                        vlan_ethtype 0x800 \
-                        vlan_id 100"
-    tc $duplicate \
-                action mirred egress redirect dev ${NIC} && success || err "Failed"
-    title "- duplicate rule"
-    tc $duplicate \
-                action mirred egress redirect dev ${NIC} && err "Expected to fail adding duplicate rule" || success "Failed as expected"
-    check_syndrome && err "Expected a syndrome" || success "Syndrome as expected"
+                        action vlan push id 100 \
+                        action mirred egress redirect dev ${NIC}"
+    tc $duplicate
+    if [ $? != 0 ]; then
+        err
+    else
+        success
+        title "- duplicate rule"
+        tc $duplicate && err "Expected to fail adding duplicate rule" || success "Failed as expected"
+        check_syndrome && err "Expected a syndrome" || success "Syndrome as expected"
+    fi
     reset_tc_nic ${NIC}
     reset_tc_nic ${NIC}_0
 }
@@ -194,13 +197,17 @@ function test_duplicate_vxlan() {
                 src_ip 20.1.12.1 \
                 dst_ip 20.1.11.1 \
                 id 100 \
-                dst_port 4789"
-    tc $duplicate \
-                action mirred egress redirect dev ${NIC} && success || err "Failed"
-    title "- duplicate rule"
-    tc $duplicate \
-                action mirred egress redirect dev ${NIC} && err "Expected to fail adding duplicate rule" || success "Failed as expected"
-    check_syndrome && err "Expected a syndrome" || success "Syndrome as expected"
+                dst_port 4789 \
+                action mirred egress redirect dev ${NIC}"
+    tc $duplicate
+    if [ $? != 0 ]; then
+        err
+    else
+        success
+        title "- duplicate rule"
+        tc $duplicate && err "Expected to fail adding duplicate rule" || success "Failed as expected"
+        check_syndrome && err "Expected a syndrome" || success "Syndrome as expected"
+    fi
     reset_tc_nic ${NIC}
     reset_tc_nic ${NIC}_0
 }
@@ -251,12 +258,20 @@ mode=`get_eswitch_inline_mode`
 test "$mode" != "transport" && (devlink dev eswitch set pci/$PCI inline-mode transport || fail "Failed to set inline mode transport")
 
 # Execute all test_* functions
+max_tests=100
+count=0
 for i in `declare -F | awk {'print $3'} | grep ^test_`; do
     if [ "$i" == "test_done" ]; then
         continue
     fi
+
     title $i
     eval $i
+
+    let count=count+1
+    if [ $count = max_tests ]; then
+        break
+    fi
 done
 
 reset_tc_nic $NIC
