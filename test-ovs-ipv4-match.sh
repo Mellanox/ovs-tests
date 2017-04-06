@@ -14,8 +14,7 @@ VM1_IP="7.7.7.1"
 VM2_IP="7.7.7.2"
 VM2_IP2="7.7.7.22"
 
-echo "deleting bridges"
-ovs-vsctl list-br | xargs -r -l ovs-vsctl del-br
+start_clean_openvswitch
 
 function cleanup() {
     echo "cleanup"

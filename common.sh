@@ -198,6 +198,11 @@ function del_all_bridges() {
     ovs-vsctl list-br | xargs -r -l ovs-vsctl del-br
 }
 
+function start_clean_openvswitch() {
+    service openvswitch restart
+    del_all_bridges
+}
+
 function eval2() {
     local err
     eval $@

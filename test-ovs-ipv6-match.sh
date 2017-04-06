@@ -17,8 +17,7 @@ VM2_IP="2001:0db8:0:f101::2"
 VM3_IP="2002:0db8:0:f101::1"
 VM4_IP="2002:0db8:0:f101::2"
 
-echo "deleting bridges"
-ovs-vsctl list-br | xargs -r -l ovs-vsctl del-br
+start_clean_openvswitch
 
 function cleanup() {
     echo "cleanup"
