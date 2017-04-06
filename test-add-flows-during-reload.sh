@@ -15,11 +15,7 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 rep=${NIC}_0
-if [ ! -e /sys/class/net/$rep ]; then
-    unbind_vfs
-    switch_mode_switchdev
-    sleep 2
-fi
+enable_switchdev_if_no_rep $rep
 if [ ! -e /sys/class/net/$rep ]; then
     fail "Missing rep $rep"
     exit 1
@@ -27,7 +23,6 @@ fi
 reset_tc_nic $NIC
 reset_tc_nic $rep
 
-echo "********** TEST `basename $0` **************" > /dev/kmsg
 
 function add_rules() {
     local first=true
@@ -58,6 +53,7 @@ function reload_modules() {
     fi
     echo "reload modules done"
 }
+
 
 title "test reload modules"
 reload_modules &
