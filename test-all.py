@@ -57,6 +57,8 @@ def parse_args():
                         help='not to actually run the test')
     parser.add_argument('--from_test', '-f',
                         help='start from test')
+    parser.add_argument('--glob', '-g',
+                        help='glob of tests')
 
     args = parser.parse_args()
     return args
@@ -94,13 +96,23 @@ class TestResult(object):
         return "Test: %-50s  %s" % (name, res)
 
 
-tests_results = []
+def glob_tests(args, tests):
+    if not args.glob:
+        return
+    from fnmatch import fnmatch
+    for test in tests[:]:
+        name = os.path.basename(test)
+        if not fnmatch(name, args.glob):
+            tests.remove(test)
+
 
 args = parse_args()
 ignore = False
 if args.from_test:
     ignore = True
+glob_tests(args, TESTS)
 
+tests_results = []
 for test in TESTS:
     name = os.path.basename(test)
     if name in IGNORE_TESTS:
