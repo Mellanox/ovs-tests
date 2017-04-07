@@ -14,10 +14,10 @@ VM1_IP="7.7.7.1"
 VM2_IP="7.7.7.2"
 VM2_IP2="7.7.7.22"
 
-start_clean_openvswitch
 
 function cleanup() {
     echo "cleanup"
+    start_clean_openvswitch
     ip netns del ns0 &> /dev/null
 
     for i in `seq 0 7`; do
@@ -42,10 +42,6 @@ ip netns exec ns0 ip a add $VM2_IP2/24 dev veth3
 
 
 echo "setup ovs"
-systemctl restart openvswitch
-sleep 2
-del_all_bridges
-
 ovs-vsctl add-br brv-1
 ovs-vsctl add-port brv-1 veth1
 ovs-vsctl add-port brv-1 veth2
@@ -76,6 +72,5 @@ ping -q -c 1 -w 2 $VM2_IP2 && err || success
 title "Verify we have 3 rules"
 check_offloaded_rules 3
 
-del_all_bridges
 cleanup
 test_done

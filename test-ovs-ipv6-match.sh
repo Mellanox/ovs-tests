@@ -17,10 +17,10 @@ VM2_IP="2001:0db8:0:f101::2"
 VM3_IP="2002:0db8:0:f101::1"
 VM4_IP="2002:0db8:0:f101::2"
 
-start_clean_openvswitch
 
 function cleanup() {
     echo "cleanup"
+    start_clean_openvswitch
     ip netns del ns0 &> /dev/null
 
     for i in `seq 0 7`; do
@@ -85,6 +85,5 @@ ping6 -q -c 2 -i 0.25 -w 2 $VM4_IP && success || err
 title "Verify we have 3 rules, 1 drop rule, 2 redirect"
 check_offloaded_rules 3
 
-del_all_bridges
 cleanup
 test_done

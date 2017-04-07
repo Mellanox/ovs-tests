@@ -13,14 +13,15 @@ LOCAL_IP=99.99.99.5
 REMOTE_IP=99.99.99.6
 CLEAN="sed -e 's/used:.*, act/used:used, act/;s/eth(src=[a-z0-9:]*,dst=[a-z0-9:]*)/eth(macs)/;s/recirc_id(0),//;s/,ipv4(.*)//' | sort"
 
-echo "clean netns"
-function clean_ns() {
+function cleanup() {
+    echo "cleanup"
+    start_clean_openvswitch
     ip link del dev veth2 &> /dev/null
     ip link del dev veth0 &> /dev/null
     ip netns del red &> /dev/null
     ip netns del blue &> /dev/null
 }
-clean_ns
+cleanup
 
 echo "setup netns"
 ip netns add red
@@ -92,6 +93,5 @@ sleep 1
 check_offloaded_rules 2
 check_ovs_rules 0
 
-del_all_bridges
-clean_ns
-echo "done"
+cleanup
+test_done

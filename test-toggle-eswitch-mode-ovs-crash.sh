@@ -22,11 +22,11 @@ function pidof_ovs_vswitchd() {
 
 set -e
 
+unbind_vfs
 reset_tc_nic $NIC
 
 title "verify ovs is running"
-service openvswitch restart
-sleep 2
+start_clean_openvswitch
 pidof_ovs_vswitchd
 
 title "set mode switchdev"
@@ -53,9 +53,7 @@ pidof_ovs_vswitchd
 # ps aux | grep ovs-vswitchd | grep healthy || fail "ovs-vswitchd is not healthy"
 
 title "set mode switchdev"
-unbind_vfs
 switch_mode_switchdev
-ovs-vsctl del-br $BRIDGE || true
 
-success "Test success"
-echo "done"
+start_clean_openvswitch
+test_done

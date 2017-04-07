@@ -27,12 +27,13 @@ if [ ! -e /sys/class/net/$rep ]; then
 fi
 bind_vfs
 
-echo "clean netns"
-function clean_ns() {
+function cleanup() {
+    echo "cleanup"
+    start_clean_openvswitch
     ip netns del red &> /dev/null
     ip netns del blue &> /dev/null
 }
-clean_ns
+cleanup
 
 err=0
 for i in port1 port2 port3 port4; do
@@ -118,7 +119,5 @@ check_offloaded_rules 2
 check_ovs_rules 0
 check_syndrome || err
 
-del_all_bridges
-clean_ns
-
+cleanup
 test_done
