@@ -11,9 +11,9 @@ MYDIR = os.path.abspath(os.path.dirname(__file__))
 
 TESTS = sorted(glob(MYDIR + '/test-*'))
 IGNORE_TESTS = [MYNAME]
-SKIP_TESTS = [
-    "test-tc-max-rules.sh"
-]
+SKIP_TESTS = {
+    "test-tc-max-rules.sh": "RM #900706"
+}
 
 COLOURS = {
     "black": 30,
@@ -80,9 +80,10 @@ def deco(line, color):
 
 
 class TestResult(object):
-    def __init__(self, name, res):
+    def __init__(self, name, res, out=''):
         self._name = name
         self._res = res
+        self._out = out
 
     def __str__(self):
         res_color = {
@@ -92,8 +93,9 @@ class TestResult(object):
         }
         color = res_color.get(self._res, 'red')
         res = deco(self._res, color)
+        out = deco(self._out, color)
         name = deco(self._name, 'blue')
-        return "Test: %-50s  %s" % (name, res)
+        return "Test: %-50s  %s %s" % (name, res, out)
 
 
 def glob_tests(args, tests):
@@ -124,17 +126,20 @@ for test in TESTS:
     print "Execute test: %s" % name
     failed = False
     res = 'OK'
+    out = ''
     if args.dry:
         res = 'DRY'
     elif name in SKIP_TESTS:
         res = 'SKIP'
+        out = SKIP_TESTS[name]
     else:
         try:
             run(test)
         except ExecCmdFailed, e:
             failed = True
-            res = str(e)
-    testob = TestResult(name, res)
+            res = 'FAILED'
+            out = str(e)
+    testob = TestResult(name, res, out)
     print testob
     if args.stop and failed:
         sys.exit(1)
