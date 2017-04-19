@@ -15,7 +15,8 @@ for ((i = 0; i < 99; i++)); do
         for ((m = 0; m < 99; m++)); do
             SMAC="e4:11:22:$i:$j:$m"
             DMAC="e4:11:33:$i:$j:$m"
-            echo "filter add dev ${ETH} prio 1 protocol ip parent ffff: \
+            ((prio=(m%100)+1))
+            echo "filter add dev ${ETH} prio $prio protocol ip parent ffff: \
                 flower \
                 $SKIP \
                 src_mac $SMAC \
