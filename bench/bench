@@ -1,0 +1,85 @@
+#!/bin/bash
+
+TC=tc
+ETH=ens5f0
+
+
+function clean() {
+    ovs-dpctl del-flows
+    $TC qdisc del dev $ETH ingress 2>/dev/null
+    $TC qdisc add dev $ETH ingress
+    $TC qdisc del dev ${ETH}_0 ingress 2>/dev/null
+    $TC qdisc add dev ${ETH}_0 ingress
+}
+
+function restart_ovs() {
+    service openvswitch restart 2>/dev/null
+    sleep 1
+}
+
+function setup_ovs() {
+    ovs-vsctl list-br | xargs -r -l ovs-vsctl del-br
+    sleep .5
+    ovs-vsctl add-br ovs-eth
+    sleep .5
+    ovs-vsctl add-port ovs-eth $ETH
+    sleep .5
+}
+
+
+TIMEFORMAT="user: %U kernel: %S"
+restart_ovs
+setup_ovs
+
+
+for ((j = 0; j < 5; j++)); do
+    num=$((1024<<j))
+
+    # OVS dp
+    clean
+    ovs-vsctl set Open_vSwitch . other_config:hw-offload=false
+    restart_ovs
+    printf "%d: OVS hw-offload=false  Add  %dk rules: " $j $((num/1024))
+    time ./ovs_add $num
+    sleep .5
+
+    # OVS hw offload
+    clean
+    ovs-vsctl set Open_vSwitch . other_config:hw-offload=true
+    ovs-vsctl remove Open_vSwitch . other_config tc-policy
+    restart_ovs
+    printf "%d: OVS hw-offload=true   Add  %dk rules: " $j $((num/1024))
+    time ./ovs_add $num
+    sleep .5
+
+    # TC
+    clean
+    printf "%d: TC skip_hw Add  %dK rules: " $j $((num/1024))
+    time ./tc_add $num skip_hw
+
+    clean
+    printf "%d: TC skip_sw Add  %dK rules: " $j $((num/1024))
+    time ./tc_add $num skip_sw
+
+    clean
+    printf "%d: TC both Add  %dK rules: " $j $((num/1024))
+    time ./tc_add $num
+
+    # TC batch
+    clean
+    printf "%d: TC batch skip_hw Add  %dK rules: " $j $((num/1024))
+    ./tc_batch $num skip_hw
+    time tc -b /tmp/tc_add_batch_$num
+
+    clean
+    printf "%d: TC batch skip_sw Add  %dK rules: " $j $((num/1024))
+    ./tc_batch $num skip_sw
+    time tc -b /tmp/tc_add_batch_$num
+
+    clean
+    printf "%d: TC batch both    Add  %dK rules: " $j $((num/1024))
+    ./tc_batch $num
+    time tc -b /tmp/tc_add_batch_$num
+
+    echo
+done

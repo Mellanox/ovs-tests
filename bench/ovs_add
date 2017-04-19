@@ -1,0 +1,22 @@
+#!/bin/bash
+
+num=$1
+
+OVS_PORT="1"
+count=0
+
+for ((i = 0; i < 99; i++)); do
+    for ((j = 0; j < 99; j++)); do
+        for ((m = 0; m < 99; m++)); do
+            SMAC="e4:11:22:$i:$j:$m"
+            DMAC="e4:11:33:$i:$j:$m"
+            ovs-dpctl add-flow \
+                "in_port($OVS_PORT),eth(src=$SMAC,dst=$DMAC),eth_type(0x0800),ipv4(frag=no)" \
+                drop
+            ((count+=1))
+            if ((count>=num)); then
+                exit
+            fi
+        done
+    done
+done

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+num=${1:?num}
+SKIP=$2
+ETH="ens5f0"
+TC=tc
+
+count=0
+
+for ((i = 0; i < 99; i++)); do
+    for ((j = 0; j < 99; j++)); do
+        for ((m = 0; m < 99; m++)); do
+            SMAC="e4:11:22:$i:$j:$m"
+            DMAC="e4:11:33:$i:$j:$m"
+            $TC filter add dev ${ETH} prio 1 protocol ip parent ffff: \
+                flower \
+                $SKIP \
+                src_mac $SMAC \
+                dst_mac $DMAC \
+                action drop
+            ((count+=1))
+            if ((count>=num)); then
+                exit
+            fi
+        done
+    done
+done
