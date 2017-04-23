@@ -5,6 +5,7 @@
 #
 
 NIC=${1:-ens5f0}
+REP=${2:-ens5f0_0}
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -17,8 +18,8 @@ function tc_filter() {
 function test_basic_L2() {
     for skip in "" skip_sw skip_hw; do
         title "    - skip:$skip"
-        reset_tc_nic ${NIC}_0
-        tc_filter add dev ${NIC}_0 protocol ip parent ffff: \
+        reset_tc_nic $REP
+        tc_filter add dev $REP protocol ip parent ffff: \
                 flower \
                         $skip \
 			dst_mac e4:11:22:11:4a:51 \
@@ -30,8 +31,8 @@ function test_basic_L2() {
 function test_basic_L3() {
     for skip in "" skip_sw skip_hw; do
         title "    - skip:$skip"
-        reset_tc_nic ${NIC}_0
-        tc_filter add dev ${NIC}_0 protocol ip parent ffff: \
+        reset_tc_nic $REP
+        tc_filter add dev $REP protocol ip parent ffff: \
                 flower \
                         $skip \
 			dst_mac e4:11:22:11:4a:51 \
@@ -45,8 +46,8 @@ function test_basic_L3() {
 function test_basic_L3_ipv6() {
     for skip in "" skip_sw skip_hw; do
         title "    - skip:$skip"
-        reset_tc_nic ${NIC}_0
-        tc_filter add dev ${NIC}_0 protocol ipv6 parent ffff: \
+        reset_tc_nic $REP
+        tc_filter add dev $REP protocol ipv6 parent ffff: \
                 flower \
                         $skip \
 			dst_mac e4:11:22:11:4a:51 \
@@ -60,8 +61,8 @@ function test_basic_L3_ipv6() {
 function test_basic_L4() {
     for skip in "" skip_sw skip_hw; do
         title "    - skip:$skip"
-        reset_tc_nic ${NIC}_0
-        tc_filter add dev ${NIC}_0 protocol ip parent ffff: \
+        reset_tc_nic $REP
+        tc_filter add dev $REP protocol ip parent ffff: \
                 flower \
                         $skip \
 			dst_mac e4:11:22:11:4a:51 \
@@ -108,12 +109,12 @@ function test_basic_vlan() {
     # 2. VF/outer push
     # 3. outer/VF pop
     for skip in "" skip_hw skip_sw ; do
-        __test_basic_vlan ${NIC}_0 ${NIC} $skip
+        __test_basic_vlan $REP $NIC $skip
         #if [ "$skip" == "skip_sw" ]; then
         #    warn "- skip vlan skip_sw VF/outer - not supported - its ok"
         #    continue
         #fi
-        #__test_basic_vlan ${NIC}_0 ${NIC} $skip
+        #__test_basic_vlan $REP $NIC $skip
     done
 }
 
@@ -127,10 +128,10 @@ function test_basic_vxlan() {
     tc qdisc add dev $vx ingress
     for skip in "" skip_hw skip_sw ; do
         title "- skip:$skip"
-        reset_tc_nic ${NIC}
-        reset_tc_nic ${NIC}_0
+        reset_tc_nic $NIC
+        reset_tc_nic $REP
         title "    - encap"
-        tc_filter add dev ${NIC}_0 protocol 0x806 parent ffff: \
+        tc_filter add dev $REP protocol 0x806 parent ffff: \
                     flower \
                             $skip \
                             dst_mac e4:11:22:11:4a:51 \
@@ -139,7 +140,7 @@ function test_basic_vxlan() {
                     src_ip 20.1.12.1 \
                     dst_ip 20.1.11.1 \
                     id 100 \
-                    action mirred egress redirect dev ${NIC}
+                    action mirred egress redirect dev $NIC
         title "    - decap"
         tc_filter add dev $NIC protocol 0x806 parent ffff: \
                     flower \
@@ -151,24 +152,24 @@ function test_basic_vxlan() {
                             enc_key_id 100 \
                             enc_dst_port 4789 \
                     action tunnel_key unset \
-                    action mirred egress redirect dev ${NIC}_0
+                    action mirred egress redirect dev $REP
     done
     ip link del $vx
 }
 
 function test_duplicate_vlan() {
     skip="skip_sw"
-    reset_tc_nic ${NIC}
-    reset_tc_nic ${NIC}_0
+    reset_tc_nic $NIC
+    reset_tc_nic $REP
     start_check_syndrome
     title "- first rule"
-    duplicate="filter add dev ${NIC}_0 protocol 802.1Q parent ffff: \
+    duplicate="filter add dev $REP protocol 802.1Q parent ffff: \
                 flower \
                         $skip \
                         dst_mac e4:11:22:11:4a:51 \
                         src_mac e4:11:22:11:4a:50 \
                         action vlan push id 100 \
-                        action mirred egress redirect dev ${NIC}"
+                        action mirred egress redirect dev $NIC"
     tc $duplicate
     if [ $? != 0 ]; then
         err
@@ -178,17 +179,17 @@ function test_duplicate_vlan() {
         tc $duplicate && err "Expected to fail adding duplicate rule" || success "Failed as expected"
         check_syndrome && err "Expected a syndrome" || success "Syndrome as expected"
     fi
-    reset_tc_nic ${NIC}
-    reset_tc_nic ${NIC}_0
+    reset_tc_nic $NIC
+    reset_tc_nic $REP
 }
 
 function test_duplicate_vxlan() {
     skip="skip_sw"
-    reset_tc_nic ${NIC}
-    reset_tc_nic ${NIC}_0
+    reset_tc_nic $NIC
+    reset_tc_nic $REP
     start_check_syndrome
     title "- first rule"
-    duplicate="filter add dev ${NIC}_0 protocol 0x806 parent ffff: prio 11 \
+    duplicate="filter add dev $REP protocol 0x806 parent ffff: prio 11 \
                 flower \
                         $skip \
                         dst_mac e4:11:22:11:4a:51 \
@@ -198,7 +199,7 @@ function test_duplicate_vxlan() {
                 dst_ip 20.1.11.1 \
                 id 100 \
                 dst_port 4789 \
-                action mirred egress redirect dev ${NIC}"
+                action mirred egress redirect dev $NIC"
     tc $duplicate
     if [ $? != 0 ]; then
         err
@@ -208,14 +209,14 @@ function test_duplicate_vxlan() {
         tc $duplicate && err "Expected to fail adding duplicate rule" || success "Failed as expected"
         check_syndrome && err "Expected a syndrome" || success "Syndrome as expected"
     fi
-    reset_tc_nic ${NIC}
-    reset_tc_nic ${NIC}_0
+    reset_tc_nic $NIC
+    reset_tc_nic $REP
 }
 
 # test insert ip no ip_proto
 function test_insert_ip_no_ip_proto() {
-    reset_tc_nic ${NIC}_0
-    tc_filter add dev ${NIC}_0 protocol ip parent ffff: \
+    reset_tc_nic $REP
+    tc_filter add dev $REP protocol ip parent ffff: \
                 flower \
                         skip_sw \
 			dst_mac e4:11:22:11:4a:51 \
@@ -230,8 +231,8 @@ function test_insert_ip_no_ip_proto() {
 #BAD_PARAM           | 0x3AD328 |  set_flow_table_entry: rule include unmatched bits (group_match_criteria == 0, but fte_match_value == 1)
 function test_insert_ip_with_unmatched_bits_mask() {
     start_check_syndrome
-    reset_tc_nic ${NIC}_0
-    tc_filter add dev ${NIC}_0 protocol ip parent ffff: \
+    reset_tc_nic $REP
+    tc_filter add dev $REP protocol ip parent ffff: \
                 flower \
                         skip_sw \
 			dst_mac e4:11:22:11:4a:51 \
@@ -246,14 +247,14 @@ function test_insert_ip_with_unmatched_bits_mask() {
 # Possible regression due to "net/sched: cls_flower: Add offload support using egress Hardware device"
 # Simon Horman <horms@verge.net.au>
 function test_simple_insert_missing_action() {
-    reset_tc_nic ${NIC}
+    reset_tc_nic $NIC
     tc_filter add dev $NIC protocol ip parent ffff: flower indev $NIC
 }
 
-enable_switchdev_if_no_rep ${NIC}_0
+enable_switchdev_if_no_rep $REP
 unbind_vfs
 reset_tc_nic $NIC
-reset_tc_nic ${NIC}_0
+reset_tc_nic $REP
 mode=`get_eswitch_inline_mode`
 test "$mode" != "transport" && (devlink dev eswitch set pci/$PCI inline-mode transport || fail "Failed to set inline mode transport")
 
@@ -275,5 +276,5 @@ for i in `declare -F | awk {'print $3'} | grep ^test_`; do
 done
 
 reset_tc_nic $NIC
-reset_tc_nic ${NIC}_0
+reset_tc_nic $REP
 test_done
