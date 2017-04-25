@@ -15,14 +15,13 @@ REMOTE_IP=99.99.99.6
 CLEAN="sed -e 's/used:.*, act/used:used, act/;s/eth(src=[a-z0-9:]*,dst=[a-z0-9:]*)/eth(macs)/;s/recirc_id(0),//;s/,ipv4(.*)//' | sort"
 
 port1=ens5f2
-port2=ens5f0_0
+port2=`get_rep 0`
 port3=ens5f3
-port4=ens5f0_1
+port4=`get_rep 1`
 
-rep=${NIC}_0
-enable_switchdev_if_no_rep $rep
-if [ ! -e /sys/class/net/$rep ]; then
-    fail "Missing rep $rep"
+enable_switchdev_if_no_rep $port2
+if [ ! -e /sys/class/net/$port2 ]; then
+    fail "Missing rep $port2"
     exit 1
 fi
 bind_vfs

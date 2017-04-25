@@ -155,6 +155,38 @@ function bind_vfs() {
     done
 }
 
+function get_sw_id() {
+    cat /sys/class/net/$1/phys_switch_id 2>/dev/null
+}
+
+function get_rep() {
+	local vf=$1
+	local id=`get_sw_id $NIC`
+	local id2
+	local count=0
+
+	if [ -z "$id" ]; then
+	    echo "Cannot get switch id for $NIC"
+	    exit 1
+	fi
+
+	VIRTUAL="/sys/devices/virtual/net"
+
+	for i in `ls -1 $VIRTUAL`; do
+	    id2=`get_sw_id $i`
+	    if [ "$id" = "$id2" ]; then
+		if [ "$vf" = "$count" ]; then
+			echo $i
+			echo "Found rep $i" >/dev/stderr
+			return
+		fi
+		((count=count+1))
+	    fi
+	done
+	echo "Cannot find rep index $vf" >/dev/stderr
+	exit 1
+}
+
 function start_test_timestamp() {
     # sleep to get a unique timestamp
     sleep 1
