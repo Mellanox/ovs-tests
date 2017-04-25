@@ -17,12 +17,12 @@ set -e
 
 title "Testing 8K skip_hw"
 reset_tc_nic $NIC
-sh $my_dir/tc_batch.sh 8192 skip_hw
+sh $my_dir/tc_batch.sh 8192 skip_hw $NIC
 tc -b /tmp/tc_add_batch_8192 && success || fail
 
 title "Testing 8K skip_sw"
 reset_tc_nic $NIC
-sh $my_dir/tc_batch.sh 8192 skip_sw
+sh $my_dir/tc_batch.sh 8192 skip_sw $NIC
 tc -b /tmp/tc_add_batch_8192 && success || fail
 
 title "Testing 30K skip_sw per port"
@@ -41,12 +41,12 @@ reset_tc_nic $NIC2
 
 title "Testing 64K skip_hw"
 reset_tc_nic $NIC
-sh $my_dir/tc_batch.sh 65536 skip_hw
+sh $my_dir/tc_batch.sh 65536 skip_hw $NIC
 tc -b /tmp/tc_add_batch_65536 && success || fail
 
 title "Testing 64K skip_sw"
 reset_tc_nic $NIC
-sh $my_dir/tc_batch.sh 65536 skip_sw
+sh $my_dir/tc_batch.sh 65536 skip_sw $NIC
 tc -b /tmp/tc_add_batch_65536 && success || fail
 
 reset_tc_nic $NIC
