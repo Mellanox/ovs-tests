@@ -25,20 +25,17 @@ start_check_syndrome
 ip link add $IFACE type vxlan dstport $NON_STANDARD_PORT external
 ip link set $IFACE up
 ip link del $IFACE
-check_syndrome && success || err
+check_syndrome || err
+check_kasan && success || err
 
-title "-- up/down"
+title "-- up/down/del"
 start_check_syndrome
 ip link add $IFACE type vxlan dstport $NON_STANDARD_PORT external
 ip link set $IFACE up
 ip link set $IFACE down
 sleep 1
-check_syndrome && success || err
-
-title "-- del"
-start_check_syndrome
 ip link del $IFACE
-check_syndrome && success || err
+check_syndrome || err
+check_kasan && success || err
 
-check_kasan
 test_done
