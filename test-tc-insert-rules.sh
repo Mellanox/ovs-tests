@@ -6,6 +6,7 @@
 
 NIC=${1:-ens5f0}
 REP=${2:-ens5f0_0}
+FILTER=${FILTER}
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -265,6 +266,7 @@ function test_simple_insert_missing_action() {
     tc_filter add dev $NIC protocol ip parent ffff: flower indev $NIC
 }
 
+
 enable_switchdev_if_no_rep $REP
 unbind_vfs
 reset_tc_nic $NIC
@@ -280,11 +282,20 @@ for i in `declare -F | awk {'print $3'} | grep ^test_`; do
         continue
     fi
 
+    if [ -n "$FILTER" ]; then
+        if [[ $i =~ $FILTER ]]; then
+            : OK
+        else
+            continue
+        fi
+    fi
+
     title $i
     eval $i
 
     let count=count+1
     if [ $count = max_tests ]; then
+        echo "** REACHED MAX TESTS $max_tests **"
         break
     fi
 done
