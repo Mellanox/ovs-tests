@@ -118,7 +118,9 @@ function test_basic_vlan() {
     done
 }
 
-function test_basic_vxlan() {
+function __test_basic_vxlan() {
+    local ip1=$1
+    local ip2=$2
     local skip
     # note: we support adding decap to vxlan interface only.
     vx=vxlan1
@@ -147,14 +149,26 @@ function test_basic_vxlan() {
                             $skip \
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
-                            enc_src_ip 20.1.11.1 \
-                            enc_dst_ip 20.1.12.1 \
+                            enc_src_ip $ip1 \
+                            enc_dst_ip $ip2 \
                             enc_key_id 100 \
                             enc_dst_port 4789 \
                     action tunnel_key unset \
                     action mirred egress redirect dev $REP
     done
     ip link del $vx
+}
+
+function test_basic_vxlan_ipv4() {
+    __test_basic_vxlan \
+                        20.1.11.1 \
+                        20.1.12.1
+}
+
+function test_basic_vxlan_ipv6() {
+    __test_basic_vxlan \
+                        2001:0db8:85a3::8a2e:0370:7334 \
+                        2001:0db8:85a3::8a2e:0370:7335
 }
 
 function test_duplicate_vlan() {
