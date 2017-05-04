@@ -186,7 +186,7 @@ function test_duplicate_vlan() {
                         action mirred egress redirect dev $NIC"
     tc $duplicate
     if [ $? != 0 ]; then
-        err
+        eval err "Command failed: tc $duplicate"
     else
         success
         title "- duplicate rule"
@@ -216,7 +216,7 @@ function test_duplicate_vxlan() {
                 action mirred egress redirect dev $NIC"
     tc $duplicate
     if [ $? != 0 ]; then
-        err
+        eval err "Command failed: tc $duplicate"
     else
         success
         title "- duplicate rule"
