@@ -52,17 +52,16 @@ function title2() {
     fi
 }
 
+function reset_tc() {
+    local nic1="$1"
+    tc qdisc del dev $nic1 ingress >/dev/null 2>&1  || true
+    tc qdisc add dev $nic1 ingress
+}
+
 function reset_tc_nic() {
     local nic1="$1"
-
-    # reset ingress
-    tc qdisc del dev $nic1 ingress >/dev/null 2>&1  || true
-
-    # add ingress
-    tc qdisc add dev $nic1 ingress
-
-    # activate hw offload
     ethtool -K $nic1 hw-tc-offload on
+    reset_tc $nic1
 }
 
 function warn() {

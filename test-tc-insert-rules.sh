@@ -125,14 +125,19 @@ function __test_basic_vxlan() {
     local skip
     # note: we support adding decap to vxlan interface only.
     vx=vxlan1
+    vxlan_port=4789
     ip link del $vx >/dev/null 2>&1
-    ip link add $vx type vxlan dstport 4789 external
+    ip link add $vx type vxlan dev $NIC dstport $vxlan_port external
     ip link set dev $vx up
     tc qdisc add dev $vx ingress
+    reset_tc_nic $NIC
+    reset_tc_nic $REP
+    ifconfig $NIC 20.1.12.1/24 up
+
     for skip in "" skip_hw skip_sw ; do
         title "- skip:$skip"
-        reset_tc_nic $NIC
-        reset_tc_nic $REP
+        reset_tc $REP
+        reset_tc $vx
         title "    - encap"
         tc_filter add dev $REP protocol 0x806 parent ffff: \
                     flower \
@@ -142,21 +147,26 @@ function __test_basic_vxlan() {
                     action tunnel_key set \
                     src_ip 20.1.12.1 \
                     dst_ip 20.1.11.1 \
+                    dst_port $vxlan_port \
                     id 100 \
-                    action mirred egress redirect dev $NIC
+                    action mirred egress redirect dev $vx
         title "    - decap"
-        tc_filter add dev $NIC protocol 0x806 parent ffff: \
+        tc_filter add dev $vx protocol 0x806 parent ffff: \
                     flower \
                             $skip \
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
                             enc_src_ip $ip1 \
                             enc_dst_ip $ip2 \
+                            enc_dst_port $vxlan_port \
                             enc_key_id 100 \
-                            enc_dst_port 4789 \
                     action tunnel_key unset \
                     action mirred egress redirect dev $REP
     done
+    reset_tc $NIC
+    reset_tc $REP
+    reset_tc $vx
+    ifconfig $NIC 0
     ip link del $vx
 }
 
