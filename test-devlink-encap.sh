@@ -45,25 +45,32 @@ switch_mode_switchdev
 
 title "Test toggle encap few times"
 for i in `seq 4`; do
-    set_encap no
-    test_encap no
+    set_encap disable
+    test_encap disable
 
-    set_encap yes
-    test_encap yes
+    set_encap enable
+    test_encap enable
 done
 
-title "Switch mode to legacy and back to switchdev while encap enabled"
-test_encap yes
+title "Switch mode to legacy and back to switchdev while encap disabled"
+set_encap disable
 switch_mode_legacy
 switch_mode_switchdev
-test_encap yes
+test_encap disable
+
+title "Switch mode to legacy and back to switchdev while encap enabled"
+set_encap enable
+switch_mode_legacy
+switch_mode_switchdev
+test_encap enable
 
 title "switch mode with encap"
 start_check_syndrome
-set_encap no
+set_encap disable
+test_encap disable
 switch_mode_legacy
-switch_mode_switchdev "encap yes"
-test_encap yes
+switch_mode_switchdev "encap enable"
+test_encap enable
 check_syndrome
 
 test_done
