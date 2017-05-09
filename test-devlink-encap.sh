@@ -4,13 +4,10 @@
 # Requires CX-4 LX (MT4117)
 #
 
-
 NIC=${1:-ens5f0}
-PCI=$(basename `readlink /sys/class/net/$NIC/device`)
-echo "NIC PCI $PCI"
-
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
+
 
 function get_encap() {
     output=`devlink dev eswitch show pci/$PCI`
@@ -31,12 +28,6 @@ function test_encap() {
     test "$encap" = "$val" && success || fail "Expected encap '$val' and got '$encap'"
 }
 
-
-reset_tc_nic $NIC
-rep=${NIC}_0
-if [ -e /sys/class/net/$rep ]; then
-    reset_tc_nic $rep
-fi
 
 set -e
 
