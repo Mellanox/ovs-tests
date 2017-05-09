@@ -9,20 +9,24 @@ OFZ="$OF.gz"
 rm -f $OF
 rm -f $OFZ
 
-_VERSION="1.0"
+_VERSION="2"
 _BLOCK=1
 
+function put_of() {
+    echo $@ >> $OF
+}
 
 function start_template() {
-    echo "<!DOCTYPE html>\
-<html><head><meta charset="UTF-8"></head>\
-<style>.block1 { background-color: #e1e1e1; }\
-#index > a { padding: 0 20px; border-right: 1px #cecece solid; white-space: nowrap;}\
-</style><body><h4>script version: $_VERSION</h4>" >> $OF
+    put_of "<!DOCTYPE html>\
+<html><head><meta charset="UTF-8"></head> \
+<style> .block0, .block1 { border-top: 1px black solid; padding: 10px 0 10px 5px; } \
+.block1 { background-color: #e1e1e1; } \
+#index > a { padding: 0 20px; border-right: 1px #cecece solid; white-space: nowrap;} \
+</style><body><h4>script version: $_VERSION</h4>"
 }
 
 function end_template() {
-    echo "</body></html>" >> $OF
+    put_of "</body></html>"
 }
 
 # format_output_of(full_command, id)
@@ -31,7 +35,6 @@ function format_output_of() {
     local idx=$2
     local out=`eval $cmd 2>&1`
     cat << EOT >> $OF
-<hr>
 <div id="$idx" class="block$_BLOCK">
   <h2>$cmd</h2>
   <pre>$out</pre>
@@ -41,15 +44,15 @@ EOT
 }
 
 function start_index() {
-    echo '<div id="index">' >> $OF
+    put_of '<div id="index">'
 }
 
 function add_index() {
-    echo '<a href="#'$1'">'$2'</a>' >> $OF
+    put_of '<a href="#'$1'">'$2'</a>'
 }
 
 function end_index() {
-    echo '</div><br><br><br><br>' >> $OF
+    put_of '</div><br><br><br><br>'
 }
 
 ###### main #######
@@ -122,13 +125,13 @@ format_output_of "ovs-dpctl show" "dpctlshow"
 format_output_of "ovs-appctl ovs/route/show" "ovsrouteshow"
 format_output_of "ovs-dpctl dump-flows" "dpctldumpflows"
 format_output_of "ovs-appctl ofproto/list" "listbr"
+
 for b in `ovs-appctl ofproto/list` ; do
     format_output_of "ovs-ofctl dump-ports-desc $b" "ofctldumpflows"
     format_output_of "ovs-ofctl dump-flows $b"
 done
 
 format_output_of "ovs-appctl upcall/show" "upcallshow"
-
 ovsports=`ovs-dpctl show | grep port | cut -f2 -d: | cut -f1 -d"("`
 for p in $ovsports ; do
     format_output_of "tc -stats filter show dev $p parent ffff:" "tcinfo"
