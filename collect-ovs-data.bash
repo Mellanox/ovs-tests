@@ -123,7 +123,8 @@ format_output_of "ovs-appctl ovs/route/show" "ovsrouteshow"
 format_output_of "ovs-dpctl dump-flows" "dpctldumpflows"
 format_output_of "ovs-appctl ofproto/list" "listbr"
 for b in `ovs-appctl ofproto/list` ; do
-    format_output_of "ovs-ofctl dump-flows $b" "ofctldumpflows"
+    format_output_of "ovs-ofctl dump-ports-desc $b" "ofctldumpflows"
+    format_output_of "ovs-ofctl dump-flows $b"
 done
 
 format_output_of "ovs-appctl upcall/show" "upcallshow"
