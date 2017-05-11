@@ -50,4 +50,4 @@ sh $my_dir/tc_batch.sh 65536 skip_sw $NIC
 tc -b /tmp/tc_add_batch_65536 && success || fail
 
 reset_tc_nic $NIC
-echo "done"
+test_done
