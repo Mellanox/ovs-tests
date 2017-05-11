@@ -16,8 +16,26 @@ TEST_FAILED=0
 ERRMSG=""
 
 
-DRIVER_CX4="0x1015"
-DRIVER_CX5="0x1019"
+VENDOR_MELLANOX="0x15b3"
+
+DEVICE_CX4="0x1015"
+DEVICE_CX5="0x1019"
+
+
+function get_mlx_iface() {
+    for i in /sys/class/net/* ; do
+        if [ ! -r $i/device/vendor ]; then
+            continue
+        fi
+        t=`cat $i/device/vendor`
+        if [ "$t" == "$VENDOR_MELLANOX" ]; then
+            . $i/uevent
+            NIC=$INTERFACE
+            echo "Found Mellanox iface $NIC"
+            return
+        fi
+    done
+}
 
 
 function __setup_common() {
@@ -35,9 +53,9 @@ function __setup_common() {
     DEVICE=`cat /sys/class/net/$NIC/device/device`
     DEVICE_IS_CX4=0
     DEVICE_IS_CX5=0
-    if [ "$DEVICE" == "$DRIVER_CX4" ]; then
+    if [ "$DEVICE" == "$DEVICE_CX4" ]; then
         DEVICE_IS_CX4=1
-    elif [ "$DEVICE" == "$DRIVER_CX5" ]; then
+    elif [ "$DEVICE" == "$DEVICE_CX5" ]; then
         DEVICE_IS_CX5=1
     fi
 }
