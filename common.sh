@@ -233,6 +233,8 @@ function check_syndrome() {
         fail "Failed checking for syndrome. invalid start."
         return 1
     fi
+    # avoid same time as start_check_syndrome
+    sleep 1
     now=`date +"%s"`
     sec=`echo $now - $_check_syndrome_start + 1 | bc`
     a=`journalctl -n20 --since="$sec seconds ago" | grep -m1 syndrome || true`
