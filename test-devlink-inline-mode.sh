@@ -6,11 +6,15 @@
 #
 
 NIC=${1:-ens5f0}
-PCI=$(basename `readlink /sys/class/net/$NIC/device`)
-echo "NIC PCI $PCI"
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
+
+
+if [ "$DEVICE_IS_CX5" = 1 ]; then
+    echo "Test not relevant for ConnectX-5"
+    exit 0
+fi
 
 function get_inline_mode() {
     output=`devlink dev eswitch show pci/$PCI`
@@ -19,7 +23,6 @@ function get_inline_mode() {
 }
 
 unbind_vfs
-
 reset_tc_nic $NIC
 rep=${NIC}_0
 if [ -e /sys/class/net/$rep ]; then
@@ -129,4 +132,5 @@ reset_tc_nic $NIC
 reset_tc_nic $rep
 echo $vfpci > /sys/bus/pci/drivers/mlx5_core/unbind
 devlink dev eswitch set pci/$PCI inline-mode link
-echo "done"
+
+test_done
