@@ -12,7 +12,8 @@ MYDIR = os.path.abspath(os.path.dirname(__file__))
 TESTS = sorted(glob(MYDIR + '/test-*'))
 IGNORE_TESTS = [MYNAME]
 SKIP_TESTS = {
-    "test-tc-max-rules.sh": "RM #900706"
+    "test-tc-max-rules.sh": "RM #900706",
+    "test-add-del-flows-during-eswitch-flows-cleanup.sh": "RM #1013092"
 }
 
 COLOURS = {
@@ -33,6 +34,7 @@ COLOURS = {
     "light-cyan": 96,
     "white": 97,
 }
+
 
 class ExecCmdFailed(Exception):
     def __init__(self, cmd, rc, stdout, stderr):
