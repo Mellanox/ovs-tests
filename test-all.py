@@ -61,20 +61,22 @@ def parse_args():
                         help='start from test')
     parser.add_argument('--glob', '-g',
                         help='glob of tests')
+    parser.add_argument('--parm', '-p',
+                        help='Pass parm to each test')
 
     args = parser.parse_args()
     return args
 
 
 def run(cmd):
-  subp = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
+    subp = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE, close_fds=True)
-  (data_stdout, data_stderr) = subp.communicate()
-  if subp.returncode:
-      err = ExecCmdFailed(cmd, subp.returncode, data_stdout, data_stderr)
-      raise err
+    (data_stdout, data_stderr) = subp.communicate()
+    if subp.returncode:
+        err = ExecCmdFailed(cmd, subp.returncode, data_stdout, data_stderr)
+        raise err
 
-  return (data_stdout, data_stderr)
+    return (data_stdout, data_stderr)
 
 
 def deco(line, color):
@@ -110,38 +112,46 @@ def glob_tests(args, tests):
             tests.remove(test)
 
 
-args = parse_args()
-ignore = False
-if args.from_test:
-    ignore = True
-glob_tests(args, TESTS)
+def main():
+    args = parse_args()
+    ignore = False
+    if args.from_test:
+        ignore = True
+    glob_tests(args, TESTS)
 
-tests_results = []
-for test in TESTS:
-    name = os.path.basename(test)
-    if name in IGNORE_TESTS:
-        continue
-    if ignore:
-        if args.from_test != name:
+    tests_results = []
+    for test in TESTS:
+        name = os.path.basename(test)
+        if name in IGNORE_TESTS:
             continue
-        ignore = False
-    print "Execute test: %s" % name
-    failed = False
-    res = 'OK'
-    out = ''
-    if args.dry:
-        res = 'DRY'
-    elif name in SKIP_TESTS:
-        res = 'SKIP'
-        out = SKIP_TESTS[name]
-    else:
-        try:
-            run(test)
-        except ExecCmdFailed, e:
-            failed = True
-            res = 'FAILED'
-            out = str(e)
-    testob = TestResult(name, res, out)
-    print testob
-    if args.stop and failed:
-        sys.exit(1)
+        if ignore:
+            if args.from_test != name:
+                continue
+            ignore = False
+        print "Execute test: %s" % name
+        failed = False
+        res = 'OK'
+        out = ''
+        if args.dry:
+            res = 'DRY'
+        elif name in SKIP_TESTS:
+            res = 'SKIP'
+            out = SKIP_TESTS[name]
+        else:
+            try:
+                cmd = test
+                if args.parm:
+                    cmd += ' ' + args.parm
+                run(cmd)
+            except ExecCmdFailed, e:
+                failed = True
+                res = 'FAILED'
+                out = str(e)
+        testob = TestResult(name, res, out)
+        print testob
+        if args.stop and failed:
+            sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
