@@ -5,11 +5,12 @@
 #
 
 NIC=${1:-ens5f0}
-REP=${2:-ens5f0_0}
 FILTER=${FILTER}
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
+
+REP=`get_rep 0`
 
 
 function tc_filter() {
