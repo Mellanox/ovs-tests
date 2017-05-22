@@ -138,12 +138,17 @@ function get_eswitch_inline_mode() {
     devlink dev eswitch show pci/0000:24:00.0 |grep -o "\binline-mode [a-z]\+" | awk {'print $2'}
 }
 
+function enable_switchdev() {
+    unbind_vfs
+    switch_mode_switchdev
+    sleep 2 # wait for interfaces
+}
+
 function enable_switchdev_if_no_rep() {
     local rep=$1
+
     if [ ! -e /sys/class/net/$rep ]; then
-        unbind_vfs
-        switch_mode_switchdev
-        sleep 2 # wait for interfaces
+        enable_switchdev
     fi
 }
 

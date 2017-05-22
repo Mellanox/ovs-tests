@@ -10,7 +10,11 @@ FILTER=${FILTER}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+enable_switchdev
 REP=`get_rep 0`
+if [ -z "$REP" ]; then
+    fail "Missing rep $rep"
+fi
 
 
 function tc_filter() {
@@ -282,8 +286,10 @@ enable_switchdev_if_no_rep $REP
 unbind_vfs
 reset_tc_nic $NIC
 reset_tc_nic $REP
-mode=`get_eswitch_inline_mode`
-test "$mode" != "transport" && (devlink dev eswitch set pci/$PCI inline-mode transport || fail "Failed to set inline mode transport")
+if [ "$DEVICE_IS_CX4" = 1 ]; then
+    mode=`get_eswitch_inline_mode`
+    test "$mode" != "transport" && (devlink dev eswitch set pci/$PCI inline-mode transport || fail "Failed to set inline mode transport")
+fi
 
 # Execute all test_* functions
 max_tests=100
