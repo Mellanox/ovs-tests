@@ -5,6 +5,8 @@
 #
 
 NIC=${1:-ens5f0}
+VF1=${2:-ens5f2}
+VF2=${3:-ens5f3}
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -14,9 +16,9 @@ LOCAL_IP=99.99.99.5
 REMOTE_IP=99.99.99.6
 CLEAN="sed -e 's/used:.*, act/used:used, act/;s/eth(src=[a-z0-9:]*,dst=[a-z0-9:]*)/eth(macs)/;s/recirc_id(0),//;s/,ipv4(.*)//' | sort"
 
-port1=ens5f2
+port1=$VF1
 port2=`get_rep 0`
-port3=ens5f3
+port3=$VF2
 port4=`get_rep 1`
 
 enable_switchdev_if_no_rep $port2
