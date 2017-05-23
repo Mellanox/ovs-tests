@@ -5,6 +5,7 @@
 # Bug SW #989230: DELETE_VXLAN_UDP_DPORT failed when restart ovs in vxlan with
 # non-default port
 #
+# Bug SW #1008211: Call trace from vxlan_dellink() when deleting the interface after down
 
 NIC=${1:-ens5f0}
 
