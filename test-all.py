@@ -13,7 +13,7 @@ TESTS = sorted(glob(MYDIR + '/test-*'))
 IGNORE_TESTS = [MYNAME]
 SKIP_TESTS = {
     "test-tc-max-rules.sh": "RM #900706",
-    "test-add-del-flows-during-eswitch-flows-cleanup.sh": "RM #1013092"
+    "test-add-del-flows-during-eswitch-flows-cleanup.sh": "RM #1013092",
     "test-vf-rep-ping.sh": "Run manually"
 }
 
