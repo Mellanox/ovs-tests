@@ -118,11 +118,28 @@ function test_case_add_in_switchdev() {
     success
 }
 
+function test_case_add_in_legacy() {
+    local case=$1
+
+    title "Test add flows case in legacy $case"
+    switch_mode_legacy
+    add_rules $case &
+    sleep .2
+    test_switch_mode_to switchdev &
+    sleep 5
+    reset_tc_nic $NIC
+    reset_tc_nic $rep
+    wait
+    success
+}
+
 test_case_add_in_switchdev $rep
 test_case_del_in_switchdev $rep
 
 test_case_add_in_switchdev $NIC
 test_case_del_in_switchdev $NIC
 
+test_case_add_in_legacy $NIC
+test_case_del_in_legacy $NIC
 
 test_done
