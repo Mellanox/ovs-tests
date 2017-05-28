@@ -66,46 +66,61 @@ function del_rules() {
     done
 }
 
-function test_switch_mode() {
-    title "switch mode to legacy"
-    switch_mode_legacy
-    echo "switch mode legacy done"
+function test_switch_mode_to() {
+    title "switch mode to $1"
+    eval switch_mode_$1
+    echo "switch mode $1 done"
 }
 
-function test_case_del() {
+function test_case_del_in_switchdev() {
     local case=$1
 
-    title "Test del flows case $case"
+    title "Test del flows case in switchdev $case"
     enable_switchdev_if_no_rep $rep
     add_rules $case
     del_rules $case &
     sleep .2
-    test_switch_mode &
+    test_switch_mode_to legacy &
     sleep 5
     reset_tc_nic $NIC
     reset_tc_nic $rep
     wait
 }
 
-function test_case_add() {
+function test_case_del_in_legacy() {
     local case=$1
 
-    title "Test add flows case $case"
+    title "Test del flows case in legacy $case"
+    switch_mode_legacy
+    add_rules $case
+    del_rules $case &
+    sleep .2
+    test_switch_mode_to switchdev &
+    sleep 5
+    reset_tc_nic $NIC
+    reset_tc_nic $rep
+    wait
+    success
+}
+function test_case_add_in_switchdev() {
+    local case=$1
+
+    title "Test add flows case in switchdev $case"
     enable_switchdev_if_no_rep $rep
     add_rules $case &
     sleep .2
-    test_switch_mode &
+    test_switch_mode_to legacy &
     sleep 5
     reset_tc_nic $NIC
     reset_tc_nic $rep
     wait
 }
 
+test_case_add_in_switchdev $rep
+test_case_del_in_switchdev $rep
 
-test_case_add $rep
-test_case_del $rep
+test_case_add_in_switchdev $NIC
+test_case_del_in_switchdev $NIC
 
-test_case_add $NIC
-test_case_del $NIC
 
 test_done
