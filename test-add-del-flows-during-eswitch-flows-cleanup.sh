@@ -85,6 +85,7 @@ function test_case_del_in_switchdev() {
     reset_tc_nic $NIC
     reset_tc_nic $rep
     wait
+    success
 }
 
 function test_case_del_in_legacy() {
@@ -114,6 +115,7 @@ function test_case_add_in_switchdev() {
     reset_tc_nic $NIC
     reset_tc_nic $rep
     wait
+    success
 }
 
 test_case_add_in_switchdev $rep
