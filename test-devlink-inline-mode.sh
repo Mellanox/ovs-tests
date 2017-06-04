@@ -10,11 +10,7 @@ NIC=${1:-ens5f0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-
-if [ "$DEVICE_IS_CX5" = 1 ]; then
-    echo "Test not relevant for ConnectX-5"
-    exit 0
-fi
+not_relevant_for_cx5
 
 function get_inline_mode() {
     output=`devlink dev eswitch show pci/$PCI`
