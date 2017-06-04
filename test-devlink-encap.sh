@@ -8,6 +8,7 @@ NIC=${1:-ens5f0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+not_relevant_for_cx5
 
 function get_encap() {
     output=`devlink dev eswitch show pci/$PCI`

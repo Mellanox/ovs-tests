@@ -274,6 +274,13 @@ function test_done() {
     test $TEST_FAILED == 0 && success "TEST PASSED" || fail "TEST FAILED"
 }
 
+function not_relevant_for_cx5() {
+    if [ "$DEVICE_IS_CX5" = 1 ]; then
+        echo "Test not relevant for ConnectX-5"
+        exit 0
+    fi
+}
+
 
 ### main
 title2 `basename $0`
