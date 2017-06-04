@@ -18,7 +18,20 @@ ERRMSG=""
 
 VENDOR_MELLANOX="0x15b3"
 
-DEVICE_CX4="0x1015"
+<<EOT
+    { PCI_VDEVICE(MELLANOX, 0x1011) },                  /* Connect-IB */
+    { PCI_VDEVICE(MELLANOX, 0x1012), MLX5_PCI_DEV_IS_VF},       /* Connect-IB VF */
+    { PCI_VDEVICE(MELLANOX, 0x1013) },                  /* ConnectX-4 */
+    { PCI_VDEVICE(MELLANOX, 0x1014), MLX5_PCI_DEV_IS_VF},       /* ConnectX-4 VF */
+    { PCI_VDEVICE(MELLANOX, 0x1015) },                  /* ConnectX-4LX */
+    { PCI_VDEVICE(MELLANOX, 0x1016), MLX5_PCI_DEV_IS_VF},       /* ConnectX-4LX VF */
+    { PCI_VDEVICE(MELLANOX, 0x1017) },                  /* ConnectX-5, PCIe 3.0 */
+    { PCI_VDEVICE(MELLANOX, 0x1018), MLX5_PCI_DEV_IS_VF},       /* ConnectX-5 VF */
+    { PCI_VDEVICE(MELLANOX, 0x1019) },                  /* ConnectX-5, PCIe 4.0 */
+    { PCI_VDEVICE(MELLANOX, 0x101a), MLX5_PCI_DEV_IS_VF},       /* ConnectX-5, PCIe 4.0 VF */
+EOT
+
+DEVICE_CX4_LX="0x1015"
 DEVICE_CX5="0x1019"
 
 
@@ -53,8 +66,8 @@ function __setup_common() {
     DEVICE=`cat /sys/class/net/$NIC/device/device`
     DEVICE_IS_CX4=0
     DEVICE_IS_CX5=0
-    if [ "$DEVICE" == "$DEVICE_CX4" ]; then
-        DEVICE_IS_CX4=1
+    if [ "$DEVICE" == "$DEVICE_CX4_LX" ]; then
+        DEVICE_IS_CX4_LX=1
     elif [ "$DEVICE" == "$DEVICE_CX5" ]; then
         DEVICE_IS_CX5=1
     fi
