@@ -73,6 +73,15 @@ function __setup_common() {
     fi
 }
 
+function get_mst_dev() {
+    mst start
+    DEV=`mst status -v | grep -b net-$NIC | awk {'print $2'}`
+    if [ -z "$DEV" ]; then
+        fail "Cannot get mst device"
+        exit 1
+    fi
+}
+
 function title2() {
     local title=${1:-`basename $0`}
     echo -e "${YELLOW}#############################################${BLACK}"
