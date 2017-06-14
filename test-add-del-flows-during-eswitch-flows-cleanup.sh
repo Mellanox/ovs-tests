@@ -13,11 +13,12 @@
 #
 # Expected result: not to crash
 #
-# Bug SW #1013092: Missing RTNL lock protection before calling tc delete flows
-# cleanup function
+# Bug SW #1013092: Kernel trace between flower configure/delete and mlx5 eswitch
+# disable sriov
 #
 
 NIC=${1:-ens5f0}
+VF=${2:-ens5f2}
 COUNT=500
 
 my_dir="$(dirname "$0")"
@@ -29,13 +30,6 @@ if [ ! -e /sys/class/net/$rep ]; then
     fail "Missing rep $rep"
     exit 1
 fi
-
-function cleanup() {
-    reset_tc_nic $NIC
-    reset_tc_nic $rep
-}
-
-cleanup
 
 function add_rules() {
     local nic=$1
@@ -80,13 +74,13 @@ function test_case_del_in_switchdev() {
     local case=$1
 
     title "Test del flows case in switchdev $case"
-    enable_switchdev_if_no_rep $rep
+    test -e /sys/class/net/$case || fail "Cannot find $case"
     add_rules $case
     del_rules $case &
     sleep .2
     test_switch_mode_to legacy &
     wait
-    cleanup
+    reset_tc_nic $case
     success
 }
 
@@ -94,25 +88,26 @@ function test_case_del_in_legacy() {
     local case=$1
 
     title "Test del flows case in legacy $case"
+    test -e /sys/class/net/$case || fail "Cannot find $case"
     switch_mode_legacy
     add_rules $case
     del_rules $case &
     sleep .2
     test_switch_mode_to switchdev &
     wait
-    cleanup
+    reset_tc_nic $case
     success
 }
 function test_case_add_in_switchdev() {
     local case=$1
 
     title "Test add flows case in switchdev $case"
-    enable_switchdev_if_no_rep $rep
+    test -e /sys/class/net/$case || fail "Cannot find $case"
     add_rules $case &
     sleep .2
     test_switch_mode_to legacy &
     wait
-    cleanup
+    reset_tc_nic $case
     success
 }
 
@@ -120,21 +115,28 @@ function test_case_add_in_legacy() {
     local case=$1
 
     title "Test add flows case in legacy $case"
+    test -e /sys/class/net/$case || fail "Cannot find $case"
     switch_mode_legacy
     add_rules $case &
     sleep .2
     test_switch_mode_to switchdev &
     wait
-    cleanup
+    reset_tc_nic $case
     success
 }
 
 
+enable_switchdev_if_no_rep $rep
 test_case_add_in_switchdev $rep
+enable_switchdev_if_no_rep $rep
 test_case_del_in_switchdev $rep
 
 test_case_add_in_switchdev $NIC
 test_case_del_in_switchdev $NIC
+
+bind_vfs
+test_case_add_in_switchdev $VF
+test_case_del_in_switchdev $VF
 
 test_case_add_in_legacy $NIC
 test_case_del_in_legacy $NIC
