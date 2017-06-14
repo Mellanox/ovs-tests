@@ -29,9 +29,13 @@ if [ ! -e /sys/class/net/$rep ]; then
     fail "Missing rep $rep"
     exit 1
 fi
-reset_tc_nic $NIC
-reset_tc_nic $rep
 
+function cleanup() {
+    reset_tc_nic $NIC
+    reset_tc_nic $rep
+}
+
+cleanup
 
 function add_rules() {
     local nic=$1
@@ -81,10 +85,8 @@ function test_case_del_in_switchdev() {
     del_rules $case &
     sleep .2
     test_switch_mode_to legacy &
-    sleep 5
-    reset_tc_nic $NIC
-    reset_tc_nic $rep
     wait
+    cleanup
     success
 }
 
@@ -97,10 +99,8 @@ function test_case_del_in_legacy() {
     del_rules $case &
     sleep .2
     test_switch_mode_to switchdev &
-    sleep 5
-    reset_tc_nic $NIC
-    reset_tc_nic $rep
     wait
+    cleanup
     success
 }
 function test_case_add_in_switchdev() {
@@ -111,10 +111,8 @@ function test_case_add_in_switchdev() {
     add_rules $case &
     sleep .2
     test_switch_mode_to legacy &
-    sleep 5
-    reset_tc_nic $NIC
-    reset_tc_nic $rep
     wait
+    cleanup
     success
 }
 
@@ -126,12 +124,11 @@ function test_case_add_in_legacy() {
     add_rules $case &
     sleep .2
     test_switch_mode_to switchdev &
-    sleep 5
-    reset_tc_nic $NIC
-    reset_tc_nic $rep
     wait
+    cleanup
     success
 }
+
 
 test_case_add_in_switchdev $rep
 test_case_del_in_switchdev $rep
