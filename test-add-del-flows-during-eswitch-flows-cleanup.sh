@@ -75,6 +75,7 @@ function test_case_del_in_switchdev() {
 
     title "Test del flows case in switchdev $case"
     test -e /sys/class/net/$case || fail "Cannot find $case"
+    reset_tc_nic $case
     add_rules $case
     del_rules $case &
     sleep .2
@@ -89,6 +90,7 @@ function test_case_del_in_legacy() {
 
     title "Test del flows case in legacy $case"
     test -e /sys/class/net/$case || fail "Cannot find $case"
+    reset_tc_nic $case
     switch_mode_legacy
     add_rules $case
     del_rules $case &
@@ -103,6 +105,7 @@ function test_case_add_in_switchdev() {
 
     title "Test add flows case in switchdev $case"
     test -e /sys/class/net/$case || fail "Cannot find $case"
+    reset_tc_nic $case
     add_rules $case &
     sleep .2
     test_switch_mode_to legacy &
@@ -134,11 +137,12 @@ test_case_del_in_switchdev $rep
 test_case_add_in_switchdev $NIC
 test_case_del_in_switchdev $NIC
 
+test_case_add_in_legacy $NIC
+test_case_del_in_legacy $NIC
+
 bind_vfs
 test_case_add_in_switchdev $VF
 test_case_del_in_switchdev $VF
-
-test_case_add_in_legacy $NIC
-test_case_del_in_legacy $NIC
+unbind_vfs
 
 test_done
