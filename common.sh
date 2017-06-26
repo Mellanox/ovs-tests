@@ -62,13 +62,15 @@ function __setup_common() {
     fi
 
     PCI=$(basename `readlink /sys/class/net/$NIC/device`)
-    echo "NIC $NIC PCI $PCI"
-
     DEVICE=`cat /sys/class/net/$NIC/device/device`
+    echo "NIC $NIC PCI $PCI DEVICE $DEVICE"
+
     DEVICE_IS_CX4=0
+    DEVICE_IS_CX4_LX=0
     DEVICE_IS_CX5=0
 
     if [ "$DEVICE" == "$DEVICE_CX4_LX" ]; then
+        DEVICE_IS_CX4=1
         DEVICE_IS_CX4_LX=1
     elif [ "$DEVICE" == "$DEVICE_CX5_PCI_3" ]; then
         DEVICE_IS_CX5=1
