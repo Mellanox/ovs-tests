@@ -32,7 +32,8 @@ VENDOR_MELLANOX="0x15b3"
 EOT
 
 DEVICE_CX4_LX="0x1015"
-DEVICE_CX5="0x1019"
+DEVICE_CX5_PCI_3="0x1017"
+DEVICE_CX5_PCI_4="0x1019"
 
 
 function get_mlx_iface() {
@@ -66,9 +67,12 @@ function __setup_common() {
     DEVICE=`cat /sys/class/net/$NIC/device/device`
     DEVICE_IS_CX4=0
     DEVICE_IS_CX5=0
+
     if [ "$DEVICE" == "$DEVICE_CX4_LX" ]; then
         DEVICE_IS_CX4_LX=1
-    elif [ "$DEVICE" == "$DEVICE_CX5" ]; then
+    elif [ "$DEVICE" == "$DEVICE_CX5_PCI_3" ]; then
+        DEVICE_IS_CX5=1
+    elif [ "$DEVICE" == "$DEVICE_CX5_PCI_4" ]; then
         DEVICE_IS_CX5=1
     fi
 }
