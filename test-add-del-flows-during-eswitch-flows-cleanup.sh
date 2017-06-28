@@ -128,6 +128,30 @@ function test_case_add_in_legacy() {
     success
 }
 
+function test_case_add_and_disable_sriov() {
+    local case=$1
+
+    title "Test add and disabled sriov case $case"
+    test -e /sys/class/net/$case || fail "Cannot find $case"
+    num=`cat /sys/class/net/$case/device/sriov_numvfs`
+    if [ "$num" == "0" ]; then
+        echo 2 > /sys/class/net/$case/device/sriov_numvfs
+    fi
+    add_rules $case &
+    sleep .2
+    echo 0 > /sys/class/net/$case/device/sriov_numvfs
+    wait
+    reset_tc_nic $case
+    if [ "$num" != "0" ]; then
+        echo $num > /sys/class/net/$case/device/sriov_numvfs
+    fi
+    success
+}
+
+
+## cases
+
+test_case_add_and_disable_sriov $NIC
 
 enable_switchdev_if_no_rep $rep
 test_case_add_in_switchdev $rep
