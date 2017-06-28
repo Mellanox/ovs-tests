@@ -88,14 +88,19 @@ function get_mst_dev() {
     fi
 }
 
+function kmsg() {
+    local m=$@
+    if [ -w /dev/kmsg ]; then
+        echo ":test: $m" > /dev/kmsg
+    fi
+}
+
 function title2() {
     local title=${1:-`basename $0`}
     echo -e "${YELLOW}#############################################${BLACK}"
     echo -e "${YELLOW}# TEST $title${BLACK}"
     echo -e "${YELLOW}#############################################${BLACK}"
-    if [ -w /dev/kmsg ]; then
-        echo "************** TEST $title **************" > /dev/kmsg
-    fi
+    kmsg "************** TEST $title **************"
 }
 
 function reset_tc() {
@@ -136,6 +141,7 @@ function success() {
 
 function title() {
     echo -e "$BLUE* $1$BLACK"
+    kmsg $1
 }
 
 function switch_mode() {
