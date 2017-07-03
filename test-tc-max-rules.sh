@@ -32,4 +32,15 @@ for _nic in $NIC $NIC2; do
 	done
 done
 
+((num=64*1024-16))
+skip=skip_sw
+index=0
+title "Add both ports $num rules $skip"
+sh $my_dir/tc_batch.sh $num $skip $NIC $index \
+    && success || fail
+sh $my_dir/tc_batch.sh $num $skip $NIC2 $index \
+    && success || fail
+reset_tc_nic $NIC
+reset_tc_nic $NIC2
+
 test_done
