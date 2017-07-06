@@ -269,7 +269,6 @@ function test_insert_ip_with_unmatched_bits_mask() {
 			src_mac e4:11:22:11:4a:50 \
 			src_ip 1.1.1.5/24 \
                 action drop
-    title "-check syndrome"
     check_syndrome && success || err "Failed"
 }
 
