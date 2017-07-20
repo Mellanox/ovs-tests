@@ -25,8 +25,9 @@ f2=`echo $hw | cut -d: -f2`
 f3=`echo $hw | cut -d: -f3`
 f4=`echo $hw | cut -d: -f4`
 f5=`echo $hw | cut -d: -f5`
+f6=`echo $hw | cut -d: -f6`
 
-mac_prefix="e4:11:22:$f4:$f5:"
+mac_prefix="e4:11:22:$f5:$f6:"
 mac_vf=50
 
 for vf in `ip link show $nic | grep "vf " | awk {'print $2'}`; do
