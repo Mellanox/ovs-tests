@@ -28,10 +28,10 @@ ip netns add ns0
 ip link set $VF netns ns0
 ip netns exec ns0 ifconfig $VF $IP2/24 up
 
-title "Test ping $IP1 -> $IP2"
+title "Test ping REP($IP1) -> VF($IP2)"
 ping -q -c 2 -w 2 $IP2 && success || err
 
-title "Test ping $IP2 -> $IP1"
+title "Test ping VF($IP2) -> REP($IP1)"
 ip netns exec ns0 ping -q -c 2 -w 2 $IP1 && success || err
 
 cleanup
