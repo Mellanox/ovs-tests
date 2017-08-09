@@ -316,6 +316,17 @@ function not_relevant_for_cx5() {
 }
 
 
+# load config if exists
+if [ -n "$CONFIG" ]; then
+    if [ -f "$CONFIG" ]; then
+        echo "Loading config $CONFIG"
+        . $CONFIG
+    elif [ -f "$DIR/$CONFIG" ]; then
+        echo "Loading config $DIR/$CONFIG"
+        . $DIR/$CONFIG
+    fi
+fi
+
 ### main
 title2 `basename $0`
 __setup_common
