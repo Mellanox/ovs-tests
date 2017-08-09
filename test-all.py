@@ -97,13 +97,21 @@ class TestResult(object):
         res_color = {
             'SKIP': 'yellow',
             'OK': 'green',
-            'DRY': 'yellow'
+            'DRY': 'yellow',
+            'FAILED': 'red',
         }
         color = res_color.get(self._res, 'red')
         res = deco(self._res, color)
-        out = deco(self._out, color)
         name = deco(self._name, 'blue')
-        return "Test: %-50s  %s %s" % (name, res, out)
+        ret = "Test: %-50s  %s" % (name, res)
+        if self._out:
+            out = self._out
+            if self._res == 'SKIP':
+                out = ' (%s)' % out
+            else:
+                out = '\n%s' % out
+            ret += deco(out, color)
+        return ret
 
 
 def glob_tests(args, tests):
@@ -151,8 +159,8 @@ def main():
                 failed = True
                 res = 'FAILED'
                 out = str(e)
-        testob = TestResult(name, res, out)
-        print testob
+
+        print TestResult(name, res, out)
         if args.stop and failed:
             sys.exit(1)
 
