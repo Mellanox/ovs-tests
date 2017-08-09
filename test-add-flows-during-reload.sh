@@ -56,11 +56,13 @@ function reload_modules() {
 
 
 title "test reload modules"
+start_check_syndrome
 reload_modules &
 sleep 1
 title "add $COUNT rules"
 add_rules
 sleep 5
+check_syndrome && success || err "Failed"
 reset_tc_nic $rep
 
 test_done
