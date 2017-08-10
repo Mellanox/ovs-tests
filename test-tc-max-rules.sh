@@ -13,13 +13,16 @@ my_dir="$(dirname "$0")"
 
 set -e
 
+CASE_SKIP=${CASE_SKIP:-skip_hw skip_sw}
+CASE_COUNT=${CASE_COUNT:-30*1024 64*1024-16}
+
 for _nic in $NIC $NIC2; do
 	# in case user has only one NIC
 	if [[ "$_nic" == "" ]]; then
 		continue
 	fi
-	for skip in skip_sw skip_hw; do
-		for num in 30*1024 64*1024-16; do
+	for skip in $CASE_SKIP; do
+		for num in $CASE_COUNT; do
 			((num=num))
 			# if set_index == 1, all filters share the same action
 			for index in 0 1; do
