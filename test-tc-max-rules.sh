@@ -23,7 +23,7 @@ for _nic in $NIC $NIC2; do
 			((num=num))
 			# if set_index == 1, all filters share the same action
 			for index in 0 1; do
-				title "Testing $num rules $skip $_nic $index"
+				title "Testing $num rules $skip $_nic set_index:$index"
 				sh $my_dir/tc_batch.sh $num $skip $_nic $index \
 				    && success || fail
 				reset_tc_nic $_nic
