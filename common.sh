@@ -61,6 +61,10 @@ function __setup_common() {
         fail "Cannot find NIC $NIC"
     fi
 
+    if [ -n "$NIC2" ] && [ ! -e /sys/class/net/$NIC2/device ]; then
+        fail "Cannot find NIC2 $NIC2"
+    fi
+
     PCI=$(basename `readlink /sys/class/net/$NIC/device`)
     DEVICE=`cat /sys/class/net/$NIC/device/device`
     echo "NIC $NIC PCI $PCI DEVICE $DEVICE"
