@@ -44,4 +44,4 @@ done
 reset_tc_nic $NIC
 check_syndrome && success || err "Failed"
 
-echo "done"
+test_done
