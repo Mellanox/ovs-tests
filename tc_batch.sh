@@ -7,6 +7,8 @@ set_index=${4:-0}	# if set_index == 1, all filters share the same action
 set_prio=${5:-0}	# if set_prio == 1, all filters will have different prio
 
 echo "SKIP $SKIP ETH $ETH NUM $num INDEX $set_index PRIO $set_prio"
+
+echo "Clean tc rules"
 TC=tc
 $TC qdisc del dev $ETH ingress > /dev/null 2>&1
 
@@ -33,6 +35,8 @@ if (( set_index == 1 )); then
 else
 	index_str=""
 fi
+
+echo "Generating batches"
 
 for ((i = 0; i < 99; i++)); do
 	for ((j = 0; j < 99; j++)); do
@@ -78,11 +82,11 @@ echo > /dev/stderr
 $TC qdisc add dev $ETH ingress
 
 time for file in $OUT.*; do
-	set -x
-	$TC -b $file
-	set +x
+	_cmd="$TC -b $file"
+        echo $_cmd
+        $_cmd
 	ret=$?
-	(( ret != 0)) && exit $ret
+	((ret != 0)) && echo "tc err: $ret" && exit $ret
 done
 
 exit 0
