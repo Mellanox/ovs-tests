@@ -1,8 +1,10 @@
 #!/bin/bash
 #
-# Test reload of mlx5 core module while deleting tc flows from userspace
 # 1. shuffle tc commands
-# 2. check for groups overlapping syndrome
+# 2. check for syndromes
+#
+# Ths difference from test-tc-shuffle.sh is here the delete is on the parent
+# and not single rule.
 #
 # Bug SW #932484: FW error of groups overlapping when scaling up ovs
 #
