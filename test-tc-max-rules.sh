@@ -26,6 +26,7 @@ for _nic in $NIC $NIC2; do
 				title "Testing $num rules $skip $_nic set_index:$index"
 				sh $my_dir/tc_batch.sh $num $skip $_nic $index \
 				    && success || fail
+				echo "cleanup"
 				reset_tc_nic $_nic
 			done
 		done
@@ -35,7 +36,7 @@ done
 ((num=64*1024-16))
 skip=skip_sw
 index=0
-title "Add both ports $num rules $skip"
+title "Add both ports $num rules $skip set_index:$index"
 sh $my_dir/tc_batch.sh $num $skip $NIC $index \
     && success || fail
 sh $my_dir/tc_batch.sh $num $skip $NIC2 $index \
