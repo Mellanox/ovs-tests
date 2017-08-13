@@ -63,6 +63,8 @@ def parse_args():
                         help='not to actually run the test')
     parser.add_argument('--from_test', '-f',
                         help='start from test')
+    parser.add_argument('--exclude', '-e', action='append',
+                        help='exclude test')
     parser.add_argument('--glob', '-g',
                         help='glob of tests')
     parser.add_argument('--parm', '-p',
@@ -129,6 +131,8 @@ def main():
     ignore = False
     if args.from_test:
         ignore = True
+    if args.exclude:
+        IGNORE_TESTS.extend(args.exclude)
     glob_tests(args, TESTS)
 
     tests_results = []
