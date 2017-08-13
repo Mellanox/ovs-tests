@@ -253,6 +253,12 @@ function start_test_timestamp() {
     _check_start_ts=`date +"%s"`
 }
 
+function test_time_elapsed() {
+    now=`date +"%s"`
+    sec=`echo $now - $_check_start_ts + 1 | bc`
+    echo $sec
+}
+
 function check_kasan() {
     now=`date +"%s"`
     sec=`echo $now - $_check_start_ts + 1 | bc`
