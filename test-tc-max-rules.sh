@@ -45,6 +45,7 @@ sh $my_dir/tc_batch.sh $num $skip $NIC $index \
     && success || fail
 sh $my_dir/tc_batch.sh $num $skip $NIC2 $index \
     && success || fail
+echo "cleanup"
 reset_tc_nic $NIC
 reset_tc_nic $NIC2
 
