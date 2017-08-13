@@ -15,6 +15,7 @@ set -e
 
 CASE_SKIP=${CASE_SKIP:-skip_hw skip_sw}
 CASE_COUNT=${CASE_COUNT:-30*1024 64*1024-16}
+CASE_INDEX=${CASE_INDEX:-0 1}
 
 for _nic in $NIC $NIC2; do
 	# in case user has only one NIC
@@ -25,7 +26,7 @@ for _nic in $NIC $NIC2; do
 		for num in $CASE_COUNT; do
 			((num=num))
 			# if set_index == 1, all filters share the same action
-			for index in 0 1; do
+			for index in $CASE_INDEX; do
 				title "Testing $num rules $skip $_nic set_index:$index"
 				sh $my_dir/tc_batch.sh $num $skip $_nic $index \
 				    && success || fail
