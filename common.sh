@@ -334,6 +334,8 @@ if [ -n "$CONFIG" ]; then
     elif [ -f "$DIR/$CONFIG" ]; then
         echo "Loading config $DIR/$CONFIG"
         . $DIR/$CONFIG
+    else
+        warn "Config $CONFIG not found"
     fi
 fi
 
