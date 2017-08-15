@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-# Test reload of mlx5 core module
+# Test reload of mlx5 core module.
+#
 # A
 #   1. set mode switchdev
 #   2. reload mlx5
@@ -15,6 +16,7 @@
 #   2. add tc rule to pf
 #   3. reload mlx5
 #   4. look for kasan errors
+#
 # Bug SW #865685: unloading mlx5_core when there are tc rules results in a crash
 #
 

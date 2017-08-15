@@ -13,7 +13,7 @@ TESTS = sorted(glob(MYDIR + '/test-*'))
 IGNORE_TESTS = [MYNAME]
 SKIP_TESTS = {
     "test-tc-max-rules.sh": "Takes too long",
-    "test-add-del-flows-during-eswitch-flows-cleanup.sh": "RM #1013092 | Requires VF",
+    "test-eswitch-add-del-flows-during-flows-cleanup.sh": "RM #1013092 | Requires VF",
     "test-vf-rep-ping.sh": "Requires VF",
     "test-ovs-replace-rule-hw.sh": "Requires VFs",
     "test-devlink-show-in-each-link-mode.sh": "Test is doing fw reset",
