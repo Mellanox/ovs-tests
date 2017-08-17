@@ -135,9 +135,13 @@ function __test_basic_vxlan() {
     ip link add $vx type vxlan dev $NIC dstport $vxlan_port external
     ip link set dev $vx up
     tc qdisc add dev $vx ingress
+
+    ip addr flush dev $NIC
+    ip addr add $ip1/16 dev $NIC
+    ifconfig $NIC up
+
     reset_tc_nic $NIC
     reset_tc_nic $REP
-    ifconfig $NIC 20.1.12.1/24 up
 
     for skip in "" skip_hw skip_sw ; do
         title "- skip:$skip"
@@ -150,8 +154,8 @@ function __test_basic_vxlan() {
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
                     action tunnel_key set \
-                    src_ip 20.1.12.1 \
-                    dst_ip 20.1.11.1 \
+                    src_ip $ip1 \
+                    dst_ip $ip2 \
                     dst_port $vxlan_port \
                     id 100 \
                     action mirred egress redirect dev $vx
@@ -171,7 +175,7 @@ function __test_basic_vxlan() {
     reset_tc $NIC
     reset_tc $REP
     reset_tc $vx
-    ifconfig $NIC 0
+    ip addr flush dev $NIC
     ip link del $vx
 }
 
