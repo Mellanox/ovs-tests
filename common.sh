@@ -315,7 +315,13 @@ function eval2() {
 
 function test_done() {
     wait
-    test $TEST_FAILED == 0 && success "TEST PASSED" || fail "TEST FAILED"
+    if [ $TEST_FAILED == 0 ]; then
+        kmsg "TEST PASSED"
+        success "TEST PASSED"
+    else
+        kmsg "TEST FAILED"
+        fail "TEST FAILED"
+    fi
 }
 
 function not_relevant_for_cx5() {
