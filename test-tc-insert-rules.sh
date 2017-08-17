@@ -325,4 +325,5 @@ done
 
 reset_tc_nic $NIC
 reset_tc_nic $REP
+check_kasan
 test_done
