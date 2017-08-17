@@ -18,10 +18,14 @@ TIMEOUT=${TIMEOUT:-30s}
 
 
 function tc_batch() {
-    timeout $TIMEOUT sh $my_dir/tc_batch.sh $@ \
-    && success || rc=$? && err
-    if [ "$rc" == "124" ]; then
+    timeout $TIMEOUT sh $my_dir/tc_batch.sh $@
+    rc=$?
+    if [ $rc == "0" ]; then
+        success
+    elif [ $rc == "124" ]; then
         err "Timed out after $TIMEOUT"
+    else
+        err
     fi
     return $rc
 }
