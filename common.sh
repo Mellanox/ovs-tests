@@ -86,10 +86,11 @@ function __setup_common() {
 function get_mst_dev() {
     mst start
     DEV=`mst status -v | grep -b net-$NIC | awk {'print $2'}`
-    if [ -z "$DEV" ]; then
+    if [ "$DEV" == "NA" ]; then
         fail "Cannot get mst device"
         exit 1
     fi
+    echo "DEV $DEV"
 }
 
 function kmsg() {
