@@ -11,6 +11,7 @@ NIC2=${2:-ens5f1}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+CASE_NIC=${CASE_NIC:-$NIC $NIC2}
 CASE_SKIP=${CASE_SKIP:-skip_hw skip_sw}
 CASE_COUNT=${CASE_COUNT:-30*1024 64*1024-16}
 CASE_INDEX=${CASE_INDEX:-0 1}
@@ -32,7 +33,7 @@ function tc_batch() {
 }
 
 function do_test1() {
-    for _nic in $NIC $NIC2; do
+    for _nic in $CASE_NIC; do
         # in case user has only one NIC
         if [[ "$_nic" == "" ]]; then
             continue
