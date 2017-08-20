@@ -77,7 +77,6 @@ action drop $index_str" >> $OUT.$n
 		break;
 	fi
 done
-echo > /dev/stderr
 
 $TC qdisc add dev $ETH ingress
 

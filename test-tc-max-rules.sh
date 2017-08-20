@@ -15,6 +15,7 @@ CASE_SKIP=${CASE_SKIP:-skip_hw skip_sw}
 CASE_COUNT=${CASE_COUNT:-30*1024 64*1024-16}
 CASE_INDEX=${CASE_INDEX:-0 1}
 TIMEOUT=${TIMEOUT:-30s}
+CASE_TWO_PORTS=${CASE_TWO_PORTS:-1}
 
 
 function tc_batch() {
@@ -65,7 +66,7 @@ function do_test2() {
 
 
 do_test1
-do_test2
+test $CASE_TWO_PORTS == "1" && do_test2
 reset_tc_nic $NIC
 reset_tc_nic $NIC2
 test_done
