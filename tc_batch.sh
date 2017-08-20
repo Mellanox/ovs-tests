@@ -80,12 +80,12 @@ done
 
 $TC qdisc add dev $ETH ingress
 
-time for file in $OUT.*; do
+time (for file in $OUT.*; do
 	_cmd="$TC -b $file"
         echo $_cmd
         $_cmd
 	ret=$?
 	((ret != 0)) && echo "tc err: $ret" && exit $ret
-done
+done) 2>&1
 
 exit 0
