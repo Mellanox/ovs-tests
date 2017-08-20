@@ -59,7 +59,6 @@ action drop $index_str" >> $OUT.$n
 				let p=count%500000
 				if [ $p == 0 ]; then
 					((n++))
-					echo -n " $count" > /dev/stderr
 				fi
 				if ((count>=num)); then
 					break;
