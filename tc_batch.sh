@@ -85,7 +85,7 @@ time (for file in ${OUT}.*; do
         echo $_cmd
         $_cmd
 	ret=$?
-	((ret != 0)) && echo "tc err: $ret" && exit $ret
+	((ret != 0)) && echo "tc err: $ret" && exit $ret || true
 done) 2>&1
 
-exit 0
+exit $?
