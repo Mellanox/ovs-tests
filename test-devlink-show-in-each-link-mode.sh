@@ -50,4 +50,5 @@ devlink_eswitch_show
 success
 
 check_syndrome
+check_kasan
 test_done
