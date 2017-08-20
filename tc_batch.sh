@@ -12,21 +12,20 @@ echo "Clean tc rules"
 TC=tc
 $TC qdisc del dev $ETH ingress > /dev/null 2>&1
 
-dir=/tmp
-mkdir -p $dir/sw
-mkdir -p $dir/hw
+tmpdir="/tmp/tc_batch"
+rm -fr $tmpdir
+mkdir -p $tmpdir
+
 if [[ "$SKIP" == "skip_sw" ]]; then
-	OUT="$dir/hw/batch"
+	OUT="$tmpdir/hw_batch"
 	ethtool -K $ETH hw-tc-offload on
 fi
 if [[ "$SKIP" == "skip_hw" ]]; then
-	OUT="$dir/sw/batch"
+	OUT="$tmpdir/sw_batch"
 	ethtool -K $ETH hw-tc-offload off
 fi
 
 n=0
-/bin/rm -rf $OUT.*
-
 count=0
 prio=1
 
@@ -51,7 +50,7 @@ flower \
 $SKIP \
 src_mac $SMAC \
 dst_mac $DMAC \
-action drop $index_str" >> $OUT.$n
+action drop $index_str" >> ${OUT}.$n
 				((count+=1))
 				if (( set_prio == 1 )); then
 					((prio+=1))
@@ -79,7 +78,9 @@ done
 
 $TC qdisc add dev $ETH ingress
 
-time (for file in $OUT.*; do
+echo "Insert rules"
+
+time (for file in ${OUT}.*; do
 	_cmd="$TC -b $file"
         echo $_cmd
         $_cmd
