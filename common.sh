@@ -329,6 +329,7 @@ function eval2() {
 
 function test_done() {
     wait
+    set +e
     check_for_errors_log
     if [ $TEST_FAILED == 0 ]; then
         kmsg "TEST PASSED"
