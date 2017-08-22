@@ -91,5 +91,4 @@ testA
 testB
 testC
 
-success "Test success"
-echo "done"
+test_done
