@@ -272,6 +272,19 @@ function check_kasan() {
     return 0
 }
 
+function check_for_errors_log() {
+    sec=`test_time_elapsed`
+    look=("health compromised" "firmware internal error" "assert_var")
+    for i in "${look[@]}" ; do
+        a=`journalctl --since="$sec seconds ago" | grep "$i" || true`
+        if [ "$a" != "" ]; then
+            err "$a"
+            return 1
+        fi
+    done
+    return 0
+}
+
 function start_check_syndrome() {
     # sleep to avoid check_syndrome catch old syndrome
     sleep 1
@@ -316,6 +329,7 @@ function eval2() {
 
 function test_done() {
     wait
+    check_for_errors_log
     if [ $TEST_FAILED == 0 ]; then
         kmsg "TEST PASSED"
         success "TEST PASSED"
