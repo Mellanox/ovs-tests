@@ -121,12 +121,12 @@ function reset_tc_nic() {
 }
 
 function warn() {
-    echo -e "${YELLOW}WARNING: $1$BLACK"
+    echo -e "${YELLOW}WARNING: $@$BLACK"
 }
 
 # print error and exit
 function fail() {
-    local m=${*-Failed}
+    local m=${@:-Failed}
     TEST_FAILED=1
     echo -e "${RED}ERROR: $m$BLACK"
     wait
@@ -134,18 +134,18 @@ function fail() {
 }
 
 function err() {
-    local m=${*-Failed}
+    local m=${@:-Failed}
     TEST_FAILED=1
     echo -e "${RED}ERROR: $m$BLACK"
 }
 
 function success() {
-    local m=${1:-OK}
+    local m=${@:-OK}
     echo -e "$GREEN$m$BLACK"
 }
 
 function title() {
-    echo -e "$BLUE* $1$BLACK"
+    echo -e "$BLUE* $@$BLACK"
     kmsg $1
 }
 
@@ -265,7 +265,7 @@ function check_kasan() {
     sec=`echo $now - $_check_start_ts + 1 | bc`
     a=`journalctl --since="$sec seconds ago" | grep -m1 KASAN || true`
     if [ "$a" != "" ]; then
-        err $a
+        err "$a"
         return 1
     fi
     success "success"
@@ -289,7 +289,7 @@ function check_syndrome() {
     sec=`echo $now - $_check_syndrome_start + 1 | bc`
     a=`journalctl -n20 --since="$sec seconds ago" | grep -m1 syndrome || true`
     if [ "$a" != "" ]; then
-        echo $a
+        err "$a"
         return 1
     fi
     return 0
