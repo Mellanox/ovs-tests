@@ -313,8 +313,11 @@ function del_all_bridges() {
 }
 
 function start_clean_openvswitch() {
-    del_all_bridges
-    service openvswitch restart
+    service openvswitch stop
+    sleep 1
+    killall ovs-vswitchd ovsdb-server 2>/dev/null || true
+    sleep 1
+    service openvswitch start
     sleep 1
     del_all_bridges
 }
