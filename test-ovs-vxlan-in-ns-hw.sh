@@ -39,6 +39,10 @@ done
 
 echo "setup ns"
 
+for i in $vm1_port $vm1_port_rep $vm2_port $vm2_port_rep ; do
+    ip a flush dev $vm1_port
+done
+
 ifconfig $vm1_port $VM1_IP/24 up
 ifconfig $vm1_port_rep up
 
@@ -71,6 +75,5 @@ ping -q -c 1 -w 2 $VM2_IP && success || err
 
 check_offloaded_rules 2
 
-exit
 cleanup
 test_done
