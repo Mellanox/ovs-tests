@@ -308,6 +308,20 @@ function check_syndrome() {
     return 0
 }
 
+function expect_syndrome() {
+    local expected="$1"
+    # avoid same time as start_check_syndrome
+    sleep 1
+    now=`date +"%s"`
+    sec=`echo $now - $_check_syndrome_start + 1 | bc`
+    a=`journalctl -n20 --since="$sec seconds ago" | grep syndrome | grep -v $expected || true`
+    if [ "$a" != "" ]; then
+        err "$a"
+        return 1
+    fi
+    return 0
+}
+
 function del_all_bridges() {
     ovs-vsctl list-br | xargs -r -l ovs-vsctl del-br 2>/dev/null
 }
