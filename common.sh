@@ -268,7 +268,6 @@ function check_kasan() {
         err "$a"
         return 1
     fi
-    success "success"
     return 0
 }
 
