@@ -38,7 +38,7 @@ for i in `seq 100`; do
     `shuf -n1 $TMPFILE` >/dev/null 2>&1
 done
 reset_tc_nic $NIC
-sec=`test_time_elapsed`
+sec=`get_test_time_elapsed`
 a=`journalctl -n20 --since="$sec seconds ago" | grep -v 0xd5ef2 | grep -m1 syndrome || true`
 if [ "$a" != "" ]; then
     err $a

@@ -254,7 +254,7 @@ function start_test_timestamp() {
     _check_start_ts=`date +"%s"`
 }
 
-function test_time_elapsed() {
+function get_test_time_elapsed() {
     now=`date +"%s"`
     sec=`echo $now - $_check_start_ts + 1 | bc`
     echo $sec
@@ -273,7 +273,7 @@ function check_kasan() {
 }
 
 function check_for_errors_log() {
-    sec=`test_time_elapsed`
+    sec=`get_test_time_elapsed`
     look=("health compromised" "firmware internal error" "assert_var")
     for i in "${look[@]}" ; do
         a=`journalctl --since="$sec seconds ago" | grep "$i" || true`
