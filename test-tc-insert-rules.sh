@@ -289,6 +289,13 @@ enable_switchdev_if_no_rep $REP
 unbind_vfs
 reset_tc_nic $NIC
 reset_tc_nic $REP
+stop_openvswitch
+
+# clean vxlan interfaces
+for vx in `ip -o l show type vxlan | cut -d: -f 2` ; do
+    ip l del $vx
+done
+
 if [ "$DEVICE_IS_CX4" = 1 ]; then
     echo "Device is ConnectX-4"
     mode=`get_eswitch_inline_mode`

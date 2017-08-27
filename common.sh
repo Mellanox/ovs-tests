@@ -325,11 +325,15 @@ function del_all_bridges() {
     ovs-vsctl list-br | xargs -r -l ovs-vsctl del-br 2>/dev/null
 }
 
-function start_clean_openvswitch() {
+function stop_openvswitch() {
     service openvswitch stop
     sleep 1
     killall ovs-vswitchd ovsdb-server 2>/dev/null || true
     sleep 1
+}
+
+function start_clean_openvswitch() {
+    stop_openvswitch
     service openvswitch start
     sleep 1
     del_all_bridges
