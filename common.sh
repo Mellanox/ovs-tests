@@ -149,6 +149,10 @@ function title() {
     kmsg $1
 }
 
+function bring_up_reps() {
+    ip link | grep DOWN | grep ens.*_[0-9] | cut -d: -f2 | xargs -I {} ip link set dev {} up
+}
+
 function switch_mode() {
     local extra="$2"
     echo "Change eswitch ($PCI) mode to $1 $extra"
@@ -157,8 +161,7 @@ function switch_mode() {
     devlink dev eswitch set pci/$PCI mode $1 $extra || fail "Failed to set mode $1"
     echo -n "New mode: "
     devlink dev eswitch show pci/$PCI
-    # bring up all interfaces
-    ip link | grep DOWN | grep ens.*_[0-9] | cut -d: -f2 | xargs -I {} ip link set dev {} up
+    bring_up_reps
 }
 
 function switch_mode_legacy() {
