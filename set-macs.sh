@@ -42,6 +42,6 @@ ip link show $nic
 for i in `ls -1d  /sys/class/net/$nic/device/virtfn*`; do
     pci=$(basename `readlink $i`)
     echo "rebind $pci"
-    echo $pci > /sys/bus/pci/drivers/mlx5_core/unbind
+    echo $pci > /sys/bus/pci/drivers/mlx5_core/unbind 2>/dev/null
     echo $pci > /sys/bus/pci/drivers/mlx5_core/bind
 done
