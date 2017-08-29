@@ -320,6 +320,14 @@ for i in `declare -F | awk {'print $3'} | grep ^test_`; do
         fi
     fi
 
+    if [ -n "$SKIP" ]; then
+        if [[ $i =~ $SKIP ]]; then
+            continue
+        else
+            : OK
+        fi
+    fi
+
     title $i
     eval $i
 
