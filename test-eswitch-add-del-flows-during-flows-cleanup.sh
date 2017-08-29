@@ -144,6 +144,7 @@ function test_case_add_and_disable_sriov() {
     reset_tc_nic $case
     if [ "$num" != "0" ]; then
         echo $num > /sys/class/net/$case/device/sriov_numvfs
+        set_macs $num
     fi
     success
 }
