@@ -17,6 +17,7 @@ SKIP_TESTS = {
     "test-ovs-replace-rule-hw.sh": "Requires VFs",
     "test-devlink-show-in-each-link-mode.sh": "Test is doing fw reset",
     "test-ovs-vxlan-in-ns-hw.sh": "Requires VFs",
+    "test-eswitch-no-carrier.sh": "RM #1124753",
 }
 
 COLOURS = {
