@@ -49,6 +49,7 @@ fw_reset
 devlink_eswitch_show
 success
 
+set_macs 2
 check_syndrome
 check_kasan
 test_done
