@@ -23,6 +23,7 @@ vm2_port_rep=`get_rep 1`
 function cleanup() {
     echo "cleanup"
     start_clean_openvswitch
+    ip l del dev vxlan_sys_4789 &>/dev/null
     ip netns del ns0 &> /dev/null
 
     for i in `seq 0 7`; do
