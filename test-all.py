@@ -12,12 +12,9 @@ MYDIR = os.path.abspath(os.path.dirname(__file__))
 TESTS = sorted(glob(MYDIR + '/test-*'))
 IGNORE_TESTS = [MYNAME]
 SKIP_TESTS = {
-    "test-eswitch-add-del-flows-during-flows-cleanup.sh": "RM #1013092 | Requires VF",
-    "test-vf-rep-ping.sh": "Requires VF",
-    "test-ovs-replace-rule-hw.sh": "Requires VFs",
-    "test-devlink-show-in-each-link-mode.sh": "Test is doing fw reset",
-    "test-ovs-vxlan-in-ns-hw.sh": "Requires VFs",
+    "test-eswitch-add-del-flows-during-flows-cleanup.sh": "RM #1013092",
     "test-eswitch-no-carrier.sh": "RM #1124753",
+    "test-ovs-vxlan-in-ns-hw.sh": "Not a valid test?",
 }
 
 COLOURS = {
