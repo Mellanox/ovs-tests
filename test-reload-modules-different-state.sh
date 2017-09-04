@@ -91,4 +91,5 @@ testA
 testB
 testC
 
+set_macs 2
 test_done

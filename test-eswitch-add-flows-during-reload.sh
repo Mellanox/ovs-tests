@@ -65,4 +65,5 @@ sleep 5
 check_syndrome && success || err "Failed"
 reset_tc_nic $rep
 
+set_macs 2
 test_done

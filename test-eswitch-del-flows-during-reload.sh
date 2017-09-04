@@ -70,4 +70,5 @@ del_rules
 sleep 5
 reset_tc_nic $rep
 
+set_macs 2
 test_done
