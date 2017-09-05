@@ -13,7 +13,7 @@ my_dir="$(dirname "$0")"
 
 CASE_NIC=${CASE_NIC:-$NIC $NIC2}
 CASE_SKIP=${CASE_SKIP:-skip_hw skip_sw}
-CASE_COUNT=${CASE_COUNT:-30*1024 64*1024-16}
+CASE_COUNT=${CASE_COUNT:-30*1024 64*1024-60}
 CASE_INDEX=${CASE_INDEX:-0 1}
 TIMEOUT=${TIMEOUT:-5m}
 CASE_TWO_PORTS=${CASE_TWO_PORTS:-1}
@@ -54,7 +54,7 @@ function do_test1() {
 }
 
 function do_test2() {
-    ((num=64*1024-16))
+    ((num=64*1024-60))
     skip=skip_sw
     index=0
     title "Add both ports $num rules $skip set_index:$index"
