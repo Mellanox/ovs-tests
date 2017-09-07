@@ -22,4 +22,4 @@ done
 check_syndrome && success || err "Failed"
 reset_tc_nic $NIC
 
-echo "done"
+test_done
