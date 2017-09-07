@@ -91,5 +91,6 @@ testA
 testB
 testC
 
+echo "cleanup"
 set_macs 2
 test_done
