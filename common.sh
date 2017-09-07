@@ -370,6 +370,13 @@ function not_relevant_for_cx5() {
     fi
 }
 
+function not_relevant_for_cx4() {
+    if [ "$DEVICE_IS_CX4" = 1 ]; then
+        echo "Test not relevant for ConnectX-4"
+        exit 0
+    fi
+}
+
 
 # load config if exists
 if [ -n "$CONFIG" ]; then
