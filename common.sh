@@ -276,9 +276,9 @@ function check_kasan() {
 
 function check_for_errors_log() {
     sec=`get_test_time_elapsed`
-    look=("health compromised" "firmware internal error" "assert_var")
+    look=("health compromised" "firmware internal error" "assert_var" "Call Trace:")
     for i in "${look[@]}" ; do
-        a=`journalctl --since="$sec seconds ago" | grep "$i" || true`
+        a=`journalctl --since="$sec seconds ago" | grep -i "$i" || true`
         if [ "$a" != "" ]; then
             err "$a"
             return 1
