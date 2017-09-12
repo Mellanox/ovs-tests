@@ -51,6 +51,7 @@ function reload_mlx5() {
     title "test reload modules"
     modprobe -r mlx5_ib mlx5_core devlink || fail "Failed to unload modules"
     modprobe -a devlink mlx5_core mlx5_ib || fail "Failed to load modules"
+    set_macs
     check_kasan
 }
 
@@ -89,5 +90,4 @@ testB
 testC
 
 echo "cleanup"
-set_macs 2
 test_done

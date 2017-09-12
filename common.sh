@@ -195,7 +195,7 @@ function enable_switchdev_if_no_rep() {
 }
 
 function set_macs() {
-    local count=$1
+    local count=$1 # optional
     $SET_MACS $NIC $count
 }
 

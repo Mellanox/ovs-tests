@@ -1,17 +1,18 @@
 #!/bin/bash
 
 nic=${1:?param 1 interface}
-num_vfs=${2:-2}
+num_vfs=$2 # optional
 
 echo nic $nic
-echo num_vfs $num_vfs
-
 set -e
 ip link show $nic >/dev/null
 set +e
 
 sriov_numvfs="/sys/class/net/$nic/device/sriov_numvfs"
-#vfs=`cat $sriov_numvfs`
+if [ "$num_vfs" == "" ]; then
+    num_vfs=`cat $sriov_numvfs`
+fi
+echo num_vfs $num_vfs
 echo "Set $num_vfs vfs on $nic"
 echo $num_vfs > $sriov_numvfs
 
