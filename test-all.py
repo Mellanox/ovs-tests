@@ -102,7 +102,7 @@ class TestResult(object):
         color = res_color.get(self._res, 'red')
         res = deco(self._res, color)
         name = deco(self._name, 'blue')
-        ret = "Test: %-50s  %s" % (name, res)
+        ret = "Test: %-60s  %s" % (name, res)
         if self._out:
             out = self._out
             if self._res == 'SKIP':
