@@ -66,11 +66,8 @@ function testB() {
     unbind_vfs
     switch_mode_switchdev
     rep=${NIC}_0
-    echo "lookg for $rep"
+    echo "look for $rep"
     sleep 0.5
-#    if [ ! -e /sys/class/net/$rep ]; then
-#        set_macs 1
-#    fi
     if [ ! -e /sys/class/net/$rep ]; then
         fail "Missing rep $rep"
     fi
