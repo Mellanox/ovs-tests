@@ -73,7 +73,7 @@ function check_offloaded_rules() {
 
 title "Test ping $VM1_IP -> $VM2_IP"
 start_check_syndrome
-ping -q -c 1 -w 2 $VM2_IP && success || err
+ping -q -c 10 -i 0.2 -w 2 $VM2_IP && success || err
 check_offloaded_rules 2
 
 cleanup
