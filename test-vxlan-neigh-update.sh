@@ -10,6 +10,9 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 REP=`get_rep 0`
+if [ -z "$REP" ]; then
+    fail "Missing rep $rep"
+fi
 
 local_ip="2.2.2.2"
 remote_ip="2.2.2.3"

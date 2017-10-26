@@ -230,7 +230,7 @@ function get_rep() {
 	local count=0
 
 	if [ -z "$id" ]; then
-	    echo "Cannot get switch id for $NIC"
+	    echo "Cannot get switch id for $NIC" >/dev/stderr
 	    exit 1
 	fi
 
