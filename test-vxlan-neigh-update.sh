@@ -22,9 +22,9 @@ id=98
 
 
 function cleanup() {
-    ip -4 link del dev vxlan1 2> /dev/null
-    ip -4 link add vxlan1 type vxlan id $id dev $NIC dstport $dst_port
-    ip -4 link set vxlan1 up
+    ip link del dev vxlan1 2> /dev/null
+    ip link add vxlan1 type vxlan id $id dev $NIC dstport $dst_port
+    ip link set vxlan1 up
     ip n del ${remote_ip} dev $NIC 2>/dev/null
     ip n del ${remote_ip6} dev $NIC 2>/dev/null
     ifconfig $NIC down
@@ -77,11 +77,11 @@ function neigh_update_test() {
         action mirred egress redirect dev $REP
 
     # add change evets
-    echo "forcing addr change 1"
+    title "-- forcing addr change 1"
     sleep 5
     ip n replace ${remote_ip} dev $NIC lladdr 11:22:33:44:55:66
 
-    echo "forcing addr change 2"
+    title "-- forcing addr change 2"
     sleep 5
     ip n replace ${remote_ip} dev $NIC lladdr 11:22:33:44:55:99
 }
@@ -91,7 +91,7 @@ start_check_syndrome
 
 title "Test neigh update ipv4"
 cleanup
-ip add add ${local_ip}/24 dev $NIC
+ip addr add ${local_ip}/24 dev $NIC
 neigh_update_test $local_ip $remote_ip
 
 title "Test neigh update ipv6"
