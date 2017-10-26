@@ -266,7 +266,7 @@ function get_test_time_elapsed() {
 function check_kasan() {
     now=`date +"%s"`
     sec=`echo $now - $_check_start_ts + 1 | bc`
-    a=`journalctl --since="$sec seconds ago" | grep -m1 KASAN || true`
+    a=`journalctl --since="$sec seconds ago" | grep KASAN || true`
     if [ "$a" != "" ]; then
         err "$a"
         return 1
@@ -302,7 +302,7 @@ function check_syndrome() {
     sleep 1
     now=`date +"%s"`
     sec=`echo $now - $_check_syndrome_start + 1 | bc`
-    a=`journalctl -n20 --since="$sec seconds ago" | grep -m1 syndrome || true`
+    a=`journalctl -n20 --since="$sec seconds ago" | grep syndrome || true`
     if [ "$a" != "" ]; then
         err "$a"
         return 1
