@@ -15,9 +15,9 @@ ADD_DEL_SLEEP=10
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-rep=${NIC}_0
-enable_switchdev_if_no_rep $rep
-if [ ! -e /sys/class/net/$rep ]; then
+enable_switchdev
+rep=`get_rep 0`
+if [ -z "$rep" ]; then
     fail "Missing rep $rep"
     exit 1
 fi
