@@ -12,18 +12,15 @@ my_dir="$(dirname "$0")"
 
 not_relevant_for_cx5
 
-function get_inline_mode() {
-    output=`devlink dev eswitch show pci/$PCI`
-    echo $output
-    mode=`echo $output | grep -o "inline-mode \w*" | awk {'print $2'}`
-}
+enable_switchdev
+rep=`get_rep 0`
+if [ -z "$rep" ]; then
+    fail "Missing rep $rep"
+fi
 
 unbind_vfs
 reset_tc_nic $NIC
-rep=${NIC}_0
-if [ -e /sys/class/net/$rep ]; then
-    reset_tc_nic $rep
-fi
+reset_tc_nic $rep
 
 set -e
 
@@ -46,50 +43,46 @@ if [ "$a" != "" ]; then
 fi
 
 title "test show"
-devlink dev eswitch set pci/$PCI inline-mode link || fail "Failed to set mode link"
-get_inline_mode
-test $mode = "link" || fail "Expected mode link"
+set_eswitch_inline_mode link || fail "Failed to set mode link"
+mode=`get_eswitch_inline_mode`
+test $mode = "link" || fail "Expected mode link but got $mode"
 success
 
 title "test fail change mode when flows are configured"
-tc filter add dev $NIC protocol ipv6 parent ffff: \
+tc filter add dev $NIC protocol ip parent ffff: \
     flower skip_sw indev $NIC \
-    src_mac e1:22:33:44:00:01 \
-    dst_mac e2:22:33:44:00:01 \
+    src_mac e4:22:33:44:00:01 \
+    dst_mac e4:22:33:44:00:01 \
     action drop || fail "Failed to add rule"
-devlink dev eswitch set pci/$PCI inline-mode transport && fail "Expected to fail changing mode"
-get_inline_mode
-test $mode = "link" || fail "Expected mode link"
+set_eswitch_inline_mode transport && fail "Expected to fail changing mode"
+mode=`get_eswitch_inline_mode`
+test $mode = "link" || fail "Expected mode link but got $mode"
 success
 
 reset_tc_nic $NIC
 title "test set inline-mode transport"
-devlink dev eswitch set pci/$PCI inline-mode transport || fail "Failed to set mode transport"
-get_inline_mode
-test $mode = "transport" || fail "Expected mode transport"
+set_eswitch_inline_mode transport || fail "Failed to set mode transport"
+mode=`get_eswitch_inline_mode`
+test $mode = "transport" || fail "Expected mode transport but got $mode"
 success
 
-if [ -e /sys/class/net/$rep ]; then
-    title "test fail to add ipv4 rule to rep"
-    tc filter add dev $rep protocol ip parent ffff: \
-        flower skip_sw indev $rep \
-        src_mac e1:22:33:44:00:00 \
-        dst_mac e2:22:33:44:00:00 \
-        src_ip 1.1.1.1 \
-        dst_ip 2.2.2.2 \
-        action drop || success "Failed to add rule as expected"
+title "test fail to add ipv4 rule to rep"
+tc filter add dev $rep protocol ip parent ffff: \
+    flower skip_sw indev $rep \
+    src_mac e1:22:33:44:00:00 \
+    dst_mac e2:22:33:44:00:00 \
+    src_ip 1.1.1.1 \
+    dst_ip 2.2.2.2 \
+    action drop || success "Failed to add rule as expected"
 
-    title "test fail to add ipv6 rule to rep"
-    tc filter add dev $rep protocol ipv6 parent ffff: \
-        flower skip_sw indev $rep \
-        src_mac e1:22:33:44:00:00 \
-        dst_mac e2:22:33:44:00:00 \
-        src_ip 2001:0db8:85a3::8a2e:0370:7334 \
-        dst_ip 2001:0db8:85a3::8a2e:0370:7335 \
-        action drop || success "Failed to add rule as expected"
-else
-    warn "skip rule ipv6 test - cannot find $rep"
-fi
+title "test fail to add ipv6 rule to rep"
+tc filter add dev $rep protocol ipv6 parent ffff: \
+    flower skip_sw indev $rep \
+    src_mac e1:22:33:44:00:00 \
+    dst_mac e2:22:33:44:00:00 \
+    src_ip 2001:0db8:85a3::8a2e:0370:7334 \
+    dst_ip 2001:0db8:85a3::8a2e:0370:7335 \
+    action drop || success "Failed to add rule as expected"
 
 title "test add ipv6 rule to pf"
 tc filter add dev $NIC protocol ipv6 parent ffff: \
@@ -105,9 +98,9 @@ title "test revert on set failure"
 echo "bind last vf $vfpci"
 echo $vfpci > /sys/bus/pci/drivers/mlx5_core/bind
 echo "try to change inline-mode"
-devlink dev eswitch set pci/$PCI inline-mode network || success "Failed set inline-mode as expected"
-get_inline_mode
-test $mode = "transport" || fail "Expected mode transport"
+set_eswitch_inline_mode network || success "Failed set inline-mode as expected"
+mode=`get_eswitch_inline_mode`
+test $mode = "transport" || fail "Expected mode transport but got $mode"
 success
 
 if [ -e /sys/class/net/$rep ]; then
@@ -127,6 +120,6 @@ echo "* reset"
 reset_tc_nic $NIC
 reset_tc_nic $rep
 echo $vfpci > /sys/bus/pci/drivers/mlx5_core/unbind
-devlink dev eswitch set pci/$PCI inline-mode link
+set_eswitch_inline_mode link
 
 test_done

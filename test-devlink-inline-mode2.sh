@@ -20,12 +20,6 @@ my_dir="$(dirname "$0")"
 
 not_relevant_for_cx5
 
-function get_inline_mode() {
-    output=`devlink dev eswitch show pci/$PCI`
-    echo $output
-    mode=`echo $output | grep -o "inline-mode \w*" | awk {'print $2'}`
-}
-
 reset_tc_nic $NIC
 rep=${NIC}_0
 if [ -e /sys/class/net/$rep ]; then
@@ -39,17 +33,17 @@ unbind_vfs
 
 test_mode="transport"
 title "test set inline mode $test_mode"
-devlink dev eswitch set pci/$PCI inline-mode $test_mode || fail "Failed to set mode $test_mode"
-get_inline_mode
-test $mode = $test_mode || fail "Expected mode $test_mode"
+set_eswitch_inline_mode $test_mode || fail "Failed to set mode $test_mode"
+mode=`get_eswitch_inline_mode`
+test $mode = $test_mode || fail "Expected mode $test_mode but got $mode"
 
 title "switch mode to legacy and back to switchdev"
 switch_mode_legacy
 switch_mode_switchdev
 
 title "verify inline_mode is $test_mode"
-get_inline_mode
-test $mode = $test_mode || fail "Expected mode $test_mode"
+mode=`get_eswitch_inline_mode`
+test $mode = $test_mode || fail "Expected mode $test_mode but got $mode"
 
 title "disable and enable sriov"
 set_macs 0
@@ -57,9 +51,9 @@ set_macs 2
 unbind_vfs
 
 title "verify inline_mode is $test_mode"
-get_inline_mode
-test $mode = $test_mode || fail "Expected mode $test_mode"
+mode=`get_eswitch_inline_mode`
+test $mode = $test_mode || fail "Expected mode $test_mode but got $mode"
 
 title "reset mode to link"
-devlink dev eswitch set pci/$PCI inline-mode link
-echo "done"
+set_eswitch_inline_mode link
+test_done
