@@ -145,11 +145,11 @@ def main():
         failed = False
         res = 'OK'
         out = ''
-        if args.dry:
-            res = 'DRY'
-        elif name in SKIP_TESTS:
+        if name in SKIP_TESTS:
             res = 'SKIP'
             out = SKIP_TESTS[name]
+        elif args.dry:
+            res = 'DRY'
         else:
             try:
                 cmd = test
