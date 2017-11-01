@@ -263,8 +263,12 @@ function get_rep() {
         local a="REP$vf"
         local b=${!a}
         if [ -n $b ]; then
-            echo $b
-            return
+            if [ -e /sys/devices/virtual/net/$b ]; then
+                echo $b
+                return
+            fi
+            echo "Cannot find rep index $vf" >/dev/stderr
+            exit 1
         fi
 
 	if [ -z "$id" ]; then
