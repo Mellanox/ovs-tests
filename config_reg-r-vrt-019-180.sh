@@ -1,0 +1,8 @@
+NIC=ens2f0
+NIC2=ens2f1
+VF=ens2f2
+VF1=$VF
+VF2=ens2f3
+REP=eth0
+REP0=$REP
+REP1=eth1
