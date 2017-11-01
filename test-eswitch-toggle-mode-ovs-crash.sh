@@ -32,12 +32,14 @@ pidof_ovs_vswitchd
 title "set mode switchdev"
 unbind_vfs
 switch_mode_switchdev
+rep0=`get_rep 0`
+rep1=`get_rep 1`
 
 title "add bridge"
 del_all_bridges
 ovs-vsctl add-br $BRIDGE
-ovs-vsctl add-port $BRIDGE ${NIC}_0
-ovs-vsctl add-port $BRIDGE ${NIC}_1
+ovs-vsctl add-port $BRIDGE $rep0
+ovs-vsctl add-port $BRIDGE $rep1
 ovs-vsctl add-port $BRIDGE $NIC
 ovs-vsctl show
 
