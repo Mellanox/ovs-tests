@@ -16,7 +16,7 @@ my_dir="$(dirname "$0")"
 
 REP=`get_rep 0`
 if [ -z "$REP" ]; then
-    fail "Missing rep $rep"
+    fail "Missing rep $REP"
 fi
 
 local_ip="2.2.2.2"
