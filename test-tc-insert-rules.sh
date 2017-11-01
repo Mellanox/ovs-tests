@@ -23,60 +23,68 @@ function tc_filter() {
 
 function test_basic_L2() {
     for skip in "" skip_sw skip_hw; do
-        title "    - skip:$skip"
-        reset_tc_nic $REP
-        tc_filter add dev $REP protocol ip parent ffff: \
-                flower \
-                        $skip \
-			dst_mac e4:11:22:11:4a:51 \
-			src_mac e4:11:22:11:4a:50 \
-                action drop
+        for nic in $NIC $REP ; do
+            title "    - nic:$nic skip:$skip"
+            reset_tc_nic $nic
+            tc_filter add dev $nic protocol ip parent ffff: \
+                    flower \
+                            $skip \
+                            dst_mac e4:11:22:11:4a:51 \
+                            src_mac e4:11:22:11:4a:50 \
+                    action drop
+        done
     done
 }
 
 function test_basic_L3() {
     for skip in "" skip_sw skip_hw; do
-        title "    - skip:$skip"
-        reset_tc_nic $REP
-        tc_filter add dev $REP protocol ip parent ffff: \
-                flower \
-                        $skip \
-			dst_mac e4:11:22:11:4a:51 \
-			src_mac e4:11:22:11:4a:50 \
-                        src_ip 1.1.1.1 \
-                        dst_ip 2.2.2.2 \
-                action drop
+        for nic in $NIC $REP ; do
+            title "    - nic:$nic skip:$skip"
+            reset_tc_nic $nic
+            tc_filter add dev $nic protocol ip parent ffff: \
+                    flower \
+                            $skip \
+                            dst_mac e4:11:22:11:4a:51 \
+                            src_mac e4:11:22:11:4a:50 \
+                            src_ip 1.1.1.1 \
+                            dst_ip 2.2.2.2 \
+                    action drop
+        done
     done
 }
 
 function test_basic_L3_ipv6() {
     for skip in "" skip_sw skip_hw; do
-        title "    - skip:$skip"
-        reset_tc_nic $REP
-        tc_filter add dev $REP protocol ipv6 parent ffff: \
-                flower \
-                        $skip \
-			dst_mac e4:11:22:11:4a:51 \
-			src_mac e4:11:22:11:4a:50 \
-                        src_ip 2001:0db8:85a3::8a2e:0370:7334\
-                        dst_ip 2001:0db8:85a3::8a2e:0370:7335 \
-                action drop
+        for nic in $NIC $REP ; do
+            title "    - nic:$nic skip:$skip"
+            reset_tc_nic $nic
+            tc_filter add dev $nic protocol ipv6 parent ffff: \
+                    flower \
+                            $skip \
+                            dst_mac e4:11:22:11:4a:51 \
+                            src_mac e4:11:22:11:4a:50 \
+                            src_ip 2001:0db8:85a3::8a2e:0370:7334\
+                            dst_ip 2001:0db8:85a3::8a2e:0370:7335 \
+                    action drop
+        done
     done
 }
 
 function test_basic_L4() {
     for skip in "" skip_sw skip_hw; do
-        title "    - skip:$skip"
-        reset_tc_nic $REP
-        tc_filter add dev $REP protocol ip parent ffff: \
-                flower \
-                        $skip \
-			dst_mac e4:11:22:11:4a:51 \
-			src_mac e4:11:22:11:4a:50 \
-                        ip_proto tcp \
-                        src_ip 1.1.1.1 \
-                        dst_ip 2.2.2.2 \
-                action drop
+        for nic in $NIC $REP ; do
+            title "    - nic:$nic skip:$skip"
+            reset_tc_nic $nic
+            tc_filter add dev $nic protocol ip parent ffff: \
+                    flower \
+                            $skip \
+                            dst_mac e4:11:22:11:4a:51 \
+                            src_mac e4:11:22:11:4a:50 \
+                            ip_proto tcp \
+                            src_ip 1.1.1.1 \
+                            dst_ip 2.2.2.2 \
+                    action drop
+        done
     done
 }
 
