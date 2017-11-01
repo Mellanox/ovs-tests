@@ -227,6 +227,20 @@ function test_duplicate_vlan() {
 
 function test_duplicate_vxlan() {
     skip="skip_sw"
+    vx=vxlan_dup_test
+    vxlan_port=4789
+    ip_dst=20.1.11.1
+    ip_src=20.1.12.1
+
+    ip link del $vx >/dev/null 2>&1
+    ip link add $vx type vxlan dev $NIC dstport $vxlan_port external
+    ip link set dev $vx up
+    tc qdisc add dev $vx ingress
+
+    ip addr flush dev $NIC
+    ip addr add $ip_src/16 dev $NIC
+    ifconfig $NIC up
+
     reset_tc_nic $NIC
     reset_tc_nic $REP
     start_check_syndrome
@@ -237,11 +251,11 @@ function test_duplicate_vxlan() {
                         dst_mac e4:11:22:11:4a:51 \
                         src_mac e4:11:22:11:4a:50 \
                 action tunnel_key set \
-                src_ip 20.1.12.1 \
-                dst_ip 20.1.11.1 \
+                src_ip $ip_src \
+                dst_ip $ip_dst \
                 id 100 \
                 dst_port 4789 \
-                action mirred egress redirect dev $NIC"
+                action mirred egress redirect dev $vx"
     tc $duplicate
     if [ $? != 0 ]; then
         eval err "Command failed: tc $duplicate"
@@ -253,6 +267,8 @@ function test_duplicate_vxlan() {
     fi
     reset_tc_nic $NIC
     reset_tc_nic $REP
+
+    ip link del $vx >/dev/null 2>&1
 }
 
 # test insert ip no ip_proto
