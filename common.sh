@@ -35,6 +35,10 @@ DEVICE_CX4_LX="0x1015"
 DEVICE_CX5_PCI_3="0x1017"
 DEVICE_CX5_PCI_4="0x1019"
 
+if [ `uname -r` = "3.10.0" ];  then
+    backport_centos_7_2=1
+fi
+
 
 function get_mlx_iface() {
     for i in /sys/class/net/* ; do
@@ -116,7 +120,11 @@ function reset_tc() {
 
 function reset_tc_nic() {
     local nic1="$1"
-    ethtool -K $nic1 hw-tc-offload on
+    if [ "$backport_centos_7_2" = 1 ]; then
+        : hw-tc-offload does not exists
+    else
+        ethtool -K $nic1 hw-tc-offload on
+    fi
     reset_tc $nic1
 }
 
@@ -151,11 +159,18 @@ function title() {
 
 function bring_up_reps() {
     ip link | grep DOWN | grep ens.*_[0-9] | cut -d: -f2 | xargs -I {} ip link set dev {} up
+    if [ "$backport_centos_7_2" = 1 ]; then
+        ip link | grep DOWN | grep eth[0-9] | cut -d: -f2 | xargs -I {} ip link set dev {} up
+    fi
 }
 
 function switch_mode() {
     local extra="$2"
     echo "Change eswitch ($PCI) mode to $1 $extra"
+    if [ "$backport_centos_7_2" = 1 ]; then
+        echo $1 > /sys/kernel/debug/mlx5/$PCI/compat/mode
+        return
+    fi
     echo -n "Old mode: "
     devlink dev eswitch show pci/$PCI
     devlink dev eswitch set pci/$PCI mode $1 $extra || fail "Failed to set mode $1"
@@ -173,11 +188,27 @@ function switch_mode_switchdev() {
 }
 
 function get_eswitch_mode() {
-    devlink dev eswitch show pci/$PCI | grep -o "\bmode [a-z]\+" | awk {'print $2'}
+    if [ "$backport_centos_7_2" = 1 ]; then
+        cat /sys/kernel/debug/mlx5/$PCI/compat/mode
+    else
+        devlink dev eswitch show pci/$PCI | grep -o "\bmode [a-z]\+" | awk {'print $2'}
+    fi
 }
 
 function get_eswitch_inline_mode() {
-    devlink dev eswitch show pci/$PCI | grep -o "\binline-mode [a-z]\+" | awk {'print $2'}
+    if [ "$backport_centos_7_2" = 1 ]; then
+        cat /sys/kernel/debug/mlx5/$PCI/compat/inline
+    else
+        devlink dev eswitch show pci/$PCI | grep -o "\binline-mode [a-z]\+" | awk {'print $2'}
+    fi
+}
+
+function set_eswitch_inline_mode() {
+    if [ "$backport_centos_7_2" = 1 ]; then
+        echo $1 > /sys/kernel/debug/mlx5/$PCI/compat/inline
+    else
+        devlink dev eswitch set pci/$PCI inline-mode $1
+    fi
 }
 
 function enable_switchdev() {
@@ -228,6 +259,13 @@ function get_rep() {
 	local id=`get_sw_id $NIC`
 	local id2
 	local count=0
+
+        local a="REP$vf"
+        local b=${!a}
+        if [ -n $b ]; then
+            echo $b
+            return
+        fi
 
 	if [ -z "$id" ]; then
 	    echo "Cannot get switch id for $NIC" >/dev/stderr

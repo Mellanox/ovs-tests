@@ -299,7 +299,7 @@ done
 if [ "$DEVICE_IS_CX4" = 1 ]; then
     echo "Device is ConnectX-4"
     mode=`get_eswitch_inline_mode`
-    test "$mode" != "transport" && (devlink dev eswitch set pci/$PCI inline-mode transport || fail "Failed to set inline mode transport")
+    test "$mode" != "transport" && (set_eswitch_inline_mode transport || fail "Failed to set inline mode transport")
 elif [ "$DEVICE_IS_CX5" = 1 ]; then
     echo "Device is ConnectX-5"
 fi
