@@ -262,7 +262,7 @@ function get_rep() {
 
         local a="REP$vf"
         local b=${!a}
-        if [ -n $b ]; then
+        if [ -n "$b" ]; then
             if [ -e /sys/devices/virtual/net/$b ]; then
                 echo $b
                 return
