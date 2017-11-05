@@ -15,6 +15,7 @@ SKIP_TESTS = {
     "test-eswitch-add-del-flows-during-flows-cleanup.sh": "RM #1013092",
     "test-eswitch-no-carrier.sh": "RM #1124753",
     "test-ovs-vxlan-in-ns-hw.sh": "Not a valid test?",
+    "test-tc-replace.sh": "RM #988519",
 }
 
 COLOURS = {
