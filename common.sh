@@ -37,6 +37,8 @@ DEVICE_CX5_PCI_4="0x1019"
 
 if [ `uname -r` = "3.10.0" ];  then
     backport_centos_7_2=1
+elif [ `uname -r` = "3.10.0-327.el7.x86_64" ]; then
+    backport_centos_7_2=1
 fi
 
 
