@@ -133,8 +133,8 @@ function test_basic_vlan() {
 }
 
 function __test_basic_vxlan() {
-    local ip1=$1
-    local ip2=$2
+    local ip_src=$1
+    local ip_dst=$2
     local skip
     # note: we support adding decap to vxlan interface only.
     vx=vxlan1
@@ -145,7 +145,7 @@ function __test_basic_vxlan() {
     tc qdisc add dev $vx ingress
 
     ip addr flush dev $NIC
-    ip addr add $ip1/16 dev $NIC
+    ip addr add $ip_src/16 dev $NIC
     ifconfig $NIC up
 
     reset_tc_nic $NIC
@@ -162,8 +162,8 @@ function __test_basic_vxlan() {
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
                     action tunnel_key set \
-                    src_ip $ip1 \
-                    dst_ip $ip2 \
+                    src_ip $ip_src \
+                    dst_ip $ip_dst \
                     dst_port $vxlan_port \
                     id 100 \
                     action mirred egress redirect dev $vx
@@ -173,8 +173,8 @@ function __test_basic_vxlan() {
                             $skip \
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
-                            enc_src_ip $ip1 \
-                            enc_dst_ip $ip2 \
+                            enc_src_ip $ip_src \
+                            enc_dst_ip $ip_dst \
                             enc_dst_port $vxlan_port \
                             enc_key_id 100 \
                     action tunnel_key unset \
