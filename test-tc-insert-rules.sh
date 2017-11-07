@@ -147,6 +147,7 @@ function __test_basic_vxlan() {
     ip addr flush dev $NIC
     ip addr add $ip_src/16 dev $NIC
     ifconfig $NIC up
+    ip neigh add $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
 
     reset_tc_nic $NIC
     reset_tc_nic $REP
@@ -180,6 +181,7 @@ function __test_basic_vxlan() {
                     action tunnel_key unset \
                     action mirred egress redirect dev $REP
     done
+
     reset_tc $NIC
     reset_tc $REP
     reset_tc $vx
@@ -240,9 +242,11 @@ function test_duplicate_vxlan() {
     ip addr flush dev $NIC
     ip addr add $ip_src/16 dev $NIC
     ifconfig $NIC up
+    ip neigh add $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
 
     reset_tc_nic $NIC
     reset_tc_nic $REP
+
     start_check_syndrome
     title "- first rule"
     duplicate="filter add dev $REP protocol 0x806 parent ffff: prio 11 \
@@ -265,10 +269,11 @@ function test_duplicate_vxlan() {
         tc $duplicate 2>/dev/null && err "Expected to fail adding duplicate rule" || success "Failed as expected"
         expect_syndrome "0xd5ef2" && success || err "Expected a syndrome 0xd5ef2"
     fi
+
     reset_tc_nic $NIC
     reset_tc_nic $REP
-
-    ip link del $vx >/dev/null 2>&1
+    ip addr flush dev $NIC
+    ip link del $vx
 }
 
 # test insert ip no ip_proto
