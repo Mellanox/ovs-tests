@@ -178,7 +178,10 @@ function switch_mode() {
     devlink dev eswitch set pci/$PCI mode $1 $extra || fail "Failed to set mode $1"
     echo -n "New mode: "
     devlink dev eswitch show pci/$PCI
-    bring_up_reps
+    if [ "$1" = "switchdev" ]; then
+        sleep 2 # wait for interfaces
+        bring_up_reps
+    fi
 }
 
 function switch_mode_legacy() {
@@ -216,7 +219,6 @@ function set_eswitch_inline_mode() {
 function enable_switchdev() {
     unbind_vfs
     switch_mode_switchdev
-    sleep 2 # wait for interfaces
 }
 
 function enable_switchdev_if_no_rep() {
