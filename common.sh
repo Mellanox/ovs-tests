@@ -139,6 +139,7 @@ function fail() {
     local m=${@:-Failed}
     TEST_FAILED=1
     echo -e "${RED}ERROR: $m$BLACK"
+    kmsg "ERROR: $m"
     wait
     exit 1
 }
@@ -147,16 +148,18 @@ function err() {
     local m=${@:-Failed}
     TEST_FAILED=1
     echo -e "${RED}ERROR: $m$BLACK"
+    kmsg "ERROR: $m"
 }
 
 function success() {
     local m=${@:-OK}
     echo -e "$GREEN$m$BLACK"
+    kmsg $m
 }
 
 function title() {
     echo -e "$BLUE* $@$BLACK"
-    kmsg $1
+    kmsg $@
 }
 
 function bring_up_reps() {
@@ -399,10 +402,8 @@ function test_done() {
     set +e
     check_for_errors_log
     if [ $TEST_FAILED == 0 ]; then
-        kmsg "TEST PASSED"
         success "TEST PASSED"
     else
-        kmsg "TEST FAILED"
         fail "TEST FAILED"
     fi
 }
