@@ -325,7 +325,7 @@ function check_kasan() {
 
 function check_for_errors_log() {
     sec=`get_test_time_elapsed`
-    look="health compromised|firmware internal error|assert_var|Call Trace:"
+    look="health compromised|firmware internal error|assert_var|Call Trace:|DEADLOCK|possible circular locking"
     a=`journalctl --since="$sec seconds ago" | grep -E -i "$look" || true`
     if [ "$a" != "" ]; then
         err "$a"
