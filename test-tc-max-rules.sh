@@ -34,10 +34,6 @@ function tc_batch() {
 
 function do_test1() {
     for _nic in $CASE_NIC; do
-        # in case user has only one NIC
-        if [[ "$_nic" == "" ]]; then
-            continue
-        fi
         for skip in $CASE_SKIP; do
             for num in $CASE_COUNT; do
                 ((num=num))
