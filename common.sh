@@ -240,6 +240,14 @@ function enable_switchdev() {
     switch_mode_switchdev
 }
 
+function get_multipath_mode() {
+    if [ "$backport_centos_7_2" = 1 ]; then
+        cat /sys/kernel/debug/mlx5/$PCI/compat/multipath
+    else
+        devlink dev eswitch show pci/$PCI | grep -o "\bmultipath [a-z]\+" | awk {'print $2'}
+    fi
+}
+
 function enable_switchdev_if_no_rep() {
     local rep=$1
 

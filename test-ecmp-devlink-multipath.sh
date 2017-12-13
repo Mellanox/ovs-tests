@@ -30,6 +30,13 @@ function enable_disable_multipath() {
     echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
     echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
 
+    title "- show devlink shows multipath enabled"
+    mode=`get_multipath_mode`
+    if [ -z "$mode" ]; then
+        mode='X'
+    fi
+    test $mode = "enable" || err "Expected multipath mode enabled but got $mode"
+
     title "- Disable SRIOV"
     echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
     echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
