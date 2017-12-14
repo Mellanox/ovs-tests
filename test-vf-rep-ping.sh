@@ -18,7 +18,7 @@ enable_switchdev_if_no_rep $REP
 bind_vfs
 
 function cleanup() {
-    ip netns del ns0 &> /dev/null
+    ip netns del ns0 2> /dev/null
 }
 
 cleanup
