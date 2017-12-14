@@ -256,6 +256,11 @@ function enable_switchdev_if_no_rep() {
     fi
 }
 
+function config_sriov() {
+    local num=$1
+    echo $num > /sys/class/net/$NIC/device/sriov_numvfs
+}
+
 function set_macs() {
     local count=$1 # optional
     $SET_MACS $NIC $count
