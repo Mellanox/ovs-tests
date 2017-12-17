@@ -95,9 +95,14 @@ function test_add_esw_rule_only_pf0_in_switchdev() {
     cleanup
 }
 
+function do_test() {
+    title $1
+    eval $1 && success
+}
+
 
 cleanup
-test_add_nic_rule_in_sriov
-test_add_esw_rule_only_pf0_in_switchdev
+do_test test_add_nic_rule_in_sriov
+do_test test_add_esw_rule_only_pf0_in_switchdev
 
 test_done
