@@ -170,17 +170,20 @@ function bring_up_reps() {
 }
 
 function switch_mode() {
-    local extra="$2"
-    echo "Change eswitch ($PCI) mode to $1 $extra"
+    local nic=${2:-$NIC}
+    local pci=$(basename `readlink /sys/class/net/$nic/device`)
+    local extra="$extra_mode"
+
+    echo "Change eswitch ($pci) mode to $1 $extra"
     if [ "$backport_centos_7_2" = 1 ]; then
-        echo $1 > /sys/kernel/debug/mlx5/$PCI/compat/mode
+        echo $1 > /sys/kernel/debug/mlx5/$pci/compat/mode
         return
     fi
     echo -n "Old mode: "
-    devlink dev eswitch show pci/$PCI
-    devlink dev eswitch set pci/$PCI mode $1 $extra || fail "Failed to set mode $1"
+    devlink dev eswitch show pci/$pci
+    devlink dev eswitch set pci/$pci mode $1 $extra || fail "Failed to set mode $1"
     echo -n "New mode: "
-    devlink dev eswitch show pci/$PCI
+    devlink dev eswitch show pci/$pci
     if [ "$1" = "switchdev" ]; then
         sleep 2 # wait for interfaces
         bring_up_reps
@@ -188,11 +191,11 @@ function switch_mode() {
 }
 
 function switch_mode_legacy() {
-    switch_mode legacy "$1"
+    switch_mode legacy $1
 }
 
 function switch_mode_switchdev() {
-    switch_mode switchdev "$1"
+    switch_mode switchdev $1
 }
 
 function get_eswitch_mode() {
@@ -236,8 +239,9 @@ function disable_multipath() {
 }
 
 function enable_switchdev() {
-    unbind_vfs
-    switch_mode_switchdev
+    local nic=${1:-$NIC}
+    unbind_vfs $nic
+    switch_mode_switchdev $nic
 }
 
 function get_multipath_mode() {
@@ -267,7 +271,8 @@ function set_macs() {
 }
 
 function unbind_vfs() {
-    for i in `ls -1d /sys/class/net/$NIC/device/virt*`; do
+    local nic=${1:-$NIC}
+    for i in `ls -1d /sys/class/net/$nic/device/virt*`; do
         vfpci=$(basename `readlink $i`)
         if [ -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
             echo "unbind $vfpci"

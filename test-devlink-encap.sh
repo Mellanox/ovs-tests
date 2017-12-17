@@ -61,7 +61,8 @@ start_check_syndrome
 set_encap disable
 test_encap disable
 switch_mode_legacy
-switch_mode_switchdev "encap enable"
+extra_mode="encap enable"
+switch_mode_switchdev
 test_encap enable
 check_syndrome
 
