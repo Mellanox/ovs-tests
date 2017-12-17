@@ -53,6 +53,7 @@ function cleanup() {
 function config_vxlan() {
     ip link add vxlan1 type vxlan id $id dev $NIC dstport $dst_port
     ip link set vxlan1 up
+    ip addr add ${local_ip}/24 dev $NIC
 }
 
 function add_vxlan_rule() {
@@ -72,7 +73,7 @@ function add_vxlan_rule() {
             id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
         action mirred egress redirect dev vxlan1"
     echo $cmd
-    $cmd
+    $cmd || err "Failed to add encap rule"
 }
 
 
