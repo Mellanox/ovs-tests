@@ -16,19 +16,26 @@ if [ -e /sys/class/net/$rep ]; then
     reset_tc_nic $rep
 fi
 
-
-function enable_disable_multipath() {
+function disable_sriov() {
     title "- Disable SRIOV"
     echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
     echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
+}
+
+function enable_sriov() {
+    title "- Enable SRIOV"
+    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
+    echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
+}
+
+function enable_disable_multipath() {
+    disable_sriov
 
     title "- Enable multipath"
     disable_multipath
     enable_multipath || err "Failed to enable multipath"
 
-    title "- Enable SRIOV"
-    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
+    enable_sriov
 
     title "- show devlink shows multipath enabled"
     mode=`get_multipath_mode`
@@ -37,9 +44,7 @@ function enable_disable_multipath() {
     fi
     test $mode = "enable" || err "Expected multipath mode enabled but got $mode"
 
-    title "- Disable SRIOV"
-    echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
+    disable_sriov
 
     title "- Disable multipath"
     disable_multipath || err "Failed to disable multipath"
@@ -47,26 +52,20 @@ function enable_disable_multipath() {
 
 
 function fail_to_disable_in_sriov() {
-    title "- Disable SRIOV"
-    echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
+    disable_sriov
 
     title "- Enable multipath"
     disable_multipath
     enable_multipath || err "Failed to enable multipath"
 
-    title "- Enable SRIOV"
-    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
+    enable_sriov
 
     title "- Verify cannot disable multipath while in SRIOV"
     disable_multipath 2>/dev/null && err "Disabled multipath while in SRIOV" || true
 }
 
 function fail_to_enable_in_sriov() {
-    title "- Disable SRIOV"
-    echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
+    disable_sriov
 
     title "- Disable multipath"
     disable_multipath
@@ -79,9 +78,7 @@ function fail_to_enable_in_sriov() {
 }
 
 function change_pf0_to_switchdev_and_back_to_legacy_with_multipath() {
-    title "- Disable SRIOV"
-    echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
+    disable_sriov
 
     title "- Enable multipath"
     disable_multipath
@@ -99,23 +96,18 @@ function change_pf0_to_switchdev_and_back_to_legacy_with_multipath() {
 }
 
 function change_both_ports_to_switchdev_and_back_to_legacy_with_multipath() {
-    title "- Disable SRIOV"
-    echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
+    disable_sriov
 
     title "- Enable multipath"
     disable_multipath
     enable_multipath || err "Failed to enable multipath"
 
     title "- Enable SRIOV and switchdev"
-    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
+    enable_sriov
     enable_switchdev $NIC
     enable_switchdev $NIC2
 
-    title "- Disable SRIOV"
-    echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
+    disable_sriov
 
     title "- Disable multipath"
     disable_multipath || err "Failed to disable multipath"
