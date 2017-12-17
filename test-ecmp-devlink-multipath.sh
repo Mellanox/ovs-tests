@@ -60,7 +60,7 @@ function fail_to_disable_in_sriov() {
     echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
 
     title "- Verify cannot disable multipath while in SRIOV"
-    disable_multipath && err "Disabled multipath while in SRIOV"
+    disable_multipath 2>/dev/null && err "Disabled multipath while in SRIOV" || true
 }
 
 function fail_to_enable_in_sriov() {
@@ -75,7 +75,7 @@ function fail_to_enable_in_sriov() {
     echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
 
     title "- Verify cannot enable multipath while in SRIOV"
-    enable_multipath && err "Enabled multipath while in SRIOV"
+    enable_multipath 2>/dev/null && err "Enabled multipath while in SRIOV" || true
 }
 
 function change_pf0_to_switchdev_and_back_to_legacy_with_multipath() {
