@@ -23,11 +23,20 @@ flag=skip_sw
 dst_port=1234
 id=98
 
-function disable_sriov_and_multipath() {
+function disable_sriov() {
     title "- Disable SRIOV"
     echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
     echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
+}
 
+function enable_sriov() {
+    title "- Enable SRIOV"
+    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
+    echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
+}
+
+function disable_sriov_and_multipath() {
+    disable_sriov
     title "- Disable multipath"
     disable_multipath || err "Failed to disable multipath"
 }
@@ -36,10 +45,7 @@ function enable_multipath_and_sriov() {
     title "- Enable multipath"
     disable_multipath
     enable_multipath || err "Failed to enable multipath"
-
-    title "- Enable SRIOV"
-    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
+    enable_sriov
 }
 
 function cleanup() {
@@ -95,6 +101,21 @@ function test_add_esw_rule_only_pf0_in_switchdev() {
     cleanup
 }
 
+# multipath enabled and ready and then disable sriov and enable only pf0 to
+# switchdev and verify adding rule doesn't crash the system.
+function test_add_esw_rule_after_multipath_was_ready_before() {
+    disable_sriov_and_multipath
+    enable_multipath_and_sriov
+    enable_switchdev $NIC
+    enable_switchdev $NIC2
+    disable_sriov
+    enable_sriov
+    enable_switchdev $NIC
+    config_vxlan
+    add_vxlan_rule $local_ip $remote_ip
+    cleanup
+}
+
 function do_test() {
     title $1
     eval $1 && success
@@ -104,5 +125,6 @@ function do_test() {
 cleanup
 do_test test_add_nic_rule_in_sriov
 do_test test_add_esw_rule_only_pf0_in_switchdev
+do_test test_add_esw_rule_after_multipath_was_ready_before
 
 test_done
