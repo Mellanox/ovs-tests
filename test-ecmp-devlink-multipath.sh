@@ -93,6 +93,35 @@ function change_pf0_to_switchdev_and_back_to_legacy_with_multipath() {
 
     title "- Disable SRIOV"
     echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
+
+    title "- Disable multipath"
+    disable_multipath || err "Failed to disable multipath"
+}
+
+function change_both_ports_to_switchdev_and_back_to_legacy_with_multipath() {
+    title "- Disable SRIOV"
+    echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
+    echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
+
+    title "- Enable multipath"
+    disable_multipath
+    enable_multipath || err "Failed to enable multipath"
+
+    title "- Enable SRIOV and switchdev"
+    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
+    echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
+    enable_switchdev $NIC
+    enable_switchdev $NIC2
+
+    title "- Disable SRIOV"
+    echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
+    echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
+
+    title "- Disable multipath"
+    disable_multipath || err "Failed to disable multipath"
+
+    # leave where NIC is in sriov
+    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
 }
 
 function do_test() {
@@ -105,5 +134,6 @@ do_test enable_disable_multipath
 do_test fail_to_disable_in_sriov
 do_test fail_to_enable_in_sriov
 do_test change_pf0_to_switchdev_and_back_to_legacy_with_multipath
+do_test change_both_ports_to_switchdev_and_back_to_legacy_with_multipath
 
 test_done
