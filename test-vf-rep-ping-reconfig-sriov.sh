@@ -22,6 +22,7 @@ bind_vfs
 
 function cleanup() {
     ip netns del ns0 2> /dev/null
+    ifconfig $REP 0
 }
 
 function ping_test() {
