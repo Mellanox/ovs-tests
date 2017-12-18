@@ -2,6 +2,7 @@
 #
 # Bug SW #1242632: [ECMP] Null pointer dereference when in multipath mode changing pf0 to switchdev and back to legacy
 # Bug SW #1242476: [ECMP] Null dereference when multipath is enabled and ports in sriov mode
+# Bug SW #1243769: [ECMP] null dereference unsetting multipath ready flag on module cleanup
 #
 
 NIC=${1:-ens5f0}
@@ -143,6 +144,26 @@ function multipath_ready_and_change_pf0_switchdev_legacy() {
     echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
 }
 
+function multipath_ready_and_reload_mlx5_core() {
+    disable_sriov
+
+    title "- Enable multipath"
+    disable_multipath
+    enable_multipath || err "Failed to enable multipath"
+
+    title "- Enable SRIOV and switchdev"
+    enable_sriov
+    enable_switchdev $NIC
+    enable_switchdev $NIC2
+
+    title "- Reload mlx5_core"
+    modprobe -r mlx5_ib mlx5_core || err "Failed to unload modules"
+    modprobe -a mlx5_core mlx5_ib || err "Failed to load modules"
+
+    # leave where NIC is in sriov
+    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
+}
+
 function do_test() {
     title $1
     eval $1 && success
@@ -155,5 +176,6 @@ do_test fail_to_enable_in_sriov
 do_test change_pf0_to_switchdev_and_back_to_legacy_with_multipath
 do_test change_both_ports_to_switchdev_and_back_to_legacy_with_multipath
 do_test multipath_ready_and_change_pf0_switchdev_legacy
+do_test multipath_ready_and_reload_mlx5_core
 
 test_done
