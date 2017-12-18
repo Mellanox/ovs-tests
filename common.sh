@@ -383,7 +383,7 @@ function check_syndrome() {
     sleep 1
     now=`date +"%s"`
     sec=`echo $now - $_check_syndrome_start + 1 | bc`
-    a=`journalctl -n20 --since="$sec seconds ago" | grep syndrome || true`
+    a=`journalctl --since="$sec seconds ago" | grep syndrome || true`
     if [ "$a" != "" ]; then
         err "$a"
         return 1
@@ -397,7 +397,7 @@ function expect_syndrome() {
     sleep 1
     now=`date +"%s"`
     sec=`echo $now - $_check_syndrome_start + 1 | bc`
-    a=`journalctl -n20 --since="$sec seconds ago" | grep syndrome | grep -v $expected || true`
+    a=`journalctl --since="$sec seconds ago" | grep syndrome | grep -v $expected || true`
     if [ "$a" != "" ]; then
         err "$a"
         return 1
