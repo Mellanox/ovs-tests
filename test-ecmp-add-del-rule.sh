@@ -1,8 +1,7 @@
 #!/bin/bash
 #
-#  desc: TODO
-#
-#  test: TODO
+# Bug SW #1242052: [ECMP] Null pointer dereference when adding encap rule in
+# multipath mode and pf0 is in switchdev mode but pf1 is not in sriov mode
 #
 
 NIC=${1:-ens5f0}

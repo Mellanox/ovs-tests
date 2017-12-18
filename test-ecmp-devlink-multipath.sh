@@ -1,8 +1,7 @@
 #!/bin/bash
 #
-#  desc: TODO
-#
-#  test: TODO
+# Bug SW #1242632: [ECMP] Null pointer dereference when in multipath mode changing pf0 to switchdev and back to legacy
+# Bug SW #1242476: [ECMP] Null dereference when multipath is enabled and ports in sriov mode
 #
 
 NIC=${1:-ens5f0}
