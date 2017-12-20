@@ -21,7 +21,8 @@ function start_template() {
 <html><head><meta charset="UTF-8"></head> \
 <style> .block0, .block1 { border-top: 1px black solid; padding: 10px 0 10px 5px; } \
 .block1 { background-color: #e1e1e1; } \
-#index > a { padding: 0 20px; border-right: 1px #cecece solid; white-space: nowrap;} \
+#index > a { padding: 0 20px; border-right: 1px #cecece solid; white-space: nowrap; } \
+.endidx { margin-top: -300px; padding-bottom: 300px; display: block; } \
 </style><body><h4>script version: $_VERSION</h4>"
 }
 
@@ -34,10 +35,19 @@ function format_output_of() {
     local cmd=$1
     local idx=$2
     local out=`eval $cmd 2>&1`
+
+    if [ -n "$idx" ]; then
+        endidx="end$idx"
+    else
+        endidx=""
+    fi
+
     cat << EOT >> $OF
 <div id="$idx" class="block$_BLOCK">
   <h2>$cmd</h2>
+  <a href="#end$idx">bottom</a>
   <pre>$out</pre>
+  <span class="endidx" id="$endidx"></span>
 </div>
 EOT
     ((_BLOCK=_BLOCK^1))
