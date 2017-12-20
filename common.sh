@@ -470,7 +470,13 @@ if [ -n "$CONFIG" ]; then
     fi
 fi
 
+function __cleanup() {
+    err "Terminate requested"
+    exit 1
+}
+
 ### main
 title2 `basename $0`
-__setup_common
 start_test_timestamp
+trap __cleanup INT
+__setup_common
