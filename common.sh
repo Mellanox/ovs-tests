@@ -114,19 +114,24 @@ function title2() {
     kmsg "************** TEST $title **************"
 }
 
-function reset_tc() {
-    local nic1="$1"
-    tc qdisc del dev $nic1 ingress >/dev/null 2>&1  || true
-    tc qdisc add dev $nic1 ingress
-}
-
-function reset_tc_nic() {
-    local nic1="$1"
+function ethtool_hw_tc_offload() {
+    local nic="$1"
     if [ "$devlink_compat" = 1 ]; then
         : hw-tc-offload does not exists
     else
         ethtool -K $nic1 hw-tc-offload on
     fi
+}
+
+function reset_tc() {
+    local nic1="$1"
+    ethtool_hw_tc_offload
+    tc qdisc del dev $nic1 ingress >/dev/null 2>&1  || true
+    tc qdisc add dev $nic1 ingress
+}
+
+# redundant function. use reset_tc().
+function reset_tc_nic() {
     reset_tc $nic1
 }
 
