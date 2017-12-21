@@ -47,9 +47,6 @@ ovs-vsctl add-port $BR $REP2
 title "Test ping VF($IP1) -> VF($IP2)"
 ip netns exec ns0 ping -q -c 10 -i 0.2 -w 2 $IP2 && success || err
 
-echo sleep 300
-sleep 300
-
 del_all_bridges
 cleanup
 test_done
