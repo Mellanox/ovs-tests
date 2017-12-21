@@ -36,9 +36,9 @@ DEVICE_CX5_PCI_3="0x1017"
 DEVICE_CX5_PCI_4="0x1019"
 
 if [ `uname -r` = "3.10.0" ];  then
-    backport_centos_7_2=1
+    devlink_compat=1
 elif [ `uname -r` = "3.10.0-327.el7.x86_64" ]; then
-    backport_centos_7_2=1
+    devlink_compat=1
 fi
 
 
@@ -122,7 +122,7 @@ function reset_tc() {
 
 function reset_tc_nic() {
     local nic1="$1"
-    if [ "$backport_centos_7_2" = 1 ]; then
+    if [ "$devlink_compat" = 1 ]; then
         : hw-tc-offload does not exists
     else
         ethtool -K $nic1 hw-tc-offload on
@@ -164,7 +164,7 @@ function title() {
 
 function bring_up_reps() {
     ip link | grep DOWN | grep ens.*_[0-9] | cut -d: -f2 | xargs -I {} ip link set dev {} up
-    if [ "$backport_centos_7_2" = 1 ]; then
+    if [ "$devlink_compat" = 1 ]; then
         ip link | grep DOWN | grep eth[0-9] | cut -d: -f2 | xargs -I {} ip link set dev {} up
     fi
 }
@@ -175,7 +175,7 @@ function switch_mode() {
     local extra="$extra_mode"
 
     echo "Change eswitch ($pci) mode to $1 $extra"
-    if [ "$backport_centos_7_2" = 1 ]; then
+    if [ "$devlink_compat" = 1 ]; then
         echo $1 > /sys/kernel/debug/mlx5/$pci/compat/mode
         return
     fi
@@ -199,7 +199,7 @@ function switch_mode_switchdev() {
 }
 
 function get_eswitch_mode() {
-    if [ "$backport_centos_7_2" = 1 ]; then
+    if [ "$devlink_compat" = 1 ]; then
         cat /sys/kernel/debug/mlx5/$PCI/compat/mode
     else
         devlink dev eswitch show pci/$PCI | grep -o "\bmode [a-z]\+" | awk {'print $2'}
@@ -207,7 +207,7 @@ function get_eswitch_mode() {
 }
 
 function get_eswitch_inline_mode() {
-    if [ "$backport_centos_7_2" = 1 ]; then
+    if [ "$devlink_compat" = 1 ]; then
         cat /sys/kernel/debug/mlx5/$PCI/compat/inline
     else
         devlink dev eswitch show pci/$PCI | grep -o "\binline-mode [a-z]\+" | awk {'print $2'}
@@ -215,7 +215,7 @@ function get_eswitch_inline_mode() {
 }
 
 function set_eswitch_inline_mode() {
-    if [ "$backport_centos_7_2" = 1 ]; then
+    if [ "$devlink_compat" = 1 ]; then
         echo $1 > /sys/kernel/debug/mlx5/$PCI/compat/inline
     else
         devlink dev eswitch set pci/$PCI inline-mode $1
@@ -223,7 +223,7 @@ function set_eswitch_inline_mode() {
 }
 
 function enable_multipath() {
-    if [ "$backport_centos_7_2" = 1 ]; then
+    if [ "$devlink_compat" = 1 ]; then
         echo enabled > /sys/kernel/debug/mlx5/$PCI/compat/multipath
     else
         devlink dev eswitch set pci/$PCI multipath enable
@@ -231,7 +231,7 @@ function enable_multipath() {
 }
 
 function disable_multipath() {
-    if [ "$backport_centos_7_2" = 1 ]; then
+    if [ "$devlink_compat" = 1 ]; then
         echo disabled > /sys/kernel/debug/mlx5/$PCI/compat/multipath
     else
         devlink dev eswitch set pci/$PCI multipath disable
@@ -245,7 +245,7 @@ function enable_switchdev() {
 }
 
 function get_multipath_mode() {
-    if [ "$backport_centos_7_2" = 1 ]; then
+    if [ "$devlink_compat" = 1 ]; then
         cat /sys/kernel/debug/mlx5/$PCI/compat/multipath
     else
         devlink dev eswitch show pci/$PCI | grep -o "\bmultipath [a-z]\+" | awk {'print $2'}
