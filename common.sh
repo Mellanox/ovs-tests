@@ -132,7 +132,7 @@ function reset_tc() {
 
 # redundant function. use reset_tc().
 function reset_tc_nic() {
-    reset_tc $nic1
+    reset_tc $1
 }
 
 function warn() {
