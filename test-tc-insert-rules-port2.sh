@@ -1,7 +1,8 @@
 #!/bin/bash
 #
-# 1. Test add drop rule on port 2
-# Bug SW #1240863: [ECMP] Reset ovs during traffic cause flow counter doesn't exists syndrome
+# Test add drop rule on port 2
+#
+# Bug SW #1240863: [ECMP] Adding drop rule on port2 cause flow counter doesn't exists syndrome
 #
 
 NIC=${1:-ens5f0}
