@@ -224,7 +224,7 @@ function set_eswitch_inline_mode() {
 
 function enable_multipath() {
     if [ "$backport_centos_7_2" = 1 ]; then
-        echo enable > /sys/kernel/debug/mlx5/$PCI/compat/multipath
+        echo enabled > /sys/kernel/debug/mlx5/$PCI/compat/multipath
     else
         devlink dev eswitch set pci/$PCI multipath enable
     fi
@@ -232,7 +232,7 @@ function enable_multipath() {
 
 function disable_multipath() {
     if [ "$backport_centos_7_2" = 1 ]; then
-        echo disable > /sys/kernel/debug/mlx5/$PCI/compat/multipath
+        echo disabled > /sys/kernel/debug/mlx5/$PCI/compat/multipath
     else
         devlink dev eswitch set pci/$PCI multipath disable
     fi
