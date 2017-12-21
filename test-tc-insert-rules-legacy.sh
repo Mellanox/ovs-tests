@@ -1,7 +1,6 @@
 #!/bin/bash
 #
-# 1. Test add rule without ip_proto
-# 2. Test add rule with unmatched bits
+# Bug SW #1245633: [ASAP MLNX OFED] Kernel panic inserting rule in legacy mode
 #
 
 NIC=${1:-ens5f0}
