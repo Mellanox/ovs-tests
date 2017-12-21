@@ -11,10 +11,6 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 reset_tc_nic $NIC
-rep=${NIC}_0
-if [ -e /sys/class/net/$rep ]; then
-    reset_tc_nic $rep
-fi
 
 function disable_sriov() {
     title "- Disable SRIOV"
