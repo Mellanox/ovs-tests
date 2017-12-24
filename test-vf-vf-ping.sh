@@ -15,9 +15,6 @@ IP2="7.7.7.2"
 
 MULTIPATH=${MULTIPATH:-0}
 
-enable_switchdev_if_no_rep $REP
-bind_vfs
-
 function cleanup() {
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
@@ -55,6 +52,11 @@ if [ $MULTIPATH == 1 ]; then
     enable_sriov
     enable_switchdev $NIC
     enable_switchdev $NIC2
+    bind_vfs $NIC
+    bind_vfs $NIC2
+else
+    enable_switchdev_if_no_rep $REP
+    bind_vfs
 fi
 
 cleanup
