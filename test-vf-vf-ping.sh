@@ -13,6 +13,8 @@ my_dir="$(dirname "$0")"
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
+MULTIPATH=${MULTIPATH:-0}
+
 enable_switchdev_if_no_rep $REP
 bind_vfs
 
@@ -34,6 +36,26 @@ function config_vf() {
     ip netns exec $ns ifconfig $vf $ip/24 up
 }
 
+function disable_sriov() {
+    title "- Disable SRIOV"
+    echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
+    echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
+}
+
+function enable_sriov() {
+    title "- Enable SRIOV"
+    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
+    echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
+}
+
+
+if [ $MULTIPATH == 1 ]; then
+    disable_sriov
+    enable_multipath || fail
+    enable_sriov
+    enable_switchdev $NIC
+    enable_switchdev $NIC2
+fi
 
 cleanup
 start_clean_openvswitch
@@ -49,4 +71,8 @@ ip netns exec ns0 ping -q -c 10 -i 0.2 -w 2 $IP2 && success || err
 
 del_all_bridges
 cleanup
+if [ $MULTIPATH == 1 ]; then
+    disable_sriov
+    disable_multipath
+fi
 test_done
