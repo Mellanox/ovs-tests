@@ -4,8 +4,6 @@
 # Not relevant for ConnectX-4 as it only supports 64K rules.
 #
 
-NIC=${1:-ens5f0}
-
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
