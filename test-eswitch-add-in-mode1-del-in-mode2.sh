@@ -68,8 +68,11 @@ reset_tc_nic $NIC
 switch_mode_legacy
 add_rules
 add_vlan_rule
+title "- unbind vfs"
 unbind_vfs
+title "- switch to switchdev"
 switch_mode_switchdev
+title " - reset tc"
 reset_tc_nic $NIC
 success
 
@@ -80,8 +83,11 @@ title "- add rules"
 add_rules
 add_vlan_rule
 add_vxlan_rule
+title "- unbind vfs"
 unbind_vfs
+title "- switch to legacy"
 switch_mode_legacy
+title " - reset tc"
 reset_tc_nic $NIC
 success
 
