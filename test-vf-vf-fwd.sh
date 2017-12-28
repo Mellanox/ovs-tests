@@ -31,6 +31,14 @@ function config_vf() {
     local ip=$4
 
     echo "$ns : $vf ($ip) -> $rep"
+    if [ ! -e /sys/class/net/$vf ]; then
+        err "Cannot find $vf"
+        return 1
+    fi
+    if [ ! -e /sys/class/net/$rep ]; then
+        err "Cannot find $rep"
+        return 1
+    fi
     ifconfig $rep 0 up
     ip netns add $ns
     ip link set $vf netns $ns
@@ -88,17 +96,17 @@ for r in `seq $ROUNDS`; do
     sleep 2
     title "- add fwd rules above 6000"
     for i in {6110..6500..1}; do
-        ovs-ofctl add-flow $BR "in_port=$REP,tcp,tcp_src=$i,actions=output:$REP2"
+        ovs-ofctl add-flow $BR "in_port=$REP,tcp,tcp_src=$i,actions=output:$REP2" || err "adding ofctl rule"
     done
     sleep 2
     title "- add fwd rules from 6000"
     for i in {6000..6098..2}; do
-        ovs-ofctl add-flow $BR "in_port=$REP,tcp,tcp_src=$i,actions=output:$REP2"
+        ovs-ofctl add-flow $BR "in_port=$REP,tcp,tcp_src=$i,actions=output:$REP2" || err "adding ofctl rule"
     done
     sleep 2
     title "- add drop rules"
     for i in {6000..6100..2}; do
-        ovs-ofctl add-flow $BR "in_port=$REP,tcp,tcp_src=$i,actions=drop"
+        ovs-ofctl add-flow $BR "in_port=$REP,tcp,tcp_src=$i,actions=drop" || err "adding ofctl rule"
     done
     sleep 2
     title "- clear rules"
