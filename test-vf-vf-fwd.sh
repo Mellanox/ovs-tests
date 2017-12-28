@@ -15,6 +15,8 @@ test -z "$REP2" && fail "Missing REP2"
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
+TIMEOUT=${TIMEOUT:-45}
+ROUNDS=${ROUNDS:-2}
 MULTIPATH=${MULTIPATH:-0}
 
 function cleanup() {
@@ -75,16 +77,14 @@ title "Test ping $VF($IP1) -> $VF2($IP2)"
 ip netns exec ns0 ping -q -c 10 -i 0.2 -w 2 $IP2 && success || err
 
 title "Test iperf $VF($IP1) -> $VF2($IP2)"
-timeout=45
-timeout $timeout ip netns exec ns1 iperf3 -s --one-off -i 0 || err &
+timeout $TIMEOUT ip netns exec ns1 iperf3 -s --one-off -i 0 || err &
 sleep 1
-timeout $timeout ip netns exec ns0 iperf3 -c $IP2 -t $((timeout-10)) -B $IP1 -P 100 --cport 6000 -i 0 || err &
+timeout $TIMEOUT ip netns exec ns0 iperf3 -c $IP2 -t $((TIMEOUT-10)) -B $IP1 -P 100 --cport 6000 -i 0 || err &
 
 ovs-ofctl add-flow $BR "dl_dst=11:11:11:11:11:11,actions=drop"
 
-rounds=2
-for r in `seq $rounds`; do
-    title "- round $r/$rounds"
+for r in `seq $ROUNDS`; do
+    title "- round $r/$ROUNDS"
     sleep 2
     title "- add fwd rules above 6000"
     for i in {6110..6500..1}; do
