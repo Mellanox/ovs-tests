@@ -84,23 +84,25 @@ ovs-ofctl add-flow $BR "dl_dst=11:11:11:11:11:11,actions=drop"
 
 rounds=2
 for r in `seq $rounds`; do
-    echo "round $r/$rounds"
+    title "- round $r/$rounds"
     sleep 2
-    for i in {6100..6500..1}; do
+    title "- add fwd rules above 6000"
+    for i in {6110..6500..1}; do
         ovs-ofctl add-flow $BR "in_port=$REP,tcp,tcp_src=$i,actions=output:$REP2"
     done
     sleep 2
+    title "- add fwd rules from 6000"
     for i in {6000..6098..2}; do
         ovs-ofctl add-flow $BR "in_port=$REP,tcp,tcp_src=$i,actions=output:$REP2"
     done
     sleep 2
+    title "- add drop rules"
     for i in {6000..6100..2}; do
         ovs-ofctl add-flow $BR "in_port=$REP,tcp,tcp_src=$i,actions=drop"
     done
     sleep 2
-    ovs-ofctl del-flows $BR
-    sleep 2
-    ovs-ofctl add-flow $BR "actions=normal"
+    title "- clear rules"
+    ovs-ofctl del-flows $BR tcp
 done
 
 wait
