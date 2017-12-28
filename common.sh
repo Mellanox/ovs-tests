@@ -475,6 +475,9 @@ if [ -n "$CONFIG" ]; then
     fi
 fi
 
+test -n "$FORCE_VF2" && VF2=$FORCE_VF2
+test -n "$FORCE_REP2" && REP2=$FORCE_REP2
+
 function __cleanup() {
     err "Terminate requested"
     exit 1
