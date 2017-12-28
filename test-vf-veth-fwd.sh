@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Bug SW #1223798: [ASAP MLNX OFED] Call trace from act_mirred module
+#
 
 my_dir="$(dirname "$0")"
 
