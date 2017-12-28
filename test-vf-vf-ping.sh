@@ -29,7 +29,7 @@ function config_vf() {
     local ip=$4
 
     echo "$ns : $vf ($ip) -> $rep"
-    ifconfig $rep 0
+    ifconfig $rep 0 up
     ip netns add $ns
     ip link set $vf netns $ns
     ip netns exec $ns ifconfig $vf $ip/24 up
