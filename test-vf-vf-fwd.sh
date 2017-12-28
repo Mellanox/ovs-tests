@@ -75,9 +75,10 @@ title "Test ping VF($IP1) -> VF($IP2)"
 ip netns exec ns0 ping -q -c 10 -i 0.2 -w 2 $IP2 && success || err
 
 title "Test iperf VF($IP1) -> VF($IP2)"
-timeout 45 ip netns exec ns1 iperf3 -s --one-off -i 0 || err &
+timeout=45
+timeout $timeout ip netns exec ns1 iperf3 -s --one-off -i 0 || err &
 sleep 1
-timeout 45 ip netns exec ns0 iperf3 -c $IP2 -t 30 -B $IP1 -P 12 --cport 6000 -i 0 || err &
+timeout $timeout ip netns exec ns0 iperf3 -c $IP2 -t $((timeout-10)) -B $IP1 -P 100 --cport 6000 -i 0 || err &
 
 ovs-ofctl add-flow $BR "dl_dst=11:11:11:11:11:11,actions=drop"
 
