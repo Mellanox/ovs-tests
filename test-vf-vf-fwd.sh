@@ -2,6 +2,8 @@
 #
 # Test traffic while adding ofctl fwd and drop rules.
 #
+# Bug SW #1241076: [ECMP] Hit WARN_ON when adding many rules with different mask
+#
 
 NIC=${1:-ens2f0}
 VF=${2:-ens2f2}
