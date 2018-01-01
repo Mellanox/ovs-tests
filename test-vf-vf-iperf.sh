@@ -77,7 +77,7 @@ function check_bw() {
     let MIN_EXPECTED=900*1024*1024
 
     if (( $BW < $MIN_EXPECTED )); then
-        err "Expected BW > $MIN_EXPECTED"
+        err "Expected BW $BW > $MIN_EXPECTED"
     else
         success
     fi
