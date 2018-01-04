@@ -6,21 +6,16 @@
 #
 
 NIC=${1:-ens5f0}
-
+REP=${2:-ens5f0_0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 not_relevant_for_cx5
 
 enable_switchdev
-rep=`get_rep 0`
-if [ -z "$rep" ]; then
-    fail "Missing rep $rep"
-fi
-
 unbind_vfs
 reset_tc_nic $NIC
-reset_tc_nic $rep
+reset_tc_nic $REP
 
 set -e
 
@@ -67,8 +62,8 @@ test $mode = "transport" || fail "Expected mode transport but got $mode"
 success
 
 title "test fail to add ipv4 rule to rep"
-tc filter add dev $rep protocol ip parent ffff: \
-    flower skip_sw indev $rep \
+tc filter add dev $REP protocol ip parent ffff: \
+    flower skip_sw indev $REP \
     src_mac e1:22:33:44:00:00 \
     dst_mac e2:22:33:44:00:00 \
     src_ip 1.1.1.1 \
@@ -76,8 +71,8 @@ tc filter add dev $rep protocol ip parent ffff: \
     action drop || success "Failed to add rule as expected"
 
 title "test fail to add ipv6 rule to rep"
-tc filter add dev $rep protocol ipv6 parent ffff: \
-    flower skip_sw indev $rep \
+tc filter add dev $REP protocol ipv6 parent ffff: \
+    flower skip_sw indev $REP \
     src_mac e1:22:33:44:00:00 \
     dst_mac e2:22:33:44:00:00 \
     src_ip 2001:0db8:85a3::8a2e:0370:7334 \
@@ -103,22 +98,22 @@ mode=`get_eswitch_inline_mode`
 test $mode = "transport" || fail "Expected mode transport but got $mode"
 success
 
-if [ -e /sys/class/net/$rep ]; then
+if [ -e /sys/class/net/$REP ]; then
     title "test add ipv6 rule"
-    tc filter add dev $rep protocol ipv6 parent ffff: \
-        flower skip_sw indev $rep \
+    tc filter add dev $REP protocol ipv6 parent ffff: \
+        flower skip_sw indev $REP \
         src_mac e1:22:33:44:00:00 \
         dst_mac e2:22:33:44:00:00 \
         src_ip 2001:0db8:85a3::8a2e:0370:7334 \
         action drop || fail "Failed to add rule"
     success
 else
-    warn "skip rule ipv6 test - cannot find $rep"
+    warn "skip rule ipv6 test - cannot find $REP"
 fi
 
 echo "* reset"
 reset_tc_nic $NIC
-reset_tc_nic $rep
+reset_tc_nic $REP
 echo $vfpci > /sys/bus/pci/drivers/mlx5_core/unbind
 set_eswitch_inline_mode link
 
