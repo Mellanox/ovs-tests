@@ -21,6 +21,15 @@ port2=`get_rep 0`
 port3=$VF2
 port4=`get_rep 1`
 
+if [ -z "$port2" ]; then
+    fail "Missing rep $port2"
+    exit 1
+fi
+if [ -z "$port4" ]; then
+    fail "Missing rep $port4"
+    exit 1
+fi
+
 enable_switchdev_if_no_rep $port2
 if [ ! -e /sys/class/net/$port2 ]; then
     fail "Missing rep $port2"
