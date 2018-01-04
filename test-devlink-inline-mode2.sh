@@ -14,6 +14,7 @@
 #
 
 NIC=${1:-ens5f0}
+REP=${NIC}_0
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -21,9 +22,8 @@ my_dir="$(dirname "$0")"
 not_relevant_for_cx5
 
 reset_tc_nic $NIC
-rep=${NIC}_0
-if [ -e /sys/class/net/$rep ]; then
-    reset_tc_nic $rep
+if [ -e /sys/class/net/$REP ]; then
+    reset_tc_nic $REP
 fi
 
 set -e

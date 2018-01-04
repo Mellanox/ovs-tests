@@ -21,6 +21,7 @@
 #
 
 NIC=${1:-ens5f0}
+REP=${NIC}_0
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -28,10 +29,10 @@ my_dir="$(dirname "$0")"
 set -e
 
 function add_tc_rule_to_rep() {
-    title "add tc rule to rep $rep"
-    reset_tc_nic $rep
-    tc filter add dev $rep protocol ip parent ffff: \
-        flower skip_sw indev $rep \
+    title "add tc rule to rep $REP"
+    reset_tc_nic $REP
+    tc filter add dev $REP protocol ip parent ffff: \
+        flower skip_sw indev $REP \
         src_mac e1:22:33:44:00:00 \
         dst_mac e2:22:33:44:00:00 \
         action drop || fail "Failed to add rule"
@@ -66,11 +67,10 @@ function testB() {
     title "TEST B - switchdev mode with tc rules"
     unbind_vfs
     switch_mode_switchdev
-    rep=${NIC}_0
-    echo "look for $rep"
+    echo "look for $REP"
     sleep 0.5
-    if [ ! -e /sys/class/net/$rep ]; then
-        fail "Missing rep $rep"
+    if [ ! -e /sys/class/net/$REP ]; then
+        fail "Missing rep $REP"
     fi
     add_tc_rule_to_rep
     add_tc_rule_to_pf
