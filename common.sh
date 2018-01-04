@@ -307,7 +307,17 @@ function get_rep() {
 	local count=0
 
         local a="REP$vf"
+
+        # we use config REP, REP2
+        if [ $a = "REP0" ]; then
+            a="REP"
+        else
+            let vff=vf+1
+            a="REP$vff"
+        fi
+
         local b=${!a}
+
         if [ -n "$b" ]; then
             if [ -e /sys/devices/virtual/net/$b ]; then
                 echo $b
@@ -318,7 +328,7 @@ function get_rep() {
         fi
 
 	if [ -z "$id" ]; then
-	    echo "Cannot get switch id for $NIC" >/dev/stderr
+	    echo "Cannot find rep index $vf. Cannot get switch id for $NIC" >/dev/stderr
 	    exit 1
 	fi
 
