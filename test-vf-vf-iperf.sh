@@ -74,6 +74,9 @@ function check_bw() {
     SUM=`cat $TMPFILE | grep ",-1,0.0-10.0," | tail -n1`
     BW=${SUM##*,}
 
+    test -z "$SUM" && err "Missing sum line" && return
+    test -z "$BW" && err "Missing bw" && return
+
     let MIN_EXPECTED=9*1024*1024*1024
 
     if (( $BW < $MIN_EXPECTED )); then
