@@ -87,6 +87,8 @@ function neigh_update_test() {
     title "-- forcing addr change 2"
     sleep 5
     ip n replace ${remote_ip} dev $NIC lladdr 11:22:33:44:55:99
+
+    ip l del vxlan1
 }
 
 
