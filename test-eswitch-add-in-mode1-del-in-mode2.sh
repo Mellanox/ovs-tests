@@ -59,7 +59,7 @@ function add_vxlan_rule() {
                         enc_key_id 100 \
                         enc_dst_port 4789 \
                 action tunnel_key unset \
-                action mirred egress redirect dev ${NIC}_0 && success || err "Failed"
+                action mirred egress redirect dev ${REP} && success || err "Failed"
 }
 
 
