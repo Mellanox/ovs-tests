@@ -59,12 +59,17 @@ ip netns exec red ping $REMOTE_IP -i 0.25 -c 8
 title "Get ufid from appctl dpct/dump-flows"
 UFID=`ovs-appctl dpctl/dump-flows -m type=offloaded | grep 0x0800 | grep "in_port(veth2)" | cut -d , -f 1`
 echo $UFID
-test -n "$UFID" && success || fail
+test -n "$UFID" || fail
 
 title "Get ufid from dpctl dump-flows and compare"
-UFID2=`ovs-dpctl dump-flows -m type=offloaded | grep 0x0800 | grep "in_port(veth2)" | cut -d , -f 1 | grep $UFID`
+UFID2=`ovs-dpctl dump-flows -m type=offloaded | grep 0x0800 | grep "in_port(veth2)" | cut -d , -f 1`
 echo $UFID2
-test -n "$UFID2" && success || fail
+test -n "$UFID2" || fail
+if [ "$UFID" = "$UFID2" ] ; then
+    success
+else
+    fail
+fi
 
 title "Check tc show can see a cookie"
 COOKIE=`tc -s filter show  dev veth2 protocol ip ingress | grep cookie`
@@ -72,6 +77,5 @@ echo $COOKIE
 test -n "$COOKIE" && success || fail
 
 # end test
-
 cleanup
-echo "done"
+test_done
