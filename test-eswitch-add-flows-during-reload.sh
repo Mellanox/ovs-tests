@@ -36,7 +36,7 @@ function add_rules() {
             action drop
         if [ "$?" != 0 ]; then
             if [ $first = true ]; then
-                fail "Failed to add rule"
+                fail "Failed to add first rule"
             fi
             break
         fi

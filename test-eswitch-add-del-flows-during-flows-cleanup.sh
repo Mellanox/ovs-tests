@@ -56,7 +56,7 @@ function del_rules() {
         tc filter del dev $nic protocol ip parent ffff: prio $((pref--))
         if [ "$?" != 0 ]; then
             if [ $first = true ]; then
-                fail "Failed to del rule"
+                fail "Failed to del first rule"
             fi
             break
         fi
