@@ -18,7 +18,7 @@ IP1="7.7.7.1"
 IP2="7.7.7.2"
 
 TIMEOUT=${TIMEOUT:-45}
-ROUNDS=${ROUNDS:-2}
+ROUNDS=${ROUNDS:-10}
 MULTIPATH=${MULTIPATH:-0}
 
 function cleanup() {
