@@ -143,7 +143,7 @@ function warn() {
 function fail() {
     local m=${@:-Failed}
     TEST_FAILED=1
-    echo -e "${RED}ERROR: $m$BLACK"
+    echo -e "${RED}ERROR: $m$BLACK" > /dev/stderr
     kmsg "ERROR: $m"
     wait
     exit 1
@@ -152,7 +152,7 @@ function fail() {
 function err() {
     local m=${@:-Failed}
     TEST_FAILED=1
-    echo -e "${RED}ERROR: $m$BLACK"
+    echo -e "${RED}ERROR: $m$BLACK" >/dev/stderr
     kmsg "ERROR: $m"
 }
 
@@ -287,7 +287,8 @@ function unbind_vfs() {
 }
 
 function bind_vfs() {
-    for i in `ls -1d /sys/class/net/$NIC/device/virt*`; do
+    local nic=${1:-$NIC}
+    for i in `ls -1d /sys/class/net/$nic/device/virt*`; do
         vfpci=$(basename `readlink $i`)
         if [ ! -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
             echo "bind vf $vfpci"
@@ -300,35 +301,34 @@ function get_sw_id() {
     cat /sys/class/net/$1/phys_switch_id 2>/dev/null
 }
 
+function get_vf() {
+    local vfn=$1
+    local nic=$2
+    if [ -a /sys/class/net/$nic/device/virtfn$vfn/net ]; then
+	echo `ls /sys/class/net/$nic/device/virtfn$vfn/net/`
+	return
+    else 
+	echo "cannot find vf $vfn of $nic" >/dev/stderr
+	exit 1
+    fi
+}
+
 function get_rep() {
 	local vf=$1
-	local id=`get_sw_id $NIC`
 	local id2
 	local count=0
+	local nic=${2:-$NIC}
+	local id=`get_sw_id $nic`
 
-        local a="REP$vf"
+        local b="${nic}_$vf"
 
-        # we use config REP, REP2
-        if [ $a = "REP0" ]; then
-            a="REP"
-        else
-            let vff=vf+1
-            a="REP$vff"
-        fi
-
-        local b=${!a}
-
-        if [ -n "$b" ]; then
-            if [ -e /sys/devices/virtual/net/$b ]; then
-                echo $b
-                return
-            fi
-            echo "Cannot find rep index $vf" >/dev/stderr
-            exit 1
-        fi
+	if [ -e /sys/devices/virtual/net/$b ]; then
+	    echo $b
+	    return
+	fi
 
 	if [ -z "$id" ]; then
-	    echo "Cannot find rep index $vf. Cannot get switch id for $NIC" >/dev/stderr
+	    echo "Cannot find rep index $vf. Cannot get switch id for $nic" >/dev/stderr
 	    exit 1
 	fi
 
