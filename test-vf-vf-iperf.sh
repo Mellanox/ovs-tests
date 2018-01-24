@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# 
+# Bug SW #1251244: Poor performance with UDP traffic in HV using namespaces
 #
 
 NIC=${1:-ens5f0}
@@ -80,7 +80,7 @@ function check_bw() {
     let MIN_EXPECTED=9*1024*1024*1024
 
     if (( $BW < $MIN_EXPECTED )); then
-        err "Expected BW $BW > $MIN_EXPECTED"
+        err "Expected minimum BW of $MIN_EXPECTED and got $BW"
     else
         success
     fi
