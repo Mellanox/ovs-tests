@@ -471,22 +471,23 @@ function not_relevant_for_cx4() {
     fi
 }
 
-
-# load config if exists
-if [ -n "$CONFIG" ]; then
-    if [ -f "$CONFIG" ]; then
-        echo "Loading config $CONFIG"
-        . $CONFIG
-    elif [ -f "$DIR/$CONFIG" ]; then
-        echo "Loading config $DIR/$CONFIG"
-        . $DIR/$CONFIG
-    else
-        warn "Config $CONFIG not found"
+function __load_config() {
+    # load config if exists
+    if [ -n "$CONFIG" ]; then
+        if [ -f "$CONFIG" ]; then
+            echo "Loading config $CONFIG"
+            . $CONFIG
+        elif [ -f "$DIR/$CONFIG" ]; then
+            echo "Loading config $DIR/$CONFIG"
+            . $DIR/$CONFIG
+        else
+            warn "Config $CONFIG not found"
+        fi
     fi
-fi
 
-test -n "$FORCE_VF2" && VF2=$FORCE_VF2
-test -n "$FORCE_REP2" && REP2=$FORCE_REP2
+    test -n "$FORCE_VF2" && VF2=$FORCE_VF2
+    test -n "$FORCE_REP2" && REP2=$FORCE_REP2
+}
 
 function __cleanup() {
     err "Terminate requested"
@@ -497,4 +498,5 @@ function __cleanup() {
 title2 `basename $0`
 start_test_timestamp
 trap __cleanup INT
+__load_config
 __setup_common
