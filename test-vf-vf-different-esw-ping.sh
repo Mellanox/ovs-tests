@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# 
+#  Testing ping between VFs on different eSwitch.
 #
 
 NIC=${1:-ens5f0}
