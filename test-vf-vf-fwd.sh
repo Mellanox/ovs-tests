@@ -59,6 +59,7 @@ function enable_sriov() {
     echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
 }
 
+cleanup
 
 if [ $MULTIPATH == 1 ]; then
     disable_sriov
@@ -73,7 +74,6 @@ else
     bind_vfs
 fi
 
-cleanup
 start_clean_openvswitch
 config_vf ns0 $VF $REP $IP1
 config_vf ns1 $VF2 $REP2 $IP2
@@ -84,12 +84,12 @@ ovs-vsctl add-port $BR $REP
 ovs-vsctl add-port $BR $REP2
 
 title "Test ping $VF($IP1) -> $VF2($IP2)"
-ip netns exec ns0 ping -q -c 10 -i 0.2 -w 2 $IP2 && success || err
+ip netns exec ns0 ping -q -c 10 -i 0.2 -w 2 $IP2 && success || err "ping failed"
 
 title "Test iperf $VF($IP1) -> $VF2($IP2)"
-timeout $TIMEOUT ip netns exec ns1 iperf3 -s --one-off -i 0 || err &
+timeout $TIMEOUT ip netns exec ns1 iperf3 -s --one-off -i 0 || err "iperf server failed" &
 sleep 1
-timeout $TIMEOUT ip netns exec ns0 iperf3 -c $IP2 -t $((TIMEOUT-10)) -B $IP1 -P 100 --cport 6000 -i 0 || err &
+timeout $TIMEOUT ip netns exec ns0 iperf3 -c $IP2 -t $((TIMEOUT-10)) -B $IP1 -P 100 --cport 6000 -i 0 || err "iperf client failed" &
 
 ovs-ofctl add-flow $BR "dl_dst=11:11:11:11:11:11,actions=drop"
 
