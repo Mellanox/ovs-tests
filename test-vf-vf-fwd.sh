@@ -94,6 +94,10 @@ timeout $TIMEOUT ip netns exec ns0 iperf3 -c $IP2 -t $((TIMEOUT-10)) -B $IP1 -P 
 ovs-ofctl add-flow $BR "dl_dst=11:11:11:11:11:11,actions=drop"
 
 for r in `seq $ROUNDS`; do
+    if [ $TEST_FAILED == 1 ]; then
+        killall iperf3
+        break
+    fi
     title "- round $r/$ROUNDS"
     sleep 2
     title "- add fwd rules above 6000"
