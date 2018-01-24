@@ -58,6 +58,8 @@ function is_offloaded_rules() {
     return 0
 }
 
+
+cleanup
 disable_sriov
 if [ $MULTIPATH == 1 ]; then
     enable_multipath || fail
@@ -75,7 +77,6 @@ if [ -z "$REP2" ]; then
     exit 1
 fi
 
-cleanup
 start_clean_openvswitch
 config_vf ns0 $VF $REP $IP1
 config_vf ns1 $VF2 $REP2 $IP2
