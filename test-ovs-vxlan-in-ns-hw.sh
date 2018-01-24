@@ -32,7 +32,7 @@ function cleanup() {
 }
 
 cleanup
-
+bind_vfs $NIC
 
 for i in $vm1_port $vm1_port_rep $vm2_port $vm2_port_rep ; do
     test -e /sys/class/net/$i || fail "Cannot find interface $i"
