@@ -71,7 +71,7 @@ ovs-vsctl add-port $BR $REP
 ovs-vsctl add-port $BR $REP2
 
 function check_bw() {
-    SUM=`cat $TMPFILE | grep ",-1,0.0-10.0," | tail -n1`
+    SUM=`cat $TMPFILE | grep ",-1,0.0-10." | tail -n1`
     BW=${SUM##*,}
 
     test -z "$SUM" && err "Missing sum line" && return
