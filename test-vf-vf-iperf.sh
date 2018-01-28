@@ -74,7 +74,7 @@ function check_bw() {
     SUM=`cat $TMPFILE | grep ",-1,0.0-10." | tail -n1`
     BW=${SUM##*,}
 
-    test -z "$SUM" && err "Missing sum line" && return
+    test -z "$SUM" && cat $TMPFILE && err "Missing sum line" && return
     test -z "$BW" && err "Missing bw" && return
 
     let MIN_EXPECTED=9*1024*1024*1024
@@ -92,6 +92,7 @@ function test_tcp() {
     ip netns exec ns0 iperf -s &
     ip netns exec ns1 iperf -c $IP1 -i 5 -t 10 -y c -b1G -P10 > $TMPFILE
     killall iperf
+    sleep 0.5
 }
 
 function test_udp() {
@@ -100,6 +101,7 @@ function test_udp() {
     ip netns exec ns0 iperf -u -s &
     ip netns exec ns1 iperf -u -c $IP1 -i 5 -t 10 -y c -b1G -P10 > $TMPFILE
     killall iperf
+    sleep 0.5
 }
 
 test_tcp
