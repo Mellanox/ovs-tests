@@ -29,6 +29,10 @@ function cleanup() {
     for i in `seq 0 7`; do
         ip link del veth$i &> /dev/null
     done
+
+    for i in $vm1_port $vm1_port_rep $vm2_port $vm2_port_rep ; do
+	        ip a flush dev $i
+    done
 }
 
 cleanup
@@ -39,10 +43,6 @@ for i in $vm1_port $vm1_port_rep $vm2_port $vm2_port_rep ; do
 done
 
 echo "setup ns"
-
-for i in $vm1_port $vm1_port_rep $vm2_port $vm2_port_rep ; do
-    ip a flush dev $vm1_port
-done
 
 ifconfig $vm1_port $VM1_IP/24 up
 ifconfig $vm1_port_rep up
