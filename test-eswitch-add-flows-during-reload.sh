@@ -45,8 +45,13 @@ function add_rules() {
 }
 
 function reload_modules() {
-    modprobe -r mlx5_ib mlx5_core devlink || fail "Failed to unload modules"
-    modprobe -a devlink mlx5_core mlx5_ib || fail "Failed to load modules"
+    if [ "$devlink_compat" = 1 ]; then
+        service openibd force-restart
+    else
+        modprobe -r mlx5_ib mlx5_core devlink || fail "Failed to unload modules"
+        modprobe -a devlink mlx5_core mlx5_ib || fail "Failed to load modules"
+    fi
+
     a=`journalctl -n200 | grep KASAN || true`
     if [ "$a" != "" ]; then
         fail "Detected KASAN in journalctl"
@@ -58,13 +63,16 @@ function reload_modules() {
 
 title "test reload modules"
 start_check_syndrome
+
 reload_modules &
 # with cx5 we tested 1 second but with cx4 device already gone so decreased the
 # sleep from 1 second to have first rule add and then cleanup start.
 sleep 0.2
+
 title "add $COUNT rules"
 add_rules
 sleep 5
+
 check_syndrome && success || err "Failed"
 reset_tc_nic $rep
 
