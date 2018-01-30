@@ -50,8 +50,14 @@ function add_tc_rule_to_pf() {
 
 function reload_mlx5() {
     title "test reload modules"
-    modprobe -r mlx5_ib mlx5_core devlink || fail "Failed to unload modules"
-    modprobe -a devlink mlx5_core mlx5_ib || fail "Failed to load modules"
+
+    if [ "$devlink_compat" = 1 ]; then
+	service openibd force-restart
+    else
+        modprobe -r mlx5_ib mlx5_core devlink || fail "Failed to unload modules"
+        modprobe -a devlink mlx5_core mlx5_ib || fail "Failed to load modules"
+    fi
+
     set_macs
     check_kasan
 }
@@ -65,6 +71,14 @@ function testA() {
 
 function testB() {
     title "TEST B - switchdev mode with tc rules"
+
+    if [ "$devlink_compat" = 1 ]; then
+       # not relevant in backport as mlx5_core is dependent on cls_flower
+       # and we cannot remove cls_flower when there are rules.
+       echo "Test not relevant in backport"
+       return
+    fi
+
     unbind_vfs
     switch_mode_switchdev
     echo "look for $REP"
@@ -79,6 +93,14 @@ function testB() {
 
 function testC() {
     title "TEST C - legacy mode with tc rules"
+
+    if [ "$devlink_compat" = 1 ]; then
+       # not relevant in backport as mlx5_core is dependent on cls_flower
+       # and we cannot remove cls_flower when there are rules.
+       echo "Test not relevant in backport"
+       return
+    fi
+
     unbind_vfs
     switch_mode_legacy
     add_tc_rule_to_pf
