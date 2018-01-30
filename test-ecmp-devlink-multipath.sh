@@ -38,7 +38,12 @@ function enable_disable_multipath() {
     if [ -z "$mode" ]; then
         mode='X'
     fi
-    test $mode = "enable" || err "Expected multipath mode enabled but got $mode"
+
+    if [ "$devlink_compat" = 1 ]; then
+        test $mode = "enabled" || err "Expected multipath mode enabled but got $mode"
+    else
+        test $mode = "enable" || err "Expected multipath mode enabled but got $mode"
+    fi
 
     disable_sriov
 
@@ -153,8 +158,12 @@ function multipath_ready_and_reload_mlx5_core() {
     enable_switchdev $NIC2
 
     title "- Reload mlx5_core"
-    modprobe -r mlx5_ib mlx5_core || err "Failed to unload modules"
-    modprobe -a mlx5_core mlx5_ib || err "Failed to load modules"
+    if [ "$devlink_compat" = 1 ]; then
+        service openibd force-restart
+    else
+        modprobe -r mlx5_ib mlx5_core || err "Failed to unload modules"
+        modprobe -a mlx5_core mlx5_ib || err "Failed to load modules"
+    fi
 
     # leave where NIC is in sriov
     echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
