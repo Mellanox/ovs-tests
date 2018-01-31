@@ -18,11 +18,9 @@ mkdir -p $tmpdir
 
 if [[ "$SKIP" == "skip_sw" ]]; then
 	OUT="$tmpdir/hw_batch"
-	ethtool -K $ETH hw-tc-offload on
 fi
 if [[ "$SKIP" == "skip_hw" ]]; then
 	OUT="$tmpdir/sw_batch"
-	ethtool -K $ETH hw-tc-offload off
 fi
 
 n=0
