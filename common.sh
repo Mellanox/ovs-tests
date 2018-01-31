@@ -306,10 +306,8 @@ function get_vf() {
     local nic=$2
     if [ -a /sys/class/net/$nic/device/virtfn$vfn/net ]; then
 	echo `ls /sys/class/net/$nic/device/virtfn$vfn/net/`
-	return
     else 
-	echo "cannot find vf $vfn of $nic" >/dev/stderr
-	exit 1
+	fail "cannot find vf $vfn of $nic"
     fi
 }
 

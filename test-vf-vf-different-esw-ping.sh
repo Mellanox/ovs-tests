@@ -74,7 +74,6 @@ VF2=`get_vf 0 $NIC2`
 REP2=`get_rep 0 $NIC2`
 if [ -z "$REP2" ]; then
     fail "Missing rep $rep"
-    exit 1
 fi
 
 start_clean_openvswitch
