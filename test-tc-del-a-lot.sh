@@ -2,6 +2,8 @@
 #
 # Test inserting a lot of mirred rules and deleting them.
 #
+# Bug SW #1278642: [ASAP MLNX OFED] Adding lots of mirred rules and deleting qdisc in parallel causes a soft lockup
+#
 NIC=${1:-ens2f0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
