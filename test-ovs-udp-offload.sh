@@ -57,7 +57,7 @@ ovs-ofctl add-flow brv-1 "in_port($REP),ip,udp,actions=$REP2" || err
 ovs-ofctl add-flow brv-1 "in_port($REP2),ip,udp,actions=$REP" || err
 
 tdtmpfile=/tmp/$$.pcap
-timeout 15 tcpdump -nnepi ens1f0_0 udp -c 30 -w $tdtmpfile &
+timeout 15 tcpdump -nnepi $REP udp -c 30 -w $tdtmpfile &
 tdpid=$!
 sleep 0.5
 
