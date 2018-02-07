@@ -53,7 +53,9 @@ function check_offloaded_rules() {
 }
 
 
+ovs-ofctl add-flow brv-1 "in_port($REP),ip,udp,dl_dst=e4:11:11:11:11:11,actions=drop" || err
 ovs-ofctl add-flow brv-1 "in_port($REP),ip,udp,actions=$REP2" || err
+ovs-ofctl add-flow brv-1 "in_port($REP2),ip,udp,dl_dst=e4:11:11:11:11:11,actions=drop" || err
 ovs-ofctl add-flow brv-1 "in_port($REP2),ip,udp,actions=$REP" || err
 
 tdtmpfile=/tmp/$$.pcap
