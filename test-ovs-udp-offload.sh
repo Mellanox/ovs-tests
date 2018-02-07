@@ -21,17 +21,12 @@ function cleanup() {
     echo "cleanup"
     start_clean_openvswitch
     ip netns del ns0 &> /dev/null
-
-    for i in `seq 0 7`; do
-        ip link del veth$i &> /dev/null
-    done
 }
 
 cleanup
 bind_vfs
 
 echo "setup ns"
-
 ifconfig $VF2 $VM1_IP/24 up
 ip netns add ns0
 ip link set $VF netns ns0
@@ -58,6 +53,16 @@ ovs-ofctl add-flow brv-1 "in_port($REP),ip,udp,actions=$REP2" || err
 ovs-ofctl add-flow brv-1 "in_port($REP2),ip,udp,dl_dst=e4:11:11:11:11:11,actions=drop" || err
 ovs-ofctl add-flow brv-1 "in_port($REP2),ip,udp,actions=$REP" || err
 
+function quick_udp() {
+    title "Test iperf udp $VF($VM1_IP) -> $VF2($VM2_IP)"
+    ip netns exec ns0 iperf -u -s &
+    iperf -u -c $VM2_IP -t 1 -b1G
+    killall iperf
+}
+
+# quick traffic to cause offload
+quick_udp
+
 tdtmpfile=/tmp/$$.pcap
 timeout 15 tcpdump -nnepi $REP udp -c 30 -w $tdtmpfile &
 tdpid=$!
@@ -73,20 +78,19 @@ function test_udp() {
 test_udp
 title "Verify we have 2 rules"
 check_offloaded_rules 2
+
 ovs-dpctl dump-flows type=offloaded --names
-tc -s filter show dev $REP ingress
+tc -s filter show dev $REP2 ingress
 
 kill $tdpid 2>/dev/null
 sleep 1
 count=`tcpdump -nr $tdtmpfile | wc -l`
 title "Verify with tcpdump"
 if [[ $count == 0 ]]; then
-    err "No tcpdump output"
+    success
 elif [[ $count > 2 ]]; then
     err "No offload"
     tcpdump -nr $tdtmpfile
-else
-    success
 fi
 
 cleanup

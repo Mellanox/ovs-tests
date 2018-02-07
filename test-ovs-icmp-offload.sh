@@ -21,10 +21,6 @@ function cleanup() {
     echo "cleanup"
     start_clean_openvswitch
     ip netns del ns0 &> /dev/null
-
-    for i in `seq 0 7`; do
-        ip link del veth$i &> /dev/null
-    done
 }
 
 cleanup
@@ -54,7 +50,10 @@ function check_offloaded_rules() {
 
 
 ovs-ofctl add-flow brv-1 "in_port($REP),ip,udp,actions=$REP2" || err
-#ovs-ofctl add-flow brv-1 "in_port($REP2),ip,udp,actions=$REP" || err
+ovs-ofctl add-flow brv-1 "in_port($REP2),ip,udp,actions=$REP" || err
+
+# quick ping to make ovs add rules
+ping -q -c 1 -w 1 $VM2_IP && success || err
 
 tdtmpfile=/tmp/$$.pcap
 timeout 15 tcpdump -nnepi $REP icmp -c 30 -w $tdtmpfile &
@@ -75,12 +74,10 @@ sleep 1
 count=`tcpdump -nr $tdtmpfile | wc -l`
 title "Verify with tcpdump"
 if [[ $count == 0 ]]; then
-    err "No tcpdump output"
+    success
 elif [[ $count > 2 ]]; then
     err "No offload"
     tcpdump -nr $tdtmpfile
-else
-    success
 fi
 
 cleanup
