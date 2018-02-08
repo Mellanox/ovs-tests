@@ -143,7 +143,7 @@ function warn() {
 function fail() {
     local m=${@:-Failed}
     TEST_FAILED=1
-    echo -e "${RED}ERROR: $m$BLACK" > /dev/stderr
+    echo -e "${RED}ERROR: $m$BLACK" >>/dev/stderr
     kmsg "ERROR: $m"
     wait
     exit 1
@@ -152,7 +152,7 @@ function fail() {
 function err() {
     local m=${@:-Failed}
     TEST_FAILED=1
-    echo -e "${RED}ERROR: $m$BLACK" >/dev/stderr
+    echo -e "${RED}ERROR: $m$BLACK" >>/dev/stderr
     kmsg "ERROR: $m"
 }
 
@@ -326,8 +326,7 @@ function get_rep() {
 	fi
 
 	if [ -z "$id" ]; then
-	    echo "Cannot find rep index $vf. Cannot get switch id for $nic" >/dev/stderr
-	    exit 1
+	    fail "Cannot find rep index $vf. Cannot get switch id for $nic"
 	fi
 
 	VIRTUAL="/sys/devices/virtual/net"
@@ -337,14 +336,13 @@ function get_rep() {
 	    if [ "$id" = "$id2" ]; then
 		if [ "$vf" = "$count" ]; then
 			echo $i
-			echo "Found rep $i" >/dev/stderr
+			echo "Found rep $i" >>/dev/stderr
 			return
 		fi
 		((count=count+1))
 	    fi
 	done
-	echo "Cannot find rep index $vf" >/dev/stderr
-	exit 1
+	fail "Cannot find rep index $vf"
 }
 
 function start_test_timestamp() {
