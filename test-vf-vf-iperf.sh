@@ -90,7 +90,7 @@ function test_tcp() {
     title "Test iperf tcp $VF($IP1) -> $VF2($IP2)"
     TMPFILE=/tmp/iperf.log
     ip netns exec ns0 iperf -s &
-    ip netns exec ns1 iperf -c $IP1 -i 5 -t 10 -y c -b1G -P10 > $TMPFILE
+    ip netns exec ns1 iperf -c $IP1 -i 5 -t 10 -y c -P10 > $TMPFILE
     killall iperf
     sleep 0.5
 }
