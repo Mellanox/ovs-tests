@@ -373,7 +373,8 @@ function check_for_errors_log() {
     look="health compromised|firmware internal error|assert_var|Call Trace:|DEADLOCK|possible circular locking|WARNING:|RIP:"
     a=`journalctl --since="$sec seconds ago" | grep -E -i "$look" || true`
     if [ "$a" != "" ]; then
-        err "$a"
+        err "Detected errors in the log"
+        echo "$a" >>/dev/stderr
         return 1
     fi
     return 0
