@@ -102,7 +102,7 @@ function get_mst_dev() {
 function kmsg() {
     local m=$@
     if [ -w /dev/kmsg ]; then
-        echo ":test: $m" > /dev/kmsg
+        echo ":test: $m" >>/dev/kmsg
     fi
 }
 
