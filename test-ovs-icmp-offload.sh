@@ -49,8 +49,10 @@ function check_offloaded_rules() {
 }
 
 
-ovs-ofctl add-flow brv-1 "in_port($REP),ip,udp,actions=$REP2" || err
-ovs-ofctl add-flow brv-1 "in_port($REP2),ip,udp,actions=$REP" || err
+ovs-ofctl add-flow brv-1 "in_port($REP),ip,dl_dst=e4:11:11:11:11:11,actions=drop" || err
+ovs-ofctl add-flow brv-1 "in_port($REP),ip,icmp,actions=$REP2" || err
+ovs-ofctl add-flow brv-1 "in_port($REP2),ip,dl_dst=e4:11:11:11:11:11,actions=drop" || err
+ovs-ofctl add-flow brv-1 "in_port($REP2),ip,icmp,actions=$REP" || err
 
 # quick ping to make ovs add rules
 ping -q -c 1 -w 1 $VM2_IP && success || err
