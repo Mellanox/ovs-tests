@@ -181,7 +181,7 @@ function switch_mode() {
 
     echo "Change eswitch ($pci) mode to $1 $extra"
     if [ "$devlink_compat" = 1 ]; then
-        echo $1 > /sys/kernel/debug/mlx5/$pci/compat/mode
+        echo $1 > /sys/kernel/debug/mlx5/$pci/compat/mode || fail "Failed to set mode $1"
         return
     fi
     echo -n "Old mode: "
