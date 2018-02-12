@@ -289,17 +289,6 @@ function test_insert_ip_no_ip_proto() {
     # TODO test result?
 }
 
-# header rewrite cx5 only
-function test_basic_header_rewrite() {
-    not_relevant_for_cx4
-    reset_tc_nic $REP
-    tc_filter add dev $REP protocol ip parent ffff: \
-        flower skip_sw ip_proto icmp \
-        action pedit ex munge eth dst set 20:22:33:44:55:66 \
-        pipe action mirred egress redirect dev $REP
-    reset_tc_nic $REP
-}
-
 # test insert with bits
 #[ 4021.277566] mlx5_core 0000:24:00.0: mlx5_cmd_check:695:(pid 10967): SET_FLOW_TABLE_ENTRY(0x936) op_mod(0x0) erred, status bad parameter(0x3), syndrome (0x3ad328)
 #BAD_PARAM           | 0x3AD328 |  set_flow_table_entry: rule include unmatched bits (group_match_criteria == 0, but fte_match_value == 1)
