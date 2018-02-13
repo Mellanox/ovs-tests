@@ -121,7 +121,7 @@ function ethtool_hw_tc_offload() {
     if [ "$devlink_compat" = 1 ]; then
         : hw-tc-offload does not exists
     else
-        ethtool -K $nic1 hw-tc-offload on
+        ethtool -K $nic1 hw-tc-offload on 2>/dev/null
     fi
 }
 
