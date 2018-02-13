@@ -55,9 +55,9 @@ ovs-ofctl add-flow brv-1 "in_port($REP2),ip,udp,actions=$REP" || err
 
 function quick_udp() {
     title "Test iperf udp $VF($VM1_IP) -> $VF2($VM2_IP)"
-    ip netns exec ns0 iperf -u -s &
+    timeout 3 ip netns exec ns0 iperf -u -s &
     iperf -u -c $VM2_IP -t 1 -b1G
-    killall iperf
+    killall -9 iperf
 }
 
 # quick traffic to cause offload
@@ -70,9 +70,9 @@ sleep 0.5
 
 function test_udp() {
     title "Test iperf udp $VF($VM1_IP) -> $VF2($VM2_IP)"
-    ip netns exec ns0 iperf -u -s &
+    timeout 13 ip netns exec ns0 iperf -u -s &
     iperf -u -c $VM2_IP -t 10 -b1G
-    killall iperf
+    killall -9 iperf
 }
 
 test_udp
