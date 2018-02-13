@@ -517,7 +517,9 @@ function __cleanup() {
 }
 
 function __setup_clean() {
-    [ "$NIC" != "" ] && reset_tc $NIC
+    [ "$NIC" != "" ] && ifconfig $NIC 0 && reset_tc $NIC
+    [ "$VF" != "" ] && ifconfig $VF 0
+    [ "$VF2" != "" ] && ifconfig $VF2 0
 }
 
 ### main
