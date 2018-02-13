@@ -1,10 +1,13 @@
 #!/usr/bin/python
 
 import os
+import re
 import sys
 import argparse
 import subprocess
 from glob import glob
+from mlxredmine import MlxRedmine
+
 
 MYNAME = os.path.basename(__file__)
 MYDIR = os.path.abspath(os.path.dirname(__file__))
@@ -124,6 +127,23 @@ def glob_tests(args, tests):
             tests.remove(test)
 
 
+def update_skip_according_to_rm():
+    global SKIP_TESTS
+
+    print "Check redmine status for open issues"
+    rm = MlxRedmine()
+    SKIP_TESTS = {}
+    for t in TESTS:
+        with open(t) as f:
+            data = f.read()
+        t = os.path.basename(t)
+        bugs = re.findall("Bug SW #([0-9]+):", data)
+        for b in bugs:
+            task = rm.get_issue(b)
+            if rm.is_issue_open(task):
+                SKIP_TESTS[t] = "RM #%s: %s" % (b, task['subject'])
+
+
 def main():
     args = parse_args()
     ignore = False
@@ -132,6 +152,8 @@ def main():
     if args.exclude:
         IGNORE_TESTS.extend(args.exclude)
     glob_tests(args, TESTS)
+
+    update_skip_according_to_rm()
 
     tests_results = []
     for test in TESTS:
