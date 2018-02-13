@@ -509,9 +509,14 @@ function __cleanup() {
     exit 1
 }
 
+function __setup_clean() {
+    [ "$NIC" != "" ] && reset_tc $NIC
+}
+
 ### main
 title2 `basename $0`
 start_test_timestamp
 trap __cleanup INT
 __load_config
 __setup_common
+__setup_clean
