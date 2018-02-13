@@ -8,6 +8,9 @@ NIC=${1:-ens5f0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+require_multipath_support
+
+
 function disable_sriov() {
     title "- Disable SRIOV"
     echo 0 > /sys/class/net/$NIC/device/sriov_numvfs

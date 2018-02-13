@@ -17,6 +17,8 @@ REP=${3:-ens5f0_0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+require_multipath_support
+
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 

@@ -9,6 +9,7 @@ NIC=${1:-ens5f0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+require_multipath_support
 reset_tc_nic $NIC
 
 local_ip="2.2.2.2"

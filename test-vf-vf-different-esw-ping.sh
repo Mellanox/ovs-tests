@@ -15,6 +15,7 @@ IP1="7.7.7.1"
 IP2="7.7.7.2"
 
 MULTIPATH=${MULTIPATH:-0}
+[ $MULTIPATH == 1 ] && require_multipath_support
 
 function cleanup() {
     ip netns del ns0 2> /dev/null

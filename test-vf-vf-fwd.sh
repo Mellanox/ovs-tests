@@ -20,6 +20,7 @@ IP2="7.7.7.2"
 TIMEOUT=${TIMEOUT:-120}
 ROUNDS=${ROUNDS:-10}
 MULTIPATH=${MULTIPATH:-0}
+[ $MULTIPATH == 1 ] && require_multipath_support
 
 function cleanup() {
     ip netns del ns0 2> /dev/null
