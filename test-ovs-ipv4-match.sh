@@ -61,13 +61,13 @@ echo "add drop on match $MATCH"
 ovs-ofctl add-flow brv-1 $MATCH,actions=drop
 
 title "Test ping $VM1_IP -> $VM2_IP - expect to pass"
-ping -q -c 2 -w 2 $VM2_IP && success || err
+ping -q -c 2 -w 2 $VM2_IP && success || err "ping failed"
 
 title "Verify we have 2 rules"
 check_offloaded_rules 2
 
 title "Test ping $VM1_IP -> $VM2_IP2 - expect to fail"
-ping -q -c 10 -i 0.2 -w 2 $VM2_IP2 && err || success
+ping -q -c 10 -i 0.2 -w 2 $VM2_IP2 && err "ping expected to fail" || success
 
 title "Verify we have 3 rules"
 check_offloaded_rules 3
