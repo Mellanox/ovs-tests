@@ -35,11 +35,8 @@ DEVICE_CX4_LX="0x1015"
 DEVICE_CX5_PCI_3="0x1017"
 DEVICE_CX5_PCI_4="0x1019"
 
-if [ `uname -r` = "3.10.0" ];  then
-    devlink_compat=1
-elif [ `uname -r` = "3.10.0-327.el7.x86_64" ]; then
-    devlink_compat=1
-fi
+# test in __setup_common() for /sys/kernel/debug/mlx5/81:00.0/compat
+devlink_compat=0
 
 
 function get_mlx_iface() {
@@ -74,6 +71,11 @@ function __setup_common() {
     PCI=$(basename `readlink /sys/class/net/$NIC/device`)
     DEVICE=`cat /sys/class/net/$NIC/device/device`
     echo "NIC $NIC PCI $PCI DEVICE $DEVICE"
+
+    if [ -e /sys/kernel/debug/mlx5/$PCI/compat ]; then
+        echo "devlink compat"
+        devlink_compat=1
+    fi
 
     DEVICE_IS_CX4=0
     DEVICE_IS_CX4_LX=0
