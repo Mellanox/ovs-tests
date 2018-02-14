@@ -26,6 +26,7 @@ function cleanup() {
 }
 
 cleanup
+enable_switchdev_if_no_rep $REP
 bind_vfs
 
 echo "setup ns"
