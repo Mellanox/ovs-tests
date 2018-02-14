@@ -79,8 +79,8 @@ function add_vxlan_rule() {
 }
 
 
-# multipath enabled, sriov mode, add encap rule
-function test_add_nic_rule_in_sriov() {
+# multipath enabled, sriov mode, and clean
+function test_config_sriov_and_clean() {
     disable_sriov_and_multipath
     enable_multipath_and_sriov
     ifconfig $NIC up
@@ -119,7 +119,7 @@ function do_test() {
 
 
 cleanup
-do_test test_add_nic_rule_in_sriov
+do_test test_config_sriov_and_clean
 do_test test_add_esw_rule_only_pf0_in_switchdev
 do_test test_add_esw_rule_after_multipath_was_ready_before
 
