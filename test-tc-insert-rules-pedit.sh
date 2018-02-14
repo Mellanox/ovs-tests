@@ -16,6 +16,8 @@ function tc_filter() {
 # header rewrite cx5 only
 function test_basic_header_rewrite() {
     not_relevant_for_cx4
+
+    title "Add pedit rule on representor"
     reset_tc_nic $REP
     tc_filter add dev $REP protocol ip parent ffff: \
         flower skip_sw ip_proto icmp \
