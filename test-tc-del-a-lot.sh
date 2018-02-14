@@ -44,8 +44,6 @@ function tc_batch() {
     local prio=$5
     local file=/tmp/mirred_batch_${t}
 
-    title "Testing $num rules $NIC -> $REP"
-
     while ((num--)); do
         dmac="aa:bb:cc:$(((num/10000)%100)):$(((num/100)%100)):$((num%100))"
         smac="aa:bb:cc:dd:$prio:$t"
@@ -68,7 +66,11 @@ function tc_batch() {
 }
 
 function do_test1() {
+    title "Test multiple dels/adds/show in parallel"
+
     modprobe -rv act_mirred
+    tc filter add dev $NIC protocol ip prio 1 ingress flower skip_hw action mirred egress redirect dev $REP
+    tc filter del dev $NIC prio 1 ingress
 
     for x in `seq 20`; do
         sleep $x && tc_show $NIC&
