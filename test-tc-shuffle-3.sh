@@ -44,4 +44,5 @@ if [ "$a" != "" ]; then
     err $a
 fi
 
+rm -f $TMPFILE
 test_done

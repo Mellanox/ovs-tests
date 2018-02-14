@@ -94,5 +94,6 @@ ip netns exec ns0 ping -q -f $IP2 &
 tc -b /tmp/tc_batch_1234 || err "tc batch failed"
 killall -9 ping
 
+rm -f /tmp/tc_batch_1234
 cleanup
 test_done

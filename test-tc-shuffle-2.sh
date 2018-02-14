@@ -39,4 +39,5 @@ done
 reset_tc_nic $NIC
 check_syndrome && success || err "Failed"
 
+rm -f $TMPFILE
 test_done
