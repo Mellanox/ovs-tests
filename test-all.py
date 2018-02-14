@@ -4,6 +4,7 @@ import os
 import re
 import sys
 import argparse
+import tempfile
 import subprocess
 from glob import glob
 from mlxredmine import MlxRedmine
@@ -11,6 +12,7 @@ from mlxredmine import MlxRedmine
 
 MYNAME = os.path.basename(__file__)
 MYDIR = os.path.abspath(os.path.dirname(__file__))
+LOGDIR = tempfile.mkdtemp(prefix='log')
 
 TESTS = sorted(glob(MYDIR + '/test-*'))
 IGNORE_TESTS = [MYNAME]
@@ -42,16 +44,14 @@ COLOURS = {
 
 
 class ExecCmdFailed(Exception):
-    def __init__(self, cmd, rc, stdout, stderr):
+    def __init__(self, cmd, rc, logname):
         self._cmd = cmd
         self._rc = rc
-        self._stdout = stdout
-        self._stderr = stderr
+        self._logname = logname
 
     def __str__(self):
-        retval = " (exited with %d)" % self._rc
-        stderr = " [%s]" % self._stderr
-        return "Command execution failed%s%s" % (retval, stderr)
+        retval = "(exited with %d)" % self._rc
+        return "Command execution failed %s: %s" % (retval, self._logname)
 
 
 def parse_args():
@@ -75,15 +75,18 @@ def parse_args():
     return args
 
 
-def run(cmd):
-    subp = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
-                          stderr=subprocess.PIPE, close_fds=True)
-    (data_stdout, data_stderr) = subp.communicate()
+def run_test(cmd):
+    logname = os.path.join(LOGDIR, os.path.basename(cmd)+'.log')
+    with open(logname, 'w') as f1:
+        subp = subprocess.Popen(cmd, shell=True, stdout=f1,
+                                stderr=subprocess.STDOUT, close_fds=True)
+        out = subp.communicate()
+
     if subp.returncode:
-        err = ExecCmdFailed(cmd, subp.returncode, data_stdout, data_stderr)
+        err = ExecCmdFailed(cmd, subp.returncode, logname)
         raise err
 
-    return (data_stdout, data_stderr)
+    return out
 
 
 def deco(line, color):
@@ -96,7 +99,7 @@ class TestResult(object):
         self._res = res
         self._out = out
 
-    def __str__(self):
+    def __result(self, summary=False):
         res_color = {
             'SKIP': 'yellow',
             'OK': 'green',
@@ -111,10 +114,19 @@ class TestResult(object):
             out = self._out
             if self._res == 'SKIP':
                 out = ' (%s)' % out
-            else:
+            elif not summary:
                 out = '\n%s' % out
+            else:
+                out = ''
             ret += deco(out, color)
         return ret
+
+    def __str__(self):
+        return self.__result()
+
+    @property
+    def summary_result(self):
+        return self.__result(summary=True)
 
 
 def glob_tests(args, tests):
@@ -153,6 +165,7 @@ def main():
         IGNORE_TESTS.extend(args.exclude)
     glob_tests(args, TESTS)
 
+    print "Log dir: " + LOGDIR
     update_skip_according_to_rm()
 
     tests_results = []
@@ -178,15 +191,21 @@ def main():
                 cmd = test
                 if args.parm:
                     cmd += ' ' + args.parm
-                run(cmd)
+                run_test(cmd)
             except ExecCmdFailed, e:
                 failed = True
                 res = 'FAILED'
                 out = str(e)
 
-        print TestResult(name, res, out)
+        tr = TestResult(name, res, out)
+        print tr
+        tests_results.append(tr)
         if args.stop and failed:
             sys.exit(1)
+
+    print "Summary"
+    for tr in tests_results:
+        print tr.summary_result
 
 
 if __name__ == "__main__":
