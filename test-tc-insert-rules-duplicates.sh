@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Bug SW #1250493: Syndrome while inserting the same rule twice
+# Syndrome while inserting the same rule twice
 #
 
 NIC=${1:-ens5f0}
@@ -12,6 +12,8 @@ my_dir="$(dirname "$0")"
 
 nic=$NIC
 skip=""
+# we use the same prio as between different prios we have different flower
+# instance and flow doesn't check for duplicate rule between instances.
 prio=99
 
 function tc_filter() {
