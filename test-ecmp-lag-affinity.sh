@@ -58,6 +58,7 @@ function test_lag_affinity() {
     disable_sriov
     title "- Disable multipath"
     disable_multipath || err "Failed to disable multipath"
+    enable_sriov
 }
 
 
