@@ -258,6 +258,12 @@ function enable_switchdev() {
     switch_mode_switchdev $nic
 }
 
+function enable_legacy() {
+    local nic=${1:-$NIC}
+    unbind_vfs $nic
+    switch_mode_switchdev $nic
+}
+
 function get_multipath_mode() {
     if [ "$devlink_compat" = 1 ]; then
         cat /sys/kernel/debug/mlx5/$PCI/compat/multipath
@@ -276,7 +282,8 @@ function enable_switchdev_if_no_rep() {
 
 function config_sriov() {
     local num=$1
-    echo $num > /sys/class/net/$NIC/device/sriov_numvfs
+    local nic=${2:-$NIC}
+    echo $num > /sys/class/net/$nic/device/sriov_numvfs
 }
 
 function set_macs() {
