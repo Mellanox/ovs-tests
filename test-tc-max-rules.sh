@@ -17,6 +17,7 @@ CASE_COUNT=${CASE_COUNT:-30*1024 64*1024-100}
 CASE_INDEX=${CASE_INDEX:-0 1}
 TIMEOUT=${TIMEOUT:-5m}
 CASE_TWO_PORTS=${CASE_TWO_PORTS:-1}
+CASE_NIC_MODE=${CASE_NIC_MODE:-0}
 
 
 function tc_batch() {
@@ -32,7 +33,7 @@ function tc_batch() {
     return $rc
 }
 
-function do_test1() {
+function __test_max_rules() {
     for _nic in $CASE_NIC; do
         for skip in $CASE_SKIP; do
             for num in $CASE_COUNT; do
@@ -49,10 +50,40 @@ function do_test1() {
     done
 }
 
-function do_test2() {
+function test_max_rules_switchdev() {
+    title "Test max rules switchdev"
+    for _nic in $CASE_NIC; do
+        config_sriov 2 $_nic
+        enable_switchdev $_nic
+    done
+    __test_max_rules
+}
+
+function test_max_rules_legacy() {
+    title "Test max rules legacy"
+    for _nic in $CASE_NIC; do
+        config_sriov 2 $_nic
+        enable_legacy $_nic
+    done
+    __test_max_rules
+}
+
+function test_max_rules_nic_mode() {
+    title "Test max rules nic mode"
+    for _nic in $CASE_NIC; do
+        config_sriov 0 $_nic
+    done
+    __test_max_rules
+}
+
+function test_max_rules_two_ports() {
     ((num=64*1024-100))
     skip=skip_sw
     index=0
+    config_sriov 2 $NIC
+    enable_switchdev $NIC
+    config_sriov 2 $NIC2
+    enable_switchdev $NIC2
     title "Add both ports $num rules $skip set_index:$index"
     tc_batch $num $skip $NIC $index || return
     tc_batch $num $skip $NIC2 $index || return
@@ -62,8 +93,10 @@ function do_test2() {
 }
 
 
-do_test1
-test $CASE_TWO_PORTS == "1" && do_test2
+test_max_rules_switchdev
+test_max_rules_legacy
+[ $CASE_NIC_MODE == "1" ] && test_max_rules_nic_mode
+[ $CASE_TWO_PORTS == "1" ] && test_max_rules_two_ports
 reset_tc_nic $NIC
 reset_tc_nic $NIC2
 test_done
