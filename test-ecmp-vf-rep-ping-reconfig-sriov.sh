@@ -77,4 +77,5 @@ done
 
 disable_sriov
 disable_multipath
+config_sriov 2
 test_done
