@@ -18,6 +18,7 @@ CASE_INDEX=${CASE_INDEX:-0 1}
 TIMEOUT=${TIMEOUT:-5m}
 CASE_TWO_PORTS=${CASE_TWO_PORTS:-1}
 CASE_NIC_MODE=${CASE_NIC_MODE:-0}
+CASE_LEGACY=${CASE_LEGACY:-1}
 
 
 function tc_batch() {
@@ -94,7 +95,7 @@ function test_max_rules_two_ports() {
 
 
 test_max_rules_switchdev
-test_max_rules_legacy
+[ $CASE_LEGACY == "1" ] && test_max_rules_legacy
 [ $CASE_NIC_MODE == "1" ] && test_max_rules_nic_mode
 [ $CASE_TWO_PORTS == "1" ] && test_max_rules_two_ports
 reset_tc_nic $NIC
