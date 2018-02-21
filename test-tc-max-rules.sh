@@ -75,6 +75,7 @@ function test_max_rules_nic_mode() {
         config_sriov 0 $_nic
     done
     __test_max_rules
+    config_sriov 2 $_nic
 }
 
 function test_max_rules_two_ports() {
