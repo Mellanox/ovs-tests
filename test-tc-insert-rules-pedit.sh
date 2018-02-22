@@ -26,6 +26,7 @@ function test_basic_header_rewrite() {
     reset_tc_nic $REP
 }
 
+enable_switchdev
 test_basic_header_rewrite
 check_kasan
 test_done
