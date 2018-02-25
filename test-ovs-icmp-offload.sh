@@ -78,7 +78,7 @@ kill $tdpid 2>/dev/null
 sleep 1
 count=`tcpdump -nr $tdtmpfile | wc -l`
 title "Verify with tcpdump"
-if [[ $count > 2 ]]; then
+if [[ $count -gt 2 ]]; then
     err "No offload"
     tcpdump -nr $tdtmpfile
 else
