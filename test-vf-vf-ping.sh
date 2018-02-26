@@ -79,5 +79,6 @@ cleanup
 if [ $MULTIPATH == 1 ]; then
     disable_sriov
     disable_multipath
+    enable_sriov
 fi
 test_done
