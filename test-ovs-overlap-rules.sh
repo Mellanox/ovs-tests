@@ -76,7 +76,7 @@ function check_rules() {
     local count=$1
     title "Verify $count rules"
     TMP=/tmp/dump-$$
-    ovs-dpctl dump-flows --names | grep 'ipv4(proto=17' > $TMP
+    ovs-dpctl dump-flows --names | grep ipv4 | grep proto=17 | grep -v drop > $TMP
     cat $TMP
     RES=`cat $TMP | wc -l`
     if (( RES == $count )); then success; else err; fi

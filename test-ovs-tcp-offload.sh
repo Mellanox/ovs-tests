@@ -44,7 +44,7 @@ ovs-vsctl add-port brv-1 $REP2
 function check_offloaded_rules() {
     local count=$1
     title " - check for $count offloaded rules"
-    RES="ovs-dpctl dump-flows type=offloaded | grep 'ipv4(proto=6)'"
+    RES="ovs-dpctl dump-flows type=offloaded | grep ipv4 | grep proto=6 | grep -v drop"
     eval $RES
     RES=`eval $RES | wc -l`
     if (( RES == $count )); then success; else err; fi
