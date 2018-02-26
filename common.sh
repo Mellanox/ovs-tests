@@ -230,7 +230,16 @@ function set_eswitch_inline_mode() {
 }
 
 function require_multipath_support() {
-    local m=`get_multipath_mode`
+    local m=""
+
+    if [ "$devlink_compat" = 1 ]; then
+        if [ -e /sys/kernel/debug/mlx5/$PCI/compat/multipath ]; then
+            m="ok"
+        fi
+    else
+        m=`get_multipath_mode`
+    fi
+
     if [ "$m" == "" ]; then
         fail "Require multipath support"
     fi
