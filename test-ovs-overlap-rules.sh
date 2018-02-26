@@ -55,6 +55,11 @@ else
     bind_vfs
 fi
 
+[ -e "/sys/class/net/$VF" ] || fail "Cannot find $VF"
+[ -e "/sys/class/net/$REP" ] || fail "Cannot find $REP"
+[ -e "/sys/class/net/$VF2" ] || fail "Cannot find $VF2"
+[ -e "/sys/class/net/$REP2" ] || fail "Cannot find $REP2"
+
 echo "setup ns"
 ifconfig $VF2 $VM1_IP/24 up
 ip netns add ns0
