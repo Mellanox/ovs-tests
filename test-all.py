@@ -78,9 +78,12 @@ def parse_args():
 def run_test(cmd):
     logname = os.path.join(LOGDIR, os.path.basename(cmd)+'.log')
     with open(logname, 'w') as f1:
-        subp = subprocess.Popen(cmd, shell=True, stdout=f1,
+        # piping stdout to file seems to miss stderr msgs to we use pipe
+        # and write to file at the end.
+        subp = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT, close_fds=True)
         out = subp.communicate()
+        f1.write(out[0])
 
     if subp.returncode:
         err = ExecCmdFailed(cmd, subp.returncode, logname)
