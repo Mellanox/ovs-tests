@@ -65,6 +65,8 @@ ifconfig $VF2 $VM1_IP/24 up
 ip netns add ns0
 ip link set $VF netns ns0
 ip netns exec ns0 ifconfig $VF $VM2_IP/24 up
+ifconfig $REP up
+ifconfig $REP2 up
 
 echo "setup ovs"
 ovs-vsctl add-br brv-1
