@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Bug SW #1040416: slow path xmit on VF reps broken
+# Bug SW #896876: IP fragments sent by VFs are dropped
 #
 # with tcpdump we could see traffic VF->rep works but rep->VF doesn't.
 #
@@ -33,6 +34,30 @@ ping -q -c 10 -i 0.2 -w 2 $IP2 && success || err
 
 title "Test ping VF($IP2) -> REP($IP1)"
 ip netns exec ns0 ping -q -c 10 -i 0.2 -w 2 $IP1 && success || err
+
+title "Test ping flood"
+TMP1=/tmp/ping1
+TMP2=/tmp/ping2
+TMP3=/tmp/ping3
+COUNT=10000
+ping 7.7.7.2 -f -c $COUNT > $TMP1 &
+ping 7.7.7.2 -f -c $COUNT > $TMP2 &
+ping 7.7.7.2 -f -c $COUNT > $TMP3 &
+wait
+err=0
+for i in $TMP1 $TMP2 $TMP3; do
+    count1=`egrep -o "[0-9]+ received" $i | cut -d" " -f1`
+    if [ -z $count1 ]; then
+        err "Cannot read ping output"
+        err=1
+    elif [[ $count1 -ne $COUNT ]]; then
+        err "Received $count1 packets, expected $COUNT"
+        err=1
+    fi
+done
+if [[ $err == 0 ]]; then
+    success
+fi
 
 cleanup
 test_done
