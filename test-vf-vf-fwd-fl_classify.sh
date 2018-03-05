@@ -82,13 +82,19 @@ tc filter add dev $REP2 ingress protocol ip prio 1 flower skip_hw src_mac aa:bb:
 title "Test ping $VF($IP1, $mac1) -> $VF2($IP2, $mac2)"
 ip netns exec ns0 ping -q -f $IP2 &
 
-tc filter add dev $REP ingress protocol ip prio 3 flower skip_sw src_mac $mac1 action mirred egress redirect dev $REP2 || fail "tc - failed adding rule"
-tc filter add dev $REP2 ingress protocol ip prio 3 flower skip_sw src_mac $mac2 action mirred egress redirect dev $REP || fail "tc - failed adding rule"
+tc filter add dev $REP ingress protocol ip prio 3 flower skip_sw src_mac $mac1 action \
+    mirred egress redirect dev $REP2 2>/dev/null && fail "tc - expected to fail adding rule"
+tc filter add dev $REP2 ingress protocol ip prio 3 flower skip_sw src_mac $mac2 action \
+    mirred egress redirect dev $REP 2>/dev/null && fail "tc - expected to fail adding rule"
 
-for i in `seq 10000`; do
+max=10000
+for i in `seq $max`; do
     # we expect to fail because of existing counter
-    tc filter add dev $REP ingress protocol ip prio 1 flower skip_sw src_mac $mac1 action mirred egress redirect dev $REP2 &>/dev/null && err "tc expected to fail" && break
-    tc filter add dev $REP2 ingress protocol ip prio 1 flower skip_sw src_mac $mac2 action mirred egress redirect dev $REP &>/dev/null && err "tc expected to fail" && break
+    tc filter add dev $REP ingress protocol ip prio 1 flower skip_sw src_mac $mac1 action \
+        mirred egress redirect dev $REP2 &>/dev/null && err "tc expected to fail" && break
+    tc filter add dev $REP2 ingress protocol ip prio 1 flower skip_sw src_mac $mac2 action \
+        mirred egress redirect dev $REP &>/dev/null && err "tc expected to fail" && break
+    if (( i%500 == 0 )); then echo $i/$max ; fi
 done
 
 killall -9 ping
