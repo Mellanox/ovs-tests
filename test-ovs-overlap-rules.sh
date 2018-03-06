@@ -12,8 +12,8 @@ my_dir="$(dirname "$0")"
 VM1_IP="7.7.7.1"
 VM2_IP="7.7.7.2"
 
-# if we want to test veth
-TEST_VETH=${TEST_VETH:-0}
+# if we want to test veth or real interface
+TEST_VETH=${TEST_VETH:-1}
 
 if [[ "$TEST_VETH" == 1 ]]; then
     VF=veth0
