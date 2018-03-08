@@ -10,7 +10,7 @@ FILTER=${FILTER}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-get_mst_dev
+require_mlxdump
 
 VXLAN=vxlan_sys_4789
 TC=tc
@@ -35,7 +35,7 @@ $IP addr add dev $NIC $TUN_SRC_V4/16
 
 rm -fr /tmp/fsdump_before_add /tmp/fsdump_after_add /tmp/fsdump_after_del
 
-mlxdump -d $DEV fsdump --type FT --no_zero=true > /tmp/fsdump_before_add || err "mlxdump failed"
+mlxdump -d $PCI fsdump --type FT --no_zero=true > /tmp/fsdump_before_add || err "mlxdump failed"
 
 # decap rule set on the vxlan device
 title "Add vxlan decap rule"
@@ -46,7 +46,7 @@ $TC filter add dev $VXLAN protocol ip parent ffff: prio 10\
                 action tunnel_key unset \
                 action mirred egress redirect dev $REP || err "TC command failed"
 
-mlxdump -d $DEV fsdump --type FT --no_zero=true > /tmp/fsdump_after_add || err "mlxdump failed"
+mlxdump -d $PCI fsdump --type FT --no_zero=true > /tmp/fsdump_after_add || err "mlxdump failed"
 
 DIF=`diff -u /tmp/fsdump_before_add /tmp/fsdump_after_add`
 
@@ -58,7 +58,7 @@ title "Delete ingress qdisc"
 $TC qdisc del dev $REP ingress
 $TC qdisc del dev $VXLAN ingress
 
-mlxdump -d $DEV fsdump --type FT --no_zero=true > /tmp/fsdump_after_del || err "mlxdump failed"
+mlxdump -d $PCI fsdump --type FT --no_zero=true > /tmp/fsdump_after_del || err "mlxdump failed"
 
 title "Verify rule deleted from HW"
 DIF=`diff -u /tmp/fsdump_after_add /tmp/fsdump_after_del`

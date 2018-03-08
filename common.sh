@@ -91,14 +91,12 @@ function __setup_common() {
     fi
 }
 
-function get_mst_dev() {
-    mst start
-    DEV=`mst status -v | grep -b net-$NIC | awk {'print $2'}`
-    if [ "$DEV" == "NA" ]; then
-        fail "Cannot get mst device"
-        exit 1
-    fi
-    echo "DEV $DEV"
+function require_mlxdump() {
+    [[ -e /usr/bin/mlxdump ]] || fail "Missing mlxdump"
+}
+
+function require_mlxconfig() {
+    [[ -e /usr/bin/mlxconfig ]] || fail "Missing mlxconfig"
 }
 
 function kmsg() {

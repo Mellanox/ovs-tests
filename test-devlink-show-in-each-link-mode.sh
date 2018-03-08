@@ -10,12 +10,13 @@ NIC=${1:-ens5f0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-# TODO exit if not CX5
-get_mst_dev
+# TODO exit if nic not supporting link type
+require_mlxconfig
+
 
 function set_link_type() {
     local mode=$1
-    mlxconfig -y -d $DEV set LINK_TYPE_P1=$mode LINK_TYPE_P2=$mode
+    mlxconfig -y -d $PCI set LINK_TYPE_P1=$mode LINK_TYPE_P2=$mode
 }
 
 function set_link_type_ib() {
@@ -27,7 +28,7 @@ function set_link_type_eth() {
 }
 
 function fw_reset() {
-    mlxfwreset -y -d $DEV reset
+    mlxfwreset -y -d $PCI reset
 }
 
 function devlink_eswitch_show() {
