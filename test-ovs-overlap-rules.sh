@@ -113,7 +113,9 @@ fi
 title "Verify no overlap rules"
 # TMP created in check_rules()
 count=`cat $TMP | grep "in_port($in_port)" | grep "actions:$actions" | grep "eth_type(0x0800)" | grep "ipv4(proto=17)" | wc -l`
-if [[ $count -gt 1 ]]; then
+count2=`cat $TMP | grep "in_port($in_port)" | grep "actions:$actions" | grep "eth_type(0x0800)" | grep "ipv4(proto=17,frag=first)" | wc -l`
+count3=`cat $TMP | grep "in_port($in_port)" | grep "actions:$actions" | grep "eth_type(0x0800)" | grep "ipv4(proto=17,frag=later)" | wc -l`
+if [[ $count -gt 1 ]] || [[ $count2 -gt 1 ]] || [[ $count3 -gt 1 ]]; then
     err "Detected overlap rules"
 else
     success
