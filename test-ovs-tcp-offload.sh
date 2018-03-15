@@ -31,6 +31,9 @@ enable_switchdev_if_no_rep $REP
 bind_vfs
 
 echo "setup ns"
+
+require_interfaces VF VF2 REP REP2
+
 ifconfig $VF2 $VM1_IP/24 up
 ip netns add ns0
 ip link set $VF netns ns0

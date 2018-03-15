@@ -243,6 +243,15 @@ function require_multipath_support() {
     fi
 }
 
+function require_interfaces() {
+    local net
+    for i in $@; do
+        net=${!i}
+        [ -z $net ] && fail "Var $i is empty"
+        [ ! -e /sys/class/net/$net ] && fail "Cannot find interface $net"
+    done
+}
+
 function enable_multipath() {
     if [ "$devlink_compat" = 1 ]; then
         echo enabled > /sys/kernel/debug/mlx5/$PCI/compat/multipath
