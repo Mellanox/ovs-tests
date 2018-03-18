@@ -21,7 +21,6 @@ function cleanup() {
     echo "cleanup"
     start_clean_openvswitch
     ip netns del ns0 &> /dev/null
-    ifconfig $VF 0
     ifconfig $VF2 0
 }
 
