@@ -11,15 +11,17 @@ VF2=${3:-ens5f3}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+enable_switchdev_if_no_rep $REP
+bind_vfs
 
 LOCAL_IP=99.99.99.5
 REMOTE_IP=99.99.99.6
 CLEAN="sed -e 's/used:.*, act/used:used, act/;s/eth(src=[a-z0-9:]*,dst=[a-z0-9:]*)/eth(macs)/;s/recirc_id(0),//;s/,ipv4(.*)//' | sort"
 
 port1=$VF1
-port2=`get_rep 0`
+port2=$REP
 port3=$VF2
-port4=`get_rep 1`
+port4=$REP2
 
 if [ -z "$port2" ]; then
     fail "Missing rep $port2"
@@ -29,13 +31,6 @@ if [ -z "$port4" ]; then
     fail "Missing rep $port4"
     exit 1
 fi
-
-enable_switchdev_if_no_rep $port2
-if [ ! -e /sys/class/net/$port2 ]; then
-    fail "Missing rep $port2"
-    exit 1
-fi
-bind_vfs
 
 function cleanup() {
     echo "cleanup"
