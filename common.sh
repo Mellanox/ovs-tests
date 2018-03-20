@@ -414,6 +414,19 @@ function check_for_errors_log() {
     return 0
 }
 
+function check_for_err() {
+    local look="$1"
+    local sec=`get_test_time_elapsed`
+    local a=`journalctl --since="$sec seconds ago" | grep -E -i "$look" || true`
+
+    if [ "$a" != "" ]; then
+        err "Detected errors in the log"
+        echo "$a" >>/dev/stderr
+        return 1
+    fi
+    return 0
+}
+
 function start_check_syndrome() {
     # sleep to avoid check_syndrome catch old syndrome
     sleep 1
