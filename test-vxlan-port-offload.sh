@@ -5,6 +5,8 @@
 # - reload driver
 # - add vxlan rule
 #
+# Bug SW #1335481: vxlan not offloaded after reloading mlx5_core
+#
 
 NIC=${1:-ens5f0}
 
