@@ -32,20 +32,20 @@ function __test_vxlan() {
     ip link set dev $vx up
     tc qdisc add dev $vx ingress
 
-    ip addr flush dev $NIC
-    ip addr add $ip_src/16 dev $NIC
-    ifconfig $NIC up
-    ip neigh add $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
-
-    reset_tc_nic $NIC
-    reset_tc_nic $REP
-
     ip a show dev $vx
 
     title " - reload modules"
     reload_modules
     enable_switchdev
     bind_vfs
+    ifconfig $NIC up
+    ifconfig $REP up
+    reset_tc_nic $NIC
+    reset_tc_nic $REP
+
+    ip addr flush dev $NIC
+    ip addr add $ip_src/16 dev $NIC
+    ip neigh add $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
 
     title " - add vxlan rule"
     skip='skip_sw'
