@@ -39,6 +39,16 @@ DEVICE_CX5_PCI_4="0x1019"
 devlink_compat=0
 
 
+function service_ovs() {
+    local ovs="openvswitch"
+    systemctl show -p LoadError $ovs | grep -qv DBus.Error
+    if [ $? -ne 0 ]; then
+          ovs="openvswitch-switch"
+    fi
+    service $ovs $1
+}
+
+
 function get_mlx_iface() {
     for i in /sys/class/net/* ; do
         if [ ! -r $i/device/vendor ]; then
@@ -469,7 +479,7 @@ function del_all_bridges() {
 }
 
 function stop_openvswitch() {
-    service openvswitch stop
+    service_ovs stop
     sleep 1
     killall ovs-vswitchd ovsdb-server 2>/dev/null || true
     sleep 1
@@ -477,7 +487,7 @@ function stop_openvswitch() {
 
 function start_clean_openvswitch() {
     stop_openvswitch
-    service openvswitch start
+    service_ovs start
     sleep 1
     del_all_bridges
 }
