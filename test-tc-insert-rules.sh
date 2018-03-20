@@ -326,11 +326,11 @@ for vx in `ip -o l show type vxlan | cut -d: -f 2` ; do
 done
 
 if [ "$DEVICE_IS_CX4" = 1 ]; then
-    echo "Device is ConnectX-4"
+    echo "Device is ConnectX-4. set inline-mode."
     mode=`get_eswitch_inline_mode`
     test "$mode" != "transport" && (set_eswitch_inline_mode transport || fail "Failed to set inline mode transport")
 elif [ "$DEVICE_IS_CX5" = 1 ]; then
-    echo "Device is ConnectX-5"
+    echo "Device is ConnectX-5. no need to set inline-mode."
 fi
 
 # Execute all test_* functions
