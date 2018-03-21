@@ -22,7 +22,7 @@ CASE_MODE=${CASE_MODE:-switchdev}
 
 
 function tc_batch() {
-    timeout $TIMEOUT sh $my_dir/tc_batch.sh $@
+    timeout $TIMEOUT bash $my_dir/tc_batch.sh $@
     rc=$?
     if [ $rc == "0" ]; then
         success

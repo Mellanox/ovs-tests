@@ -80,7 +80,7 @@ echo "done"
 EOF
 
 title "- execute"
-sh $RUNFILE || fail "script $RUNFILE failed."
+bash $RUNFILE || fail "script $RUNFILE failed."
 
 rm -f $TMPFILE
 rm -f $RUNFILE
