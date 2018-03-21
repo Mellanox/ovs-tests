@@ -108,6 +108,7 @@ class TestResult(object):
             'OK': 'green',
             'DRY': 'yellow',
             'FAILED': 'red',
+            'IGNORED': 'yellow',
         }
         color = res_color.get(self._res, 'red')
         res = deco(self._res, color)
@@ -157,6 +158,16 @@ def update_skip_according_to_rm():
             task = rm.get_issue(b)
             if rm.is_issue_open(task):
                 SKIP_TESTS[t] = "RM #%s: %s" % (b, task['subject'])
+            print '.',
+            sys.stdout.flush()
+    print
+
+
+def should_ignore_test(name):
+    if name in IGNORE_TESTS or name in ' '.join(IGNORE_TESTS):
+        return True
+    else:
+        return False
 
 
 def main():
@@ -174,17 +185,19 @@ def main():
     tests_results = []
     for test in TESTS:
         name = os.path.basename(test)
-        if name in IGNORE_TESTS:
-            continue
         if ignore:
             if args.from_test != name:
                 continue
             ignore = False
+
         print "Execute test: %s" % name
         failed = False
         res = 'OK'
         out = ''
-        if name in SKIP_TESTS:
+
+        if should_ignore_test(name):
+            res = 'IGNORED'
+        elif name in SKIP_TESTS:
             res = 'SKIP'
             out = SKIP_TESTS[name]
         elif args.dry:
