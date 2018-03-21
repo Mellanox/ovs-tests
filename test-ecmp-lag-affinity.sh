@@ -12,13 +12,13 @@ require_multipath_support
 
 
 function disable_sriov() {
-    title "- Disable SRIOV"
+    echo "- Disable SRIOV"
     echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
     echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
 }
 
 function enable_sriov() {
-    title "- Enable SRIOV"
+    echo "- Enable SRIOV"
     echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
     echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
 }
@@ -32,13 +32,12 @@ function test_lag_affinity() {
     title "Test lag affinity"
 
     disable_sriov
-    disable_multipath
     ifconfig $NIC down
     ifconfig $NIC2 down
 
-    title "- Enable multipath"
-    enable_multipath || err "Failed to enable multipath"
+    echo "- Enable multipath"
     enable_sriov
+    enable_multipath || err "Failed to enable multipath"
     ifconfig $NIC up
     ifconfig $NIC2 up
     set_switchdev
@@ -55,10 +54,8 @@ function test_lag_affinity() {
     fi
 
     # cleanup
-    disable_sriov
-    title "- Disable multipath"
+    echo "- Disable multipath"
     disable_multipath || err "Failed to disable multipath"
-    enable_sriov
 }
 
 
