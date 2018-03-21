@@ -185,6 +185,8 @@ def main():
     tests_results = []
     for test in TESTS:
         name = os.path.basename(test)
+        if name == MYNAME:
+            continue
         if ignore:
             if args.from_test != name:
                 continue
