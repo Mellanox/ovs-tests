@@ -10,155 +10,95 @@ NIC=${1:-ens5f0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+config_sriov 2
 require_multipath_support
 reset_tc_nic $NIC
 
+
 function disable_sriov() {
-    title "- Disable SRIOV"
+    echo "- Disable SRIOV"
     echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
     echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
 }
 
 function enable_sriov() {
-    title "- Enable SRIOV"
+    enable_sriov_port1
+    enable_sriov_port2
+}
+
+function enable_sriov_port1() {
+    echo "- Enable SRIOV port1"
     echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
+}
+
+function enable_sriov_port2() {
+    echo "- Enable SRIOV port2"
     echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
 }
 
-function enable_disable_multipath() {
+function activate_multipath() {
+    echo "- Enable multipath"
     disable_sriov
-
-    title "- Enable multipath"
-    disable_multipath
-    enable_multipath || err "Failed to enable multipath"
-
     enable_sriov
+    unbind_vfs $NIC
+    unbind_vfs $NIC2
+    enable_multipath || err "Failed to enable multipath"
+}
 
-    title "- show devlink shows multipath enabled"
+function test_1_enable_disable_multipath() {
+    activate_multipath
+
+    echo "- show devlink shows multipath enabled"
     mode=`get_multipath_mode`
-    if [ -z "$mode" ]; then
-        mode='X'
-    fi
 
     if [ "$devlink_compat" = 1 ]; then
-        test $mode = "enabled" || err "Expected multipath mode enabled but got $mode"
+        test "x$mode" = "xenabled" || err "Expected multipath mode enabled but got $mode"
     else
-        test $mode = "enable" || err "Expected multipath mode enabled but got $mode"
+        test "x$mode" = "xenable" || err "Expected multipath mode enabled but got $mode"
     fi
 
-    disable_sriov
-
-    title "- Disable multipath"
+    echo "- Disable multipath"
     disable_multipath || err "Failed to disable multipath"
+    disable_sriov
 }
 
-
-function fail_to_disable_in_sriov() {
-    disable_sriov
-
-    title "- Enable multipath"
+function test_2_fail_to_enable_when_vfs_bound() {
+    activate_multipath
     disable_multipath
-    enable_multipath || err "Failed to enable multipath"
-
-    enable_sriov
-
-    title "- Verify cannot disable multipath while in SRIOV"
-    disable_multipath 2>/dev/null && err "Disabled multipath while in SRIOV" || true
+    bind_vfs
+    enable_multipath 2>/dev/null && err "Enabled multipath while VFs bound" || true
 }
 
-function fail_to_enable_in_sriov() {
-    disable_sriov
-
-    title "- Disable multipath"
-    disable_multipath
-
-    title "- Enable SRIOV"
-    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
-
-    title "- Verify cannot enable multipath while in SRIOV"
-    enable_multipath 2>/dev/null && err "Enabled multipath while in SRIOV" || true
-}
-
-function change_pf0_to_switchdev_and_back_to_legacy_with_multipath() {
-    disable_sriov
-
-    title "- Enable multipath"
-    disable_multipath
-    enable_multipath || err "Failed to enable multipath"
-
-    title "- Enable SRIOV and switchdev"
-    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
-    enable_switchdev
-
-    title "- Disable SRIOV"
-    echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
-
-    title "- Disable multipath"
-    disable_multipath || err "Failed to disable multipath"
-}
-
-function change_both_ports_to_switchdev_and_back_to_legacy_with_multipath() {
-    disable_sriov
-
-    title "- Enable multipath"
-    disable_multipath
-    enable_multipath || err "Failed to enable multipath"
-
-    title "- Enable SRIOV and switchdev"
-    enable_sriov
+function test_3_change_both_ports_to_switchdev_and_back() {
+    activate_multipath
     enable_switchdev $NIC
     enable_switchdev $NIC2
-
-    disable_sriov
-
-    title "- Disable multipath"
+    enable_legacy $NIC
+    enable_legacy $NIC2
     disable_multipath || err "Failed to disable multipath"
+    disable_sriov
 
     # leave where NIC is in sriov
     echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
 }
 
-function multipath_ready_and_change_pf0_switchdev_legacy() {
-    disable_sriov
-
-    title "- Enable multipath"
-    disable_multipath
-    enable_multipath || err "Failed to enable multipath"
-
-    title "- Enable SRIOV and switchdev"
-    enable_sriov
+function test_4_change_both_ports_to_switchdev_and_disable_sriov() {
+    activate_multipath
     enable_switchdev $NIC
     enable_switchdev $NIC2
-
-    disable_sriov
-
-    title "- Enable SRIOV and switchdev"
-    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
-    enable_switchdev
-
-    title "- Disable SRIOV"
-    echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
-
-    title "- Disable multipath"
     disable_multipath || err "Failed to disable multipath"
+    disable_sriov
 
     # leave where NIC is in sriov
     echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
 }
 
-function multipath_ready_and_reload_mlx5_core() {
-    disable_sriov
-
-    title "- Enable multipath"
-    disable_multipath
-    enable_multipath || err "Failed to enable multipath"
-
-    title "- Enable SRIOV and switchdev"
-    enable_sriov
+function test_5_multipath_ready_and_reload_mlx5_core() {
+    activate_multipath
     enable_switchdev $NIC
     enable_switchdev $NIC2
 
-    title "- Reload mlx5_core"
+    echo "- Reload mlx5_core"
     if [ "$devlink_compat" = 1 ]; then
         service openibd force-restart
     else
@@ -170,18 +110,11 @@ function multipath_ready_and_reload_mlx5_core() {
     echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
 }
 
-function do_test() {
-    title $1
-    eval $1 && success
-}
 
-
-do_test enable_disable_multipath
-do_test fail_to_disable_in_sriov
-do_test fail_to_enable_in_sriov
-do_test change_pf0_to_switchdev_and_back_to_legacy_with_multipath
-do_test change_both_ports_to_switchdev_and_back_to_legacy_with_multipath
-do_test multipath_ready_and_change_pf0_switchdev_legacy
-do_test multipath_ready_and_reload_mlx5_core
+# Execute all test_* functions
+for i in `declare -F | awk {'print $3'} | grep ^test_ | grep -v test_done` ; do
+    title $i
+    eval $i && success
+done
 
 test_done
