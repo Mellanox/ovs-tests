@@ -41,8 +41,8 @@ devlink_compat=0
 
 function service_ovs() {
     local ovs="openvswitch"
-    systemctl show -p LoadError $ovs | grep -qv DBus.Error
-    if [ $? -ne 0 ]; then
+    local a=`systemctl show -p LoadError $ovs | grep -o DBus.Error`
+    if [ "$a" = "DBus.Error" ]; then
           ovs="openvswitch-switch"
     fi
     service $ovs $1
