@@ -4,15 +4,15 @@ import os
 import re
 import sys
 import argparse
-import tempfile
 import subprocess
 from glob import glob
+from tempfile import mkdtemp
 from mlxredmine import MlxRedmine
 
 
 MYNAME = os.path.basename(__file__)
 MYDIR = os.path.abspath(os.path.dirname(__file__))
-LOGDIR = tempfile.mkdtemp(prefix='log')
+LOGDIR = mkdtemp(prefix='log')
 
 TESTS = sorted(glob(MYDIR + '/test-*'))
 IGNORE_TESTS = [MYNAME]
