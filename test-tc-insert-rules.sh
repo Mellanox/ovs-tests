@@ -367,6 +367,10 @@ for i in `declare -F | awk {'print $3'} | grep ^test_`; do
     fi
 done
 
+if [ $count -eq 0 ]; then
+    err "No cases where tested"
+fi
+
 reset_tc_nic $NIC
 reset_tc_nic $REP
 check_kasan
