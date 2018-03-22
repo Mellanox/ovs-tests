@@ -180,7 +180,11 @@ def main():
     glob_tests(args, TESTS)
 
     print "Log dir: " + LOGDIR
-    update_skip_according_to_rm()
+    try:
+        update_skip_according_to_rm()
+    except KeyboardInterrupt:
+        print 'Interrupted'
+        sys.exit(1)
 
     tests_results = []
     for test in TESTS:
