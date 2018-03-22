@@ -17,6 +17,7 @@ REP=${3:-ens5f0_0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+config_sriov 2
 require_multipath_support
 
 IP1="7.7.7.1"
