@@ -63,6 +63,7 @@ ovs-ofctl add-flow brv-1 "in_port($REP2),ip,tcp,actions=$REP" || err
 function quick_tcp() {
     title "Test iperf tcp $VF($VM1_IP) -> $VF2($VM2_IP)"
     timeout 3 ip netns exec ns0 iperf -s &
+    sleep 0.5
     iperf -c $VM2_IP -t 1
     killall -9 iperf
 }
@@ -78,6 +79,7 @@ sleep 0.5
 function test_tcp() {
     title "Test iperf tcp $VF($VM1_IP) -> $VF2($VM2_IP)"
     timeout 13 ip netns exec ns0 iperf -s &
+    sleep 0.5
     iperf -c $VM2_IP -t 10
     killall -9 iperf
 }
