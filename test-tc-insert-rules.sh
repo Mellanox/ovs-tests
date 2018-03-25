@@ -368,7 +368,7 @@ for i in `declare -F | awk {'print $3'} | grep ^test_`; do
 done
 
 if [ $count -eq 0 ]; then
-    err "No cases where tested"
+    err "No cases were tested"
 fi
 
 reset_tc_nic $NIC
