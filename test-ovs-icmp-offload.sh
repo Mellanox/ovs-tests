@@ -79,11 +79,11 @@ tc -s filter show dev $REP ingress
 
 kill $tdpid 2>/dev/null
 sleep 1
-count=`tcpdump -nr $tdtmpfile | wc -l`
+count=`tcpdump -nnr $tdtmpfile | wc -l`
 title "Verify with tcpdump"
 if [[ $count -gt 2 ]]; then
     err "No offload"
-    tcpdump -nr $tdtmpfile
+    tcpdump -nnr $tdtmpfile
 else
     success
 fi
