@@ -18,6 +18,10 @@ function tc_filter() {
     eval2 tc filter $@ && success || err
 }
 
+function clean_ingress() {
+    for i in `ls -1 /sys/class/net/` ; do tc qdisc del dev $i ingress 2>/dev/null ; done
+}
+
 function __test_vxlan() {
     local ip_src=$1
     local ip_dst=$2
@@ -35,6 +39,7 @@ function __test_vxlan() {
     ip a show dev $vx
 
     title " - reload modules"
+    clean_ingress
     reload_modules
     enable_switchdev
     bind_vfs
