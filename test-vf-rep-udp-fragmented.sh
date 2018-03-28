@@ -67,6 +67,14 @@ stop_tcpdump
 title " - verify with tcpdump"
 test_frags
 
+# this should be the smallest packet that gets fragmented.
+# the second fragment will be with data of size 1.
+title "Test fragmented packets VF->REP 1473"
+start_tcpdump
+ip netns exec ns0 iperf -u -c $IP1 -b 1M -l 1473 -n 1M
+stop_tcpdump
+title " - verify with tcpdump"
+test_frags
 
 cleanup
 test_done
