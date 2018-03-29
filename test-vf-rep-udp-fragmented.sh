@@ -96,17 +96,6 @@ function config_ipv6() {
 }
 
 function run_cases() {
-
-    # cannot config vlan on VF representor.
-    if [ "$_test" != "ipv4vlan" ]; then
-        title "Test fragmented packets REP->VF"
-        start_tcpdump
-        iperf -u -c $IP2 -b 1M -l 2000 -n 1M $iperf_ext
-        stop_tcpdump
-        title " - verify with tcpdump"
-        test_frags
-    fi
-
     title "Test fragmented packets VF->REP"
     start_tcpdump
     ip netns exec ns0 iperf -u -c $IP1 -b 1M -l 2000 -n 1M $iperf_ext
