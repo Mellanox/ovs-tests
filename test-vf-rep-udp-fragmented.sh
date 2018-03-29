@@ -93,6 +93,10 @@ function config_ipv6() {
     ip netns exec ns0 ifconfig $VF inet6 add $IP2/64 up || fail "Failed to config ipv6"
     _test="ipv6"
     iperf_ext="-V"
+    # ipv6 assignment seems to take some time.
+    # if we try iperf really quick we get an error:
+    # connect failed: Cannot assign requested address
+    sleep 2
 }
 
 function run_cases() {
