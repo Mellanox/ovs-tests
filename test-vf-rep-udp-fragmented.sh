@@ -76,5 +76,15 @@ stop_tcpdump
 title " - verify with tcpdump"
 test_frags
 
+# the driver needs to copy udp header (8 bytes) for fragmented packet
+# to match L4 inline header.
+# this case is we have 7 bytes to copy and left with padding of 1.
+title "Test fragmented packets VF->REP 1479"
+start_tcpdump
+ip netns exec ns0 iperf -u -c $IP1 -b 1M -l 1479 -n 1M
+stop_tcpdump
+title " - verify with tcpdump"
+test_frags
+
 cleanup
 test_done
