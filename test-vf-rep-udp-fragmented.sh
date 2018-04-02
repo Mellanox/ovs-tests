@@ -16,6 +16,7 @@ function cleanup() {
     ip netns del ns0 2> /dev/null
     ip add flush dev $REP
 }
+trap cleanup EXIT
 
 function start_tcpdump() {
     tdtmpfile=/tmp/$$.pcap
@@ -137,5 +138,4 @@ run_cases
 config_ipv6
 run_cases
 
-cleanup
 test_done

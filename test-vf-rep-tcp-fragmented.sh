@@ -16,6 +16,7 @@ function cleanup() {
     ip netns del ns0 2> /dev/null
     ip add flush dev $REP
 }
+trap cleanup EXIT
 
 function config_ipv4() {
     title "Config IPv4"
@@ -45,6 +46,4 @@ function run_cases() {
 
 config_ipv4
 run_cases
-
-cleanup
 test_done
