@@ -26,8 +26,6 @@ function config_ipv4() {
     ip netns add ns0
     ip link set $VF netns ns0
     ip netns exec ns0 ifconfig $VF $IP2/24 up
-    _test="ipv4"
-    iperf_ext=""
 }
 
 function run_cases() {
