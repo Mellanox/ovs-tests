@@ -17,33 +17,6 @@ function cleanup() {
     ip add flush dev $REP
 }
 
-function start_tcpdump() {
-    tdtmpfile=/tmp/$$.pcap
-    rm -f $tdtmpfile
-    tcpdump -nnepi $REP tcp -c 30 -w $tdtmpfile &
-    tdpid=$!
-    sleep 0.5
-}
-
-function stop_tcpdump() {
-    kill $tdpid 2>/dev/null
-    if [ ! -f $tdtmpfile ]; then
-        err "Missing tcpdump output"
-    fi
-}
-
-function test_frags() {
-    # match fragmented packets (not first)
-    count=`tcpdump -nnr $tdtmpfile 'ip[6]!=0 && ip[7]!=0' | wc -l`
-
-    if [[ $count = 0 ]]; then
-        err "No fragmented packets"
-        tcpdump -nnr $tdtmpfile
-    else
-        success
-    fi
-}
-
 function config_ipv4() {
     title "Config IPv4"
     cleanup
@@ -58,20 +31,17 @@ function config_ipv4() {
 }
 
 function run_cases() {
-
-    title "Test fragmented packets REP->VF"
-    start_tcpdump
-    /usr/bin/python -c 'from scapy.all import * ; send( fragment(IP(dst="7.7.7.2")/TCP()/("X"*60000)) )'
-    stop_tcpdump
-    title " - verify with tcpdump"
-    test_frags
-
     title "Test fragmented packets VF->REP"
-    start_tcpdump
+    timeout 2 tcpdump -nnepi $REP -c 1 'tcp && ip[6]!=0 && ip[7]!=0' &
+    pid=$!
     ip netns exec ns0 /usr/bin/python -c 'from scapy.all import * ; send( fragment(IP(dst="7.7.7.1")/TCP()/("X"*60000)) )'
-    stop_tcpdump
-    title " - verify with tcpdump"
-    test_frags
+    wait $pid
+    rc=$?
+    if [[ $rc -eq 0 ]]; then
+        success
+    else
+        err
+    fi
 }
 
 
