@@ -287,7 +287,7 @@ function enable_switchdev() {
 function enable_legacy() {
     local nic=${1:-$NIC}
     unbind_vfs $nic
-    switch_mode_switchdev $nic
+    switch_mode_legacy $nic
 }
 
 function get_multipath_mode() {
