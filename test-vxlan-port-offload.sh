@@ -95,7 +95,7 @@ function test_basic_vxlan_ipv4() {
                         20.1.12.1
 }
 
-title "Test adding vxlan rule after creating vxlan interfaces and reloading modules"
+title "Test adding vxlan rule after creating vxlan interface and reloading modules"
 test_basic_vxlan_ipv4
 check_for_err "isn't an offloaded vxlan udp dport"
 
