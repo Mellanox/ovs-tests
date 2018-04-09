@@ -21,7 +21,7 @@ function tc_filter() {
     eval2 tc filter $@ && success || err
 }
 
-function test_basic_L2() {
+function test_basic_L2_drop() {
     for skip in "" skip_sw skip_hw; do
         for nic in $NIC $REP ; do
             title "    - nic:$nic skip:$skip"
@@ -32,6 +32,24 @@ function test_basic_L2() {
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
                     action drop
+        done
+    done
+}
+
+function test_basic_L2_redirect() {
+    local nic2
+    for skip in "" skip_sw skip_hw; do
+        nic2=$REP
+        for nic in $NIC $REP ; do
+            title "    - $nic -> $nic2 (skip:$skip)"
+            reset_tc_nic $nic
+            tc_filter add dev $nic protocol ip parent ffff: \
+                    flower \
+                            $skip \
+                            dst_mac e4:11:22:11:4a:51 \
+                            src_mac e4:11:22:11:4a:50 \
+                    action mirred egress redirect dev $nic2
+            nic2=$NIC
         done
     done
 }
