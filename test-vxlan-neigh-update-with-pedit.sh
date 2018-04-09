@@ -55,13 +55,13 @@ function neigh_update_test() {
         flower dst_mac ff:ff:ff:ff:ff:ff $flag \
         action tunnel_key set \
             id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
-        action mirred egress redirect dev vxlan1
+        action mirred egress redirect dev vxlan1 || err "Failed adding encap rule"
 
     tc filter add dev $REP protocol arp parent ffff: \
         flower dst_mac $dst_mac $flag \
         action tunnel_key set \
             id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
-        action mirred egress redirect dev vxlan1
+        action mirred egress redirect dev vxlan1 || err "Failed adding encap rule2"
 
     #
     # encap with header rewrite
@@ -78,7 +78,7 @@ function neigh_update_test() {
         action csum ip pipe \
         action tunnel_key set \
             id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
-        action mirred egress redirect dev vxlan1
+        action mirred egress redirect dev vxlan1 || err "Failed adding pedit+encap rule"
 
     # this rule should fail as we cannot change ttl in ip proto rule
     # but it reproduced a different error.
@@ -103,13 +103,13 @@ function neigh_update_test() {
         flower $flag enc_src_ip ${remote_ip} enc_dst_ip ${local_ip} \
             enc_key_id $id enc_dst_port ${dst_port} \
         action tunnel_key unset \
-        action mirred egress redirect dev $REP
+        action mirred egress redirect dev $REP || err "Failed adding rule"
 
     tc filter add dev vxlan1 protocol arp parent ffff: \
         flower $flag enc_src_ip ${remote_ip} enc_dst_ip ${local_ip} \
         enc_key_id $id enc_dst_port ${dst_port} \
         action tunnel_key unset \
-        action mirred egress redirect dev $REP
+        action mirred egress redirect dev $REP || err "Failed adding rule"
 
     # add change evets
     title "-- forcing addr change 1"
@@ -133,6 +133,11 @@ title "Test neigh update ipv6"
 cleanup
 ip -6 addr add ${local_ip6}/64 dev $NIC
 neigh_update_test $local_ip6 $remote_ip6
+
+dmesg | tail -n20 | grep "encap size" | grep "too big"
+if [[ $? -ne 0 ]]; then
+    err
+fi
 
 check_kasan
 check_syndrome
