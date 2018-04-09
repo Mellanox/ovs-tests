@@ -21,12 +21,18 @@ function tc_filter() {
     eval2 tc filter $@ && success
 }
 
+_prio=1
+function prio() {
+    echo "prio $_prio"
+    let _prio+=1
+}
+
 function test_basic_L2_drop() {
     for skip in "" skip_sw skip_hw; do
         for nic in $NIC $REP ; do
             title "    - nic:$nic skip:$skip"
             reset_tc_nic $nic
-            tc_filter add dev $nic protocol ip parent ffff: \
+            tc_filter add dev $nic protocol ip parent ffff: `prio` \
                     flower \
                             $skip \
                             dst_mac e4:11:22:11:4a:51 \
@@ -43,7 +49,7 @@ function test_basic_L2_redirect() {
         for nic in $NIC $REP ; do
             title "    - $nic -> $nic2 (skip:$skip)"
             reset_tc_nic $nic
-            tc_filter add dev $nic protocol ip parent ffff: \
+            tc_filter add dev $nic protocol ip parent ffff: `prio` \
                     flower \
                             $skip \
                             dst_mac e4:11:22:11:4a:51 \
@@ -59,7 +65,7 @@ function test_basic_L3() {
         for nic in $NIC $REP ; do
             title "    - nic:$nic skip:$skip"
             reset_tc_nic $nic
-            tc_filter add dev $nic protocol ip parent ffff: \
+            tc_filter add dev $nic protocol ip parent ffff: `prio` \
                     flower \
                             $skip \
                             dst_mac e4:11:22:11:4a:51 \
@@ -76,7 +82,7 @@ function test_basic_L3_ipv6() {
         for nic in $NIC $REP ; do
             title "    - nic:$nic skip:$skip"
             reset_tc_nic $nic
-            tc_filter add dev $nic protocol ipv6 parent ffff: \
+            tc_filter add dev $nic protocol ipv6 parent ffff: `prio` \
                     flower \
                             $skip \
                             dst_mac e4:11:22:11:4a:51 \
@@ -93,7 +99,7 @@ function test_basic_L4() {
         for nic in $NIC $REP ; do
             title "    - nic:$nic skip:$skip"
             reset_tc_nic $nic
-            tc_filter add dev $nic protocol ip parent ffff: \
+            tc_filter add dev $nic protocol ip parent ffff: `prio` \
                     flower \
                             $skip \
                             dst_mac e4:11:22:11:4a:51 \
@@ -114,7 +120,7 @@ function __test_basic_vlan() {
     reset_tc_nic $nic1
     reset_tc_nic $nic2
     title "    - vlan push"
-    tc_filter add dev $nic1 protocol 802.1Q parent ffff: \
+    tc_filter add dev $nic1 protocol 802.1Q parent ffff: `prio` \
                 flower \
                         $skip \
                         dst_mac e4:11:22:11:4a:51 \
@@ -122,7 +128,7 @@ function __test_basic_vlan() {
                 action vlan push id 100 \
                 action mirred egress redirect dev $nic2
     title "    - vlan pop"
-    tc_filter add dev $nic2 protocol 802.1Q parent ffff: \
+    tc_filter add dev $nic2 protocol 802.1Q parent ffff: `prio` \
                 flower \
                         $skip \
                         dst_mac e4:11:22:11:4a:51 \
@@ -175,7 +181,7 @@ function __test_basic_vxlan() {
         reset_tc $REP
         reset_tc $vx
         title "    - encap"
-        tc_filter add dev $REP protocol 0x806 parent ffff: \
+        tc_filter add dev $REP protocol 0x806 parent ffff: `prio` \
                     flower \
                             $skip \
                             dst_mac e4:11:22:11:4a:51 \
@@ -187,7 +193,7 @@ function __test_basic_vxlan() {
                     id 100 \
                     action mirred egress redirect dev $vx
         title "    - decap"
-        tc_filter add dev $vx protocol 0x806 parent ffff: \
+        tc_filter add dev $vx protocol 0x806 parent ffff: `prio` \
                     flower \
                             $skip \
                             dst_mac e4:11:22:11:4a:51 \
@@ -225,7 +231,7 @@ function test_duplicate_vlan() {
     reset_tc_nic $REP
     start_check_syndrome
     title "- first rule"
-    duplicate="filter add dev $REP protocol 802.1Q parent ffff: \
+    duplicate="filter add dev $REP protocol 802.1Q parent ffff: `prio` \
                 flower \
                         $skip \
                         dst_mac e4:11:22:11:4a:51 \
@@ -297,7 +303,7 @@ function test_duplicate_vxlan() {
 # test insert ip no ip_proto
 function test_insert_ip_no_ip_proto() {
     reset_tc_nic $REP
-    tc_filter add dev $REP protocol ip parent ffff: \
+    tc_filter add dev $REP protocol ip parent ffff: `prio` \
                 flower \
                         skip_sw \
 			dst_mac e4:11:22:11:4a:51 \
@@ -313,7 +319,7 @@ function test_insert_ip_no_ip_proto() {
 function test_insert_ip_with_unmatched_bits_mask() {
     start_check_syndrome
     reset_tc_nic $REP
-    tc_filter add dev $REP protocol ip parent ffff: \
+    tc_filter add dev $REP protocol ip parent ffff: `prio` \
                 flower \
                         skip_sw \
 			dst_mac e4:11:22:11:4a:51 \
@@ -328,7 +334,7 @@ function test_insert_ip_with_unmatched_bits_mask() {
 # Simon Horman <horms@verge.net.au>
 function test_simple_insert_missing_action() {
     reset_tc_nic $NIC
-    tc_filter add dev $NIC protocol ip parent ffff: flower indev $NIC
+    tc_filter add dev $NIC protocol ip parent ffff: `prio` flower indev $NIC
 }
 
 
