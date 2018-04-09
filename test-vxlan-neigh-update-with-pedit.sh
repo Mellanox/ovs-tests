@@ -14,6 +14,8 @@ NIC=${1:-ens5f0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+not_relevant_for_cx4
+
 REP=`get_rep 0`
 if [ -z "$REP" ]; then
     fail "Missing rep $REP"
