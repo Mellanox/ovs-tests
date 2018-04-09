@@ -18,7 +18,7 @@ fi
 
 
 function tc_filter() {
-    eval2 tc filter $@ && success || err
+    eval2 tc filter $@ && success
 }
 
 function test_basic_L2_drop() {
