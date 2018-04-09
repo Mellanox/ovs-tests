@@ -309,7 +309,7 @@ function enable_switchdev_if_no_rep() {
 function config_sriov() {
     local num=$1
     local nic=${2:-$NIC}
-    echo $num > /sys/class/net/$nic/device/sriov_numvfs
+    echo $num > /sys/class/net/$nic/device/sriov_numvfs || fail "Failed to config sriov_numvfs on $nic"
 }
 
 function set_macs() {
