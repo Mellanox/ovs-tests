@@ -58,7 +58,7 @@ function __test_vxlan() {
         reset_tc $REP
         reset_tc $vx
         title "    - encap"
-        tc_filter add dev $REP protocol 0x806 parent ffff: \
+        tc_filter add dev $REP protocol 0x806 parent ffff: prio 1 \
                     flower \
                             $skip \
                             dst_mac e4:11:22:11:4a:51 \
@@ -70,7 +70,7 @@ function __test_vxlan() {
                     id 100 \
                     action mirred egress redirect dev $vx
         title "    - decap"
-        tc_filter add dev $vx protocol 0x806 parent ffff: \
+        tc_filter add dev $vx protocol 0x806 parent ffff: prio 2 \
                     flower \
                             $skip \
                             dst_mac e4:11:22:11:4a:51 \
