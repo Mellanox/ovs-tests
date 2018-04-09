@@ -39,6 +39,9 @@ function cleanup() {
     ip addr flush dev $NIC
 }
 
+function tc_filter() {
+    eval2 tc filter $@
+}
 
 function neigh_update_test() {
     local local_ip="$1"
@@ -51,17 +54,17 @@ function neigh_update_test() {
     reset_tc $NIC
     reset_tc $REP
 
-    tc filter add dev $REP protocol arp parent ffff: \
+    tc_filter add dev $REP protocol arp parent ffff: prio 1\
         flower dst_mac ff:ff:ff:ff:ff:ff $flag \
         action tunnel_key set \
             id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
-        action mirred egress redirect dev vxlan1 || err "Failed adding encap rule"
+        action mirred egress redirect dev vxlan1
 
-    tc filter add dev $REP protocol arp parent ffff: \
+    tc_filter add dev $REP protocol arp parent ffff: prio 2\
         flower dst_mac $dst_mac $flag \
         action tunnel_key set \
             id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
-        action mirred egress redirect dev vxlan1 || err "Failed adding encap rule2"
+        action mirred egress redirect dev vxlan1
 
     #
     # encap with header rewrite
@@ -70,7 +73,7 @@ function neigh_update_test() {
     # this reproduced use-after-free error.
     # [Thu Oct 26 17:55:56 2017] BUG: KASAN: use-after-free in mlx5e_attach_mod_hdr.isra.15+0xebf/0xfc0 [mlx5_core]
     #
-    tc filter add dev $REP protocol ip parent ffff: \
+    tc_filter add dev $REP protocol ip parent ffff: prio 3\
         flower dst_mac $dst_mac $flag \
         action pedit ex \
                 munge eth src set 11:22:33:44:55:66 \
@@ -78,13 +81,13 @@ function neigh_update_test() {
         action csum ip pipe \
         action tunnel_key set \
             id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
-        action mirred egress redirect dev vxlan1 || err "Failed adding pedit+encap rule"
+        action mirred egress redirect dev vxlan1
 
     # this rule should fail as we cannot change ttl in ip proto rule
     # but it reproduced a different error.
     # [Thu Oct 26 17:55:56 2017] BUG: KASAN: use-after-free in mlx5e_attach_mod_hdr.isra.15+0xebf/0xfc0 [mlx5_core]
     #
-    tc filter add dev $REP protocol ip parent ffff: \
+    tc filter add dev $REP protocol ip parent ffff: prio 4\
         flower dst_mac $dst_mac $flag \
         action pedit ex \
 		munge ip ttl set 0x63  \
@@ -99,17 +102,17 @@ function neigh_update_test() {
     # tunnel key unset
     reset_tc vxlan1
 
-    tc filter add dev vxlan1 protocol ip parent ffff: \
+    tc_filter add dev vxlan1 protocol ip parent ffff: prio 5\
         flower $flag enc_src_ip ${remote_ip} enc_dst_ip ${local_ip} \
             enc_key_id $id enc_dst_port ${dst_port} \
         action tunnel_key unset \
-        action mirred egress redirect dev $REP || err "Failed adding rule"
+        action mirred egress redirect dev $REP
 
-    tc filter add dev vxlan1 protocol arp parent ffff: \
+    tc_filter add dev vxlan1 protocol arp parent ffff: prio 6\
         flower $flag enc_src_ip ${remote_ip} enc_dst_ip ${local_ip} \
         enc_key_id $id enc_dst_port ${dst_port} \
         action tunnel_key unset \
-        action mirred egress redirect dev $REP || err "Failed adding rule"
+        action mirred egress redirect dev $REP
 
     # add change evets
     title "-- forcing addr change 1"
