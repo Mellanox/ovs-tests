@@ -17,7 +17,7 @@ if [ -z "$REP" ]; then
 fi
 
 function tc_filter() {
-    eval2 tc filter $@ || err
+    eval2 tc filter $@
 }
 
 function disable_sriov_port2() {
