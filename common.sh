@@ -516,6 +516,12 @@ function eval2() {
     return $err
 }
 
+function fail_if_err() {
+    if [ $TEST_FAILED != 0 ]; then
+        fail "TEST FAILED"
+    fi
+}
+
 function test_done() {
     wait
     set +e

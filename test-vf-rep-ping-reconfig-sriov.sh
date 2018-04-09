@@ -53,11 +53,13 @@ function reconfig_sriov() {
 
 title "Ping test"
 ping_test
+fail_if_err
 
 title "Reconfig SRIOV"
 reconfig_sriov
 title "Ping test"
 ping_test
+fail_if_err
 
 title "Reconfig SRIOV"
 reconfig_sriov
