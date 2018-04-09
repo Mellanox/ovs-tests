@@ -8,6 +8,8 @@ FILTER=${FILTER}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+not_relevant_for_cx4
+
 
 function tc_filter() {
     eval2 tc filter $@ && success || err
@@ -15,8 +17,6 @@ function tc_filter() {
 
 # header rewrite cx5 only
 function test_basic_header_rewrite() {
-    not_relevant_for_cx4
-
     title "Add pedit rule on representor"
     reset_tc_nic $REP
     tc_filter add dev $REP protocol ip parent ffff: \
