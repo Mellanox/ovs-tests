@@ -11,14 +11,20 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 
-title "Toggle sriov"
 for nic in $NIC $NIC2; do
-    config_sriov 0 $nic
-    config_sriov 2 $nic
-    enable_switchdev $nic
-    enable_legacy $nic
-    config_sriov 0 $nic
-    config_sriov 2 $nic
+    title "Toggle sriov/switchdev for $nic"
+    for i in 1 2; do
+        config_sriov 0 $nic
+        config_sriov 2 $nic
+    done
+    for i in 1 2; do
+        enable_switchdev $nic
+        enable_legacy $nic
+    done
+    for i in 1 2; do
+        config_sriov 0 $nic
+        config_sriov 2 $nic
+    done
 done
 
 config_sriov 0 $NIC2
