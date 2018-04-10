@@ -118,10 +118,20 @@ function kmsg() {
 
 function title2() {
     local title=${1:-`basename $0`}
-    echo -e "${YELLOW}#############################################${BLACK}"
-    echo -e "${YELLOW}# TEST $title${BLACK}"
-    echo -e "${YELLOW}#############################################${BLACK}"
-    kmsg "************** TEST $title **************"
+    local tmp="## TEST $title ##"
+    local count=`echo $tmp | wc -c`
+    let count-=1
+    local sep=$(printf '%*s' $count | tr ' ' '#')
+
+    echo -e "\
+${YELLOW}${sep}${BLACK}
+${YELLOW}${tmp}${BLACK}
+${YELLOW}${sep}${BLACK}"
+
+    kmsg "Start test
+$sep
+$tmp
+$sep"
 }
 
 function ethtool_hw_tc_offload() {
