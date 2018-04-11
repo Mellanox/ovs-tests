@@ -123,7 +123,7 @@ function title2() {
     let count-=1
     local sep=$(printf '%*s' $count | tr ' ' '#')
 
-    echo -e "\
+    echo -e "Start test
 ${YELLOW}${sep}${BLACK}
 ${YELLOW}${tmp}${BLACK}
 ${YELLOW}${sep}${BLACK}"
