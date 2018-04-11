@@ -30,7 +30,7 @@ function add_rules() {
     for i in `seq $COUNT`; do
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
-        tc filter add dev $rep protocol ip parent ffff: \
+        tc filter add dev $rep protocol ip parent ffff: prio $i \
             flower skip_sw indev $rep \
             src_mac e1:22:33:44:${num1}:$num2 \
             dst_mac e2:22:33:44:${num1}:$num2 \
@@ -40,11 +40,10 @@ function add_rules() {
 }
 
 function del_rules() {
-    local pref=49152
     for i in `seq $COUNT`; do
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
-        tc filter del dev $rep protocol ip parent ffff: prio $((pref--)) || fail "Failed to del rule"
+        tc filter del dev $rep protocol ip parent ffff: prio $i || fail "Failed to del rule"
     done
     echo "del rules done"
 }

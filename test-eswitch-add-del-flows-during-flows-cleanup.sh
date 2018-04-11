@@ -37,7 +37,7 @@ function add_rules() {
     for i in `seq $COUNT`; do
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
-        tc filter add dev $nic protocol ip parent ffff: \
+        tc filter add dev $nic protocol ip parent ffff: prio $i \
             flower skip_sw indev $nic \
             src_mac e1:22:33:44:${num1}:$num2 \
             dst_mac e2:22:33:44:${num1}:$num2 \
@@ -47,13 +47,12 @@ function add_rules() {
 
 function del_rules() {
     local nic=$1
-    local pref=49152
     local first=true
     title "del rules from $nic"
     for i in `seq $COUNT`; do
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
-        tc filter del dev $nic protocol ip parent ffff: prio $((pref--))
+        tc filter del dev $nic protocol ip parent ffff: prio $i
         if [ "$?" != 0 ]; then
             if [ $first = true ]; then
                 fail "Failed to del first rule"
