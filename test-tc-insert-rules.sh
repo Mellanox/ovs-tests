@@ -332,6 +332,8 @@ function test_insert_ip_with_unmatched_bits_mask() {
 # reported in the mailing list for causing null dereference
 # Possible regression due to "net/sched: cls_flower: Add offload support using egress Hardware device"
 # Simon Horman <horms@verge.net.au>
+# Fix commit:
+# a6e169312971 net/sched: cls_flower: Set the filter Hardware device for all use-cases
 function test_simple_insert_missing_action() {
     reset_tc_nic $NIC
     tc_filter add dev $NIC protocol ip parent ffff: `prio` flower indev $NIC
