@@ -146,7 +146,7 @@ def glob_tests(args, tests):
 def update_skip_according_to_rm():
     global SKIP_TESTS
 
-    print "Check redmine status for open issues"
+    print "Check redmine for open issues"
     rm = MlxRedmine()
     SKIP_TESTS = {}
     for t in TESTS:
