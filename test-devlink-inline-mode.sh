@@ -44,7 +44,7 @@ test $mode = "link" || fail "Expected mode link but got $mode"
 success
 
 title "test fail change mode when flows are configured"
-tc filter add dev $NIC protocol ip parent ffff: \
+tc filter add dev $NIC protocol ip parent ffff: prio 1 \
     flower skip_sw indev $NIC \
     src_mac e4:22:33:44:00:01 \
     dst_mac e4:22:33:44:00:01 \
@@ -62,7 +62,7 @@ test $mode = "transport" || fail "Expected mode transport but got $mode"
 success
 
 title "test fail to add ipv4 rule to rep"
-tc filter add dev $REP protocol ip parent ffff: \
+tc filter add dev $REP protocol ip parent ffff: prio 1 \
     flower skip_sw indev $REP \
     src_mac e1:22:33:44:00:00 \
     dst_mac e2:22:33:44:00:00 \
@@ -71,7 +71,7 @@ tc filter add dev $REP protocol ip parent ffff: \
     action drop || success "Failed to add rule as expected"
 
 title "test fail to add ipv6 rule to rep"
-tc filter add dev $REP protocol ipv6 parent ffff: \
+tc filter add dev $REP protocol ipv6 parent ffff: prio 2 \
     flower skip_sw indev $REP \
     src_mac e1:22:33:44:00:00 \
     dst_mac e2:22:33:44:00:00 \
@@ -80,13 +80,16 @@ tc filter add dev $REP protocol ipv6 parent ffff: \
     action drop || success "Failed to add rule as expected"
 
 title "test add ipv6 rule to pf"
-tc filter add dev $NIC protocol ipv6 parent ffff: \
+tc filter add dev $NIC protocol ipv6 parent ffff: prio 3 \
     flower skip_sw indev $NIC \
     src_mac e1:22:33:44:00:01 \
     dst_mac e2:22:33:44:00:01 \
     src_ip 2001:0db8:85a3::8a2e:0370:7334 \
     dst_ip 2001:0db8:85a3::8a2e:0370:7335 \
     action drop || fail "Failed to add rule"
+
+reset_tc_nic $REP
+reset_tc_nic $NIC
 success
 
 title "test revert on set failure"
@@ -100,7 +103,7 @@ success
 
 if [ -e /sys/class/net/$REP ]; then
     title "test add ipv6 rule"
-    tc filter add dev $REP protocol ipv6 parent ffff: \
+    tc filter add dev $REP protocol ipv6 parent ffff: prio 1 \
         flower skip_sw indev $REP \
         src_mac e1:22:33:44:00:00 \
         dst_mac e2:22:33:44:00:00 \
