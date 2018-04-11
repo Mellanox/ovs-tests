@@ -211,6 +211,10 @@ function __test_basic_vxlan() {
     reset_tc $vx
     ip addr flush dev $NIC
     ip link del $vx
+    tmp=`dmesg | tail -n20 | grep "encap size" | grep "too big"`
+    if [ "$tmp" != "" ]; then
+        err "$tmp"
+    fi
 }
 
 function test_basic_vxlan_ipv4() {
