@@ -1,8 +1,5 @@
 #!/bin/bash
 #
-# XXXXXXXXXXXXXXX
-#  need to test this with traffic so flows are actually being added to hw
-#
 # Test add and del flows at the same time
 # 2. start adding rules in bg
 # 3. sleep
@@ -34,7 +31,7 @@ function add_rules() {
     for i in `seq $COUNT`; do
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
-        tc filter add dev $NIC1 protocol ip parent ffff: \
+        tc filter add dev $NIC1 protocol ip parent ffff: prio $i \
             flower skip_sw indev $NIC1 \
             src_mac e1:22:33:44:${num1}:$num2 \
             dst_mac e2:22:33:44:${num1}:$num2 \
@@ -47,7 +44,7 @@ function add_rules_vlan() {
     for i in `seq $COUNT`; do
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
-        tc filter add dev $NIC1 protocol 802.1Q parent ffff: \
+        tc filter add dev $NIC1 protocol 802.1Q parent ffff: prio $i \
             flower skip_sw indev $NIC1 \
             src_mac e1:22:33:44:${num1}:$num2 \
             dst_mac e2:22:33:44:${num1}:$num2 \
@@ -62,7 +59,7 @@ function add_rules_vlan_drop() {
     for i in `seq $COUNT`; do
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
-        tc filter add dev $NIC1 protocol 802.1Q parent ffff: \
+        tc filter add dev $NIC1 protocol 802.1Q parent ffff: prio $i \
             flower skip_sw indev $NIC1 \
             src_mac e1:22:33:44:${num1}:$num2 \
             dst_mac e2:22:33:44:${num1}:$num2 \
@@ -74,12 +71,11 @@ function add_rules_vlan_drop() {
 
 function del_rules() {
     local count="$1"
-    local pref=49152
     echo "del rules"
     for i in `seq $COUNT`; do
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
-        tc filter del dev $NIC1 parent ffff: prio $((pref--)) || fail "Failed to del rule $i"
+        tc filter del dev $NIC1 parent ffff: prio $i || fail "Failed to del rule $i"
     done
 }
 
