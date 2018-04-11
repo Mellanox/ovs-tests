@@ -96,41 +96,23 @@ def deco(line, color):
     return "\033[%dm%s\033[0m" % (COLOURS[color], line)
 
 
-class TestResult(object):
-    def __init__(self, name, res, out=''):
-        self._name = name
-        self._res = res
-        self._out = out
-
-    def __result(self, summary=False):
-        res_color = {
-            'SKIP': 'yellow',
-            'OK': 'green',
-            'DRY': 'yellow',
-            'FAILED': 'red',
-            'IGNORED': 'yellow',
-        }
-        color = res_color.get(self._res, 'red')
-        res = deco(self._res, color)
-        name = deco(self._name, 'blue')
-        ret = "Test: %-60s  %s" % (name, res)
-        if self._out:
-            out = self._out
-            if self._res == 'SKIP':
-                out = ' (%s)' % out
-            elif not summary:
-                out = '\n%s' % out
-            else:
-                out = ''
-            ret += deco(out, color)
-        return ret
-
-    def __str__(self):
-        return self.__result()
-
-    @property
-    def summary_result(self):
-        return self.__result(summary=True)
+def print_result(res, out):
+    res_color = {
+        'SKIP': 'yellow',
+        'OK': 'green',
+        'DRY': 'yellow',
+        'FAILED': 'red',
+        'IGNORED': 'yellow',
+    }
+    color = res_color.get(res, 'red')
+    cres = deco(res, color)
+    if out:
+        if res == 'SKIP':
+            out = ' (%s)' % out
+        else:
+            out = '\n%s' % out
+        cres += deco(out, color)
+    print cres
 
 
 def glob_tests(args, tests):
@@ -196,7 +178,9 @@ def main():
                 continue
             ignore = False
 
-        print "Execute test: %s" % name
+        print "Test: %-60s  " % deco(name, 'blue'),
+        sys.stdout.flush()
+
         failed = False
         res = 'OK'
         out = ''
@@ -218,16 +202,14 @@ def main():
                 failed = True
                 res = 'FAILED'
                 out = str(e)
+            except KeyboardInterrupt:
+                print 'Interrupted'
+                sys.exit(1)
 
-        tr = TestResult(name, res, out)
-        print tr
-        tests_results.append(tr)
+        print_result(res, out)
+
         if args.stop and failed:
             sys.exit(1)
-
-    print "Summary"
-    for tr in tests_results:
-        print tr.summary_result
 
 
 if __name__ == "__main__":
