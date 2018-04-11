@@ -11,15 +11,39 @@ my_dir="$(dirname "$0")"
 not_relevant_for_cx5
 
 function get_encap() {
-    output=`devlink dev eswitch show pci/$PCI`
+    if [ "$devlink_compat" = 1 ]; then
+        output=`cat /sys/kernel/debug/mlx5/$PCI/compat/encap`
+        if [ "$output" = "none" ]; then
+            encap="disable"
+        elif [ "$output" = "basic" ]; then
+            encap="enable"
+        else
+            fail "Failed to get encap"
+	fi
+    else
+        output=`devlink dev eswitch show pci/$PCI`
+        encap=`echo $output | grep -o "encap \w*" | awk {'print $2'}`
+    fi
+    
     echo $output
-    encap=`echo $output | grep -o "encap \w*" | awk {'print $2'}`
 }
 
 function set_encap() {
     local val="$1"
     title " - test set encap $val"
-    devlink dev eswitch set pci/$PCI encap $val && success || fail "Failed to set encap"
+
+    if [ "$devlink_compat" = 1 ]; then
+	if [ "$val" = "disable" ]; then
+            val="none"
+        elif [ "$val" = "enable" ]; then
+            val="basic"
+        else
+            fail "Failed to set encap"
+        fi
+        echo $val > /sys/kernel/debug/mlx5/$PCI/compat/encap && success || fail "Failed to set encap"
+    else
+        devlink dev eswitch set pci/$PCI encap $val && success || fail "Failed to set encap"
+    fi
 }
 
 function test_encap() {
@@ -61,7 +85,11 @@ start_check_syndrome
 set_encap disable
 test_encap disable
 switch_mode_legacy
-extra_mode="encap enable"
+if [ "$devlink_compat" = 1 ]; then
+    set_encap enable
+else
+    extra_mode="encap enable"
+fi
 switch_mode_switchdev
 test_encap enable
 check_syndrome
