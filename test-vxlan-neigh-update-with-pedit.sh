@@ -139,9 +139,9 @@ cleanup
 ip -6 addr add ${local_ip6}/64 dev $NIC
 neigh_update_test $local_ip6 $remote_ip6
 
-dmesg | tail -n20 | grep "encap size" | grep "too big"
-if [[ $? -ne 0 ]]; then
-    err
+tmp=`dmesg | tail -n20 | grep "encap size" | grep "too big"`
+if [ "$tmp" != "" ]; then
+    err "$tmp"
 fi
 
 check_kasan
