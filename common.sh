@@ -172,7 +172,7 @@ function fail() {
 function err() {
     local m=${@:-Failed}
     TEST_FAILED=1
-    echo -e "${RED}ERROR: $m$BLACK" >>/dev/stderr
+    echo -e "${RED}ERROR: $m$BLACK"
     kmsg "ERROR: $m"
 }
 
@@ -361,7 +361,7 @@ function get_vf() {
     if [ -a /sys/class/net/$nic/device/virtfn$vfn/net ]; then
 	echo `ls /sys/class/net/$nic/device/virtfn$vfn/net/`
     else 
-	fail "cannot find vf $vfn of $nic"
+	fail "Cannot find vf $vfn of $nic"
     fi
 }
 
@@ -428,7 +428,7 @@ function check_for_errors_log() {
     a=`journalctl --since="$sec seconds ago" | grep -E -i "$look" || true`
     if [ "$a" != "" ]; then
         err "Detected errors in the log"
-        echo "$a" >>/dev/stderr
+        echo "$a"
         return 1
     fi
     return 0
@@ -441,7 +441,7 @@ function check_for_err() {
 
     if [ "$a" != "" ]; then
         err "Detected errors in the log"
-        echo "$a" >>/dev/stderr
+        echo "$a"
         return 1
     fi
     return 0
