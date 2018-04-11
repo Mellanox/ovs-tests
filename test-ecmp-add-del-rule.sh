@@ -66,7 +66,7 @@ function add_vxlan_rule() {
     reset_tc $NIC
     reset_tc $REP
 
-    cmd="tc filter add dev $REP protocol arp parent ffff: \
+    cmd="tc filter add dev $REP protocol arp parent ffff: prio 1 \
         flower dst_mac $dst_mac $flag \
         action tunnel_key set \
             id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
