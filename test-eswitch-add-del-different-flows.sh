@@ -31,7 +31,7 @@ function add_rules() {
     for i in `seq $COUNT`; do
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
-        tc filter add dev $NIC1 protocol ip parent ffff: prio $i \
+        tc filter add dev $NIC1 protocol ip parent ffff: prio 1 handle $i \
             flower skip_sw indev $NIC1 \
             src_mac e1:22:33:44:${num1}:$num2 \
             dst_mac e2:22:33:44:${num1}:$num2 \
@@ -44,7 +44,7 @@ function add_rules_vlan() {
     for i in `seq $COUNT`; do
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
-        tc filter add dev $NIC1 protocol 802.1Q parent ffff: prio $i \
+        tc filter add dev $NIC1 protocol 802.1Q parent ffff: prio 1 handle $i \
             flower skip_sw indev $NIC1 \
             src_mac e1:22:33:44:${num1}:$num2 \
             dst_mac e2:22:33:44:${num1}:$num2 \

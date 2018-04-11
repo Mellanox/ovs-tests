@@ -28,7 +28,7 @@ title "add $COUNT rules"
 for i in `seq $COUNT`; do
     num1=`printf "%02x" $((i / 100))`
     num2=`printf "%02x" $((i % 100))`
-    tc filter add dev $rep protocol ip parent ffff: prio $i \
+    tc filter add dev $rep protocol ip parent ffff: prio 1 handle $i \
         flower skip_sw indev $rep \
         src_mac e1:22:33:44:${num1}:$num2 \
         dst_mac e2:22:33:44:${num1}:$num2 \
@@ -40,7 +40,7 @@ function del_rules() {
     for i in `seq $COUNT`; do
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
-        tc filter del dev $rep protocol ip parent ffff: prio $i
+        tc filter del dev $rep protocol ip parent ffff: prio 1 handle $i flower
         if [ "$?" != 0 ]; then
             if [ $first = true ]; then
                 fail "Failed to del first rule"
