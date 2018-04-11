@@ -118,6 +118,6 @@ echo "* reset"
 reset_tc_nic $NIC
 reset_tc_nic $REP
 echo $vfpci > /sys/bus/pci/drivers/mlx5_core/unbind
-set_eswitch_inline_mode link
+set_eswitch_inline_mode transport
 
 test_done

@@ -54,6 +54,6 @@ title "verify inline_mode is $test_mode"
 mode=`get_eswitch_inline_mode`
 test $mode = $test_mode || fail "Expected mode $test_mode but got $mode"
 
-title "reset mode to link"
-set_eswitch_inline_mode link
+title "reset mode to transport"
+set_eswitch_inline_mode transport
 test_done
