@@ -87,6 +87,9 @@ ovs-vsctl add-port $BR $REP
 ovs-vsctl add-port $BR $REP2
 
 title "Test ping $VF($IP1) -> $VF2($IP2)"
+ip netns exec ns0 ping -q -c 1 -w 2 $IP2
+timeout 2 tcpdump -nnei $REP -c 3 'icmp' &
+tdpid=$!
 ip netns exec ns0 ping -q -c 10 -i 0.2 -w 2 $IP2 && success || err
 
 dst_mac=`ip netns exec ns1 ip link show $VF2 | grep ether | awk '{print $2}'`
@@ -97,6 +100,9 @@ is_offloaded_rules $REP $src_mac $dst_mac && success || err "Rules are not offlo
 
 title "Check $VF2->$VF1 rule offloaded"
 is_offloaded_rules $REP2 $dst_mac $src_mac && success || err "Rules are not offloaded"
+
+title "Verify with tcpdump"
+wait $tdpid && err || success
 
 del_all_bridges
 cleanup
