@@ -130,18 +130,21 @@ function test_case_add_in_legacy() {
 function test_case_add_and_disable_sriov() {
     local case=$1
 
-    title "Test add and disabled sriov case $case"
+    title "Test add and disable sriov case $case"
     test -e /sys/class/net/$case || fail "Cannot find $case"
     num=`cat /sys/class/net/$case/device/sriov_numvfs`
     if [ "$num" == "0" ]; then
+        echo "enable sriov"
         echo 2 > /sys/class/net/$case/device/sriov_numvfs
     fi
     add_rules $case &
     sleep .2
+    echo "disable sriov"
     echo 0 > /sys/class/net/$case/device/sriov_numvfs
     wait
     reset_tc_nic $case
     if [ "$num" != "0" ]; then
+        echo "enable sriov"
         echo $num > /sys/class/net/$case/device/sriov_numvfs
         set_macs $num
     fi
