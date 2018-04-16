@@ -92,7 +92,7 @@ function neigh_update_test() {
     tc filter add dev $REP protocol ip parent ffff: prio 4\
         flower dst_mac $dst_mac $flag \
         action pedit ex \
-		munge ip ttl set 0x63  \
+                munge ip ttl set 0x63  \
                 munge eth src set 11:22:33:44:55:66 \
                 munge eth dst set aa:bb:cc:dd:ee:ff pipe \
         action csum ip pipe \
