@@ -51,7 +51,7 @@ function add_vlan_rule() {
 
 function add_vxlan_rule() {
     title "- add vxlan rule"
-    tc_filter add dev ${NIC} protocol 0x806 parent ffff: prio 111 \
+    tc_filter add dev ${NIC} protocol 0x806 parent ffff: prio 112 \
                 flower \
                         dst_mac e4:11:22:11:4a:51 \
                         src_mac e4:11:22:11:4a:50 \
