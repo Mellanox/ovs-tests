@@ -17,40 +17,41 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 
-set -e
-
 COUNT=5
 NIC1=$NIC
+
+function tc_filter() {
+    eval2 tc filter $@
+}
 
 function add_rules() {
     title "- add some rules"
     for i in `seq $COUNT`; do
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
-        tc filter add dev $NIC1 protocol ip parent ffff: prio $i \
+        tc_filter add dev $NIC1 protocol ip parent ffff: prio $i \
             flower skip_sw indev $NIC1 \
             src_mac e1:22:33:44:${num1}:$num2 \
             dst_mac e2:22:33:44:${num1}:$num2 \
-            action drop || fail "Failed to add rule"
+            action drop
     done
 }
 
 function add_vlan_rule() {
     title "- add vlan rule"
-    tc filter add dev $NIC1 protocol 802.1Q parent ffff: prio 1 \
+    tc_filter add dev $NIC1 protocol 802.1Q parent ffff: prio 111 \
                 flower \
                         dst_mac e4:11:22:11:4a:51 \
                         src_mac e4:11:22:11:4a:50 \
                         vlan_ethtype 0x800 \
                         vlan_id 100 \
                         vlan_prio 0 \
-                action vlan pop \
-                action drop || err "Failed"
+                action drop
 }
 
 function add_vxlan_rule() {
     title "- add vxlan rule"
-    tc filter add dev ${NIC} protocol 0x806 parent ffff: prio 1 \
+    tc_filter add dev ${NIC} protocol 0x806 parent ffff: prio 111 \
                 flower \
                         dst_mac e4:11:22:11:4a:51 \
                         src_mac e4:11:22:11:4a:50 \
@@ -59,7 +60,7 @@ function add_vxlan_rule() {
                         enc_key_id 100 \
                         enc_dst_port 4789 \
                 action tunnel_key unset \
-                action mirred egress redirect dev ${REP} && success || err "Failed"
+                action mirred egress redirect dev ${REP}
 }
 
 
