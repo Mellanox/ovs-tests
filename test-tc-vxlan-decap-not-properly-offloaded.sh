@@ -13,8 +13,6 @@ my_dir="$(dirname "$0")"
 require_mlxdump
 
 VXLAN=vxlan_sys_4789
-TC=tc
-IP=ip
 SKIP_DEC=skip_sw
 TUN_SRC_V4=20.1.184.1
 TUN_DST_V4=20.1.183.1
@@ -24,14 +22,14 @@ if [ -z "$REP" ]; then
     fail "Missing rep $rep"
 fi
 
-$IP link add $VXLAN type vxlan dstport 4789 external udp6zerocsumrx
+ip link add $VXLAN type vxlan dstport 4789 external udp6zerocsumrx
 ifconfig $VXLAN up
 tc qdisc add dev $VXLAN ingress
 
 reset_tc_nic $NIC
 reset_tc_nic $REP
 
-$IP addr add dev $NIC $TUN_SRC_V4/16
+ip addr add dev $NIC $TUN_SRC_V4/16
 
 rm -fr /tmp/fsdump_before_add /tmp/fsdump_after_add /tmp/fsdump_after_del
 
@@ -39,12 +37,14 @@ mlxdump -d $PCI fsdump --type FT --no_zero=true > /tmp/fsdump_before_add || err 
 
 # decap rule set on the vxlan device
 title "Add vxlan decap rule"
-$TC filter add dev $VXLAN protocol ip parent ffff: prio 10\
+tc_filter add dev $VXLAN protocol ip parent ffff: prio 10\
                 flower enc_src_ip $TUN_DST_V4 enc_dst_ip $TUN_SRC_V4 \
                 enc_key_id 100 enc_dst_port 4789 src_mac $VM_DST_MAC \
                 $SKIP_DEC \
                 action tunnel_key unset \
-                action mirred egress redirect dev $REP || err "TC command failed"
+                action mirred egress redirect dev $REP
+
+fail_if_err
 
 mlxdump -d $PCI fsdump --type FT --no_zero=true > /tmp/fsdump_after_add || err "mlxdump failed"
 
@@ -55,8 +55,8 @@ if [ -z "$DIF" ]; then
 fi
 
 title "Delete ingress qdisc"
-$TC qdisc del dev $REP ingress
-$TC qdisc del dev $VXLAN ingress
+tc qdisc del dev $REP ingress
+tc qdisc del dev $VXLAN ingress
 
 mlxdump -d $PCI fsdump --type FT --no_zero=true > /tmp/fsdump_after_del || err "mlxdump failed"
 
