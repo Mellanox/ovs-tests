@@ -525,6 +525,10 @@ function reload_modules() {
     echo "reload modules done"
 }
 
+function tc_filter() {
+    eval2 tc filter $@
+}
+
 function eval2() {
     local err
     eval $@
