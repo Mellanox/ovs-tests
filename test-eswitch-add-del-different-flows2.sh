@@ -7,7 +7,7 @@
 #
 # Expected result: not to crash
 #
-# the diff between flows1 and flows2 is using prios and not handles.
+# *The diff between flows1 and flows2 is using prios and not handles.
 #
 
 NIC=${1:-ens5f0}
