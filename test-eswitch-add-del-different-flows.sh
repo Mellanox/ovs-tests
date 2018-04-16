@@ -26,16 +26,20 @@ set -e
 
 COUNT=5
 
+function tc_filter() {
+    eval2 tc filter $@
+}
+
 function add_rules() {
     echo "add rules"
     for i in `seq $COUNT`; do
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
-        tc filter add dev $NIC1 protocol ip parent ffff: prio 1 handle $i \
+        tc_filter add dev $NIC1 protocol ip parent ffff: prio 1 handle $i \
             flower skip_sw indev $NIC1 \
             src_mac e1:22:33:44:${num1}:$num2 \
             dst_mac e2:22:33:44:${num1}:$num2 \
-            action drop || fail "Failed to add rule"
+            action drop
     done
 }
 
@@ -44,7 +48,7 @@ function add_rules_vlan() {
     for i in `seq $COUNT`; do
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
-        tc filter add dev $NIC1 protocol 802.1Q parent ffff: prio 1 handle $i \
+        tc_filter add dev $NIC1 protocol 802.1Q parent ffff: prio 1 handle $i \
             flower skip_sw indev $NIC1 \
             src_mac e1:22:33:44:${num1}:$num2 \
             dst_mac e2:22:33:44:${num1}:$num2 \
@@ -59,13 +63,13 @@ function add_rules_vlan_drop() {
     for i in `seq $COUNT`; do
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
-        tc filter add dev $NIC1 protocol 802.1Q parent ffff: prio 1 handle $i \
+        tc_filter add dev $NIC1 protocol 802.1Q parent ffff: prio 1 handle $i \
             flower skip_sw indev $NIC1 \
             src_mac e1:22:33:44:${num1}:$num2 \
             dst_mac e2:22:33:44:${num1}:$num2 \
             vlan_ethtype 0x800 \
             vlan_id 100 \
-            action drop || fail "Failed to add vlan rule"
+            action drop
     done
 }
 
@@ -75,7 +79,7 @@ function del_rules() {
     for i in `seq $COUNT`; do
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
-        tc filter del dev $NIC1 parent ffff: prio 1 handle $i flower || fail "Failed to del rule $i"
+        tc_filter del dev $NIC1 parent ffff: prio 1 handle $i flower
     done
 }
 
