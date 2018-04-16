@@ -22,12 +22,10 @@ fi
 reset_tc_nic $NIC
 reset_tc_nic $rep
 
-set -e
-
 COUNT=5
 
 function tc_filter() {
-    eval2 tc filter $@
+    eval2 tc filter $@ || fail
 }
 
 function add_rules() {
