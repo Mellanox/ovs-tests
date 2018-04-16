@@ -247,6 +247,13 @@ function set_eswitch_inline_mode() {
     fi
 }
 
+function set_eswitch_inline_mode_transport() {
+    if [ "$DEVICE_IS_CX4" = 1 ]; then
+        mode=`get_eswitch_inline_mode`
+        test "$mode" != "transport" && (set_eswitch_inline_mode transport || err "Failed to set inline mode transport")
+    fi
+}
+
 function require_multipath_support() {
     local m=""
 
