@@ -119,6 +119,7 @@ function __test_basic_vlan() {
     title "- nic1:$nic1 nic2:$nic2 skip:$skip"
     reset_tc_nic $nic1
     reset_tc_nic $nic2
+
     title "    - vlan push"
     tc_filter add dev $nic1 protocol 802.1Q parent ffff: `prio` \
                 flower \
@@ -127,6 +128,7 @@ function __test_basic_vlan() {
                         src_mac e4:11:22:11:4a:50 \
                 action vlan push id 100 \
                 action mirred egress redirect dev $nic2
+
     title "    - vlan pop"
     tc_filter add dev $nic2 protocol 802.1Q parent ffff: `prio` \
                 flower \
@@ -138,6 +140,31 @@ function __test_basic_vlan() {
                         vlan_prio 0 \
                 action vlan pop \
                 action mirred egress redirect dev $nic1
+
+    reset_tc_nic $nic1
+    reset_tc_nic $nic2
+
+    title "    - vlan drop $nic1"
+    tc_filter add dev $nic1 protocol 802.1Q parent ffff: `prio` \
+                flower \
+                        $skip \
+                        dst_mac e4:11:22:11:4a:51 \
+                        src_mac e4:11:22:11:4a:50 \
+                        vlan_ethtype 0x800 \
+                        vlan_id 100 \
+                        vlan_prio 0 \
+                action drop
+
+    title "    - vlan drop $nic2"
+    tc_filter add dev $nic2 protocol 802.1Q parent ffff: `prio` \
+                flower \
+                        $skip \
+                        dst_mac e4:11:22:11:4a:51 \
+                        src_mac e4:11:22:11:4a:50 \
+                        vlan_ethtype 0x800 \
+                        vlan_id 100 \
+                        vlan_prio 0 \
+                action drop
 }
 
 function test_basic_vlan() {
