@@ -90,7 +90,7 @@ function neigh_update_test() {
     # [Thu Oct 26 17:55:56 2017] BUG: KASAN: use-after-free in mlx5e_attach_mod_hdr.isra.15+0xebf/0xfc0 [mlx5_core]
     #
     tc filter add dev $REP protocol ip parent ffff: prio 4\
-        flower dst_mac $dst_mac $flag \
+        flower dst_mac $dst_mac ip_proto tcp $flag \
         action pedit ex \
                 munge ip ttl set 0x63  \
                 munge eth src set 11:22:33:44:55:66 \
@@ -140,6 +140,11 @@ ip -6 addr add ${local_ip6}/64 dev $NIC
 neigh_update_test $local_ip6 $remote_ip6
 
 tmp=`dmesg | tail -n20 | grep "encap size" | grep "too big"`
+if [ "$tmp" != "" ]; then
+    err "$tmp"
+fi
+
+tmp=`dmesg | tail -n20 | grep "can't offload re-write"`
 if [ "$tmp" != "" ]; then
     err "$tmp"
 fi
