@@ -429,15 +429,22 @@ function check_kasan() {
 }
 
 function check_for_errors_log() {
-    sec=`get_test_time_elapsed`
-    look="health compromised|firmware internal error|assert_var|Call Trace:|DEADLOCK|possible circular locking|WARNING:|RIP:"
-    a=`journalctl --since="$sec seconds ago" | grep -E -i "$look" || true`
-    if [ "$a" != "" ]; then
+    local rc=0
+    local sec=`get_test_time_elapsed`
+    local look="health compromised|firmware internal error|assert_var|DEADLOCK|possible circular locking|WARNING:|RIP:"
+    local look_ahead="Call Trace:"
+    local look_ahead_count=6
+
+    local a=`journalctl --since="$sec seconds ago" | grep -E -i "$look" || true`
+    local b=`journalctl --since="$sec seconds ago" | grep -E -A $look_ahead_count -i "$look_ahead" || true`
+    if [ "$a" != "" ] || [ "$b" != "" ]; then
         err "Detected errors in the log"
-        echo "$a"
-        return 1
+        rc=1
     fi
-    return 0
+    [ "$a" != "" ] && echo "$a"
+    [ "$b" != "" ] && echo "$b"
+
+    return $rc
 }
 
 function check_for_err() {
