@@ -413,14 +413,13 @@ function start_test_timestamp() {
 }
 
 function get_test_time_elapsed() {
-    now=`date +"%s"`
-    sec=`echo $now - $_check_start_ts + 1 | bc`
+    local now=`date +"%s"`
+    local sec=`echo $now - $_check_start_ts + 1 | bc`
     echo $sec
 }
 
 function check_kasan() {
-    now=`date +"%s"`
-    sec=`echo $now - $_check_start_ts + 1 | bc`
+    local sec=`get_test_time_elapsed`
     a=`journalctl --since="$sec seconds ago" | grep KASAN || true`
     if [ "$a" != "" ]; then
         err "$a"
