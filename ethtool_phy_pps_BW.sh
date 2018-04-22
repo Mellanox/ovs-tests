@@ -64,7 +64,7 @@ echo DT=$DT
 clear
 echo 
 echo
-echo "                     TX                                RX"
+printf "%10s %-30s %-30s\n" " " "TX" "RX"
 
 while [ 1 ] ; do
     RX1D1=`read_ethx_val $DEV1 rx_bytes_phy`
@@ -94,13 +94,13 @@ while [ 1 ] ; do
     PDRXD1=`human_pps $(((PRX2D1-PRX1D1)/DT))`
     PDTXD1=`human_pps $(((PTX2D1-PTX1D1)/DT))`
 
-    echo   "$DEV1      $DTXD1 [$PDTXD1]            $DRXD1 [$PDRXD1]                       "
+    printf   "%-10s %-30s %-30s\n"  "$DEV1" "$DTXD1 [$PDTXD1]" "$DRXD1 [$PDRXD1]"
     if [ $DEV2 ] ; then
             DRXD2=`human_bytes $(((RX2D2-RX1D2)/DT))`
             DTXD2=`human_bytes $(((TX2D2-TX1D2)/DT))`
             PDRXD2=`human_pps $(((PRX2D2-PRX1D2)/DT))`
             PDTXD2=`human_pps $(((PTX2D2-PTX1D2)/DT))`
-            echo  "$DEV2      $DTXD2 [$PDTXD2]            $DRXD2 [$PDRXD2]                   "
+            printf   "%-10s %-30s %-30s\n"  "$DEV2" "$DTXD2 [$PDTXD2]" "$DRXD2 [$PDRXD2]"
             echo -e "\033[3A"
     else
             echo -e "\033[2A"
