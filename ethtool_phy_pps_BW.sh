@@ -45,18 +45,18 @@ human_bytes() {
 human_pps() {
 	N=$1
 	if [ $N -gt 1000000000 ] ; then
-		echo "$(bc<<<"scale=2; $N/(1000*1000*1000)") GPPS"
+		echo "$(bc<<<"scale=2; $N/(1000*1000*1000)") Gpps"
 		return
 	fi
 	if [ $N -gt 1000000 ] ; then
-		echo "$(bc<<<"scale=2; $N/(1000*1000)") MPPS"
+		echo "$(bc<<<"scale=2; $N/(1000*1000)") Mpps"
 		return
 	fi
 	if [ $N -gt 1000 ] ; then
-		echo "$(bc<<<"scale=2; $N/(1000)") KPPS"
+		echo "$(bc<<<"scale=2; $N/(1000)") Kpps"
 		return
 	fi
-	echo "$N PPS"
+	echo "$N pps"
 
 }
 
