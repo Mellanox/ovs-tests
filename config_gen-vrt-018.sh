@@ -1,7 +1,7 @@
-NIC=p1p1
-NIC2=p1p2
-VF=p1p1_0
+NIC=eth4
+NIC2=eth5
+VF=eth6
 VF1=$VF
-VF2=p1p1_1
-REP=rep_p1p1_0
-REP2=rep_p1p1_1
+VF2=eth7
+REP=eth4_0
+REP2=eth4_1
