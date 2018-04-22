@@ -28,18 +28,18 @@ human_bytes() {
 	N=$1
 	N=$((N*8))
 	if [ $N -gt 1000000000 ] ; then
-		echo "$(bc<<<"scale=2; $N/(1024*1024*1024)") GiB"
+		echo "$(bc<<<"scale=2; $N/(1024*1024*1024)") Gbps"
 		return
 	fi
 	if [ $N -gt 1000000 ] ; then
-		echo "$(bc<<<"scale=2; $N/(1024*1024)") MiB"
+		echo "$(bc<<<"scale=2; $N/(1024*1024)") Mbps"
 		return
 	fi
 	if [ $N -gt 1000 ] ; then
-		echo "$(bc<<<"scale=2; $N/(1024)") KiB"
+		echo "$(bc<<<"scale=2; $N/(1024)") Kbps"
 		return
 	fi
-	echo "$N bytes"
+	echo "$N bps"
 }
 
 human_pps() {
