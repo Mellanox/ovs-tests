@@ -13,7 +13,7 @@ not_relevant_for_cx4
 
 
 function tc_filter() {
-    eval2 tc filter $@ && success || err
+    eval2 tc filter $@ && success
 }
 
 function test_basic_header_rewrite() {
@@ -30,7 +30,7 @@ function test_complex_header_rewrite_add() {
     # EXCEED_LIM          | 0x2EDCC3 |  alloc_modify_header_context: actions number exceeds HW limit
     reset_tc_nic $REP
     tc_filter add dev $REP protocol ip parent ffff: prio 2 \
-        flower skip_sw dst_mac aa:bb:cc:dd:ee:ff ip_proto tcp ip_ttl 40/ff dst_ip 7.7.7.3 ip_flags nofrag \
+        flower skip_sw dst_mac aa:bb:cc:dd:ee:ff ip_proto tcp ip_ttl 40/ff dst_ip 7.7.7.3 \
         action pedit ex \
             munge ip ttl add 0xff \
             munge ip dst set 1.1.1.2 \
@@ -46,7 +46,7 @@ function test_complex_header_rewrite_set() {
     # EXCEED_LIM          | 0x2EDCC3 |  alloc_modify_header_context: actions number exceeds HW limit
     reset_tc_nic $REP
     tc_filter add dev $REP protocol ip parent ffff: prio 2 \
-        flower skip_sw dst_mac aa:bb:cc:dd:ee:ff ip_proto tcp ip_ttl 40/ff dst_ip 7.7.7.3 ip_flags nofrag \
+        flower skip_sw dst_mac aa:bb:cc:dd:ee:ff ip_proto tcp ip_ttl 40/ff dst_ip 7.7.7.3 \
         action pedit ex \
             munge ip ttl set 0xff \
             munge ip dst set 1.1.1.2 \
