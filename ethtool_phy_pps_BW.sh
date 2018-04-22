@@ -35,6 +35,10 @@ human_bytes() {
 		echo "$(bc<<<"scale=2; $N/(1024*1024)") MiB"
 		return
 	fi
+	if [ $N -gt 1000 ] ; then
+		echo "$(bc<<<"scale=2; $N/(1024)") KiB"
+		return
+	fi
 	echo "$N bytes"
 }
 
