@@ -100,14 +100,21 @@ function config_multipath_route() {
     ip r r $net nexthop via $n1 dev $dev1 nexthop via $n2 dev $dev2
     ip n del $n1 dev $dev1 &>/dev/null
     ip n del $n2 dev $dev2 &>/dev/null
+    ip n del $remote_ip dev $dev1 &>/dev/null
+    ip n del $remote_ip dev $dev2 &>/dev/null
 }
 
 function verify_neigh() {
+    local nn=$@
     local a
-    a=`ip n show $n1 | grep -v FAILED`
-    [ -z "$a" ] && err "Expected to find neigh $n1" || echo $a
-    a=`ip n show $n2 | grep -v FAILED`
-    [ -z "$a" ] && err "Expected to find neigh $n2" || echo $a
+
+    for i in $nn ; do
+        a=`ip n show $i | grep -v FAILED`
+        [ -z "$a" ] && err "Expected to find neigh $i" || echo $a
+    done
+
+    a=`ip n show $remote_ip | grep -v FAILED`
+    [ -n "$a" ] && echo $a && err "Not expected neigh entry for $remote_ip"
 }
 
 function config() {
@@ -121,7 +128,7 @@ function config() {
 function test_add_multipath_rule() {
     config_multipath_route
     add_vxlan_rule $local_ip $remote_ip
-    verify_neigh
+    verify_neigh $n1 $n2
     reset_tc_nic $REP
 }
 
@@ -129,7 +136,7 @@ function test_add_multipath_rule_route1() {
     config_multipath_route
     ip r r $net nexthop via $n1 dev $dev1
     add_vxlan_rule $local_ip $remote_ip
-    verify_neigh
+    verify_neigh $n1
     reset_tc_nic $REP
 }
 
@@ -137,7 +144,7 @@ function test_add_multipath_rule_route2() {
     config_multipath_route
     ip r r $net nexthop via $n2 dev $dev2
     add_vxlan_rule $local_ip $remote_ip
-    verify_neigh
+    verify_neigh $n2
     reset_tc_nic $REP
 }
 
