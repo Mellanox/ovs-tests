@@ -41,8 +41,12 @@ function enable_sriov() {
 
 function enable_multipath_and_sriov() {
     echo "- Enable multipath"
-    disable_sriov
-    enable_sriov
+    a=`cat /sys/class/net/$NIC/device/sriov_numvfs`
+    b=`cat /sys/class/net/$NIC2/device/sriov_numvfs`
+    if [ $a -eq 0 ] || [ $b -eq 0 ]; then
+        disable_sriov
+        enable_sriov
+    fi
     unbind_vfs $NIC
     unbind_vfs $NIC2
     enable_multipath || err "Failed to enable multipath"
