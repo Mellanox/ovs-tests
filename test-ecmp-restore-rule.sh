@@ -147,8 +147,8 @@ function test_restore_rule() {
     ip n del $n1 dev $dev1 &>/dev/null
     ip n del $n2 dev $dev2 &>/dev/null
     add_vxlan_rule $local_ip $remote_ip
-    no_encap_rules 0
     look_for_encap_rules 1
+    no_encap_rules 0
     title "-- port0 up"
     ifconfig $NIC up
     sleep 2 # wait for neigh update
