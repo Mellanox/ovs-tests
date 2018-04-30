@@ -15,8 +15,8 @@ require_multipath_support
 require_mlxdump
 reset_tc_nic $NIC
 
-local_ip="39.0.10.60"
-remote_ip="36.0.10.180"
+local_ip="49.0.10.60"
+remote_ip="46.0.10.180"
 dst_mac="e4:1d:2d:fd:8b:02"
 flag=skip_sw
 dst_port=4789
@@ -91,20 +91,24 @@ function add_vxlan_rule() {
 
 dev1=$NIC
 dev2=$NIC2
-n1=38.2.10.1
-n2=38.1.10.1
+dev1_ip=48.2.10.60
+dev2_ip=48.1.10.60
+n1=48.2.10.1
+n2=48.1.10.1
 
 function config_multipath_route() {
     echo "config multipath route"
     ip l add dev dummy9 type dummy &>/dev/null
     ifconfig dummy9 $local_ip/24
-    ifconfig $NIC 38.2.10.60/24
-    ifconfig $NIC2 38.1.10.60/24
+    ifconfig $NIC $dev1_ip/24
+    ifconfig $NIC2 $dev2_ip/24
     ip r r $net nexthop via $n1 dev $dev1 nexthop via $n2 dev $dev2
     ip n del $n1 dev $dev1 &>/dev/null
     ip n del $n2 dev $dev2 &>/dev/null
     ip n del $remote_ip dev $dev1 &>/dev/null
     ip n del $remote_ip dev $dev2 &>/dev/null
+    ip n add $n1 dev $dev1 lladdr e4:1d:2d:31:eb:08
+    ip n add $n2 dev $dev2 lladdr e4:1d:2d:31:eb:08
 }
 
 function config() {
@@ -144,26 +148,24 @@ function test_restore_rule() {
 
     title "-- port0 down"
     ifconfig $NIC down
-    ip n del $n1 dev $dev1 &>/dev/null
-    ip n del $n2 dev $dev2 &>/dev/null
     add_vxlan_rule $local_ip $remote_ip
     look_for_encap_rules 1
     no_encap_rules 0
     title "-- port0 up"
     ifconfig $NIC up
+    ip n r $n1 dev $dev1 lladdr e4:1d:2d:31:eb:08
     sleep 2 # wait for neigh update
     look_for_encap_rules 0 1
     reset_tc_nic $REP
 
     title "-- port1 down"
     ifconfig $NIC2 down
-    ip n del $n1 dev $dev1 &>/dev/null
-    ip n del $n2 dev $dev2 &>/dev/null
     add_vxlan_rule $local_ip $remote_ip
     look_for_encap_rules 0
     no_encap_rules 1
     title "-- port1 up"
     ifconfig $NIC2 up
+    ip n r $n2 dev $dev2 lladdr e4:1d:2d:31:eb:08
     sleep 2 # wait for neigh update
     look_for_encap_rules 0 1
     reset_tc_nic $REP
