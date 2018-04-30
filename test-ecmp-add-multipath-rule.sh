@@ -92,6 +92,8 @@ function add_vxlan_rule() {
 
 dev1=$NIC
 dev2=$NIC2
+dev1_ip=38.2.10.60
+dev2_ip=38.1.10.60
 n1=38.2.10.1
 n2=38.1.10.1
 
@@ -99,8 +101,8 @@ function config_multipath_route() {
     echo "config multipath route"
     ip l add dev dummy9 type dummy &>/dev/null
     ifconfig dummy9 $local_ip/24
-    ifconfig $NIC 38.2.10.60/24
-    ifconfig $NIC2 38.1.10.60/24
+    ifconfig $NIC $dev1_ip/24
+    ifconfig $NIC2 $dev2_ip/24
     ip r r $net nexthop via $n1 dev $dev1 nexthop via $n2 dev $dev2
     ip n del $n1 dev $dev1 &>/dev/null
     ip n del $n2 dev $dev2 &>/dev/null
