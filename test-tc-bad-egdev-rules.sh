@@ -9,7 +9,6 @@ FILTER=${FILTER}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-require_mlxdump
 
 REP=`get_rep 0`
 if [ -z "$REP" ]; then
