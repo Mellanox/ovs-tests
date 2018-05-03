@@ -1,5 +1,6 @@
 #!/bin/bash
 
+NAME=`basename $0`
 DIR=$(cd `dirname $0` ; pwd)
 SET_MACS="$DIR/set-macs.sh"
 
@@ -604,6 +605,36 @@ function __setup_clean() {
     [ "$VF2" != "" ] && [ -e /sys/class/net/$VF2 ] && ifconfig $VF2 0
 }
 
+function warn_if_redmine_bug_is_open() {
+    local i
+    local s
+    local issues=`head -n50 $DIR/$NAME | grep -o "Bug SW #[0-9]\+" | cut -d"#" -f2`
+    for i in $issues ; do
+        if redmine_bug_is_open $i ; then
+            warn "Redmine issue $i is not closed."
+        fi
+    done
+    sleep 2
+}
+
+RM_STATUS_CLOSED=5
+RM_STATUS_CLOSED_REJECTED=38
+function redmine_bug_is_open() {
+    local s=`redmine_bug_status $1`
+    if [ "$s" = "" ]; then
+        return 1
+    fi
+    if [ $s -eq $RM_STATUS_CLOSED ] || [ $s -eq $RM_STATUS_CLOSED_REJECTED ]; then
+        return 1
+    fi
+    return 0
+}
+
+function redmine_bug_status() {
+    local id=$1
+    curl -s "https://redmine.mellanox.com/issues/${id}.json?key=4ad65ee94655687090deec6247b0d897f05443e3" | python -c "import sys, json; print json.load(sys.stdin)['issue']['status']['id']" 2>/dev/null
+}
+
 ### main
 title2 `basename $0`
 start_test_timestamp
@@ -611,3 +642,4 @@ trap __cleanup INT
 __load_config
 __setup_common
 __setup_clean
+warn_if_redmine_bug_is_open
