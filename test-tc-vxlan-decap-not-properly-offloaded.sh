@@ -17,10 +17,9 @@ SKIP_DEC=skip_sw
 TUN_SRC_V4=20.1.184.1
 TUN_DST_V4=20.1.183.1
 VM_DST_MAC=e4:11:22:33:44:70
-REP=`get_rep 0`
-if [ -z "$REP" ]; then
-    fail "Missing rep $rep"
-fi
+
+enable_switchdev_if_no_rep $REP
+bind_vfs
 
 ip link add $VXLAN type vxlan dstport 4789 external udp6zerocsumrx
 ifconfig $VXLAN up
