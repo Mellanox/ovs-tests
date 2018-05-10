@@ -17,7 +17,7 @@ fi
 
 function cleanup() {
     ip link del veth0 2>/dev/null
-    ip add flush dev $REP
+    ip addr flush dev $REP
 }
 trap cleanup EXIT
 
