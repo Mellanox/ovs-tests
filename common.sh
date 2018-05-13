@@ -642,7 +642,7 @@ function redmine_bug_is_open() {
 
 function redmine_bug_status() {
     local id=$1
-    curl -s "https://redmine.mellanox.com/issues/${id}.json?key=4ad65ee94655687090deec6247b0d897f05443e3" | python -c "import sys, json; print json.load(sys.stdin)['issue']['status']['id']" 2>/dev/null
+    curl -m 1 -s "https://redmine.mellanox.com/issues/${id}.json?key=4ad65ee94655687090deec6247b0d897f05443e3" | python -c "import sys, json; print json.load(sys.stdin)['issue']['status']['id']" 2>/dev/null
 }
 
 ### main
