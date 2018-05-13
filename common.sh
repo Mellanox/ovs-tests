@@ -98,7 +98,7 @@ function __setup_common() {
     if [ "$DEVICE" == "$DEVICE_CX4_LX" ]; then
         DEVICE_IS_CX4=1
         DEVICE_IS_CX4_LX=1
-        device="ConnectX-4"
+        device="ConnectX-4 Lx"
     elif [ "$DEVICE" == "$DEVICE_CX5_PCI_3" ]; then
         DEVICE_IS_CX5=1
         device="ConnectX-5"
