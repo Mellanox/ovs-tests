@@ -251,6 +251,11 @@ function test_basic_vxlan_ipv4() {
 }
 
 function test_basic_vxlan_ipv6() {
+    # ConnectX-4 Lx doesn't support vxlan over ipv6 tunnel
+    if [ "$DEVICE_IS_CX4" = 1 ]; then
+        echo "Not relevant for ConnectX-4"
+        return
+    fi
     __test_basic_vxlan \
                         2001:0db8:85a3::8a2e:0370:7334 \
                         2001:0db8:85a3::8a2e:0370:7335
