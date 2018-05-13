@@ -79,9 +79,12 @@ function __setup_common() {
         fail "Cannot find NIC2 $NIC2"
     fi
 
+    local status
+    local device
+
     PCI=$(basename `readlink /sys/class/net/$NIC/device`)
     DEVICE=`cat /sys/class/net/$NIC/device/device`
-    echo "NIC $NIC PCI $PCI DEVICE $DEVICE"
+    status="NIC $NIC PCI $PCI DEVICE $DEVICE"
 
     if [ -e /sys/kernel/debug/mlx5/$PCI/compat ]; then
         echo "devlink compat"
@@ -95,11 +98,18 @@ function __setup_common() {
     if [ "$DEVICE" == "$DEVICE_CX4_LX" ]; then
         DEVICE_IS_CX4=1
         DEVICE_IS_CX4_LX=1
+        device="ConnectX-4"
     elif [ "$DEVICE" == "$DEVICE_CX5_PCI_3" ]; then
         DEVICE_IS_CX5=1
+        device="ConnectX-5"
+
     elif [ "$DEVICE" == "$DEVICE_CX5_PCI_4" ]; then
         DEVICE_IS_CX5=1
+        device="ConnectX-5"
     fi
+
+    status+=" $device"
+    echo $status
 }
 
 function require_mlxdump() {
