@@ -440,6 +440,7 @@ function check_kasan() {
 }
 
 function check_for_errors_log() {
+    journalctl --sync &>/dev/null || sleep 0.5
     local rc=0
     local sec=`get_test_time_elapsed`
     local look="health compromised|firmware internal error|assert_var|DEADLOCK|possible circular locking|WARNING:|RIP:"
