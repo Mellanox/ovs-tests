@@ -628,22 +628,29 @@ function warn_if_redmine_bug_is_open() {
     sleep 2
 }
 
+# 'Closed', 'Fixed', 'External', 'Closed (External)', 'Rejected', 'Closed (Rejected)'
 RM_STATUS_CLOSED=5
+RM_STATUS_REJECTED=6
+RM_STATUS_FIXED=16
 RM_STATUS_CLOSED_REJECTED=38
+RM_STATUS_LIST="$RM_STATUS_CLOSED $RM_STATUS_REJECTED $RM_STATUS_FIXED $RM_STATUS_CLOSED_REJECTED"
+
 function redmine_bug_is_open() {
     local s=`redmine_bug_status $1`
     if [ "$s" = "" ]; then
         return 1
     fi
-    if [ $s -eq $RM_STATUS_CLOSED ] || [ $s -eq $RM_STATUS_CLOSED_REJECTED ]; then
-        return 1
-    fi
+    for i in $RM_STATUS_LIST ; do
+        if [ $s = $i ]; then
+            return 1
+        fi
+    done
     return 0
 }
 
 function redmine_bug_status() {
     local id=$1
-    curl -m 1 -s "https://redmine.mellanox.com/issues/${id}.json?key=4ad65ee94655687090deec6247b0d897f05443e3" | python -c "import sys, json; print json.load(sys.stdin)['issue']['status']['id']" 2>/dev/null
+    curl -m 1 -s "https://redmine.mellanox.com/issues/${id}.json?key=4ad65ee94655687090deec6247b0d897f05443e3" | python -c "import sys, json; i=json.load(sys.stdin)['issue']; print i['status']['id']" 2>/dev/null
 }
 
 ### main
