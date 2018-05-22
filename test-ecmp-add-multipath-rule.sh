@@ -128,6 +128,7 @@ function config() {
 
 function test_add_multipath_rule() {
     config_multipath_route
+    ip r show $net
     add_vxlan_rule $local_ip $remote_ip
     verify_neigh $n1 $n2
     reset_tc_nic $REP
@@ -136,6 +137,7 @@ function test_add_multipath_rule() {
 function test_add_multipath_rule_route1_missing() {
     config_multipath_route
     ip r r $net nexthop via $n1 dev $dev1
+    ip r show $net
     add_vxlan_rule $local_ip $remote_ip
     verify_neigh $n1
     reset_tc_nic $REP
@@ -144,6 +146,7 @@ function test_add_multipath_rule_route1_missing() {
 function test_add_multipath_rule_route2_missing() {
     config_multipath_route
     ip r r $net nexthop via $n2 dev $dev2
+    ip r show $net
     add_vxlan_rule $local_ip $remote_ip
     verify_neigh $n2
     reset_tc_nic $REP
@@ -152,6 +155,7 @@ function test_add_multipath_rule_route2_missing() {
 function test_add_multipath_rule_route1_dead() {
     config_multipath_route
     ifconfig $dev2 down
+    ip r show $net
     add_vxlan_rule $local_ip $remote_ip
     verify_neigh $n1
     reset_tc_nic $REP
@@ -160,6 +164,7 @@ function test_add_multipath_rule_route1_dead() {
 function test_add_multipath_rule_route2_dead() {
     config_multipath_route
     ifconfig $dev1 down
+    ip r show $net
     add_vxlan_rule $local_ip $remote_ip
     verify_neigh $n2
     reset_tc_nic $REP
