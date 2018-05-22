@@ -547,6 +547,12 @@ function tc_filter() {
     eval2 tc filter $@
 }
 
+function getnet() {
+    local ip=$1
+    local net=$2
+    echo `ipcalc -n $ip/$net | cut -d= -f2`/$net
+}
+
 function eval2() {
     local err
     eval $@

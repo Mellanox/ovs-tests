@@ -20,12 +20,7 @@ dst_mac="e4:1d:2d:fd:8b:02"
 flag=skip_sw
 dst_port=4789
 id=98
-
-function getnet() {
-    echo `ipcalc -n $1 | cut -d= -f2`/24
-}
-
-net=`getnet $remote_ip/24`
+net=`getnet $remote_ip 24`
 
 function disable_sriov() {
     echo "- Disable SRIOV"
