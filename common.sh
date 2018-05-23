@@ -642,6 +642,7 @@ RM_STATUS_CLOSED_REJECTED=38
 RM_STATUS_LIST="$RM_STATUS_CLOSED $RM_STATUS_REJECTED $RM_STATUS_FIXED $RM_STATUS_CLOSED_REJECTED"
 
 function redmine_bug_is_open() {
+    local i
     local s=`redmine_bug_status $1`
     if [ "$s" = "" ]; then
         return 1
