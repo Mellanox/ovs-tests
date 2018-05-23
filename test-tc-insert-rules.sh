@@ -281,7 +281,7 @@ function test_duplicate_vlan() {
         success
         title "- duplicate rule"
         tc $duplicate 2>/dev/null && err "Expected to fail adding duplicate rule" || success "Failed as expected"
-        expect_syndrome "0xd5ef2" && success || err "Expected a syndrome 0xd5ef2"
+        expect_syndrome "0xd5ef2" || err "Expected a syndrome 0xd5ef2"
     fi
     reset_tc_nic $NIC
     reset_tc_nic $REP
@@ -327,7 +327,7 @@ function test_duplicate_vxlan() {
         success
         title "- duplicate rule"
         tc $duplicate 2>/dev/null && err "Expected to fail adding duplicate rule" || success "Failed as expected"
-        expect_syndrome "0xd5ef2" && success || err "Expected a syndrome 0xd5ef2"
+        expect_syndrome "0xd5ef2" || err "Expected a syndrome 0xd5ef2"
     fi
 
     reset_tc_nic $NIC
