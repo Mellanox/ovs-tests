@@ -20,6 +20,7 @@ for i in `seq 10`; do
 done
 
 check_syndrome && success || err "Failed"
-reset_tc_nic $NIC
+tc filter show dev $NIC ingress | egrep -z "not_in_hw" && err "Expected in_hw rule"
 
+reset_tc_nic $NIC
 test_done
