@@ -11,7 +11,7 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 
-title "Test for groups overlapping"
+title "Test tc filter replace"
 start_check_syndrome
 reset_tc_nic $NIC
 
