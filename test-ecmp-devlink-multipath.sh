@@ -110,6 +110,29 @@ function test_5_multipath_ready_and_reload_mlx5_core() {
     echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
 }
 
+function test_6_multipath_ready_toggle_one_port_mode() {
+    local st=`date +"%s"`
+    activate_multipath
+    enable_switchdev $NIC
+    enable_switchdev $NIC2
+    for i in 1 2; do
+        enable_legacy $NIC2
+        enable_switchdev $NIC2
+    done
+
+    enable_legacy $NIC
+    enable_legacy $NIC2
+    disable_multipath || err "Failed to disable multipath"
+    disable_sriov
+
+    # leave where NIC is in sriov
+    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
+
+    local now=`date +"%s"`
+    local sec=`echo $now - $st + 1 | bc`
+    journalctl --since="$sec seconds ago" | grep "refcount >" && err && return 1
+}
+
 
 # Execute all test_* functions
 for i in `declare -F | awk {'print $3'} | grep ^test_ | grep -v test_done` ; do
