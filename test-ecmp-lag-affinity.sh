@@ -40,6 +40,7 @@ function test_lag_affinity() {
     enable_sriov
     unbind_vfs $NIC
     unbind_vfs $NIC2
+    disable_multipath
     enable_multipath || err "Failed to enable multipath"
     ifconfig $NIC up
     ifconfig $NIC2 up
