@@ -29,12 +29,11 @@ function set_switchdev() {
     enable_switchdev $NIC2
 }
 
-function test_lag_affinity() {
-    title "Test lag affinity"
-
+function _prep() {
     disable_sriov
-    ifconfig $NIC down
-    ifconfig $NIC2 down
+    ifconfig $NIC up
+    ifconfig $NIC2 up
+    _st=`date +"%s"`
 
     echo "- Enable multipath"
     enable_sriov
@@ -42,26 +41,54 @@ function test_lag_affinity() {
     unbind_vfs $NIC2
     disable_multipath
     enable_multipath || err "Failed to enable multipath"
-    ifconfig $NIC up
-    ifconfig $NIC2 up
     set_switchdev
+}
 
-    sec=`get_test_time_elapsed`
-    line=`journalctl --since="$sec seconds ago" | grep "lag map port" | tail -1 || true`
-    expect="lag map port 1:1 port 2:2"
-    echo $line
+function _test() {
+    local now=`date +"%s"`
+    local sec=`echo $now - $_st + 1 | bc`
+    local out=`journalctl --since="$sec seconds ago" | grep "lag map port" | tail -1 || true`
+    local expect="lag map port 1:1 port 2:2"
 
-    if echo $line | grep -q "$expect" ; then
+    echo $out
+    if echo $out | grep -q "$expect" ; then
         success
     else
         err "Expected $expect"
     fi
+}
 
-    # cleanup
+function test_lag_affinity() {
+    title "Test lag affinity"
+
+    _prep
+
+    # fire netdev events
+    ifconfig $NIC down && ifconfig $NIC up
+    ifconfig $NIC2 down && ifconfig $NIC2 up
+    sleep 1
+
+    _test
+
+    echo "- Disable multipath"
+    disable_multipath || err "Failed to disable multipath"
+}
+
+function test_lag_affinity_after_reload() {
+    title "Test lag affinity after reload"
+
+    reload_modules
+    _prep
+
+    # Do not bring up interfaces. we test initial status.
+
+    _test
+
     echo "- Disable multipath"
     disable_multipath || err "Failed to disable multipath"
 }
 
 
 test_lag_affinity
+test_lag_affinity_after_reload
 test_done
