@@ -190,8 +190,14 @@ cleanup
 config
 
 do_test test_add_multipath_rule
-do_test test_add_multipath_rule_route1_missing
-do_test test_add_multipath_rule_route2_missing
+# only relevant to asap mlnx ofed build which we fail for gateway 0.0.0.0
+# and thus supporting deleting routes and adding again.
+# we dont have a way to check for asap mlnx ofed exactly but we check
+# for devlink compat which only exists currently in asap mlnx ofed.
+if [ "$devlink_compat" = 1 ]; then
+    do_test test_add_multipath_rule_route1_missing
+    do_test test_add_multipath_rule_route2_missing
+fi
 do_test test_add_multipath_rule_route1_dead
 do_test test_add_multipath_rule_route2_dead
 
