@@ -16,10 +16,16 @@ start_check_syndrome
 reset_tc_nic $NIC
 
 for i in `seq 10`; do
-    tc filter replace dev $NIC protocol 0x806 parent ffff: prio 8 handle 0x1 flower  dst_mac e4:11:22:11:4a:51 src_mac e4:11:22:11:4a:50 action drop
+    tc_filter replace dev $NIC protocol 0x806 parent ffff: prio 8 handle 0x1 flower  dst_mac e4:11:22:11:4a:51 src_mac e4:11:22:11:4a:50 action drop
 done
 
-check_syndrome || err "Failed"
+check_syndrome || err
+
+count=`tc filter show dev $NIC ingress | grep ^filter | wc -l`
+if [ $count -eq 0 ]; then
+    err "Cannot find tc rule"
+fi
+
 tc filter show dev $NIC ingress | egrep -z "not_in_hw" && err "Expected in_hw rule"
 
 reset_tc_nic $NIC
