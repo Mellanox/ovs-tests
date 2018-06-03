@@ -21,7 +21,7 @@ reset_tc_nic $REP
 
 rm -fr /tmp/fsdump_before_add /tmp/fsdump_after_add
 
-mlxdump -d $PCI fsdump --type FT --no_zero=true > /tmp/fsdump_before_add || err "mlxdump failed"
+mlxdump -d $PCI fsdump --type FT --no_zero > /tmp/fsdump_before_add || err "mlxdump failed"
 
 title "Add tc rules"
 
@@ -45,7 +45,7 @@ tc filter add dev $REP protocol ip parent ffff: \
 
 title "Check diff"
 
-mlxdump -d $PCI fsdump --type FT --no_zero=true > /tmp/fsdump_after_add || err "mlxdump failed"
+mlxdump -d $PCI fsdump --type FT --no_zero > /tmp/fsdump_after_add || err "mlxdump failed"
 
 DIF=`diff -u /tmp/fsdump_before_add /tmp/fsdump_after_add`
 

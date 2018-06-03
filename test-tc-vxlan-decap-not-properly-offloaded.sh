@@ -32,7 +32,7 @@ ip addr add dev $NIC $TUN_SRC_V4/16
 
 rm -fr /tmp/fsdump_before_add /tmp/fsdump_after_add /tmp/fsdump_after_del
 
-mlxdump -d $PCI fsdump --type FT --no_zero=true > /tmp/fsdump_before_add || err "mlxdump failed"
+mlxdump -d $PCI fsdump --type FT --no_zero > /tmp/fsdump_before_add || err "mlxdump failed"
 
 # decap rule set on the vxlan device
 title "Add vxlan decap rule"
@@ -45,7 +45,7 @@ tc_filter add dev $VXLAN protocol ip parent ffff: prio 10\
 
 fail_if_err
 
-mlxdump -d $PCI fsdump --type FT --no_zero=true > /tmp/fsdump_after_add || err "mlxdump failed"
+mlxdump -d $PCI fsdump --type FT --no_zero > /tmp/fsdump_after_add || err "mlxdump failed"
 
 DIF=`diff -u /tmp/fsdump_before_add /tmp/fsdump_after_add`
 
@@ -57,7 +57,7 @@ title "Delete ingress qdisc"
 tc qdisc del dev $REP ingress
 tc qdisc del dev $VXLAN ingress
 
-mlxdump -d $PCI fsdump --type FT --no_zero=true > /tmp/fsdump_after_del || err "mlxdump failed"
+mlxdump -d $PCI fsdump --type FT --no_zero > /tmp/fsdump_after_del || err "mlxdump failed"
 
 title "Verify rule deleted from HW"
 DIF=`diff -u /tmp/fsdump_after_add /tmp/fsdump_after_del`

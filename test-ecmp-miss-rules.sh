@@ -54,8 +54,8 @@ function test_1_toggle_miss_rules() {
     enable_switchdev $NIC
     enable_switchdev $NIC2
 
-    i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero=true > /tmp/port$i || err "mlxdump failed"
-    i=1 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero=true > /tmp/port$i || err "mlxdump failed"
+    i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
+    i=1 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
     count0=`cat /tmp/port0 | grep VPORT -C1 | grep source_port | wc -l`
     count1=`cat /tmp/port1 | grep VPORT -C1 | grep source_port | wc -l`
 
@@ -69,8 +69,8 @@ function test_1_toggle_miss_rules() {
 
     enable_switchdev $NIC2
 
-    i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero=true > /tmp/port$i || err "mlxdump failed"
-    i=1 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero=true > /tmp/port$i || err "mlxdump failed"
+    i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
+    i=1 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
     _count0=`cat /tmp/port0 | grep VPORT -C1 | grep source_port | wc -l`
     _count1=`cat /tmp/port1 | grep VPORT -C1 | grep source_port | wc -l`
 
