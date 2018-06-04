@@ -21,7 +21,7 @@ function cleanup() {
     echo "cleanup"
     start_clean_openvswitch
     ip netns del ns0 &> /dev/null
-    ifconfig $VF2 0
+    ifconfig $VF 0
 }
 
 cleanup
@@ -34,10 +34,10 @@ echo "setup ns"
 
 require_interfaces VF VF2 REP REP2
 
-ifconfig $VF2 $VM1_IP/24 up
+ifconfig $VF $VM1_IP/24 up
 ip netns add ns0
-ip link set $VF netns ns0
-ip netns exec ns0 ifconfig $VF $VM2_IP/24 up
+ip link set $VF2 netns ns0
+ip netns exec ns0 ifconfig $VF2 $VM2_IP/24 up
 ifconfig $REP up
 ifconfig $REP2 up
 
@@ -91,7 +91,7 @@ title "Verify we have 2 rules"
 check_offloaded_rules 2
 
 ovs-dpctl dump-flows type=offloaded --names
-tc -s filter show dev $REP2 ingress
+tc -s filter show dev $REP ingress
 
 kill $tdpid 2>/dev/null
 sleep 1
@@ -99,7 +99,7 @@ count=`tcpdump -nnr $tdtmpfile | wc -l`
 title "Verify with tcpdump"
 if [[ $count -gt 2 ]]; then
     err "No offload"
-    tcpdump -nnr $tdtmpfile
+    tcpdump -nner $tdtmpfile
 else
     success
 fi
