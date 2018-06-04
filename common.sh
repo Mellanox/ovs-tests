@@ -211,15 +211,17 @@ function switch_mode() {
     local extra="$extra_mode"
 
     echo "Change eswitch ($pci) mode to $1 $extra"
+
     if [ "$devlink_compat" = 1 ]; then
         echo $1 > /sys/kernel/debug/mlx5/$pci/compat/mode || fail "Failed to set mode $1"
-        return
+    else
+        echo -n "Old mode: "
+        devlink dev eswitch show pci/$pci
+        devlink dev eswitch set pci/$pci mode $1 $extra || fail "Failed to set mode $1"
+        echo -n "New mode: "
+        devlink dev eswitch show pci/$pci
     fi
-    echo -n "Old mode: "
-    devlink dev eswitch show pci/$pci
-    devlink dev eswitch set pci/$pci mode $1 $extra || fail "Failed to set mode $1"
-    echo -n "New mode: "
-    devlink dev eswitch show pci/$pci
+
     if [ "$1" = "switchdev" ]; then
         sleep 2 # wait for interfaces
         bring_up_reps
