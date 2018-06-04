@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Test TC priorities support
+# Check we can add multiple masks to the same prio.
 #
 
 my_dir="$(dirname "$0")"
