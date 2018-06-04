@@ -9,10 +9,8 @@ NIC=${1:-ens5f0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-REP=`get_rep 0`
-if [ -z "$REP" ]; then
-    fail "Missing rep $REP"
-fi
+enable_switchdev_if_no_rep $REP
+bind_vfs
 
 local_ip="2.2.2.2"
 remote_ip="2.2.2.3"
