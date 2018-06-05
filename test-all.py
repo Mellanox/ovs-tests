@@ -104,7 +104,7 @@ def print_result(res, out):
         'FAILED': 'red',
         'IGNORED': 'yellow',
     }
-    color = res_color.get(res, 'red')
+    color = res_color.get(res, 'yellow')
     cres = deco(res, color)
     if out:
         if res == 'SKIP':
