@@ -197,7 +197,8 @@ def main():
                 cmd = test
                 if args.parm:
                     cmd += ' ' + args.parm
-                run_test(cmd)
+                _out = run_test(cmd)
+                res = _out[0].splitlines()[-1].strip()
             except ExecCmdFailed, e:
                 failed = True
                 res = 'FAILED'
