@@ -50,8 +50,7 @@ class ExecCmdFailed(Exception):
         self._logname = logname
 
     def __str__(self):
-        retval = "(exited with %d)" % self._rc
-        return "Command execution failed %s: %s" % (retval, self._logname)
+        return self._logname
 
 
 def parse_args():
@@ -86,8 +85,7 @@ def run_test(cmd):
         f1.write(out[0])
 
     if subp.returncode:
-        err = ExecCmdFailed(cmd, subp.returncode, logname)
-        raise err
+        raise ExecCmdFailed(cmd, subp.returncode, logname)
 
     return out
 
@@ -110,7 +108,7 @@ def print_result(res, out):
         if res == 'SKIP':
             out = ' (%s)' % out
         else:
-            out = '\n%s' % out
+            out = ' %s' % out
         cres += deco(out, color)
     print cres
 
