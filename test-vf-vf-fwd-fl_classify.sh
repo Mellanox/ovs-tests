@@ -19,8 +19,6 @@ function cleanup() {
     reset_tc $REP2
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
-    sleep 1
-    modprobe -rv act_mirred cls_flower || err "failed unload"
 }
 trap cleanup EXIT
 
@@ -106,5 +104,9 @@ for i in `seq $max`; do
     if (( i%500 == 0 )); then echo $i/$max ; fi
 done
 
-killall -9 ping &>/dev/null
+cleanup
+# reload modules
+sleep 1
+modprobe -rv act_mirred cls_flower || err "failed unload"
+modprobe -a act_mirred cls_flower
 test_done
