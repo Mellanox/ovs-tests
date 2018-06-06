@@ -92,9 +92,9 @@ ip netns exec ns0 ping -q -f $IP2 &
 sleep 1
 
 tc filter add dev $REP ingress protocol ip prio 3 flower skip_sw src_mac $mac1 action \
-    mirred egress redirect dev $REP2 2>/dev/null && clean_and_fail "tc - expected to fail adding rule $REP->$REP2"
+    mirred egress redirect dev $REP2 2>/dev/null || clean_and_fail "failed adding rule $REP->$REP2"
 tc filter add dev $REP2 ingress protocol ip prio 3 flower skip_sw src_mac $mac2 action \
-    mirred egress redirect dev $REP 2>/dev/null && clean_and_fail "tc - expected to fail adding rule $REP2->$REP"
+    mirred egress redirect dev $REP 2>/dev/null || clean_and_fail "failed adding rule $REP2->$REP"
 
 max=10000
 for i in `seq $max`; do
