@@ -1,6 +1,8 @@
 #!/bin/bash
 #
 # Test fl_classify (caused by traffic) while add/del hw rules.
+# related ticket
+# Bug SW #1297803: [ASAP MLNX OFED] fl_classify might access invalid memory on err flow in fl_change
 #
 
 NIC=${1:-ens2f0}
