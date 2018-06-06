@@ -91,6 +91,7 @@ done > /tmp/tc_batch_1234
 
 title "Test ping $VF($IP1, $mac1) -> $VF2($IP2, $mac2)"
 ip netns exec ns0 ping -q -f $IP2 &
+sleep 1
 tc -b /tmp/tc_batch_1234 || err "tc batch failed"
 killall -9 ping
 

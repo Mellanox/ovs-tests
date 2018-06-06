@@ -14,12 +14,20 @@ IP1="7.7.7.1"
 IP2="7.7.7.2"
 
 function cleanup() {
+    killall -9 ping &>/dev/null
     reset_tc $REP
     reset_tc $REP2
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
     sleep 1
     modprobe -rv act_mirred cls_flower || err "failed unload"
+}
+trap cleanup EXIT
+
+function clean_and_fail() {
+    err $@
+    cleanup
+    fail
 }
 
 function config_vf() {
@@ -81,11 +89,12 @@ tc filter add dev $REP2 ingress protocol ip prio 1 flower skip_hw src_mac aa:bb:
 
 title "Test ping $VF($IP1, $mac1) -> $VF2($IP2, $mac2)"
 ip netns exec ns0 ping -q -f $IP2 &
+sleep 1
 
 tc filter add dev $REP ingress protocol ip prio 3 flower skip_sw src_mac $mac1 action \
-    mirred egress redirect dev $REP2 2>/dev/null && fail "tc - expected to fail adding rule"
+    mirred egress redirect dev $REP2 2>/dev/null && clean_and_fail "tc - expected to fail adding rule $REP->$REP2"
 tc filter add dev $REP2 ingress protocol ip prio 3 flower skip_sw src_mac $mac2 action \
-    mirred egress redirect dev $REP 2>/dev/null && fail "tc - expected to fail adding rule"
+    mirred egress redirect dev $REP 2>/dev/null && clean_and_fail "tc - expected to fail adding rule $REP2->$REP"
 
 max=10000
 for i in `seq $max`; do
@@ -97,7 +106,4 @@ for i in `seq $max`; do
     if (( i%500 == 0 )); then echo $i/$max ; fi
 done
 
-killall -9 ping
-
-cleanup
 test_done
