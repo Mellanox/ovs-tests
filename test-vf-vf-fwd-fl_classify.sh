@@ -106,4 +106,5 @@ for i in `seq $max`; do
     if (( i%500 == 0 )); then echo $i/$max ; fi
 done
 
+killall -9 ping &>/dev/null
 test_done
