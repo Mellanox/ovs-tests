@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# Preformance test
+#
 # Bug SW #1251244: Poor performance with UDP traffic in HV using namespaces
 #
 
