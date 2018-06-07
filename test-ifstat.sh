@@ -10,15 +10,15 @@ NIC=${1:-ens5f0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+# issue was when VFs are bound so this is important.
+bind_vfs
 
 title "Test ifstat"
-for i in 1 2 3 ; do
-    ifstat $NIC || err "ifstat failed"
-done
+ifstat $NIC || err "ifstat failed"
+ifstat $NIC || err "ifstat failed"
 
 title "Test ifstat cpu_hits"
-for i in 1 2 3 ; do
-    ifstat -x cpu_hits $NIC || err "ifstat cpu_hits failed"
-done
+ifstat -x cpu_hits $NIC || err "ifstat cpu_hits failed"
+ifstat -x cpu_hits $NIC || err "ifstat cpu_hits failed"
 
 test_done
