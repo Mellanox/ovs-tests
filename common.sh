@@ -36,7 +36,7 @@ DEVICE_CX4_LX="0x1015"
 DEVICE_CX5_PCI_3="0x1017"
 DEVICE_CX5_PCI_4="0x1019"
 
-# test in __setup_common() for /sys/kernel/debug/mlx5/81:00.0/compat
+# test in __setup_common()
 devlink_compat=0
 
 
@@ -65,6 +65,17 @@ function get_mlx_iface() {
     done
 }
 
+function __test_for_devlink_compat() {
+    if [ -e /sys/kernel/debug/mlx5/$PCI/compat ]; then
+        echo "devlink compat debugfs"
+        devlink_compat=1
+        devlink_compat_dir="/sys/kernel/debug/mlx5/$PCI/compat"
+    elif [ -e /sys/class/net/$NIC/compat/devlink ]; then
+        echo "devlink compat sysfs"
+        devlink_compat=1
+        devlink_compat_dir="/sys/class/net/$NIC/compat/devlink/"
+    fi
+}
 
 function __setup_common() {
     if [ "$NIC" == "" ]; then
@@ -86,10 +97,7 @@ function __setup_common() {
     DEVICE=`cat /sys/class/net/$NIC/device/device`
     status="NIC $NIC PCI $PCI DEVICE $DEVICE"
 
-    if [ -e /sys/kernel/debug/mlx5/$PCI/compat ]; then
-        echo "devlink compat"
-        devlink_compat=1
-    fi
+    __test_for_devlink_compat
 
     DEVICE_IS_CX4=0
     DEVICE_IS_CX4_LX=0
@@ -213,7 +221,7 @@ function switch_mode() {
     echo "Change eswitch ($pci) mode to $1 $extra"
 
     if [ "$devlink_compat" = 1 ]; then
-        echo $1 > /sys/kernel/debug/mlx5/$pci/compat/mode || fail "Failed to set mode $1"
+        echo $1 > $devlink_compat_dir/mode || fail "Failed to set mode $1"
     else
         echo -n "Old mode: "
         devlink dev eswitch show pci/$pci
@@ -238,7 +246,7 @@ function switch_mode_switchdev() {
 
 function get_eswitch_mode() {
     if [ "$devlink_compat" = 1 ]; then
-        cat /sys/kernel/debug/mlx5/$PCI/compat/mode
+        cat $devlink_compat_dir/mode
     else
         devlink dev eswitch show pci/$PCI | grep -o "\bmode [a-z]\+" | awk {'print $2'}
     fi
@@ -246,7 +254,7 @@ function get_eswitch_mode() {
 
 function get_eswitch_inline_mode() {
     if [ "$devlink_compat" = 1 ]; then
-        cat /sys/kernel/debug/mlx5/$PCI/compat/inline
+        cat $devlink_compat_dir/inline
     else
         devlink dev eswitch show pci/$PCI | grep -o "\binline-mode [a-z]\+" | awk {'print $2'}
     fi
@@ -254,7 +262,7 @@ function get_eswitch_inline_mode() {
 
 function set_eswitch_inline_mode() {
     if [ "$devlink_compat" = 1 ]; then
-        echo $1 > /sys/kernel/debug/mlx5/$PCI/compat/inline
+        echo $1 > $devlink_compat_dir/inline
     else
         devlink dev eswitch set pci/$PCI inline-mode $1
     fi
@@ -271,7 +279,7 @@ function require_multipath_support() {
     local m=""
 
     if [ "$devlink_compat" = 1 ]; then
-        if [ -e /sys/kernel/debug/mlx5/$PCI/compat/multipath ]; then
+        if [ -e $devlink_compat_dir/multipath ]; then
             m="ok"
         fi
     else
@@ -294,7 +302,7 @@ function require_interfaces() {
 
 function enable_multipath() {
     if [ "$devlink_compat" = 1 ]; then
-        echo enabled > /sys/kernel/debug/mlx5/$PCI/compat/multipath
+        echo enabled > $devlink_compat_dir/multipath
     else
         devlink dev eswitch set pci/$PCI multipath enable
     fi
@@ -302,7 +310,7 @@ function enable_multipath() {
 
 function disable_multipath() {
     if [ "$devlink_compat" = 1 ]; then
-        echo disabled > /sys/kernel/debug/mlx5/$PCI/compat/multipath
+        echo disabled > $devlink_compat_dir/multipath
     else
         devlink dev eswitch set pci/$PCI multipath disable
     fi
@@ -322,7 +330,7 @@ function enable_legacy() {
 
 function get_multipath_mode() {
     if [ "$devlink_compat" = 1 ]; then
-        cat /sys/kernel/debug/mlx5/$PCI/compat/multipath
+        cat $devlink_compat_dir/multipath
     else
         devlink dev eswitch show pci/$PCI | grep -o "\bmultipath [a-z]\+" | awk {'print $2'}
     fi
