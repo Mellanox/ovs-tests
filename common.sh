@@ -69,11 +69,11 @@ function __test_for_devlink_compat() {
     if [ -e /sys/kernel/debug/mlx5/$PCI/compat ]; then
         echo "devlink compat debugfs"
         devlink_compat=1
-        devlink_compat_dir="/sys/kernel/debug/mlx5/$PCI/compat"
+        __devlink_compat_dir="/sys/kernel/debug/mlx5/\$pci/compat"
     elif [ -e /sys/class/net/$NIC/compat/devlink ]; then
         echo "devlink compat sysfs"
         devlink_compat=1
-        devlink_compat_dir="/sys/class/net/$NIC/compat/devlink/"
+        __devlink_compat_dir="/sys/class/net/\$nic/compat/devlink/"
     fi
 }
 
@@ -213,6 +213,12 @@ function bring_up_reps() {
     fi
 }
 
+function devlink_compat_dir() {
+    local nic=$1
+    local pci=$(basename `readlink /sys/class/net/$nic/device`)
+    eval echo "$__devlink_compat_dir";
+}
+
 function switch_mode() {
     local nic=${2:-$NIC}
     local pci=$(basename `readlink /sys/class/net/$nic/device`)
@@ -221,7 +227,7 @@ function switch_mode() {
     echo "Change eswitch ($pci) mode to $1 $extra"
 
     if [ "$devlink_compat" = 1 ]; then
-        echo $1 > $devlink_compat_dir/mode || fail "Failed to set mode $1"
+        echo $1 > `devlink_compat_dir $nic`/mode || fail "Failed to set mode $1"
     else
         echo -n "Old mode: "
         devlink dev eswitch show pci/$pci
@@ -246,7 +252,7 @@ function switch_mode_switchdev() {
 
 function get_eswitch_mode() {
     if [ "$devlink_compat" = 1 ]; then
-        cat $devlink_compat_dir/mode
+        cat `devlink_compat_dir $NIC`/mode
     else
         devlink dev eswitch show pci/$PCI | grep -o "\bmode [a-z]\+" | awk {'print $2'}
     fi
@@ -254,7 +260,7 @@ function get_eswitch_mode() {
 
 function get_eswitch_inline_mode() {
     if [ "$devlink_compat" = 1 ]; then
-        cat $devlink_compat_dir/inline
+        cat `devlink_compat_dir $NIC`/inline
     else
         devlink dev eswitch show pci/$PCI | grep -o "\binline-mode [a-z]\+" | awk {'print $2'}
     fi
@@ -262,7 +268,7 @@ function get_eswitch_inline_mode() {
 
 function set_eswitch_inline_mode() {
     if [ "$devlink_compat" = 1 ]; then
-        echo $1 > $devlink_compat_dir/inline
+        echo $1 > `devlink_compat_dir $NIC`/inline
     else
         devlink dev eswitch set pci/$PCI inline-mode $1
     fi
@@ -279,7 +285,7 @@ function require_multipath_support() {
     local m=""
 
     if [ "$devlink_compat" = 1 ]; then
-        if [ -e $devlink_compat_dir/multipath ]; then
+        if [ -e `devlink_compat_dir $NIC`/multipath ]; then
             m="ok"
         fi
     else
@@ -302,7 +308,7 @@ function require_interfaces() {
 
 function enable_multipath() {
     if [ "$devlink_compat" = 1 ]; then
-        echo enabled > $devlink_compat_dir/multipath
+        echo enabled > `devlink_compat_dir $NIC`/multipath
     else
         devlink dev eswitch set pci/$PCI multipath enable
     fi
@@ -310,7 +316,7 @@ function enable_multipath() {
 
 function disable_multipath() {
     if [ "$devlink_compat" = 1 ]; then
-        echo disabled > $devlink_compat_dir/multipath
+        echo disabled > `devlink_compat_dir $NIC`/multipath
     else
         devlink dev eswitch set pci/$PCI multipath disable
     fi
@@ -330,7 +336,7 @@ function enable_legacy() {
 
 function get_multipath_mode() {
     if [ "$devlink_compat" = 1 ]; then
-        cat $devlink_compat_dir/multipath
+        cat `devlink_compat_dir $NIC`/multipath
     else
         devlink dev eswitch show pci/$PCI | grep -o "\bmultipath [a-z]\+" | awk {'print $2'}
     fi
