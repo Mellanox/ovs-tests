@@ -40,9 +40,9 @@ TMP1=/tmp/ping1
 TMP2=/tmp/ping2
 TMP3=/tmp/ping3
 COUNT=10000
-ping 7.7.7.2 -f -c $COUNT > $TMP1 &
-ping 7.7.7.2 -f -c $COUNT > $TMP2 &
-ping 7.7.7.2 -f -c $COUNT > $TMP3 &
+ping 7.7.7.2 -f -c $COUNT -w 2 > $TMP1 &
+ping 7.7.7.2 -f -c $COUNT -w 2 > $TMP2 &
+ping 7.7.7.2 -f -c $COUNT -w 2 > $TMP3 &
 wait
 err=0
 for i in $TMP1 $TMP2 $TMP3; do
