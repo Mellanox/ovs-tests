@@ -71,7 +71,7 @@ tdpid=$!
 sleep 0.5
 
 title "Test ping $VM1_IP -> $VM2_IP - expect to pass"
-ping -q -c 30 -i 0.2 -w 15 $VM2_IP && success || err
+ping -q -f -w 15 $VM2_IP && success || err
 
 title "Verify we have 2 rules"
 check_offloaded_rules 2
