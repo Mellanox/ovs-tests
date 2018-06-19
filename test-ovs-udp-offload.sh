@@ -50,10 +50,16 @@ ovs-vsctl add-port brv-1 $REP2
 function check_offloaded_rules() {
     local count=$1
     title " - check for $count offloaded rules"
-    RES="ovs-dpctl dump-flows type=offloaded | grep ipv4 | grep proto=17 | grep -v drop"
-    eval $RES
-    RES=`eval $RES | wc -l`
+    local cmd="ovs-dpctl dump-flows type=offloaded | grep ipv4 | grep proto=17 | grep -v drop"
+    eval $cmd
+    RES=`eval $cmd | wc -l`
     if (( RES == $count )); then success; else err; fi
+
+    # in udp we only send packets in one direction
+    cmd="ovs-dpctl dump-flows type=offloaded | grep ipv4 | grep proto=17 | grep -v drop | grep 'in_port(2)'"
+    if eval $cmd | grep "packets:0, bytes:0" ; then
+        err "packets:0, bytes:0"
+    fi
 }
 
 
