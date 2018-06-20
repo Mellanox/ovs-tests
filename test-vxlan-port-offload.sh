@@ -48,6 +48,9 @@ function __test_vxlan() {
     reset_tc_nic $NIC
     reset_tc_nic $REP
 
+    m=`ip addr show $vx 2>&1`
+    [ $? -ne 0 ] && fail $m
+
     ip addr flush dev $NIC
     ip addr add $ip_src/16 dev $NIC
     ip neigh add $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
