@@ -64,6 +64,8 @@ function create_vxlan_interface() {
     ip addr flush dev $NIC
     ip addr add $ip_src/16 dev $NIC
     ip neigh add $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
+    # wait for vxlan port to be marked as offloaded port by the hw
+    sleep 1
 }
 
 function clean_vxlan_interface() {
