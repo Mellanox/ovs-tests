@@ -544,7 +544,7 @@ function start_clean_openvswitch() {
 }
 
 function reload_modules() {
-    if [ "$devlink_compat" = 1 ]; then
+    if [ -e /etc/init.d/openibd ]; then
         service openibd force-restart || fail "Failed to restart openibd service"
     else
         modprobe -r mlx5_ib mlx5_core || fail "Failed to unload modules"
