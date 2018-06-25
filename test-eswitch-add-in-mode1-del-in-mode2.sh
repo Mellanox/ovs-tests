@@ -57,13 +57,12 @@ function create_vxlan_interface() {
     # note: we support adding decap to vxlan interface only.
     vxlan_port=4789
     ip link del $vx >/dev/null 2>&1
-    ip link add $vx type vxlan dev $NIC dstport $vxlan_port external
+    ip link add $vx type vxlan dstport $vxlan_port external
     [ $? -ne 0 ] && err "Failed to create vxlan interface" && return 1
     ip link set dev $vx up
     tc qdisc add dev $vx ingress
     ip addr flush dev $NIC
     ip addr add $ip_src/16 dev $NIC
-    ifconfig $NIC up
     ip neigh add $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
 }
 
