@@ -22,6 +22,7 @@ enable_switchdev_if_no_rep $REP
 bind_vfs
 
 ip link add $VXLAN type vxlan dstport 4789 external udp6zerocsumrx
+[ $? -ne 0 ] && fail "Failed to create vxlan interface"
 ifconfig $VXLAN up
 tc qdisc add dev $VXLAN ingress
 

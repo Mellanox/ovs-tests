@@ -33,6 +33,7 @@ function __test_vxlan() {
     vxlan_port=4789
     ip link del $vx >/dev/null 2>&1
     ip link add $vx type vxlan dstport $vxlan_port external
+    [ $? -ne 0 ] && err "Failed to create vxlan interface" && return 1
     ip link set dev $vx up
     tc qdisc add dev $vx ingress
 

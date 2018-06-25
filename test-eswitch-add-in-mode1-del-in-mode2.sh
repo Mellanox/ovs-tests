@@ -58,6 +58,7 @@ function create_vxlan_interface() {
     vxlan_port=4789
     ip link del $vx >/dev/null 2>&1
     ip link add $vx type vxlan dstport $vxlan_port external
+    [ $? -ne 0 ] && err "Failed to create vxlan interface" && return 1
     ip link set dev $vx up
     tc qdisc add dev $vx ingress
     ip addr flush dev $NIC
@@ -72,7 +73,7 @@ function clean_vxlan_interface() {
 
 function add_vxlan_rule() {
     title "- add vxlan rule"
-    create_vxlan_interface
+    create_vxlan_interface || return 1
     tc_filter add dev $vx protocol 0x806 parent ffff: prio 16 \
                 flower skip_sw \
                         dst_mac e4:11:22:11:4a:51 \
