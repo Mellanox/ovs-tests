@@ -40,16 +40,6 @@ DEVICE_CX5_PCI_4="0x1019"
 devlink_compat=0
 
 
-function service_ovs() {
-    local ovs="openvswitch"
-    local a=`systemctl show -p LoadError $ovs | grep -o DBus.Error`
-    if [ "$a" = "DBus.Error" ]; then
-          ovs="openvswitch-switch"
-    fi
-    service $ovs $1
-}
-
-
 function get_mlx_iface() {
     for i in /sys/class/net/* ; do
         if [ ! -r $i/device/vendor ]; then
@@ -527,6 +517,15 @@ function expect_syndrome() {
 
 function del_all_bridges() {
     ovs-vsctl list-br | xargs -r -l ovs-vsctl del-br 2>/dev/null
+}
+
+function service_ovs() {
+    local ovs="openvswitch"
+    local a=`systemctl show -p LoadError $ovs | grep -o DBus.Error`
+    if [ "$a" = "DBus.Error" ]; then
+          ovs="openvswitch-switch"
+    fi
+    service $ovs $1
 }
 
 function stop_openvswitch() {
