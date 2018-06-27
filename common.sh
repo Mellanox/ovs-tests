@@ -641,12 +641,14 @@ function warn_if_redmine_bug_is_open() {
     local i
     local s
     local issues=`head -n50 $DIR/$NAME | grep -o "Bug SW #[0-9]\+" | cut -d"#" -f2`
+    local p=0
     for i in $issues ; do
         if redmine_bug_is_open $i ; then
             warn "Redmine issue $i is not closed."
+            p=1
         fi
     done
-    sleep 2
+    [ $p -eq 1 ] && sleep 2
 }
 
 # 'Closed', 'Fixed', 'External', 'Closed (External)', 'Rejected', 'Closed (Rejected)'
