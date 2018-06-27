@@ -10,46 +10,15 @@ my_dir="$(dirname "$0")"
 
 not_relevant_for_cx5
 
-function get_encap() {
-    if [ "$devlink_compat" = 1 ]; then
-        output=`cat /sys/kernel/debug/mlx5/$PCI/compat/encap`
-        if [ "$output" = "none" ]; then
-            encap="disable"
-        elif [ "$output" = "basic" ]; then
-            encap="enable"
-        else
-            fail "Failed to get encap"
-	fi
-    else
-        output=`devlink dev eswitch show pci/$PCI`
-        encap=`echo $output | grep -o "encap \w*" | awk {'print $2'}`
-    fi
-    
-    echo $output
-}
-
 function set_encap() {
-    local val="$1"
-    title " - test set encap $val"
-
-    if [ "$devlink_compat" = 1 ]; then
-	if [ "$val" = "disable" ]; then
-            val="none"
-        elif [ "$val" = "enable" ]; then
-            val="basic"
-        else
-            fail "Failed to set encap"
-        fi
-        echo $val > /sys/kernel/debug/mlx5/$PCI/compat/encap && success || fail "Failed to set encap"
-    else
-        devlink dev eswitch set pci/$PCI encap $val && success || fail "Failed to set encap"
-    fi
+    title " - test set encap $1"
+    set_eswitch_encap $1
 }
 
 function test_encap() {
     local val="$1"
     title " - verify encap is $val"
-    get_encap
+    local encap=`get_eswitch_encap`
     test "$encap" = "$val" && success || fail "Expected encap '$val' and got '$encap'"
 }
 
