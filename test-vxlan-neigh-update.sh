@@ -92,18 +92,30 @@ function neigh_update_test() {
     ip l del vxlan1
 }
 
+function test_neigh_update_ipv4() {
+    title "Test neigh update ipv4"
+    cleanup
+    ip addr add ${local_ip}/24 dev $NIC
+    neigh_update_test $local_ip $remote_ip
+}
+
+function test_neigh_update_ipv6() {
+    title "Test neigh update ipv6"
+    # ConnectX-4 Lx doesn't support vxlan over ipv6 tunnel
+    if [ "$DEVICE_IS_CX4" = 1 ]; then
+        echo "Not relevant for ConnectX-4"
+        return
+    fi
+    cleanup
+    ip -6 addr add ${local_ip6}/64 dev $NIC
+    neigh_update_test $local_ip6 $remote_ip6
+}
+
 
 start_check_syndrome
 
-title "Test neigh update ipv4"
-cleanup
-ip addr add ${local_ip}/24 dev $NIC
-neigh_update_test $local_ip $remote_ip
-
-title "Test neigh update ipv6"
-cleanup
-ip -6 addr add ${local_ip6}/64 dev $NIC
-neigh_update_test $local_ip6 $remote_ip6
+test_neigh_update_ipv4
+test_neigh_update_ipv6
 
 check_kasan
 check_syndrome
