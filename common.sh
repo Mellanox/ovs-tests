@@ -497,8 +497,9 @@ function check_for_errors_log() {
     local look="health compromised|firmware internal error|assert_var|DEADLOCK|possible circular locking|WARNING:|RIP:|BUG:|refcount > 1|segfault"
     local look_ahead="Call Trace:"
     local look_ahead_count=6
+    local filter="networkd-dispatcher"
 
-    local a=`journalctl --since="$sec seconds ago" | grep -E -i "$look" || true`
+    local a=`journalctl --since="$sec seconds ago" | grep -E -i "$look" | grep -v -E -i "$filter" || true`
     local b=`journalctl --since="$sec seconds ago" | grep -E -A $look_ahead_count -i "$look_ahead" || true`
     if [ "$a" != "" ] || [ "$b" != "" ]; then
         err "Detected errors in the log"
