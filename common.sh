@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NAME=`basename $0`
+TESTNAME=`basename $0`
 DIR=$(cd `dirname $0` ; pwd)
 SET_MACS="$DIR/set-macs.sh"
 
@@ -68,6 +68,9 @@ function __test_for_devlink_compat() {
 }
 
 function __setup_common() {
+    [ -f /etc/os-release ] && . /etc/os-release
+    [ -n "$PRETTY_NAME" ] && echo $PRETTY_NAME
+
     if [ "$NIC" == "" ]; then
         return
     fi
@@ -612,7 +615,11 @@ function getnet() {
     local ip=$1
     local net=$2
     which ipcalc >/dev/null || fail "Need ipcalc"
-    echo `ipcalc -n $ip/$net | cut -d= -f2`/$net
+    if [ "$ID" = "ubuntu" ]; then
+        echo `ipcalc -n $ip/$net | grep Network: | awk {'print $2'}`
+    else
+        echo `ipcalc -n $ip/$net | cut -d= -f2`/$net
+    fi
 }
 
 function eval2() {
@@ -687,7 +694,7 @@ function __setup_clean() {
 function warn_if_redmine_bug_is_open() {
     local i
     local s
-    local issues=`head -n50 $DIR/$NAME | grep -o "Bug SW #[0-9]\+" | cut -d"#" -f2`
+    local issues=`head -n50 $DIR/$TESTNAME | grep -o "Bug SW #[0-9]\+" | cut -d"#" -f2`
     local p=0
     for i in $issues ; do
         if redmine_bug_is_open $i ; then
