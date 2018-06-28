@@ -611,6 +611,7 @@ function tc_filter() {
 function getnet() {
     local ip=$1
     local net=$2
+    which ipcalc >/dev/null || fail "Need ipcalc"
     echo `ipcalc -n $ip/$net | cut -d= -f2`/$net
 }
 

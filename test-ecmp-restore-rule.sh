@@ -22,6 +22,8 @@ flag=skip_sw
 dst_port=4789
 id=98
 net=`getnet $remote_ip 24`
+[ -z "$net" ] && fail "Missing net"
+
 
 function disable_sriov() {
     echo "- Disable SRIOV"
