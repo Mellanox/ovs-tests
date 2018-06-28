@@ -77,14 +77,15 @@ function test_1_toggle_miss_rules() {
     disable_multipath || err "Failed to disable multipath"
     disable_sriov
 
-    echo "Got $count0 miss rules on port0 and $count1 rules on port1"
-
     # Today we allocate max possible peer miss rules instead of enabled vports.
     _expect=`mlxconfig -d $PCI q | grep NUM_OF_VFS | awk {'print $2'}`
 
     if [ $count0 -ne $_expect ] || [ $count1 -ne $_expect ]; then
+        echo "Got $count0 miss rules on port0 and $count1 rules on port1"
         err "Expected $_expect peer miss rules on each port."
     fi
+
+    success "Got $count0 miss rules on port0 and $count1 rules on port1"
 
     # leave NIC in sriov
     config_sriov
