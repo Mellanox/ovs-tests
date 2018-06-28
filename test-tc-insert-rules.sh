@@ -237,6 +237,7 @@ function __test_basic_vxlan() {
     reset_tc $NIC
     reset_tc $REP
     reset_tc $vx
+    ip neigh del $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
     ip addr flush dev $NIC
     ip link del $vx
     tmp=`dmesg | tail -n20 | grep "encap size" | grep "too big"`
