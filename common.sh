@@ -381,7 +381,14 @@ function enable_switchdev_if_no_rep() {
 function config_sriov() {
     local num=${1:-2}
     local nic=${2:-$NIC}
-    echo $num > /sys/class/net/$nic/device/sriov_numvfs || fail "Failed to config $num VFs on $nic"
+    local numvfs="/sys/class/net/$nic/device/sriov_numvfs"
+    local cur=`cat $numvfs`
+    if [ $cur -eq $num ]; then
+        return
+    else
+        echo 0 > $numvfs
+    fi
+    echo $num > $numvfs || fail "Failed to config $num VFs on $nic"
 }
 
 function set_macs() {
