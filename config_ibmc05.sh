@@ -1,0 +1,7 @@
+NIC=p0
+NIC2=p1
+VF=p0v1
+VF1=$VF
+VF2=p0v2
+REP=p0v1_r
+REP2=p0v1_r
