@@ -269,7 +269,7 @@ function test_duplicate_vlan() {
     reset_tc_nic $REP
     start_check_syndrome
     title "- first rule"
-    duplicate="filter add dev $REP protocol 802.1Q parent ffff: `prio` \
+    duplicate="filter add dev $REP protocol 802.1Q parent ffff: prio 11 \
                 flower \
                         $skip \
                         dst_mac e4:11:22:11:4a:51 \
