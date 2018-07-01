@@ -68,10 +68,13 @@ if [ $MULTIPATH == 1 ]; then
     enable_sriov
     enable_switchdev $NIC
     enable_switchdev $NIC2
+    unbind_vfs $NIC
+    unbind_vfs $NIC2
     bind_vfs $NIC
     bind_vfs $NIC2
 else
     enable_switchdev_if_no_rep $REP
+    unbind_vfs
     bind_vfs
 fi
 
