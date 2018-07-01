@@ -24,6 +24,7 @@ function cleanup() {
 
     reset_tc $REP
     reset_tc $REP2
+    sleep 1 # wait for rules to flush
     modprobe -rv act_mirred cls_flower || err "failed to unload"
 }
 
