@@ -11,10 +11,8 @@ my_dir="$(dirname "$0")"
 
 require_mlxdump
 
-REP=`get_rep 0`
-if [ -z "$REP" ]; then
-    fail "Missing rep $rep"
-fi
+enable_switchdev_if_no_rep $REP
+require_interfaces REP
 
 reset_tc_nic $NIC
 reset_tc_nic $REP
