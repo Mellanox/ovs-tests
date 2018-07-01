@@ -1,8 +1,9 @@
 #!/bin/bash
 #
 # Test fl_classify (caused by traffic) while add/del hw rules.
-# related ticket
+#
 # Bug SW #1297803: [ASAP MLNX OFED] fl_classify might access invalid memory on err flow in fl_change
+# Bug SW #1428435: [OFED 4.4] [rhel7.2] test-vf-vf-fwd-fl_delete.sh cause a cpu lockup
 #
 
 NIC=${1:-ens2f0}
