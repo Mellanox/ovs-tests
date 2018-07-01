@@ -2,7 +2,8 @@
 #
 # This test helps reproduce issue where encap rules not offloaded because
 # OVS added tos rewrite which the hw doesn't support.
-# Scrum_Task #1332238: OVS adds TOS in the case of re-write any L3 field
+#
+# Bug SW #1332238: OVS adds TOS in the case of re-write any L3 field
 #
 
 my_dir="$(dirname "$0")"
