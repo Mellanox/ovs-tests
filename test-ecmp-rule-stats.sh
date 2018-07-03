@@ -178,8 +178,7 @@ function test_ecmp_rule_stats() {
     success
 
     title "-- port0 down"
-    ifconfig $NIC down
-#    ip n del $n1 dev $dev1 lladdr e4:1d:2d:31:eb:08
+    ifconfig $dev1 down
     sleep 2 # wait for neigh update
     
     ping -q -I $VF $ping_ip -i 0.1 -c 10 -w 1
@@ -192,7 +191,7 @@ function test_ecmp_rule_stats() {
     fi
     success
     title "-- port0 up"
-    ifconfig $NIC up
+    ifconfig $dev1 up
     ip n r $n1 dev $dev1 lladdr e4:1d:2d:31:eb:08
 
     title "-- port1 down"
@@ -203,8 +202,8 @@ function test_ecmp_rule_stats() {
     sleep 1
     tc -s filter show dev $REP ingress | grep bytes
     a=`tc -j -s filter show dev $REP ingress | jq ".[1].options.actions[1].stats.packets"`
-    if [ "$a" -lt 20 ]; then
-        err "Expected 20 packets"
+    if [ "$a" -lt 30 ]; then
+        err "Expected 30 packets"
         return
     fi
     success
