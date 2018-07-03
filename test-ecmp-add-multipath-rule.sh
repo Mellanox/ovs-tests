@@ -197,6 +197,15 @@ do_test test_add_multipath_rule
 # we dont have a way to check for asap mlnx ofed exactly but we check
 # for devlink compat which only exists currently in asap mlnx ofed.
 if [ "$devlink_compat" = 1 ]; then
+    TEST_ROUTE_MISSING=1
+fi
+
+# patch added to ubuntu kernel for IBM
+if [ "$ID" = "ubuntu" ]; then
+    TEST_ROUTE_MISSING=1
+fi
+
+if [ "$TEST_ROUTE_MISSING" = 1 ]; then
     do_test test_add_multipath_rule_route1_missing
     do_test test_add_multipath_rule_route2_missing
 fi
