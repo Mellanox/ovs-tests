@@ -127,7 +127,12 @@ function config() {
     reset_tc $NIC
     reset_tc $REP
     config_vxlan
+    ifconfig $NIC down
+    ifconfig $NIC2 down
     ifconfig $NIC up
+    ifconfig $NIC2 up
+    ifconfig $REP up
+    ifconfig $VF up
 }
 
 function no_encap_rules() {
@@ -153,6 +158,8 @@ function test_ecmp_rule_stats() {
     title "-- both ports up"
     add_vxlan_rule $local_ip $remote_ip
 
+    ifconfig $NIC up
+    ifconfig $NIC2 up
     ifconfig $REP up
     ifconfig $VF up
     ping_ip="1.1.1.2"
@@ -166,7 +173,7 @@ function test_ecmp_rule_stats() {
         return
     fi
 
-    title "-- ping 10 packets"
+    title "-- ping"
     ping -q -I $VF $ping_ip -i 0.1 -c 10 -w 1
     sleep 1 # seems needed for good report
     tc -s filter show dev $REP ingress | grep bytes
@@ -181,6 +188,7 @@ function test_ecmp_rule_stats() {
     ifconfig $dev1 down
     sleep 2 # wait for neigh update
     
+    title "-- ping"
     ping -q -I $VF $ping_ip -i 0.1 -c 10 -w 1
     sleep 1
     tc -s filter show dev $REP ingress | grep bytes
@@ -198,6 +206,7 @@ function test_ecmp_rule_stats() {
     ifconfig $dev2 down
     sleep 2 # wait for neigh update
     
+    title "-- ping"
     ping -q -I $VF $ping_ip -i 0.1 -c 10 -w 1
     sleep 1
     tc -s filter show dev $REP ingress | grep bytes
