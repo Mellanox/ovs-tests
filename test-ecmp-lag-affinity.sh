@@ -50,6 +50,7 @@ function _test() {
     local out=`journalctl --since="$sec seconds ago" | grep "lag map port" | tail -1 || true`
     local expect="lag map port 1:1 port 2:2"
 
+    title "-- verify lag affinity"
     echo $out
     if echo $out | grep -q "$expect" ; then
         success
