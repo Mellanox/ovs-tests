@@ -162,6 +162,8 @@ function test_ecmp_rule_stats() {
     ifconfig $NIC2 up
     ifconfig $REP up
     ifconfig $VF up
+    wait_for_linkup $NIC
+    wait_for_linkup $NIC2
     ping_ip="1.1.1.2"
     ip n add $ping_ip dev $VF lladdr $dst_mac
 
@@ -200,6 +202,7 @@ function test_ecmp_rule_stats() {
     success
     title "-- port0 up"
     ifconfig $dev1 up
+    wait_for_linkup $dev1
     ip n r $n1 dev $dev1 lladdr e4:1d:2d:31:eb:08
 
     title "-- port1 down"

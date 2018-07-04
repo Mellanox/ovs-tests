@@ -612,6 +612,21 @@ function tc_filter() {
     eval2 tc filter $@
 }
 
+function wait_for_linkup() {
+    local net=$1
+    local state
+    local max=12
+
+    for i in `seq $max`; do
+        state=`cat /sys/class/net/$net/operstate`
+        if [ "$state" = "up" ]; then
+            return
+        fi
+        sleep 1
+    done
+    warn "Link for $net is not up after $max seconds"
+}
+
 function getnet() {
     local ip=$1
     local net=$2

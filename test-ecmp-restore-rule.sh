@@ -162,6 +162,7 @@ function test_restore_rule() {
     no_encap_rules 0
     title "-- port0 up"
     ifconfig $NIC up
+    wait_for_linkup $NIC
     ip n r $n1 dev $dev1 lladdr e4:1d:2d:31:eb:08
     sleep 2 # wait for neigh update
     look_for_encap_rules 0 1
@@ -174,6 +175,7 @@ function test_restore_rule() {
     no_encap_rules 1
     title "-- port1 up"
     ifconfig $NIC2 up
+    wait_for_linkup $NIC2
     ip n r $n2 dev $dev2 lladdr e4:1d:2d:31:eb:08
     sleep 2 # wait for neigh update
     look_for_encap_rules 0 1
