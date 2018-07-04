@@ -169,6 +169,7 @@ function reset_tc_nic() {
 
 function warn() {
     echo -e "${YELLOW}WARNING: $@$BLACK"
+    kmsg "WARN: $m"
 }
 
 # print error and exit
