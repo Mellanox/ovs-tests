@@ -131,7 +131,8 @@ def update_skip_according_to_rm():
     SKIP_TESTS = {}
     for t in TESTS:
         with open(t) as f:
-            data = f.read()
+            data = [next(f) for x in xrange(20)]
+        data = ''.join(data)
         t = os.path.basename(t)
         bugs = re.findall("Bug SW #([0-9]+):", data)
         for b in bugs:
