@@ -2,6 +2,8 @@
 #
 # Verify adding vxlan encap+decap rules in multipath env are in hw
 #
+# Bug SW #1462924: Failed to add vxlan decap rule in ecmp mode
+#
 
 NIC=${1:-ens5f0}
 
