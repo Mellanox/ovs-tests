@@ -3,6 +3,7 @@
 # Testing the restore_rules() is actually restoring rules.
 #
 # Bug SW #1318772: [ASAP-ECMP MLNX OFED] Traffic not offloaded after failover and failback
+# Bug SW #1403698: [ECMP] kernel warning: BUG: sleeping function called from invalid context at mm/slab.h:421
 #
 
 NIC=${1:-ens5f0}
