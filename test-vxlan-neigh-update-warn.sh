@@ -93,11 +93,11 @@ function neigh_update_test() {
     sleep 5
 
     # "-- link down"
-    ifconfig p0 down
+    ifconfig $NIC down
     sleep 1
     # "-- link up"
-    ifconfig p0 up
-    wait_for_linkup p0
+    ifconfig $NIC up
+    wait_for_linkup $NIC
 
     local m="The neighbour already freed"
     local sec=`get_test_time_elapsed`
