@@ -49,7 +49,7 @@ function activate_multipath() {
     enable_multipath || err "Failed to enable multipath"
 }
 
-function test_1_toggle_miss_rules() {
+function test_toggle_miss_rules() {
     activate_multipath
     enable_switchdev $NIC
     enable_switchdev $NIC2
@@ -83,9 +83,9 @@ function test_1_toggle_miss_rules() {
     if [ $count0 -ne $_expect ] || [ $count1 -ne $_expect ]; then
         echo "Got $count0 miss rules on port0 and $count1 rules on port1"
         err "Expected $_expect peer miss rules on each port."
+    else
+        success "Got $count0 miss rules on port0 and $count1 rules on port1"
     fi
-
-    success "Got $count0 miss rules on port0 and $count1 rules on port1"
 
     # leave NIC in sriov
     config_sriov
@@ -95,7 +95,7 @@ function test_1_toggle_miss_rules() {
 # Execute all test_* functions
 for i in `declare -F | awk {'print $3'} | grep ^test_ | grep -v test_done` ; do
     title $i
-    eval $i && success
+    eval $i
 done
 
 test_done
