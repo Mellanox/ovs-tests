@@ -10,10 +10,7 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 
-REP=`get_rep 0`
-if [ -z "$REP" ]; then
-    fail "Missing rep $rep"
-fi
+enable_switchdev_if_no_rep $REP
 
 function cleanup() {
     ip link del veth0 2>/dev/null
