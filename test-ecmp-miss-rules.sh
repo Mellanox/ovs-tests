@@ -46,12 +46,11 @@ function activate_multipath() {
     unbind_vfs $NIC
     unbind_vfs $NIC2
     enable_multipath || err "Failed to enable multipath"
+    wa_reset_multipath
 }
 
 function test_toggle_miss_rules() {
     activate_multipath
-    enable_switchdev $NIC
-    enable_switchdev $NIC2
 
     i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
     i=1 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
