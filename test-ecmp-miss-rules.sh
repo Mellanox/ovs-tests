@@ -54,8 +54,8 @@ function test_toggle_miss_rules() {
 
     i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
     i=1 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
-    count0=`cat /tmp/port0 | grep VPORT -C1 | grep source_port | wc -l`
-    count1=`cat /tmp/port1 | grep VPORT -C1 | grep source_port | wc -l`
+    count0=`cat /tmp/port0 | grep VPORT -B2 | grep source_port | wc -l`
+    count1=`cat /tmp/port1 | grep VPORT -B2 | grep source_port | wc -l`
 
     echo "Got $count0 miss rules on port0 and $count1 rules on port1"
 
@@ -69,8 +69,8 @@ function test_toggle_miss_rules() {
 
     i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
     i=1 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
-    _count0=`cat /tmp/port0 | grep VPORT -C1 | grep source_port | wc -l`
-    _count1=`cat /tmp/port1 | grep VPORT -C1 | grep source_port | wc -l`
+    count0=`cat /tmp/port0 | grep VPORT -B2 | grep source_port | wc -l`
+    count1=`cat /tmp/port1 | grep VPORT -B2 | grep source_port | wc -l`
 
     # Today we allocate max possible peer miss rules instead of enabled vports.
     _expect=`mlxconfig -d $PCI q | grep NUM_OF_VFS | awk {'print $2'}`
