@@ -16,7 +16,6 @@ require_mlxconfig
 reset_tc_nic $NIC
 
 function disable_sriov() {
-    echo "- Disable SRIOV"
     echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
     echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
 }
@@ -74,9 +73,6 @@ function test_toggle_miss_rules() {
     _count0=`cat /tmp/port0 | grep VPORT -C1 | grep source_port | wc -l`
     _count1=`cat /tmp/port1 | grep VPORT -C1 | grep source_port | wc -l`
 
-    disable_multipath || err "Failed to disable multipath"
-    disable_sriov
-
     # Today we allocate max possible peer miss rules instead of enabled vports.
     _expect=`mlxconfig -d $PCI q | grep NUM_OF_VFS | awk {'print $2'}`
 
@@ -88,6 +84,8 @@ function test_toggle_miss_rules() {
     fi
 
     # leave NIC in sriov
+    disable_multipath || err "Failed to disable multipath"
+    disable_sriov
     config_sriov
 }
 
