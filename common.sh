@@ -747,6 +747,18 @@ function redmine_bug_status() {
     curl -m 1 -s "https://redmine.mellanox.com/issues/${id}.json?key=4ad65ee94655687090deec6247b0d897f05443e3" | python -c "import sys, json; i=json.load(sys.stdin)['issue']; print i['status']['id']" 2>/dev/null
 }
 
+### workarounds
+function wa_reset_multipath() {
+    # we currently switch to legacy and back because of an issue
+    # when multipath is ready.
+    # Bug SW #1391181: [ASAP MLNX OFED] Enabling multipath only becomes enabled
+    # when changing mode from legacy to switchdev
+    enable_legacy $NIC
+    enable_legacy $NIC2
+    enable_switchdev $NIC
+    enable_switchdev $NIC2
+}
+
 ### main
 title2 `basename $0`
 start_test_timestamp

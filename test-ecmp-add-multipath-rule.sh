@@ -120,20 +120,9 @@ function verify_neigh() {
     [ -n "$a" ] && echo $a && err "Not expected neigh entry for $remote_ip"
 }
 
-function _reset_multipath() {
-    # we currently switch to legacy and back because of an issue
-    # when multipath is ready.
-    # Bug SW #1391181: [ASAP MLNX OFED] Enabling multipath only becomes enabled
-    # when changing mode from legacy to switchdev
-    enable_legacy $NIC
-    enable_legacy $NIC2
-    enable_switchdev $NIC
-    enable_switchdev $NIC2
-}
-
 function config() {
     enable_multipath_and_sriov
-    _reset_multipath
+    wa_reset_multipath
     bind_vfs $NIC
     config_vxlan
 }
