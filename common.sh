@@ -677,6 +677,13 @@ function not_relevant_for_cx4() {
     fi
 }
 
+function not_relevant_for_cx4lx() {
+    if [ "$DEVICE_IS_CX4_LX" = 1 ]; then
+        echo "Test not relevant for ConnectX-4 Lx"
+        exit 0
+    fi
+}
+
 function __load_config() {
     # load config if exists
     if [ -n "$CONFIG" ]; then

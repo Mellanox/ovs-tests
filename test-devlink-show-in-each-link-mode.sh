@@ -10,7 +10,8 @@ NIC=${1:-ens5f0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-# TODO exit if nic not supporting link type
+# not relevant for cx4lx because it doesn't support link_type
+not_relevant_for_cx4lx
 require_mlxconfig
 
 
