@@ -1,9 +1,6 @@
 #!/bin/bash
 #
 #
-#setup:
-#       veth0 <-> veth1 <-> OVS <-> veth2 <-> veth3@ns0
-#       VM1_IP                                VM2_IP
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -50,7 +47,7 @@ ovs-vsctl add-port brv-1 $REP2
 function check_offloaded_rules() {
     local count=$1
     title " - check for $count offloaded rules"
-    local cmd="ovs-dpctl dump-flows type=offloaded | grep 0x0800 | grep -v drop"
+    local cmd="ovs_dpctl_dump_flows | grep 0x0800 | grep -v drop"
     eval $cmd
     RES=`eval $cmd | wc -l`
     if (( RES == $count )); then success; else err; fi
@@ -80,7 +77,7 @@ ping -q -f -w 15 $VM2_IP && success || err
 title "Verify we have 2 rules"
 check_offloaded_rules 2
 
-ovs-dpctl dump-flows type=offloaded --names
+ovs_dpctl_dump_flows --names
 tc -s filter show dev $REP ingress
 
 kill $tdpid 2>/dev/null

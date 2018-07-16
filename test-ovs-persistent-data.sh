@@ -56,15 +56,15 @@ ip netns exec red ping $REMOTE_IP -i 0.25 -c 8
 
 # start test
 
-title "Get ufid from appctl dpct/dump-flows"
-UFID=`ovs-appctl dpctl/dump-flows -m type=offloaded | grep 0x0800 | grep "in_port(veth2)" | cut -d , -f 1`
+title "Get ufid from appctl dpctl/dump-flows"
+UFID=`ovs_appctl_dpctl_dump_flows -m | grep 0x0800 | grep "in_port(veth2)" | cut -d , -f 1`
 echo $UFID
-test -n "$UFID" || fail
+test -n "$UFID" || fail "Cannot get ufid"
 
 title "Get ufid from dpctl dump-flows and compare"
-UFID2=`ovs-dpctl dump-flows -m type=offloaded | grep 0x0800 | grep "in_port(veth2)" | cut -d , -f 1`
+UFID2=`ovs_dpctl_dump_flows -m | grep 0x0800 | grep "in_port(veth2)" | cut -d , -f 1`
 echo $UFID2
-test -n "$UFID2" || fail
+test -n "$UFID2" || fail "Cannot get ufid"
 if [ "$UFID" = "$UFID2" ] ; then
     success
 else

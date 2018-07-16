@@ -30,7 +30,7 @@ function cleanup() {
 function check_offloaded_rules() {
 	local count=$1
 	title " - check for $count offloaded rules"
-	RES="ovs-appctl dpctl/dump-flows type=offloaded | grep 0x0800 | grep -v drop"
+	RES="ovs_dpctl_dump_flows | grep 0x0800 | grep -v drop"
 	eval $RES
 	RES=`eval $RES | wc -l`
 	if (( RES == $count )); then success
