@@ -19,7 +19,6 @@ port4=$REP2
 require_interfaces port1 port2 port3 port4
 
 function cleanup() {
-    echo "cleanup"
     ip netns del red &> /dev/null
     ip netns del blue &> /dev/null
     ip addr flush dev $port2
