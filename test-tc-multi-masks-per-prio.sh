@@ -87,18 +87,18 @@ tc_filter add dev $port4 ingress protocol arp prio 4 flower skip_hw action mirre
 fail_if_err
 
 # generate traffic
-ip netns exec red timeout 0.25 ping -I 1.1.1.3 -i 0.25 -W 0.25 -c 1 1.1.1.7 || err "ping failed"
-ip netns exec red timeout 0.25 ping -I 1.1.1.3 -i 0.25 -W 0.25 -c 1 1.1.1.8 || err "ping failed"
-ip netns exec red timeout 0.25 ping -I 1.1.1.3 -i 0.25 -W 0.25 -c 1 1.1.1.6 || err "ping failed"
+ip netns exec red timeout 0.25 ping -q -I 1.1.1.3 -i 0.25 -W 0.25 -c 1 1.1.1.7 || err "ping failed"
+ip netns exec red timeout 0.25 ping -q -I 1.1.1.3 -i 0.25 -W 0.25 -c 1 1.1.1.8 || err "ping failed"
+ip netns exec red timeout 0.25 ping -q -I 1.1.1.3 -i 0.25 -W 0.25 -c 1 1.1.1.6 || err "ping failed"
 
-ip netns exec red timeout 0.25 ping -I 1.1.1.1 -i 0.25 -W 0.25 -c 1 1.1.1.6 || err "ping failed"
-ip netns exec red timeout 0.25 ping -I 1.1.1.2 -i 0.25 -W 0.25 -c 1 1.1.1.6 || err "ping failed"
-ip netns exec red timeout 0.25 ping -I 1.1.1.3 -i 0.25 -W 0.25 -c 1 1.1.1.6 || err "ping failed"
+ip netns exec red timeout 0.25 ping -q -I 1.1.1.1 -i 0.25 -W 0.25 -c 1 1.1.1.6 || err "ping failed"
+ip netns exec red timeout 0.25 ping -q -I 1.1.1.2 -i 0.25 -W 0.25 -c 1 1.1.1.6 || err "ping failed"
+ip netns exec red timeout 0.25 ping -q -I 1.1.1.3 -i 0.25 -W 0.25 -c 1 1.1.1.6 || err "ping failed"
 
 #drops
-ip netns exec red timeout 0.25 ping -I 1.1.1.3 -i 0.25 -W 0.25 -c 1 1.1.1.9 && err "expected to fail ping"
-ip netns exec red timeout 0.25 ping -I 1.1.1.4 -i 0.25 -W 0.25 -c 1 1.1.1.9 && err "expected to fail ping"
-ip netns exec red timeout 0.25 ping -I 1.1.1.5 -i 0.25 -W 0.25 -c 1 1.1.1.9 && err "expected to fail ping"
+ip netns exec red timeout 0.25 ping -q -I 1.1.1.3 -i 0.25 -W 0.25 -c 1 1.1.1.9 && err "expected to fail ping"
+ip netns exec red timeout 0.25 ping -q -I 1.1.1.4 -i 0.25 -W 0.25 -c 1 1.1.1.9 && err "expected to fail ping"
+ip netns exec red timeout 0.25 ping -q -I 1.1.1.5 -i 0.25 -W 0.25 -c 1 1.1.1.9 && err "expected to fail ping"
 
 check_syndrome || err
 test_done
