@@ -8,7 +8,7 @@ Before running tests need to create a config file. see examples that already
 exists. then export it to var CONFIG.                                       
 The config file needs to exists in current directory or with the tests.     
 
-Example to run atest:
+Example to run a test:
 
 ```
 export CONFIG=config_dev139.sh
