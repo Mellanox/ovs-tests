@@ -79,19 +79,28 @@ def run_test(cmd):
         out = subp.communicate()
         f1.write(out[0])
 
-    if subp.returncode:
-        raise ExecCmdFailed(cmd, subp.returncode, logname)
+    status = out[0].splitlines()[-1].strip()
+    status = strip_color(status)
 
-    return out
+    if subp.returncode:
+        status = "(%s) %s" % (status, logname)
+        raise ExecCmdFailed(cmd, subp.returncode, status)
+
+    return status
 
 
 def deco(line, color):
     return "\033[%dm%s\033[0m" % (COLOURS[color], line)
 
 
+def strip_color(line):
+    return re.sub("\033\[[0-9 ;]*m", '', line)
+
+
 def print_result(res, out):
     res_color = {
         'SKIP': 'yellow',
+        'TEST PASSED': 'green',
         'OK': 'green',
         'DRY': 'yellow',
         'FAILED': 'red',
@@ -191,8 +200,7 @@ def main():
                 cmd = test
                 if args.parm:
                     cmd += ' ' + args.parm
-                _out = run_test(cmd)
-                res = _out[0].splitlines()[-1].strip()
+                res = run_test(cmd)
             except ExecCmdFailed, e:
                 failed = True
                 res = 'FAILED'
