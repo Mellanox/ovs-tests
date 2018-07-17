@@ -1,11 +1,14 @@
 # OVS Tests
 
-A collection of tests for the openvswitch offload project.  
-Each test has a prefix of "test-". Beside test-all.py which is used to run all tests.
+A collection of tests for the openvswitch TC offload project.  
+Each test has a prefix of "test-". second word is for grouping related tests.
+test-all.py is a wrapper to easily run all tests.                            
 
-Almost all tests require PF/VF/representor or some other configuration which is per host.  
-or per device. i.e. if we want to test ConnectX-4 or ConnectX-5. first port or second port. etc.  
-For this there is a config file that can be used across the tests. See for example "config_dev139.sh".
+Before running tests need to create a config file. see examples that already
+exists. then export it to var CONFIG.                                       
+The config file needs to exists in current directory or with the tests.     
 
-To use the config file export it as CONFIG.  
-E.g. export CONFIG=config_dev139.sh
+Example to run atest:
+
+export CONFIG=config_dev139.sh
+~/ovs-tests/test-tc-insert-rules.sh
