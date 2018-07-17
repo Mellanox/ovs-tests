@@ -10,5 +10,7 @@ The config file needs to exists in current directory or with the tests.
 
 Example to run atest:
 
+```
 export CONFIG=config_dev139.sh
 ~/ovs-tests/test-tc-insert-rules.sh
+```
