@@ -1,7 +1,10 @@
 #!/bin/bash
 #
 # Bug SW #984397: OVS reports failed to put[modify] (No such file or directory)
-# Bug SW #988519: Trying to replace a flower rule cause a syndrome and rule to be deleted
+#
+# There is a workaround in OVS where we delete existing rule before adding new
+# one to avoid doing replace. This works around issue #988519.
+#  #988519: Trying to replace a flower rule cause a syndrome and rule to be deleted
 #
 
 NIC=${1:-ens5f0}
