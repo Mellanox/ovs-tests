@@ -2,6 +2,7 @@
 #
 # Testing adding rules in legacy mode
 #
+# IGNORE_FROM_TEST_ALL
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh

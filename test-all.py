@@ -145,6 +145,9 @@ def update_skip_according_to_rm():
                 SKIP_TESTS[t] = "RM #%s: %s" % (b, task['subject'])
             print '.',
             sys.stdout.flush()
+
+        if t not in SKIP_TESTS and 'IGNORE_FROM_TEST_ALL' in data:
+            SKIP_TESTS[t] = "IGNORE_FROM_TEST_ALL"
     print
 
 

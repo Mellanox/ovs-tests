@@ -4,6 +4,8 @@
 # Test max rules in 2 ports.
 #
 # Bug SW #900706: Adding 42K flows results in a fw error
+#
+# IGNORE_FROM_TEST_ALL
 
 NIC=${1:-ens5f0}
 NIC2=${2:-ens5f1}

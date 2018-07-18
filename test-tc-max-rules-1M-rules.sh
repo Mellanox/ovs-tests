@@ -3,6 +3,7 @@
 # Test 1M rules
 # Not relevant for ConnectX-4 as it only supports 64K rules.
 #
+# IGNORE_FROM_TEST_ALL
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
