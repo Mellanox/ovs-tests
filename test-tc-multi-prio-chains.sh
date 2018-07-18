@@ -19,7 +19,6 @@ port4=$REP2
 require_interfaces port1 port2 port3 port4
 
 function cleanup() {
-    echo "cleanup"
     tc qdisc del dev $port2 ingress &>/dev/null
     tc qdisc del dev $port4 ingress &>/dev/null
     tc qdisc add dev $port2 ingress
