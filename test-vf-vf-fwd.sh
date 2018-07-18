@@ -92,13 +92,18 @@ title "Test ping $VF($IP1) -> $VF2($IP2)"
 ip netns exec ns0 ping -q -c 10 -i 0.2 -w 2 $IP2 && success || err "ping failed"
 
 title "Test iperf $VF($IP1) -> $VF2($IP2)"
+killall iperf3
 timeout $TIMEOUT ip netns exec ns1 iperf3 -s --one-off -i 0 || err "iperf server failed" &
 sleep 1
 timeout $TIMEOUT ip netns exec ns0 iperf3 -c $IP2 -t $((TIMEOUT-10)) -B $IP1 -P 100 --cport 6000 -i 0 || err "iperf client failed" &
+sleep 1
 
 ovs-ofctl add-flow $BR "dl_dst=11:11:11:11:11:11,actions=drop"
 
 for r in `seq $ROUNDS`; do
+    if ! pidof iperf3 $>/dev/null ; then
+        err "iperf failed"
+    fi
     if [ $TEST_FAILED == 1 ]; then
         killall iperf3
         break
