@@ -111,5 +111,4 @@ testA
 testB
 testC
 
-echo "cleanup"
 test_done
