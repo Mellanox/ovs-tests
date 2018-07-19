@@ -67,6 +67,7 @@ if [ -z "$DIF" ]; then
     err "Empty diff /tmp/fsdump_after_add /tmp/fsdump_after_del"
 fi
  
+rm -fr /tmp/fsdump_before_add /tmp/fsdump_after_add /tmp/fsdump_after_del
 ip addr flush dev $NIC
 ip addr flush dev $REP
 ip link del $VXLAN
