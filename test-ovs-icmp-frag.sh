@@ -100,6 +100,7 @@ if [ "$TEST_OFFLOAD" = 1 ]; then
     fi
 fi
 
+rm -fr $tdtmpfile
 check_syndrome || err
 
 cleanup

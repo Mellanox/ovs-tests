@@ -51,6 +51,8 @@ function test_frags() {
     else
         success
     fi
+
+    rm -fr $tdtmpfile
 }
 
 function config_ipv4() {

@@ -91,5 +91,6 @@ else
     success
 fi
 
+rm -fr $tdtmpfile
 cleanup
 test_done
