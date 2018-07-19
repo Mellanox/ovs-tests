@@ -14,7 +14,7 @@ require_mlxdump
 function __test_basic_vxlan() {
     local ip_src=$1
     local ip_dst=$2
-    local skip
+    local skip=""
     # note: we support adding decap to vxlan interface only.
     vx=vxlan1
     vxlan_port=4789
@@ -31,8 +31,6 @@ function __test_basic_vxlan() {
 
     reset_tc_nic $NIC
     reset_tc_nic $REP
-
-    skip=skip_sw
 
     reset_tc $REP
     reset_tc $vx
