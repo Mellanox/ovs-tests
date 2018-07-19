@@ -41,6 +41,8 @@ tc filter add dev $REP protocol ip parent ffff: \
                 dst_ip 1.1.1.1 \
             action mirred egress redirect dev $NIC || err "Failed adding rep->nic rule"
 
+fail_if_err
+
 title "Check diff"
 
 mlxdump -d $PCI fsdump --type FT --no_zero > /tmp/fsdump_after_add || err "mlxdump failed"
