@@ -40,7 +40,6 @@ title "Add vxlan decap rule"
 tc_filter add dev $VXLAN protocol ip parent ffff: prio 10\
                 flower enc_src_ip $TUN_DST_V4 enc_dst_ip $TUN_SRC_V4 \
                 enc_key_id 100 enc_dst_port 4789 src_mac $VM_DST_MAC \
-                $SKIP_DEC \
                 action tunnel_key unset \
                 action mirred egress redirect dev $REP
 
