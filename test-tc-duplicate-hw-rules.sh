@@ -13,6 +13,9 @@ require_mlxdump
 
 enable_switchdev_if_no_rep $REP
 require_interfaces REP
+unbind_vfs
+set_eswitch_inline_mode_transport
+bind_vfs
 
 reset_tc_nic $NIC
 reset_tc_nic $REP

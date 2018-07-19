@@ -10,6 +10,8 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 enable_switchdev_if_no_rep $REP
+unbind_vfs
+set_eswitch_inline_mode_transport
 bind_vfs
 
 function cleanup() {
