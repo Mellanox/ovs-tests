@@ -15,6 +15,7 @@ IP2="7.7.7.2"
 
 function cleanup() {
     killall -9 ping &>/dev/null
+    wait $! 2>/dev/null
     reset_tc $REP
     reset_tc $REP2
     ip netns del ns0 2> /dev/null
