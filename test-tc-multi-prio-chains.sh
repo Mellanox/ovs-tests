@@ -36,7 +36,7 @@ function tc_filter() {
 
 cleanup
 
-title "Test TC priorities"
+title "Test TC chains"
 
 echo "setup netns"
 ip netns add red
