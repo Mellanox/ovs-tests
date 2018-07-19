@@ -61,6 +61,7 @@ function tc_batch() {
         rc=0
     fi
 
+    rm -fr $file
     return $rc
 }
 
