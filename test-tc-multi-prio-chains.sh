@@ -72,6 +72,8 @@ start_check_syndrome
 echo adding hw only rules
 #pass '* -> 7-8' or '1-2 -> *'
 tc_filter add dev $port2 ingress protocol ip prio 1 chain 0 flower skip_sw dst_mac $dst_mac dst_ip 1.1.1.8 action goto chain 1
+# if first fails maybe we dont support chains
+fail_if_err
 tc_filter add dev $port2 ingress protocol ip prio 1 chain 0 flower skip_sw dst_mac $dst_mac dst_ip 1.1.1.7 action goto chain 1
 tc_filter add dev $port2 ingress protocol ip prio 1 chain 0 flower skip_sw dst_mac $dst_mac src_ip 1.1.1.1 action goto chain 1
 tc_filter add dev $port2 ingress protocol ip prio 1 chain 0 flower skip_sw dst_mac $dst_mac src_ip 1.1.1.2 action goto chain 1
