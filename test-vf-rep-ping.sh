@@ -58,6 +58,9 @@ done
 if [[ $err == 0 ]]; then
     success
 fi
+rm -fr $TMP1
+rm -fr $TMP2
+rm -fr $TMP3
 
 cleanup
 test_done
