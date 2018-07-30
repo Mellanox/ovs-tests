@@ -23,5 +23,4 @@ tc filter add dev $NIC parent ffff: protocol ip pref 8 handle 0x1 flower dst_mac
 
 check_syndrome && success || err "Failed"
 reset_tc_nic $NIC
-
-echo "done"
+test_done
