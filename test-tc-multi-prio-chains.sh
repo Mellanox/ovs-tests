@@ -9,6 +9,7 @@ my_dir="$(dirname "$0")"
 
 enable_switchdev_if_no_rep $REP
 unbind_vfs
+set_eswitch_inline_mode_transport
 bind_vfs
 
 port1=$VF1
