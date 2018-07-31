@@ -216,6 +216,7 @@ def main():
 
         if args.stop and failed:
             sys.exit(1)
+    # end test loop
 
 
 if __name__ == "__main__":
