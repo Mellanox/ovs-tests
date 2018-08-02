@@ -40,18 +40,19 @@ TMP1=/tmp/ping1
 TMP2=/tmp/ping2
 TMP3=/tmp/ping3
 COUNT=10000
-ping 7.7.7.2 -f -c $COUNT -w 5 > $TMP1 &
-ping 7.7.7.2 -f -c $COUNT -w 5 > $TMP2 &
-ping 7.7.7.2 -f -c $COUNT -w 5 > $TMP3 &
+TIMEOUT=10
+ping 7.7.7.2 -f -c $COUNT -w $TIMEOUT > $TMP1 &
+ping 7.7.7.2 -f -c $COUNT -w $TIMEOUT > $TMP2 &
+ping 7.7.7.2 -f -c $COUNT -w $TIMEOUT > $TMP3 &
 wait
 err=0
-for i in $TMP1 $TMP2 $TMP3; do
-    count1=`egrep -o "[0-9]+ received" $i | cut -d" " -f1`
+for i in 1 2 3; do
+    count1=`egrep -o "[0-9]+ received" /tmp/ping$i | cut -d" " -f1`
     if [ -z $count1 ]; then
-        err "Cannot read ping output"
+        err "ping$i: Cannot read ping output"
         err=1
     elif [[ $count1 -ne $COUNT ]]; then
-        err "Received $count1 packets, expected $COUNT"
+        err "ping$i: Received $count1 packets, expected $COUNT"
         err=1
     fi
 done
