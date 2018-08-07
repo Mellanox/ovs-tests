@@ -659,8 +659,9 @@ function eval2() {
 }
 
 function fail_if_err() {
+    local m=${@:-TEST FAILED}
     if [ $TEST_FAILED != 0 ]; then
-        fail "TEST FAILED"
+        fail $m
     fi
 }
 
