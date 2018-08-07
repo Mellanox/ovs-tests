@@ -20,8 +20,6 @@ function pidof_ovs_vswitchd() {
     pidof ovs-vswitchd || pgrep -f valgrind.*ovs-vswitchd || fail "ovs-vswitchd not running"
 }
 
-set -e
-
 unbind_vfs
 reset_tc_nic $NIC
 
