@@ -29,7 +29,7 @@ class MlxRedmine(object):
         return task
 
     def is_issue_closed(self, task):
-        return task['status']['id'] in (STATUS_CLOSED, STATUS_CLOSED_REJECTED)
+        return task['status']['id'] in (STATUS_FIXED, STATUS_CLOSED, STATUS_CLOSED_REJECTED)
 
     def is_issue_open(self, task):
         return not self.is_issue_closed(task)
