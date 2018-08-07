@@ -2,7 +2,7 @@
 #
 # Test traffic while adding ofctl fwd and drop rules.
 #
-# Bug SW #1241076: [ECMP] Hit WARN_ON when adding many rules with different mask
+# Bug SW #1241076: Hit WARN_ON when adding many rules with different mask
 # Bug SW #1438051: [Ofed 4.4] Hit WARN_ON when adding fwd and drop rules while traffic is going
 #
 
