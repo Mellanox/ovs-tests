@@ -100,6 +100,13 @@ sleep 1
 
 ovs-ofctl add-flow $BR "dl_dst=11:11:11:11:11:11,actions=drop"
 
+# WA: sometimes ovs-ofctl fails to connect to ovs-vswitchd socket so try again.
+# ovs-ofctl: ov1: failed to connect to socket (Broken pipe)
+function ovs-ofctl1() {
+    local arg=$@
+    ovs-ofctl $arg || ovs-ofctl $arg
+}
+
 for r in `seq $ROUNDS`; do
     if ! pidof iperf3 $>/dev/null ; then
         err "iperf failed"
@@ -112,17 +119,17 @@ for r in `seq $ROUNDS`; do
     sleep 2
     title "- add fwd rules above 6000"
     for i in {6110..6500..1}; do
-        ovs-ofctl add-flow $BR "in_port=$REP,tcp,tcp_src=$i,actions=output:$REP2" || err "adding ofctl rule"
+        ovs-ofctl1 add-flow $BR "in_port=$REP,tcp,tcp_src=$i,actions=output:$REP2" || err "adding ofctl rule"
     done
     sleep 2
     title "- add fwd rules from 6000"
     for i in {6000..6098..2}; do
-        ovs-ofctl add-flow $BR "in_port=$REP,tcp,tcp_src=$i,actions=output:$REP2" || err "adding ofctl rule"
+        ovs-ofctl1 add-flow $BR "in_port=$REP,tcp,tcp_src=$i,actions=output:$REP2" || err "adding ofctl rule"
     done
     sleep 2
     title "- add drop rules"
     for i in {6000..6100..2}; do
-        ovs-ofctl add-flow $BR "in_port=$REP,tcp,tcp_src=$i,actions=drop" || err "adding ofctl rule"
+        ovs-ofctl1 add-flow $BR "in_port=$REP,tcp,tcp_src=$i,actions=drop" || err "adding ofctl rule"
     done
     sleep 2
     title "- clear rules"
