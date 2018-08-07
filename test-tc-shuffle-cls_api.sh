@@ -3,7 +3,7 @@
 # reload module act_gact before adding rules to get into the request_module flow in gact
 # which will return EAGAIN and expose bug in cls_api module.
 #
-# Bug SW #1294281: [ASAP MLNX OFED] kernel crash adding drop rules when act_gact is not loaded
+# BugSW #1294281: [ASAP MLNX OFED] kernel crash adding drop rules when act_gact is not loaded
 #
 
 NIC=${1:-ens5f0}
@@ -16,6 +16,10 @@ RUNFILE=/tmp/test-$$
 RULE_COUNT=${RULE_COUNT:-100}
 GROUP_COUNT=${GROUP_COUNT:-50}
 ROUND_COUNT=${ROUND_COUNT:-50}
+
+if [ `uname -r` = "3.10.0-327.el7.x86_64" ]; then
+    fail "Bug SW #1294281: [ASAP MLNX OFED] kernel crash adding drop rules when act_gact is not loaded"
+fi
 
 rm -f $TMPFILE
 rm -f $RUNFILE
