@@ -18,8 +18,8 @@ test -z "$REP2" && fail "Missing REP2"
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
-TIMEOUT=${TIMEOUT:-220}
 ROUNDS=${ROUNDS:-10}
+let TIMEOUT=ROUNDS*50
 MULTIPATH=${MULTIPATH:-0}
 [ $MULTIPATH == 1 ] && require_multipath_support
 
@@ -93,9 +93,9 @@ ip netns exec ns0 ping -q -c 10 -i 0.2 -w 2 $IP2 && success || err "ping failed"
 
 title "Test iperf $VF($IP1) -> $VF2($IP2)"
 killall iperf3 &>/dev/null
-timeout $TIMEOUT ip netns exec ns1 iperf3 -s --one-off -i 0 >/dev/null || err "iperf server failed" &
+timeout $TIMEOUT ip netns exec ns1 iperf3 -s --one-off -i 0 >/dev/null &
 sleep 1
-timeout $TIMEOUT ip netns exec ns0 iperf3 -c $IP2 -t $((TIMEOUT-10)) -B $IP1 -P 100 --cport 6000 -i 0 >/dev/null || err "iperf client failed" &
+timeout $TIMEOUT ip netns exec ns0 iperf3 -c $IP2 -t $((TIMEOUT-10)) -B $IP1 -P 100 --cport 6000 -i 0 >/dev/null &
 sleep 1
 
 ovs-ofctl add-flow $BR "dl_dst=11:11:11:11:11:11,actions=drop"
@@ -109,7 +109,7 @@ function ovs-ofctl1() {
 
 for r in `seq $ROUNDS`; do
     if ! pidof iperf3 $>/dev/null ; then
-        err "iperf failed"
+        err "iperf is not running"
     fi
     if [ $TEST_FAILED == 1 ]; then
         killall iperf3
@@ -136,6 +136,7 @@ for r in `seq $ROUNDS`; do
     ovs-ofctl del-flows $BR tcp
 done
 
+killall iperf3
 wait
 
 del_all_bridges
