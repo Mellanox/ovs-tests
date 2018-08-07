@@ -85,28 +85,26 @@ function neigh_update_test() {
         action mirred egress redirect dev $REP
 
     for i in `seq 20` ; do
+        echo "-- neigh events $i"
+        # add change evets
+        # "-- forcing addr change 1"
+        ip n replace ${remote_ip} dev $NIC lladdr 11:22:33:44:55:66
+        sleep 5
 
-    echo "-- neigh events $i"
-    # add change evets
-    # "-- forcing addr change 1"
-    ip n replace ${remote_ip} dev $NIC lladdr 11:22:33:44:55:66
-    sleep 5
+        # "-- link down"
+        ifconfig $NIC down
+        sleep 1
+        # "-- link up"
+        ifconfig $NIC up
+        wait_for_linkup $NIC
 
-    # "-- link down"
-    ifconfig $NIC down
-    sleep 1
-    # "-- link up"
-    ifconfig $NIC up
-    wait_for_linkup $NIC
-
-    local m="The neighbour already freed"
-    local sec=`get_test_time_elapsed`
-    local a=`journalctl --since="$sec seconds ago" | grep -i "$m"`
-    if [ "$a" != "" ] ; then
-        err $a
-        break
-    fi
-
+        local m="The neighbour already freed"
+        local sec=`get_test_time_elapsed`
+        local a=`journalctl --since="$sec seconds ago" | grep -i "$m"`
+        if [ "$a" != "" ] ; then
+            err $a
+            break
+        fi
     done
 
     ip l del vxlan1
