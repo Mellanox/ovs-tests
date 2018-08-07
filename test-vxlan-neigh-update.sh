@@ -69,13 +69,13 @@ function neigh_update_test() {
     reset_tc vxlan1
 
     tc_filter add dev vxlan1 protocol ip parent ffff: prio 4\
-        flower $flag enc_src_ip ${remote_ip} enc_dst_ip ${local_ip} \
+        flower enc_src_ip ${remote_ip} enc_dst_ip ${local_ip} \
             enc_key_id $id enc_dst_port ${dst_port} \
         action tunnel_key unset \
         action mirred egress redirect dev $REP
 
     tc_filter add dev vxlan1 protocol arp parent ffff: prio 5\
-        flower $flag enc_src_ip ${remote_ip} enc_dst_ip ${local_ip} \
+        flower enc_src_ip ${remote_ip} enc_dst_ip ${local_ip} \
         enc_key_id $id enc_dst_port ${dst_port} \
         action tunnel_key unset \
         action mirred egress redirect dev $REP
