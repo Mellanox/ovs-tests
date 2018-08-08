@@ -612,10 +612,7 @@ function reload_modules() {
         modprobe -a mlx5_core mlx5_ib || fail "Failed to load modules"
     fi
 
-    a=`journalctl -n200 | grep KASAN || true`
-    if [ "$a" != "" ]; then
-        fail "Detected KASAN in journalctl"
-    fi
+    check_kasan || fail "Detected KASAN in journalctl"
     set_macs
     echo "reload modules done"
 }
