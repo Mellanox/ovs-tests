@@ -20,10 +20,6 @@ my_dir="$(dirname "$0")"
 COUNT=5
 NIC1=$NIC
 
-function tc_filter() {
-    eval2 tc filter $@
-}
-
 function add_rules() {
     title "- add some rules"
     for i in `seq $COUNT`; do
