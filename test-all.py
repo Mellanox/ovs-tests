@@ -134,11 +134,16 @@ def update_skip_according_to_rm():
     rm = MlxRedmine()
     SKIP_TESTS = {}
     for t in TESTS:
+        data = []
         with open(t) as f:
-            data = f.readlines()[0:20]
+            for line in f.xreadlines():
+                if line.startswith('#') or not line.strip():
+                    data.append(line)
+                else:
+                    break
         data = ''.join(data)
         t = os.path.basename(t)
-        bugs = re.findall("Bug SW #([0-9]+):", data)
+        bugs = re.findall("#\s*Bug SW #([0-9]+):", data)
         for b in bugs:
             task = rm.get_issue(b)
             if rm.is_issue_open(task):
