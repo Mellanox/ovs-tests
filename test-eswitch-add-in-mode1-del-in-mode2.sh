@@ -7,8 +7,8 @@
 #
 # Expected result: not to crash
 #
-# Bug SW #935342: Adding rule in legacy mode and then deleting in switchdev mode
-# results in null deref
+# Bug SW #935342: Adding rule in legacy mode and then deleting in switchdev mode results in null deref
+# Bug SW #1481378: [upstream] possible circular locking dependency detected
 #
 
 NIC=${1:-ens5f0}
