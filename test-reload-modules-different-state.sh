@@ -18,6 +18,7 @@
 #   4. look for kasan errors
 #
 # Bug SW #865685: unloading mlx5_core when there are tc rules results in a crash
+# Bug SW #1497154: FW errors and use-after-free KASAN error after unloading mlx5_core
 #
 
 NIC=${1:-ens5f0}
