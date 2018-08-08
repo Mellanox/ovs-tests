@@ -7,6 +7,8 @@
 #
 # Expected result: not to crash
 #
+# Bug SW #1481373: [upstream] Flow table wasn't destroyed, refcount > 1
+#
 
 NIC=${1:-ens5f0}
 COUNT=500
