@@ -72,7 +72,7 @@ function __setup_common() {
     [ -n "$PRETTY_NAME" ] && echo $PRETTY_NAME
 
     if [ "$NIC" == "" ]; then
-        return
+        fail "Missing NIC"
     fi
 
     if [ ! -e /sys/class/net/$NIC/device ]; then
@@ -695,18 +695,25 @@ function not_relevant_for_cx4lx() {
 }
 
 function __load_config() {
+    local conf
+
     # load config if exists
     if [ -n "$CONFIG" ]; then
         if [ -f "$CONFIG" ]; then
+            conf=$CONFIG
             echo "Loading config $CONFIG"
             . $CONFIG
         elif [ -f "$DIR/$CONFIG" ]; then
-            echo "Loading config $DIR/$CONFIG"
-            . $DIR/$CONFIG
+            conf=$DIR/$CONFIG
         else
-            warn "Config $CONFIG not found"
+            fail "Config $CONFIG not found"
         fi
+    else
+        fail "Missing CONFIG"
     fi
+
+    echo "Loading config $conf"
+    . $conf
 
     test -n "$FORCE_VF2" && VF2=$FORCE_VF2
     test -n "$FORCE_REP2" && REP2=$FORCE_REP2
