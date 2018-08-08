@@ -82,7 +82,8 @@ function testB() {
     echo "look for $REP"
     sleep 0.5
     if [ ! -e /sys/class/net/$REP ]; then
-        fail "Missing rep $REP"
+        err "Missing rep $REP"
+        return
     fi
     add_tc_rule_to_rep
     add_tc_rule_to_pf
