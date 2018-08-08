@@ -71,11 +71,13 @@ if [ $MULTIPATH == 1 ]; then
     enable_switchdev $NIC2
     unbind_vfs $NIC
     unbind_vfs $NIC2
+    set_eswitch_inline_mode_transport
     bind_vfs $NIC
     bind_vfs $NIC2
 else
     enable_switchdev_if_no_rep $REP
     unbind_vfs
+    set_eswitch_inline_mode_transport
     bind_vfs
 fi
 
