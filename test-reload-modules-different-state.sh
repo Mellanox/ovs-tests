@@ -26,26 +26,24 @@ REP=${NIC}_0
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-set -e
-
 function add_tc_rule_to_rep() {
     title "add tc rule to rep $REP"
     reset_tc_nic $REP
-    tc filter add dev $REP protocol ip parent ffff: prio 1 \
+    tc_filter add dev $REP protocol ip parent ffff: prio 1 \
         flower skip_sw indev $REP \
         src_mac e1:22:33:44:00:00 \
         dst_mac e2:22:33:44:00:00 \
-        action drop || fail "Failed to add rule"
+        action drop
 }
 
 function add_tc_rule_to_pf() {
     title "add tc rule to pf"
     reset_tc_nic $NIC
-    tc filter add dev $NIC protocol ip parent ffff: prio 2 \
+    tc_filter add dev $NIC protocol ip parent ffff: prio 2 \
         flower skip_sw indev $NIC \
         src_mac e1:22:33:44:00:01 \
         dst_mac e2:22:33:44:00:01 \
-        action drop || fail "Failed to add rule"
+        action drop
 }
 
 function reload_mlx5() {
