@@ -2,6 +2,8 @@
 #
 # Test vxlan rule outer mac is correct.
 #
+# Bug SW #1429502: [mlnx ofed 4.3] vxlan is not offloaded - rule added with wrong mac
+#
 
 NIC=${1:-ens5f0}
 FILTER=${FILTER}
