@@ -49,6 +49,7 @@ function __test_basic_vxlan() {
                 action tunnel_key unset \
                 action mirred egress redirect dev $REP || return $?
 
+    local i
     i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i  --no_zero > /tmp/port$i
 
     reset_tc $NIC
@@ -68,12 +69,24 @@ function test_basic_vxlan_ipv4() {
                         20.1.12.1
 }
 
+function zfill() {
+    local i=$1
+    local c=${2:-0}
+    while [ ${#i} -lt $c ]; do
+        i=0$i
+    done
+    echo $i
+}
 
 title "Test decap rule outer dst mac"
 enable_switchdev
 rm -f /tmp/port0
 test_basic_vxlan_ipv4 || fail
-found_mac=$(for i in `grep -A20 "action.*:0x2c" /tmp/port0 | grep outer_headers.dmac -m2 | cut -d: -f2` ; do echo -n ${i:2} ; done)
+high=`grep -A20 "action.*:0x2c" /tmp/port0 | grep outer_headers.dmac_47_16 | cut -dx -f2`
+low=`grep -A20 "action.*:0x2c" /tmp/port0 | grep outer_headers.dmac_15_0 | cut -dx -f2`
+high=`zfill $high 8`
+low=`zfill $low 4`
+found_mac=$high$low
 
 if [ -z "$found_mac" ]; then
     fail "Cannot find mac address in dump"
