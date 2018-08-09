@@ -19,11 +19,13 @@ function tc_filter() {
 }
 
 function test_in_switchdev() {
+    title "Test rule without match in switchdev mode"
     enable_switchdev
     do_test
 }
 
 function test_in_legacy() {
+    title "Test rule without match in legacy mode"
     enable_legacy
     do_test
 }
@@ -31,7 +33,6 @@ function test_in_legacy() {
 function do_test() {
     reset_tc_nic $NIC
     start_check_syndrome
-    title "Test rule without match"
     tc_filter add dev $NIC parent ffff: flower skip_sw action drop
     err=$?
     if [ $DEVICE_IS_CX4 == 1 ]; then
