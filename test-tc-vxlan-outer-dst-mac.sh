@@ -81,10 +81,10 @@ fi
 
 mac=`cat /sys/class/net/$NIC/address | tr -d :`
 
-echo "uplink mac is $mac and rule mac is $found_mac"
 if [ "$mac" != "$found_mac" ]; then
-    err
+    err "Uplink mac is $mac and rule mac is $found_mac"
 else
+    echo "Uplink mac is $mac as expected"
     success
 fi
 
