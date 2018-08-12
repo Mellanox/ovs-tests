@@ -72,6 +72,7 @@ tc_filter add dev $port2 ingress protocol ip prio 1 flower $skip dst_mac $dst_ma
 #
 tc_filter add dev $port2 ingress protocol ip prio 1 flower $skip dst_mac $dst_mac src_ip 1.1.1.1 action mirred egress redirect dev $port4
 tc_filter add dev $port2 ingress protocol ip prio 1 flower $skip dst_mac $dst_mac src_ip 1.1.1.2 action mirred egress redirect dev $port4
+fail_if_err "TC multi masks per prio is not supported"
 #pass '3 -> 6'
 tc_filter add dev $port2 ingress protocol ip prio 2 flower $skip dst_mac $dst_mac src_ip 1.1.1.3 dst_ip 1.1.1.6 action mirred egress redirect dev $port4
 #drop otherwise
