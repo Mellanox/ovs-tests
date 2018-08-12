@@ -2,6 +2,7 @@
 #
 # Test to reproduce warn_on() in mlx5e_tc_update_neigh_used_value()
 #
+# Bug SW #1324532: Getting warn_on msgs "The neighbour already freed" randomly.
 # Bug SW #1431299: [IBM ECMP] Call trace when bringing down a PF
 # Bug SW #1435023: [OFED 4.4] Call trace with up/down events on bridge device
 #
