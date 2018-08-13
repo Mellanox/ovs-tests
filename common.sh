@@ -131,8 +131,7 @@ function kmsg() {
 function title2() {
     local title=${1:-`basename $0`}
     local tmp="## TEST $title ##"
-    local count=`echo $tmp | wc -c`
-    let count-=1
+    local count=${#tmp}
     local sep=$(printf '%*s' $count | tr ' ' '#')
 
     echo -e "Start test
