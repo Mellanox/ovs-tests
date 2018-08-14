@@ -40,13 +40,13 @@ function devlink_eswitch_show() {
 start_check_syndrome
 
 title "Test devlink show in IB mode"
-set_link_type IB || fail
+set_link_type_ib || fail
 fw_reset
 devlink_eswitch_show
 success
 
 title "Test devlink show in ETH mode"
-set_link_type ETH || fail
+set_link_type_eth || fail
 fw_reset
 devlink_eswitch_show
 success
