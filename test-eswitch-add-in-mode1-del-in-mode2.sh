@@ -85,33 +85,40 @@ function add_vxlan_rule() {
     clean_vxlan_interface
 }
 
+function test_legacy_switchdev() {
+    title "Add rule in legacy mode and reset in switchdev"
+    reset_tc_nic $NIC
+    switch_mode_legacy
+    add_rules
+    add_vlan_rule
+    title "- unbind vfs"
+    unbind_vfs
+    title "- switch to switchdev"
+    switch_mode_switchdev
+    title " - reset tc"
+    reset_tc_nic $NIC
+    success
+}
 
-title "Add rule in legacy mode and reset in switchdev"
-reset_tc_nic $NIC
-switch_mode_legacy
-add_rules
-add_vlan_rule
-title "- unbind vfs"
-unbind_vfs
-title "- switch to switchdev"
-switch_mode_switchdev
-title " - reset tc"
-reset_tc_nic $NIC
-success
+function test_switchdev_legacy() {
+    title "Add rule in switchdev mode and reset in legacy"
+    reset_tc_nic $NIC
+    switch_mode_switchdev
+    title "- add rules"
+    add_rules
+    add_vlan_rule
+    add_vxlan_rule
+    title "- unbind vfs"
+    unbind_vfs
+    title "- switch to legacy"
+    switch_mode_legacy
+    title " - reset tc"
+    reset_tc_nic $NIC
+    success
+}
 
-title "Add rule in switchdev mode and reset in legacy"
-reset_tc_nic $NIC
-switch_mode_switchdev
-title "- add rules"
-add_rules
-add_vlan_rule
-add_vxlan_rule
-title "- unbind vfs"
-unbind_vfs
-title "- switch to legacy"
-switch_mode_legacy
-title " - reset tc"
-reset_tc_nic $NIC
-success
 
+test_legacy_switchdev
+sleep 2
+test_switchdev_legacy
 test_done
