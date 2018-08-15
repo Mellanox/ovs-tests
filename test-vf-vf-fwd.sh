@@ -4,6 +4,7 @@
 #
 # Bug SW #1241076: Hit WARN_ON when adding many rules with different mask
 # Bug SW #1438051: [Ofed 4.4] Hit WARN_ON when adding fwd and drop rules while traffic is going
+# Bug SW #1486319: [Upstream] possible deadlock when adding fwd and drop rules while traffic is going
 #
 
 NIC=${1:-ens2f0}
