@@ -69,7 +69,7 @@ dst_mac=`ip netns exec blue ip link show $VF2 | grep ether | awk '{print $2}'`
 
 start_check_syndrome
 
-echo adding hw only rules
+echo "adding hw only rules"
 #pass '* -> 7-8' or '1-2 -> *'
 tc_filter add dev $port2 ingress protocol ip prio 1 chain 0 flower skip_sw dst_mac $dst_mac dst_ip 1.1.1.8 action goto chain 1
 # if first fails we probably dont support chains offload
@@ -88,7 +88,7 @@ tc_filter add dev $port2 ingress protocol ip prio 1 chain 1 flower skip_sw dst_m
 #trap for testing slow path on second chain
 tc_filter add dev $port2 ingress protocol ip prio 1 chain 2 flower skip_sw dst_mac $dst_mac action mirred egress redirect dev $port4
 
-echo adding sw only rules
+echo "adding sw only rules"
 #arp and reverse traffic (skip_hw)
 tc_filter add dev $port4 ingress protocol ip  prio 5 flower skip_hw action mirred egress redirect dev $port2
 tc_filter add dev $port2 ingress protocol arp prio 4 flower skip_hw action mirred egress redirect dev $port4
@@ -119,16 +119,16 @@ ip netns exec red timeout 0.25 ping -I 1.1.1.5 -i 0.25 -W 0.25 -c 1 1.1.1.9 && e
 ip netns exec red timeout 0.25 ping -I 1.1.1.3 -i 0.25 -W 0.25 -c 1 1.1.2.1 && err "expected to get to slow path - first chain"
 ip netns exec red timeout 0.25 ping -I 1.1.2.0 -i 0.25 -W 0.25 -c 1 1.1.1.8 && err "expected to get to slow path - second chain"
 
-echo check for two slow path packets
+echo "check for two slow path packets"
 wait $tdpid
 rc=$?
 [[ $? -eq 0 ]] && success || err "expected two slow path packet"
 
-echo checking offload stats
+echo "checking offload stats"
 sleep 3
 stats=`sudo tc -s filter show dev ens1f0_0 ingress proto ip | grep pkt | awk '{ print $4 };' | xargs echo`
 expected="2 1 1 1 1 3 5 0"
-echo got stats: $stats \(expected: $expected\)
+echo "got stats: $stats (expected: $expected)"
 [[ "$stats" == "$expected" ]] && success || err "expected different packet stats, expected ($expected) but got ($stats)"
 
 cleanup
