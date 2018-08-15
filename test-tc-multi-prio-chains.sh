@@ -121,7 +121,6 @@ ip netns exec red timeout 0.25 ping -I 1.1.2.0 -i 0.25 -W 0.25 -c 1 1.1.1.8 && e
 
 echo "check for two slow path packets"
 wait $tdpid
-rc=$?
 [[ $? -eq 0 ]] && success || err "expected two slow path packet"
 
 echo "checking offload stats"
