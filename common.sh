@@ -736,8 +736,9 @@ function warn_if_redmine_bug_is_open() {
     local issues=`head -n50 $DIR/$TESTNAME | grep "^#" | grep -o "Bug SW #[0-9]\+" | cut -d"#" -f2`
     local p=0
     for i in $issues ; do
-        if redmine_bug_is_open $i ; then
-            warn "Redmine issue $i is not closed."
+        redmine_info $i
+        if redmine_bug_is_open ; then
+            warn "Redmine issue is not closed: $i $RM_SUBJ"
             p=1
         fi
     done
@@ -753,23 +754,20 @@ RM_STATUS_LIST="$RM_STATUS_CLOSED $RM_STATUS_REJECTED $RM_STATUS_FIXED $RM_STATU
 
 function redmine_bug_is_open() {
     local i
-    local s=`redmine_bug_status $1`
-    if [ "$s" = "" ]; then
-        return 1
-    fi
+    [ "$RM_STATUS" = "" ] && return 1
     for i in $RM_STATUS_LIST ; do
-        if [ $s = $i ]; then
+        if [ $RM_STATUS = $i ]; then
             return 1
         fi
     done
     return 0
 }
 
-function redmine_bug_status() {
+function redmine_info() {
     local id=$1
     local key="4ad65ee94655687090deec6247b0d897f05443e3"
     local url="https://redmine.mellanox.com/issues/${id}.json?key=$key"
-    curl -m 1 -s "$url" | python -c "import sys, json; i=json.load(sys.stdin)['issue']; print i['status']['id']" 2>/dev/null
+    eval `curl -m 1 -s "$url" | python -c "import sys, json; i=json.load(sys.stdin)['issue']; print \"RM_STATUS='%s'\nRM_SUBJ='%s'\" % (i['status']['id'], i['subject'])"`
 }
 
 ### workarounds
