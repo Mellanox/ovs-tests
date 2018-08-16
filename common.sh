@@ -767,7 +767,12 @@ function redmine_info() {
     local id=$1
     local key="4ad65ee94655687090deec6247b0d897f05443e3"
     local url="https://redmine.mellanox.com/issues/${id}.json?key=$key"
-    eval `curl -m 1 -s "$url" | python -c "import sys, json; i=json.load(sys.stdin)['issue']; print \"RM_STATUS='%s'\nRM_SUBJ='%s'\" % (i['status']['id'], i['subject'])"`
+    RM_STATUS=""
+    RM_SUBJ=""
+    eval `curl -m 1 -s "$url" | python -c "import sys, json; i=json.load(sys.stdin)['issue']; print \"RM_STATUS='%s'\nRM_SUBJ='%s'\" % (i['status']['id'], i['subject'])" 2>/dev/null`
+    if [ -z "$RM_STATUS" ]; then
+        echo "Failed to fetch redmine info"
+    fi
 }
 
 ### workarounds
