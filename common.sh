@@ -791,9 +791,9 @@ function wa_reset_multipath() {
 
 ### main
 title2 `basename $0`
+warn_if_redmine_bug_is_open
 start_test_timestamp
 trap __cleanup INT
 __load_config
 __setup_common
 __setup_clean
-warn_if_redmine_bug_is_open
