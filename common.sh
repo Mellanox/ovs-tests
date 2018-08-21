@@ -4,7 +4,7 @@ TESTNAME=`basename $0`
 DIR=$(cd `dirname $0` ; pwd)
 SET_MACS="$DIR/set-macs.sh"
 
-BLACK="\033[0;0m"
+NOCOLOR="\033[0;0m"
 RED="\033[0;31m"
 GREEN="\033[0;32m"
 YELLOW="\033[0;33m"
@@ -135,9 +135,9 @@ function title2() {
     local sep=$(printf '%*s' $count | tr ' ' '#')
 
     echo -e "Start test
-${YELLOW}${sep}${BLACK}
-${YELLOW}${tmp}${BLACK}
-${YELLOW}${sep}${BLACK}"
+${YELLOW}${sep}${NOCOLOR}
+${YELLOW}${tmp}${NOCOLOR}
+${YELLOW}${sep}${NOCOLOR}"
 
     kmsg "Start test
 $sep
@@ -172,7 +172,7 @@ function log() {
 }
 
 function warn() {
-    echo -e "${YELLOW}WARNING: $@$BLACK"
+    echo -e "${YELLOW}WARNING: $@$NOCOLOR"
     kmsg "WARN: $@"
 }
 
@@ -180,7 +180,7 @@ function warn() {
 function fail() {
     local m=${@:-Failed}
     TEST_FAILED=1
-    echo -e "${RED}ERROR: $m$BLACK" >>/dev/stderr
+    echo -e "${RED}ERROR: $m$NOCOLOR" >>/dev/stderr
     kmsg "ERROR: $m"
     wait
     exit 1
@@ -189,18 +189,18 @@ function fail() {
 function err() {
     local m=${@:-Failed}
     TEST_FAILED=1
-    echo -e "${RED}ERROR: $m$BLACK"
+    echo -e "${RED}ERROR: $m$NOCOLOR"
     kmsg "ERROR: $m"
 }
 
 function success() {
     local m=${@:-OK}
-    echo -e "$GREEN$m$BLACK"
+    echo -e "$GREEN$m$NOCOLOR"
     kmsg $m
 }
 
 function title() {
-    echo -e "$BLUE* $@$BLACK"
+    echo -e "$BLUE* $@$NOCOLOR"
     kmsg $@
 }
 
