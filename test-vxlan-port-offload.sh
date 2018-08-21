@@ -15,7 +15,7 @@ my_dir="$(dirname "$0")"
 
 
 function tc_filter() {
-    eval2 tc filter $@ && success || err
+    eval2 tc filter $@ && success
 }
 
 function clean_ingress() {
