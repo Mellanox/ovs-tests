@@ -166,6 +166,11 @@ function reset_tc_nic() {
     reset_tc $1
 }
 
+function log() {
+    echo $@
+    kmsg $@
+}
+
 function warn() {
     echo -e "${YELLOW}WARNING: $@$BLACK"
     kmsg "WARN: $@"
@@ -676,21 +681,21 @@ function test_done() {
 
 function not_relevant_for_cx5() {
     if [ "$DEVICE_IS_CX5" = 1 ]; then
-        echo "Test not relevant for ConnectX-5"
+        log "Test not relevant for ConnectX-5"
         exit 0
     fi
 }
 
 function not_relevant_for_cx4() {
     if [ "$DEVICE_IS_CX4" = 1 ]; then
-        echo "Test not relevant for ConnectX-4"
+        log "Test not relevant for ConnectX-4"
         exit 0
     fi
 }
 
 function not_relevant_for_cx4lx() {
     if [ "$DEVICE_IS_CX4_LX" = 1 ]; then
-        echo "Test not relevant for ConnectX-4 Lx"
+        log "Test not relevant for ConnectX-4 Lx"
         exit 0
     fi
 }
