@@ -189,7 +189,7 @@ def main():
                 continue
             ignore = False
 
-        print "Test: %-60s  " % deco(name, 'blue'),
+        print "Test: %-60s  " % deco(name, 'light-blue'),
         sys.stdout.flush()
 
         failed = False
