@@ -8,7 +8,7 @@ NOCOLOR="\033[0;0m"
 RED="\033[0;31m"
 GREEN="\033[0;32m"
 YELLOW="\033[0;33m"
-BLUE="\033[01;94m"
+LIGHTBLUE="\033[0;94m"
 
 # global var to set if test fails. should change to error but never back to
 # success.
@@ -200,7 +200,7 @@ function success() {
 }
 
 function title() {
-    echo -e "$BLUE* $@$NOCOLOR"
+    echo -e "$LIGHTBLUE* $@$NOCOLOR"
     kmsg $@
 }
 
