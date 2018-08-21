@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+# Bug SW #1506848: [upstream] Inconsistent lock state in act_pedit
 #
 
 my_dir="$(dirname "$0")"
