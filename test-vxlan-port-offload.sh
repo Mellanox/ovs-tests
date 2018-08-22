@@ -57,14 +57,12 @@ function __test_vxlan() {
     ip neigh add $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
 
     title " - add vxlan rule"
-    skip='skip_sw'
-        title "- skip:$skip"
         reset_tc $REP
         reset_tc $vx
         title "    - encap"
         tc_filter add dev $REP protocol 0x806 parent ffff: prio 1 \
                     flower \
-                            $skip \
+                            skip_sw \
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
                     action tunnel_key set \
@@ -73,10 +71,10 @@ function __test_vxlan() {
                     dst_port $vxlan_port \
                     id 100 \
                     action mirred egress redirect dev $vx
+
         title "    - decap"
         tc_filter add dev $vx protocol 0x806 parent ffff: prio 2 \
                     flower \
-                            $skip \
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
                             enc_src_ip $ip_src \
@@ -85,6 +83,10 @@ function __test_vxlan() {
                             enc_key_id 100 \
                     action tunnel_key unset \
                     action mirred egress redirect dev $REP
+        # because of upstream issue adding decap rule in skip_sw we add with
+        # policy none and verify in_hw bit.
+        # Bug SW #1470595: [upstream] decap rule offload attempt with skip_sw fails
+        tc filter show dev $vx ingress prio 2 | grep -q in_hw || err "Decap rule not in hw"
 
     reset_tc $NIC
     reset_tc $REP
