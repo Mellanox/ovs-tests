@@ -6,7 +6,6 @@
 #
 
 NIC=${1:-ens5f0}
-FILTER=${FILTER}
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
