@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#
+# Bug SW #1507156: [upstream] Failed to set tos and ttl matching on ConnectX-4 Lx
 #
 
 my_dir="$(dirname "$0")"
