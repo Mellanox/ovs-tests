@@ -8,12 +8,24 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 
-function cleanup() {
-    config_sriov 2 $NIC
-    # restore autoprobe
+probe_fs="/sys/class/net/$NIC/device/sriov_drivers_autoprobe"
+probe=0
+function disable_sriov_autoprobe() {
+    if [ -e $probe_fs ]; then
+        probe=`cat $probe_fs`
+        echo 0 > $probe_fs
+    fi
+}
+
+function restore_sriov_autoprobe() {
     if [ $probe == 1 ]; then
         echo 1 > $probe_fs
     fi
+}
+
+function cleanup() {
+    config_sriov 2 $NIC
+    restore_sriov_autoprobe
 }
 
 function test_127_reps() {
@@ -22,7 +34,7 @@ function test_127_reps() {
     title "Test 127 REPs"
 
     switch_mode_legacy
-    echo 0 > $probe_fs
+    disable_sriov_autoprobe
     echo "Config $want VFs"
     config_sriov $want $NIC
     switch_mode_switchdev
@@ -39,8 +51,6 @@ function test_127_reps() {
 
 
 trap cleanup EXIT
-probe_fs="/sys/class/net/$NIC/device/sriov_drivers_autoprobe"
-probe=`cat $probe_fs`
 test_127_reps
 echo Cleanup
 cleanup
