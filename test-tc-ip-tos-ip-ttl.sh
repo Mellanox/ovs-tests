@@ -7,6 +7,9 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 
+not_relevant_for_cx4
+
+
 function test_ip_tos_and_ip_ttl() {
     local nic=$1
 
