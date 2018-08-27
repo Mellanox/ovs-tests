@@ -51,7 +51,9 @@ function test_127_reps() {
 
 
 trap cleanup EXIT
+start_check_syndrome
 test_127_reps
 echo Cleanup
 cleanup
+check_syndrome
 test_done
