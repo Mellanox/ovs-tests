@@ -25,7 +25,7 @@ function test_basic_header_rewrite() {
 }
 
 function test_complex_header_rewrite_add() {
-    title "Add complex (macs, ips, ttl add) pedit rule on representor"
+    title "Add complex (macs, ips, ttl add) pedit rule rep->nic"
     # EXCEED_LIM          | 0x2EDCC3 |  alloc_modify_header_context: actions number exceeds HW limit
     reset_tc_nic $REP
     tc_filter add dev $REP protocol ip parent ffff: prio 2 \
@@ -41,7 +41,7 @@ function test_complex_header_rewrite_add() {
 }
 
 function test_complex_header_rewrite_set() {
-    title "Add complex (macs, ips, ttl set) pedit rule on representor"
+    title "Add complex (macs, ips, ttl set) pedit rule rep->nic"
     # EXCEED_LIM          | 0x2EDCC3 |  alloc_modify_header_context: actions number exceeds HW limit
     reset_tc_nic $REP
     tc_filter add dev $REP protocol ip parent ffff: prio 2 \
