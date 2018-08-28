@@ -25,7 +25,7 @@ function add_diff_mask_rules() {
 }
 
 
-title "Test flow groups possible deadlock"
+title "Test flow groups possible lock issue"
 start_check_syndrome
 reset_tc_nic $REP
 
