@@ -64,10 +64,10 @@ function add_sw_flow() {
 function compare_keys_with_sw_flow() {
     ovs-dpctl del-flows && sleep 0.5
     add_sw_flow $flow
-    echo flow $m
     keys=`echo $m | grep -o -E "[a-z0-9]+[(=]" | tr -d "=("`
     for k in $keys; do
         if ! echo $sw | grep -q $k ; then
+            echo flow $m
             err "Didn't expect $k in flow"
         fi
     done
