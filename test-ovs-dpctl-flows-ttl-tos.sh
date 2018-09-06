@@ -64,6 +64,7 @@ function add_sw_flow() {
 function compare_keys_with_sw_flow() {
     ovs-dpctl del-flows && sleep 0.5
     add_sw_flow $flow
+    echo flow $m
     keys=`echo $m | grep -o -E "[a-z0-9]+[(=]" | tr -d "=("`
     for k in $keys; do
         if ! echo $sw | grep -q $k ; then
@@ -107,7 +108,6 @@ function test_tos_mask_0() {
     flow="$UFID,recirc_id(0),tunnel(tun_id=0x2a,src=2.2.2.3,dst=2.2.2.2,tp_dst=4789,tos=0x1/0,ttl=0/0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1)"
     ovs-dpctl del-flows && sleep 0.5
     add_flow $flow
-    echo $m
     compare_keys_with_sw_flow
 }
 
