@@ -70,6 +70,7 @@ function __test_for_devlink_compat() {
 function __setup_common() {
     [ -f /etc/os-release ] && . /etc/os-release
     [ -n "$PRETTY_NAME" ] && echo $PRETTY_NAME
+    uname -nsr
 
     if [ "$NIC" == "" ]; then
         fail "Missing NIC"
