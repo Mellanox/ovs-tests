@@ -37,7 +37,7 @@ function test_127_reps() {
     disable_sriov_autoprobe
     echo "Config $want VFs"
     config_sriov $want $NIC
-    switch_mode_switchdev
+    enable_switchdev
 
     echo "Verify"
     mac=`cat /sys/class/net/$NIC/address | tr -d :`
