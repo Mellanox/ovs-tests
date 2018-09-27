@@ -15,7 +15,7 @@ function test_ip_tos_and_ip_ttl() {
 
     start_check_syndrome
     reset_tc_nic $nic
-    tc_filter add dev $nic protocol ip ingress flower skip_sw dst_mac 7c:fe:90:7b:76:5c ip_proto icmp ip_tos 0x30 ip_ttl 63 action drop
+    tc_filter add dev $nic protocol ip ingress prio 1 flower skip_sw dst_mac 7c:fe:90:7b:76:5c ip_proto icmp ip_tos 0x30 ip_ttl 63 action drop
     check_syndrome
 }
 

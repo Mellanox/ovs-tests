@@ -33,7 +33,7 @@ function test_in_legacy() {
 function do_test() {
     reset_tc_nic $NIC
     start_check_syndrome
-    tc_filter add dev $NIC parent ffff: flower skip_sw action drop
+    tc_filter add dev $NIC parent ffff: prio 1 flower skip_sw action drop
     err=$?
     if [ $DEVICE_IS_CX4 == 1 ]; then
         echo "In ConnectX-4 we expect to fail with syndrome of missing dst mac."
