@@ -12,7 +12,12 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 . $my_dir/tc_tests_common.sh
 
+echo "setup"
+config_sriov 2 $NIC
+enable_switchdev_if_no_rep $REP
+
 require_interfaces NIC
+reset_tc_nic $NIC
 
 function par_test() {
     local dup=$1
