@@ -25,7 +25,7 @@ mlxdump -d $PCI fsdump --type FT --no_zero > /tmp/fsdump_before_add || err "mlxd
 
 title "Add tc rules"
 
-tc filter add dev $NIC protocol ip parent ffff: \
+tc filter add dev $NIC protocol ip parent ffff: prio 1 \
         flower \
                 skip_sw \
                 dst_mac e4:11:22:11:4a:51 \
@@ -34,7 +34,7 @@ tc filter add dev $NIC protocol ip parent ffff: \
                 dst_ip 2.2.2.2 \
             action mirred egress redirect dev $REP || err "Failed adding nic->rep rule"
 
-tc filter add dev $REP protocol ip parent ffff: \
+tc filter add dev $REP protocol ip parent ffff: prio 2 \
         flower \
                 skip_sw \
                 dst_mac e4:11:22:11:4a:50 \
