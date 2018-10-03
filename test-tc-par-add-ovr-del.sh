@@ -3,6 +3,9 @@
 # This verifies that parallel rule insert/delete/change is handled correctly
 # by tc. Tests with large amount of rules updated in batch mode to find any
 # potential bugs and race conditions.
+#
+# Bug SW #1527583: TC replace rules test raise an our of range flow counter error
+#
 
 total=${1:-100000}
 skip=$2
