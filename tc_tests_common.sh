@@ -6,7 +6,7 @@ function check_num_rules() {
 
     title " - check for $num rules"
     RES=`tc -s filter show dev $itf ingress | grep handle | wc -l`
-    if (( RES == $num )); then success; else err; fi
+    if (( RES == $num )); then success; else err "Found $RES rules but expected $num"; fi
 }
 
 function check_num_offloaded_rules() {
