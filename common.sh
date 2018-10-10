@@ -67,6 +67,10 @@ function __test_for_devlink_compat() {
     fi
 }
 
+function get_nic_fw() {
+    ethtool -i $1 | grep firmware-version | awk {'print $2'}
+}
+
 function __setup_common() {
     [ -f /etc/os-release ] && . /etc/os-release
     [ -n "$PRETTY_NAME" ] && echo $PRETTY_NAME
@@ -89,7 +93,8 @@ function __setup_common() {
 
     PCI=$(basename `readlink /sys/class/net/$NIC/device`)
     DEVICE=`cat /sys/class/net/$NIC/device/device`
-    status="NIC $NIC PCI $PCI DEVICE $DEVICE"
+    FW=`get_nic_fw $NIC`
+    status="NIC $NIC FW $FW PCI $PCI DEVICE $DEVICE"
 
     __test_for_devlink_compat
 
