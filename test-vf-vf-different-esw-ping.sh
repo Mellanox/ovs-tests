@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 #  Testing ping between VFs on different eSwitch.
+#  Bug SW #1512703: [Upstream] vf to vf ping on different eswitch is broken
 #
 
 NIC=${1:-ens5f0}
