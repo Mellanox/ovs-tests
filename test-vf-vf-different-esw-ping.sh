@@ -76,7 +76,7 @@ bind_vfs $NIC2
 VF2=`get_vf 0 $NIC2`
 REP2=`get_rep 0 $NIC2`
 if [ -z "$REP2" ]; then
-    fail "Missing rep $rep"
+    fail "Missing rep on second port"
 fi
 
 start_clean_openvswitch
