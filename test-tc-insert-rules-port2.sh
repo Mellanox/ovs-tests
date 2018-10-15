@@ -16,10 +16,6 @@ if [ -z "$REP" ]; then
     fail "Missing rep $rep"
 fi
 
-function tc_filter() {
-    eval2 tc filter $@
-}
-
 function disable_sriov_port2() {
     title "- Disable SRIOV"
     echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
