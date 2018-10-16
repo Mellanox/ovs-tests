@@ -23,11 +23,20 @@ CASE_TWO_PORTS=${CASE_TWO_PORTS:-1}
 CASE_MODE=${CASE_MODE:-switchdev}
 
 
+function get_free_mem() {
+    cat /proc/meminfo | grep MemFree | awk {'print $2'}
+}
+
 function tc_batch() {
+    local num=$1
+    memfree1=`get_free_mem`
     timeout $TIMEOUT bash $my_dir/tc_batch.sh $@
     rc=$?
     if [ $rc == "0" ]; then
         success
+        memfree2=`get_free_mem`
+        let mem_per_rule=(memfree1-memfree2)/num
+        echo "avg mem per rule is $mem_per_rule kb"
     elif [ $rc == "124" ]; then
         err "Timed out after $TIMEOUT"
     else
