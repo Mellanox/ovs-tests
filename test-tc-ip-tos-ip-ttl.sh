@@ -58,7 +58,7 @@ function __test_basic_vxlan() {
                 action mirred egress redirect dev $REP || return $?
     # because of upstream issue adding decap rule in skip_sw we add with
     # policy none and verify in_hw bit.
-    # Bug SW #1470595: [upstream] decap rule offload attempt with skip_sw fails
+    # Bug SW #1360599: [upstream] decap rule offload attempt with skip_sw fails
     tc filter show dev $vx ingress prio 1 | grep -q -w in_hw || err "Decap rule not in hw"
 
     check_syndrome

@@ -223,7 +223,7 @@ function __test_basic_vxlan() {
         title "    - decap"
         if [ "$skip" = "skip_sw" ]; then
             warn "Skip vxlan decap with skip_sw policy because of open issue"
-            warn "Bug SW #1470595: [upstream] decap rule offload attempt with skip_sw fails"
+            warn "Bug SW #1360599: [upstream] decap rule offload attempt with skip_sw fails"
             continue
         fi
         tc_filter add dev $vx protocol 0x806 parent ffff: `prio` \
