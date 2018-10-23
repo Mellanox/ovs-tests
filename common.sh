@@ -440,7 +440,7 @@ function get_sw_id() {
 
 function get_vf() {
     local vfn=$1
-    local nic=$2
+    local nic=${2:-$NIC}
     if [ -a /sys/class/net/$nic/device/virtfn$vfn/net ]; then
 	echo `ls /sys/class/net/$nic/device/virtfn$vfn/net/`
     else 
