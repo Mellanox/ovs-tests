@@ -26,6 +26,8 @@ test "$mac2" || fail "no mac2"
 function cleanup() {
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
+    reset_tc $REP
+    reset_tc $REP2
 }
 trap cleanup EXIT
 
