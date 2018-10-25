@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Test CT fwd
+# Test CT fwd with icmp traffic and rule ct+fwd
 #
 
 my_dir="$(dirname "$0")"

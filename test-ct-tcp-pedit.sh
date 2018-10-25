@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Test CT fwd
+# Test CT fwd with pedit and tcp traffic
 #
 
 my_dir="$(dirname "$0")"
