@@ -94,6 +94,7 @@ function run() {
     timeout 2 tcpdump -qnnei $REP -c 10 'udp' &
     pid=$!
 
+    sleep 2
     killall -9 iperf &>/dev/null
     wait $! 2>/dev/null
 
