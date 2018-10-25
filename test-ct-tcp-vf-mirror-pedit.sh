@@ -94,7 +94,7 @@ function run() {
 
     echo "run traffic"
     ip netns exec ns1 timeout 6 iperf -s &
-    ip netns exec ns0 timeout 6 iperf -t 5 -c $IP2 || err "Iperf failed"
+    ip netns exec ns0 timeout 6 iperf -t 5 -c $IP2 &
 
     echo "sniff packets on $REP2"
     sleep 1
@@ -106,7 +106,7 @@ function run() {
     timeout 2 tcpdump -qnnei $VF3 -c 10 'tcp' &
     pid2=$!
 
-    sleep 2
+    sleep 6
     killall -9 iperf &>/dev/null
     wait $! 2>/dev/null
 
