@@ -57,25 +57,26 @@ function run() {
         action mirred egress redirect dev $REP
 
     echo "add ct rules"
+    # req
     tc_filter add dev $REP ingress protocol ip prio 2 flower \
         dst_mac $mac2 ct_state -trk \
         action ct action goto chain 1
 
     tc_filter add dev $REP ingress protocol ip chain 1 prio 2 flower \
         dst_mac $mac2 ct_state +trk+new \
+        action pedit ex munge eth src set 20:22:33:44:55:66 pipe \
         action mirred egress redirect dev $REP2
 
     tc_filter add dev $REP ingress protocol ip chain 1 prio 2 flower \
         dst_mac $mac2 ct_state +trk+est \
         action mirred egress redirect dev $REP2
 
-    # chain0,ct -> chain1,pedit,fwd
+    # reply chain0,ct -> chain1,fwd
     tc_filter add dev $REP2 ingress protocol ip prio 2 flower \
         dst_mac $mac1 \
         action ct action goto chain 1
 
     tc_filter add dev $REP2 ingress protocol ip prio 2 chain 1 flower \
-        action pedit ex munge eth src set 20:22:33:44:55:66 pipe \
         action mirred egress redirect dev $REP
 
     fail_if_err
