@@ -751,7 +751,7 @@ function warn_if_redmine_bug_is_open() {
     for i in $issues ; do
         redmine_info $i
         if redmine_bug_is_open ; then
-            warn "Redmine issue is not closed: $i $RM_SUBJ"
+            warn "Redmine issue open: $i $RM_SUBJ"
             p=1
         fi
     done
