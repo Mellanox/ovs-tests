@@ -2,7 +2,7 @@
 #
 # Test OVS with multi vxlan bridges
 #
-# Bug SW #1541165: [OVS 2.10] restart OVS with two vxlan bridges cause vxlan qdisc to be deleted
+# Bug SW #1541165: [OVS 2.10] Adding two vxlan bridges cause vxlan qdisc to be deleted
 #
 
 my_dir="$(dirname "$0")"
