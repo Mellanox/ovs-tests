@@ -18,7 +18,6 @@ bind_vfs
 VF3=`get_vf 2`
 reset_tc $REP
 reset_tc $REP2
-reset_tc $REP3
 
 mac1=`cat /sys/class/net/$VF/address`
 mac2=`cat /sys/class/net/$VF2/address`
@@ -31,7 +30,6 @@ function cleanup() {
     ip netns del ns1 2> /dev/null
     reset_tc $REP
     reset_tc $REP2
-    reset_tc $REP3
 }
 trap cleanup EXIT
 
