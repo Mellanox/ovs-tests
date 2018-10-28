@@ -6,6 +6,8 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+require_act_ct
+
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
