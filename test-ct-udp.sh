@@ -75,6 +75,11 @@ function run() {
         action ct action goto chain 1
 
     tc_filter add dev $REP2 ingress protocol ip prio 2 chain 1 flower \
+        dst_mac $mac1 ct_state +trk+new \
+        action mirred egress redirect dev $REP
+
+    tc_filter add dev $REP2 ingress protocol ip prio 2 chain 1 flower \
+        dst_mac $mac1 ct_state +trk+est \
         action mirred egress redirect dev $REP
 
     fail_if_err
@@ -85,7 +90,7 @@ function run() {
     tc filter show dev $REP2 ingress
 
     echo "run traffic"
-    ip netns exec ns1 timeout 6 iperf -s -u &
+    ip netns exec ns1 timeout 6 iperf -t 5 -u -c $IP1 &
     ip netns exec ns0 timeout 6 iperf -t 5 -u -c $IP2 &
 
     echo "sniff packets on $REP"
