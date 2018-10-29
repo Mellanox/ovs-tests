@@ -20,7 +20,8 @@ function run_test() {
     D=$1
     FAKE_MAC="a2:b4:c0:f0:fc:8b"
 
-    timeout 3 tcpdump -nei $REP -c 1 ether dst $FAKE_MAC &
+    # verify we have packet with fragment offset > 0
+    timeout 3 tcpdump -nnvei $REP -c 1 ether "dst $FAKE_MAC and ip[6:2] & 0x1fff > 0" &
     sleep 0.5
     tdpid=$!
 
@@ -41,11 +42,12 @@ ICMP=1
 TCP=6
 UDP=17
 
-PROTOS="$ICMP $TCP $UDP"
+PROTOS="ICMP TCP UDP"
 SIZES="0 1 7 8 9"
 
 for P in $PROTOS; do
     title "Test procotol $P"
+    P=${!P}
 
     for S in $SIZES; do
         M1="IP(frag=5,dst=\"2.2.2.2\",proto=$P)/(\"X\"*$S)"
