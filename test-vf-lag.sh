@@ -82,6 +82,7 @@ function add_vxlan_rule() {
     # tunnel key set
     ifconfig $NIC up
     reset_tc bond0
+    reset_tc vxlan1
 
     # encap
     title "- encap"
@@ -109,6 +110,7 @@ function add_vxlan_rule() {
     tc filter show dev vxlan1 ingress prio 2 | grep -q -w in_hw || err "Decap rule not in hw"
 
     reset_tc bond0
+    reset_tc vxlan1
 }
 
 function test_add_vxlan_rule() {
