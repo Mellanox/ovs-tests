@@ -63,7 +63,9 @@ function config_vxlan() {
     ip link add vxlan1 type vxlan id $id dev $NIC dstport $dst_port
     ip link set vxlan1 up
     ip addr add ${local_ip}/24 dev $NIC
-    ifconfig $NIC up
+    tc qdisc add dev vxlan1 ingress
+    ip link set $NIC up
+    ip n add $remote_ip lladdr $dst_mac dev $NIC
 }
 
 function clean_vxlan() {
