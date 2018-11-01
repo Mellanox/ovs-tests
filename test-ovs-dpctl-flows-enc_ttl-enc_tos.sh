@@ -82,67 +82,71 @@ function compare_with_sw_flow() {
     fi
 }
 
-function test_ttl_mask_0() {
-    title 'Test ttl mask 0'
-    flow="$UFID,recirc_id(0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1,ttl=64/0)"
+function test_enc_ttl_mask_0() {
+    title 'Test enc_ttl mask 0'
+    flow="$UFID,recirc_id(0),tunnel(tun_id=0x2a,src=2.2.2.3,dst=2.2.2.2,tp_dst=4789,ttl=64/0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1)"
     ovs-dpctl del-flows && sleep 0.5
     add_flow $flow
     # not expecting ttl
     compare_keys_with_sw_flow
 }
 
-function test_ttl_mask_1() {
-    title 'Test ttl mask 1'
-    flow="$UFID,recirc_id(0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1,ttl=64/1)"
+function test_enc_ttl_mask_1() {
+    title 'Test ecn_ttl mask 1'
+    flow="$UFID,recirc_id(0),tunnel(tun_id=0x2a,src=2.2.2.3,dst=2.2.2.2,tp_dst=4789,ttl=64/1),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1)"
     ovs-dpctl del-flows && sleep 0.5
     add_flow $flow
-    # not expecting ttl
-    compare_keys_with_sw_flow
+    m=`echo $m | cut -d" " -f1`
+    compare_with_sw_flow
 }
 
-function test_ttl_mask_ff() {
-    title 'Test ttl mask ff'
-    flow="$UFID,recirc_id(0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1,ttl=64/0xff)"
+function test_enc_ttl_mask_ff() {
+    title 'Test enc_ttl mask ff'
+    flow="$UFID,recirc_id(0),tunnel(tun_id=0x2a,src=2.2.2.3,dst=2.2.2.2,tp_dst=4789,ttl=64/0xff),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1)"
     ovs-dpctl del-flows && sleep 0.5
     add_flow $flow
-    # not expecting ttl
-    compare_keys_with_sw_flow
+    m=`echo $m | cut -d" " -f1`
+    compare_with_sw_flow
 }
 
-function test_tos_mask_0() {
-    title 'Test tos mask 0'
-    flow="$UFID,recirc_id(0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1,tos=0x1/0,ttl=0/0)"
-    ovs-dpctl del-flows && sleep 0.5
-    add_flow $flow
-    compare_keys_with_sw_flow
-}
-
-function test_tos_mask_1() {
-    title 'Test tos mask 1'
-    flow="$UFID,recirc_id(0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1,tos=0x2/1,ttl=0/0)"
+function test_enc_tos_mask_0() {
+    title 'Test enc_tos mask 0'
+    flow="$UFID,recirc_id(0),tunnel(tun_id=0x2a,src=2.2.2.3,dst=2.2.2.2,tp_dst=4789,tos=0x1/0,ttl=0/0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1)"
     ovs-dpctl del-flows && sleep 0.5
     add_flow $flow
     compare_keys_with_sw_flow
 }
 
-function test_tos_mask_ff() {
-    title 'Test tos mask ff'
-    flow="$UFID,recirc_id(0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1,tos=0xff/0xff,ttl=0/0)"
+function test_enc_tos_mask_1() {
+    title 'Test enc_tos mask 1'
+    flow="$UFID,recirc_id(0),tunnel(tun_id=0x2a,src=2.2.2.3,dst=2.2.2.2,tp_dst=4789,tos=0x2/1,ttl=0/0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1)"
     ovs-dpctl del-flows && sleep 0.5
     add_flow $flow
-    compare_keys_with_sw_flow
+    m=`echo $m | cut -d" " -f1`
+    # not expecting tos
+    compare_with_sw_flow
+}
+
+function test_enc_tos_mask_ff() {
+    title 'Test enc_tos mask ff'
+    flow="$UFID,recirc_id(0),tunnel(tun_id=0x2a,src=2.2.2.3,dst=2.2.2.2,tp_dst=4789,tos=0xff/0xff,ttl=0/0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1)"
+    ovs-dpctl del-flows && sleep 0.5
+    add_flow $flow
+    m=`echo $m | cut -d" " -f1`
+    # not expecting tos
+    compare_with_sw_flow
 }
 
 
 start_check_syndrome
 
-test_ttl_mask_0
-test_ttl_mask_1
-test_ttl_mask_ff
+test_enc_ttl_mask_0
+test_enc_ttl_mask_1
+test_enc_ttl_mask_ff
 
-test_tos_mask_0
-test_tos_mask_1
-test_tos_mask_ff
+test_enc_tos_mask_0
+test_enc_tos_mask_1
+test_enc_tos_mask_ff
 
 check_syndrome
 cleanup
