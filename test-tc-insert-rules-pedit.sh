@@ -24,6 +24,18 @@ function test_basic_header_rewrite() {
         pipe action mirred egress redirect dev $REP
 }
 
+function test_basic_header_rewrite_ip_icmp() {
+    title "Add basic pedit rule on representor proto icmp pedit ip"
+    # [342371.556405] can't offload re-write of ip proto 1
+    # fix commit: [342371.556405] can't offload re-write of ip proto 1
+    reset_tc_nic $REP
+    tc_filter add dev $REP protocol ip parent ffff: prio 1 \
+        flower skip_sw ip_proto icmp \
+        action pedit ex munge ip dst set 7.7.7.2 \
+        pipe action mirred egress redirect dev $REP
+    dmesg | tail -n10 | grep "can't offload re-write"
+}
+
 function test_complex_header_rewrite_add1() {
     title "Add complex (macs, ttl add) pedit rule rep->nic"
     # EXCEED_LIM          | 0x2EDCC3 |  alloc_modify_header_context: actions number exceeds HW limit
@@ -75,6 +87,7 @@ start_check_syndrome
 enable_switchdev
 
 test_basic_header_rewrite
+test_basic_header_rewrite_ip_icmp
 test_complex_header_rewrite_add1
 test_complex_header_rewrite_add2
 test_complex_header_rewrite_set
