@@ -82,6 +82,22 @@ function compare_with_sw_flow() {
     fi
 }
 
+function verify_key_in_flow() {
+    local key=$1
+    ovs-dpctl del-flows && sleep 0.5
+    add_sw_flow $flow
+    in_m=`echo $m | grep -o "$key([^)]*)"`
+    in_sw=`echo $sw | grep -o "$key([^)]*)"`
+    if [ "$in_m" != "$in_sw" ]; then
+        m=`echo $m | cut -d" " -f1`
+        sw=`echo $sw | cut -d" " -f1`
+        sw=${sw:13}
+        echo flow1 $m
+        echo flow2 $sw
+        err "Expected $key() to be the same"
+    fi
+}
+
 function test_enc_ttl_mask_0() {
     title 'Test enc_ttl mask 0'
     flow="$UFID,recirc_id(0),tunnel(tun_id=0x2a,src=2.2.2.3,dst=2.2.2.2,tp_dst=4789,ttl=64/0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1)"
@@ -96,8 +112,7 @@ function test_enc_ttl_mask_1() {
     flow="$UFID,recirc_id(0),tunnel(tun_id=0x2a,src=2.2.2.3,dst=2.2.2.2,tp_dst=4789,ttl=64/1),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1)"
     ovs-dpctl del-flows && sleep 0.5
     add_flow $flow
-    m=`echo $m | cut -d" " -f1`
-    compare_with_sw_flow
+    verify_key_in_flow tunnel
 }
 
 function test_enc_ttl_mask_ff() {
@@ -105,8 +120,7 @@ function test_enc_ttl_mask_ff() {
     flow="$UFID,recirc_id(0),tunnel(tun_id=0x2a,src=2.2.2.3,dst=2.2.2.2,tp_dst=4789,ttl=64/0xff),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1)"
     ovs-dpctl del-flows && sleep 0.5
     add_flow $flow
-    m=`echo $m | cut -d" " -f1`
-    compare_with_sw_flow
+    verify_key_in_flow tunnel
 }
 
 function test_enc_tos_mask_0() {
@@ -114,6 +128,7 @@ function test_enc_tos_mask_0() {
     flow="$UFID,recirc_id(0),tunnel(tun_id=0x2a,src=2.2.2.3,dst=2.2.2.2,tp_dst=4789,tos=0x1/0,ttl=0/0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1)"
     ovs-dpctl del-flows && sleep 0.5
     add_flow $flow
+    # not expecting tos
     compare_keys_with_sw_flow
 }
 
@@ -122,9 +137,7 @@ function test_enc_tos_mask_1() {
     flow="$UFID,recirc_id(0),tunnel(tun_id=0x2a,src=2.2.2.3,dst=2.2.2.2,tp_dst=4789,tos=0x2/1,ttl=0/0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1)"
     ovs-dpctl del-flows && sleep 0.5
     add_flow $flow
-    m=`echo $m | cut -d" " -f1`
-    # not expecting tos
-    compare_with_sw_flow
+    verify_key_in_flow tunnel
 }
 
 function test_enc_tos_mask_ff() {
@@ -132,9 +145,7 @@ function test_enc_tos_mask_ff() {
     flow="$UFID,recirc_id(0),tunnel(tun_id=0x2a,src=2.2.2.3,dst=2.2.2.2,tp_dst=4789,tos=0xff/0xff,ttl=0/0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1)"
     ovs-dpctl del-flows && sleep 0.5
     add_flow $flow
-    m=`echo $m | cut -d" " -f1`
-    # not expecting tos
-    compare_with_sw_flow
+    verify_key_in_flow tunnel
 }
 
 
