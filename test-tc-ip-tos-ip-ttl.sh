@@ -55,7 +55,7 @@ function __test_basic_vxlan() {
                         enc_tos 0x30 \
                         enc_ttl 63 \
                 action tunnel_key unset \
-                action mirred egress redirect dev $REP || return $?
+                action mirred egress redirect dev $REP
     # because of upstream issue adding decap rule in skip_sw we add with
     # policy none and verify in_hw bit.
     # Bug SW #1360599: [upstream] decap rule offload attempt with skip_sw fails
