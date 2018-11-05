@@ -47,25 +47,12 @@ function add_tc_rule_to_pf() {
         action drop
 }
 
-function reload_mlx5() {
-    title "test reload modules"
-
-    if [ "$devlink_compat" = 1 ]; then
-	service openibd force-restart
-    else
-        modprobe -r mlx5_ib mlx5_core || fail "Failed to unload modules"
-        modprobe -a mlx5_core mlx5_ib || fail "Failed to load modules"
-    fi
-
-    set_macs
-    check_kasan
-}
-
 function testA() {
     title "TEST A - switchdev mode without tc rules"
     unbind_vfs
     switch_mode_switchdev
-    reload_mlx5
+    title "test reload modules"
+    reload_modules
 }
 
 function testB() {
@@ -88,7 +75,8 @@ function testB() {
     fi
     add_tc_rule_to_rep
     add_tc_rule_to_pf
-    reload_mlx5
+    title "test reload modules"
+    reload_modules
 }
 
 function testC() {
@@ -104,7 +92,8 @@ function testC() {
     unbind_vfs
     switch_mode_legacy
     add_tc_rule_to_pf
-    reload_mlx5
+    title "test reload modules"
+    reload_modules
 }
 
 testA
