@@ -11,7 +11,6 @@ require_act_ct
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
-config_sriov 3
 enable_switchdev_if_no_rep $REP
 require_interfaces REP REP2
 unbind_vfs
