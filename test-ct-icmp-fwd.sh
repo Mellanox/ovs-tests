@@ -88,11 +88,9 @@ function run() {
     echo "run traffic"
     ip netns exec ns0 ping -q -c 10 -i 0.1 -w 1 $IP2 || err "Ping failed"
 
-    wait $pid
     # test sniff timedout
-    # currently ICMP is not offloaded with CT
-    # so test its not offloaded so we will fail and update the test when
-    # offloading will be supported.
+    warn "Currently ICMP is not offloaded with CT so testing traffic is not offloaded so it will fail when is supported and update the test."
+    wait $pid
     rc=$?
     if [[ $rc -eq 0 ]]; then
         success
