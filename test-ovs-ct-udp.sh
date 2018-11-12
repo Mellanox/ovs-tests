@@ -59,17 +59,18 @@ function run() {
 
     ovs-ofctl dump-flows br-ovs
 
-    echo "run traffic"
-    ip netns exec ns1 timeout 6 iperf -t 5 -u -c $IP1 &
-    ip netns exec ns0 timeout 6 iperf -t 5 -u -c $IP2 &
+    t=10
+    echo "run traffic for $t seconds"
+    ip netns exec ns1 timeout $((t+1)) iperf -t $t -u -c $IP1 &
+    ip netns exec ns0 timeout $((t+1)) iperf -t $t -u -c $IP2 &
 
     # first 4 packets not offloaded until conn is in established state.
     sleep 2
     echo "sniff packets on $REP"
-    timeout 2 tcpdump -qnei $REP -c 6 'icmp' &
+    timeout $t tcpdump -qnei $REP -c 6 'icmp' &
     pid=$!
 
-    sleep 6
+    sleep $t
     killall -9 iperf &>/dev/null
     wait $! 2>/dev/null
 
