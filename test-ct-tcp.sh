@@ -85,22 +85,23 @@ function run() {
     echo $REP2
     tc filter show dev $REP2 ingress
 
-    echo "run traffic"
-    ip netns exec ns1 timeout 6 iperf -s &
-    ip netns exec ns0 timeout 6 iperf -t 5 -c $IP2 &
+    t=10
+    echo "run traffic for $t seconds"
+    ip netns exec ns1 timeout $((t+1)) iperf -s &
+    ip netns exec ns0 timeout $((t+1)) iperf -t $t -c $IP2  &
 
     echo "sniff packets on $REP"
     sleep 2
     # first 4 packets not offloaded until conn is in established state.
-    timeout 2 tcpdump -qnnei $REP -c 10 'tcp' &
+    timeout $t tcpdump -qnnei $REP -c 10 'tcp' &
     pid=$!
 
-    sleep 6
+    sleep $t
     killall -9 iperf &>/dev/null
     wait $! 2>/dev/null
 
-    wait $pid
     # test sniff timedout
+    wait $pid
     rc=$?
     if [[ $rc -eq 124 ]]; then
         :
