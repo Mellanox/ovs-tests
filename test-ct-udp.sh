@@ -46,7 +46,7 @@ function config_vf() {
 }
 
 function run() {
-    title "Test VF Mirror"
+    title "Test CT UDP"
     config_vf ns0 $VF $REP $IP1
     config_vf ns1 $VF2 $REP2 $IP2
 

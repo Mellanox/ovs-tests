@@ -49,7 +49,7 @@ function config_vf() {
 }
 
 function run() {
-    title "Test VF Mirror"
+    title "Test CT TCP VF mirror"
     config_vf ns0 $VF $REP $IP1
     config_vf ns1 $VF2 $REP2 $IP2
     ifconfig $VF3 0 up
