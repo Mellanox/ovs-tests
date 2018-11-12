@@ -67,7 +67,7 @@ function run() {
     # first 4 packets not offloaded until conn is in established state.
     sleep 2
     echo "sniff packets on $REP"
-    timeout $t tcpdump -qnei $REP -c 6 'udp' &
+    timeout $t tcpdump -qnnei $REP -c 6 'udp' &
     pid=$!
 
     sleep $t
