@@ -47,7 +47,9 @@ action_to_estimator=( ["police"]="estimator 1sec 2sec"
 
 function eval_cmd() {
     title "$1"
-    eval "$2" && success || err "Command Failed: $2"
+    eval "$2"
+    local err=$?
+    test $err != 0 && err "Command failed ($err): $2" && return
     sleep 0.1
     check_num_rules $3 $NIC
     check_num_actions $4 $5
@@ -55,7 +57,9 @@ function eval_cmd() {
 
 function eval_cmd_err() {
     title "$1"
-    eval "$2" && err "Expected command to fail: $2" || success
+    eval "$2"
+    local err=$?
+    test $err == 0 && err "Expected command failure: $2" && return
     sleep 0.1
     check_num_rules $3 $NIC
     check_num_actions $4 $5
