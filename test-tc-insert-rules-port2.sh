@@ -5,16 +5,11 @@
 # Bug SW #1240863: [ECMP] Adding drop rule on port2 cause flow counter doesn't exists syndrome
 #
 
-NIC=${1:-ens5f0}
-
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 enable_switchdev
-REP=`get_rep 0`
-if [ -z "$REP" ]; then
-    fail "Missing rep $rep"
-fi
+require_interfaces NIC NIC2
 
 function disable_sriov_port2() {
     title "- Disable SRIOV"
