@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-# Bug SW #1250493: Syndrome while inserting the same rule twice
+# Syndrome while inserting the same rule twice
+# This reproduce an old bug RM #1250493 closed as won't fix but is fixed today.
 #
 
 NIC=${1:-ens5f0}
