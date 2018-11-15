@@ -119,7 +119,14 @@ function __setup_common() {
     echo $status
 }
 
+function is_SimX() {
+    local a=`dmidecode --string bios-vendor`
+    [ "$a" == "SeaBIOS" -a "$FW" == "3.8.3251" ] && return 0
+    return 1
+}
+
 function require_mlxdump() {
+    is_SimX && fail "mlxdump not supported in SimX"
     [[ -e /usr/bin/mlxdump ]] || fail "Missing mlxdump"
 }
 
