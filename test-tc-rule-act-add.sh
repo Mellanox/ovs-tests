@@ -78,8 +78,8 @@ function add_del_rule() {
     eval_cmd "Add rule with $act_type" "tc filter add $spec $qdisc handle 1 $estimator $rule $act index 1" 1 1 $act_type
     eval_cmd_err "Verify that rule duplicate is rejected" "tc filter add $spec $qdisc handle 1 $rule $act index 1" 1 1 $act_type
     eval_cmd_err "Verify that act duplicate is rejected" "tc actions add $act index 1" 1 1 $act_type
-    eval_cmd_err "Verify that act delete is rejected" "tc actions del $act_type index 1" 1 1 $act_type
-    eval_cmd_err "Verify that act delete is rejected again" "tc actions del $act_type index 1" 1 1 $act_type
+    eval_cmd_err "Verify that act delete is rejected" "tc actions del action $act_type index 1" 1 1 $act_type
+    eval_cmd_err "Verify that act delete is rejected again" "tc actions del action $act_type index 1" 1 1 $act_type
     eval_cmd "Verify that rule overwrite is accepted" "tc filter change $spec $qdisc handle 1 $estimator $rule $act index 1" 1 1 $act_type
     eval_cmd "Bind rule to existing action" "tc filter add $spec $qdisc handle 2 $rule2 $act index 1" 2 1 $act_type
     eval_cmd "Verify that only first rule is deleted" "tc filter del $spec $qdisc handle 1 flower" 1 1 $act_type
@@ -101,7 +101,7 @@ function add_del_act() {
     eval_cmd "Add act $act_type" "tc actions add $act index 1" 0 1 $act_type
     eval_cmd_err "Verify that act duplicate is rejected" "tc actions add $act index 1" 0 1 $act_type
     eval_cmd "Verify that act overwrite is accepted" "tc actions change $act index 1" 0 1 $act_type
-    eval_cmd "Verify that act is deleted" "tc actions del $act_type index 1" 0 0 $act_type
+    eval_cmd "Verify that act is deleted" "tc actions del action $act_type index 1" 0 0 $act_type
 
     tc actions flush action $act_type || err "action $act_type flush failed"
 }
