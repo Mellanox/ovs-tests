@@ -6,6 +6,8 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+require_module bonding
+
 config_sriov 2
 # TODO require vf lag support ?
 reset_tc_nic $NIC
