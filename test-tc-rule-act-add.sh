@@ -96,14 +96,14 @@ function add_del_act() {
     modinfo act_$act_type 2>/dev/null || return 0
     title "Test add_del_act for act_$act_type"
 
-    tc actions flush action $act_type && success || err
+    tc actions flush action $act_type || err "action $act_type flush failed"
 
     eval_cmd "Add act $act_type" "tc actions add $act index 1" 0 1 $act_type
     eval_cmd_err "Verify that act duplicate is rejected" "tc actions add $act index 1" 0 1 $act_type
     eval_cmd "Verify that act overwrite is accepted" "tc actions change $act index 1" 0 1 $act_type
     eval_cmd "Verify that act is deleted" "tc actions del action $act_type index 1" 0 0 $act_type
 
-    tc actions flush action $act_type && success || err
+    tc actions flush action $act_type || err "action $act_type flush failed"
 }
 
 if [ -z "$action_type" ]
