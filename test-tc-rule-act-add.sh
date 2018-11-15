@@ -72,7 +72,8 @@ function add_del_rule() {
     local rule2="flower $skip dst_mac e4:11:22:33:44:70 ip_proto udp dst_port 1 src_port 2"
 
     #module was not compiled
-    modinfo act_$act_type || return 0
+    modinfo act_$act_type 2>/dev/null || return 0
+    title "Test add_del_rule for act_$act_type"
 
     eval_cmd "Add rule with $act_type" "tc filter add $spec $qdisc handle 1 $estimator $rule $act index 1" 1 1 $act_type
     eval_cmd_err "Verify that rule duplicate is rejected" "tc filter add $spec $qdisc handle 1 $rule $act index 1" 1 1 $act_type
@@ -92,7 +93,8 @@ function add_del_act() {
     local act_type=${arr[1]}
 
     #module was not compiled
-    modinfo act_$act_type || return 0
+    modinfo act_$act_type 2>/dev/null || return 0
+    title "Test add_del_act for act_$act_type"
 
     tc actions flush action $act_type && success || err
 
