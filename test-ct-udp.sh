@@ -92,6 +92,7 @@ function run() {
 
     echo "run traffic"
     ip netns exec ns1 timeout 6 iperf -t 5 -u -c $IP1 &
+    sleep 0.5
     ip netns exec ns0 timeout 6 iperf -t 5 -u -c $IP2 &
 
     echo "sniff packets on $REP"

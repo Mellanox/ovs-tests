@@ -62,6 +62,7 @@ function run() {
     t=10
     echo "run traffic for $t seconds"
     ip netns exec ns1 timeout $((t+1)) iperf -t $t -u -c $IP1 &
+    sleep 0.5
     ip netns exec ns0 timeout $((t+1)) iperf -t $t -u -c $IP2 &
 
     # first 4 packets not offloaded until conn is in established state.
