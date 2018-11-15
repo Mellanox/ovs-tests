@@ -637,7 +637,7 @@ function reload_modules() {
         modprobe -a mlx5_core || fail "Failed to load modules"
     fi
 
-    check_kasan || fail "Detected KASAN in journalctl"
+    check_kasan || err "Detected KASAN in journalctl"
     set_macs
     echo "reload modules done"
 }
