@@ -134,8 +134,9 @@ function require_mlxconfig() {
     [[ -e /usr/bin/mlxconfig ]] || fail "Missing mlxconfig"
 }
 
-function require_act_ct() {
-    modprobe -q act_ct || fail "Missing act_ct.ko"
+function require_module() {
+    local module=$1
+    modprobe -q $module || fail "Missing module $module"
 }
 
 function kmsg() {
