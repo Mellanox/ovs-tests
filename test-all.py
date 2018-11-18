@@ -148,7 +148,7 @@ def update_skip_according_to_rm():
             task = rm.get_issue(b)
             if rm.is_issue_open(task):
                 SKIP_TESTS[t] = "RM #%s: %s" % (b, task['subject'])
-            print '.',
+            sys.stdout.write('.')
             sys.stdout.flush()
 
         if t not in SKIP_TESTS and 'IGNORE_FROM_TEST_ALL' in data:
