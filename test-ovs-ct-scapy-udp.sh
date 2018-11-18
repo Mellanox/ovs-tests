@@ -73,7 +73,7 @@ function run() {
     pid1=$!
 
     echo "run traffic for $t seconds"
-    ip netns exec ns1 $pktgen -l -i $VF2 --src-ip $IP1 &
+    ip netns exec ns1 $pktgen -l -i $VF2 --src-ip $IP1 --time $((t+1)) &
     pk1=$!
     sleep 1
     ip netns exec ns0 $pktgen -i $VF1 --src-ip $IP1 --dst-ip $IP2 --time $t &
@@ -82,7 +82,7 @@ function run() {
     # first 4 packets not offloaded until conn is in established state.
     sleep 2
     echo "sniff packets on $REP"
-    timeout $t tcpdump -qnnei $REP -c 6 $proto &
+    timeout $t tcpdump -qnnei $REP -c 1 $proto &
     pid2=$!
 
     sleep $t

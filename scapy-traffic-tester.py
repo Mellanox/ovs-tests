@@ -48,11 +48,9 @@ def verify_args(args, needed):
 def run_listener(args):
     print "Run as listener"
 
-    needed = ('dev', 'src_ip')
+    needed = ('dev', 'src_ip', 'time')
     verify_args(args, needed)
 
-    #ifname='vxlan1'
-    #src_ip='1.1.1.7'
     ifname = args.dev
     src_ip = args.src_ip
 
@@ -69,7 +67,9 @@ def run_listener(args):
     filter1 = "udp and src host %s" % src_ip
     print "Start sniff and fwd on %s" % ifname
     print "filter: %s" % filter1
-    sniff(iface=ifname, prn=packet_fwd, filter=filter1)
+    x = sniff(iface=ifname, prn=packet_fwd, filter=filter1, timeout=args.time)
+    print
+    print 'received %s packets' % len(x)
 
 
 def run_client(args):
@@ -87,17 +87,20 @@ def run_client(args):
     # no need for promiscuous mode
     #conf.sniff_promisc = 0
 
+    sent = 0
     t_end = time.time() + args.time
     while time.time() < t_end:
         for sport1 in range(args.src_port, args.src_port+src_port_count):
             send(IP(src=args.src_ip, dst=args.dst_ip)/
                     UDP(sport=sport1, dport=args.dst_port)/
                         "CCCCCCCCCCCCCCCCCCCCCCCCCCCC", verbose=0,
-                        count=packet_count, inter=0.01, iface=args.dev)
+                        count=packet_count, inter=0.05, iface=args.dev)
+            sent += packet_count
             sys.stdout.write('.'*packet_count)
             sys.stdout.flush()
         time.sleep(1)
     print
+    print "sent %d packets" % sent
 
 
 def run():
