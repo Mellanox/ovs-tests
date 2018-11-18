@@ -5,6 +5,7 @@ import re
 import sys
 import argparse
 import subprocess
+from fnmatch import fnmatch
 from glob import glob
 from tempfile import mkdtemp
 from mlxredmine import MlxRedmine
@@ -120,7 +121,6 @@ def print_result(res, out):
 def glob_tests(args, tests):
     if not args.glob:
         return
-    from fnmatch import fnmatch
     for test in tests[:]:
         name = os.path.basename(test)
         if not fnmatch(name, args.glob):
@@ -159,8 +159,12 @@ def update_skip_according_to_rm():
 def should_ignore_test(name):
     if name in IGNORE_TESTS or name in ' '.join(IGNORE_TESTS):
         return True
-    else:
-        return False
+
+    for x in IGNORE_TESTS:
+        if fnmatch(name, x):
+            return True
+
+    return False
 
 
 def main():
