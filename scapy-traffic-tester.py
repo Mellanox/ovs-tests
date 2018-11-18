@@ -22,9 +22,9 @@ def parse_args():
     parser.add_argument('--dst-port', type=int, default=3000,
                         help='Destination port')
     parser.add_argument('--pkt-count', type=int, default=10,
-                        help='Destination port')
+                        help='Packet count')
     parser.add_argument('--time', type=int, default=10,
-                        help='Time in seconds to run client. Issue pkt-count per second.')
+                        help='Time in seconds to run client. Issue packet count per second.')
 
     args = parser.parse_args()
     return args
