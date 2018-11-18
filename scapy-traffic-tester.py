@@ -19,6 +19,8 @@ def parse_args():
                         help='Destination ip')
     parser.add_argument('--src-port', type=int, default=1026,
                         help='Source port')
+    parser.add_argument('--src-port-count', type=int, default=1,
+                        help='Dource port count. helper to get more streams.')
     parser.add_argument('--dst-port', type=int, default=3000,
                         help='Destination port')
     parser.add_argument('--pkt-count', type=int, default=10,
@@ -73,10 +75,10 @@ def run_listener(args):
 def run_client(args):
     print "Run as client"
 
-    needed = ('dev', 'src_ip', 'dst_ip', 'src_port', 'dst_port', 'pkt_count', 'time')
+    needed = ('dev', 'src_ip', 'dst_ip', 'src_port', 'src_port_count', 'dst_port', 'pkt_count', 'time')
     verify_args(args, needed)
 
-    src_port_count = 1
+    src_port_count = args.src_port_count
     packet_count = args.pkt_count
 
     # ignore icmp unreachable packets
