@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Change VF and REP MTU during ping
+# Bug SW #1415031: changing representor mtu can lead to crash
 #
 
 my_dir="$(dirname "$0")"
