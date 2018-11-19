@@ -65,11 +65,11 @@ function run() {
 
     tc_filter add dev $REP ingress protocol ip chain 1 prio 2 flower \
         dst_mac $mac2 ct_state +trk+new \
-        action pedit ex munge eth src set 20:22:33:44:55:66 pipe \
         action mirred egress redirect dev $REP2
 
     tc_filter add dev $REP ingress protocol ip chain 1 prio 2 flower \
         dst_mac $mac2 ct_state +trk+est \
+        action pedit ex munge eth src set 20:22:33:44:55:66 pipe \
         action mirred egress redirect dev $REP2
 
     # reply chain0,ct -> chain1,fwd
