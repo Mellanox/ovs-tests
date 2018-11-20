@@ -43,19 +43,23 @@ UFID="ufid:c5f9a0b1-3399-4436-b742-30825c64a1e5"
 # In tc filter show used is 0.
 
 function add_flow() {
-    m=`ovs-appctl dpctl/add-flow $flow 2 ; ovs-dpctl dump-flows | grep -v recirc | grep -m1 1.1.1.1`
-    [ -z "$m" ] && m=`ovs-appctl dpctl/add-flow $flow 2 ; ovs-dpctl dump-flows | grep -v recirc | grep -m1 1.1.1.1`
+    m=`ovs-appctl dpctl/add-flow $flow 2 ; ovs_dpctl_dump_flows | grep -m1 1.1.1.1`
+    [ -z "$m" ] && m=`ovs-appctl dpctl/add-flow $flow 2 ; ovs_dpctl_dump_flows | grep -m1 1.1.1.1`
     if [ -z "$m" ]; then
-        err "Failed to add test flow"
+        err "Failed to add test flow: $flow"
+        return 1
     fi
+    return 0
 }
 
 function add_sw_flow() {
     sw=`ovs-dpctl add-flow $flow 2 ; ovs-dpctl dump-flows | grep recirc | grep -m1 1.1.1.1`
     [ -z "$sw" ] && sw=`ovs-dpctl add-flow $flow 2 ; ovs-dpctl dump-flows | grep recirc | grep -m1 1.1.1.1`
     if [ -z "$sw" ]; then
-        err "Failed to add sw flow"
+        err "Failed to add sw flow: $flow"
+        return 1
     fi
+    return 0
 }
 
 function compare_keys_with_sw_flow() {
