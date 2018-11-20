@@ -41,16 +41,20 @@ function add_flow() {
     m=`ovs-appctl dpctl/add-flow $flow 2 ; ovs-dpctl dump-flows | grep -v recirc | grep -m1 1.1.1.1`
     [ -z "$m" ] && m=`ovs-appctl dpctl/add-flow $flow 2 ; ovs-dpctl dump-flows | grep -v recirc | grep -m1 1.1.1.1`
     if [ -z "$m" ]; then
-        err "Failed to add test flow"
+        err "Failed to add test flow: $flow"
+        return 1
     fi
+    return 0
 }
 
 function add_sw_flow() {
     sw=`ovs-dpctl add-flow $flow 2 ; ovs-dpctl dump-flows | grep recirc | grep -m1 1.1.1.1`
     [ -z "$sw" ] && sw=`ovs-dpctl add-flow $flow 2 ; ovs-dpctl dump-flows | grep recirc | grep -m1 1.1.1.1`
     if [ -z "$sw" ]; then
-        err "Failed to add sw flow"
+        err "Failed to add sw flow: $flow"
+        return 1
     fi
+    return 0
 }
 
 function compare_keys_with_sw_flow() {
@@ -85,7 +89,7 @@ function test_ttl_mask_0() {
     title 'Test ttl mask 0'
     flow="$UFID,recirc_id(0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1,ttl=64/0)"
     ovs-dpctl del-flows && sleep 0.5
-    add_flow $flow
+    add_flow $flow || return 1
     # not expecting ttl
     compare_keys_with_sw_flow
 }
@@ -94,7 +98,7 @@ function test_ttl_mask_1() {
     title 'Test ttl mask 1'
     flow="$UFID,recirc_id(0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1,ttl=64/1)"
     ovs-dpctl del-flows && sleep 0.5
-    add_flow $flow
+    add_flow $flow || return 1
     verify_key_in_flow ipv4
 }
 
@@ -102,7 +106,7 @@ function test_ttl_mask_ff() {
     title 'Test ttl mask ff'
     flow="$UFID,recirc_id(0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1,ttl=64/0xff)"
     ovs-dpctl del-flows && sleep 0.5
-    add_flow $flow
+    add_flow $flow || return 1
     verify_key_in_flow ipv4
 }
 
@@ -110,7 +114,7 @@ function test_tos_mask_0() {
     title 'Test tos mask 0'
     flow="$UFID,recirc_id(0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1,tos=0x1/0,ttl=0/0)"
     ovs-dpctl del-flows && sleep 0.5
-    add_flow $flow
+    add_flow $flow || return 1
     # not expecting tos
     compare_keys_with_sw_flow
 }
@@ -119,7 +123,7 @@ function test_tos_mask_1() {
     title 'Test tos mask 1'
     flow="$UFID,recirc_id(0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1,tos=0x2/1,ttl=0/0)"
     ovs-dpctl del-flows && sleep 0.5
-    add_flow $flow
+    add_flow $flow || return 1
     verify_key_in_flow ipv4
 }
 
@@ -127,7 +131,7 @@ function test_tos_mask_ff() {
     title 'Test tos mask ff'
     flow="$UFID,recirc_id(0),in_port(3),eth(src=56:52:2d:21:4d:93,dst=92:c1:04:ce:fd:51),eth_type(0x0800),ipv4(src=1.1.1.1,tos=0xff/0xff,ttl=0/0)"
     ovs-dpctl del-flows && sleep 0.5
-    add_flow $flow
+    add_flow $flow || return 1
     verify_key_in_flow ipv4
 }
 
