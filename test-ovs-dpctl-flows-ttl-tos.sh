@@ -38,8 +38,8 @@ ifconfig $VF 1.1.1.1/24 up
 # In tc filter show used is 0.
 
 function add_flow() {
-    m=`ovs-appctl dpctl/add-flow $flow 2 ; ovs-dpctl dump-flows | grep -v recirc | grep -m1 1.1.1.1`
-    [ -z "$m" ] && m=`ovs-appctl dpctl/add-flow $flow 2 ; ovs-dpctl dump-flows | grep -v recirc | grep -m1 1.1.1.1`
+    m=`ovs-appctl dpctl/add-flow $flow 2 ; ovs_dpctl_dump_flows | grep -m1 1.1.1.1`
+    [ -z "$m" ] && m=`ovs-appctl dpctl/add-flow $flow 2 ; ovs_dpctl_dump_flows | grep -m1 1.1.1.1`
     if [ -z "$m" ]; then
         err "Failed to add test flow: $flow"
         return 1
