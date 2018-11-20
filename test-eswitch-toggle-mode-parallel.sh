@@ -6,10 +6,10 @@
 # Bug SW #1430455: [OFED 4.4] Server crash during switchdev mode change in parallel
 #
 
-NIC=${1:-ens5f0}
-
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
+
+require_interfaces NIC NIC2
 
 vfs=2
 title "Test toggle switchdev mode in parallel for both ports"
