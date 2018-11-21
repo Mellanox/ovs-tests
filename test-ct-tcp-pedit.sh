@@ -7,6 +7,7 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 require_module act_ct
+echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
 
 IP1="7.7.7.1"
 IP2="7.7.7.2"
