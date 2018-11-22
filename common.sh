@@ -525,7 +525,7 @@ DEADLOCK|possible circular locking|possible recursive locking|\
 WARNING:|RIP:|BUG:|refcount > 1|segfault|in_atomic|hw csum failure"
     local look_ahead="Call Trace:"
     local look_ahead_count=12
-    local filter="networkd-dispatcher"
+    local filter="networkd-dispatcher|uses legacy ethtool link settings"
 
     local a=`journalctl --since="$sec seconds ago" | grep -E -i "$look" | grep -v -E -i "$filter" || true`
     local b=`journalctl --since="$sec seconds ago" | grep -E -A $look_ahead_count -i "$look_ahead" || true`
