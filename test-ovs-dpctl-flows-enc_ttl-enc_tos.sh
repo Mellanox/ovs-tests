@@ -4,7 +4,6 @@
 # the same (or close to as supported) to OVS normal datapath rules.
 #
 # Bug SW #1507801: OVS offloading adds TTL matching even though it was not there when hw-offload is false
-# Bug SW #1552152: [Ofed 4.5] OVS offloading is not adding TTL matching even though it was there when hw-offload is false
 #
 
 my_dir="$(dirname "$0")"
