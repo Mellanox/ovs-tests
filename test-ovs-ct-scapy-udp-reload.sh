@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Test reload module rigth after CT flow merge created.
+# Test reload module right after CT flow merge created.
 # This reproduce an issue on release where created merged flow didnt have
 # eswitch flag.
 #
