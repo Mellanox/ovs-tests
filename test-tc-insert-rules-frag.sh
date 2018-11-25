@@ -23,7 +23,7 @@ function test_tc_filter() {
 
     a=`eval tc filter $@ 2>&1`
     err=$?
-    echo $a
+    [ -n "$a" ] && echo $a
 
     echo "$a" | grep -q "Operation not supported" && true || false
     opnotsupp=$?
@@ -36,15 +36,16 @@ function test_tc_filter() {
 }
 
 
-reset_tc_nic $NIC
 start_check_syndrome
 reason="Expected to fail with reason EOPNOTSUPP"
 
 title "Test fragfirst rule"
+reset_tc_nic $NIC
 test_tc_filter add dev $NIC protocol ip parent ffff: flower skip_sw ip_flags firstfrag \
     dst_mac e4:11:22:11:4a:51 src_mac e4:11:22:11:4a:50 action drop
 
 title "Test nofragfirst rule"
+reset_tc_nic $NIC
 test_tc_filter add dev $NIC protocol ip parent ffff: flower skip_sw ip_flags nofirstfrag \
     dst_mac e4:11:22:11:4a:51 src_mac e4:11:22:11:4a:50 action drop
 
