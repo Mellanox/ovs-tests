@@ -57,12 +57,20 @@ def run_listener(args):
     # ignore icmp unreachable packets
     os.system("iptables -I OUTPUT -p icmp --icmp-type destination-unreachable -j DROP")
 
+    global _c
+    _c=0
     def packet_fwd(pkt):
-        send(IP(dst=pkt[IP].src, src=pkt[IP].dst)/
+        global _c
+        _c+=1
+
+        pkt = (IP(dst=pkt[IP].src, src=pkt[IP].dst)/
                 UDP(dport=pkt[UDP].sport, sport=pkt[UDP].dport)/
-                    "BBBBBBBBBBBBBBBBBBBBBBBBBBBB", verbose=0, iface=ifname)
-        sys.stdout.write(',')
-        sys.stdout.flush()
+                "BBBBBBBBBBBBBBBBBBBBBBBBBBBB")
+        send(pkt, verbose=0, iface=ifname)
+        if _c % 100 == 0:
+            sys.stdout.write(',')
+            sys.stdout.flush()
+            print 'received %s packets' % _c
 
     filter1 = "udp and src host %s" % src_ip
     print "Start sniff and fwd on %s" % ifname
@@ -89,16 +97,21 @@ def run_client(args):
 
     sent = 0
     t_end = time.time() + args.time
+    pkt_list = []
+
+    for sport1 in range(args.src_port, args.src_port+src_port_count):
+        pkt = (IP(src=args.src_ip, dst=args.dst_ip)/
+                UDP(sport=sport1, dport=args.dst_port)/
+                "CCCCCCCCCCCCCCCCCCCCCCCCCCCC")
+        pkt_list.append(pkt)
+
     while time.time() < t_end:
-        for sport1 in range(args.src_port, args.src_port+src_port_count):
-            send(IP(src=args.src_ip, dst=args.dst_ip)/
-                    UDP(sport=sport1, dport=args.dst_port)/
-                        "CCCCCCCCCCCCCCCCCCCCCCCCCCCC", verbose=0,
-                        count=packet_count, inter=0.05, iface=args.dev)
+        for pkt in pkt_list:
+            send(pkt, verbose=0, count=packet_count, inter=0.05, iface=args.dev)
             sent += packet_count
-            sys.stdout.write('.'*packet_count)
+            #if sent % 100 == 0:
+            sys.stdout.write('.')
             sys.stdout.flush()
-        time.sleep(1)
     print
     print "sent %d packets" % sent
 
