@@ -25,6 +25,8 @@ def parse_args():
                         help='Destination port')
     parser.add_argument('--pkt-count', type=int, default=10,
                         help='Packet count')
+    parser.add_argument('--inter', type=float, default=0.05,
+                        help='Interval between send')
     parser.add_argument('--time', type=int, default=10,
                         help='Time in seconds to run client. Issue packet count per second.')
 
@@ -36,7 +38,7 @@ def verify_args(args, needed):
     err = False
     for i in needed:
         v = getattr(args, i)
-        if not v:
+        if v is None:
             v = '(Missing)'
             err = True
         print '%s: %s' % (i, v)
@@ -83,7 +85,7 @@ def run_listener(args):
 def run_client(args):
     print "Run as client"
 
-    needed = ('dev', 'src_ip', 'dst_ip', 'src_port', 'src_port_count', 'dst_port', 'pkt_count', 'time')
+    needed = ('dev', 'src_ip', 'dst_ip', 'src_port', 'src_port_count', 'dst_port', 'pkt_count', 'inter', 'time')
     verify_args(args, needed)
 
     src_port_count = args.src_port_count
@@ -105,13 +107,17 @@ def run_client(args):
                 "CCCCCCCCCCCCCCCCCCCCCCCCCCCC")
         pkt_list.append(pkt)
 
-    while time.time() < t_end:
-        for pkt in pkt_list:
-            send(pkt, verbose=0, count=packet_count, inter=0.05, iface=args.dev)
-            sent += packet_count
-            #if sent % 100 == 0:
-            sys.stdout.write('.')
-            sys.stdout.flush()
+    s = conf.L3socket(iface=args.dev)
+    try:
+        while time.time() < t_end:
+            for pkt in pkt_list:
+                send(pkt, verbose=0, count=packet_count, inter=args.inter, iface=args.dev, socket=s)
+                sent += packet_count
+                if sent % 100 == 0:
+                    sys.stdout.write('.')
+                    sys.stdout.flush()
+    finally:
+        s.close()
     print
     print "sent %d packets" % sent
 
