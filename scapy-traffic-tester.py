@@ -59,25 +59,35 @@ def run_listener(args):
     # ignore icmp unreachable packets
     os.system("iptables -I OUTPUT -p icmp --icmp-type destination-unreachable -j DROP")
 
-    global _c
-    _c=0
-    def packet_fwd(pkt):
-        global _c
-        _c+=1
+    global _c, st
+    _c = 0
+    st = time.time()
 
-        pkt = (IP(dst=pkt[IP].src, src=pkt[IP].dst)/
-                UDP(dport=pkt[UDP].sport, sport=pkt[UDP].dport)/
-                "BBBBBBBBBBBBBBBBBBBBBBBBBBBB")
-        send(pkt, verbose=0, iface=ifname)
-        if _c % 100 == 0:
-            sys.stdout.write(',')
-            sys.stdout.flush()
-            print 'received %s packets' % _c
+    def custom_action(sock):
+
+        def packet_fwd(pkt):
+            global _c, st
+            _c+=1
+            pkt = (IP(dst=pkt[IP].src, src=pkt[IP].dst)/
+                    UDP(dport=pkt[UDP].sport, sport=pkt[UDP].dport)/
+                    "BBBBBBBBBBBBBBBBBBBBBBBBBBBB")
+            send(pkt, verbose=0, iface=ifname, socket=sock)
+            now = time.time()
+            if now - st > 1:
+                st = now
+                sys.stdout.write(',received %s packets,' % _c)
+                sys.stdout.flush()
+
+        return packet_fwd
 
     filter1 = "udp and src host %s" % src_ip
     print "Start sniff and fwd on %s" % ifname
     print "filter: %s" % filter1
-    x = sniff(iface=ifname, prn=packet_fwd, filter=filter1, timeout=args.time)
+    sock = conf.L3socket(iface=args.dev)
+    try:
+        x = sniff(iface=ifname, prn=custom_action(sock), filter=filter1, timeout=args.time)
+    finally:
+        sock.close()
     print
     print 'received %s packets' % len(x)
 
