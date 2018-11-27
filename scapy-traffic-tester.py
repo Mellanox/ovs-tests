@@ -20,9 +20,11 @@ def parse_args():
     parser.add_argument('--src-port', type=int, default=1026,
                         help='Source port')
     parser.add_argument('--src-port-count', type=int, default=1,
-                        help='Dource port count. helper to get more streams.')
+                        help='Source port count. helper to get more streams.')
     parser.add_argument('--dst-port', type=int, default=3000,
                         help='Destination port')
+    parser.add_argument('--dst-port-count', type=int, default=1,
+                        help='Destination port count. helper to get more streams.')
     parser.add_argument('--pkt-count', type=int, default=10,
                         help='Packet count')
     parser.add_argument('--inter', type=float, default=0.05,
@@ -95,10 +97,10 @@ def run_listener(args):
 def run_client(args):
     print "Run as client"
 
-    needed = ('dev', 'src_ip', 'dst_ip', 'src_port', 'src_port_count', 'dst_port', 'pkt_count', 'inter', 'time')
+    needed = ('dev', 'src_ip', 'dst_ip', 'src_port', 'src_port_count',
+              'dst_port', 'dst_port_count', 'pkt_count', 'inter', 'time')
     verify_args(args, needed)
 
-    src_port_count = args.src_port_count
     packet_count = args.pkt_count
 
     # ignore icmp unreachable packets
@@ -111,12 +113,14 @@ def run_client(args):
     t_end = time.time() + args.time
     pkt_list = []
 
-    for sport1 in range(args.src_port, args.src_port+src_port_count):
-        pkt = (IP(src=args.src_ip, dst=args.dst_ip)/
-                UDP(sport=sport1, dport=args.dst_port)/
-                "CCCCCCCCCCCCCCCCCCCCCCCCCCCC")
-        pkt_list.append(pkt)
+    for sport1 in range(args.src_port, args.src_port + args.src_port_count):
+        for dport1 in range(args.dst_port, args.dst_port + args.dst_port_count):
+            pkt = (IP(src=args.src_ip, dst=args.dst_ip)/
+                    UDP(sport=sport1, dport=dport1)/
+                    "CCCCCCCCCCCCCCCCCCCCCCCCCCCC")
+            pkt_list.append(pkt)
 
+    print "Generated %d packets" % len(pkt_list)
     s = conf.L3socket(iface=args.dev)
     try:
         while time.time() < t_end:
