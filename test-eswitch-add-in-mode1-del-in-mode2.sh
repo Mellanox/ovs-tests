@@ -73,7 +73,7 @@ function add_vxlan_rule() {
     title "- add vxlan rule"
     create_vxlan_interface || return 1
     tc_filter add dev $vx protocol 0x806 parent ffff: prio 16 \
-                flower skip_sw \
+                flower \
                         dst_mac e4:11:22:11:4a:51 \
                         src_mac e4:11:22:11:4a:50 \
                         enc_src_ip $ip_src \
@@ -82,6 +82,10 @@ function add_vxlan_rule() {
                         enc_dst_port 4789 \
                 action tunnel_key unset \
                 action mirred egress redirect dev ${REP}
+    # because of upstream issue adding decap rule in skip_sw we add with
+    # policy none and verify in_hw bit.
+    # Bug SW #1360599: [upstream] decap rule offload attempt with skip_sw fails
+    tc filter show dev $vx ingress prio 16 | grep -q -w in_hw || err "Decap rule not in hw"
     clean_vxlan_interface
 }
 
