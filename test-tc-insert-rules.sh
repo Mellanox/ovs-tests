@@ -205,6 +205,7 @@ function __test_basic_vxlan() {
     reset_tc_nic $REP
 
     for skip in "" skip_hw skip_sw ; do
+        skip_sw_wa=0
         title "- skip:$skip"
         reset_tc $REP
         reset_tc $vx
@@ -222,11 +223,12 @@ function __test_basic_vxlan() {
                     action mirred egress redirect dev $vx
         title "    - decap"
         if [ "$skip" = "skip_sw" ]; then
-            warn "Skip vxlan decap with skip_sw policy because of open issue"
-            warn "Bug SW #1360599: [upstream] decap rule offload attempt with skip_sw fails"
-            continue
+            warn "We fail to add vxlan decap with skip_sw policy because of open issue. so add without policy and check in_hw flag"
+            # Bug SW #1360599: [upstream] decap rule offload attempt with skip_sw fails
+            skip=""
+            skip_sw_wa=1
         fi
-        tc_filter add dev $vx protocol 0x806 parent ffff: `prio` \
+        tc_filter add dev $vx protocol 0x806 parent ffff: prio 2 \
                     flower \
                             $skip \
                             dst_mac e4:11:22:11:4a:51 \
@@ -237,6 +239,9 @@ function __test_basic_vxlan() {
                             enc_key_id 100 \
                     action tunnel_key unset \
                     action mirred egress redirect dev $REP
+        if [ $skip_sw_wa -eq 1 ]; then
+            tc_filter show dev $vx ingress prio 2 | grep -q -w in_hw || err "Decap rule not in hw"
+        fi
     done
 
     reset_tc $NIC
