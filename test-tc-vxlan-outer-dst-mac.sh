@@ -15,7 +15,6 @@ require_mlxdump
 function __test_basic_vxlan() {
     local ip_src=$1
     local ip_dst=$2
-    local skip=""
     # note: we support adding decap to vxlan interface only.
     vx=vxlan1
     vxlan_port=4789
@@ -38,7 +37,6 @@ function __test_basic_vxlan() {
 
     tc_filter add dev $vx protocol 0x806 parent ffff: prio 1 \
                 flower \
-                        $skip \
                         dst_mac e4:11:22:11:4a:51 \
                         src_mac e4:11:22:11:4a:50 \
                         enc_src_ip $ip_src \
