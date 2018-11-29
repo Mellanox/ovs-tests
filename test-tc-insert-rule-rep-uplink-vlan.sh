@@ -20,7 +20,7 @@ function run() {
     ip link add link $NIC name $vlan_dev type vlan id $vlan
     reset_tc_nic $REP
 
-    tc filter add dev $REP protocol ip ingress prio 10 flower \
+    tc_filter add dev $REP protocol ip ingress prio 10 flower \
         dst_mac e4:11:22:33:44:70 ip_proto udp \
         action mirred egress redirect dev $vlan_dev
 
