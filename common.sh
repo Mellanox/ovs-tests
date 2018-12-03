@@ -726,8 +726,6 @@ function __load_config() {
     if [ -n "$CONFIG" ]; then
         if [ -f "$CONFIG" ]; then
             conf=$CONFIG
-            echo "Loading config $CONFIG"
-            . $CONFIG
         elif [ -f "$DIR/$CONFIG" ]; then
             conf=$DIR/$CONFIG
         else
