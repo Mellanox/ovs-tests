@@ -38,6 +38,7 @@ function stop_tcpdump() {
 
 function test_frags() {
     # match fragmented packets (not first)
+    tcpdump -nnvr $tdtmpfile -c 2
     if [ "$_test" == "ipv4" ]; then
         count=`tcpdump -nnr $tdtmpfile 'ip[6] = 0' | wc -l`
     elif [ "$_test" == "ipv4vlan" ]; then
@@ -80,7 +81,7 @@ function config_ipv4_vlan() {
     ip netns add ns0
     VF_VLAN=${VF}.2
     ip link set $VF netns ns0
-    ip netns exec ns0 vconfig add $VF 2
+    ip netns exec ns0 vconfig add $VF 2 || err "Failed to config vlan interface"
     ip netns exec ns0 ifconfig $VF up
     ip netns exec ns0 ifconfig $VF_VLAN $IP2/24 up
     ip netns exec ns0 ip n add $IP1 dev $VF_VLAN lladdr ae:99:98:22:73:14
