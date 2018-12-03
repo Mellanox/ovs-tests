@@ -33,6 +33,7 @@ function stop_tcpdump() {
     if [ ! -f $tdtmpfile ]; then
         err "Missing tcpdump output"
     fi
+    sync
 }
 
 function test_frags() {
