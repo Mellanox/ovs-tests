@@ -121,7 +121,7 @@ function __setup_common() {
 
 function is_SimX() {
     local a=`dmidecode --string bios-vendor`
-    [ "$a" == "SeaBIOS" -a "$FW" == "3.8.3251" ] && return 0
+    [ "$a" == "SeaBIOS" ] && return 0
     return 1
 }
 
