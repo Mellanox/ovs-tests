@@ -223,9 +223,9 @@ function title() {
 }
 
 function bring_up_reps() {
-    ip link | grep DOWN | grep ens.*_[0-9] | cut -d: -f2 | xargs -I {} ip link set dev {} up
+    ls -1 /sys/class/net/ | grep ens.*_[0-9] | xargs -I {} ip link set dev {} up
     if [ "$devlink_compat" = 1 ]; then
-        ip link | grep DOWN | grep eth[0-9] | cut -d: -f2 | xargs -I {} ip link set dev {} up
+        ls -1 /sys/class/net/ | grep eth[0-9] | xargs -I {} ip link set dev {} up
     fi
 }
 
