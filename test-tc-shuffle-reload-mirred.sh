@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Bug SW #1241076: [ECMP] Hit WARN_ON when adding many rules with different mask
+# Bug SW #1241076: Hit WARN_ON when adding many rules with different mask
 #
 
 NIC=${1:-ens5f0}
