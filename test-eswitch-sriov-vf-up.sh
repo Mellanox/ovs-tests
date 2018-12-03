@@ -26,13 +26,27 @@ function bring_vfs_up() {
     done
 }
 
+function get_time() {
+    date +"%s"
+}
+
 function run() {
+    local t1
+    local t2
+    local x=80
+
     title "Toggle sriov on $NIC"
 
     config_sriov 0 $nic
-    for i in 10 20 30 100; do
+    for i in 10 20 100 112 114 ; do
         echo "config $i vfs"
+        t1=`get_time`
         time config_sriov $i $nic
+        t2=`get_time`
+        let t1=t2-t1
+        if [ $t1 -gt $x ]; then
+            err "Expected config to take less than $x seconds"
+        fi
         echo "bring vfs up"
         time bring_vfs_up
         echo "clean"
