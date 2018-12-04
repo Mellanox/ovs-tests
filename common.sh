@@ -522,7 +522,8 @@ function check_for_errors_log() {
     local sec=`get_test_time_elapsed`
     local look="health compromised|firmware internal error|assert_var|\
 DEADLOCK|possible circular locking|possible recursive locking|\
-WARNING:|RIP:|BUG:|refcount > 1|segfault|in_atomic|hw csum failure"
+WARNING:|RIP:|BUG:|refcount > 1|segfault|in_atomic|hw csum failure|\
+list_del corruption|which is not allocated"
     local look_ahead="Call Trace:"
     local look_ahead_count=12
     local filter="networkd-dispatcher|uses legacy ethtool link settings"
