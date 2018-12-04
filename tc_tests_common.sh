@@ -41,6 +41,7 @@ function tc_batch() {
     local total=$3
     local rules_per_file=$4
     local cls=$5
+    local _action=${action:-gact drop}
     local n=0
     local count=0
     local handle=0
@@ -67,7 +68,7 @@ $skip \
 src_mac $SMAC \
 dst_mac $DMAC \
 $cls \
-action gact drop"
+action $_action"
 
                     [ $once = "0" ] && once=1 && echo "type of rules: $rule"
                     echo "filter add $rule" >> ${TC_OUT}/add.$n
