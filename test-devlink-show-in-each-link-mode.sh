@@ -17,7 +17,7 @@ require_mlxconfig
 
 function set_link_type() {
     local mode=$1
-    mlxconfig -y -d $PCI set LINK_TYPE_P1=$mode LINK_TYPE_P2=$mode
+    mlxconfig -y -d $PCI set LINK_TYPE_P1=$mode LINK_TYPE_P2=$mode || err "mlxconfig failed"
 }
 
 function set_link_type_ib() {
