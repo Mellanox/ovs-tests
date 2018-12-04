@@ -44,6 +44,7 @@ function tc_batch() {
     local n=0
     local count=0
     local handle=0
+    local once=0
     TC_OUT=/tmp/tc-$$
 
     rm -fr $TC_OUT
@@ -68,6 +69,7 @@ dst_mac $DMAC \
 $cls \
 action gact drop"
 
+                    [ $once = "0" ] && once=1 && echo "type of rules: $rule"
                     echo "filter add $rule" >> ${TC_OUT}/add.$n
                     echo "filter change $rule" >> ${TC_OUT}/ovr.$n
                     echo "filter del $rule" >> ${TC_OUT}/del.$n
