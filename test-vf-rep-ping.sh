@@ -35,33 +35,43 @@ ping -q -c 10 -i 0.2 -w 2 $IP2 && success || err
 title "Test ping VF($IP2) -> REP($IP1)"
 ip netns exec ns0 ping -q -c 10 -i 0.2 -w 2 $IP1 && success || err
 
-title "Test ping flood"
-TMP1=/tmp/ping1
-TMP2=/tmp/ping2
-TMP3=/tmp/ping3
-COUNT=10000
-TIMEOUT=10
-ping 7.7.7.2 -f -c $COUNT -w $TIMEOUT > $TMP1 &
-ping 7.7.7.2 -f -c $COUNT -w $TIMEOUT > $TMP2 &
-ping 7.7.7.2 -f -c $COUNT -w $TIMEOUT > $TMP3 &
-wait
-err=0
-for i in 1 2 3; do
-    count1=`egrep -o "[0-9]+ received" /tmp/ping$i | cut -d" " -f1`
-    if [ -z $count1 ]; then
-        err "ping$i: Cannot read ping output"
-        err=1
-    elif [[ $count1 -ne $COUNT ]]; then
-        err "ping$i: Received $count1 packets, expected $COUNT"
-        err=1
+
+function test_ping_flood() {
+    TMP1=/tmp/ping1
+    TMP2=/tmp/ping2
+    TMP3=/tmp/ping3
+    COUNT=10000
+    TIMEOUT=10
+    size=$1
+    title "Test ping flood $size"
+    if [ -n "$size" ]; then
+        size="-s $size"
     fi
-done
-if [[ $err == 0 ]]; then
-    success
-fi
-rm -fr $TMP1
-rm -fr $TMP2
-rm -fr $TMP3
+    ping 7.7.7.2 -f -c $COUNT $size -w $TIMEOUT > $TMP1 &
+    ping 7.7.7.2 -f -c $COUNT $size -w $TIMEOUT > $TMP2 &
+    ping 7.7.7.2 -f -c $COUNT $size -w $TIMEOUT > $TMP3 &
+    wait
+    err=0
+    for i in 1 2 3; do
+        count1=`egrep -o "[0-9]+ received" /tmp/ping$i | cut -d" " -f1`
+        if [ -z $count1 ]; then
+            err "ping$i: Cannot read ping output"
+            err=1
+        elif [[ $count1 -ne $COUNT ]]; then
+            err "ping$i: Received $count1 packets, expected $COUNT"
+            err=1
+        fi
+    done
+    if [[ $err == 0 ]]; then
+        success
+    fi
+    rm -fr $TMP1
+    rm -fr $TMP2
+    rm -fr $TMP3
+}
+
+test_ping_flood
+test_ping_flood 32768
 
 cleanup
 test_done
