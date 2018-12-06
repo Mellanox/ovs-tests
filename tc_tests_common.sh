@@ -45,8 +45,10 @@ function tc_batch() {
     local n=0
     local count=0
     local handle=0
+    local prio=1
     local once=0
     TC_OUT=/tmp/tc-$$
+    [ "$incr_prio" == 1 ] && prio=0
 
     rm -fr $TC_OUT
     mkdir -p $TC_OUT
@@ -58,10 +60,12 @@ function tc_batch() {
                     SMAC="e4:11:$i:$j:$k:$l"
                     DMAC="e4:12:$i:$j:$k:$l"
                     ((handle+=1))
+                    [ "$no_handle" == 1 ] && handle=0
+                    [ "$incr_prio" == 1 ] && ((prio+=1))
                     rule="$dev_block \
 protocol ip \
 ingress \
-prio 1 \
+prio $prio \
 handle $handle \
 flower \
 $skip \
