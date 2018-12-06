@@ -243,11 +243,11 @@ function switch_mode() {
     echo "Change eswitch ($pci) mode to $1 $extra"
 
     if [ "$devlink_compat" = 1 ]; then
-        echo $1 > `devlink_compat_dir $nic`/mode || fail "Failed to set mode $1"
+        echo $1 > `devlink_compat_dir $nic`/mode || err "Failed to set mode $1"
     else
         echo -n "Old mode: "
         devlink dev eswitch show pci/$pci
-        devlink dev eswitch set pci/$pci mode $1 $extra || fail "Failed to set mode $1"
+        devlink dev eswitch set pci/$pci mode $1 $extra || err "Failed to set mode $1"
         echo -n "New mode: "
         devlink dev eswitch show pci/$pci
     fi
