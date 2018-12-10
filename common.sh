@@ -139,6 +139,18 @@ function require_module() {
     modprobe -q $module || fail "Missing module $module"
 }
 
+function fw_reset() {
+    mlxfwreset -y -d $PCI reset
+}
+
+function fw_config() {
+    mlxconfig -y -d $PCI set $@ || err "mlxconfig failed"
+}
+
+function fw_query_val() {
+    mlxconfig -d $PCI q | grep $1 | awk {'print $2'}
+}
+
 function kmsg() {
     local m=$@
     if [ -w /dev/kmsg ]; then
