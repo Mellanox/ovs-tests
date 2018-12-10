@@ -24,16 +24,15 @@ function restore_sriov_autoprobe() {
 }
 
 function cleanup() {
-    config_sriov 2 $NIC
     restore_sriov_autoprobe
 }
 
 function test_127_reps() {
     local want=127
 
-    title "Test 127 REPs"
+    title "Test $want REPs"
 
-    switch_mode_legacy
+    config_sriov 0 $NIC
     disable_sriov_autoprobe
     echo "Config $want VFs"
     time config_sriov $want $NIC
@@ -48,13 +47,16 @@ function test_127_reps() {
     if [ $count != $want ]; then
         err "Found $count reps but expected $want"
     fi
+
+    enable_legacy
+    config_sriov 2 $NIC
 }
 
 
 trap cleanup EXIT
 start_check_syndrome
 test_127_reps
-echo Cleanup
+echo "Cleanup"
 cleanup
 check_syndrome
 test_done
