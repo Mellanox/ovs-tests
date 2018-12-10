@@ -39,6 +39,11 @@ function run() {
 
     config_sriov 0 $nic
     for i in 10 20 100 112 114 ; do
+
+        if [ $i -gt 100 ]; then
+            x=180
+        fi
+
         echo "config $i vfs"
         t1=`get_time`
         time config_sriov $i $nic
