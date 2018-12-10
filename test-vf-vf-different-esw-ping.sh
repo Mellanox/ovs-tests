@@ -3,6 +3,11 @@
 #  Testing ping between VFs on different eSwitch.
 #  Bug SW #1512703: vf to vf ping on different eswitch is broken
 #
+#  Test will fail if NUM_OFS_VFS > 64
+#  For ConnectX4Lx NUM_OF_VFS should be 32.
+#  For ConnectX5, FW guys are working on fix to support 64 (should be part of
+#  Nov GA). (16.24.0286)
+#
 
 NIC=${1:-ens5f0}
 VF=${2:-ens5f2}
