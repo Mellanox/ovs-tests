@@ -100,5 +100,8 @@ ip netns exec red timeout 0.25 ping -q -I 1.1.1.3 -i 0.25 -W 0.25 -c 1 1.1.1.9 &
 ip netns exec red timeout 0.25 ping -q -I 1.1.1.4 -i 0.25 -W 0.25 -c 1 1.1.1.9 && err "expected to fail ping"
 ip netns exec red timeout 0.25 ping -q -I 1.1.1.5 -i 0.25 -W 0.25 -c 1 1.1.1.9 && err "expected to fail ping"
 
-check_syndrome || err
+reset_tc_nic $port2
+reset_tc_nic $port4
+
+check_syndrome
 test_done
