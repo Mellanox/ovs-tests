@@ -235,15 +235,18 @@ function title() {
 }
 
 function bring_up_reps() {
-    local x=`ls -1 /sys/class/net/ | wc -l`
+    local nic=${2:-$NIC}
     local cmd
 
     if [ "$devlink_compat" = 1 ]; then
+        # XXX: we might miss some
         cmd="ls -1 /sys/class/net/ | grep eth[0-9] | xargs -I {} ip link set dev {} up"
     else
-        cmd="ls -1 /sys/class/net/ | grep ens.*_[0-9] | xargs -I {} ip link set dev {} up"
+        # XXX: we might miss reps if not using the udev rule
+        cmd="ls -1 /sys/class/net/ | grep ${nic}_[0-9] | xargs -I {} ip link set dev {} up"
     fi
 
+    local x=`ls -1 /sys/class/net/ | wc -l`
     timeout $x sh -c "$cmd"
     if [ $? -ne 0 ]; then
         err "Timed out bringing interfaces up after $x seconds"
@@ -275,7 +278,7 @@ function switch_mode() {
 
     if [ "$1" = "switchdev" ]; then
         sleep 2 # wait for interfaces
-        bring_up_reps
+        bring_up_reps $nic
     fi
 }
 
