@@ -234,6 +234,30 @@ function title() {
     kmsg $@
 }
 
+function get_reps() {
+    local nic=${1:-$NIC}
+    local a
+    local b
+    local o=""
+    a=`cat /sys/class/net/$nic/phys_switch_id`
+    if [ -z "$a" ]; then
+        return
+    fi
+    for i in `ls -1 /sys/class/net`; do
+        if [ $i == $nic ]; then
+            continue
+        fi
+        b=`cat /sys/class/net/$i/phys_switch_id 2>/dev/null`
+        if [ "$a" == "$b" ]; then
+            o+=" $i"
+        fi
+    done
+    echo $o
+    # usage example:
+    #        local reps=`get_reps`
+    #        cmd="echo -n $reps | xargs -I {} -d ' ' ip link set dev {} up"
+}
+
 function bring_up_reps() {
     local nic=${2:-$NIC}
     local cmd
