@@ -27,8 +27,8 @@ function cleanup() {
     restore_sriov_autoprobe
 }
 
-function test_127_reps() {
-    local want=127
+function test_reps() {
+    local want=$1
 
     title "Test $want REPs"
 
@@ -55,7 +55,7 @@ function test_127_reps() {
 
 trap cleanup EXIT
 start_check_syndrome
-test_127_reps
+test_reps 127
 echo "Cleanup"
 cleanup
 check_syndrome

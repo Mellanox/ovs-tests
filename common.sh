@@ -235,9 +235,18 @@ function title() {
 }
 
 function bring_up_reps() {
-    ls -1 /sys/class/net/ | grep ens.*_[0-9] | xargs -I {} ip link set dev {} up
+    local x=`ls -1 /sys/class/net/ | wc -l`
+    local cmd
+
     if [ "$devlink_compat" = 1 ]; then
-        ls -1 /sys/class/net/ | grep eth[0-9] | xargs -I {} ip link set dev {} up
+        cmd="ls -1 /sys/class/net/ | grep eth[0-9] | xargs -I {} ip link set dev {} up"
+    else
+        cmd="ls -1 /sys/class/net/ | grep ens.*_[0-9] | xargs -I {} ip link set dev {} up"
+    fi
+
+    timeout $x sh -c "$cmd"
+    if [ $? -ne 0 ]; then
+        err "Timed out bringing interfaces up after $x seconds"
     fi
 }
 
