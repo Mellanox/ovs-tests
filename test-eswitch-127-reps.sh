@@ -55,7 +55,12 @@ function test_reps() {
 
 trap cleanup EXIT
 start_check_syndrome
-test_reps 127
+test_reps 64
+if [ $TEST_FAILED -eq 0 ]; then
+    test_reps 127
+else
+    warn "Skipping 127 reps case due to failure in prev case"
+fi
 echo "Cleanup"
 cleanup
 check_syndrome
