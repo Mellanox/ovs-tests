@@ -96,7 +96,7 @@ title "Test ping $VF($IP1) -> $VF2($IP2)"
 ip netns exec ns0 ping -q -c 1 -w 2 $IP2
 timeout 2 tcpdump -nnei $REP -c 3 'icmp' &
 tdpid=$!
-ip netns exec ns0 ping -q -c 10 -i 0.2 -w 2 $IP2 && success || err
+ip netns exec ns0 ping -q -c 10 -i 0.2 -w 4 $IP2 && success || err
 
 dst_mac=`ip netns exec ns1 ip link show $VF2 | grep ether | awk '{print $2}'`
 src_mac=`ip netns exec ns0 ip link show $VF1 | grep ether | awk '{print $2}'`

@@ -67,7 +67,7 @@ function check_offloaded_rules() {
 }
 
 title "Test normal ping $VM1_IP -> $VM2_IP and learn mac address"
-ping -q -c 10 -i 0.2 -w 2 $VM2_IP && success || err
+ping -q -c 10 -i 0.2 -w 4 $VM2_IP && success || err
 
 check_offloaded_rules 2
 
@@ -80,7 +80,7 @@ ovs-ofctl add-flow brv-1 "arp,actions=normal"
 ovs-dpctl del-flows
 
 title "Test ping $VM1_IP -> fake $FAKE_VM2_IP (will be rewritten to $VM2_IP)"
-ping -q -c 10 -i 0.2 -w 2 $FAKE_VM2_IP && success || err
+ping -q -c 10 -i 0.2 -w 4 $FAKE_VM2_IP && success || err
 
 check_offloaded_rules 2
 

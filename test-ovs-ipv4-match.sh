@@ -67,7 +67,7 @@ title "Verify we have 2 rules"
 check_offloaded_rules 2
 
 title "Test ping $VM1_IP -> $VM2_IP2 - expect to fail"
-ping -q -c 10 -i 0.2 -w 2 $VM2_IP2 && err "ping expected to fail" || success
+ping -q -c 10 -i 0.2 -w 4 $VM2_IP2 && err "ping expected to fail" || success
 
 title "Verify we have 3 rules"
 check_offloaded_rules 3

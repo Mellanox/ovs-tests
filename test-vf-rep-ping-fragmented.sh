@@ -30,10 +30,10 @@ ip netns exec ns0 ifconfig $VF $IP2/24 up
 SIZE=2222
 
 title "Test ping REP($IP1) -> VF($IP2)"
-ping -q -c 10 -i 0.2 -w 2 -s $SIZE $IP2 && success || err
+ping -q -c 10 -i 0.2 -w 4 -s $SIZE $IP2 && success || err
 
 title "Test ping VF($IP2) -> REP($IP1)"
-ip netns exec ns0 ping -q -c 10 -i 0.2 -w 2 -s $SIZE $IP1 && success || err
+ip netns exec ns0 ping -q -c 10 -i 0.2 -w 4 -s $SIZE $IP1 && success || err
 
 #title "Test later fragmented packet"
 #/usr/bin/python -c 'from scapy.all import * ; send( fragment(IP(dst="7.7.7.2")/ICMP()/("X"*60000))[1:] )'

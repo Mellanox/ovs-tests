@@ -30,10 +30,10 @@ ip link set $VF netns ns0
 ip netns exec ns0 ifconfig $VF $IP2/24 up
 
 title "Test ping REP($IP1) -> VF($IP2)"
-ping -q -c 10 -i 0.2 -w 2 $IP2 && success || err
+ping -q -c 10 -i 0.2 -w 4 $IP2 && success || err
 
 title "Test ping VF($IP2) -> REP($IP1)"
-ip netns exec ns0 ping -q -c 10 -i 0.2 -w 2 $IP1 && success || err
+ip netns exec ns0 ping -q -c 10 -i 0.2 -w 4 $IP1 && success || err
 
 
 function test_ping_flood() {
