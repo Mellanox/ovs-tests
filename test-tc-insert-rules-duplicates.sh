@@ -4,24 +4,17 @@
 # This reproduce an old bug RM #1250493 closed as won't fix but is fixed today.
 #
 
-NIC=${1:-ens5f0}
-
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-
-nic=$NIC
-skip=""
-# we use the same prio as between different prios we have different flower
-# instance and flow doesn't check for duplicate rule between instances.
-prio=99
+skip="skip_sw"
 
 function tc_filter() {
     tc filter $@
 }
 
 function test_basic_L2() {
-    tc_filter add dev $nic protocol ip prio $prio parent ffff: \
+    tc_filter add dev $NIC protocol ip prio 1 parent ffff: \
             flower \
                     $skip \
                     dst_mac e4:11:22:11:4a:51 \
@@ -30,7 +23,7 @@ function test_basic_L2() {
 }
 
 function test_basic_L3() {
-    tc_filter add dev $nic protocol ip prio $prio parent ffff: \
+    tc_filter add dev $NIC protocol ip prio 1 parent ffff: \
             flower \
                     $skip \
                     dst_mac e4:11:22:11:4a:51 \
@@ -41,7 +34,7 @@ function test_basic_L3() {
 }
 
 function test_basic_L3_ipv6() {
-    tc_filter add dev $nic protocol ipv6 prio $prio parent ffff: \
+    tc_filter add dev $NIC protocol ipv6 prio 1 parent ffff: \
             flower \
                     $skip \
                     dst_mac e4:11:22:11:4a:51 \
@@ -52,7 +45,7 @@ function test_basic_L3_ipv6() {
 }
 
 function test_basic_L4() {
-    tc_filter add dev $nic protocol ip prio $prio parent ffff: \
+    tc_filter add dev $NIC protocol ip prio 1 parent ffff: \
             flower \
                     $skip \
                     dst_mac e4:11:22:11:4a:51 \
@@ -64,9 +57,7 @@ function test_basic_L4() {
 }
 
 
-reset_tc_nic $NIC
-unbind_vfs
-switch_mode_legacy
+enable_switchdev
 
 # Execute all test_* functions
 for i in `declare -F | awk {'print $3'} | grep ^test_ | grep -v test_done` ; do
