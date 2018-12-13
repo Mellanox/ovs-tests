@@ -71,10 +71,44 @@ function get_nic_fw() {
     ethtool -i $1 | grep firmware-version | awk {'print $2'}
 }
 
+function __set_nic_or_uplink_rep() {
+    local nic=$1
+    local mode=$2
+    if [ -n "$UPLINK_REP" ]; then
+        if [ "$mode" == "switchdev" ]; then
+            [ $nic == $OLD_NIC ] && NIC=$UPLINK_REP
+            [ $nic == $OLD_NIC2 ] && NIC2=$UPLINK_REP2
+        else
+            [ $nic == $OLD_NIC ] && NIC=$OLD_NIC
+            [ $nic == $OLD_NIC2 ] && NIC2=$OLD_NIC2
+        fi
+    fi
+}
+
+function get_pci() {
+    if [ -e /sys/class/net/$1/device ]; then
+        basename `readlink /sys/class/net/$1/device`
+    fi
+}
+
 function __setup_common() {
     [ -f /etc/os-release ] && . /etc/os-release
     [ -n "$PRETTY_NAME" ] && echo $PRETTY_NAME
     uname -nsr
+
+    PCI=`get_pci $NIC`
+    if [ -z "$PCI" ]; then
+        PCI=`get_pci $UPLINK_REP`
+    fi
+    if [ -z "$PCI" ]; then
+        fail "Cannot find PCI for $NIC or $UPLINK_REP"
+    fi
+
+    # Check if we are in switchdev mode and need to use uplink rep.
+    OLD_NIC=$NIC
+    OLD_NIC2=$NIC2
+    local mode=`get_eswitch_mode`
+    __set_nic_or_uplink_rep $NIC $mode
 
     if [ "$NIC" == "" ]; then
         fail "Missing NIC"
@@ -91,10 +125,10 @@ function __setup_common() {
     local status
     local device
 
-    PCI=$(basename `readlink /sys/class/net/$NIC/device`)
+    sysfs_pci_device=`readlink -f /sys/class/net/$NIC/../../`
     DEVICE=`cat /sys/class/net/$NIC/device/device`
     FW=`get_nic_fw $NIC`
-    status="NIC $NIC FW $FW PCI $PCI DEVICE $DEVICE"
+    status="NIC $OLD_NIC FW $FW PCI $PCI DEVICE $DEVICE"
 
     __test_for_devlink_compat
 
@@ -300,10 +334,14 @@ function switch_mode() {
         devlink dev eswitch show pci/$pci
     fi
 
+    # test fails if mode change failed so if we are here mode is changed.
+
     if [ "$1" = "switchdev" ]; then
         sleep 2 # wait for interfaces
         bring_up_reps $nic
     fi
+
+    __set_nic_or_uplink_rep $nic $1
 }
 
 function switch_mode_legacy() {
