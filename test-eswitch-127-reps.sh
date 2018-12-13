@@ -33,7 +33,6 @@ function test_reps() {
     title "Test $want REPs"
 
     config_sriov 0 $NIC
-    disable_sriov_autoprobe
     echo "Config $want VFs"
     time config_sriov $want $NIC
     unbind_vfs $NIC
@@ -56,12 +55,15 @@ function test_reps() {
 
 trap cleanup EXIT
 start_check_syndrome
+disable_sriov_autoprobe
+
 test_reps 16
-if [ $TEST_FAILED -eq 0 ]; then
+if [ $TEST_FAILED -eq 0 ] || [ -e $probe_fs ]; then
     test_reps 127
 else
     err "Skipping 127 reps case due to failure in prev case"
 fi
+
 echo "Cleanup"
 cleanup
 check_syndrome
