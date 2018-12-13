@@ -725,6 +725,8 @@ function reload_modules() {
     fi
 
     check_kasan || err "Detected KASAN in journalctl"
+    __set_nic_or_uplink_rep $NIC legacy
+    __set_nic_or_uplink_rep $NIC2 legacy
     set_macs
     echo "reload modules done"
 }
