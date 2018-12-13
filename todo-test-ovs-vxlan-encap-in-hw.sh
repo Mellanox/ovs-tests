@@ -56,7 +56,7 @@ start_check_syndrome
 title "Test OVS vxlan"
 
 # generate traffic though it will fail as we have fake destination
-ip netns exec ns0 ping -q -c 10 -i 0.2 -w 2 $VM2_IP &>/dev/null
+ip netns exec ns0 ping -q -c 10 -i 0.2 -w 4 $VM2_IP &>/dev/null
 
 # since we only have encap side right now we should see 1 offloaded rule
 check_offloaded_rules 1

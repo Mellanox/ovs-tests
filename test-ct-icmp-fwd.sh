@@ -86,7 +86,7 @@ function run() {
     pid=$!
 
     echo "run traffic"
-    ip netns exec ns0 ping -q -c 10 -i 0.1 -w 1 $IP2 || err "Ping failed"
+    ip netns exec ns0 ping -q -c 10 -i 0.1 -w 2 $IP2 || err "Ping failed"
 
     # test sniff timedout
     warn "Currently ICMP is not offloaded with CT so testing traffic is not offloaded so it will fail when is supported and update the test."

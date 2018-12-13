@@ -39,4 +39,4 @@ tc filter add dev vxlan42 protocol ip ingress flower src_mac $DST_MAC dst_mac $S
 tc filter add dev vxlan42 protocol arp ingress flower skip_hw action mirred egress redirect dev $REP
 
 
-ip netns exec ns0 ping -c 5 -w 1 -W 1 -i 0.2 1.1.1.138
+ip netns exec ns0 ping -c 5 -w 1 -W 1 -i 0.1 1.1.1.138

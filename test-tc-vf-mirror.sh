@@ -81,7 +81,7 @@ function run() {
     pid=$!
 
     echo "run traffic"
-    ip netns exec ns0 ping -q -c 10 -i 0.1 -w 1 $IP2 || err "Ping failed"
+    ip netns exec ns0 ping -q -c 10 -i 0.1 -w 2 $IP2 || err "Ping failed"
 
     wait $pid
     # test sniff timedout

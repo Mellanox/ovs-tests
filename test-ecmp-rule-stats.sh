@@ -165,7 +165,7 @@ function test_ecmp_rule_stats() {
     fi
 
     title "-- ping"
-    ping -q -I $VF $ping_ip -i 0.1 -c 10 -w 1
+    ping -q -I $VF $ping_ip -i 0.1 -c 10 -w 2
     sleep 1 # seems needed for good report
     tc -s filter show dev $REP ingress | grep bytes
     a=`tc -j -s filter show dev $REP ingress | jq ".[1].options.actions[1].stats.packets"`
@@ -180,7 +180,7 @@ function test_ecmp_rule_stats() {
     sleep 2 # wait for neigh update
     
     title "-- ping"
-    ping -q -I $VF $ping_ip -i 0.1 -c 10 -w 1
+    ping -q -I $VF $ping_ip -i 0.1 -c 10 -w 2
     sleep 1
     tc -s filter show dev $REP ingress | grep bytes
     a=`tc -j -s filter show dev $REP ingress | jq ".[1].options.actions[1].stats.packets"`
@@ -199,7 +199,7 @@ function test_ecmp_rule_stats() {
     sleep 2 # wait for neigh update
     
     title "-- ping"
-    ping -q -I $VF $ping_ip -i 0.1 -c 10 -w 1
+    ping -q -I $VF $ping_ip -i 0.1 -c 10 -w 2
     sleep 1
     tc -s filter show dev $REP ingress | grep bytes
     a=`tc -j -s filter show dev $REP ingress | jq ".[1].options.actions[1].stats.packets"`
