@@ -56,7 +56,7 @@ function test_reps() {
 
 trap cleanup EXIT
 start_check_syndrome
-test_reps 64
+test_reps 16
 if [ $TEST_FAILED -eq 0 ]; then
     test_reps 127
 else

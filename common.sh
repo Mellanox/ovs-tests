@@ -294,17 +294,25 @@ function get_reps() {
 
 function bring_up_reps() {
     local nic=${2:-$NIC}
-    local cmd
+    local ifs
 
     if [ "$devlink_compat" = 1 ]; then
         # XXX: we might miss some
-        cmd="ls -1 /sys/class/net/ | grep eth[0-9] | xargs -I {} ip link set dev {} up"
+        ifs=`ls -1 /sys/class/net/ | grep eth[0-9]`
     else
         # XXX: we might miss reps if not using the udev rule
-        cmd="ls -1 /sys/class/net/ | grep ${nic}_[0-9] | xargs -I {} ip link set dev {} up"
+        ifs=`ls -1 /sys/class/net/ | grep ${nic}_[0-9]`
     fi
 
-    local x=`ls -1 /sys/class/net/ | wc -l`
+    if [ -z "$ifs" ]; then
+        err "bring_up_reps: didn't find reps"
+        return
+    fi
+
+    local cmd="echo -n '$ifs' | xargs -I {} ip link set dev {} up"
+    local x=`echo $ifs | wc -w`
+    x=`echo $x*0.5|bc`
+
     timeout $x sh -c "$cmd"
     if [ $? -ne 0 ]; then
         err "Timed out bringing interfaces up after $x seconds"
