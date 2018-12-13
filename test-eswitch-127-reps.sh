@@ -36,8 +36,9 @@ function test_reps() {
     disable_sriov_autoprobe
     echo "Config $want VFs"
     time config_sriov $want $NIC
+    unbind_vfs $NIC
     echo "Set switchdev"
-    time enable_switchdev
+    time switch_mode_switchdev $NIC
 
     echo "Verify"
     mac=`cat /sys/class/net/$NIC/address | tr -d :`
@@ -59,7 +60,7 @@ test_reps 64
 if [ $TEST_FAILED -eq 0 ]; then
     test_reps 127
 else
-    warn "Skipping 127 reps case due to failure in prev case"
+    err "Skipping 127 reps case due to failure in prev case"
 fi
 echo "Cleanup"
 cleanup
