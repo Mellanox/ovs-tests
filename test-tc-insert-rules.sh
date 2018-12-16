@@ -186,10 +186,10 @@ function test_basic_vlan() {
 function __test_basic_vxlan() {
     local ip_src=$1
     local ip_dst=$2
+    local vxlan_port=$3
     local skip
     # note: we support adding decap to vxlan interface only.
     vx=vxlan1
-    vxlan_port=4789
     ip link del $vx >/dev/null 2>&1
     ip link add $vx type vxlan dev $NIC dstport $vxlan_port external
     [ $? -ne 0 ] && err "Failed to create vxlan interface" && return 1
@@ -206,7 +206,7 @@ function __test_basic_vxlan() {
 
     for skip in "" skip_hw skip_sw ; do
         skip_sw_wa=0
-        title "- skip:$skip"
+        title "- skip:$skip dst_port:$vxlan_port"
         reset_tc $REP
         reset_tc $vx
         title "    - encap"
@@ -243,7 +243,6 @@ function __test_basic_vxlan() {
             tc_filter show dev $vx ingress prio 2 | grep -q -w in_hw || err "Decap rule not in hw"
         fi
     done
-
     reset_tc $NIC
     reset_tc $REP
     reset_tc $vx
@@ -257,9 +256,12 @@ function __test_basic_vxlan() {
 }
 
 function test_basic_vxlan_ipv4() {
-    __test_basic_vxlan \
-                        20.1.11.1 \
-                        20.1.12.1
+    for vxlan_port in 4789 4000 ; do
+        __test_basic_vxlan \
+                            20.1.11.1 \
+                            20.1.12.1 \
+                            $vxlan_port
+    done
 }
 
 function test_basic_vxlan_ipv6() {
@@ -268,9 +270,12 @@ function test_basic_vxlan_ipv6() {
         echo "Not relevant for ConnectX-4"
         return
     fi
-    __test_basic_vxlan \
-                        2001:0db8:85a3::8a2e:0370:7334 \
-                        2001:0db8:85a3::8a2e:0370:7335
+    for vxlan_port in 4789 4000 ; do
+        __test_basic_vxlan \
+                            2001:0db8:85a3::8a2e:0370:7334 \
+                            2001:0db8:85a3::8a2e:0370:7335 \
+                            $vxlan_port
+    done
 }
 
 # test insert ip no ip_proto
