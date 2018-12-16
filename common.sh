@@ -589,6 +589,14 @@ function get_rep() {
 	fail "Cannot find rep index $vf"
 }
 
+function get_time() {
+    date +"%s"
+}
+
+function get_ms_time() {
+    echo $(($(date +%s%N)/1000000))
+}
+
 function start_test_timestamp() {
     # sleep to get a unique timestamp
     sleep 1

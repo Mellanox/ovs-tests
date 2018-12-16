@@ -26,10 +26,6 @@ function bring_vfs_up() {
     done
 }
 
-function get_time() {
-    date +"%s"
-}
-
 function run() {
     local t1
     local t2
