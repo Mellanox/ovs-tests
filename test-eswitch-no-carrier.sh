@@ -18,12 +18,12 @@ set_macs 2
 bind_vfs
 sleep 1
 
-set -e
-
 # bring up rep is what triggers the issue
+require_interfaces REP
 ip link set dev $REP up
 switch_mode_legacy
 sleep 1
+require_interfaces NIC VF
 ip link set dev $NIC up
 ip link set dev $VF up
 carrier=`cat /sys/class/net/$VF/carrier`
