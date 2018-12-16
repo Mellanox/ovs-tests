@@ -310,8 +310,9 @@ function bring_up_reps() {
     fi
 
     local cmd="echo -n '$ifs' | xargs -I {} ip link set dev {} up"
-    local x=`echo $ifs | wc -w`
-    x=`echo $x*0.5|bc`
+    local c=`echo $ifs | wc -w`
+    local x=`echo $c*0.4|bc`
+    echo "bring up $c reps with timeout $x seconds"
 
     timeout $x sh -c "$cmd"
     if [ $? -ne 0 ]; then

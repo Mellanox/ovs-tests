@@ -57,7 +57,7 @@ trap cleanup EXIT
 start_check_syndrome
 disable_sriov_autoprobe
 
-test_reps 16
+test_reps 32
 if [ $TEST_FAILED -eq 0 ] || [ -e $probe_fs ]; then
     test_reps 127
 else
