@@ -61,23 +61,20 @@ def run_listener(args):
     # ignore icmp unreachable packets
     os.system("iptables -I OUTPUT -p icmp --icmp-type destination-unreachable -j DROP")
 
-    global _c, st
+    global _c
     _c = 0
-    st = time.time()
 
     def custom_action(sock):
 
         def packet_fwd(pkt):
-            global _c, st
+            global _c
             _c+=1
             pkt = (IP(dst=pkt[IP].src, src=pkt[IP].dst)/
                     UDP(dport=pkt[UDP].sport, sport=pkt[UDP].dport)/
                     "BBBBBBBBBBBBBBBBBBBBBBBBBBBB")
             send(pkt, verbose=0, iface=ifname, socket=sock)
-            now = time.time()
-            if now - st > 1:
-                st = now
-                sys.stdout.write(',received %s packets,' % _c)
+            if _c % 500 == 0:
+                sys.stdout.write(',')
                 sys.stdout.flush()
 
         return packet_fwd
@@ -127,7 +124,7 @@ def run_client(args):
             for pkt in pkt_list:
                 send(pkt, verbose=0, count=packet_count, inter=args.inter, iface=args.dev, socket=s)
                 sent += packet_count
-                if sent % 100 == 0:
+                if sent % 500 == 0:
                     sys.stdout.write('.')
                     sys.stdout.flush()
     finally:
