@@ -25,7 +25,7 @@ function cleanup() {
 cleanup
 
 echo "setup veth and ns"
-ip link add veth0 type veth peer name veth1
+ip link add veth0 type veth peer name veth1 || fail "Failed to configure veth"
 ip link add veth2 type veth peer name veth3
 
 ifconfig veth0 $VM1_IP/24 up
