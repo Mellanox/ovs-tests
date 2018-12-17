@@ -98,14 +98,19 @@ function run() {
     timeout $t tcpdump -qnnei $REP -c 1 $proto &
     pid2=$!
 
-    tc filter show dev $REP ingress
+    echo "sniff packets on $VF3"
+    timeout 2 tcpdump -qnei $VF3 -c 20 $proto &
+    pid3=$!
 
     sleep $t
     kill $pk1 &>/dev/null
     wait $pk1 $pk2 2>/dev/null
 
+    echo "test traffic on $REP"
     test_have_traffic $pid1
     test_no_traffic $pid2
+    echo "test mirror traffic on $VF3"
+    test_have_traffic $pid3
 
     ovs-vsctl del-br br-ovs
 
