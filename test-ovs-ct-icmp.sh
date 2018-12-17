@@ -66,6 +66,13 @@ function run() {
     echo "run traffic"
     ip netns exec ns0 ping -q -c 10 -i 0.1 -w 2 $IP2 || err "Ping failed"
 
+    echo "verify icmp tc rule"
+    if tc filter show dev $REP ingress | grep -q "ip_proto icmp" ; then
+        success
+    else
+        err "missing icmp tc rule"
+    fi
+
     # test sniff timedout
     warn "Currently ICMP is not offloaded with CT so testing traffic is not offloaded so it will fail when is supported and update the test."
     wait $pid
