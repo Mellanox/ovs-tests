@@ -27,7 +27,7 @@ function add_rules() {
             flower skip_sw indev $REP \
             src_mac e1:22:33:44:${num1}:$num2 \
             dst_mac e2:22:33:44:${num1}:$num2 \
-            action drop
+            action drop 2>/dev/null
         if [ "$?" != 0 ]; then
             if [ $first = true ]; then
                 err "Failed to add first rule"
@@ -42,16 +42,17 @@ function add_rules() {
 title "test reload modules"
 start_check_syndrome
 
-reload_modules &
 # with cx5 we tested 1 second but with cx4 device already gone so decreased the
 # sleep from 1 second to have first rule add and then cleanup start.
-sleep 0.2
+#sleep 0.2
 
 title "add $COUNT rules"
-add_rules
-sleep 5
-
+add_rules &
+sleep 0.1
+reload_modules &
 wait
+
 check_syndrome
 reset_tc_nic $REP &>/dev/null
+
 test_done
