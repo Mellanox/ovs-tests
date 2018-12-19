@@ -107,7 +107,7 @@ function run() {
 
     t=10
     echo "sniff packets on $REP"
-    timeout $t tcpdump -qnnei $REP -c 6 $PROTO &
+    timeout $t tcpdump -qnnei $REP -c 3 $PROTO &
     pid1=$!
 
     echo "run traffic for $t seconds"
