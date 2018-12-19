@@ -34,7 +34,12 @@ function check_offloaded_rules() {
     RES="ovs_dpctl_dump_flows | grep 0x0800 | grep -v drop"
     eval $RES
     RES=`eval $RES | wc -l`
-    if (( RES == $count )); then success; else err; fi
+    if (( RES == $count )); then
+        success
+    else
+        ovs-dpctl dump-flows | grep 0x0800
+        err
+    fi
 }
 
 function configure_vxlan() {
