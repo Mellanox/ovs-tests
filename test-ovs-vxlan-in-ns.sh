@@ -2,7 +2,6 @@
 #
 # Test ovs with vxlan rules default and non default ports
 #
-# Bug SW #1465595: [OPENVSWITCH] - ovs-dpctl dump-flows command failed when using non default vxlan port on upstream 4.18 rc2
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -31,7 +30,11 @@ cleanup
 function check_offloaded_rules() {
     local count=$1
     title " - check for $count offloaded rules"
-    RES="ovs_dpctl_dump_flows | grep 0x0800 | grep -v drop"
+    if [ "$USE_DPCTL" = 1 ]; then
+        RES="ovs_dpctl_dump_flows | grep 0x0800 | grep -v drop"
+    else
+        RES="ovs_appctl_dpctl_dump_flows | grep 0x0800 | grep -v drop"
+    fi
     eval $RES
     RES=`eval $RES | wc -l`
     if (( RES == $count )); then
