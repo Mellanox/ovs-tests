@@ -79,8 +79,8 @@ function __set_nic_or_uplink_rep() {
             [ $nic == $OLD_NIC ] && NIC=$UPLINK_REP
             [ $nic == $OLD_NIC2 ] && NIC2=$UPLINK_REP2
         else
-            [ $nic == $UPLINK_REP ] && NIC=$OLD_NIC
-            [ $nic == $UPLINK_REP2 ] && NIC2=$OLD_NIC2
+            [ $nic == $OLD_NIC ] && NIC=$OLD_NIC
+            [ $nic == $OLD_NIC2 ] && NIC2=$OLD_NIC2
         fi
     fi
 }
