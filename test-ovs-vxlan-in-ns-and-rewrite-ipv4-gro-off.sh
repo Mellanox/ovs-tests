@@ -83,7 +83,6 @@ title "Test header rewrite with gro off"
 
 echo "set gro off on vxlan interface"
 ethtool -K vxlan_sys_4789 gro off || err "Failed to set gro off"
-timeout 6 tcpdump -qnnei vxlan_sys_4789 &>/dev/null &
 
 echo "start tcpdump on $PORT2"
 timeout 6 tcpdump -qnnei $PORT2 -c 10 udp and src port 1234 &
