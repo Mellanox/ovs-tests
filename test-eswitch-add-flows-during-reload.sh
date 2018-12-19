@@ -8,20 +8,14 @@
 # Expected result: not to crash
 #
 
-NIC=${1:-ens5f0}
 COUNT=500
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 enable_switchdev
-rep=`get_rep 0`
-if [ -z "$rep" ]; then
-    fail "Missing rep $rep"
-    exit 1
-fi
-reset_tc_nic $NIC
-reset_tc_nic $rep
+require_interfaces REP
+reset_tc_nic $REP
 
 
 function add_rules() {
@@ -29,14 +23,14 @@ function add_rules() {
     for i in `seq $COUNT`; do
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
-        tc filter add dev $rep protocol ip parent ffff: prio 1 \
-            flower skip_sw indev $rep \
+        tc filter add dev $REP protocol ip parent ffff: prio 1 \
+            flower skip_sw indev $REP \
             src_mac e1:22:33:44:${num1}:$num2 \
             dst_mac e2:22:33:44:${num1}:$num2 \
             action drop
         if [ "$?" != 0 ]; then
             if [ $first = true ]; then
-                fail "Failed to add first rule"
+                err "Failed to add first rule"
             fi
             break
         fi
@@ -57,7 +51,7 @@ title "add $COUNT rules"
 add_rules
 sleep 5
 
-check_syndrome && success || err "Failed"
-reset_tc_nic $rep
-
+wait
+check_syndrome
+reset_tc_nic $REP &>/dev/null
 test_done
