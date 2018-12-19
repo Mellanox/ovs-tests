@@ -117,7 +117,7 @@ def run_client(args):
                     "CCCCCCCCCCCCCCCCCCCCCCCCCCCC")
             pkt_list.append(pkt)
 
-    print "Generated %d packets" % len(pkt_list)
+    print "Prepared %d packets" % len(pkt_list)
     s = conf.L3socket(iface=args.dev)
     try:
         while time.time() < t_end:
