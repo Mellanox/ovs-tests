@@ -20,19 +20,31 @@ for nic in $NIC $NIC2; do
     unbind_vfs $nic
 done
 
+tmp1="/tmp/a$$"
+tmp2="/tmp/b$$"
+
 for i in 1 2 3 4 5 ; do
     echo " - config switchdev in paralel"
-    enable_switchdev $NIC &
-    enable_switchdev $NIC2 &
+    rm -fr $tmp1 $tmp2
+    enable_switchdev $NIC && touch $tmp1 &
+    enable_switchdev $NIC2 && touch $tmp2 &
     #echo switchdev > /sys/class/net/$NIC/compat/devlink/mode &
     #echo switchdev > /sys/class/net/$NIC2/compat/devlink/mode &
     wait
+    if [ ! -f $tmp1 ] || [ ! -f $tmp2 ]; then
+        err
+    fi
+
     echo " - config legacy in paralel"
-    enable_legacy $NIC &
-    enable_legacy $NIC2 &
+    rm -fr $tmp1 $tmp2
+    enable_legacy $NIC && touch $tmp1 &
+    enable_legacy $NIC2 && touch $tmp2 &
     #echo legacy > /sys/class/net/$NIC/compat/devlink/mode &
     #echo legacy > /sys/class/net/$NIC2/compat/devlink/mode &
     wait
+    if [ ! -f $tmp1 ] || [ ! -f $tmp2 ]; then
+        err
+    fi
 done
 
 config_sriov 0 $NIC2
