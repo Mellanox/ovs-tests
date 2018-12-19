@@ -41,41 +41,41 @@ function config_vf() {
     ip netns exec $ns ifconfig $vf $ip/24 up
 }
 
-ofctl_err=0
 function ovs-ofctl1 {
-    ovs-ofctl $1 $2 $3 $4 "$5" || ofctl_err=1
+    local ofctl_err=0
+    ovs-ofctl $@ || ofctl_err=1
     if [ $ofctl_err -ne 0 ]; then
         err "Command failed: ovs-ofctl $@"
     fi
 }
 
 function config_ovs_nat() {
+    ovs-ofctl1 del-flows ovs-br
+    ovs-ofctl1 add-flow ovs-br "arp,action=normal"
     ovs-ofctl1 add-flow ovs-br -O openflow13 "table=0,priority=100,ip,$PROTO,in_port=$VM1_PORT,action=set_field:$VM1_PORT->reg6,goto_table:5"
     ovs-ofctl1 add-flow ovs-br -O openflow13 "table=0,priority=100,ip,$PROTO,in_port=$VM2_PORT,action=set_field:$VM2_PORT->reg6,goto_table:5"
 
     ovs-ofctl1 add-flow ovs-br -O openflow13 "table=5,priority=100,ip,$PROTO,nw_dst=$NAT_IP,actions=move:NXM_OF_IP_DST[]->NXM_NX_XXREG0[0..31],move:NXM_OF_UDP_DST[]->NXM_NX_XXREG0[32..47],set_field:$VM2_IP->ip_dst,set_field:3005->${PROTO}_dst,set_field:0x1->reg11,ct(table=10,zone=NXM_NX_REG6[0..15])"
     ovs-ofctl1 add-flow ovs-br -O openflow13 "table=5,priority=100,ip,$PROTO,nw_dst=$VM1_IP,actions=ct(table=10,zone=NXM_NX_REG6[0..15])"
 
-    ovs-ofctl1 add-flow ovs-br -O openflow13 "table=10,priority=100,ip,$PROTO,nw_dst=$VM2_IP,ct_state=-new+est-rel-inv+trk actions=goto_table:15"
-    ovs-ofctl1 add-flow ovs-br -O openflow13 "table=10,priority=100,ip,nw_dst=$VM2_IP,ct_state=+new-rel-inv+trk actions=ct(commit,table=15,zone=NXM_NX_REG6[0..15],exec(move:NXM_NX_REG11[]->NXM_NX_CT_MARK[],move:NXM_NX_XXREG0[]->NXM_NX_CT_LABEL[]))"
-    ovs-ofctl1 add-flow ovs-br -O openflow13 "table=10,priority=100,ip,nw_dst=$VM1_IP,ct_state=+new-est-rel-inv+trk actions=ct(table=15,zone=NXM_NX_REG6[0..15])"
-    ovs-ofctl1 add-flow ovs-br -O openflow13 "table=10,priority=100,ip,nw_dst=$VM1_IP,ct_state=-new+est-rel-inv+trk actions=goto_table:15"
+    ovs-ofctl1 add-flow ovs-br -O openflow13 "table=10,priority=100,ip,$PROTO,nw_dst=$VM2_IP,ct_state=-new+est-rel-inv+trk,actions=goto_table:15"
+    ovs-ofctl1 add-flow ovs-br -O openflow13 "table=10,priority=100,ip,nw_dst=$VM2_IP,ct_state=+new-rel-inv+trk,actions=ct(commit,table=15,zone=NXM_NX_REG6[0..15],exec(move:NXM_NX_REG11[]->NXM_NX_CT_MARK[],move:NXM_NX_XXREG0[]->NXM_NX_CT_LABEL[]))"
+    ovs-ofctl1 add-flow ovs-br -O openflow13 "table=10,priority=100,ip,nw_dst=$VM1_IP,ct_state=+new-est-rel-inv+trk,actions=ct(table=15,zone=NXM_NX_REG6[0..15])"
+    ovs-ofctl1 add-flow ovs-br -O openflow13 "table=10,priority=100,ip,nw_dst=$VM1_IP,ct_state=-new+est-rel-inv+trk,actions=goto_table:15"
 
     ovs-ofctl1 add-flow ovs-br -O openflow13 "table=15,priority=100,ip,nw_dst=$VM1_IP,action=set_field:$VM1_PORT->reg7,goto_table:20"
     ovs-ofctl1 add-flow ovs-br -O openflow13 "table=15,priority=100,ip,nw_dst=$VM2_IP,action=set_field:$VM2_PORT->reg7,goto_table:20"
 
     ovs-ofctl1 add-flow ovs-br -O openflow13 "table=20,priority=100,ip,action=ct(table=25,zone=NXM_NX_REG7[0..15])"
 
-    ovs-ofctl1 add-flow ovs-br -O openflow13 "table=25,priority=100,ip,nw_dst=$VM1_IP,ct_state=-new+est-rel-inv+trk actions=move:NXM_NX_CT_MARK[]->NXM_NX_REG11[],move:NXM_NX_CT_LABEL[]->NXM_NX_XXREG0[],goto_table:30"
-    ovs-ofctl1 add-flow ovs-br -O openflow13 "table=25,priority=100,ip,nw_dst=$VM2_IP,ct_state=+new-est-rel-inv+trk actions=ct(commit,table=30,zone=NXM_NX_REG7[0..15])"
-    ovs-ofctl1 add-flow ovs-br -O openflow13 "table=25,priority=100,ip,nw_dst=$VM2_IP,ct_state=-new+est-rel-inv+trk actions=goto_table:30"
+    ovs-ofctl1 add-flow ovs-br -O openflow13 "table=25,priority=100,ip,nw_dst=$VM1_IP,ct_state=-new+est-rel-inv+trk,actions=move:NXM_NX_CT_MARK[]->NXM_NX_REG11[],move:NXM_NX_CT_LABEL[]->NXM_NX_XXREG0[],goto_table:30"
+    ovs-ofctl1 add-flow ovs-br -O openflow13 "table=25,priority=100,ip,nw_dst=$VM2_IP,ct_state=+new-est-rel-inv+trk,actions=ct(commit,table=30,zone=NXM_NX_REG7[0..15])"
+    ovs-ofctl1 add-flow ovs-br -O openflow13 "table=25,priority=100,ip,nw_dst=$VM2_IP,ct_state=-new+est-rel-inv+trk,actions=goto_table:30"
 
     ovs-ofctl1 add-flow ovs-br -O openflow13 "table=30,priority=100,ip,$PROTO,nw_dst=$VM2_IP,action=output:$VM2_PORT"
-    ovs-ofctl1 add-flow ovs-br -O openflow13 "table=30,priority=100,ip,$PROTO,nw_dst=$VM1_IP,ct_state=-new+est-rel-inv+trk actions=move:NXM_NX_XXREG0[0..31]->NXM_OF_IP_SRC[],move:NXM_NX_XXREG0[32..47]->NXM_OF_UDP_SRC[],output:$VM1_PORT"
+    ovs-ofctl1 add-flow ovs-br -O openflow13 "table=30,priority=100,ip,$PROTO,nw_dst=$VM1_IP,ct_state=-new+est-rel-inv+trk,actions=move:NXM_NX_XXREG0[0..31]->NXM_OF_IP_SRC[],move:NXM_NX_XXREG0[32..47]->NXM_OF_UDP_SRC[],output:$VM1_PORT"
 
-    if [ $ofctl_err -ne 0 ]; then
-        fail "Failed to set ofctl rules"
-    fi
+    fail_if_err "Failed to set ofctl rules"
 }
 
 function config_ovs() {
