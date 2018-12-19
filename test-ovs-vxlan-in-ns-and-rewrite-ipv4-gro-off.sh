@@ -27,14 +27,16 @@ function cleanup() {
     done
 }
 
-cleanup
-
-echo "setup ns"
+unbind_vfs
+bind_vfs
 require_interfaces VF REP VF2 REP2
 PORT1=$VF
 PORT2=$REP
 PORT3=$VF2
 PORT4=$REP2
+
+echo "setup ns"
+cleanup
 
 ifconfig $PORT1 $VM1_IP/24 up
 ifconfig $PORT2 up
