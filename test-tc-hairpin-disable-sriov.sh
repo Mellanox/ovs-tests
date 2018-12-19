@@ -19,7 +19,7 @@ function test_hairpin() {
 
     title "Add hairpin rule $nic to $nic2"
     tc_filter add dev $nic protocol ip parent ffff: \
-          flower prio 1 skip_sw ip_proto udp \
+          prio 1 flower skip_sw ip_proto udp \
           action mirred egress redirect dev $nic2
 
     reset_tc $nic
