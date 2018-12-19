@@ -1,9 +1,0 @@
-NIC=enp33s0f0
-NIC2=enp33s0f1
-VF=enp33s0f2
-VF1=$VF
-VF2=enp33s0f3
-UPLINK_REP=eth0_65534
-REP=eth1
-REP2=eth2
-UPLINK_REP2=eth3
