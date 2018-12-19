@@ -25,6 +25,10 @@ function cleanup() {
     for i in `seq 0 7`; do
         ip link del veth$i &> /dev/null
     done
+
+    for i in $PORT1 $PORT2 $PORT3 $PORT4 ; do
+        ip a flush $i
+    done
 }
 
 enable_switchdev_if_no_rep $REP
