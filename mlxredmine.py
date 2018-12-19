@@ -1,7 +1,9 @@
 #!/usr/bin/python
 
 import requests
-requests.packages.urllib3.disable_warnings()
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 REDMINE_URL = 'http://redmine.mellanox.com'
 API_KEY = "4ad65ee94655687090deec6247b0d897f05443e3"
