@@ -262,13 +262,8 @@ function bring_up_reps() {
     local nic=${2:-$NIC}
     local ifs
 
-    if [ "$devlink_compat" = 1 ]; then
-        # XXX: we might miss some
-        ifs=`ls -1 /sys/class/net/ | grep eth[0-9]`
-    else
-        # XXX: we might miss reps if not using the udev rule
-        ifs=`ls -1 /sys/class/net/ | grep ${nic}_[0-9]`
-    fi
+    # XXX: we might miss reps if not using the udev rule
+    ifs=`ls -1 /sys/class/net/ | grep ${nic}_[0-9]`
 
     if [ -z "$ifs" ]; then
         err "bring_up_reps: didn't find reps"
