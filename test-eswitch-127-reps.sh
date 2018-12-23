@@ -46,6 +46,8 @@ function test_reps() {
     let count-=1
     if [ $count != $want ]; then
         err "Found $count reps but expected $want"
+    else
+        echo "ok got $count reps"
     fi
 
     enable_legacy
