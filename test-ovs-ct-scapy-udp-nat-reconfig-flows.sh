@@ -113,7 +113,6 @@ function run() {
     ip netns exec ns1 $pktgen -l -i $VF2 --src-ip $IP1 --time $((t+1)) --src-port-count $port_count &
     pk1=$!
     sleep 2
-    #iperf -u -c $NAT_IP -b 1G -t $t -P 12 &
     ip netns exec ns0 $pktgen -i $VF1 --src-ip $IP1 --dst-ip $NAT_IP --time $t --src-port-count $port_count --dst-port-count $port_count2 --pkt-count 1 --inter 0 &
     pk2=$!
 
