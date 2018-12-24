@@ -88,7 +88,7 @@ function start_test() {
     runtime=60
     start_traffic
     sleep 2
-    for i in `seq $((runtime-5))` ; do
+    for i in `seq $((runtime-8))` ; do
         stats=`get_vxlan_rx_pkt_count`
         echo "stats $stats"
         if [ "$stats" == "0" ]; then
