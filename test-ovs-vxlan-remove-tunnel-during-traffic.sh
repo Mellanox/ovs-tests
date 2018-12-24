@@ -62,15 +62,16 @@ function get_vxlan_rx_pkt_count() {
 
 function stop_traffic() {
     echo "stop traffic"
-    killall -9 iperf &>/dev/null
-    killall -9 noodle &>/dev/null
+    killall iperf &>/dev/null
+    killall iperf &>/dev/null
+    killall noodle &>/dev/null
     wait &>/dev/null
 }
 
 function start_traffic() {
     # expecting issue to reproduce when we have at least ~90kpps
     echo "start traffic $VM1_IP -> $VM2_IP"
-    timeout $((runtime+5)) iperf -u -c $VM2_IP -b 1G -P 8 -t $runtime &
+    iperf -u -c $VM2_IP -b 1G -P 8 -t $runtime &
 
     # noodle commands that also help reproduce the issue
     # $my_dir/noodle -c $VM2_IP -b 150 -p 9999 -C 10000 -n 5000 &
