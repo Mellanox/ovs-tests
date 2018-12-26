@@ -2,6 +2,8 @@
 #
 # Test CT fwd with icmp traffic and rule ct+fwd
 #
+# Bug SW #1601350: [JD] illegal action syndrome when testing CT rule ct+fwd and icmp traffic
+#
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -89,7 +91,7 @@ function run() {
     ip netns exec ns0 ping -q -c 10 -i 0.1 -w 2 $IP2 || err "Ping failed"
 
     # test sniff timedout
-    warn "Currently ICMP is not offloaded with CT so testing traffic is not offloaded so it will fail when is supported and update the test."
+    echo "CT+FWD is not supported so traffic is not offloaded"
     wait $pid
     rc=$?
     if [[ $rc -eq 0 ]]; then
