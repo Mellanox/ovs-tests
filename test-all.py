@@ -60,8 +60,8 @@ def parse_args():
     parser.add_argument('--from_test', '-f',
                         help='start from test')
     parser.add_argument('--exclude', '-e', action='append',
-                        help='exclude test')
-    parser.add_argument('--glob', '-g',
+                        help='exclude tests')
+    parser.add_argument('--glob', '-g', action='append',
                         help='glob of tests')
     parser.add_argument('--parm', '-p',
                         help='Pass parm to each test')
@@ -121,9 +121,15 @@ def print_result(res, out):
 def glob_tests(args, tests):
     if not args.glob:
         return
+    _tests = []
     for test in tests[:]:
         name = os.path.basename(test)
-        if not fnmatch(name, args.glob):
+        for g in args.glob:
+            if fnmatch(name, g):
+                _tests.append(test)
+                break
+    for test in tests[:]:
+        if test not in _tests:
             tests.remove(test)
 
 
@@ -156,11 +162,11 @@ def update_skip_according_to_rm():
     print
 
 
-def should_ignore_test(name):
-    if name in IGNORE_TESTS or name in ' '.join(IGNORE_TESTS):
+def should_ignore_test(name, exclude):
+    if name in exclude or name in ' '.join(exclude):
         return True
 
-    for x in IGNORE_TESTS:
+    for x in exclude:
         if fnmatch(name, x):
             return True
 
@@ -169,11 +175,13 @@ def should_ignore_test(name):
 
 def main():
     args = parse_args()
+    exclude = []
     ignore = False
     if args.from_test:
         ignore = True
     if args.exclude:
-        IGNORE_TESTS.extend(args.exclude)
+        exclude.extend(IGNORE_TESTS)
+        exclude.extend(args.exclude)
     glob_tests(args, TESTS)
 
     print "Log dir: " + LOGDIR
@@ -200,7 +208,7 @@ def main():
         res = 'OK'
         out = ''
 
-        if should_ignore_test(name):
+        if should_ignore_test(name, exclude):
             res = 'IGNORED'
         elif name in SKIP_TESTS:
             res = 'SKIP'
