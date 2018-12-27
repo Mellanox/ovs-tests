@@ -99,7 +99,7 @@ function run() {
     pid2=$!
 
     echo "sniff packets on $VF3"
-    timeout 2 tcpdump -qnei $VF3 -c 20 $proto &
+    timeout 2 tcpdump -qnnei $VF3 -c 20 $proto &
     pid3=$!
 
     sleep $t

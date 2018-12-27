@@ -84,7 +84,7 @@ function run() {
     tc filter show dev $REP ingress
 
     echo "sniff packets on $REP"
-    timeout 2 tcpdump -qnei $REP -c 6 'icmp' &
+    timeout 2 tcpdump -qnnei $REP -c 6 'icmp' &
     pid=$!
 
     echo "run traffic"
