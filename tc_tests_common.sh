@@ -32,7 +32,7 @@ function check_num_actions() {
 
     title " - check for $count actions"
     RES=`tc -s actions ls action $type | grep order | wc -l`
-    if (( RES == $count )); then success; else err; fi
+    if (( RES == $count )); then success; else err "Found $RES actions but expected $count"; fi
 }
 
 function tc_batch() {
