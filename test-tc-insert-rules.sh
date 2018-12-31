@@ -318,6 +318,23 @@ function test_simple_insert_missing_action() {
     tc_filter add dev $NIC protocol ip parent ffff: `prio` flower indev $NIC
 }
 
+function test_five_match() {
+    title "Test 5-tuple rules"
+    for proto in udp tcp; do
+        title "- $NIC -> $REP (skip:skiw_sw) protocol $proto"
+        reset_tc_nic $NIC
+        tc_filter add dev $NIC protocol ip parent ffff: `prio` \
+            flower \
+            skip_sw \
+            dst_ip 10.0.5.1 \
+            src_ip 10.0.5.2 \
+            ip_proto $proto \
+            dst_port 4000 \
+            src_port 4000 \
+        action mirred egress redirect dev $REP
+        reset_tc $NIC
+    done
+}
 
 enable_switchdev_if_no_rep $REP
 unbind_vfs
