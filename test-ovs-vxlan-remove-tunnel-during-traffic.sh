@@ -88,7 +88,8 @@ function start_test() {
     runtime=60
     start_traffic
     sleep 2
-    for i in `seq $((runtime-8))` ; do
+    start1=`get_time`
+    while true ; do
         stats=`get_vxlan_rx_pkt_count`
         echo "stats $stats"
         if [ "$stats" == "0" ]; then
@@ -98,6 +99,12 @@ function start_test() {
         ip netns exec ns0 ip link del dev vxlan42 || err "Failed to remove tunnel interface"
         config_vxlan
         sleep 1
+
+        loop=`get_time`
+        let loop=loop-start1
+        if [ $loop -ge $runtime ]; then
+            break
+        fi
     done
 
     stop_traffic
