@@ -318,10 +318,9 @@ function test_simple_insert_missing_action() {
     tc_filter add dev $NIC protocol ip parent ffff: `prio` flower indev $NIC
 }
 
-function test_five_match() {
-    title "Test 5-tuple rules"
+function test_five_tuple_match() {
     for proto in udp tcp; do
-        title "- $NIC -> $REP (skip:skiw_sw) protocol $proto"
+        title "- $NIC -> $REP ip_proto $proto"
         reset_tc_nic $NIC
         tc_filter add dev $NIC protocol ip parent ffff: `prio` \
             flower \
