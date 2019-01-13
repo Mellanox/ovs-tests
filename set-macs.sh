@@ -32,7 +32,7 @@ mac_prefix="e4:11:22:$f5:$f6:"
 mac_vf=50
 
 echo "Set mac on $nic vfs mac"
-max_vf=`ls -1d /sys/class/net/ens1f0/device/virtfn* | wc -l`
+max_vf=`ls -1d /sys/class/net/$nic/device/virtfn* | wc -l`
 let max_vf-=1
 for vf in `seq 0 $max_vf`; do
     ip link set $nic vf $vf mac $mac_prefix$mac_vf
