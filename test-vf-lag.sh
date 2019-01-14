@@ -10,7 +10,7 @@ require_module bonding
 
 config_sriov 2
 # TODO require vf lag support ?
-reset_tc_nic $NIC
+reset_tc $NIC
 
 local_ip="2.2.2.2"
 remote_ip="2.2.2.3"
@@ -49,9 +49,7 @@ function config() {
     enable_sriov
     enable_switchdev $NIC
     enable_switchdev $NIC2
-    reset_tc $NIC
-    reset_tc $NIC2
-    reset_tc $REP
+    reset_tc $NIC $NIC2 $REP
     config_bonding $NIC $NIC2
 }
 
@@ -85,8 +83,7 @@ function add_vxlan_rule() {
 
     # tunnel key set
     ifconfig $NIC up
-    reset_tc bond0
-    reset_tc vxlan1
+    reset_tc bond0 vxlan1
 
     # encap
     title "- encap"
@@ -113,8 +110,7 @@ function add_vxlan_rule() {
     # Bug SW #1360599: [upstream] decap rule offload attempt with skip_sw fails
     tc filter show dev vxlan1 ingress prio 2 | grep -q -w in_hw || err "Decap rule not in hw"
 
-    reset_tc bond0
-    reset_tc vxlan1
+    reset_tc bond0 vxlan1
 }
 
 function test_add_vxlan_rule() {
@@ -132,11 +128,16 @@ function test_add_drop_rule() {
 }
 
 function test_add_redirect_rule() {
-    reset_tc bond0
+    reset_tc bond0 $REP
+    title "- bond0 -> $REP"
     tc_filter add dev bond0 protocol arp parent ffff: prio 1 \
         flower dst_mac $dst_mac $flag \
         action mirred egress redirect dev $REP
-    reset_tc bond0
+    title "- $REP -> bond0"
+    tc_filter add dev $REP protocol arp parent ffff: prio 1 \
+        flower dst_mac $dst_mac $flag \
+        action mirred egress redirect dev bond0
+    reset_tc bond0 $REP
 }
 
 function do_cmd() {
