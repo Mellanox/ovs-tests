@@ -185,15 +185,17 @@ function ethtool_hw_tc_offload() {
 }
 
 function reset_tc() {
-    local nic1="$1"
-    ethtool_hw_tc_offload
-    tc qdisc del dev $nic1 ingress >/dev/null 2>&1  || true
-    tc qdisc add dev $nic1 ingress
+    local nic1
+    for nic1 in $@ ; do
+        ethtool_hw_tc_offload $nic1
+        tc qdisc del dev $nic1 ingress >/dev/null 2>&1  || true
+        tc qdisc add dev $nic1 ingress
+    done
 }
 
 # redundant function. use reset_tc().
 function reset_tc_nic() {
-    reset_tc $1
+    reset_tc $@
 }
 
 function log() {
