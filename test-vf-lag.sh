@@ -147,6 +147,7 @@ function do_cmd() {
 }
 
 
+trap cleanup EXIT
 cleanup
 config
 do_cmd test_add_drop_rule
