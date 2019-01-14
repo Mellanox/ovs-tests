@@ -36,7 +36,8 @@ function enable_sriov() {
 }
 
 function config_bonding() {
-    modprobe bonding
+    modprobe -r bonding
+    modprobe bonding mode=active-backup
     ifconfig bond0 up
     ifenslave bond0 $1 $2
     reset_tc bond0
