@@ -132,7 +132,7 @@ function test_add_drop_rule() {
     reset_tc bond0
     tc_filter add dev bond0 protocol arp parent ffff: prio 1 \
         flower dst_mac $dst_mac $flag \
-        action gact drop
+        action drop
     reset_tc bond0
 }
 
