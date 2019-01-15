@@ -84,6 +84,7 @@ modprobe -av act_mirred cls_flower
 tc filter add dev $REP ingress protocol arp flower action mirred egress redirect dev $REP2 || fail "tc - failed adding arp rule"
 tc filter add dev $REP2 ingress protocol arp flower action mirred egress redirect dev $REP || fail "tc - failed adding arp rule"
 
+# make sure we have flower instance ready for fl_classify to do something
 tc filter add dev $REP ingress protocol ip prio 1 flower skip_hw dst_mac aa:bb:cc:dd:ee:ff action mirred egress redirect dev $REP2 || fail "tc - failed adding fake rule"
 tc filter add dev $REP2 ingress protocol ip prio 1 flower skip_hw dst_mac aa:bb:cc:dd:ee:ff action mirred egress redirect dev $REP || fail "tc - failed adding fake rule"
 
@@ -91,6 +92,7 @@ title "Test ping $VF($IP1, $mac1) -> $VF2($IP2, $mac2)"
 ip netns exec ns0 ping -q -f $IP2 &
 sleep 1
 
+# add with prio 3
 tc filter add dev $REP ingress protocol ip prio 3 flower skip_sw dst_mac $mac1 action \
     mirred egress redirect dev $REP2 2>/dev/null || clean_and_fail "failed adding rule $REP->$REP2"
 tc filter add dev $REP2 ingress protocol ip prio 3 flower skip_sw dst_mac $mac2 action \
@@ -98,7 +100,10 @@ tc filter add dev $REP2 ingress protocol ip prio 3 flower skip_sw dst_mac $mac2 
 
 max=10000
 for i in `seq $max`; do
-    # we expect to fail because of existing counter
+    # add with prio 1 (different than above 3) to skip duplicate rule check in
+    # flower and add it to rhashtable but expect to fail in hw because of existing
+    # counter and flower will start error flow and free it while fl_classify
+    # might use it.
     tc filter add dev $REP ingress protocol ip prio 1 flower skip_sw dst_mac $mac1 action \
         mirred egress redirect dev $REP2 &>/dev/null && err "tc expected to fail" && break
     tc filter add dev $REP2 ingress protocol ip prio 1 flower skip_sw dst_mac $mac2 action \
