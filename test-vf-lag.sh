@@ -35,11 +35,19 @@ function enable_sriov() {
     echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
 }
 
+function is_bonded() {
+    dmesg | tail -n10 | grep -E "mlx5_core [0-9.:]+ lag map port 1:. port 2:."
+    return $?
+}
+
 function config_bonding() {
     modprobe -r bonding
     modprobe bonding mode=active-backup
     ifconfig bond0 up
     ifenslave bond0 $1 $2
+    if ! is_bonded ; then
+        err "Driver bond failed"
+    fi
     reset_tc bond0
 }
 
