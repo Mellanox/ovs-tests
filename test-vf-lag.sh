@@ -92,11 +92,11 @@ function add_vxlan_rule() {
 
     # tunnel key set
     ifconfig $NIC up
-    reset_tc bond0 vxlan1
+    reset_tc $REP $NIC vxlan1
 
     # encap
     title "- encap"
-    tc_filter add dev bond0 protocol arp parent ffff: prio 1 \
+    tc_filter add dev $REP protocol arp parent ffff: prio 1 \
         flower dst_mac $dst_mac $flag \
         action tunnel_key set \
             id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
@@ -112,14 +112,14 @@ function add_vxlan_rule() {
             enc_key_id $id \
         action tunnel_key unset \
             id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
-        action mirred egress redirect dev bond0
+        action mirred egress redirect dev $REP
 
     # because of upstream issue adding decap rule in skip_sw we add with
     # policy none and verify in_hw bit.
     # Bug SW #1360599: [upstream] decap rule offload attempt with skip_sw fails
     tc filter show dev vxlan1 ingress prio 2 | grep -q -w in_hw || err "Decap rule not in hw"
 
-    reset_tc bond0 vxlan1
+    reset_tc $REP $NIC vxlan1
 }
 
 function test_add_vxlan_rule() {
