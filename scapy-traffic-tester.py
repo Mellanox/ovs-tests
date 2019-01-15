@@ -84,7 +84,7 @@ def run_listener(args):
     print "filter: %s" % filter1
     sock = conf.L3socket(iface=args.dev)
     try:
-        x = sniff(iface=ifname, prn=custom_action(sock), filter=filter1, timeout=args.time)
+        x = sniff(iface=ifname, prn=custom_action(sock), filter=filter1, timeout=args.time, store=0)
     finally:
         sock.close()
     print
