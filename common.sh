@@ -261,14 +261,14 @@ function get_reps() {
 }
 
 function bring_up_reps() {
-    local nic=${2:-$NIC}
+    local nic=${1:-$NIC}
     local ifs
 
     # XXX: we might miss reps if not using the udev rule
     ifs=`ls -1 /sys/class/net/ | grep ${nic}_[0-9]`
 
     if [ -z "$ifs" ]; then
-        err "bring_up_reps: didn't find reps"
+        err "bring_up_reps: didn't find reps for $nic"
         return
     fi
 
