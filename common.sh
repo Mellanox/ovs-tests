@@ -290,23 +290,24 @@ function devlink_compat_dir() {
 }
 
 function switch_mode() {
+    local mode=$1
     local nic=${2:-$NIC}
     local pci=$(basename `readlink /sys/class/net/$nic/device`)
     local extra="$extra_mode"
 
-    echo "Change eswitch ($pci) mode to $1 $extra"
+    echo "Change $nic eswitch ($pci) mode to $mode $extra"
 
     if [ "$devlink_compat" = 1 ]; then
-        echo $1 > `devlink_compat_dir $nic`/mode || fail "Failed to set mode $1"
+        echo $mode > `devlink_compat_dir $nic`/mode || fail "Failed to set mode $mode"
     else
         echo -n "Old mode: "
         devlink dev eswitch show pci/$pci
-        devlink dev eswitch set pci/$pci mode $1 $extra || fail "Failed to set mode $1"
+        devlink dev eswitch set pci/$pci mode $mode $extra || fail "Failed to set mode $mode"
         echo -n "New mode: "
         devlink dev eswitch show pci/$pci
     fi
 
-    if [ "$1" = "switchdev" ]; then
+    if [ "$mode" = "switchdev" ]; then
         sleep 2 # wait for interfaces
         bring_up_reps $nic
     fi
