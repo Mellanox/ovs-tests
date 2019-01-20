@@ -67,7 +67,7 @@ function verify_keys_in_flow() {
         if [ "$in_m" != "$in_sw" ]; then
             m2=`echo $m | cut -d" " -f1`
             sw2=`echo $sw | cut -d" " -f1`
-            sw=${sw:13}
+            sw2=${sw2:13}
             echo flow1 $m2
             echo flow2 $sw2
             err "Expected $key() to be the same"
