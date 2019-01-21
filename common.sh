@@ -231,6 +231,12 @@ function success() {
     kmsg $m
 }
 
+function success2() {
+    local m=$@
+    echo -e "${GREEN}OK$NOCOLOR $m"
+    kmsg OK
+}
+
 function title() {
     echo -e "$LIGHTBLUE* $@$NOCOLOR"
     kmsg $@
