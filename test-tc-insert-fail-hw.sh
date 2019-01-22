@@ -27,12 +27,12 @@ function test_tc_filter() {
 
     a=`eval tc filter $@ 2>&1`
     err=$?
-    [ -n "$a" ] && echo $a
 
     echo "$a" | grep -q "Operation not supported" && true || false
     opnotsupp=$?
 
     if [ $opnotsupp -ne 0 ]; then
+        [ -n "$a" ] && echo $a
         fail "Expected operation not supported error"
     fi
 }
@@ -43,20 +43,24 @@ function test_insert_hw_fail_exists() {
             flower skip_sw dst_mac aa:bb:cc:dd:ee:ff \
             action simple sdata '"unsupported action"'
     done
+    success
 }
 
 function test_insert_hw_fail_during_traffic() {
-    title "add 10 rule to prio 1 with skip_sw that will fail on action in hw (but will match traffic in classify), during traffic"
+    title "test with traffic so we reach tc_classify"
+
     timeout 6 iperf -c 1.1.1.2 -i 1 -t 5 -u -l 64 -b 1G -P 10 &>/dev/null &
 
-    printf 'working...  '
     for i in `seq 10`; do
         tc filter add dev $REP protocol ip parent ffff: prio 1 \
             flower skip_sw dst_mac aa:bb:cc:dd:ee:ff \
             action simple sdata '"unsupported action"' &>/dev/null && fail "expected to fail"
     done
 
-    wait
+    sleep 6
+    killall iperf &>/dev/null
+    wait &>/dev/null
+    success
 }
 
 
