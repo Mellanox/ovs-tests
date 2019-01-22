@@ -496,7 +496,7 @@ function unbind_vfs() {
 
 function bind_vfs() {
     local nic=${1:-$NIC}
-    echo "bind vfs of $vfpci"
+    echo "bind vfs of $nic"
     for i in `ls -1d /sys/class/net/$nic/device/virt*`; do
         vfpci=$(basename `readlink $i`)
         if [ ! -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
