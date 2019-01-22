@@ -14,6 +14,17 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 . $my_dir/tc_tests_common.sh
 
+function require_ingress_block_support() {
+    local e
+    reset_tc $NIC
+    tc qdisc add dev $NIC ingress_block 1 ingress &>/dev/null
+    e=$?
+    tc qdisc del dev $NIC ingress_block 1 ingress &>/dev/null
+    [ $e -ne 0 ] && fail "ingress_block is not supported"
+}
+
+require_ingress_block_support
+
 echo "setup"
 config_sriov 2 $NIC
 enable_switchdev_if_no_rep $REP
