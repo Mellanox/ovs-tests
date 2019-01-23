@@ -67,11 +67,19 @@ echo ; ip r ; echo
 
 log "set both ports to sriov and switchdev"
 # WA to disable prev multipath is to disable sriov first if enabled
-config_sriov 0
-config_sriov 2
-config_sriov 2 $NIC2
-enable_switchdev
-enable_switchdev $NIC2
+function config_ports() {
+    config_sriov 0
+    config_sriov 2
+    config_sriov 2 $NIC2
+    enable_switchdev
+    enable_switchdev $NIC2
+}
+
+function deconfig_ports() {
+    config_sriov 0 $NIC2
+}
+
+config_ports
 
 log "bring up gateways"
 ifconfig $NIC $route1/24 up
@@ -82,7 +90,7 @@ sleep 1
 title "create multipath route"
 ip r r $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
 chk "Activate multipath" "failed to enable multipath"
-[ $? -ne 0 ] && fail "Failed to enable multipath"
+[ $? -ne 0 ] && deconfig_ports && fail "Failed to enable multipath"
 echo ; ip r ; echo
 
 # ENTRY_DEL event
@@ -161,7 +169,6 @@ ip link del dummy1
 
 title "deactivate multipath by set port to legacy"
 enable_legacy $NIC2
-#config_sriov 0 $NIC2
 chk "Deactivate multipath" "failed to disable multipath"
 
 title "test fib events in legacy"
@@ -173,4 +180,5 @@ ip r r $net nexthop via $route2 dev $NIC2
 ip r d $net
 # expect no log
 
+deconfig_ports
 test_done
