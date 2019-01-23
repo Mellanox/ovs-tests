@@ -177,11 +177,7 @@ $sep"
 
 function ethtool_hw_tc_offload() {
     local nic="$1"
-    if [ "$devlink_compat" = 1 ]; then
-        : hw-tc-offload does not exists
-    else
-        ethtool -K $nic1 hw-tc-offload on 2>/dev/null
-    fi
+    ethtool -K $nic1 hw-tc-offload on &>/dev/null
 }
 
 function reset_tc() {
