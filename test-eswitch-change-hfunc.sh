@@ -3,6 +3,7 @@
 # Try to change hash function and check no syndrome
 #
 # Bug SW #1614845: [JD] Syndrome when when changing RSS hash func
+# Bug SW #1630228: tunnel stateless offloads are wrongly forbidden for e-switch manager function
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
