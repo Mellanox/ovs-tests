@@ -72,19 +72,21 @@ function check_offloaded_rules() {
     if (( RES == $count )); then success; else err; fi
 }
 
+function do_traffic() {
+    ping -q -c 10 -i 0.2 -w 4 $VM2_IP && success || err
+}
 
-KEY=5
+
 title "Test gre tunnel with key $KEY"
+KEY=5
 create_gre_tunnel
-ping -q -c 10 -i 0.2 -w 4 $VM2_IP && success || err
-
+do_traffic
 check_offloaded_rules 2
 
-KEY=nokey
 title "Test gre tunnel without a key"
+KEY=nokey
 create_gre_tunnel
-ping -q -c 10 -i 0.2 -w 4 $VM2_IP && success || err
-
+do_traffic
 check_offloaded_rules 2
 
 cleanup
