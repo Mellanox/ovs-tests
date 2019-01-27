@@ -72,17 +72,6 @@ function check_offloaded_rules() {
     if (( RES == $count )); then success; else err; fi
 }
 
-function check_word() {
-    local dev=$1
-    local word=$2
-
-    title " - in $dev: check for $word in tc filter"
-    if [[ $KEY == "nokey" ]]; then
-        tc filter show dev $dev ingress | grep -q -w $word && err "$word exist: $(tc filter show dev $dev ingress)"
-    else
-        tc filter show dev $dev ingress | grep -q -w $word || err "Missing $word: $(tc filter show dev $dev ingress)"
-    fi
-}
 
 KEY=5
 title "Test gre tunnel with key $KEY"
@@ -90,8 +79,6 @@ create_gre_tunnel
 ping -q -c 10 -i 0.2 -w 4 $VM2_IP && success || err
 
 check_offloaded_rules 2
-check_word gre_sys enc_key_id
-check_word veth1 key_id
 
 KEY=nokey
 title "Test gre tunnel without a key"
@@ -99,8 +86,6 @@ create_gre_tunnel
 ping -q -c 10 -i 0.2 -w 4 $VM2_IP && success || err
 
 check_offloaded_rules 2
-check_word gre_sys enc_key_id
-check_word veth1 key_id
 
 cleanup
 test_done
