@@ -72,6 +72,7 @@ function quick_tcp() {
     sleep 0.5
     iperf -c $VM2_IP -t 1
     killall -9 iperf
+    wait &>/dev/null
 }
 
 # quick traffic to cause offload
@@ -88,6 +89,7 @@ function test_tcp() {
     sleep 0.5
     iperf -c $VM2_IP -t 10
     killall -9 iperf
+    wait &>/dev/null
 }
 
 test_tcp

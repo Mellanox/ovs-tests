@@ -74,6 +74,7 @@ function quick_udp() {
     sleep 0.5
     iperf -u -c $VM2_IP -t 1 -b1G
     killall -9 iperf
+    wait &>/dev/null
 }
 
 # quick traffic to cause offload
@@ -90,6 +91,7 @@ function test_udp() {
     sleep 0.5
     iperf -u -c $VM2_IP -t 10 -b1G
     killall -9 iperf
+    wait &>/dev/null
 }
 
 test_udp
