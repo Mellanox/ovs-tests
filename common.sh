@@ -91,6 +91,10 @@ function __setup_common() {
     local status
     local device
 
+    sysfs_pci_device=`readlink -f /sys/class/net/$NIC/../../`
+    SRIOV_NUMVFS_NIC=$sysfs_pci_device/sriov_numvfs
+    sysfs_pci_device2=`readlink -f /sys/class/net/$NIC2/../../`
+    SRIOV_NUMVFS_NIC2=$sysfs_pci_device2/sriov_numvfs
     PCI=$(basename `readlink /sys/class/net/$NIC/device`)
     DEVICE=`cat /sys/class/net/$NIC/device/device`
     FW=`get_nic_fw $NIC`
@@ -464,7 +468,16 @@ function enable_switchdev_if_no_rep() {
 function config_sriov() {
     local num=${1:-2}
     local nic=${2:-$NIC}
-    local numvfs="/sys/class/net/$nic/device/sriov_numvfs"
+    local numvfs
+
+    if [ "$nic" == "$NIC" ]; then
+        numvfs=$SRIOV_NUMVFS_NIC
+    elif [ "$nic" == "$NIC2" ]; then
+        numvfs=$SRIOV_NUMVFS_NIC2
+    fi
+
+    [ -z "$numvfs" ] && fail "numvfs for $nic is NULL"
+
     local cur=`cat $numvfs`
     if [ $cur -eq $num ]; then
         return
