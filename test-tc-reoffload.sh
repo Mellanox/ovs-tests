@@ -16,7 +16,8 @@ my_dir="$(dirname "$0")"
 
 function require_ingress_block_support() {
     local e
-    reset_tc $NIC
+    tc qdisc del dev $NIC ingress &>/dev/null
+    tc qdisc del dev $NIC ingress_block 1 ingress &>/dev/null
     tc qdisc add dev $NIC ingress_block 1 ingress &>/dev/null
     e=$?
     tc qdisc del dev $NIC ingress_block 1 ingress &>/dev/null
