@@ -10,13 +10,11 @@ from glob import glob
 from tempfile import mkdtemp
 from mlxredmine import MlxRedmine
 
-
 MYNAME = os.path.basename(__file__)
 MYDIR = os.path.abspath(os.path.dirname(__file__))
 LOGDIR = mkdtemp(prefix='log')
-
 TESTS = sorted(glob(MYDIR + '/test-*'))
-IGNORE_TESTS = [MYNAME]
+IGNORE_TESTS = ["*ecmp*"]
 SKIP_TESTS = {}
 
 COLOURS = {
@@ -177,11 +175,14 @@ def main():
     args = parse_args()
     exclude = []
     ignore = False
+
     if args.from_test:
         ignore = True
+
     if args.exclude:
-        exclude.extend(IGNORE_TESTS)
         exclude.extend(args.exclude)
+
+    exclude.extend(IGNORE_TESTS)
     glob_tests(args, TESTS)
 
     print "Log dir: " + LOGDIR
