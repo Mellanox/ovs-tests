@@ -5,49 +5,17 @@
 # Bug SW #1318772: [ASAP-ECMP MLNX OFED] Traffic not offloaded after failover and failback
 #
 
-NIC=${1:-ens5f0}
-
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
-
-config_sriov 2
-require_multipath_support
-reset_tc_nic $NIC
+. $my_dir/common-ecmp.sh
 
 local_ip="39.0.10.60"
 remote_ip="36.0.10.180"
 dst_mac="e4:1d:2d:fd:8b:02"
-flag=skip_sw
 dst_port=4789
 id=98
 net=`getnet $remote_ip 24`
 [ -z "$net" ] && fail "Missing net"
-
-
-function disable_sriov() {
-    echo "- Disable SRIOV"
-    echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
-function enable_sriov() {
-    echo "- Enable SRIOV"
-    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
-function enable_multipath_and_sriov() {
-    echo "- Enable multipath"
-    a=`cat /sys/class/net/$NIC/device/sriov_numvfs`
-    b=`cat /sys/class/net/$NIC2/device/sriov_numvfs`
-    if [ $a -eq 0 ] || [ $b -eq 0 ]; then
-        disable_sriov
-        enable_sriov
-    fi
-    unbind_vfs $NIC
-    unbind_vfs $NIC2
-    enable_multipath || err "Failed to enable multipath"
-}
 
 function cleanup() {
     ip link del dev vxlan1 2> /dev/null
@@ -81,49 +49,40 @@ function add_vxlan_rule() {
     reset_tc $REP
 
     tc_filter add dev $REP protocol arp parent ffff: prio 1 \
-        flower dst_mac $dst_mac $flag \
+        flower dst_mac $dst_mac skip_sw \
         action tunnel_key set \
             id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
         action mirred egress redirect dev vxlan1
 }
 
-dev1=$NIC
-dev2=$NIC2
-dev1_ip=38.2.10.60
-dev2_ip=38.1.10.60
-n1=38.2.10.1
-n2=38.1.10.1
-
-function config_multipath_route() {
-    echo "config multipath route"
-    ip l add dev dummy9 type dummy &>/dev/null
-    ifconfig dummy9 $local_ip/24
-    ifconfig $NIC $dev1_ip/24
-    ifconfig $NIC2 $dev2_ip/24
-    ip r r $net nexthop via $n1 dev $dev1 nexthop via $n2 dev $dev2
-    ip n del $n1 dev $dev1 &>/dev/null
-    ip n del $n2 dev $dev2 &>/dev/null
-    ip n del $remote_ip dev $dev1 &>/dev/null
-    ip n del $remote_ip dev $dev2 &>/dev/null
-}
-
 function verify_neigh() {
     local nn=$@
     local a
+    local e=0
+
+    echo "verify neigh entry"
 
     for i in $nn ; do
         a=`ip n show $i | grep -v FAILED`
-        [ -z "$a" ] && err "Expected to find neigh $i" || echo $a
+        if [ -z "$a" ]; then
+            e=1
+            err "Expected to find neigh $i"
+        else
+            echo $a
+        fi
     done
 
     a=`ip n show $remote_ip | grep -v FAILED`
-    [ -n "$a" ] && echo $a && err "Not expected neigh entry for $remote_ip"
+    if [ -n "$a" ]; then
+        e=1
+        err "Not expected neigh entry: $a"
+    fi
+
+    [ $e -eq 0 ] && success
 }
 
 function config() {
-    enable_multipath_and_sriov
-    wa_reset_multipath
-    bind_vfs $NIC
+    config_ports
     config_vxlan
 }
 
@@ -201,5 +160,7 @@ fi
 do_test test_add_multipath_rule_route1_dead
 do_test test_add_multipath_rule_route2_dead
 
+echo "cleanup"
 cleanup
+deconfig_ports
 test_done

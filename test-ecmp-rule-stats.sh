@@ -6,52 +6,20 @@
 # Bug SW #1431290: [IBM ECMP] intermediate high latency pings when a PF is down
 #
 
-NIC=${1:-ens5f0}
-
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
+. $my_dir/common-ecmp.sh
 
-config_sriov 2
-require_multipath_support
 require_mlxdump
-reset_tc_nic $NIC
 
 local_ip="49.0.10.60"
 remote_ip="46.0.10.180"
 dst_mac="e4:1d:2d:fd:8b:02"
-flag=skip_sw
 dst_port=4789
 id=98
 net=`getnet $remote_ip 24`
 [ -z "$net" ] && fail "Missing net"
 
-
-function disable_sriov() {
-    echo "- Disable SRIOV"
-    echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
-function enable_sriov() {
-    echo "- Enable SRIOV"
-    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
-function enable_multipath_and_sriov() {
-    local a
-    local b
-    echo "- Enable multipath"
-    a=`cat /sys/class/net/$NIC/device/sriov_numvfs`
-    b=`cat /sys/class/net/$NIC2/device/sriov_numvfs`
-    if [ $a -eq 0 ] || [ $b -eq 0 ]; then
-        disable_sriov
-        enable_sriov
-    fi
-    unbind_vfs $NIC
-    unbind_vfs $NIC2
-    enable_multipath || err "Failed to enable multipath"
-}
 
 function cleanup() {
     ip link del dev vxlan1 2> /dev/null
@@ -59,6 +27,7 @@ function cleanup() {
     ip n del ${remote_ip6} dev $NIC 2>/dev/null
     ifconfig $NIC down
     ifconfig $NIC2 down
+    ip addr flush dev $VF &>/dev/null
     ip addr flush dev $NIC
     ip addr flush dev $NIC2
     ip l del dummy9 &>/dev/null
@@ -81,94 +50,59 @@ function add_vxlan_rule() {
     echo "local_ip $local_ip remote_ip $remote_ip"
 
     tc_filter add dev $REP protocol ip parent ffff: prio 1 \
-        flower ip_proto icmp dst_mac $dst_mac $flag \
+        flower ip_proto icmp dst_mac $dst_mac skip_sw \
         action tunnel_key set \
             id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
         action mirred egress redirect dev vxlan1
 }
 
-dev1=$NIC
-dev2=$NIC2
-dev1_ip=48.2.10.60
-dev2_ip=48.1.10.60
-n1=48.2.10.1
-n2=48.1.10.1
-
-function config_multipath_route() {
-    echo "config multipath route"
-    ip l add dev dummy9 type dummy &>/dev/null
-    ifconfig dummy9 $local_ip/24
-    ifconfig $NIC $dev1_ip/24
-    ifconfig $NIC2 $dev2_ip/24
-    ip r r $net nexthop via $n1 dev $dev1 nexthop via $n2 dev $dev2
-    ip n del $n1 dev $dev1 &>/dev/null
-    ip n del $n2 dev $dev2 &>/dev/null
-    ip n del $remote_ip dev $dev1 &>/dev/null
-    ip n del $remote_ip dev $dev2 &>/dev/null
-    ip n add $n1 dev $dev1 lladdr e4:1d:2d:31:eb:08
-    ip n add $n2 dev $dev2 lladdr e4:1d:2d:31:eb:08
-}
-
 function config() {
-    enable_multipath_and_sriov
-    wa_reset_multipath
-    bind_vfs $NIC
-    reset_tc $NIC
-    reset_tc $REP
-    config_vxlan
-    ifconfig $NIC down
-    ifconfig $NIC2 down
+    config_ports
     ifconfig $NIC up
     ifconfig $NIC2 up
-    ifconfig $REP up
-    ifconfig $VF up
+    config_vxlan
 }
 
-function no_encap_rules() {
-    local i=$1
-    i=$i && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
-    cat /tmp/port$i | tr -d ' ' | grep "action:0x1c" || echo "No encap rule in port$i as expected"
+function get_packets() {
+    tc -s filter show dev $REP ingress | grep bytes
+    a=`tc -j -s filter show dev $REP ingress | jq ".[1].options.actions[1].stats.packets"`
 }
 
-function look_for_encap_rules() {
-    local ports=$@
-    local i
-    echo "look for encap rules"
-    for i in $ports ; do
-        i=$i && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
-        cat /tmp/port$i | tr -d ' ' | grep "action:0x1c" || err "Cannot find encap rule in port$i"
-    done
-    tc -s filter show dev $REP ingress
+function do_traffic() {
+    ping -q -I $VF $ping_ip -i 0.1 -c 10 -w 2 &>/dev/null
 }
 
 function test_ecmp_rule_stats() {
     config_multipath_route
+    vf_lag_is_active || return 1
+    bind_vfs $NIC
 
     title "-- both ports up"
-    add_vxlan_rule $local_ip $remote_ip
-
     ifconfig $NIC up
     ifconfig $NIC2 up
     ifconfig $REP up
     ifconfig $VF up
     wait_for_linkup $NIC
     wait_for_linkup $NIC2
+
+    reset_tc $NIC $REP vxlan1
+    add_vxlan_rule $local_ip $remote_ip
+
     ping_ip="1.1.1.2"
+    ifconfig $VF 1.1.1.1/24 up
     ip n add $ping_ip dev $VF lladdr $dst_mac
 
     title "-- starts with 0"
-    tc -s filter show dev $REP ingress | grep bytes
-    a=`tc -j -s filter show dev $REP ingress | jq ".[1].options.actions[1].stats.packets"`
+    get_packets
     if [ "$a" != 0 ]; then
         err "Expected 0 packets"
         return
     fi
 
     title "-- ping"
-    ping -q -I $VF $ping_ip -i 0.1 -c 10 -w 2
+    do_traffic
     sleep 1 # seems needed for good report
-    tc -s filter show dev $REP ingress | grep bytes
-    a=`tc -j -s filter show dev $REP ingress | jq ".[1].options.actions[1].stats.packets"`
+    get_packets
     if [ "$a" -lt 10 ]; then
         err "Expected 10 packets"
         return
@@ -180,15 +114,15 @@ function test_ecmp_rule_stats() {
     sleep 2 # wait for neigh update
     
     title "-- ping"
-    ping -q -I $VF $ping_ip -i 0.1 -c 10 -w 2
+    do_traffic
     sleep 1
-    tc -s filter show dev $REP ingress | grep bytes
-    a=`tc -j -s filter show dev $REP ingress | jq ".[1].options.actions[1].stats.packets"`
+    get_packets
     if [ "$a" -lt 20 ]; then
         err "Expected 20 packets"
         return
     fi
     success
+
     title "-- port0 up"
     ifconfig $dev1 up
     wait_for_linkup $dev1
@@ -199,20 +133,20 @@ function test_ecmp_rule_stats() {
     sleep 2 # wait for neigh update
     
     title "-- ping"
-    ping -q -I $VF $ping_ip -i 0.1 -c 10 -w 2
+    do_traffic
     sleep 1
-    tc -s filter show dev $REP ingress | grep bytes
-    a=`tc -j -s filter show dev $REP ingress | jq ".[1].options.actions[1].stats.packets"`
+    get_packets
     if [ "$a" -lt 30 ]; then
         err "Expected 30 packets"
         return
     fi
     success
+
     title "-- port1 up"
     ifconfig $dev2 up
     ip n add $n2 dev $dev2 lladdr e4:1d:2d:31:eb:08
 
-    reset_tc_nic $REP
+    reset_tc $REP
 }
 
 function do_test() {
@@ -223,6 +157,7 @@ function do_test() {
 
 cleanup
 config
-
 do_test test_ecmp_rule_stats
+echo "cleanup"
+deconfig_ports
 test_done
