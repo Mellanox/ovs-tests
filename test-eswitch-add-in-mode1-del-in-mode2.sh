@@ -11,31 +11,27 @@
 # Bug SW #1481378: [upstream] possible circular locking dependency detected
 #
 
-NIC=${1:-ens5f0}
-
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-
 COUNT=5
-NIC1=$NIC
 
 function add_rules() {
     title "- add some rules"
     for i in `seq $COUNT`; do
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
-        tc_filter add dev $NIC1 protocol ip parent ffff: prio $i \
-            flower skip_sw indev $NIC1 \
-            src_mac e1:22:33:44:${num1}:$num2 \
-            dst_mac e2:22:33:44:${num1}:$num2 \
+        tc_filter add dev $NIC protocol ip parent ffff: prio $i \
+            flower skip_sw \
+            src_mac e4:11:33:44:${num1}:$num2 \
+            dst_mac e4:12:33:44:${num1}:$num2 \
             action drop
     done
 }
 
 function add_vlan_rule() {
     title "- add vlan rule"
-    tc_filter add dev $NIC1 protocol 802.1Q parent ffff: prio 15 \
+    tc_filter add dev $NIC protocol 802.1Q parent ffff: prio 15 \
                 flower skip_sw \
                         dst_mac e4:11:22:11:4a:51 \
                         src_mac e4:11:22:11:4a:50 \
@@ -91,23 +87,24 @@ function add_vxlan_rule() {
 
 function test_legacy_switchdev() {
     title "Add rule in legacy mode and reset in switchdev"
-    reset_tc_nic $NIC
+    unbind_vfs
     switch_mode_legacy
+    reset_tc_nic $NIC
     add_rules
     add_vlan_rule
     title "- unbind vfs"
     unbind_vfs
     title "- switch to switchdev"
     switch_mode_switchdev
-    title " - reset tc"
     reset_tc_nic $NIC
     success
 }
 
 function test_switchdev_legacy() {
     title "Add rule in switchdev mode and reset in legacy"
-    reset_tc_nic $NIC
+    unbind_vfs
     switch_mode_switchdev
+    reset_tc_nic $NIC
     title "- add rules"
     add_rules
     add_vlan_rule
@@ -116,7 +113,6 @@ function test_switchdev_legacy() {
     unbind_vfs
     title "- switch to legacy"
     switch_mode_legacy
-    title " - reset tc"
     reset_tc_nic $NIC
     success
 }
