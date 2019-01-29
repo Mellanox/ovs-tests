@@ -25,7 +25,7 @@ function par_test() {
     local force=''
     local max_rules=$total
     if [ $dup == 1 ]; then
-        max_rules=$rules_per_file
+        max_rules=`min $total $rules_per_file`
         echo "Generating duplicate batches"
         force='-force'
     else
