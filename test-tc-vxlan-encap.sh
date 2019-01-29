@@ -26,8 +26,6 @@ function cleanup() {
     ifconfig $NIC down
     ip addr flush dev $NIC
     reset_tc $NIC
-#    ip l del dummy9 &>/dev/null
-#    ip r d $net &>/dev/null
 }
 
 function config_vxlan() {
@@ -51,13 +49,6 @@ function add_vxlan_rule() {
         action tunnel_key set \
             id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
         action mirred egress redirect dev vxlan1
-}
-
-function config_route() {
-    echo "config route"
-    ip n r $remote_ip dev $NIC lladdr e4:1d:2d:31:eb:08
-#    ip l add dev dummy9 type dummy &>/dev/null
-#    ifconfig dummy9 $local_ip/24
 }
 
 function verify_rule_in_hw() {
@@ -91,7 +82,7 @@ function verify_neigh() {
 }
 
 function test_add_encap_rule() {
-    config_route
+    ip n r $remote_ip dev $NIC lladdr e4:1d:2d:31:eb:08
     ip r show dev $NIC
     ip n show $remote_ip
     add_vxlan_rule $local_ip $remote_ip
@@ -101,7 +92,6 @@ function test_add_encap_rule() {
 }
 
 function test_add_encap_rule_neigh_missing() {
-    config_route
     echo "del neigh"
     ip n del $remote_ip dev $NIC
     ip r show dev $NIC
@@ -114,7 +104,6 @@ function test_add_encap_rule_neigh_missing() {
 
 # this is like route missing
 function test_add_encap_rule_tunnel_down() {
-    config_route
     echo "nic down"
     ifconfig $NIC down
     ip r show dev $NIC
