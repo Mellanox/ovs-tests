@@ -179,6 +179,14 @@ $tmp
 $sep"
 }
 
+function max() {
+    echo $(($1>$2?$1:$2))
+}
+
+function min() {
+    echo $(($1<$2?$1:$2))
+}
+
 function ethtool_hw_tc_offload() {
     local nic="$1"
     ethtool -K $nic1 hw-tc-offload on &>/dev/null
