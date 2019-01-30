@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+# Bug SW #1659734: [OVS] ignore header rewrite if the new value is the same as the match vlaue
 # Bug SW #1623421: [Nuage][OVS] ignore header rewrite if the new value is the same as the match vlaue
 #
 
