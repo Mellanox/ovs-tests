@@ -23,18 +23,6 @@ function tc_filter() {
     eval2 tc filter $@ && success
 }
 
-function disable_sriov() {
-    echo "- Disable SRIOV"
-    echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
-function enable_sriov() {
-    echo "- Enable SRIOV"
-    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
 function is_bonded() {
     dmesg | tail -n10 | grep -E "mlx5_core [0-9.:]+ lag map port 1:. port 2:."
     return $?

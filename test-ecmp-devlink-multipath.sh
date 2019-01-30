@@ -15,27 +15,6 @@ require_multipath_support
 reset_tc_nic $NIC
 
 
-function disable_sriov() {
-    echo "- Disable SRIOV"
-    echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
-function enable_sriov() {
-    enable_sriov_port1
-    enable_sriov_port2
-}
-
-function enable_sriov_port1() {
-    echo "- Enable SRIOV port1"
-    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
-}
-
-function enable_sriov_port2() {
-    echo "- Enable SRIOV port2"
-    echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
 function activate_multipath() {
     echo "- Enable multipath"
     disable_sriov

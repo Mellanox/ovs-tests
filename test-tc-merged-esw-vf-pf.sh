@@ -7,17 +7,6 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 
-function disable_sriov_port2() {
-    echo "- Disable SRIOV"
-    echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
-function enable_sriov_port2() {
-    echo "- Enable SRIOV"
-    echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
-
 title "Test redirect rule from vf on esw0 to vf on esw1"
 start_check_syndrome
 enable_switchdev_if_no_rep $REP

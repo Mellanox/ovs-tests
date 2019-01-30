@@ -24,19 +24,6 @@ id=98
 net=`getnet $remote_ip 24`
 [ -z "$net" ] && fail "Missing net"
 
-
-function disable_sriov() {
-    echo "- Disable SRIOV"
-    echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
-function enable_sriov() {
-    echo "- Enable SRIOV"
-    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
 function enable_multipath_and_sriov() {
     echo "- Enable multipath"
     a=`cat /sys/class/net/$NIC/device/sriov_numvfs`

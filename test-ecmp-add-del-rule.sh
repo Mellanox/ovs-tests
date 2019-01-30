@@ -20,18 +20,6 @@ flag=skip_sw
 dst_port=1234
 id=98
 
-function disable_sriov() {
-    echo "- Disable SRIOV"
-    echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
-function enable_sriov() {
-    echo "- Enable SRIOV"
-    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
 function enable_multipath_and_sriov() {
     echo "- Enable multipath"
     disable_sriov

@@ -11,17 +11,6 @@ my_dir="$(dirname "$0")"
 enable_switchdev
 require_interfaces NIC NIC2
 
-function disable_sriov_port2() {
-    title "- Disable SRIOV"
-    echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
-function enable_sriov_port2() {
-    title "- Enable SRIOV"
-    echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
-
 title "Test drop rule on port2"
 start_check_syndrome
 disable_sriov_port2

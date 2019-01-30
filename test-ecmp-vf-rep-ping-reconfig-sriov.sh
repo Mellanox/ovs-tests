@@ -23,16 +23,10 @@ require_multipath_support
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
-function disable_sriov() {
-    title "- Disable SRIOV"
-    echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
-function enable_sriov() {
+function enable_sriov2() {
     title "- Enable SRIOV"
-    echo $VF_COUNT_PF0 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo $VF_COUNT_PF1 > /sys/class/net/$NIC2/device/sriov_numvfs
+    echo $VF_COUNT_PF0 > $SRIOV_NUMVFS_NIC
+    echo $VF_COUNT_PF1 > $SRIOV_NUMVFS_NIC2
 }
 
 function cleanup() {
@@ -59,7 +53,7 @@ function do_test() {
     title "- Enable multipath"
     disable_multipath
     enable_multipath || err "Failed to enable multipath"
-    enable_sriov
+    enable_sriov2
     set_macs
     enable_switchdev $NIC
     enable_switchdev $NIC2

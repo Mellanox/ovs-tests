@@ -11,19 +11,6 @@ my_dir="$(dirname "$0")"
 config_sriov 2
 require_multipath_support
 
-
-function disable_sriov() {
-    echo "- Disable SRIOV"
-    echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
-function enable_sriov() {
-    echo "- Enable SRIOV"
-    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
 function set_switchdev() {
     enable_switchdev $NIC
     enable_switchdev $NIC2

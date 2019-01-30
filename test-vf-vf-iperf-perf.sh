@@ -38,19 +38,6 @@ function config_vf() {
     ip netns exec $ns ifconfig $vf $ip/24 up
 }
 
-function disable_sriov() {
-    title "- Disable SRIOV"
-    echo 0 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 0 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
-function enable_sriov() {
-    title "- Enable SRIOV"
-    echo 2 > /sys/class/net/$NIC/device/sriov_numvfs
-    echo 2 > /sys/class/net/$NIC2/device/sriov_numvfs
-}
-
-
 if [ $MULTIPATH == 1 ]; then
     disable_sriov
     enable_multipath || fail

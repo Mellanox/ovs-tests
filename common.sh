@@ -495,6 +495,24 @@ function config_sriov() {
     echo $num > $numvfs || fail "Failed to config $num VFs on $nic"
 }
 
+function disable_sriov() {
+    config_sriov 0 $NIC
+    config_sriov 0 $NIC2
+}
+
+function enable_sriov() {
+    config_sriov 2 $NIC
+    config_sriov 2 $NIC2
+}
+
+function disable_sriov_port2() {
+    config_sriov 0 $NIC2
+}
+
+function enable_sriov_port2() {
+    config_sriov 2 $NIC2
+}
+
 function set_macs() {
     local count=$1 # optional
     $SET_MACS $NIC $count
