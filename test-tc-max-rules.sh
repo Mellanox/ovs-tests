@@ -76,6 +76,7 @@ function test_max_rules_legacy() {
     for _nic in $CASE_NIC; do
         config_sriov 2 $_nic
         enable_legacy $_nic
+        reset_tc_nic $_nic
     done
     __test_max_rules
 }
