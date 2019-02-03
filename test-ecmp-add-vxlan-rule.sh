@@ -87,7 +87,7 @@ function config() {
 
 function test_add_multipath_rule() {
     config_multipath_route
-    vf_lag_is_active
+    vf_lag_is_active || return 1
     ip r show $net
     add_vxlan_rule $local_ip $remote_ip
     verify_rule_in_hw

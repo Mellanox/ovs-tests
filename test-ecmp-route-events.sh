@@ -77,7 +77,7 @@ sleep 1
 # here we get ENTRY_REPLACE
 title "create multipath route"
 ip r r $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
-vf_lag_is_active
+vf_lag_is_active || fail
 echo ; ip r ; echo
 
 # ENTRY_DEL event
