@@ -31,21 +31,6 @@ function chk() {
     fi
 }
 
-#function chkn() {
-#    local tst="$1"
-#    local emsg="$2"
-#    sleep 0.5
-#    a=`dmesg | tail -n6 | grep "$tst"`
-#    if [ $? -ne 0 ]; then
-#        success
-#        return 0
-#    else
-#        echo $a
-#        err $emsg
-#        return 1
-#    fi
-#}
-
 
 log "cleanup"
 cleanup
@@ -80,6 +65,7 @@ ip r r $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
 vf_lag_is_active || fail
 echo ; ip r ; echo
 
+start_check_syndrome
 # ENTRY_DEL event
 # not going out from multipath unless going to legacy again so need to do that.
 title "del route"
@@ -90,6 +76,7 @@ ip r d $net
 title "add route"
 ip r r $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
 # no log
+check_syndrome
 
 function tst_netdev() {
     local p0=$1
@@ -132,6 +119,7 @@ tst_netdev $NIC2 $route2 $NIC $route1
 echo
 
 title "multiple routes"
+start_check_syndrome
 ip r d $net
 ip r r $net2 nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
 ip r r $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
@@ -139,13 +127,8 @@ tst_netdev $NIC $route1 $NIC2 $route2
 tst_netdev $NIC2 $route2 $NIC $route1
 ip r d $net
 ip r d $net2
+check_syndrome
 echo
-
-#title "multiple routes - delete second route - vf lag not destroyed"
-#ip r r $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
-#ip r r $net2 nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
-#ip r d $net2
-#chkn "remove multipath" "didn't expect remove multipath"
 
 title "multipath 1 hca port and 1 dummy port"
 ip link add dummy1 type dummy
@@ -154,18 +137,7 @@ ip r r $net nexthop via $route1 dev $NIC nexthop via 8.8.8.1 dev dummy1
 chk "Multipath offload require two ports of the same HCA" "Expected warning"
 ip link del dummy1
 
-title "deactivate multipath by set port to legacy"
-enable_legacy $NIC2
-chk "Deactivate multipath" "failed to disable multipath"
-
-title "test fib events in legacy"
-ifconfig $NIC up
-ifconfig $NIC2 up
-ip r r $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
-ip r r $net nexthop via $route1 dev $NIC
-ip r r $net nexthop via $route2 dev $NIC2
-ip r d $net
-# expect no log
-
+title "deactivate multipath"
 deconfig_ports
+
 test_done
