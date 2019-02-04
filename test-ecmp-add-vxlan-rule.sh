@@ -58,10 +58,12 @@ function add_vxlan_rule() {
         action mirred egress redirect dev vxlan1
 
     tc_filter add dev vxlan1 protocol arp parent ffff: prio 2 \
-        flower src_mac $dst_mac skip_sw \
+        flower src_mac $dst_mac \
         enc_key_id $id enc_src_ip ${remote_ip} enc_dst_ip ${local_ip} enc_dst_port ${dst_port} \
         action tunnel_key unset \
         action mirred egress redirect dev $REP
+    # some kernels don't support offloading decap skip_sw so dont use it.
+    # this test verify later the decap rule is in hw.
 }
 
 function verify_rule_in_hw() {
