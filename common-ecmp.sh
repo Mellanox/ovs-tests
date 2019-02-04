@@ -1,25 +1,23 @@
 #!/bin/bash
 
 function config_ports() {
-# skip for now - error disabling/enabling fw vf lag
-#    config_sriov 0
     config_sriov 2
     config_sriov 2 $NIC2
     enable_switchdev
     enable_switchdev $NIC2
-    # need to unbind vfs to enter vf lag mode
+    # need to unbind vfs to create/destroy vf lag
     unbind_vfs
     unbind_vfs $NIC2
 }
 
 function deconfig_ports() {
-# skip for now - error disabling/enabling fw vf lag
-    return
-    # need to bind vfs to exit vf lag mode
+    # need to unbind vfs to create/destroy vf lag
     start_check_syndrome
-    bind_vfs
-    bind_vfs $NIC2
-    config_sriov 0 $NIC2
+    unbind_vfs
+    unbind_vfs $NIC2
+    # disabling sriov will cause a syndrome when destroying vf lag that we need
+    # to be lag master. instead just move to legacy.
+    enable_legacy $NIC2
     check_syndrome
 }
 
