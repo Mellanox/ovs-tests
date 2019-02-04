@@ -65,14 +65,18 @@ function add_vxlan_rule() {
 }
 
 function verify_rule_in_hw() {
-    echo "verify rules in hw"
+    title "verify rules in hw"
     i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
     i=1 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
     for i in 0 1 ; do
-        if ! cat /tmp/port$i | grep -e "action.*:0x1c" ; then
+        if cat /tmp/port$i | grep -e "action.*:0x1c" ; then
+            success2 "Found encap rule for port$1"
+        else
             err "Missing encap rule for port$i"
         fi
-        if ! cat /tmp/port$i | grep -e "action.*:0x2c" ; then
+        if cat /tmp/port$i | grep -e "action.*:0x2c" ; then
+            success2 "Found decap rule for port$1"
+        else
             err "Missing decap rule for port$i"
         fi
     done
