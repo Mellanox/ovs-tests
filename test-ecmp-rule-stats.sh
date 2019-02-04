@@ -99,7 +99,7 @@ function test_ecmp_rule_stats() {
         return
     fi
 
-    title "-- ping"
+    title "-- ping and expect 10 packets"
     do_traffic
     sleep 1 # seems needed for good report
     get_packets
@@ -113,7 +113,7 @@ function test_ecmp_rule_stats() {
     ifconfig $dev1 down
     sleep 2 # wait for neigh update
     
-    title "-- ping"
+    title "-- ping and expect 20 packets"
     do_traffic
     sleep 1
     get_packets
@@ -132,7 +132,7 @@ function test_ecmp_rule_stats() {
     ifconfig $dev2 down
     sleep 2 # wait for neigh update
     
-    title "-- ping"
+    title "-- ping and expect 30 packets"
     do_traffic
     sleep 1
     get_packets
