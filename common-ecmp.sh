@@ -49,18 +49,31 @@ n2=48.1.10.1
 n_mac="e4:1d:2d:31:eb:08"
 
 function config_multipath_route() {
-    echo "config multipath route"
+    log "config multipath route"
     ip l add dev $out_dev type dummy &>/dev/null
-    ifconfig $out_dev $local_ip/24
-    ifconfig $dev1 $dev1_ip/24
-    ifconfig $dev2 $dev2_ip/24
+    ifconfig $out_dev $local_ip/24 up
+    ifconfig $dev1 $dev1_ip/24 up
+    ifconfig $dev2 $dev2_ip/24 up
     ip r r $net nexthop via $n1 dev $dev1 nexthop via $n2 dev $dev2
+
     ip n del $n1 dev $dev1 &>/dev/null
     ip n del $n2 dev $dev2 &>/dev/null
     ip n del $remote_ip dev $dev1 &>/dev/null
     ip n del $remote_ip dev $dev2 &>/dev/null
     ip n add $n1 dev $dev1 lladdr $n_mac
     ip n add $n2 dev $dev2 lladdr $n_mac
+}
+
+function cleanup_multipath() {
+    ip r d $net &>/dev/null
+    ifconfig $NIC down
+    ifconfig $NIC2 down
+    ip addr flush dev $NIC
+    ip addr flush dev $NIC2
+    ip link del dev dummy9 &>/dev/null
+    ip link del dev vxlan1 &> /dev/null
+    ip n del ${remote_ip} dev $NIC &>/dev/null
+    ip n del ${remote_ip6} dev $NIC &>/dev/null
 }
 
 function no_encap_rules() {

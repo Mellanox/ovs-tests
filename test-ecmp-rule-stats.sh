@@ -22,16 +22,7 @@ net=`getnet $remote_ip 24`
 
 
 function cleanup() {
-    ip link del dev vxlan1 2> /dev/null
-    ip n del ${remote_ip} dev $NIC 2>/dev/null
-    ip n del ${remote_ip6} dev $NIC 2>/dev/null
-    ifconfig $NIC down
-    ifconfig $NIC2 down
-    ip addr flush dev $VF &>/dev/null
-    ip addr flush dev $NIC
-    ip addr flush dev $NIC2
-    ip l del dummy9 &>/dev/null
-    ip r d $net &>/dev/null
+    cleanup_multipath
 }
 trap cleanup EXIT
 
@@ -159,5 +150,6 @@ cleanup
 config
 do_test test_ecmp_rule_stats
 echo "cleanup"
+cleanup
 deconfig_ports
 test_done
