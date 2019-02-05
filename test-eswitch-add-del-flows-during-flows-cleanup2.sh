@@ -92,8 +92,8 @@ function test_case_del_in_legacy() {
 
     title "Test del flows case in legacy $case"
     test -e /sys/class/net/$case || fail "Cannot find $case"
-    reset_tc_nic $case
     switch_mode_legacy
+    reset_tc_nic $case
     add_rules $case
     del_rules $case &
     sleep .2
@@ -122,6 +122,7 @@ function test_case_add_in_legacy() {
     title "Test add flows case in legacy $case"
     test -e /sys/class/net/$case || fail "Cannot find $case"
     switch_mode_legacy
+    reset_tc $case
     add_rules $case &
     sleep .2
     test_switch_mode_to switchdev &
@@ -136,19 +137,15 @@ function test_case_add_and_disable_sriov() {
     title "Test add and disable sriov case $case"
     test -e /sys/class/net/$case || fail "Cannot find $case"
     num=`cat /sys/class/net/$case/device/sriov_numvfs`
-    if [ "$num" == "0" ]; then
-        echo "enable sriov"
-        echo 2 > /sys/class/net/$case/device/sriov_numvfs
-    fi
+    config_sriov 2 $case
+    reset_tc $case
     add_rules $case &
     sleep .2
-    echo "disable sriov"
-    echo 0 > /sys/class/net/$case/device/sriov_numvfs
+    config_sriov 0 $case
     wait
     reset_tc_nic $case
     if [ "$num" != "0" ]; then
-        echo "enable sriov"
-        echo $num > /sys/class/net/$case/device/sriov_numvfs
+        config_sriov $num $case
         set_macs $num
     fi
     success
