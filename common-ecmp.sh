@@ -80,7 +80,7 @@ function no_encap_rules() {
     local i=$1
     local a
 
-    i=$i && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
+    mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
     a=`cat /tmp/port$i | tr -d ' ' | grep "action:0x1c"`
 
     if [ -z "$a" ]; then
@@ -96,7 +96,7 @@ function look_for_encap_rules() {
     local a
 
     for i in $ports ; do
-        i=$i && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
+        mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
         a=`cat /tmp/port$i | tr -d ' ' | grep "action:0x1c"`
 
         if [ -z "$a" ]; then
