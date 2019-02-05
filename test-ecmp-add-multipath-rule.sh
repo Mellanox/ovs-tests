@@ -34,10 +34,6 @@ function add_vxlan_rule() {
     local remote_ip="$2"
 
     echo "local_ip $local_ip remote_ip $remote_ip"
-
-    # tunnel key set
-    ifconfig $NIC up
-    reset_tc $NIC
     reset_tc $REP
 
     tc_filter add dev $REP protocol arp parent ffff: prio 1 \
