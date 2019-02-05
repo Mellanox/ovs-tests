@@ -41,7 +41,7 @@ function tc_batch() {
     local total=$3
     local rules_per_file=$4
     local cls=$5
-    local _action=${action:-gact drop}
+    local _action=${action:-drop}
     local n=0
     local count=0
     local handle=0
