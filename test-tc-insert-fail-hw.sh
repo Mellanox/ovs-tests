@@ -3,6 +3,7 @@
 # This test reproduce an issue we add rule to rhashtable but on error flow didnt
 # clean it.
 #
+# Bug SW #1658428: [upstream] On error flow from HW and skip_sw, we forgot to remove the rhashtable entry
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
