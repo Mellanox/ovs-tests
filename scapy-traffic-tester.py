@@ -107,7 +107,6 @@ def run_client(args):
     #conf.sniff_promisc = 0
 
     sent = 0
-    t_end = time.time() + args.time
     pkt_list = []
 
     for sport1 in range(args.src_port, args.src_port + args.src_port_count):
@@ -118,6 +117,7 @@ def run_client(args):
             pkt_list.append(pkt)
 
     print "Prepared %d packets" % len(pkt_list)
+    t_end = time.time() + args.time
     s = conf.L3socket(iface=args.dev)
     try:
         while time.time() < t_end:
