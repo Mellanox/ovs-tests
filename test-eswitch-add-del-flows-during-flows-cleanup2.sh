@@ -27,6 +27,8 @@ COUNT=500
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+require_min_kernel_5
+
 enable_switchdev
 rep=`get_rep 0`
 if [ -z "$rep" ]; then

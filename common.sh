@@ -143,6 +143,11 @@ function require_module() {
     modprobe -q $module || fail "Missing module $module"
 }
 
+function require_min_kernel_5() {
+    local v=`uname -r | cut -d. -f1`
+    [ $v -lt 5 ] && fail "Require minimum kernel 5"
+}
+
 function fw_reset() {
     mlxfwreset -y -d $PCI reset
 }
