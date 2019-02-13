@@ -112,6 +112,15 @@ function tst_netdev() {
     # TODO test r2 as first path and r1 as second path
     ip r r $net nexthop via $r1 dev $p0 nexthop via $r2 dev $p1
     chk "$lag_default" "expected affinity default"
+
+    title "new route single hop"
+    ip r d $net
+    ip r a $net nexthop via $r1 dev $p0
+    chk "$lag_p0" "expected affinity to $p0"
+
+    title "restore"
+    ip r r $net nexthop via $r1 dev $p0 nexthop via $r2 dev $p1
+    chk "$lag_default" "expected affinity default"
 }
 
 tst_netdev $NIC $route1 $NIC2 $route2
@@ -136,6 +145,7 @@ ifconfig dummy1 8.8.8.1/24 up
 ip r r $net nexthop via $route1 dev $NIC nexthop via 8.8.8.1 dev dummy1
 chk "Multipath offload require two ports of the same HCA" "Expected warning"
 ip link del dummy1
+echo
 
 title "deactivate multipath"
 deconfig_ports
