@@ -24,7 +24,7 @@ declare -A actions
 actions=( ["bpf"]="action bpf bytecode '1,6 0 0 0,'"
           ["connmark"]="action connmark zone 1"
           ["csum"]="action csum ip4h udp"
-          ["gact"]="action gact drop"
+          ["gact"]="action drop"
           ["ife"]="action ife encode type 0xDEAD allow mark dst 02:15:15:15:15:15"
           ["mirred"]="action mirred egress redirect dev $REP"
           ["nat"]="action nat ingress any 192.168.1.1/24"
