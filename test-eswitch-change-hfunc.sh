@@ -18,9 +18,9 @@ function change_hfunc() {
     enable_switchdev_if_no_rep $REP
 
     log "set hfunc toeplitz"
-    ethtool -X ens1f0 hfunc toeplitz || err "Failed to set hfunc toeplitz"
+    ethtool -X $NIC hfunc toeplitz || err "Failed to set hfunc toeplitz"
     log "set hfunc xor"
-    ethtool -X ens1f0 hfunc xor || err "Failed to set hfunc xor"
+    ethtool -X $NIC hfunc xor || err "Failed to set hfunc xor"
     check_syndrome
 }
 
