@@ -7,8 +7,6 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 . $my_dir/common-ecmp.sh
 
-require_interfaces NIC NIC2
-
 function cleanup() {
     ip r d $net &>/dev/null
     ip l del dev dummy9 &>/dev/null
