@@ -7,5 +7,4 @@
 my_dir="$(dirname "$0")"
 
 USE_DPCTL=1
-VXLAN_PORT=4000
 . $my_dir/test-ovs-vxlan-in-ns.sh
