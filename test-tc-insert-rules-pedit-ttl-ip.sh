@@ -29,12 +29,13 @@ function tc_filter_failure() {
     elif [[ -z $std_error_text ]];then
         err "expected error message on stderr"
     else
+        local pattern="(can't offload re-write|^RTNETLINK answers)"
+
         echo $std_error_text
-        std_error_text=${std_error_text%% *}
-        if [[ $std_error_text != 'RTNETLINK' ]];then
-            warn "expected RTNETLINK error message on stderr"
-        else
+        if [[ $std_error_text =~ $pattern ]];then
             success
+        else
+            err "expected offload re-write error message on stderr"
         fi
     fi
 }
