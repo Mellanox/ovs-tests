@@ -20,8 +20,12 @@ id=98
 net=`getnet $remote_ip 24`
 [ -z "$net" ] && fail "Missing net"
 
+# default is vxlan
+TEST_GRE=0
+
 
 function cleanup() {
+    clean_gre
     cleanup_multipath
 }
 trap cleanup EXIT
@@ -32,6 +36,18 @@ function config_vxlan() {
     ip link set vxlan1 up
     ip addr add ${local_ip}/24 dev $NIC
     tc qdisc add dev vxlan1 ingress
+}
+
+function config_gre() {
+    echo "config gre dev"
+    ip link add gre_sys type gretap dev $NIC nocsum
+    ip link set gre_sys up
+    ip addr add ${local_ip}/24 dev $NIC
+    tc qdisc add dev gre_sys ingress
+}
+
+function clean_gre() {
+    ip l del gre_sys &>/dev/null
 }
 
 function add_vxlan_rule() {
@@ -47,11 +63,28 @@ function add_vxlan_rule() {
         action mirred egress redirect dev vxlan1
 }
 
+function add_gre_rule() {
+    local local_ip="$1"
+    local remote_ip="$2"
+
+    echo "local_ip $local_ip remote_ip $remote_ip"
+
+    tc_filter add dev $REP protocol ip parent ffff: prio 1 \
+        flower ip_proto icmp dst_mac $dst_mac skip_sw \
+        action tunnel_key set \
+            id $id src_ip ${local_ip} dst_ip ${remote_ip} nocsum \
+        action mirred egress redirect dev gre_sys
+}
+
 function config() {
     config_ports
     ifconfig $NIC up
     ifconfig $NIC2 up
-    config_vxlan
+    if [ "$TEST_GRE" = 1 ]; then
+        config_gre
+    else
+        config_vxlan
+    fi
 }
 
 function get_packets() {
@@ -76,8 +109,12 @@ function test_ecmp_rule_stats() {
     wait_for_linkup $NIC
     wait_for_linkup $NIC2
 
-    reset_tc $NIC $REP vxlan1
-    add_vxlan_rule $local_ip $remote_ip
+    reset_tc $NIC $REP
+    if [ "$TEST_GRE" = 1 ]; then
+        add_gre_rule $local_ip $remote_ip
+    else
+        add_vxlan_rule $local_ip $remote_ip
+    fi
 
     ping_ip="1.1.1.2"
     ifconfig $VF 1.1.1.1/24 up
