@@ -2,6 +2,7 @@
 #
 # Bug SW #1040416: slow path xmit on VF reps broken
 # Bug SW #896876: IP fragments sent by VFs are dropped
+# Bug SW #1590821: [JD] traffic lost for packets with 32k size or above
 #
 # with tcpdump we could see traffic VF->rep works but rep->VF doesn't.
 #
