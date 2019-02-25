@@ -43,7 +43,7 @@ TCP=6
 UDP=17
 
 PROTOS="ICMP TCP UDP"
-SIZES="0 1 7 8 9"
+SIZES="1 7 8 9"
 
 for P in $PROTOS; do
     title "Test procotol $P"
