@@ -94,14 +94,14 @@ function start_sniff() {
     sleep 0.5
 }
 
-echo "start sniff $REP"
-start_sniff $REP icmp
 
 mtu=576
 title "Test ping $VF($IP1) -> $VF2($IP2) MTU $mtu"
 set_mtu $mtu
+ip netns exec ns0 ping -q -c 1 -w 1 $IP2
+echo "start sniff $REP"
+start_sniff $REP icmp
 ip netns exec ns0 ping -q -f -w 4 $IP2 && success || err
-
 echo "verify tcpdump"
 verify_timedout $tpid
 
