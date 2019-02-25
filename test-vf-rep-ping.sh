@@ -41,9 +41,9 @@ function test_ping_flood() {
     TMP1=/tmp/ping1
     TMP2=/tmp/ping2
     TMP3=/tmp/ping3
-    COUNT=10000
+    COUNT=$1
     TIMEOUT=10
-    size=$1
+    size=$2
     title "Test ping flood $size"
     if [ -n "$size" ]; then
         size="-s $size"
@@ -71,8 +71,8 @@ function test_ping_flood() {
     rm -fr $TMP3
 }
 
-test_ping_flood
-test_ping_flood 32768
+test_ping_flood 10000
+test_ping_flood 1000 32768
 
 cleanup
 test_done
