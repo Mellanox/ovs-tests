@@ -83,7 +83,7 @@ function verify_timedout() {
     local pid=$1
     wait $pid
     local rc=$?
-    [ $rc == 124 ] && success || err "Process $pid rc $rc"
+    [ $rc == 124 ] && success || err "Didn't expect to see packets"
 }
 
 function start_sniff() {
