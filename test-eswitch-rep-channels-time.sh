@@ -39,31 +39,49 @@ function test_time_cmd() {
     local t2=`get_ms_time`
     let t=t2-t1
     if [ $t -gt $x ]; then
-        err "Expected to take less than $x ms"
+        err "Took $t but expected less than $x ms"
     else
-        success "took $t ms"
+        success "took $t ms (max $x)"
     fi
 }
 
 function test_time_set_channels() {
     local dev=$1
     echo "test time set channels for $dev"
-#    ip link set dev $dev down
-    test_time_cmd 180 "ethtool -L $dev combined 4"
+    test_time_cmd $expected_time "ethtool -L $dev combined 4"
 }
+
+function get_time_set_channels() {
+    local dev=$1
+    local t1=`get_ms_time`
+    ethtool -L $dev combined 4
+    local t2=`get_ms_time`
+    let t=t2-t1
+    if [ $t = "" ]; then
+        err "Got time 0"
+    fi
+    ethtool -L $dev combined 1
+}
+
+expected_time=0
 
 function test_reps() {
     local want=$1
 
+    config_sriov 0 $NIC
+
     title "Test $want REPs"
 
-    config_sriov 0 $NIC
     echo "Config $want VFs"
     time config_sriov $want $NIC
-    unbind_vfs $NIC
-    echo "Set switchdev"
-    time switch_mode_switchdev $NIC
 
+    echo "Set switchdev"
+    unbind_vfs $NIC
+    time switch_mode_switchdev $NIC
+    if [ $expected_time -eq 0 ]; then
+        get_time_set_channels $REP
+        let expected_time=$t+50
+    fi
     test_time_set_channels $REP
 
     enable_legacy
@@ -75,6 +93,8 @@ trap cleanup EXIT
 start_check_syndrome
 disable_sriov_autoprobe
 
+# test 1 rep for comparison point
+test_reps 1
 test_reps 8
 test_reps 16
 
