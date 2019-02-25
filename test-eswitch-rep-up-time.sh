@@ -34,34 +34,52 @@ function test_time_cmd() {
     local t2=`get_ms_time`
     let t=t2-t1
     if [ $t -gt $x ]; then
-        err "Expected to take less than $x ms"
+        err "Took $t but expected less than $x ms"
     else
-        success "took $t ms"
+        success "took $t ms (max $x)"
+    fi
+}
+
+function get_time_for_net_up() {
+    local dev=$1
+    ip link set $dev down
+    local t1=`get_ms_time`
+    ip link set $dev up
+    local t2=`get_ms_time`
+    let t=t2-t1
+    if [ $t = "" ]; then
+        err "Got time 0"
     fi
 }
 
 function test_time_for_net_up() {
     local dev=$1
-    echo "test time for $dev up"
+    title "- test time for $dev up"
     ip link set dev $dev down
-    test_time_cmd 180 "ip link set dev $dev up"
+    test_time_cmd $expected_time "ip link set dev $dev up"
 }
+
+expected_time=0
 
 function test_reps() {
     local want=$1
 
+    # get compare time for single interface when sriov is disabled
+    config_sriov 0 $NIC
+    if [ $expected_time -eq 0 ]; then
+        get_time_for_net_up $NIC
+        let expected_time=$t+50
+    fi
+
     title "Test $want REPs"
 
-    config_sriov 0 $NIC
-    echo "Config $want VFs"
+    title "- test legacy $want VFs"
     time config_sriov $want $NIC
-    unbind_vfs $NIC
-
     test_time_for_net_up $NIC
 
-    echo "Set switchdev"
+    title "- test switchdev"
+    unbind_vfs $NIC
     time switch_mode_switchdev $NIC
-
     test_time_for_net_up $NIC
 
     enable_legacy
