@@ -58,21 +58,33 @@ ifconfig $NIC2 $route2/24 up
 sleep 1
 
 # here we get ENTRY_REPLACE
-title "create multipath route"
+title "Create multipath route"
+title "Test route replace"
 ip r r $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
 vf_lag_is_active || fail
 echo ; ip r ; echo
 
+# disabled because of kernel bug
+# append not working in ipv4 and actually adds 2 route entries
+
+##title "Test route append"
+## ENTRY_DEL event
+## not going out from multipath unless going to legacy again so need to do that.
+#ip r d $net
+## no log
+## ENTRY_ADD event
+#ip r add $net nexthop via $route1 dev $NIC
+#ip r append $net nexthop via $route2 dev $NIC2
+## no log
+
+title "Test route add"
 start_check_syndrome
 # ENTRY_DEL event
 # not going out from multipath unless going to legacy again so need to do that.
-title "del route"
 ip r d $net
 # no log
-
 # ENTRY_ADD event
-title "add route"
-ip r r $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
+ip r add $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
 # no log
 check_syndrome
 
@@ -111,7 +123,7 @@ function tst_netdev() {
     ip r r $net nexthop via $r1 dev $p0 nexthop via $r2 dev $p1
     chk "$lag_default" "expected affinity default"
 
-    title "new route single hop"
+    title "new route single nexthop"
     ip r d $net
     ip r a $net nexthop via $r1 dev $p0
     chk "$lag_p0" "expected affinity to $p0"
