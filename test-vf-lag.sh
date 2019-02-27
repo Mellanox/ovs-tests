@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Basic VF LAG test
+# Basic VF LAG test with tc shared block
 #
 
 my_dir="$(dirname "$0")"
@@ -15,12 +15,17 @@ reset_tc $NIC
 local_ip="2.2.2.2"
 remote_ip="2.2.2.3"
 dst_mac="e4:1d:2d:fd:8b:02"
-flag=skip_sw
 dst_port=1234
 id=98
 
 function tc_filter() {
     eval2 tc filter $@ && success
+}
+
+function verify_in_hw() {
+    local dev=$1
+    local prio=$2
+    tc filter show dev $dev ingress prio $prio | grep -q -w in_hw || err "rule not in hw dev $dev"
 }
 
 function is_bonded() {
@@ -39,18 +44,33 @@ function config_bonding() {
     reset_tc bond0
 }
 
+function config_shared_block() {
+    for i in bond0 $NIC $NIC2 ; do
+        tc qdisc del dev $i ingress
+        tc qdisc add dev $i ingress_block 22 ingress
+    done
+}
+
 function config() {
     echo "- Config"
     modprobe -r bonding &>/dev/null
-    disable_sriov
-    enable_sriov
-    enable_switchdev $NIC
+    config_sriov 2
+    config_sriov 2 $NIC2
+    enable_switchdev
     enable_switchdev $NIC2
     reset_tc $NIC $NIC2 $REP
     config_bonding $NIC $NIC2
+    config_shared_block
+}
+
+function clean_shared_block() {
+    for i in bond0 ens1f0 ens1f1 ; do
+        tc qdisc del dev $i ingress_block 22 ingress &>/dev/null
+    done
 }
 
 function cleanup() {
+    clean_shared_block
     ifenslave -d bond0 $NIC $NIC2 2>/dev/null
     modprobe -r bonding 2>/dev/null
     ifconfig $NIC down
@@ -84,15 +104,15 @@ function add_vxlan_rule() {
 
     # encap
     title "- encap"
-    tc_filter add dev $REP protocol arp parent ffff: prio 1 \
-        flower dst_mac $dst_mac $flag \
+    tc_filter add dev $REP protocol arp parent ffff: prio 8 \
+        flower dst_mac $dst_mac skip_sw \
         action tunnel_key set \
             id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
         action mirred egress redirect dev vxlan1
 
     # decap
     title "- decap"
-    tc_filter add dev vxlan1 protocol arp parent ffff: prio 2 \
+    tc_filter add dev vxlan1 protocol arp parent ffff: prio 9 \
         flower dst_mac $dst_mac \
             enc_src_ip $remote_ip \
             enc_dst_ip $local_ip \
@@ -101,11 +121,7 @@ function add_vxlan_rule() {
         action tunnel_key unset \
             id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
         action mirred egress redirect dev $REP
-
-    # because of upstream issue adding decap rule in skip_sw we add with
-    # policy none and verify in_hw bit.
-    # Bug SW #1360599: [upstream] decap rule offload attempt with skip_sw fails
-    tc filter show dev vxlan1 ingress prio 2 | grep -q -w in_hw || err "Decap rule not in hw"
+    verify_in_hw vxlan1 9
 
     reset_tc $REP $NIC vxlan1
 }
@@ -117,24 +133,24 @@ function test_add_vxlan_rule() {
 }
 
 function test_add_drop_rule() {
-    reset_tc bond0
-    tc_filter add dev bond0 protocol arp parent ffff: prio 1 \
-        flower dst_mac $dst_mac $flag \
-        action drop
-    reset_tc bond0
+    tc_filter add block 22 protocol arp parent ffff: prio 5 \
+        flower dst_mac $dst_mac action drop
+    verify_in_hw $NIC 5
+    verify_in_hw $NIC2 5
 }
 
 function test_add_redirect_rule() {
-    reset_tc bond0 $REP
     title "- bond0 -> $REP"
-    tc_filter add dev bond0 protocol arp parent ffff: prio 1 \
-        flower dst_mac $dst_mac $flag \
+    tc_filter add block 22 protocol arp parent ffff: prio 3 \
+        flower dst_mac $dst_mac \
         action mirred egress redirect dev $REP
+    verify_in_hw $NIC 3
+    verify_in_hw $NIC2 3
+
     title "- $REP -> bond0"
-    tc_filter add dev $REP protocol arp parent ffff: prio 1 \
-        flower dst_mac $dst_mac $flag \
+    tc_filter add dev $REP protocol arp parent ffff: prio 3 \
+        flower dst_mac $dst_mac skip_sw \
         action mirred egress redirect dev bond0
-    reset_tc bond0 $REP
 }
 
 function do_cmd() {
@@ -150,8 +166,4 @@ do_cmd test_add_drop_rule
 do_cmd test_add_redirect_rule
 do_cmd test_add_vxlan_rule
 cleanup
-#TODO: verify rule in hw in both ports.
-# verify after bond we created VF LAG in FW
-# verify delete bond does destroy VF LAG in FW
-# TODO check create bond interface when only one port in switchdev mode
 test_done
