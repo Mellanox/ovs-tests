@@ -66,9 +66,8 @@ function eval_cmd_err() {
 }
 
 function add_del_rule() {
-    local act="$1"
-    local arr=($1)
-    local act_type=${arr[1]}
+    local act_type=$1
+    local act="${actions[$act_type]}"
     local estimator=${action_to_estimator[$act_type]}
     local spec="dev $NIC protocol ip"
     local qdisc="ingress prio 10"
@@ -96,9 +95,8 @@ function add_del_rule() {
 }
 
 function add_del_act() {
-    local act=$1
-    local arr=($1)
-    local act_type=${arr[1]}
+    local act_type=$1
+    local act="${actions[$act_type]}"
 
     #module was not compiled
     modinfo act_$act_type 2>/dev/null || return 0
@@ -116,17 +114,17 @@ function add_del_act() {
 
 if [ -z "$action_type" ]
 then
-    for act in "${actions[@]}"
+    for act in "${!actions[@]}"
     do
-        add_del_rule "$act"
-        add_del_act "$act"
+        add_del_rule $act
+        add_del_act $act
     done
 elif [ -z "${actions[$action_type]}" ]
 then
     err "Unrecognized action type: $action_type"
 else
-    add_del_rule "${actions[$action_type]}"
-    add_del_act "${actions[$action_type]}"
+    add_del_rule $action_type
+    add_del_act $action_type
 fi
 
 test_done
