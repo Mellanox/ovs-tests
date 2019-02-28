@@ -279,12 +279,18 @@ function get_reps() {
     #        cmd="echo -n $reps | xargs -I {} -d ' ' ip link set dev {} up"
 }
 
+function __get_reps() {
+    local nic=$1
+    # XXX: we might miss reps if not using the udev rule
+    ls -1 /sys/class/net/ | grep ${nic}_[0-9]
+}
+
 function bring_up_reps() {
     local nic=${1:-$NIC}
     local ifs
 
     # XXX: we might miss reps if not using the udev rule
-    ifs=`ls -1 /sys/class/net/ | grep ${nic}_[0-9]`
+    ifs=`__get_reps $nic`
 
     if [ -z "$ifs" ]; then
         err "bring_up_reps: didn't find reps for $nic"
@@ -300,6 +306,30 @@ function bring_up_reps() {
     if [ $? -ne 0 ]; then
         err "Timed out bringing interfaces up after $x seconds"
     fi
+}
+
+function get_vfs_count() {
+    local nic=$1
+    ls -1d /sys/class/net/$nic/device/virtfn* | wc -l
+}
+
+function get_reps_count() {
+    local nic=$1
+    __get_reps $nic | wc -l
+}
+
+function wait_for_reps() {
+    local nic=$1
+    local count=`get_vfs_count $nic`
+    local reps=0
+
+    for i in `seq 4`; do
+        reps=`get_reps_count $nic`
+        if [ "$reps" = "$count" ]; then
+            break
+        fi
+        sleep 1
+    done
 }
 
 function devlink_compat_dir() {
@@ -327,7 +357,7 @@ function switch_mode() {
     fi
 
     if [ "$mode" = "switchdev" ]; then
-        sleep 2 # wait for interfaces
+        wait_for_reps $nic
         bring_up_reps $nic
     fi
 }
