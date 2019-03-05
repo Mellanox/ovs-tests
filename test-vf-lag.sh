@@ -162,6 +162,7 @@ function do_cmd() {
 trap cleanup EXIT
 cleanup
 config
+fail_if_err
 do_cmd test_add_drop_rule
 do_cmd test_add_redirect_rule
 do_cmd test_add_vxlan_rule
