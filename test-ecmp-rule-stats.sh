@@ -98,7 +98,7 @@ function do_traffic() {
 
 function test_ecmp_rule_stats() {
     config_multipath_route
-    vf_lag_is_active || return 1
+    is_vf_lag_active || return 1
     bind_vfs $NIC
 
     title "-- both ports up"

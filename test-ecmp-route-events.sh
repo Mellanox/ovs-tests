@@ -61,7 +61,7 @@ sleep 1
 title "Create multipath route"
 title "Test route replace"
 ip r r $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
-vf_lag_is_active || fail
+is_vf_lag_active || fail
 echo ; ip r ; echo
 
 # disabled because of kernel bug
