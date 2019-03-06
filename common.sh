@@ -320,7 +320,7 @@ function get_reps_count() {
 
 function wait_for_reps() {
     local nic=$1
-    local count=`get_vfs_count $nic`
+    local count=$2
     local reps=0
 
     for i in `seq 4`; do
@@ -343,6 +343,7 @@ function switch_mode() {
     local nic=${2:-$NIC}
     local pci=$(basename `readlink /sys/class/net/$nic/device`)
     local extra="$extra_mode"
+    local vf_count=`get_vfs_count $nic`
 
     echo "Change $nic eswitch ($pci) mode to $mode $extra"
 
@@ -357,7 +358,7 @@ function switch_mode() {
     fi
 
     if [ "$mode" = "switchdev" ]; then
-        wait_for_reps $nic
+        wait_for_reps $nic $vf_count
         bring_up_reps $nic
     fi
 }
