@@ -565,8 +565,32 @@ function unbind_vfs() {
     done
 }
 
+function get_bound_vfs_count() {
+    local nic=$1
+    local vfs=(/sys/class/net/*/device/physfn/net/$nic)
+    local count=${#vfs[@]}
+
+    echo $count
+}
+
+function wait_for_vfs() {
+    local nic=$1
+    local count=$2
+    local vfs=0
+
+    for i in `seq 10`; do
+        vfs=`get_bound_vfs_count $nic`
+        if [ "$vfs" = "$count" ]; then
+            break
+        fi
+        sleep 1
+    done
+}
+
 function bind_vfs() {
     local nic=${1:-$NIC}
+    local vf_count=`get_vfs_count $nic`
+
     echo "bind vfs of $nic"
     for i in `ls -1d /sys/class/net/$nic/device/virt*`; do
         vfpci=$(basename `readlink $i`)
@@ -574,8 +598,8 @@ function bind_vfs() {
             echo $vfpci > /sys/bus/pci/drivers/mlx5_core/bind
         fi
     done
-    # sometimes need a second for netdevs to appear.
-    sleep 1
+
+    wait_for_vfs $nic $vf_count
 }
 
 function get_sw_id() {
