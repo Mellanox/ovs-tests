@@ -34,10 +34,13 @@ function is_bonded() {
 }
 
 function config_bonding() {
-    modprobe -r bonding
-    modprobe bonding mode=active-backup
-    ifconfig bond0 up
-    ifenslave bond0 $1 $2
+    ip link add name bond0 type bond || fail "Failed to create bond interface"
+    ip link set dev bond0 type bond mode active-backup || fail "Failed to set bond mode"
+    ip link set dev $1 down
+    ip link set dev $2 down
+    ip link set dev $1 master bond0
+    ip link set dev $2 master bond0
+    ip link set dev bond0 up
     if ! is_bonded ; then
         err "Driver bond failed"
     fi
@@ -53,7 +56,6 @@ function config_shared_block() {
 
 function config() {
     echo "- Config"
-    modprobe -r bonding &>/dev/null
     config_sriov 2
     config_sriov 2 $NIC2
     enable_switchdev
@@ -71,8 +73,9 @@ function clean_shared_block() {
 
 function cleanup() {
     clean_shared_block
-    ifenslave -d bond0 $NIC $NIC2 2>/dev/null
-    modprobe -r bonding 2>/dev/null
+    ip link set dev $NIC nomaster
+    ip link set dev $NIC2 nomaster
+    ip link del bond0 &>/dev/null
     ifconfig $NIC down
 }
 
