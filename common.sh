@@ -600,6 +600,7 @@ function bind_vfs() {
     done
 
     wait_for_vfs $nic $vf_count
+    udevadm settle # wait for udev renaming after bind
 }
 
 function get_sw_id() {
