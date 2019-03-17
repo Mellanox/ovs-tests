@@ -120,7 +120,7 @@ function run() {
     sleep 10
 
     for i in `seq $((t-15))`; do
-        log "reconfig"
+        log "reconfig $i"
         config_ovs_nat
         sleep 1
     done
