@@ -17,8 +17,17 @@ RULE_COUNT=${RULE_COUNT:-100}
 GROUP_COUNT=${GROUP_COUNT:-50}
 ROUND_COUNT=${ROUND_COUNT:-50}
 
+function get_mlx5_core_ver() {
+    local A
+    A=`modinfo -F version mlx5_core` && A=${A::3}
+    echo $A
+}
+
 if [ `uname -r` = "3.10.0-327.el7.x86_64" ]; then
-    fail "Bug SW #1294281: [ASAP MLNX OFED] kernel crash adding drop rules when act_gact is not loaded"
+    ver=`get_mlx5_core_ver`
+    if [ $ver == "4.2" ] || [ $ver == "4.5" ]; then
+        fail "Bug SW #1294281: [ASAP MLNX OFED] kernel crash adding drop rules when act_gact is not loaded"
+    fi
 fi
 
 rm -f $TMPFILE
