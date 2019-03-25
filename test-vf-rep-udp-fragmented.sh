@@ -16,6 +16,7 @@ bind_vfs
 
 function cleanup() {
     ip netns del ns0 2> /dev/null
+    sleep 0.5
     ip addr flush dev $REP
 }
 trap cleanup EXIT
