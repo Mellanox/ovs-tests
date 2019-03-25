@@ -13,7 +13,7 @@ from mlxredmine import MlxRedmine
 MYNAME = os.path.basename(__file__)
 MYDIR = os.path.abspath(os.path.dirname(__file__))
 LOGDIR = mkdtemp(prefix='log')
-TESTS = sorted(glob(MYDIR + '/test-*'))
+TESTS = glob(MYDIR + '/test-*')
 IGNORE_TESTS = ["*ecmp*"]
 SKIP_TESTS = {}
 
@@ -116,6 +116,10 @@ def print_result(res, out):
     print cres
 
 
+def sort_tests(tests):
+    tests.sort(key=lambda x: os.path.basename(x).split('.')[0])
+
+
 def glob_tests(args, tests):
     if not args.glob:
         return
@@ -184,6 +188,7 @@ def main():
 
     exclude.extend(IGNORE_TESTS)
     glob_tests(args, TESTS)
+    sort_tests(TESTS)
 
     print "Log dir: " + LOGDIR
     try:
