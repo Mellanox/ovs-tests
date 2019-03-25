@@ -303,7 +303,7 @@ function bring_up_reps() {
     echo "bring up $c reps with timeout $x seconds"
 
     timeout $x sh -c "$cmd"
-    if [ $? -ne 0 ]; then
+    if [ $? -eq 124 ]; then
         err "Timed out bringing interfaces up after $x seconds"
     fi
 }
