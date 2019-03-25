@@ -24,7 +24,7 @@ tmp1="/tmp/a$$"
 tmp2="/tmp/b$$"
 
 for i in 1 2 3 4 5 ; do
-    echo " - config switchdev in paralel"
+    echo " - config switchdev in parallel"
     rm -fr $tmp1 $tmp2
     enable_switchdev $NIC && touch $tmp1 &
     enable_switchdev $NIC2 && touch $tmp2 &
@@ -35,7 +35,7 @@ for i in 1 2 3 4 5 ; do
         err
     fi
 
-    echo " - config legacy in paralel"
+    echo " - config legacy in parallel"
     rm -fr $tmp1 $tmp2
     enable_legacy $NIC && touch $tmp1 &
     enable_legacy $NIC2 && touch $tmp2 &
