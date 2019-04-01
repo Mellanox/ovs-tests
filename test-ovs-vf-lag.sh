@@ -62,7 +62,6 @@ function config() {
     enable_switchdev
     enable_switchdev $NIC2
     config_bonding $NIC $NIC2
-    config_ovs
 }
 
 function cleanup() {
@@ -77,5 +76,6 @@ trap cleanup EXIT
 cleanup
 config
 fail_if_err
+config_ovs
 # can add more tests here
 test_done
