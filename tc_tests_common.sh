@@ -18,9 +18,6 @@ function check_num_offloaded_rules() {
     RES=`tc -s filter show block $block ingress | grep "in_hw in_hw_count $offload_count" | wc -l`
     if (( RES == $num )); then
         success
-    elif (( `tc -s filter show block $block ingress | grep -w in_hw | wc -l` == $num )); then
-        log "Kernel/tc doesn't support in_hw_count, fallback to count rules in hw"
-        success
     else
         err
     fi
