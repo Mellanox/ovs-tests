@@ -129,6 +129,11 @@ function is_SimX() {
     return 1
 }
 
+function is_bonded() {
+    dmesg | tail -n10 | grep -E "lag map port 1:. port 2:."
+    return $?
+}
+
 function require_mlxdump() {
     is_SimX && fail "mlxdump not supported in SimX"
     [[ -e /usr/bin/mlxdump ]] || fail "Missing mlxdump"

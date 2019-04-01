@@ -28,11 +28,6 @@ function verify_in_hw() {
     tc filter show dev $dev ingress prio $prio | grep -q -w in_hw || err "rule not in hw dev $dev"
 }
 
-function is_bonded() {
-    dmesg | tail -n10 | grep -E "mlx5_core [0-9.:]+ lag map port 1:. port 2:."
-    return $?
-}
-
 function config_bonding() {
     ip link add name bond0 type bond || fail "Failed to create bond interface"
     ip link set dev bond0 type bond mode active-backup || fail "Failed to set bond mode"
