@@ -20,6 +20,7 @@ function test_miss_rules() {
 
     config_sriov 2
     config_sriov 2 $NIC2
+    enable_switchdev $NIC
     enable_switchdev $NIC2
 
     dump_ports
