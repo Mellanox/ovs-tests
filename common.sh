@@ -801,6 +801,18 @@ function start_clean_openvswitch() {
     del_all_bridges
 }
 
+function wait_for_ifaces() {
+    local max=4
+
+    for i in `seq $max`;do
+        if [[ -e /sys/class/net/$NIC && -e /sys/class/net/$NIC2 ]] ;then
+            return
+        fi
+        sleep 1
+    done
+    warn "Cannot find nic after $max seconds"
+}
+
 function reload_modules() {
     if [ -e /etc/init.d/openibd ]; then
         service openibd force-restart || fail "Failed to restart openibd service"
@@ -809,6 +821,8 @@ function reload_modules() {
         modprobe -r mlx5_core || fail "Failed to unload modules"
         modprobe -a mlx5_core || fail "Failed to load modules"
     fi
+
+    wait_for_ifaces
 
     check_kasan || err "Detected KASAN in journalctl"
     set_macs
