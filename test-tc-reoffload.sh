@@ -7,8 +7,9 @@
 #
 
 
-total=${1:-5000}
-rules_per_file=1000
+total=${1:-50000}
+bind_times=${2:-3}
+let rules_per_file=$total/10
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -39,22 +40,32 @@ reset_tc_nic $REP
 reset_tc_nic $REP2
 
 echo "Clean tc rules"
-tc qdisc del dev $REP ingress > /dev/null 2>&1
-tc qdisc del dev $REP2 ingress > /dev/null 2>&1
+tc qdisc del dev $NIC ingress > /dev/null 2>&1
+tc qdisc del dev $NIC2 ingress > /dev/null 2>&1
+
+function bind_unbind_block() {
+    local dev=$1
+    local block=$2
+
+    for ((i = 0; i < $bind_times; i++)); do
+        sleep 1
+        echo "Unbind iteration $i"
+        tc qdisc del dev $dev ingress_block $block ingress &>/dev/null
+        echo "Bind iteration $i"
+        tc qdisc add dev $dev ingress_block $block ingress &>/dev/null
+    done
+}
 
 function par_test() {
     local del=$1
     local max_rules=$total
 
-    ! tc qdisc del dev $REP ingress_block 1 ingress > /dev/null 2>&1
-    ! tc qdisc del dev $REP2 ingress_block 1 ingress> /dev/null 2>&1
-    tc qdisc add dev $REP ingress_block 1 ingress
+    ! tc qdisc del dev $NIC ingress_block 1 ingress > /dev/null 2>&1
+    ! tc qdisc del dev $NIC2 ingress_block 1 ingress> /dev/null 2>&1
+    tc qdisc add dev $NIC ingress_block 1 ingress
+    tc qdisc add dev $NIC2 ingress_block 1 ingress
 
-    echo "Insert rules"
-    tc -b ${TC_OUT}/add.0 &>/dev/null
-    check_num_offloaded_rules $rules_per_file 1 1
-
-    tc qdisc add dev $REP2 ingress_block 1 ingress &>/dev/null &
+    bind_unbind_block $NIC2 1 &
 
     if [ $del == 0 ]; then
         echo "Add rules in parallel"
@@ -68,8 +79,8 @@ function par_test() {
         check_num_offloaded_rules 0 2 1
     fi
 
-    ! tc qdisc del dev $REP ingress_block 1 ingress > /dev/null 2>&1
-    ! tc qdisc del dev $REP2 ingress_block 1 ingress > /dev/null 2>&1
+    ! tc qdisc del dev $NIC ingress_block 1 ingress > /dev/null 2>&1
+    ! tc qdisc del dev $NIC2 ingress_block 1 ingress > /dev/null 2>&1
 }
 
 echo "Generating batches"
