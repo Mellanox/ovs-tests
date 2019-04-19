@@ -14,7 +14,7 @@ function check_num_offloaded_rules() {
     local offload_count=$2
     local block=$3
 
-    title " - check for $num rules"
+    title " - check for $num rules with in_hw_count=$offload_count"
     RES=`tc -s filter show block $block ingress | grep "in_hw in_hw_count $offload_count" | wc -l`
     if (( RES == $num )); then
         success
