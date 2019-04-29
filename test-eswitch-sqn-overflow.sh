@@ -31,23 +31,31 @@ echo
 i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
 cat /tmp/port0 | grep "dest.*0xfff" -B 1 | grep sqn | tail -4
 
-title "Check packets"
-ifconfig $NIC 2.2.2.2/24
-ip n r 2.2.2.3 dev $NIC lladdr e4:11:56:26:52:11
+function get_tx_pkts() {
+    ethtool -S $1 | grep tx_packets_phy | cut -d: -f2
+}
 
-ethtool -S $NIC | grep tx_packets
-phy1=`ethtool -S $NIC | grep tx_packets_phy | cut -d: -f2`
+function check_packets() {
+    title "Check packets"
+    ifconfig $NIC 2.2.2.2/24
+    ip n r 2.2.2.3 dev $NIC lladdr e4:11:56:26:52:11
+    ethtool -S $NIC | grep tx_packets
 
-ping -q -c 50 -i 0.01 -W 2 2.2.2.3
+    phy1=`get_tx_pkts $NIC`
+    if [ -z "$phy1" ]; then
+        err "Cannot get tx_packets_phy"
+        return 1
+    fi
 
-ethtool -S $NIC | grep tx_packets
-phy2=`ethtool -S $NIC | grep tx_packets_phy | cut -d: -f2`
+    ping -q -c 50 -i 0.01 -W 2 2.2.2.3
 
-((phy1+=10))
-if [ $phy1 -gt $phy2 ]; then
-    err "Packets didn't go to wire"
-fi
+    phy2=`get_tx_pkts $NIC`
+    ((phy1+=10))
+    if [ $phy1 -gt $phy2 ]; then
+        err "Packets didn't go to wire"
+    fi
+}
 
+check_packets
 ifconfig $NIC 0
-
 test_done
