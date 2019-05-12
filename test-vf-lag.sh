@@ -22,12 +22,6 @@ function tc_filter() {
     eval2 tc filter $@ && success
 }
 
-function verify_in_hw() {
-    local dev=$1
-    local prio=$2
-    tc filter show dev $dev ingress prio $prio | grep -q -w in_hw || err "rule not in hw dev $dev"
-}
-
 function config_bonding() {
     ip link add name bond0 type bond || fail "Failed to create bond interface"
     ip link set dev bond0 type bond mode active-backup || fail "Failed to set bond mode"

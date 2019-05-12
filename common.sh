@@ -833,6 +833,12 @@ function tc_filter() {
     eval2 tc filter $@
 }
 
+function verify_in_hw() {
+    local dev=$1
+    local prio=$2
+    tc filter show dev $dev ingress prio $prio | grep -q -w in_hw || err "rule not in hw dev $dev"
+}
+
 function wait_for_linkup() {
     local net=$1
     local state

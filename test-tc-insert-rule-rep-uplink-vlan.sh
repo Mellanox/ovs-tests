@@ -12,12 +12,6 @@ my_dir="$(dirname "$0")"
 
 require_interfaces REP NIC
 
-function verify_in_hw() {
-    local dev=$1
-    local prio=$2
-    tc filter show dev $dev ingress prio $prio | grep -q -w in_hw || err "rule not in hw dev $dev"
-}
-
 function run() {
     vlan=5
     vlan_dev=${NIC}.$vlan
