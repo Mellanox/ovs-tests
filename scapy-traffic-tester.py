@@ -87,8 +87,9 @@ def run_listener(args):
         x = sniff(iface=ifname, prn=custom_action(sock), filter=filter1, timeout=args.time, store=0)
     finally:
         sock.close()
+
     print
-    print 'received %s packets' % len(x)
+    print 'received %s packets' % _c
 
 
 def run_client(args):
