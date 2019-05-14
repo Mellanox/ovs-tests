@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Test OVS CT NAT udp traffic and reconfig ct rules during traffic
+# This is a fake nat using registers.
 #
 # Bug SW #1610340: [JD] syndrome and kernel crash when we reconfig ct rules during traffic
 #

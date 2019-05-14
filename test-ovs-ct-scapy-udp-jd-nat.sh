@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Test OVS CT NAT udp traffic
+# This is a fake nat using registers.
 #
 
 my_dir="$(dirname "$0")"

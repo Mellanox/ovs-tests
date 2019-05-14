@@ -86,7 +86,7 @@ function config_ovs() {
 }
 
 function run() {
-    title "Test OVS CT NAT UDP"
+    title "Test OVS CT SNAT UDP"
     config_vf ns0 $VF $REP $IP1
     config_vf ns1 $VF2 $REP2 $IP2
 
