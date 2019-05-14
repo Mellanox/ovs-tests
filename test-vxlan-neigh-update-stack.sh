@@ -21,10 +21,14 @@ dst_port=1234
 id=98
 
 pid=0
+function killpid() {
+    [ $pid != 0 ] && kill $pid &>/dev/null && wait $pid &>/dev/null && pid=0
+}
+
 function cleanup() {
     ip link del dev vxlan1 &> /dev/null
     ip link del dev veth0 &> /dev/null
-    [ $pid != 0 ] && kill $pid
+    killpid
 }
 trap cleanup EXIT
 
@@ -70,9 +74,7 @@ function neigh_update_test() {
 	tc filter del dev $REP prio 1 ingress
     done
     echo "done"
-
-    kill $pid && wait $pid &>/dev/null
-    pid=0
+    killpid
 }
 
 function test_neigh_update_ipv4() {
