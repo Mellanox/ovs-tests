@@ -124,6 +124,10 @@ def glob_tests(args, tests):
     if not args.glob:
         return
     _tests = []
+
+    if len(args.glob) == 1 and (' ' in args.glob[0] or '\n' in args.glob[0]):
+        args.glob = args.glob[0].strip().split()
+
     for test in tests[:]:
         name = os.path.basename(test)
         for g in args.glob:
