@@ -41,10 +41,16 @@ function set_nf_liberal() {
     fi
 }
 
+function cleanup_remote() {
+    on_remote ip a flush dev $REMOTE_NIC
+    on_remote ip l del dev vxlan1 &>/dev/null
+}
+
 function cleanup() {
-    ifconfig $NIC 0
+    ip a flush dev $NIC
     ip netns del ns0 &>/dev/null
     ip netns del ns1 &>/dev/null
+    cleanup_remote
     sleep 0.5
 }
 trap cleanup EXIT
@@ -66,19 +72,15 @@ function config() {
 
     echo "Restarting OVS"
     start_clean_openvswitch
-    #ovs-vsctl set Open_vSwitch . other_config:hw-offload=true
-    #ovs-vsctl remove Open_vSwitch . other_config tc-policy
-    #systemctl restart openvswitch
 
     ovs-vsctl add-br br-ovs
     ovs-vsctl add-port br-ovs $REP
-    #ip netns exec ns0 ip n r 1.1.1.2 dev ens1f2 lladdr 00:00:11:11:11:11
     ovs-vsctl add-port br-ovs vxlan1 -- set interface vxlan1 type=vxlan options:local_ip=$LOCAL_TUN options:remote_ip=$REMOTE_IP options:key=$VXLAN_ID options:dst_port=4789
 }
 
 function on_remote() {
     local cmd=$@
-    ssh2 $REMOTE_NIC $cmd
+    ssh2 $REMOTE_SERVER $cmd
 }
 
 function config_remote() {
@@ -86,11 +88,12 @@ function config_remote() {
     on_remote ip link add vxlan1 type vxlan id $VXLAN_ID dev $REMOTE_NIC dstport 4789
     on_remote ip a flush dev $REMOTE_NIC
     on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
+    on_remote ip a add $REMOTE/24 dev vxlan1
+    on_remote ip l set dev vxlan1 up 
 }
 
 function add_openflow_rules() {
     ovs-ofctl del-flows br-ovs
-    #ovs-ofctl add-flow br-ovs in_port=$NIC,dl_type=0x0806,actions=output:$REP
     ovs-ofctl add-flow br-ovs in_port=$REP,dl_type=0x0806,actions=output:vxlan1
     ovs-ofctl add-flow br-ovs in_port=vxlan1,dl_type=0x0806,actions=output:$REP
     ovs-ofctl add-flow br-ovs in_port=$REP,icmp,actions=output:vxlan1
@@ -116,10 +119,8 @@ function test_tcpdump() {
 
 function run() {
     config
-    #config_remote
+    config_remote
     add_openflow_rules
-    #ip a show dev $NIC
-    #ip netns exec ns0 ip a s dev $VF
 
     # icmp
     ip netns exec ns0 ping -q -c 1 -i 0.1 -w 1 $REMOTE
@@ -144,10 +145,6 @@ function run() {
         test_tcpdump $pid2
     fi
     wait
-
-    #ovs-dpctl dump-flows --names
-    #/labhome/roid/scripts/ovs-df.sh --names
-    #conntrack -L
 }
 
 run
