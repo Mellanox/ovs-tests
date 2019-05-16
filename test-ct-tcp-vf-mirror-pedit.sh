@@ -100,8 +100,10 @@ function run() {
     sleep 0.5
     ip netns exec ns0 timeout 6 iperf -t 5 -c $IP2 &
 
-    echo "sniff packets on $REP2"
     sleep 1
+    pidof iperf &>/dev/null || err "iperf failed"
+
+    echo "sniff packets on $REP2"
     # first 4 packets not offloaded until conn is in established state.
     timeout 2 tcpdump -qnnei $REP2 -c 10 'tcp' &
     pid=$!

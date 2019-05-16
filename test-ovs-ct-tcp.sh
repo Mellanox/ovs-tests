@@ -66,6 +66,8 @@ function run() {
     ip netns exec ns0 timeout $((t+1)) iperf -t $t -c $IP2  &
 
     sleep 1
+    pidof iperf &>/dev/null || err "iperf failed"
+
     echo "sniff packets on $REP"
     timeout 2 tcpdump -qnnei $REP -c 10 'tcp' &
     pid=$!
