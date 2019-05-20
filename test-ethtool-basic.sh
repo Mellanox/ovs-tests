@@ -27,7 +27,9 @@ counters=( ["tso"]="tx_tso_"
            ["module"]="module_"
            ["ch0"]="ch0_"
            ["rx0"]="rx0_"
-           ["tx0"]="tx0_" )
+           ["tx0"]="tx0_"
+           ["rx_out_of_buffer"]="rx_out_of_buffer"
+           ["rx_if_down_packets"]="rx_if_down_packets" )
 
 function test_stats()
 {
