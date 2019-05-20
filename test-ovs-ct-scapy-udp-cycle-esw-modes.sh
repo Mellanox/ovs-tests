@@ -58,7 +58,7 @@ function config_ovs() {
     ovs-ofctl add-flow br-ovs "table=1, $proto,ct_state=+trk+new actions=ct(commit),normal"
     ovs-ofctl add-flow br-ovs "table=1, $proto,ct_state=+trk+est actions=normal"
 
-    ovs-ofctl dump-flows br-ovs
+    ovs-ofctl dump-flows br-ovs --color
 }
 
 function run() {

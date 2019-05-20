@@ -57,7 +57,7 @@ function run() {
     ovs-ofctl add-flow br-ovs "table=1, icmp,ct_state=+trk+new actions=ct(commit),normal"
     ovs-ofctl add-flow br-ovs "table=1, icmp,ct_state=+trk+est actions=normal"
 
-    ovs-ofctl dump-flows br-ovs
+    ovs-ofctl dump-flows br-ovs --color
 
     echo "sniff packets on $REP"
     timeout 2 tcpdump -qnnei $REP -c 6 'icmp' &
