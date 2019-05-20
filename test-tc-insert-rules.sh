@@ -31,7 +31,7 @@ function test_basic_L2_drop() {
     for skip in "" skip_sw skip_hw; do
         for nic in $NIC $REP ; do
             title "    - nic:$nic skip:$skip"
-            reset_tc_nic $nic
+            reset_tc $nic
             tc_filter add dev $nic protocol ip parent ffff: `prio` \
                     flower \
                             $skip \
@@ -48,7 +48,7 @@ function test_basic_L2_redirect() {
         nic2=$REP
         for nic in $NIC $REP ; do
             title "    - $nic -> $nic2 (skip:$skip)"
-            reset_tc_nic $nic
+            reset_tc $nic
             tc_filter add dev $nic protocol ip parent ffff: `prio` \
                     flower \
                             $skip \
@@ -64,7 +64,7 @@ function test_basic_L3() {
     for skip in "" skip_sw skip_hw; do
         for nic in $NIC $REP ; do
             title "    - nic:$nic skip:$skip"
-            reset_tc_nic $nic
+            reset_tc $nic
             tc_filter add dev $nic protocol ip parent ffff: `prio` \
                     flower \
                             $skip \
@@ -81,7 +81,7 @@ function test_basic_L3_ipv6() {
     for skip in "" skip_sw skip_hw; do
         for nic in $NIC $REP ; do
             title "    - nic:$nic skip:$skip"
-            reset_tc_nic $nic
+            reset_tc $nic
             tc_filter add dev $nic protocol ipv6 parent ffff: `prio` \
                     flower \
                             $skip \
@@ -98,7 +98,7 @@ function test_basic_L4() {
     for skip in "" skip_sw skip_hw; do
         for nic in $NIC $REP ; do
             title "    - nic:$nic skip:$skip"
-            reset_tc_nic $nic
+            reset_tc $nic
             tc_filter add dev $nic protocol ip parent ffff: `prio` \
                     flower \
                             $skip \
@@ -117,8 +117,8 @@ function __test_basic_vlan() {
     local nic2=$2
     local skip=$3
     title "- nic1:$nic1 nic2:$nic2 skip:$skip"
-    reset_tc_nic $nic1
-    reset_tc_nic $nic2
+    reset_tc $nic1
+    reset_tc $nic2
 
     title "    - vlan push"
     tc_filter add dev $nic1 protocol 802.1Q parent ffff: `prio` \
@@ -141,8 +141,8 @@ function __test_basic_vlan() {
                 action vlan pop \
                 action mirred egress redirect dev $nic1
 
-    reset_tc_nic $nic1
-    reset_tc_nic $nic2
+    reset_tc $nic1
+    reset_tc $nic2
 
     title "    - vlan drop $nic1"
     tc_filter add dev $nic1 protocol 802.1Q parent ffff: `prio` \
@@ -201,8 +201,8 @@ function __test_basic_vxlan() {
     ifconfig $NIC up
     ip neigh replace $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
 
-    reset_tc_nic $NIC
-    reset_tc_nic $REP
+    reset_tc $NIC
+    reset_tc $REP
 
     for skip in "" skip_hw skip_sw ; do
         skip_sw_wa=0
@@ -281,7 +281,7 @@ function test_basic_vxlan_ipv6() {
 
 # test insert ip no ip_proto
 function test_insert_ip_no_ip_proto() {
-    reset_tc_nic $REP
+    reset_tc $REP
     tc_filter add dev $REP protocol ip parent ffff: `prio` \
                 flower \
                         skip_sw \
@@ -297,7 +297,7 @@ function test_insert_ip_no_ip_proto() {
 #BAD_PARAM           | 0x3AD328 |  set_flow_table_entry: rule include unmatched bits (group_match_criteria == 0, but fte_match_value == 1)
 function test_insert_ip_with_unmatched_bits_mask() {
     start_check_syndrome
-    reset_tc_nic $REP
+    reset_tc $REP
     tc_filter add dev $REP protocol ip parent ffff: `prio` \
                 flower \
                         skip_sw \
@@ -314,14 +314,14 @@ function test_insert_ip_with_unmatched_bits_mask() {
 # Fix commit:
 # a6e169312971 net/sched: cls_flower: Set the filter Hardware device for all use-cases
 function test_simple_insert_missing_action() {
-    reset_tc_nic $NIC
+    reset_tc $NIC
     tc_filter add dev $NIC protocol ip parent ffff: `prio` flower indev $NIC
 }
 
 function test_five_tuple_match() {
     for proto in udp tcp; do
         title "- $NIC -> $REP ip_proto $proto"
-        reset_tc_nic $NIC
+        reset_tc $NIC
         tc_filter add dev $NIC protocol ip parent ffff: `prio` \
             flower \
             skip_sw \
@@ -337,8 +337,8 @@ function test_five_tuple_match() {
 
 enable_switchdev_if_no_rep $REP
 unbind_vfs
-reset_tc_nic $NIC
-reset_tc_nic $REP
+reset_tc $NIC
+reset_tc $REP
 stop_openvswitch
 
 # clean vxlan interfaces
@@ -392,7 +392,7 @@ if [ $count -eq 0 ]; then
     err "No cases were tested"
 fi
 
-reset_tc_nic $NIC
-reset_tc_nic $REP
+reset_tc $NIC
+reset_tc $REP
 check_kasan
 test_done

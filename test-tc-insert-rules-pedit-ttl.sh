@@ -19,25 +19,25 @@ function tc_filter() {
 
 function test_header_rewrite_ttl_uplink() {
     title "Add complex (macs, ips, ttl add) pedit rule rep->nic"
-    reset_tc_nic $REP
+    reset_tc $REP
     tc_filter add dev $REP protocol ip parent ffff: prio 2 \
         flower skip_sw dst_mac aa:bb:cc:dd:ee:ff ip_proto tcp ip_ttl 40/ff dst_ip 7.7.7.3 \
         action pedit ex \
             munge ip ttl add 0xff pipe \
         action mirred egress redirect dev $NIC
-    reset_tc_nic $REP
+    reset_tc $REP
 }
 
 function test_header_rewrite_ttl_vport() {
     title "Add complex (macs, ips, ttl add) pedit rule rep->rep"
     # BAD_PARAM           | 0x3B7492 |  set_flow_table_entry: modify ipv4 ttl action in fdb can not forward to internal vport
-    reset_tc_nic $REP
+    reset_tc $REP
     tc_filter add dev $REP protocol ip parent ffff: prio 2 \
         flower skip_sw dst_mac aa:bb:cc:dd:ee:ff ip_proto tcp ip_ttl 40/ff dst_ip 7.7.7.3 \
         action pedit ex \
             munge ip ttl add 0xff pipe \
         action mirred egress redirect dev $REP
-    reset_tc_nic $REP
+    reset_tc $REP
 }
 
 start_check_syndrome

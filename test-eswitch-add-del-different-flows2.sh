@@ -21,8 +21,8 @@ if [ -z "$rep" ]; then
     fail "Missing rep $rep"
     exit 1
 fi
-reset_tc_nic $NIC
-reset_tc_nic $rep
+reset_tc $NIC
+reset_tc $rep
 
 COUNT=5
 
@@ -82,7 +82,7 @@ function del_rules() {
 
 for NIC1 in $NIC $rep ; do
     title "Test nic $NIC1"
-    reset_tc_nic $NIC1
+    reset_tc $NIC1
     add_rules
     del_rules
     add_rules_vlan
@@ -90,7 +90,7 @@ for NIC1 in $NIC $rep ; do
     add_rules_vlan_drop
     del_rules
     echo "reset"
-    reset_tc_nic $NIC1
+    reset_tc $NIC1
 done
 
 test_done

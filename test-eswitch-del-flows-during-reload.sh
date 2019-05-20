@@ -22,8 +22,8 @@ if [ -z "$rep" ]; then
     fail "Missing rep $rep"
     exit 1
 fi
-reset_tc_nic $NIC
-reset_tc_nic $rep
+reset_tc $NIC
+reset_tc $rep
 
 
 title "add $COUNT rules"
@@ -62,6 +62,6 @@ sleep 0.2
 title "del $COUNT rules"
 del_rules
 sleep 5
-reset_tc_nic $rep
+reset_tc $rep
 
 test_done

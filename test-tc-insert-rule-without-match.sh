@@ -31,7 +31,7 @@ function test_in_legacy() {
 }
 
 function do_test() {
-    reset_tc_nic $NIC
+    reset_tc $NIC
     start_check_syndrome
     tc_filter add dev $NIC parent ffff: prio 1 flower skip_sw action drop
     err=$?
@@ -48,7 +48,7 @@ function do_test() {
         check_syndrome
     fi
 
-    reset_tc_nic $NIC
+    reset_tc $NIC
 }
 
 test_in_legacy

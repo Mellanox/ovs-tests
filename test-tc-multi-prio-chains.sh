@@ -62,8 +62,8 @@ ifconfig $port2 up
 ifconfig $port4 up
 
 echo "clean devices"
-reset_tc_nic $port2
-reset_tc_nic $port4
+reset_tc $port2
+reset_tc $port4
 
 dst_mac=`ip netns exec blue ip link show $VF2 | grep ether | awk '{print $2}'`
 

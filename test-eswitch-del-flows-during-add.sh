@@ -21,8 +21,8 @@ if [ -z "$rep" ]; then
     fail "Missing rep $rep"
     exit 1
 fi
-reset_tc_nic $NIC
-reset_tc_nic $rep
+reset_tc $NIC
+reset_tc $rep
 
 function add_rules() {
     for i in `seq $COUNT`; do
@@ -52,6 +52,6 @@ add_rules &
 sleep $ADD_DEL_SLEEP
 title "start deleting rules"
 del_rules
-reset_tc_nic $rep
+reset_tc $rep
 
 test_done

@@ -16,7 +16,7 @@ config_sriov 2 $NIC
 enable_switchdev_if_no_rep $REP
 
 require_interfaces NIC
-reset_tc_nic $NIC
+reset_tc $NIC
 
 function test_dup() {
     g="dst_mac e4:12:00:00:"
@@ -44,7 +44,7 @@ function run() {
 
     no_handle=1
     tc_batch $dup "dev $NIC" $total $rules_per_file
-    reset_tc_nic $NIC
+    reset_tc $NIC
 
     echo "Insert rules in parallel"
     for i in `seq 10`; do

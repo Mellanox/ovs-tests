@@ -20,7 +20,7 @@ config_sriov 2 $NIC
 enable_switchdev_if_no_rep $REP
 
 require_interfaces NIC
-reset_tc_nic $NIC
+reset_tc $NIC
 
 function par_test() {
     local dup=$1
@@ -35,7 +35,7 @@ function par_test() {
     fi
 
     tc_batch $dup "dev $NIC" $total $rules_per_file
-    reset_tc_nic $NIC
+    reset_tc $NIC
 
     echo "Insert rules in parallel"
     ls ${TC_OUT}/add.* | xargs -n 1 -P 100 tc $force -b &>/dev/null

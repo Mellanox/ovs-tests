@@ -17,7 +17,7 @@ function cleanup() {
     for i in `seq 0 7`; do
         ip link del veth$i &> /dev/null
     done
-    reset_tc_nic $NIC
+    reset_tc $NIC
 }
 
 function tc_show() {

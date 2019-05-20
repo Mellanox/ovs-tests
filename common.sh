@@ -211,11 +211,6 @@ function reset_tc() {
     done
 }
 
-# redundant function. use reset_tc().
-function reset_tc_nic() {
-    reset_tc $@
-}
-
 function log() {
     echo $@
     kmsg $@

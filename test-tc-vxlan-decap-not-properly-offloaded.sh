@@ -27,8 +27,8 @@ ip link add $VXLAN type vxlan dstport 4789 external udp6zerocsumrx
 ifconfig $VXLAN up
 tc qdisc add dev $VXLAN ingress
 
-reset_tc_nic $NIC
-reset_tc_nic $REP
+reset_tc $NIC
+reset_tc $REP
 
 ip addr add dev $NIC $TUN_SRC_V4/16
 

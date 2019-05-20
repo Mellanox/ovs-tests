@@ -16,10 +16,10 @@ start_check_syndrome
 disable_sriov_port2
 enable_sriov_port2
 enable_switchdev $NIC2
-reset_tc_nic $NIC2
+reset_tc $NIC2
 title "- Add drop rule"
 tc_filter add dev $NIC2 protocol ip parent ffff: prio 1 flower skip_sw dst_mac e4:11:22:11:4a:51 src_mac e4:11:22:11:4a:50 action drop
-reset_tc_nic $NIC2
+reset_tc $NIC2
 disable_sriov_port2
 check_syndrome
 

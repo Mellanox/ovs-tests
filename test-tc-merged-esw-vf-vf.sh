@@ -16,11 +16,11 @@ enable_switchdev $NIC2
 REP2=`get_rep 0 $NIC2`
 
 title "- add redirect rule $REP -> $REP2"
-reset_tc_nic $REP
+reset_tc $REP
 tc_filter add dev $REP protocol ip ingress prio 1 flower skip_sw dst_mac e4:11:22:11:4a:51 action mirred egress redirect dev $REP2
 
 title "- add redirect rule $REP2 -> $REP"
-reset_tc_nic $REP2
+reset_tc $REP2
 tc_filter add dev $REP2 protocol ip ingress prio 1 flower skip_sw dst_mac e4:11:22:11:4a:51 action mirred egress redirect dev $REP
 
 disable_sriov_port2

@@ -16,8 +16,8 @@ unbind_vfs
 set_eswitch_inline_mode_transport
 bind_vfs
 
-reset_tc_nic $NIC
-reset_tc_nic $REP
+reset_tc $NIC
+reset_tc $REP
 
 rm -fr /tmp/fsdump_before_add /tmp/fsdump_after_add
 
@@ -63,6 +63,6 @@ else
     err "Expected 2 new FTEs in HW but got $count"
 fi
 
-reset_tc_nic $NIC
-reset_tc_nic $REP
+reset_tc $NIC
+reset_tc $REP
 test_done

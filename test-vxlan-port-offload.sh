@@ -46,8 +46,8 @@ function __test_vxlan() {
     bind_vfs
     ifconfig $NIC up
     ifconfig $REP up
-    reset_tc_nic $NIC
-    reset_tc_nic $REP
+    reset_tc $NIC
+    reset_tc $REP
 
     m=`ip addr show $vx 2>&1`
     [ $? -ne 0 ] && fail $m

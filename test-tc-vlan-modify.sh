@@ -11,7 +11,7 @@ my_dir="$(dirname "$0")"
 require_interfaces REP NIC
 
 function run() {
-    reset_tc_nic $REP
+    reset_tc $REP
 
     title "Add TC mirred rule for VLAN modify 10->11"
     tc_filter add dev $REP protocol 802.1q ingress prio 1 flower skip_sw \
@@ -19,7 +19,7 @@ function run() {
         vlan_id 10 \
         action vlan modify id 11 pipe \
         action mirred egress redirect dev $NIC
-    reset_tc_nic $REP
+    reset_tc $REP
 
     title "Add TC mirred rule for VLAN pop+push 11"
     tc_filter add dev $REP protocol 802.1q ingress prio 1 flower skip_sw \
@@ -27,7 +27,7 @@ function run() {
         vlan_id 10 \
         action vlan pop pipe action vlan push id 11 pipe \
         action mirred egress redirect dev $NIC
-    reset_tc_nic $REP
+    reset_tc $REP
 }
 
 run

@@ -18,7 +18,7 @@ my_dir="$(dirname "$0")"
 . $my_dir/tc_tests_common.sh
 
 require_interfaces NIC
-reset_tc_nic $NIC
+reset_tc $NIC
 
 function run_multi_tc() {
     local file_name=$1
@@ -104,7 +104,7 @@ function perf_test() {
     local baseline_mem=$5
 
     tc_batch 0 "dev $NIC" $total $rules_per_file "$classifier"
-    reset_tc_nic $NIC
+    reset_tc $NIC
 
     echo "Insert rules"
     run_benchmark_time_mem add $total $baseline_ins $baseline_mem

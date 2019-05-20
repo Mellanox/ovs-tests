@@ -91,7 +91,7 @@ function test_add_encap_rule() {
     add_tunnel_encap_rule $local_ip $remote_ip vxlan1 $dst_mac1
     add_tunnel_encap_rule $local_ip $remote_ip gre1 $dst_mac2
     verify_different_encap_ids
-    reset_tc_nic $REP
+    reset_tc $REP
 }
 
 function do_test() {

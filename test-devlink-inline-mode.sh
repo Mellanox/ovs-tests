@@ -14,8 +14,8 @@ not_relevant_for_cx5
 
 enable_switchdev
 unbind_vfs
-reset_tc_nic $NIC
-reset_tc_nic $REP
+reset_tc $NIC
+reset_tc $REP
 
 set -e
 
@@ -54,7 +54,7 @@ mode=`get_eswitch_inline_mode`
 test $mode = "link" || fail "Expected mode link but got $mode"
 success
 
-reset_tc_nic $NIC
+reset_tc $NIC
 title "test set inline-mode transport"
 set_eswitch_inline_mode transport || fail "Failed to set mode transport"
 mode=`get_eswitch_inline_mode`
@@ -88,8 +88,8 @@ tc filter add dev $NIC protocol ipv6 parent ffff: prio 3 \
     dst_ip 2001:0db8:85a3::8a2e:0370:7335 \
     action drop || fail "Failed to add rule"
 
-reset_tc_nic $REP
-reset_tc_nic $NIC
+reset_tc $REP
+reset_tc $NIC
 success
 
 title "test revert on set failure"
@@ -115,8 +115,8 @@ else
 fi
 
 echo "* reset"
-reset_tc_nic $NIC
-reset_tc_nic $REP
+reset_tc $NIC
+reset_tc $REP
 echo $vfpci > /sys/bus/pci/drivers/mlx5_core/unbind
 set_eswitch_inline_mode transport
 

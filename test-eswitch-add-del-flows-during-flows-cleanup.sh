@@ -75,13 +75,13 @@ function test_case_del_in_switchdev() {
 
     title "Test del flows case in switchdev $case"
     test -e /sys/class/net/$case || fail "Cannot find $case"
-    reset_tc_nic $case
+    reset_tc $case
     add_rules $case
     del_rules $case &
     sleep .2
     test_switch_mode_to legacy &
     wait
-    reset_tc_nic $case
+    reset_tc $case
     success
 }
 
@@ -91,13 +91,13 @@ function test_case_del_in_legacy() {
     title "Test del flows case in legacy $case"
     test -e /sys/class/net/$case || fail "Cannot find $case"
     switch_mode_legacy
-    reset_tc_nic $case
+    reset_tc $case
     add_rules $case
     del_rules $case &
     sleep .2
     test_switch_mode_to switchdev &
     wait
-    reset_tc_nic $case
+    reset_tc $case
     success
 }
 function test_case_add_in_switchdev() {
@@ -105,12 +105,12 @@ function test_case_add_in_switchdev() {
 
     title "Test add flows case in switchdev $case"
     test -e /sys/class/net/$case || fail "Cannot find $case"
-    reset_tc_nic $case
+    reset_tc $case
     add_rules $case &
     sleep .2
     test_switch_mode_to legacy &
     wait
-    reset_tc_nic $case
+    reset_tc $case
     success
 }
 
@@ -125,7 +125,7 @@ function test_case_add_in_legacy() {
     sleep .2
     test_switch_mode_to switchdev &
     wait
-    reset_tc_nic $case
+    reset_tc $case
     success
 }
 
@@ -141,7 +141,7 @@ function test_case_add_and_disable_sriov() {
     sleep .2
     config_sriov 0 $case
     wait
-    reset_tc_nic $case
+    reset_tc $case
     if [ "$num" != "0" ]; then
         config_sriov $num $case
         set_macs $num

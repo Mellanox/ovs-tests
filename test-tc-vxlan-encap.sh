@@ -88,7 +88,7 @@ function test_add_encap_rule() {
     add_vxlan_rule $local_ip $remote_ip
     verify_neigh
     verify_rule_in_hw
-    reset_tc_nic $REP
+    reset_tc $REP
 }
 
 function test_add_encap_rule_neigh_missing() {
@@ -99,7 +99,7 @@ function test_add_encap_rule_neigh_missing() {
     add_vxlan_rule $local_ip $remote_ip
     verify_neigh
     verify_rule_in_hw not
-    reset_tc_nic $REP
+    reset_tc $REP
 }
 
 # this is like route missing
@@ -110,7 +110,7 @@ function test_add_encap_rule_tunnel_down() {
     ip n show $remote_ip
     add_vxlan_rule $local_ip $remote_ip
     verify_rule_in_hw not
-    reset_tc_nic $REP
+    reset_tc $REP
 }
 
 function do_test() {

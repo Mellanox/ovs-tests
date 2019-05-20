@@ -21,9 +21,9 @@ my_dir="$(dirname "$0")"
 
 not_relevant_for_cx5
 
-reset_tc_nic $NIC
+reset_tc $NIC
 if [ -e /sys/class/net/$REP ]; then
-    reset_tc_nic $REP
+    reset_tc $REP
 fi
 
 set -e

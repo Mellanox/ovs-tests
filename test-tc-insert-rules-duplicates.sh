@@ -122,12 +122,12 @@ enable_switchdev
 # Execute all test_* functions
 for i in `declare -F | awk {'print $3'} | grep ^test_ | grep -v test_done` ; do
     title $i
-    reset_tc_nic $NIC
-    reset_tc_nic $REP
+    reset_tc $NIC
+    reset_tc $REP
     eval $i && success || err "Failed adding rule"
     eval $i 2>/dev/null && err "Expected to fail adding duplicate rule" || success
-    reset_tc_nic $NIC
-    reset_tc_nic $REP
+    reset_tc $NIC
+    reset_tc $REP
 done
 
 check_kasan

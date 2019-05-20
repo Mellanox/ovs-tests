@@ -57,13 +57,13 @@ function test_basic_L4() {
 
 unbind_vfs
 switch_mode_legacy
-reset_tc_nic $NIC
+reset_tc $NIC
 
 # Execute all test_* functions
 for i in `declare -F | awk {'print $3'} | grep ^test_ | grep -v test_done` ; do
     title $i
     eval $i
-    reset_tc_nic $NIC
+    reset_tc $NIC
 done
 
 check_kasan

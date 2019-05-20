@@ -21,7 +21,7 @@ function pidof_ovs_vswitchd() {
 }
 
 unbind_vfs
-reset_tc_nic $NIC
+reset_tc $NIC
 
 title "verify ovs is running"
 start_clean_openvswitch

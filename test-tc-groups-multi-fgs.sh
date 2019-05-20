@@ -27,7 +27,7 @@ function add_diff_mask_rules() {
 
 title "Test multiple flow groups"
 start_check_syndrome
-reset_tc_nic $REP
+reset_tc $REP
 
 # adding many rules with same mask to cause creation of multiple flow groups
 for i in `seq 5`; do
@@ -35,6 +35,6 @@ for i in `seq 5`; do
     add_diff_mask_rules $i
 done
 
-reset_tc_nic $REP
+reset_tc $REP
 check_syndrome
 test_done

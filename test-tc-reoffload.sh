@@ -34,10 +34,10 @@ config_sriov 2 $NIC2
 enable_switchdev_if_no_rep $REP2
 
 require_interfaces NIC NIC2 REP REP2
-reset_tc_nic $NIC
-reset_tc_nic $NIC2
-reset_tc_nic $REP
-reset_tc_nic $REP2
+reset_tc $NIC
+reset_tc $NIC2
+reset_tc $REP
+reset_tc $REP2
 
 function cleanup() {
     tc qdisc del dev $NIC ingress_block 1 ingress > /dev/null 2>&1

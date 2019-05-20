@@ -29,7 +29,7 @@ my_dir="$(dirname "$0")"
 
 function add_tc_rule_to_rep() {
     title "add tc rule to rep $REP"
-    reset_tc_nic $REP
+    reset_tc $REP
     tc_filter add dev $REP protocol ip parent ffff: prio 1 \
         flower skip_sw indev $REP \
         src_mac e1:22:33:44:00:00 \
@@ -39,7 +39,7 @@ function add_tc_rule_to_rep() {
 
 function add_tc_rule_to_pf() {
     title "add tc rule to pf"
-    reset_tc_nic $NIC
+    reset_tc $NIC
     tc_filter add dev $NIC protocol ip parent ffff: prio 2 \
         flower skip_sw indev $NIC \
         src_mac e1:22:33:44:00:01 \

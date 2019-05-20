@@ -16,8 +16,8 @@ config_sriov 2 $NIC
 enable_switchdev_if_no_rep $REP
 
 require_interfaces NIC REP
-reset_tc_nic $NIC
-reset_tc_nic $REP
+reset_tc $NIC
+reset_tc $REP
 
 # This array defines action_type->action_text mapping
 declare -A actions

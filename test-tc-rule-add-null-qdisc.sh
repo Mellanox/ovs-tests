@@ -8,7 +8,7 @@ my_dir="$(dirname "$0")"
 . $my_dir/tc_tests_common.sh
 
 require_interfaces NIC
-reset_tc_nic $NIC
+reset_tc $NIC
 
 title "Verify we cannot add rule if qdisc doesn't exists"
 ! tc qdisc del dev $NIC ingress

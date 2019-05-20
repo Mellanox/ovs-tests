@@ -33,11 +33,11 @@ tc filter del dev $NIC parent ffff:
 EOF
 
 title "Test for groups overlapping"
-reset_tc_nic $NIC
+reset_tc $NIC
 for i in `seq 100`; do
     `shuf -n1 $TMPFILE` >/dev/null 2>&1
 done
-reset_tc_nic $NIC
+reset_tc $NIC
 sec=`get_test_time_elapsed`
 a=`journalctl -n20 --since="$sec seconds ago" | grep -v 0xd5ef2 | grep -m1 syndrome || true`
 if [ "$a" != "" ]; then

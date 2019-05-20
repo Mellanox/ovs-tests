@@ -20,7 +20,7 @@ trap cleanup EXIT
 cleanup
 ip link add veth0 type veth peer name veth1
 tc qdisc add dev veth0 ingress
-reset_tc_nic $REP
+reset_tc $REP
 
 title "Add tc rule veth->rep and expect to be sw"
 
@@ -31,5 +31,5 @@ tc filter add dev veth0 protocol ip parent ffff: \
 
 tc filter show dev veth0 ingress | egrep -z "dst_mac e4:11:22:11:4a:51\s*eth_type ipv4\s*in_hw" && err "Found in_hw rule for veth->rep" || success
 
-reset_tc_nic $REP
+reset_tc $REP
 test_done

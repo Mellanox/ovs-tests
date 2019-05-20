@@ -55,7 +55,7 @@ function __test_max_rules() {
                     title "Testing $num rules $skip $_nic set_index:$index"
                     tc_batch $num $skip $_nic $index || return
                     echo "cleanup"
-                    reset_tc_nic $_nic
+                    reset_tc $_nic
                 done
             done
         done
@@ -76,7 +76,7 @@ function test_max_rules_legacy() {
     for _nic in $CASE_NIC; do
         config_sriov 2 $_nic
         enable_legacy $_nic
-        reset_tc_nic $_nic
+        reset_tc $_nic
     done
     __test_max_rules
 }
@@ -102,8 +102,8 @@ function test_max_rules_two_ports() {
     tc_batch $num $skip $NIC $index || return
     tc_batch $num $skip $NIC2 $index || return
     echo "cleanup"
-    reset_tc_nic $NIC
-    reset_tc_nic $NIC2
+    reset_tc $NIC
+    reset_tc $NIC2
 }
 
 if [ "$CASE_MODE" == "switchdev" ]; then
@@ -116,6 +116,6 @@ else
     fail "Unknown case mode '$CASE_MODE'"
 fi
 [ $CASE_TWO_PORTS == "1" ] && test_max_rules_two_ports
-reset_tc_nic $NIC
-reset_tc_nic $NIC2
+reset_tc $NIC
+reset_tc $NIC2
 test_done

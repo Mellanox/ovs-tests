@@ -105,10 +105,10 @@ function tc_batch1() {
 
 function test_max_rules() {
     title "Testing $TOTAL_COUNT rules $SKIP $NIC1 SMAC $SMAC DMAC $DMAC ACTION $ACTION"
-    reset_tc_nic $NIC1
+    reset_tc $NIC1
     tc_batch1 "dev $NIC1" $TOTAL_COUNT
     echo "cleanup"
-    time reset_tc_nic $NIC1
+    time reset_tc $NIC1
 }
 
 

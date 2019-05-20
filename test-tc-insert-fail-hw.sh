@@ -71,7 +71,7 @@ ifconfig $VF 1.1.1.1/24 up
 ip n r 1.1.1.2 dev $VF lladdr aa:bb:cc:dd:ee:ff
 
 title "add rule to create flower instance in prio 1 (won't match)"
-reset_tc_nic $REP
+reset_tc $REP
 tc_filter add dev $REP protocol ip parent ffff: prio 1 flower skip_hw dst_mac cc:cc:cc:cc:cc:cc action drop
 
 test_insert_hw_fail_exists

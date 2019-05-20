@@ -96,7 +96,7 @@ function test_add_multipath_rule() {
     ip r show $net
     add_vxlan_rule $local_ip $remote_ip
     verify_rules_in_hw
-    reset_tc_nic $REP
+    reset_tc $REP
 }
 
 function do_test() {

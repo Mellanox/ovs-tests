@@ -15,7 +15,7 @@ my_dir="$(dirname "$0")"
 
 enable_switchdev
 require_interfaces REP
-reset_tc_nic $REP
+reset_tc $REP
 
 
 function add_rules() {
@@ -53,6 +53,6 @@ reload_modules &
 wait
 
 check_syndrome
-reset_tc_nic $REP &>/dev/null
+reset_tc $REP &>/dev/null
 
 test_done

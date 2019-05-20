@@ -29,8 +29,8 @@ function __test_basic_vxlan() {
     ifconfig $NIC up
     ip neigh add $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
 
-    reset_tc_nic $NIC
-    reset_tc_nic $REP
+    reset_tc $NIC
+    reset_tc $REP
 
     reset_tc $REP
     reset_tc $vx

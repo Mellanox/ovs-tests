@@ -89,14 +89,14 @@ function test_legacy_switchdev() {
     title "Add rule in legacy mode and reset in switchdev"
     unbind_vfs
     switch_mode_legacy
-    reset_tc_nic $NIC
+    reset_tc $NIC
     add_rules
     add_vlan_rule
     title "- unbind vfs"
     unbind_vfs
     title "- switch to switchdev"
     switch_mode_switchdev
-    reset_tc_nic $NIC
+    reset_tc $NIC
     success
 }
 
@@ -104,7 +104,7 @@ function test_switchdev_legacy() {
     title "Add rule in switchdev mode and reset in legacy"
     unbind_vfs
     switch_mode_switchdev
-    reset_tc_nic $NIC
+    reset_tc $NIC
     title "- add rules"
     add_rules
     add_vlan_rule
@@ -113,7 +113,7 @@ function test_switchdev_legacy() {
     unbind_vfs
     title "- switch to legacy"
     switch_mode_legacy
-    reset_tc_nic $NIC
+    reset_tc $NIC
     success
 }
 

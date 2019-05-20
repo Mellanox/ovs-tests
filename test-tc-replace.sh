@@ -13,7 +13,7 @@ my_dir="$(dirname "$0")"
 
 title "Test tc filter replace"
 start_check_syndrome
-reset_tc_nic $NIC
+reset_tc $NIC
 
 for i in `seq 10`; do
     tc_filter replace dev $NIC protocol 0x806 parent ffff: prio 8 handle 0x1 flower  dst_mac e4:11:22:11:4a:51 src_mac e4:11:22:11:4a:50 action drop
@@ -28,5 +28,5 @@ fi
 
 tc filter show dev $NIC ingress | egrep -z "not_in_hw" && err "Expected in_hw rule"
 
-reset_tc_nic $NIC
+reset_tc $NIC
 test_done

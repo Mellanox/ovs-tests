@@ -10,7 +10,7 @@ config_sriov 2 $NIC
 enable_switchdev_if_no_rep $REP
 
 require_interfaces NIC
-reset_tc_nic $NIC
+reset_tc $NIC
 
 declare -A counters
 counters=( ["tso"]="tx_tso_"

@@ -14,7 +14,7 @@ function test_ip_tos_and_ip_ttl() {
     local nic=$1
 
     start_check_syndrome
-    reset_tc_nic $nic
+    reset_tc $nic
     tc_filter add dev $nic protocol ip ingress prio 1 flower skip_sw dst_mac 7c:fe:90:7b:76:5c ip_proto icmp ip_tos 0x30 ip_ttl 63 action drop
     check_syndrome
 }
@@ -36,8 +36,8 @@ function __test_basic_vxlan() {
     ifconfig $NIC up
     ip neigh add $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
 
-    reset_tc_nic $NIC
-    reset_tc_nic $REP
+    reset_tc $NIC
+    reset_tc $REP
 
     reset_tc $REP
     reset_tc $vx

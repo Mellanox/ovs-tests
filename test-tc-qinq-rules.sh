@@ -17,8 +17,8 @@ function __test_qinq_double_pushpop() {
     local skip=$1
 
     title "- Setting rule on nic:$REP skip:$skip"
-    reset_tc_nic $NIC
-    reset_tc_nic $REP
+    reset_tc $NIC
+    reset_tc $REP
 
     title "    - vlan double push"
     tc_filter add dev $REP protocol arp parent ffff: prio 1 \
@@ -39,16 +39,16 @@ function __test_qinq_double_pushpop() {
         action vlan pop \
         action mirred egress redirect dev $REP
 
-    reset_tc_nic $NIC
-    reset_tc_nic $REP
+    reset_tc $NIC
+    reset_tc $REP
 }
 
 function __test_qinq_double_push_one_pop() {
     local skip=$1
 
     title "- Setting rule on nic:$REP skip:$skip"
-    reset_tc_nic $NIC
-    reset_tc_nic $REP
+    reset_tc $NIC
+    reset_tc $REP
 
     title "    - vlan double push"
     tc_filter add dev $REP protocol arp parent ffff: prio 1 \
@@ -68,8 +68,8 @@ function __test_qinq_double_push_one_pop() {
         action vlan pop \
         action mirred egress redirect dev $REP
 
-    reset_tc_nic $NIC
-    reset_tc_nic $REP
+    reset_tc $NIC
+    reset_tc $REP
 }
 
 
@@ -77,8 +77,8 @@ function __test_qinq_double_push_no_pop() {
     local skip=$1
 
     title "- Setting rule on nic:$REP skip:$skip"
-    reset_tc_nic $NIC
-    reset_tc_nic $REP
+    reset_tc $NIC
+    reset_tc $REP
 
     title "    - vlan double push"
     tc_filter add dev $REP protocol arp parent ffff: prio 1 \
@@ -97,8 +97,8 @@ function __test_qinq_double_push_no_pop() {
         cvlan_ethtype arp \
         action mirred egress redirect dev $REP
 
-    reset_tc_nic $NIC
-    reset_tc_nic $REP
+    reset_tc $NIC
+    reset_tc $REP
 }
 
 function test_qinq_double_pushpop() {
