@@ -52,31 +52,31 @@ function run() {
     config_vf ns1 $VF2 $REP2 $IP2
 
     echo "add arp rules"
-    tc_filter add dev $REP ingress protocol arp prio 1 flower \
+    tc_filter add dev $REP ingress protocol arp prio 1 flower verbose \
         action mirred egress redirect dev $REP2
 
-    tc_filter add dev $REP2 ingress protocol arp prio 1 flower \
+    tc_filter add dev $REP2 ingress protocol arp prio 1 flower verbose \
         action mirred egress redirect dev $REP
 
     echo "add ct rules"
-    tc_filter add dev $REP ingress protocol ip prio 2 flower \
+    tc_filter add dev $REP ingress protocol ip prio 2 flower verbose \
         dst_mac $mac2 ct_state -trk \
         action ct action goto chain 1
 
-    tc_filter add dev $REP ingress protocol ip chain 1 prio 2 flower \
+    tc_filter add dev $REP ingress protocol ip chain 1 prio 2 flower verbose \
         dst_mac $mac2 ct_state +trk+new \
         action mirred egress redirect dev $REP2
 
-    tc_filter add dev $REP ingress protocol ip chain 1 prio 2 flower \
+    tc_filter add dev $REP ingress protocol ip chain 1 prio 2 flower verbose \
         dst_mac $mac2 ct_state +trk+est \
         action mirred egress redirect dev $REP2
 
     # chain0,ct -> chain1,fwd
-    tc_filter add dev $REP2 ingress protocol ip prio 2 flower \
+    tc_filter add dev $REP2 ingress protocol ip prio 2 flower verbose \
         dst_mac $mac1 \
         action ct action goto chain 1
 
-    tc_filter add dev $REP2 ingress protocol ip prio 2 chain 1 flower \
+    tc_filter add dev $REP2 ingress protocol ip prio 2 chain 1 flower verbose \
         action mirred egress redirect dev $REP
 
     fail_if_err
