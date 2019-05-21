@@ -71,7 +71,7 @@ ip netns exec ns0 ping -q -c 10 -i 0.2 -w 4 $IP2 && success || err
 count=`ovs_dpctl_dump_flows | grep ipv4 | grep "eth_type(0x8100),vlan(vid=0" | grep pop_vlan | wc -l`
 if [ "$count" -ne "2" ]; then
     ovs_dpctl_dump_flows --names | grep ipv4
-    fail "No prio tag offloaded rules"
+    err "No prio tag offloaded rules"
 fi
 
 del_all_bridges
