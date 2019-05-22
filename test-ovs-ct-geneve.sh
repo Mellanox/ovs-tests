@@ -93,7 +93,6 @@ function config_remote() {
 }
 
 function add_openflow_rules() {
-    return
     ovs-ofctl del-flows br-ovs
     ovs-ofctl add-flow br-ovs in_port=$REP,dl_type=0x0806,actions=output:geneve1
     ovs-ofctl add-flow br-ovs in_port=geneve1,dl_type=0x0806,actions=output:$REP
