@@ -43,7 +43,7 @@ function config() {
 }
 
 function run_test() {
-    iperf -s &
+    iperf -s -fm &
 
     for rate in $rates; do
         let rate1=rate*1000
@@ -52,12 +52,13 @@ function run_test() {
 
         ovs-vsctl set interface $REP ingress_policing_rate=$rate1
 
-        mrate=$(ip netns exec ns0 iperf -t 30 -c $BRIP | grep "Mbits/sec" | sed -e 's/Mbits\/sec//' | gawk '{printf $NF}')
+        mrate=$(ip netns exec ns0 iperf -t 3 -fm -c $BRIP | grep "Mbits/sec" | sed -e 's/Mbits\/sec//' | gawk '{printf $NF}')
         if [ -z "$mrate" ]; then
             err "Couldn't get iperf rate"
             continue
         fi
         mrate=$(bc <<< "$mrate * 1000" | sed -e 's/\..*//')
+
         upper=$(bc <<< "$rate * 1100")
         lower=$(bc <<< "$rate * 900")
 
