@@ -71,6 +71,7 @@ function run() {
 
     tc_filter add dev $REP ingress protocol ip chain 1 prio 2 flower \
         dst_mac $mac2 ct_state +trk+new \
+        action ct commit \
         action mirred egress mirror dev $REP3 pipe \
         action mirred egress redirect dev $REP2
 
