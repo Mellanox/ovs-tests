@@ -22,7 +22,7 @@ reset_tc $REP
 reset_tc $REP2
 
 function set_ct_aging() {
-    echo $1 > /sys/module/mlx5_core/parameters/offloaded_ct_timeout
+    echo $1 > /sys/module/mlx5_core/parameters/offloaded_ct_timeout || err "Failed to write offloaded_ct_timeout"
 }
 
 function cleanup() {
@@ -74,6 +74,7 @@ function run() {
     proto="udp"
     config_ovs $proto
     set_ct_aging 2
+    fail_if_err
 
     t=10
     echo "run traffic for $t seconds"
