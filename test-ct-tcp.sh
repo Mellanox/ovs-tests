@@ -46,6 +46,11 @@ function config_vf() {
     ip netns exec $ns ifconfig $vf $ip/24 up
 }
 
+function get_pkts() {
+    tc -j -p -s  filter show dev $REP protocol ip ingress | jq '.[] | select(.options.ct_state == "+trk+est") | .options.actions[0].stats.packets'
+}
+
+
 function run() {
     title "Test CT TCP"
     config_vf ns0 $VF $REP $IP1
@@ -92,7 +97,6 @@ function run() {
     ip netns exec ns1 timeout $((t+1)) iperf -s &
     sleep 0.5
     ip netns exec ns0 timeout $((t+1)) iperf -t $t -c $IP2  &
-
     sleep 2
     pidof iperf &>/dev/null || err "iperf failed"
 
@@ -101,11 +105,20 @@ function run() {
     timeout $t tcpdump -qnnei $REP -c 10 'tcp' &
     pid=$!
 
+    pkts1=`get_pkts`
+
     sleep $t
     killall -9 iperf &>/dev/null
     wait $! 2>/dev/null
 
-    # test sniff timedout
+    title "verify tc stats"
+    pkts2=`get_pkts`
+    let a=pkts2-pkts1
+    if (( a < 5 )); then
+        err "TC stats are not updated"
+    fi
+
+    title "verify traffic offloaded"
     wait $pid
     rc=$?
     if [[ $rc -eq 124 ]]; then
