@@ -3,47 +3,54 @@
 SWID=$1
 # might be pf0vf1 so only get vf number
 PORT=${2##*f}
-PORT_UPLINK="65534"
-PORT_UPLINK0="p0"
-PORT_UPLINK1="p1"
+PORT_NAME=$2
 
-if [ "$PORT" = "$PORT_UPLINK0" ] || [ "$PORT" = "$PORT_UPLINK1" ]; then
-    # sometimes we don't have ID_NET_NAME but have SLOT (rhel 7.2) or PATH (rhel 7.6).
-    if [ -z "$ID_NET_NAME" ]; then
-	if [ -n "$ID_NET_NAME_SLOT" ]; then
-	    ID_NET_NAME=$ID_NET_NAME_SLOT
-	elif [ -n "$ID_NET_NAME_PATH" ]; then
-            ID_NET_NAME=$ID_NET_NAME_PATH
-	fi
-    fi
-    if [ -n "$ID_NET_NAME" ]; then
-        n=${ID_NET_NAME##*n}
-	if [ "$n" = "$PORT_UPLINK0" ] || [ "$n" = "$PORT_UPLINK1" ]; then
-            # strip n*
-            NAME=${ID_NET_NAME%n*}
-        else
-            NAME=$ID_NET_NAME
+is_bf=`lspci -s 00:00.0 2> /dev/null | grep -wq "PCI bridge: Mellanox Technologies" && echo 1 || echo 0`
+if [ $is_bf -eq 1 ]; then
+    echo NAME=${2/vf-1/hpf}
+    exit 0
+fi
+
+# for pf and uplink rep fall to slot or path.
+if [ -n "$ID_NET_NAME_SLOT" ]; then
+    echo "NAME=$ID_NET_NAME_SLOT"
+    exit
+fi
+
+if [ -n "$ID_NET_NAME_PATH" ]; then
+    echo "NAME=$ID_NET_NAME_PATH"
+    exit
+fi
+
+function get_name() {
+    udevadm info -q property -p /sys/class/net/$1 | grep $2 | cut -d= -f2
+}
+
+# for vf rep get parent slot/path.
+parent_phys_port_name=${PORT_NAME%vf*}
+parent_phys_port_name=${parent_phys_port_name//f}
+# try at most two times
+for cnt in {1..2}; do
+    for i in `ls -1 /sys/class/net/*/phys_switch_id`; do
+        nic=`echo $i | cut -d/ -f 5`
+        _swid=`cat $i`
+        _portname=`cat /sys/class/net/$nic/phys_port_name`
+        if [ -z $_portname ]; then
+            # no uplink rep so no phys port name
+            _portname=$parent_phys_port_name
         fi
-        echo "NAME=$NAME"
-    fi
-    exit
-fi
+        if [ "$_swid" = "$SWID" ] && [ "$_portname" = "$parent_phys_port_name" ]
+        then
+            parent_path=`get_name $nic ID_NET_NAME_SLOT`
+            if [ -z "$parent_path" ]; then
+                parent_path=`get_name $nic ID_NET_NAME_PATH`
+            fi
+            echo "NAME=${parent_path}_$PORT"
+            exit
+        fi
+    done
 
-if [ "$PORT" = "$PORT_UPLINK" ]; then
-    if [ -n "$ID_NET_NAME" ]; then
-        NAME=${ID_NET_NAME%n$PORT_UPLINK}
-        echo "NAME=$NAME"
-    fi
-    exit
-fi
-
-# WA to make sure uplink port is renamed first
-sleep 0.5
-for i in `ls -1 /sys/class/net/*/address`; do
-    nic=`echo $i | cut -d/ -f 5`
-    address=`cat $i | tr -d :`
-    if [ "$address" = "$SWID" ]; then
-        echo "NAME=${nic}_$PORT"
-        break
-    fi
+    # swid changes when entering lag mode.
+    # So if we didn't find current swid, get the updated one.
+    SWID=`cat /sys/class/net/$INTERFACE/phys_switch_id`
 done
