@@ -49,6 +49,13 @@ function create_ns_vlan
 
 function setup
 {
+    config_sriov
+    enable_switchdev_if_no_rep $REP
+    bind_vfs
+
+    ip link set $REP up
+    ip link set $REP2 up
+
     ip netns add $NS1
     ip netns add $NS2
 
