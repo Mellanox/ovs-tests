@@ -88,9 +88,10 @@ function setup
 function do_test
 {
     title "Test OVS QinQ with qinq-ethtype=802.1ad"
-    timeout 10 tcpdump -enn -i $VETH1 -w $tmpfile -c 5 &
+    timeout 5 tcpdump -enn -i $VETH1 -w $tmpfile &
     ip netns exec $NS1 ping 1.1.1.2 -c 5 && success || err
     # verify tpid 802.1ad (by default) and vid 1000
+    sleep 1
     tcpdump -xxr $tmpfile  | grep 88a8 | grep 03e8 && success || err
 
     title "Test OVS QinQ with qinq-ethtype=802.1q"
@@ -98,8 +99,9 @@ function do_test
     ovs-vsctl set Port $REP  other_config:qinq-ethtype=802.1q
     ovs-vsctl set Port $REP2 other_config:qinq-ethtype=802.1q
 
-    timeout 10 tcpdump -enn -i $VETH1 -w $tmpfile -c 5 &
+    timeout 5 tcpdump -enn -i $VETH1 -w $tmpfile &
     ip netns exec $NS1 ping 1.1.1.2 -c 5 && success || err
+    sleep 1
     tcpdump -xxr $tmpfile  | grep 8100 | grep 03e8 && success || err
 }
 

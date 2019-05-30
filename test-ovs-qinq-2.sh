@@ -117,8 +117,9 @@ function add_rules
 
 function do_test
 {
-    timeout 10 tcpdump -enn -i $VETH1 -w $tmpfile -c 5 &
+    timeout 5 tcpdump -enn -i $VETH1 -w $tmpfile &
     ip netns exec $NS1 ping 1.1.1.2 -i 0.5 -c 10 && success || err
+    sleep 1
     # verify tpid 802.1ad and vid 1000
     tcpdump -xxr $tmpfile  | grep 88a8 | grep 03e8 && success || err
 }
