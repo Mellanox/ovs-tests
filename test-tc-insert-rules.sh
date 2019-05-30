@@ -10,12 +10,6 @@ FILTER=${FILTER}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-enable_switchdev
-REP=`get_rep 0`
-if [ -z "$REP" ]; then
-    fail "Missing rep $rep"
-fi
-
 
 function tc_filter() {
     eval2 tc filter $@ && success
@@ -335,11 +329,13 @@ function test_five_tuple_match() {
     done
 }
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
+REP=`get_rep 0`
+if [ -z "$REP" ]; then
+    fail "Missing rep $rep"
+fi
 unbind_vfs
-reset_tc $NIC
-reset_tc $REP
-stop_openvswitch
+reset_tc $NIC $REP
 
 # clean vxlan interfaces
 for vx in `ip -o l show type vxlan | cut -d: -f 2` ; do
@@ -392,7 +388,6 @@ if [ $count -eq 0 ]; then
     err "No cases were tested"
 fi
 
-reset_tc $NIC
-reset_tc $REP
+reset_tc $NIC $REP
 check_kasan
 test_done
