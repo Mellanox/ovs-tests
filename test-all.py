@@ -14,7 +14,7 @@ MYNAME = os.path.basename(__file__)
 MYDIR = os.path.abspath(os.path.dirname(__file__))
 LOGDIR = mkdtemp(prefix='log')
 TESTS = glob(MYDIR + '/test-*')
-IGNORE_TESTS = ["*ecmp*"]
+IGNORE_TESTS = []
 SKIP_TESTS = {}
 
 COLOURS = {
