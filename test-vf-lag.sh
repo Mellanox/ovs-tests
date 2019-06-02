@@ -2,6 +2,8 @@
 #
 # Basic VF LAG test with tc shared block
 #
+# Bug SW #1778222: [upstream][VF lag] tx traffic from vf to the pf which the vf is not created on is not offloaded
+#
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -20,6 +22,24 @@ id=98
 
 function tc_filter() {
     eval2 tc filter $@ && success
+}
+
+function verify_hw_rules() {
+    local src=$1
+    local dst=$2
+    local i
+    local mac=`echo $dst_mac | tr -d :`
+    mac=${mac::6}
+
+    local src_tag="source_port"
+    local dst_tag="destination_id"
+
+    for i in 0 1 ; do
+        title "- verify hw rule on port$i"
+        mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
+        grep -A5 $mac /tmp/port$i | grep -q "$src_tag\s*:$src" || err "Expected rule with source port $src"
+        grep -A5 $mac /tmp/port$i | grep -q "$dst_tag\s*:$dst" || err "Expected rule with dest port $dst"
+    done
 }
 
 function config_bonding() {
@@ -138,11 +158,13 @@ function test_add_redirect_rule() {
         action mirred egress redirect dev $REP
     verify_in_hw $NIC 3
     verify_in_hw $NIC2 3
+    verify_hw_rules 0xffff 0x1
 
     title "- $REP -> bond0"
     tc_filter add dev $REP protocol arp parent ffff: prio 3 \
         flower dst_mac $dst_mac skip_sw \
         action mirred egress redirect dev bond0
+    verify_hw_rules 0x1 0xffff
 }
 
 function do_cmd() {
