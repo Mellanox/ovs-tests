@@ -24,8 +24,9 @@ function test_miss_rules() {
     enable_switchdev $NIC2
 
     dump_ports
-    count0=`cat /tmp/port0 | grep VPORT -B2 | grep source_port | wc -l`
-    count1=`cat /tmp/port1 | grep VPORT -B2 | grep source_port | wc -l`
+    count0=`grep -A2 VPORT /tmp/port0 | grep "dst_esw_owner_vhca_id\s*:0x1" | wc -l`
+    # on port1 we expect dst vhca id 0x0 so it won't appear in the dump
+    count1=`grep -A2 VPORT /tmp/port1 | grep "dst_esw_owner_vhca_id_valid\s*:0x1" | wc -l`
 
     # Today we allocate max possible peer miss rules instead of enabled vports.
     _expect=`fw_query_val NUM_OF_VFS`
