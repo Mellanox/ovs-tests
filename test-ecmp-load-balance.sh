@@ -93,7 +93,7 @@ function read_eth_val() {
 }                                                     
 
 function do_traffic() {
-    for i in `seq 0 $max_core`; do
+    for i in $cores; do
         taskset -c $i timeout 1 ping -q -I $VF $ping_ip -i 0.01 -W 0.1 -w 0.5 &
     done
     sleep 1.5
@@ -119,7 +119,7 @@ function test_ecmp_load_balance() {
         add_vxlan_rule $local_ip $remote_ip
     fi
 
-    max_core=`cat /proc/cpuinfo |grep core\ id | awk {'print $4'}|sort -g|uniq|tail -1`
+    cores=`cat /proc/cpuinfo |grep core\ id | awk {'print $4'}|sort -g|uniq`
 
     ping_ip="1.1.1.2"
     ifconfig $VF 1.1.1.1/24 up
