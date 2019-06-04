@@ -1,10 +1,9 @@
 #!/bin/bash
 #
-# Testing we return tc rule stats even if when one port is down.
-# In vxlan case it also means there is no rule offloaded.
+# Test ecmp load balance
 #
-# Bug SW #1431290: [IBM ECMP] intermediate high latency pings when a PF is down
-#
+# Bug SW #1747774: [OFED 4.6] Load balancing not working over VF LAG configuration
+# Bug SW #1755805: [ECMP MOFED 4.6] - Load balance not working at all on TX side over ECMP Configuration
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -100,7 +99,7 @@ function do_traffic() {
     sleep 1.5
 }
 
-function test_ecmp_rule_stats() {
+function test_ecmp_load_balance() {
     config_multipath_route
     is_vf_lag_active || return 1
     bind_vfs $NIC
@@ -159,7 +158,7 @@ function do_test() {
 
 cleanup
 config
-do_test test_ecmp_rule_stats
+do_test test_ecmp_load_balance
 echo "cleanup"
 cleanup
 deconfig_ports
