@@ -85,8 +85,8 @@ function run() {
     echo "run traffic for $t seconds"
     ip netns exec ns1 timeout $((t+1)) iperf -s &
     sleep 0.5
-    ip netns exec ns0 timeout $((t+1)) iperf -t $t -c $IP2  &
-    ip netns exec ns0 timeout $((t+1)) iperf -t $t -c $IP4  &
+    ip netns exec ns0 timeout $((t+1)) iperf -t $t -c $IP2 -P3 &
+    ip netns exec ns0 timeout $((t+1)) iperf -t $t -c $IP4 -P3 &
 
     sleep 1
     pidof iperf &>/dev/null || err "iperf failed"
