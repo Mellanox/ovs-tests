@@ -75,6 +75,7 @@ function run() {
 
     sleep $t
     killall iperf &>/dev/null
+    killall iperf &>/dev/null
     wait $! 2>/dev/null
 
     # test sniff timedout
