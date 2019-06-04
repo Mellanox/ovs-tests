@@ -91,7 +91,7 @@ function run() {
     echo $REP2
     tc filter show dev $REP2 ingress
 
-    t=10
+    t=12
     echo "run traffic for $t seconds"
     ip netns exec ns1 timeout $((t+1)) iperf -s &
     sleep 0.5

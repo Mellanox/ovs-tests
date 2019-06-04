@@ -97,23 +97,23 @@ function run() {
     tc filter show dev $REP2 ingress
 
     echo "run traffic"
-    ip netns exec ns1 timeout 6 iperf -s &
+    ip netns exec ns1 timeout 13 iperf -s &
     sleep 0.5
-    ip netns exec ns0 timeout 6 iperf -t 5 -c $IP2 &
+    ip netns exec ns0 timeout 13 iperf -t 12 -c $IP2 &
 
-    sleep 1
+    sleep 2
     pidof iperf &>/dev/null || err "iperf failed"
 
     echo "sniff packets on $REP2"
     # first 4 packets not offloaded until conn is in established state.
-    timeout 2 tcpdump -qnnei $REP2 -c 10 'tcp' &
+    timeout 13 tcpdump -qnnei $REP2 -c 10 'tcp' &
     pid=$!
     
     echo "sniff packets on $VF3"
-    timeout 2 tcpdump -qnnei $VF3 -c 10 'tcp' &
+    timeout 13 tcpdump -qnnei $VF3 -c 10 'tcp' &
     pid2=$!
 
-    sleep 6
+    sleep 13
     killall -9 iperf &>/dev/null
     wait $! 2>/dev/null
 
