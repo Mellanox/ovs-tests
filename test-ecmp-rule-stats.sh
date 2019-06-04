@@ -90,6 +90,9 @@ function config() {
 function get_packets() {
     tc -s filter show dev $REP ingress | grep bytes
     a=`tc -j -s filter show dev $REP ingress | jq ".[1].options.actions[1].stats.packets"`
+    if [ "$a" = "null" ]; then
+        err "Cannot get stats"
+    fi
 }
 
 function do_traffic() {
