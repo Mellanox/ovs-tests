@@ -10,8 +10,6 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 . $my_dir/common-ecmp.sh
 
-require_mlxdump
-
 local_ip="49.0.10.60"
 remote_ip="46.0.10.180"
 dst_mac="e4:1d:2d:fd:8b:02"
