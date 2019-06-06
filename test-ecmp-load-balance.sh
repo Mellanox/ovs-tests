@@ -9,8 +9,6 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 . $my_dir/common-ecmp.sh
 
-require_mlxdump
-
 local_ip="49.0.10.60"
 remote_ip="46.0.10.180"
 dst_mac="e4:1d:2d:fd:8b:02"
@@ -56,7 +54,7 @@ function add_vxlan_rule() {
     echo "local_ip $local_ip remote_ip $remote_ip"
 
     tc_filter add dev $REP protocol ip parent ffff: prio 1 \
-        flower ip_proto icmp dst_mac $dst_mac skip_sw \
+        flower dst_mac $dst_mac skip_sw \
         action tunnel_key set \
             id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
         action mirred egress redirect dev vxlan1
@@ -94,9 +92,11 @@ function read_eth_val() {
 
 function do_traffic() {
     for i in $cores; do
-        taskset -c $i timeout 1 ping -q -I $VF $ping_ip -i 0.01 -W 0.1 -w 0.5 &
+        taskset -c $i timeout 5 iperf -u -c $ping_ip -t 5 -l 512 -P 2 >/dev/null &
     done
-    sleep 1.5
+    sleep 6
+    killall iperf &>/dev/null
+    killall iperf &>/dev/null
 }
 
 function test_ecmp_load_balance() {
