@@ -789,10 +789,14 @@ function stop_openvswitch() {
     sleep 1
 }
 
-function start_clean_openvswitch() {
+function restart_openvswitch() {
     stop_openvswitch
     service_ovs start
     sleep 1
+}
+
+function start_clean_openvswitch() {
+    restart_openvswitch
     del_all_bridges
 }
 
