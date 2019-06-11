@@ -68,9 +68,9 @@ title "Test ping $VF($IP1) -> $VF2($IP2)"
 ip netns exec ns0 ping -q -c 10 -i 0.2 -w 4 $IP2 && success || err
 
 # verify the rules are offloaded, and there are prio tags that are being removed by OVS
-count=`ovs_dpctl_dump_flows | grep ipv4 | grep "eth_type(0x8100),vlan(vid=0" | grep pop_vlan | wc -l`
+count=`ovs_dump_tc_flows | grep ipv4 | grep "eth_type(0x8100),vlan(vid=0" | grep pop_vlan | wc -l`
 if [ "$count" -ne "2" ]; then
-    ovs_dpctl_dump_flows --names | grep ipv4
+    ovs_dump_tc_flows --names | grep ipv4
     err "No prio tag offloaded rules"
 fi
 

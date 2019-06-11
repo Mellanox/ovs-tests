@@ -35,8 +35,8 @@ ipv6="2002:db8:0:f101::55"
 
 function add_flow() {
     local g=$1
-    m=`ovs-appctl dpctl/add-flow $flow 2 ; ovs_dpctl_dump_flows | grep -m1 $g`
-    [ -z "$m" ] && m=`ovs-appctl dpctl/add-flow $flow 2 ; ovs_dpctl_dump_flows | grep -m1 $g`
+    m=`ovs-appctl dpctl/add-flow $flow 2 ; ovs_dump_tc_flows | grep -m1 $g`
+    [ -z "$m" ] && m=`ovs-appctl dpctl/add-flow $flow 2 ; ovs_dump_tc_flows | grep -m1 $g`
     if [ -z "$m" ]; then
         err "Failed to add test flow: $flow"
         return 1

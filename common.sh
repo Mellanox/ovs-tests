@@ -758,16 +758,20 @@ function expect_syndrome() {
     return 0
 }
 
-function ovs_dpctl_dump_flows() {
+function ovs_dump_flows() {
     local args=$@
-    ovs-dpctl dump-flows $args type=tc 2>/dev/null
-    [[ $? -ne 0 ]] && ovs-dpctl dump-flows $args type=offloaded
+    ovs-appctl dpctl/dump-flows $args 2>/dev/null
 }
 
-function ovs_appctl_dpctl_dump_flows() {
+function ovs_dump_tc_flows() {
     local args=$@
     ovs-appctl dpctl/dump-flows $args type=tc 2>/dev/null
     [[ $? -ne 0 ]] && ovs-appctl dpctl/dump-flows $args type=offloaded
+}
+
+function ovs_dump_ovs_flows() {
+    local args=$@
+    ovs-appctl dpctl/dump-flows $args type=ovs 2>/dev/null
 }
 
 function del_all_bridges() {

@@ -78,7 +78,7 @@ ip netns exec red ping -i 0.25 -c 8 $REMOTE_IP
 
 function check_offloaded_rules() {
     title " - check for $1 offloaded rules"
-    RES="ovs_dpctl_dump_flows | grep 0x0800 | $CLEAN"
+    RES="ovs_dump_tc_flows | grep 0x0800 | $CLEAN"
     eval $RES
     RES=`eval $RES | wc -l`
     if (( RES == $1 )); then success; else err; fi
@@ -86,7 +86,7 @@ function check_offloaded_rules() {
 
 function check_ovs_rules() {
     title " - check for $1 ovs dp rules"
-    RES="ovs-dpctl dump-flows type=ovs | grep 0x0800 | $CLEAN"
+    RES="ovs_dump_ovs_flows | grep 0x0800 | $CLEAN"
     eval $RES
     RES=`eval $RES | wc -l`
     if (( RES == $1 )); then success; else err; fi

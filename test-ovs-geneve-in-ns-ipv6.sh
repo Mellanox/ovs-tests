@@ -32,17 +32,13 @@ function cleanup() {
 function check_offloaded_rules() {
     local count=$1
     title " - check for $count offloaded rules"
-    if [ "$USE_DPCTL" = 1 ]; then
-        RES="ovs_dpctl_dump_flows | grep 0x0800 | grep -v drop"
-    else
-        RES="ovs_appctl_dpctl_dump_flows | grep 0x0800 | grep -v drop"
-    fi
+    RES="ovs_dump_tc_flows | grep 0x0800 | grep -v drop"
     eval $RES
     RES=`eval $RES | wc -l`
     if (( RES == $count )); then
         success
     else
-        ovs-dpctl dump-flows | grep 0x0800
+        ovs_dump_flows | grep 0x0800
         err
     fi
 }

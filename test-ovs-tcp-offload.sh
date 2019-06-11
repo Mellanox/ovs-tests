@@ -50,7 +50,7 @@ ovs-vsctl add-port brv-1 $REP2
 function check_offloaded_rules() {
     local count=$1
     title " - check for $count offloaded rules"
-    local cmd="ovs_dpctl_dump_flows | grep ipv4 | grep proto=6 | grep -v drop"
+    local cmd="ovs_dump_tc_flows | grep ipv4 | grep proto=6 | grep -v drop"
     eval $cmd
     RES=`eval $cmd | wc -l`
     if (( RES == $count )); then success; else err; fi
@@ -96,7 +96,7 @@ test_tcp
 title "Verify we have 2 rules"
 check_offloaded_rules 2
 
-ovs_dpctl_dump_flows --names
+ovs_dump_tc_flows --names
 tc -s filter show dev $REP ingress
 
 kill $tdpid 2>/dev/null

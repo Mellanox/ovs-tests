@@ -56,12 +56,12 @@ ifconfig veth2 $local_tun/24 up
 function check_offloaded_rules() {
     local count=$1
     title " - check for $count offloaded rules"
-    RES="ovs_dpctl_dump_flows | grep 0x0800 | grep -v drop"
+    RES="ovs_dump_tc_flows | grep 0x0800 | grep -v drop"
     eval $RES
     RES=`eval $RES | wc -l`
     if (( RES == $count )); then success
     else
-         ovs-appctl dpctl/dump-flows type=ovs | grep 0x0800 | grep -v drop
+         ovs_dump_ovs_flow | grep 0x0800 | grep -v drop
          err
     fi
 }
