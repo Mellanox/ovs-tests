@@ -236,6 +236,7 @@ function err() {
     TEST_FAILED=1
     echo -e "${RED}ERROR: $m$NOCOLOR"
     kmsg "ERROR: $m"
+    return 1
 }
 
 function success() {
