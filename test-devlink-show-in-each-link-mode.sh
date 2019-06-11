@@ -28,10 +28,6 @@ function set_link_type_eth() {
     set_link_type ETH
 }
 
-function fw_reset() {
-    mlxfwreset -y -d $PCI reset
-}
-
 function devlink_eswitch_show() {
     devlink dev eswitch show pci/$PCI
 }
