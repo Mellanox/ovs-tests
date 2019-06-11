@@ -2,6 +2,8 @@
 #
 # Test to verify if we can add vxlan decap rule in skip_sw policy
 # Bug SW #1360599: [upstream] decap rule offload attempt with skip_sw fails
+#
+# IGNORE_FROM_TEST_ALL
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
