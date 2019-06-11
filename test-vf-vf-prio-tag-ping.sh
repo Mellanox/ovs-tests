@@ -46,7 +46,7 @@ function set_prio_tag_mode() {
 
 trap cleanup EXIT
 
-set_prio_tag_mode 1
+set_prio_tag_mode 1 || fail "Cannot set prio tag mode"
 fw_reset
 
 cleanup

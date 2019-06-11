@@ -158,7 +158,7 @@ function fw_reset() {
 }
 
 function fw_config() {
-    mlxconfig -y -d $PCI set $@ || err "mlxconfig failed"
+    mlxconfig -y -d $PCI set $@ || err "mlxconfig failed to set $@"
 }
 
 function fw_query_val() {
