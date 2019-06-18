@@ -73,6 +73,9 @@ function run() {
     timeout $t tcpdump -qnnei $REP -c 10 'tcp' &
     pid=$!
 
+    ovs_dump_tc_flows --names
+    ovs_dump_tc_flows --names | grep -q "ct(commit)" || err "Expected ct commit action"
+
     sleep $t
     killall iperf &>/dev/null
     killall iperf &>/dev/null
