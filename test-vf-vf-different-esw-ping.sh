@@ -52,7 +52,7 @@ function is_offloaded_rules() {
         err "Rules are not offloaded"
         return
     fi
-    local used=`tc -s filter show protocol ip dev ens1f0_0 ingress |grep -o "used [0-9]*" | awk {'print $2'}`
+    local used=`tc -s filter show protocol ip dev $REP ingress |grep -o "used [0-9]*" | awk {'print $2'}`
     if [ -z "$used" ]; then
         err "Cannot read used value"
         return
