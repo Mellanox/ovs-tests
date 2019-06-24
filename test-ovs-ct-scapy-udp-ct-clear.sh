@@ -88,8 +88,8 @@ function run() {
     pid2=$!
 
     title "Check for ct_clear rule"
-    ovs_dump_tc_flows --names type=tc
-    ovs_dump_tc_flows --names type=tc | grep -q ct_clear
+    ovs_dump_tc_flows --names
+    ovs_dump_tc_flows --names | grep -q ct_clear
     if [ $? -eq 0 ]; then
         success
     else
