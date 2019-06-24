@@ -89,7 +89,8 @@ function config_remote() {
     on_remote ip a flush dev $REMOTE_NIC
     on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
     on_remote ip a add $REMOTE/24 dev geneve1
-    on_remote ip l set dev geneve1 up 
+    on_remote ip l set dev geneve1 up
+    on_remote ip l set dev $REMOTE_NIC up
 }
 
 function add_openflow_rules() {
