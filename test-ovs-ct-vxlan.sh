@@ -95,10 +95,8 @@ function config_remote() {
 
 function add_openflow_rules() {
     ovs-ofctl del-flows br-ovs
-    ovs-ofctl add-flow br-ovs in_port=$REP,dl_type=0x0806,actions=output:vxlan1
-    ovs-ofctl add-flow br-ovs in_port=vxlan1,dl_type=0x0806,actions=output:$REP
-    ovs-ofctl add-flow br-ovs in_port=$REP,icmp,actions=output:vxlan1
-    ovs-ofctl add-flow br-ovs in_port=vxlan1,icmp,actions=output:$REP
+    ovs-ofctl add-flow br-ovs arp,actions=normal
+    ovs-ofctl add-flow br-ovs icmp,actions=normal
     ovs-ofctl add-flow br-ovs "table=0, tcp,ct_state=-trk actions=ct(table=1)"
     ovs-ofctl add-flow br-ovs "table=1, tcp,ct_state=+trk+new actions=ct(commit),normal"
     ovs-ofctl add-flow br-ovs "table=1, tcp,ct_state=+trk+est actions=normal"
