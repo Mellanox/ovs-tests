@@ -67,9 +67,6 @@ function run_test() {
         else
             success "Measured rate $mrate is in range [$lower, $upper]"
         fi
-
-        # WORKAROUND. BUG in OVS when changing rate limit again so clean through tc.
-        tc chain delete dev $REP root matchall
     done
 
     stop_iperf
