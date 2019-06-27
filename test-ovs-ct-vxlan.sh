@@ -128,21 +128,23 @@ function run() {
         return
     fi
 
+    t=15
     # tcp
-    ssh2 $REMOTE_SERVER timeout 11 iperf -s -t 11 &
+    ssh2 $REMOTE_SERVER timeout $((t+2)) iperf -s -t $t &
     sleep 0.5
-    ip netns exec ns0 timeout 11 iperf -c $REMOTE -t 10 -P3 &
+    ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -P3 &
     pid1=$!
     sleep 2
     kill -0 $pid1 &>/dev/null
     if [ $? -ne 0 ]; then
         err "iperf failed"
-    else
-        timeout 8 tcpdump -qnnei $REP -c 10 'tcp' &
-        pid2=$!
-        sleep 8
-        test_tcpdump $pid2
+        return
     fi
+
+    timeout $t tcpdump -qnnei $REP -c 10 'tcp' &
+    pid2=$!
+    sleep $t
+    test_tcpdump $pid2
     wait
 }
 
