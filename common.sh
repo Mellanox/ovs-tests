@@ -734,9 +734,9 @@ function check_syndrome() {
     fi
     # avoid same time as start_check_syndrome
     sleep 1
-    now=`date +"%s"`
-    sec=`echo $now - $_check_syndrome_start + 1 | bc`
-    a=`journalctl --since="$sec seconds ago" | grep syndrome || true`
+    local now=`date +"%s"`
+    local sec=`echo $now - $_check_syndrome_start + 1 | bc`
+    local a=`journalctl --since="$sec seconds ago" | grep syndrome || true`
     if [ "$a" != "" ]; then
         a=`echo -e "$a" | uniq`
         err "$a"
@@ -749,9 +749,9 @@ function expect_syndrome() {
     local expected="$1"
     # avoid same time as start_check_syndrome
     sleep 1
-    now=`date +"%s"`
-    sec=`echo $now - $_check_syndrome_start + 1 | bc`
-    a=`journalctl --since="$sec seconds ago" | grep syndrome | grep -v $expected || true`
+    local now=`date +"%s"`
+    local sec=`echo $now - $_check_syndrome_start + 1 | bc`
+    local a=`journalctl --since="$sec seconds ago" | grep syndrome | grep -v $expected || true`
     if [ "$a" != "" ]; then
         a=`echo -e "$a" | uniq`
         err "$a"
