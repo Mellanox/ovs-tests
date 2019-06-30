@@ -738,6 +738,7 @@ function check_syndrome() {
     sec=`echo $now - $_check_syndrome_start + 1 | bc`
     a=`journalctl --since="$sec seconds ago" | grep syndrome || true`
     if [ "$a" != "" ]; then
+        a=`echo -e "$a" | uniq`
         err "$a"
         return 1
     fi
@@ -752,6 +753,7 @@ function expect_syndrome() {
     sec=`echo $now - $_check_syndrome_start + 1 | bc`
     a=`journalctl --since="$sec seconds ago" | grep syndrome | grep -v $expected || true`
     if [ "$a" != "" ]; then
+        a=`echo -e "$a" | uniq`
         err "$a"
         return 1
     fi
