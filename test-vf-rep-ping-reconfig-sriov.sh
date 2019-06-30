@@ -63,7 +63,7 @@ function run_test() {
 
     title "Reconfig SRIOV 2"
     reconfig_sriov
-    title "Ping test 2"
+    title "Ping test 3"
     ping_test
 }
 
