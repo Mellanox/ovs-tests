@@ -50,20 +50,25 @@ function reconfig_sriov() {
     bind_vfs
 }
 
+function run_test() {
+    title "Ping test 1"
+    ping_test
+    fail_if_err
 
-title "Ping test"
-ping_test
-fail_if_err
+    title "Reconfig SRIOV 1"
+    reconfig_sriov
+    title "Ping test 2"
+    ping_test
+    fail_if_err
 
-title "Reconfig SRIOV"
-reconfig_sriov
-title "Ping test"
-ping_test
-fail_if_err
+    title "Reconfig SRIOV 2"
+    reconfig_sriov
+    title "Ping test 2"
+    ping_test
+}
 
-title "Reconfig SRIOV"
-reconfig_sriov
-title "Ping test"
-ping_test
 
+start_check_syndrome
+run_test
+check_syndrome
 test_done
