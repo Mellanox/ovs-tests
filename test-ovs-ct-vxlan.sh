@@ -129,22 +129,30 @@ function run() {
     fi
 
     t=15
-    # tcp
+    # traffic
     ssh2 $REMOTE_SERVER timeout $((t+2)) iperf -s -t $t &
+    pid1=$!
     sleep 0.5
     ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -P3 &
-    pid1=$!
+    pid2=$!
+
+    # verify pid
     sleep 2
-    kill -0 $pid1 &>/dev/null
+    kill -0 $pid2 &>/dev/null
     if [ $? -ne 0 ]; then
         err "iperf failed"
         return
     fi
 
+    sleep 5
     timeout $t tcpdump -qnnei $REP -c 10 'tcp' &
-    pid2=$!
+    tpid=$!
     sleep $t
-    test_tcpdump $pid2
+    test_tcpdump $tpid
+
+    kill -9 $pid1 &>/dev/null
+    killall iperf &>/dev/null
+    echo "wait for bgs"
     wait
 }
 
