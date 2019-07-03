@@ -144,8 +144,7 @@ function run() {
         return
     fi
 
-    sleep 5
-    timeout $t tcpdump -qnnei $REP -c 10 'tcp' &
+    timeout $((t-2)) tcpdump -qnnei $REP -c 10 'tcp' &
     tpid=$!
     sleep $t
     test_tcpdump $tpid
