@@ -64,14 +64,19 @@ def run_listener(args):
     global _c
     _c = 0
 
+    global payload
+    data = 'Z'
+    data_size = 1024
+    payload = data*data_size
+
     def custom_action(sock):
 
         def packet_fwd(pkt):
-            global _c
+            global _c, payload
             _c+=1
             pkt = (IP(dst=pkt[IP].src, src=pkt[IP].dst)/
                     UDP(dport=pkt[UDP].sport, sport=pkt[UDP].dport)/
-                    "BBBBBBBBBBBBBBBBBBBBBBBBBBBB")
+                    payload)
             send(pkt, verbose=0, iface=ifname, socket=sock)
             if _c % 500 == 0:
                 sys.stdout.write(',')
@@ -110,11 +115,14 @@ def run_client(args):
     sent = 0
     pkt_list = []
 
+    data = 'Z'
+    data_size = 1024
+    payload = data*data_size
     for sport1 in range(args.src_port, args.src_port + args.src_port_count):
         for dport1 in range(args.dst_port, args.dst_port + args.dst_port_count):
             pkt = (IP(src=args.src_ip, dst=args.dst_ip)/
                     UDP(sport=sport1, dport=dport1)/
-                    "CCCCCCCCCCCCCCCCCCCCCCCCCCCC")
+                    payload)
             pkt_list.append(pkt)
 
     print "Prepared %d packets" % len(pkt_list)
