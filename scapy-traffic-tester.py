@@ -104,8 +104,6 @@ def run_client(args):
               'dst_port', 'dst_port_count', 'pkt_count', 'inter', 'time')
     verify_args(args, needed)
 
-    packet_count = args.pkt_count
-
     # ignore icmp unreachable packets
     os.system("iptables -I OUTPUT -p icmp --icmp-type destination-unreachable -j DROP")
 
@@ -131,8 +129,8 @@ def run_client(args):
     try:
         while time.time() < t_end:
             for pkt in pkt_list:
-                send(pkt, verbose=0, count=packet_count, inter=args.inter, iface=args.dev, socket=s)
-                sent += packet_count
+                send(pkt, verbose=0, count=args.pkt_count, inter=args.inter, iface=args.dev, socket=s)
+                sent += args.pkt_count
                 if sent % 500 == 0:
                     sys.stdout.write('.')
                     sys.stdout.flush()
