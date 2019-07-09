@@ -50,7 +50,7 @@ def verify_args(args, needed):
 
 
 def run_listener(args):
-    print "Run as listener"
+    print "---- Run as listener ----"
 
     needed = ('dev', 'src_ip', 'time')
     verify_args(args, needed)
@@ -98,7 +98,7 @@ def run_listener(args):
 
 
 def run_client(args):
-    print "Run as client"
+    print "---- Run as client ----"
 
     needed = ('dev', 'src_ip', 'dst_ip', 'src_port', 'src_port_count',
               'dst_port', 'dst_port_count', 'pkt_count', 'inter', 'time')
