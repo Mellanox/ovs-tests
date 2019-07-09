@@ -5,6 +5,9 @@
 #
 # Bug SW #1431290: [IBM ECMP] intermediate high latency pings when a PF is down
 #
+# not related to ecmp but we test stats of vxlan traffic here
+# Bug SW #1800513: tc filters counters doesn't count all packets
+#
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -94,7 +97,8 @@ function get_packets() {
 }
 
 function do_traffic() {
-    ping -q -I $VF $ping_ip -i 0.1 -c 10 -w 2 &>/dev/null
+    local w=$((pkts/10+1))
+    ping -q -I $VF $ping_ip -i 0.1 -c $pkts -w $w &>/dev/null
 }
 
 function test_ecmp_rule_stats() {
@@ -124,16 +128,17 @@ function test_ecmp_rule_stats() {
     title "-- starts with 0"
     get_packets
     if [ "$a" != 0 ]; then
-        err "Expected 0 packets"
+        err "Expected 0 packets but got $a"
         return
     fi
 
-    title "-- ping and expect 10 packets"
+    pkts=100
+    title "-- ping and expect $pkts packets"
     do_traffic
     sleep 1 # seems needed for good report
     get_packets
-    if [ "$a" -lt 10 ]; then
-        err "Expected 10 packets"
+    if [ "$a" -lt $pkts ]; then
+        err "Expected $pkts packets but got $a"
         return
     fi
     success
@@ -142,12 +147,13 @@ function test_ecmp_rule_stats() {
     ifconfig $dev1 down
     sleep 2 # wait for neigh update
     
-    title "-- ping and expect 20 packets"
+    exp=$((pkts*2))
+    title "-- ping and expect $exp packets"
     do_traffic
     sleep 1
     get_packets
-    if [ "$a" -lt 20 ]; then
-        err "Expected 20 packets"
+    if [ "$a" -lt $exp ]; then
+        err "Expected $exp packets but got $a"
         return
     fi
     success
@@ -161,12 +167,13 @@ function test_ecmp_rule_stats() {
     ifconfig $dev2 down
     sleep 2 # wait for neigh update
     
-    title "-- ping and expect 30 packets"
+    exp=$((pkts*3))
+    title "-- ping and expect $exp packets"
     do_traffic
     sleep 1
     get_packets
-    if [ "$a" -lt 30 ]; then
-        err "Expected 30 packets"
+    if [ "$a" -lt $exp ]; then
+        err "Expected $exp packets but got $a"
         return
     fi
     success
