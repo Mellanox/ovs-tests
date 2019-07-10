@@ -3,6 +3,7 @@
 # OVS VF LAG test
 #
 # Bug SW #1788801: [upstream][VF lag] if ovs bridge exist, post ovs restart, the ovs fails to created shared block qdisc on bond
+# Bug SW #1806091: VF-LAG vlan after openvswitch restart ingress traffic not offloaded
 #
 
 my_dir="$(dirname "$0")"
@@ -49,6 +50,14 @@ function test_config_ovs_bond() {
     ip link set dev $NIC2 up
 
     verify_ingress_block
+
+    # verify after restart
+    title "Test config ovs bond after ovs restart"
+    stop_openvswitch
+    reset_tc bond0 $NIC $NIC2
+    restart_openvswitch
+    verify_ingress_block
+
     start_clean_openvswitch
 }
 
