@@ -28,12 +28,6 @@ function cleanup() {
 
 cleanup
 
-function ovs_dpctl_dump_flows() {
-    local args=$@
-    ovs-dpctl dump-flows $args type=tc 2>/dev/null
-    [[ $? -ne 0 ]] && ovs-dpctl dump-flows $args type=offloaded
-}
-
 function check_offloaded_rules() {
     local count=$1
     title " - check for $count offloaded rules"
