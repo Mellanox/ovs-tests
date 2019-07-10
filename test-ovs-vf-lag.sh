@@ -26,9 +26,9 @@ function config_bonding() {
 function verify_ingress_block() {
     local i
     for i in bond0 $NIC $NIC2 ; do
-        title "Look for ingress_block on $i"
+        title "- Look for ingress_block on $i"
         tc qdisc show dev $i ingress | grep -q ingress_block
-        [ $? -ne 0 ] && err "Didn't find ingress_block on $i" || success
+        [ $? -eq 0 ] && success || err "Didn't find ingress_block on $i"
     done
 }
 
