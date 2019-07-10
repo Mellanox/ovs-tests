@@ -63,9 +63,9 @@ function check_offloaded_rules() {
     title " - check for $count offloaded rules"
 
     if [[ $KEY == "nokey" ]]; then
-        RES="ovs_dump_tc_flows --name | grep 0x0800 | grep -v drop | grep gre_sys | grep -vw key"
+        RES="ovs_dump_tc_flows | grep 0x0800 | grep -v drop | grep gre_sys | grep -vw key"
     else
-        RES="ovs_dump_tc_flows --name | grep 0x0800 | grep -v drop | grep gre_sys | grep -w key"
+        RES="ovs_dump_tc_flows | grep 0x0800 | grep -v drop | grep gre_sys | grep -w key"
     fi
     eval $RES
     RES=`eval $RES | wc -l`
