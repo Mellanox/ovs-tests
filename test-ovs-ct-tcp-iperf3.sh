@@ -57,7 +57,7 @@ function run() {
     ovs-ofctl add-flow br-ovs "table=1, ip,ct_state=+trk+new actions=ct(commit),normal"
     ovs-ofctl add-flow br-ovs "table=1, ip,ct_state=+trk+est actions=normal"
 
-    ovs-ofctl dump-flows br-ovs
+    ovs-ofctl dump-flows br-ovs --color
 
     echo "run traffic"
     t=12

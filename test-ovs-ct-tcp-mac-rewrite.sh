@@ -71,7 +71,7 @@ function run() {
 
     ovs-ofctl add-flow br-ovs "table=3, actions=normal"
 
-    ovs-ofctl dump-flows br-ovs --names
+    ovs-ofctl dump-flows br-ovs --color
 
     echo "run traffic"
     t=12
