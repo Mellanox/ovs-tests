@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if ! hash iperf3 2>/dev/null
+then
+    fail "Iperf3 is not installed!"
+fi
+
 function setup_veth() {
     local veth1=$1
     local ip1=$2
