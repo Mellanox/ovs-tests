@@ -32,6 +32,12 @@ function cleanup_veth() {
     ip link del $veth2 &> /dev/null
 }
 
+function cleanup_exit() {
+    cleanup_iperf
+    cleanup_veth $VETH0 $VETH1
+}
+trap cleanup_exit EXIT
+
 function run_iperf_server() {
     local port=$1
 
