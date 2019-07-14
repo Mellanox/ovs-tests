@@ -8,8 +8,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-require_mlxdump
-
 VXLAN=vxlan1
 TUN_SRC_V4=20.1.184.1
 TUN_DST_V4=20.1.183.1
