@@ -134,6 +134,31 @@ function is_bonded() {
     return $?
 }
 
+function config_bonding() {
+    local nic1=${1:-$NIC}
+    local nic2=${2:-$NIC2}
+    ip link add name bond0 type bond || fail "Failed to create bond interface"
+    ip link set dev bond0 type bond mode active-backup || fail "Failed to set bond mode"
+    ip link set dev $nic1 down
+    ip link set dev $nic2 down
+    ip link set dev $nic1 master bond0
+    ip link set dev $nic2 master bond0
+    ip link set dev bond0 up
+    sleep 1 # takes a second before verifying
+    if ! is_bonded ; then
+        err "Driver bond failed"
+    fi
+    reset_tc bond0
+}
+
+function clear_bonding() {
+    local nic1=${1:-$NIC}
+    local nic2=${2:-$NIC2}
+    ip link set dev $nic1 nomaster &>/dev/null
+    ip link set dev $nic2 nomaster &>/dev/null
+    ip link del bond0 &>/dev/null
+}
+
 function require_mlxdump() {
     is_SimX && fail "mlxdump not supported in SimX"
     [[ -e /usr/bin/mlxdump ]] || fail "Missing mlxdump"
