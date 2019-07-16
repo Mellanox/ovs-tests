@@ -37,14 +37,20 @@ function test_config_ovs_bond() {
     ip link set dev $NIC2 up
 
     verify_ingress_block
+}
 
-    # verify after restart
+function test_config_ovs_bond_after_cleanup() {
     title "Test config ovs bond after ovs restart"
+    reset_tc bond0 $NIC $NIC2
+    start_clean_openvswitch
+    ovs-vsctl add-br br-ovs
+    ovs-vsctl add-port br-ovs bond0
+
     stop_openvswitch
     reset_tc bond0 $NIC $NIC2
     restart_openvswitch
-    verify_ingress_block
 
+    verify_ingress_block
     start_clean_openvswitch
 }
 
@@ -69,7 +75,6 @@ function test_ovs_restart_block_support() {
 }
 
 function config() {
-    echo "- Config"
     config_sriov 2
     config_sriov 2 $NIC2
     enable_switchdev
@@ -88,5 +93,6 @@ cleanup
 config
 fail_if_err
 test_config_ovs_bond
+test_config_ovs_bond_after_cleanup
 test_ovs_restart_block_support
 test_done
