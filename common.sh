@@ -806,12 +806,13 @@ function del_all_bridges() {
 }
 
 function service_ovs() {
+    local action=$1
     local ovs="openvswitch"
     local a=`systemctl show -p LoadError $ovs | grep -o DBus.Error`
     if [ "$a" = "DBus.Error" ]; then
           ovs="openvswitch-switch"
     fi
-    service $ovs $1
+    systemctl $action $ovs
 }
 
 function stop_openvswitch() {
