@@ -51,7 +51,7 @@ function run_iperf_client() {
     local time=$4
 
     title "Test iperf veth0 <- veth1($ip : $port)"
-    iperf3 -c $ip -u -b $rate -R -l 12 -t $time -p $port &>/dev/null &
+    iperf3 -c $ip -u -b $rate -R -l 16 -t $time -p $port &>/dev/null &
 }
 
 function spawn_n_iperf_pairs() {
