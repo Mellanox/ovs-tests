@@ -62,9 +62,8 @@ function get_vxlan_rx_pkt_count() {
 
 function stop_traffic() {
     echo "stop traffic"
-    killall iperf &>/dev/null
-    killall iperf &>/dev/null
-    killall noodle &>/dev/null
+    killall -9 iperf &>/dev/null
+    killall -9 noodle &>/dev/null
     wait &>/dev/null
 }
 
