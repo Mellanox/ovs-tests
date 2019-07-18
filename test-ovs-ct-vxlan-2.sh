@@ -3,6 +3,7 @@
 # Test OVS CT with vxlan traffic
 #
 # Bug SW #1824795: [ASAP-BD, Connection tracking]: Traffic failed to be offloaded on recv side (different hosts)
+# Bug SW #1827703: CT VXLAN traffic decap is not offloaded
 #
 # Uplink reps register to egdev_all
 # last port registers will be on top
