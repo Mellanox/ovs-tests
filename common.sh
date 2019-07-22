@@ -371,7 +371,7 @@ function switch_mode() {
     local extra="$extra_mode"
     local vf_count=`get_vfs_count $nic`
 
-    echo "Change $nic eswitch ($pci) mode to $mode $extra"
+    log "Change $nic eswitch ($pci) mode to $mode $extra"
 
     if [ "$devlink_compat" = 1 ]; then
         echo $mode > `devlink_compat_dir $nic`/mode || fail "Failed to set mode $mode"
@@ -583,7 +583,7 @@ function set_macs() {
 
 function unbind_vfs() {
     local nic=${1:-$NIC}
-    echo "unbind vfs of $nic"
+    log "unbind vfs of $nic"
     for i in `ls -1d /sys/class/net/$nic/device/virt*`; do
         vfpci=$(basename `readlink $i`)
         if [ -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
@@ -618,7 +618,7 @@ function bind_vfs() {
     local nic=${1:-$NIC}
     local vf_count=`get_vfs_count $nic`
 
-    echo "bind vfs of $nic"
+    log "bind vfs of $nic"
     for i in `ls -1d /sys/class/net/$nic/device/virt*`; do
         vfpci=$(basename `readlink $i`)
         if [ ! -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
