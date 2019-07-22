@@ -170,6 +170,8 @@ function run() {
     sleep $t
     test_tcpdump $tpid
 
+    conntrack -L | grep $IP
+
     kill -9 $pid1 &>/dev/null
     killall iperf &>/dev/null
     echo "wait for bgs"
