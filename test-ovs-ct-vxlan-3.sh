@@ -21,6 +21,7 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
+pktgen=$my_dir/scapy-traffic-tester.py
 
 require_module act_ct
 
@@ -37,6 +38,7 @@ REMOTE=1.1.1.8
 LOCAL_TUN=7.7.7.7
 REMOTE_IP=7.7.7.8
 VXLAN_ID=42
+
 
 function config_ports() {
     # config second port
@@ -141,6 +143,25 @@ function test_tcpdump() {
     fi
 }
 
+function run_server() {
+    ssh2 $REMOTE_SERVER timeout $((t+2)) iperf -s -t $t &
+#    ssh2 $REMOTE_SERVER $pktgen -l -i $REMOTE_NIC --src-ip $IP --time $((t+1)) &
+    pk1=$!
+    sleep 0.5
+}
+
+function run_client() {
+    ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -P3 &
+#    ip netns exec ns0 $pktgen -i $VF --src-ip $IP --dst-ip $REMOTE --time $t --pkt-count 2 --inter 1 &
+    pk2=$!
+}
+
+function kill_traffic() {
+    kill -9 $pk1 &>/dev/null
+    kill -9 $pk2 &>/dev/null
+    wait $pk1 $pk2 2>/dev/null
+}
+
 function run() {
     config
     config_remote
@@ -155,17 +176,17 @@ function run() {
 
     t=15
     # traffic
-    ssh2 $REMOTE_SERVER timeout $((t+2)) iperf -s -t $t &
-    pid1=$!
-    sleep 0.5
-    ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -P3 &
-    pid2=$!
+    run_server
+    run_client
 
     # verify pid
     sleep 2
-    kill -0 $pid2 &>/dev/null
-    if [ $? -ne 0 ]; then
-        err "iperf failed"
+    kill -0 $pk1 &>/dev/null
+    p1=$?
+    kill -0 $pk2 &>/dev/null
+    p2=$?
+    if [ $p1 -ne 0 ] || [ $p2 -ne 0 ]; then
+        err "traffic failed"
         return
     fi
 
@@ -174,8 +195,9 @@ function run() {
     sleep $t
     test_tcpdump $tpid
 
-    kill -9 $pid1 &>/dev/null
-    killall iperf &>/dev/null
+    conntrack -L | grep $IP
+
+    kill_traffic
     echo "wait for bgs"
     wait
 }
