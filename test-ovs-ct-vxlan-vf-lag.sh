@@ -215,6 +215,35 @@ function run() {
     kill_traffic
     echo "wait for bgs"
     wait
+
+    iterate_bond_slaves
+}
+
+function iterate_bond_slaves() {
+    title "iterate bond slaves"
+    for i in `seq 5`; do
+        echo "loop again $i"
+        change_slaves
+        t=10
+        run_server
+        run_client
+        sleep $((t+2))
+        echo "wait"
+        kill_traffic
+        wait
+    done
+}
+
+slave1=$NIC
+slave2=$NIC2
+function change_slaves() {
+    log "change bond slave from $slave1 to $slave2"
+    local tmpslave=$slave1
+    slave1=$slave2
+    slave2=$tmpslave
+    ifconfig $tmpslave down
+    sleep 0.5
+    ifconfig $tmpslave up
 }
 
 start_check_syndrome
