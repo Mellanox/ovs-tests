@@ -16,6 +16,7 @@ require_module act_ct
 
 REMOTE_SERVER=${1:?Require remote server}
 REMOTE_NIC=${2:-ens1f0}
+REMOTE_NIC2=${3:-ens1f1}
 
 function ssh2() {
     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes $@
@@ -51,8 +52,10 @@ function set_nf_liberal() {
 }
 
 function cleanup_remote() {
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip l del dev vxlan1 &>/dev/null
+    on_remote ip link set dev $REMOTE_NIC nomaster &>/dev/null
+    on_remote ip link set dev $REMOTE_NIC2 nomaster &>/dev/null
+    on_remote ip link del bond0 &>/dev/null
+    on_remote "ip a flush dev $REMOTE_NIC ; ip a flush dev $REMOTE_NIC2 ; ip l del dev vxlan1 &>/dev/null"
 }
 
 function cleanup() {
@@ -97,14 +100,30 @@ function on_remote() {
     ssh2 $REMOTE_SERVER $cmd
 }
 
+function config_remote_bonding() {
+    local nic1=$REMOTE_NIC
+    local nic2=$REMOTE_NIC2
+    on_remote ip link add name bond0 type bond || fail "Failed to create bond interface"
+    on_remote ip link set dev bond0 type bond mode active-backup miimon 100 || fail "Failed to set bond mode"
+    on_remote ip link set dev $nic1 down
+    on_remote ip link set dev $nic2 down
+    on_remote ip link set dev $nic1 master bond0
+    on_remote ip link set dev $nic2 master bond0
+    on_remote ip link set dev bond0 up
+    on_remote ip link set dev $nic1 up
+    on_remote ip link set dev $nic2 up
+    sleep 1
+}
+
+
 function config_remote() {
     on_remote ip link del vxlan1 2>/dev/null
-    on_remote ip link add vxlan1 type vxlan id $VXLAN_ID dev $REMOTE_NIC dstport 4789
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
+    config_remote_bonding
+    on_remote ip link add vxlan1 type vxlan id $VXLAN_ID dev bond0 dstport 4789
+    on_remote ip a add $REMOTE_IP/24 dev bond0
     on_remote ip a add $REMOTE/24 dev vxlan1
     on_remote ip l set dev vxlan1 up
-    on_remote ip l set dev $REMOTE_NIC up
+    on_remote ip l set dev bond0 up
 }
 
 function add_openflow_rules() {
