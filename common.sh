@@ -144,6 +144,8 @@ function config_bonding() {
     ip link set dev $nic1 master bond0
     ip link set dev $nic2 master bond0
     ip link set dev bond0 up
+    ip link set dev $nic1 up
+    ip link set dev $nic2 up
     sleep 1 # takes a second before verifying
     if ! is_bonded ; then
         err "Driver bond failed"
