@@ -26,11 +26,11 @@ function cleanup() {
     restore_sriov_autoprobe
 }
 
-function test_reps() {
+function config_reps() {
     local want=$1
     local nic=$2
 
-    title "Test $want REPs on $nic"
+    title "Config $want VFs on $nic"
 
     config_sriov 0 $nic
     echo "Config $want VFs"
@@ -41,19 +41,21 @@ function test_reps() {
     echo "Set switchdev"
     time switch_mode_switchdev $nic
     echo
+}
 
-    echo "Verify"
-    mac=`cat /sys/class/net/$nic/address | tr -d :`
-    count=`grep $mac /sys/class/net/*/phys_switch_id 2>/dev/null | wc -l`
-    # decr 1 for pf
-    let count-=1
+function count_reps() {
+    local want=$1
+    local nic=$2
+
+    swid=`cat /sys/class/net/$nic/phys_switch_id`
+    echo "Verify by switch id $swid"
+    count=`grep $swid /sys/class/net/*/phys_switch_id 2>/dev/null | wc -l`
+
     if [ $count != $want ]; then
         err "Found $count reps but expected $want"
     else
         success "Got $count reps"
     fi
-
-    # not cleaning up. testing both ports at the same time.
 }
 
 
@@ -61,8 +63,10 @@ trap cleanup EXIT
 start_check_syndrome
 disable_sriov_autoprobe
 
-test_reps 8 $NIC
-test_reps 8 $NIC2
+config_reps 8 $NIC
+count_reps 9 $NIC
+config_reps 8 $NIC2
+count_reps 18 $NIC
 
 echo "Cleanup"
 config_sriov 0 $NIC2
