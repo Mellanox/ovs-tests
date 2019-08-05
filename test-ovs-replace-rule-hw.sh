@@ -84,18 +84,17 @@ function check_offloaded_rules() {
     if (( RES == $1 )); then success; else err; fi
 }
 
-function check_ovs_rules() {
-    title " - check for $1 ovs dp rules"
-    RES="ovs_dump_ovs_flows | grep 0x0800 | $CLEAN"
+function check_double_action_rules() {
+    title " - check for $1 double action rules"
+    RES="ovs_dump_flows | grep 0x0800 | grep actions:.,. | $CLEAN"
     eval $RES
     RES=`eval $RES | wc -l`
     if (( RES == $1 )); then success; else err; fi
 }
 
 
-
 check_offloaded_rules 2
-check_ovs_rules 0
+check_double_action_rules 0
 
 title "change ofctl normal rule to all"
 start_check_syndrome
@@ -103,8 +102,7 @@ ovs-ofctl del-flows br3
 sleep 1
 ovs-ofctl add-flow br3 dl_type=0x0800,actions=all
 sleep 1
-check_offloaded_rules 0
-check_ovs_rules 2
+check_double_action_rules 2
 check_syndrome || err
 
 title "change ofctl all rule to normal"
@@ -114,7 +112,7 @@ sleep 1
 ovs-ofctl add-flow br3 dl_type=0x0800,actions=normal
 sleep 1
 check_offloaded_rules 2
-check_ovs_rules 0
+check_double_action_rules 0
 check_syndrome || err
 
 title "change ofctl normal rule to drop"
@@ -124,7 +122,7 @@ sleep 1
 ovs-ofctl add-flow br3 dl_type=0x0800,actions=drop
 sleep 1
 check_offloaded_rules 2
-check_ovs_rules 0
+check_double_action_rules 0
 check_syndrome || err
 
 cleanup
