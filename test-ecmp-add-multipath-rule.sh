@@ -76,6 +76,7 @@ function config() {
 
 function test_add_multipath_rule() {
     config_multipath_route
+    is_vf_lag_active || return 1
     ip r show $net
     add_vxlan_rule $local_ip $remote_ip
     verify_neigh $n1 $n2
@@ -137,6 +138,10 @@ do_test test_add_multipath_rule_route1_missing
 do_test test_add_multipath_rule_route2_missing
 
 echo "cleanup"
+ip link set dev $dev1 up
+ip link set dev $dev2 up
+cleanup
+config_multipath_route
 cleanup
 deconfig_ports
 test_done
