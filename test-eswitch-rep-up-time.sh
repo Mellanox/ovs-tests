@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Bug SW #1601565: [JD] long time to bring up reps
+# Bug SW #1605626: [upstream] long time to bring up reps
 #
 
 my_dir="$(dirname "$0")"
@@ -75,7 +76,8 @@ function test_reps() {
 
     title "- test legacy $want VFs"
     time config_sriov $want $NIC
-    test_time_for_net_up $NIC
+    # not testing link up time in legacy mode currently
+    #test_time_for_net_up $NIC
 
     title "- test switchdev"
     unbind_vfs $NIC
