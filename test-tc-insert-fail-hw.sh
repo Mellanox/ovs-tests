@@ -21,6 +21,13 @@ function cleanup() {
     wait &>/dev/null
 }
 
+function test_tc_verbose() {
+    verbose="verbose"
+    tc filter add dev $REP ingress protocol arp prio 1 flower verbose \
+        action mirred egress redirect dev $REP2 &>/dev/null || verbose=""
+    reset_tc $REP
+}
+
 function test_tc_filter() {
     local a
     local err
@@ -41,7 +48,7 @@ function test_tc_filter() {
 function test_insert_hw_fail_exists() {
     for i in 1 2 ; do
         test_tc_filter add dev $REP protocol ip parent ffff: prio 1 \
-            flower skip_sw dst_mac aa:bb:cc:dd:ee:ff \
+            flower $verbose skip_sw dst_mac aa:bb:cc:dd:ee:ff \
             action simple sdata '"unsupported action"'
     done
     success
@@ -54,7 +61,7 @@ function test_insert_hw_fail_during_traffic() {
 
     for i in `seq 10`; do
         tc filter add dev $REP protocol ip parent ffff: prio 1 \
-            flower skip_sw dst_mac aa:bb:cc:dd:ee:ff \
+            flower $verbose skip_sw dst_mac aa:bb:cc:dd:ee:ff \
             action simple sdata '"unsupported action"' &>/dev/null && fail "expected to fail"
     done
 
@@ -66,6 +73,7 @@ function test_insert_hw_fail_during_traffic() {
 
 
 trap cleanup EXIT
+test_tc_verbose
 
 ifconfig $VF 1.1.1.1/24 up
 ip n r 1.1.1.2 dev $VF lladdr aa:bb:cc:dd:ee:ff
