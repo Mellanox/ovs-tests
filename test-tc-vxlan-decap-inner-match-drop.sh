@@ -6,6 +6,9 @@
 # Bug SW #1815314: [ASAP] - Got syndrome while restart openvswitch service
 #   with heavy traffic in background over VF LAG LACP configuration syndrome (0x17faa8)
 #
+#   BAD_PARAM           | 0x17FAA8 |  create_flow_group: inner_headers valid bit
+#                                       isn't set, but headers are not reserved
+#
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -24,7 +27,7 @@ function cleanup() {
 trap cleanup EXIT
 
 function do_test() {
-    title "Verify vxlan decap rule matching only enc_key and enc_dst_port"
+    title "Verify vxlan drop rule"
 
     cleanup
     ip link add $VXLAN type vxlan dstport 4789 external
