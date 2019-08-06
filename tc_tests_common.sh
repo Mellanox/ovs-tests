@@ -101,3 +101,74 @@ action $_action"
         fi
     done
 }
+
+function tc_batch_vxlan() {
+    local dev_block=$1
+    local total=$2
+    local rules_per_file=$3
+    local cls=$4
+    local id=$5
+    local local_ip=$6
+    local remote_ip=$7
+    local dst_port=$8
+    local mirred_dev=$9
+    local n=0
+    local count=0
+    local handle=0
+    local prio=1
+    local once=0
+    TC_OUT=/tmp/tc-$$
+    [ "$incr_prio" == 1 ] && prio=0
+
+    rm -fr $TC_OUT
+    mkdir -p $TC_OUT
+
+    for ((i = 0; i < 99; i++)); do
+        for ((j = 0; j < 99; j++)); do
+            for ((k = 0; k < 99; k++)); do
+                for ((l = 0; l < 99; l++)); do
+                    SMAC="e4:11:$i:$j:$k:$l"
+                    DMAC="e4:12:$i:$j:$k:$l"
+                    ((handle+=1))
+                    [ "$no_handle" == 1 ] && handle=0
+                    [ "$incr_prio" == 1 ] && ((prio+=1))
+                    rule="$dev_block \
+protocol ip \
+ingress \
+prio $prio \
+handle $handle \
+flower \
+skip_sw \
+src_mac $SMAC \
+dst_mac $DMAC \
+$cls \
+action tunnel_key set id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
+action mirred egress redirect dev $mirred_dev"
+
+                    [ $once = "0" ] && once=1 && echo "type of rules: $rule"
+                    echo "filter add $rule" >> ${TC_OUT}/add.$n
+                    echo "filter change $rule" >> ${TC_OUT}/ovr.$n
+                    echo "filter del $rule" >> ${TC_OUT}/del.$n
+
+                    ((count+=1))
+                    let p=count%${rules_per_file}
+                    if ((p==0)); then
+                        ((n++))
+                    fi
+                    if ((count>=total)); then
+                        break;
+                    fi
+                done
+                if ((count>=total)); then
+                    break;
+                fi
+            done
+            if ((count>=total)); then
+                break;
+            fi
+        done
+        if ((count>=total)); then
+            break;
+        fi
+    done
+}
