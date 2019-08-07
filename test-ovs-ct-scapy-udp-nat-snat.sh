@@ -118,6 +118,15 @@ function run() {
     timeout $t ip netns exec ns1 tcpdump -qnnei $VF2 -c 4 src $NAT_IP and src port $NAT_PORT &
     pid4=$!
 
+    title "Check for snat rule"
+    ovs_dump_tc_flows --names
+    ovs_dump_tc_flows --names | grep -q "nat(src="
+    if [ $? -eq 0 ]; then
+        success
+    else
+        err "Missing snat rule"
+    fi
+
     sleep $t
     kill $pk1 &>/dev/null
     wait $pk1 $pk2 2>/dev/null
