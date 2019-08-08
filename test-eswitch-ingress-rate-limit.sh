@@ -23,8 +23,7 @@ function cleanup() {
 trap cleanup EXIT
 
 function stop_iperf() {
-    killall iperf &>/dev/null
-    killall iperf &>/dev/null
+    killall -9 iperf &>/dev/null
     wait &>/dev/null
 }
 
