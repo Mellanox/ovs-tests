@@ -102,7 +102,7 @@ function run() {
 
     after_count=`ethtool -S $NIC | grep "tx_packets_phy:" | awk '{ print $2 }'`
 
-    diff=$(($after_count - $before_count))
+    diff=$((after_count - before_count))
     echo "transmitted: $diff"
 
     expected=$((packets*2))
