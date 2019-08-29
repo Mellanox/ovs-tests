@@ -824,9 +824,19 @@ function stop_openvswitch() {
     sleep 1
 }
 
+function check_hw_offload_enabled() {
+    local a=`ovs-vsctl get Open_vSwitch . other_config:hw-offload 2>/dev/null | tr -d '"'`
+    if [ "$a" == "true" ]; then
+        return 0
+    fi
+    warn "OVS hw-offload is disabled"
+    return 1
+}
+
 function restart_openvswitch() {
     stop_openvswitch
     service_ovs start
+    check_hw_offload_enabled
     sleep 1
 }
 
