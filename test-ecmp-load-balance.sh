@@ -95,8 +95,8 @@ function do_traffic() {
         taskset -c $i timeout 5 iperf -u -c $ping_ip -t 5 -l 512 -P 2 >/dev/null &
     done
     sleep 6
-    killall iperf &>/dev/null
-    killall iperf &>/dev/null
+    killall -9 iperf &>/dev/null
+    killall -9 iperf &>/dev/null
 }
 
 function test_ecmp_load_balance() {
