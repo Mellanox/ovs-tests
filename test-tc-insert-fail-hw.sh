@@ -31,17 +31,17 @@ function test_tc_verbose() {
 function test_tc_filter() {
     local a
     local err
-    local opnotsupp
+    local inval
 
     a=`eval tc filter $@ 2>&1`
     err=$?
 
-    echo "$a" | grep -q "Operation not supported" && true || false
-    opnotsupp=$?
+    echo "$a" | grep -q "Invalid argument" && true || false
+    inval=$?
 
-    if [ $opnotsupp -ne 0 ]; then
+    if [ $inval -ne 0 ]; then
         [ -n "$a" ] && echo $a
-        fail "Expected operation not supported error"
+        fail "Expected invalid argument error"
     fi
 }
 
@@ -49,7 +49,7 @@ function test_insert_hw_fail_exists() {
     for i in 1 2 ; do
         test_tc_filter add dev $REP protocol ip parent ffff: prio 1 \
             flower $verbose skip_sw dst_mac aa:bb:cc:dd:ee:ff \
-            action simple sdata '"unsupported action"'
+            action tunnel_key unset
     done
     success
 }
