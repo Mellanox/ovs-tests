@@ -32,10 +32,9 @@ function test_miss_rules() {
     _expect=`fw_query_val NUM_OF_VFS`
 
     if [ $count0 -ne $_expect ] || [ $count1 -ne $_expect ]; then
-        echo "Got $count0 miss rules on port0 and $count1 rules on port1"
-        err "Expected $_expect peer miss rules on each port."
+        err "Expected $_expect miss rules on each port but got $count0 on port0 and $count1 on port1."
     else
-        success "Got $count0 miss rules on port0 and $count1 rules on port1"
+        success "Got $_expect miss rules on each port."
     fi
 
     config_sriov 0 $NIC2
