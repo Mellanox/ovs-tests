@@ -25,8 +25,12 @@ function test_miss_rules() {
 
     dump_ports
     count0=`grep -A2 VPORT /tmp/port0 | grep "dst_esw_owner_vhca_id\s*:0x1" | wc -l`
+    count0_x=`grep -B4 "dst_esw_owner_vhca_id\s*:0x1" /tmp/port0 | grep "source_sqn" | wc -l`
+    ((count0-=count0_x))
     # on port1 we expect dst vhca id 0x0 so it won't appear in the dump
     count1=`grep -A2 VPORT /tmp/port1 | grep "dst_esw_owner_vhca_id_valid\s*:0x1" | wc -l`
+    count1_x=`grep -B4 "dst_esw_owner_vhca_id_valid\s*:0x1" /tmp/port1 | grep "source_sqn" | wc -l`
+    ((count1-=count1_x))
 
     # Today we allocate max possible peer miss rules instead of enabled vports.
     _expect=`fw_query_val NUM_OF_VFS`
