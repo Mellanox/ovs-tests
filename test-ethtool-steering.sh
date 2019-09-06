@@ -83,8 +83,8 @@ function eth_scs() {
 function eth_fail() {
     local output=$(ethtool -U $@ 2>&1)
 
-    if [[ -z "$output" ]];then
-        err "Expected error message"
+    if [ -z "$output" ]; then
+        err "Expected error message '$expected_error'"
     else
         [ "${output##*: }" != "$expected_error" ] && err $output
     fi
