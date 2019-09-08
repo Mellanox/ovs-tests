@@ -8,8 +8,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-require_module act_simple
-
 enable_switchdev_if_no_rep $REP
 bind_vfs
 
@@ -47,9 +45,7 @@ function test_tc_filter() {
 
 function test_insert_hw_fail_exists() {
     for i in 1 2 ; do
-        test_tc_filter add dev $REP protocol ip parent ffff: prio 1 \
-            flower $verbose skip_sw dst_mac aa:bb:cc:dd:ee:ff \
-            action tunnel_key unset
+        test_tc_filter $tc_command
     done
     success
 }
@@ -60,9 +56,7 @@ function test_insert_hw_fail_during_traffic() {
     timeout 6 iperf -c 1.1.1.2 -i 1 -t 5 -u -l 64 -b 1G -P 10 &>/dev/null &
 
     for i in `seq 10`; do
-        tc filter add dev $REP protocol ip parent ffff: prio 1 \
-            flower $verbose skip_sw dst_mac aa:bb:cc:dd:ee:ff \
-            action simple sdata '"unsupported action"' &>/dev/null && fail "expected to fail"
+        tc filter $tc_command &>/dev/null && fail "expected to fail"
     done
 
     sleep 6
@@ -74,6 +68,9 @@ function test_insert_hw_fail_during_traffic() {
 
 trap cleanup EXIT
 test_tc_verbose
+tc_command="add dev $REP protocol ip parent ffff: prio 1 \
+            flower $verbose skip_sw dst_mac aa:bb:cc:dd:ee:ff \
+            action tunnel_key unset"
 
 ifconfig $VF 1.1.1.1/24 up
 ip n r 1.1.1.2 dev $VF lladdr aa:bb:cc:dd:ee:ff
