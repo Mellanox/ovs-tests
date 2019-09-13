@@ -112,6 +112,7 @@ function tc_batch_vxlan() {
     local remote_ip=$7
     local dst_port=$8
     local mirred_dev=$9
+    local extra_action=${10}
     local n=0
     local count=0
     local handle=0
@@ -138,10 +139,11 @@ ingress \
 prio $prio \
 handle $handle \
 flower \
-skip_sw \
+$skip \
 src_mac $SMAC \
 dst_mac $DMAC \
 $cls \
+$extra_action \
 action tunnel_key set id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
 action mirred egress redirect dev $mirred_dev"
 
@@ -177,14 +179,17 @@ function tc_batch_vxlan_multiple_encap() {
     local dev_block=$1
     local total=$2
     local rules_per_file=$3
-    local id=$4
-    local local_ip=$5
-    local remote_ip_net=$6
-    local remote_ip_host=$7
-    local dst_port=$8
-    local mirred_dev=$9
-    local encaps_per_file=${10}
-    local remote_ip_start=$7
+    local cls=$4
+    local id=$5
+    local local_ip=$6
+    local remote_ip_net=$7
+    local remote_ip_host=$8
+    local dst_port=$9
+    local mirred_dev=${10}
+    local encaps_per_file=${11}
+    local add_pedit=${12}
+    local pedit_act=""
+    local remote_ip_start=$8
     local n=0
     local count=0
     local handle=0
@@ -206,15 +211,18 @@ function tc_batch_vxlan_multiple_encap() {
                     ((handle+=1))
                     [ "$no_handle" == 1 ] && handle=0
                     [ "$incr_prio" == 1 ] && ((prio+=1))
+                    [ "$add_pedit" == 1 ] && pedit_act="action pedit ex munge ip src set ${remote_ip_net}${remote_ip_host}"
                     rule="$dev_block \
 protocol ip \
 ingress \
 prio $prio \
 handle $handle \
 flower \
-skip_sw \
+$skip \
 src_mac $SMAC \
 dst_mac $DMAC \
+$cls \
+$pedit_act \
 action tunnel_key set id $id src_ip ${local_ip} dst_ip ${remote_ip_net}${remote_ip_host} dst_port ${dst_port} \
 action mirred egress redirect dev $mirred_dev"
 

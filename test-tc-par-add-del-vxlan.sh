@@ -23,7 +23,7 @@ remote_ip_net="2.2.2."
 remote_ip_host="3"
 dst_mac="e4:1d:2d:fd:8b:02"
 vxlan_mac="e4:1d:2d:fd:8b:04"
-flag=skip_sw
+skip=skip_sw
 dst_port=1234
 id=98
 vxlan_dev="vxlan1"
@@ -60,7 +60,7 @@ function run_test() {
     local remote_ip_host="$3"
     local max_rules=$total
 
-     tc_batch_vxlan_multiple_encap "dev $NIC" $total $rules_per_file $id $local_ip $remote_ip_net $remote_ip_host $dst_port $vxlan_dev 10
+    tc_batch_vxlan_multiple_encap "dev $NIC" $total $rules_per_file "src_ip 192.168.111.1 dst_ip 192.168.111.2 ip_proto udp dst_port 1 src_port 1" $id $local_ip $remote_ip_net $remote_ip_host $dst_port $vxlan_dev 10 0
 
     echo "local_ip $local_ip remote_ip_net $remote_ip_net"
     ifconfig $NIC up
