@@ -72,12 +72,12 @@ function verify_different_encap_ids() {
     fte0_line=`echo $fte_lines | cut -d " " -f1`
     fte1_line=`echo $fte_lines | cut -d " " -f2`
     fte_len=$((fte1_line-fte0_line))
-    encap_ids=`grep -e "action.*:0x1c" -A $fte_len /tmp/port$i -m2 | grep encap_id | cut -d ":" -f2`
+    encap_ids=`grep -e "action.*:0x1c" -A $fte_len /tmp/port$i -m2 | grep packet_reformat_id | cut -d ":" -f2`
     encap0=`echo $encap_ids | cut -d " " -f1`
     encap1=`echo $encap_ids | cut -d " " -f2`
 
     if [ "$encap0" == "$encap1" ]; then
-        fail "Both VXLAN and GRE has the same encap_id ($encap0)"
+        fail "Both VXLAN and GRE has the same packet_reformat_id ($encap0)"
     else
         success
     fi
