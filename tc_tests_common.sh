@@ -258,3 +258,56 @@ action mirred egress redirect dev $mirred_dev"
         fi
     done
 }
+
+declare -A current
+declare -A goal
+
+function key_val_to_array() {
+    local -n arr=$1
+    local key
+    local value
+
+    while IFS== read -r key value; do
+        arr[$key]=$value
+    done
+}
+
+function check_test_results() {
+    local -n arr1=$1
+    local -n arr2=$2
+
+    for m in "${!arr1[@]}"
+    do
+        # Calculate absolute difference between baseline time and this test run (per cent).
+        read abs_diff <<< $(awk -v v1="${arr2[$m]}" -v v2="${arr1[$m]}" 'BEGIN{diff=(v2-v1)/v1 * 100;abs=diff<0?-diff:diff; printf "%.0f", abs}')
+        if ((abs_diff > 10)); then
+            err "Measured value for $m (current=${arr2[$m]} reference=${arr1[$m]}) differs by $abs_diff per cent"
+        else
+            success "Measured value for $m (current=${arr2[$m]} reference=${arr1[$m]}) differs by $abs_diff per cent"
+        fi
+    done
+}
+
+function run_perf_test() {
+    local input_file="$1"
+    local tc_perf_update_params="$2"
+
+    # Skip all test output until results
+    local res=$(./test-tc-perf-update.sh $tc_perf_update_params | sed -n '/^RESULTS:$/,$p' | tail -n +2)
+
+    if [ $? -eq 0 ]
+    then
+        if [ -f "$input_file" ]; then
+            key_val_to_array current < <(echo "$res")
+            key_val_to_array goal < "$input_file"
+            check_test_results goal current
+        else
+            title "No input file found. Create file $baseline_file."
+            echo "$res" > "$input_file"
+            success
+        fi
+    else
+        fail "Perf update test failed"
+    fi
+}
+
