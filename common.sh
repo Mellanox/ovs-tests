@@ -551,6 +551,14 @@ function enable_legacy() {
     switch_mode_legacy $nic
 }
 
+function set_steering_sw() {
+    devlink dev param set pci/$PCI name flow_steering_mode value "smfs" cmode runtime
+}
+
+function set_steering_fw() {
+    devlink dev param set pci/$PCI name flow_steering_mode value "dmfs" cmode runtime
+}
+
 function get_multipath_mode() {
     if [ "$devlink_compat" = 1 ]; then
         cat `devlink_compat_dir $NIC`/multipath
