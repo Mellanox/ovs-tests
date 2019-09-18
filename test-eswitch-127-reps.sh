@@ -30,25 +30,10 @@ function cleanup() {
 function test_reps() {
     local want=$1
 
-    title "Test $want REPs"
-
-    config_sriov 0 $NIC
-    echo "Config $want VFs"
-    time config_sriov $want $NIC
-    unbind_vfs $NIC
-    echo "Set switchdev"
-    time switch_mode_switchdev $NIC
-
-    echo "Verify"
-    mac=`cat /sys/class/net/$NIC/address | tr -d :`
-    count=`grep $mac /sys/class/net/*/phys_switch_id 2>/dev/null | wc -l`
-    # decr 1 for pf
-    let count-=1
-    if [ $count != $want ]; then
-        err "Found $count reps but expected $want"
-    else
-        echo "ok got $count reps"
-    fi
+    title "Config $want VFs on $NIC"
+    config_reps $want $NIC
+    (( want += 1 ))        # reps will be verified by switch id so add one for pf port.
+    count_reps $want $NIC
 
     enable_legacy
     config_sriov 2 $NIC
