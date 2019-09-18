@@ -282,6 +282,36 @@ function title() {
     kmsg $@
 }
 
+function config_reps() {
+    local want=$1
+    local nic=$2
+
+    config_sriov 0 $nic
+    echo "Config $want VFs"
+    time config_sriov $want $nic
+    echo
+
+    unbind_vfs $nic
+    echo "Set switchdev"
+    time switch_mode_switchdev $nic
+    echo
+}
+
+function count_reps() {
+    local want=$1
+    local nic=$2
+
+    swid=`cat /sys/class/net/$nic/phys_switch_id`
+    echo "Verify by switch id $swid"
+    count=`grep $swid /sys/class/net/*/phys_switch_id 2>/dev/null | wc -l`
+
+    if [ $count != $want ]; then
+        err "Found $count reps but expected $want"
+    else
+        success "Got $count reps"
+    fi
+}
+
 function get_reps() {
     local nic=${1:-$NIC}
     local a
