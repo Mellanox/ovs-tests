@@ -57,11 +57,11 @@ function get_mlx_iface() {
 
 function __test_for_devlink_compat() {
     if [ -e /sys/kernel/debug/mlx5/$PCI/compat ]; then
-        echo "devlink compat debugfs"
+        echo "Using devlink compat debugfs"
         devlink_compat=1
         __devlink_compat_dir="/sys/kernel/debug/mlx5/\$pci/compat"
     elif [ -e /sys/class/net/$NIC/compat/devlink ]; then
-        echo "devlink compat sysfs"
+        echo "Using devlink compat sysfs"
         devlink_compat=1
         __devlink_compat_dir="/sys/class/net/\$nic/compat/devlink/"
     fi
