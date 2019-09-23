@@ -6,7 +6,7 @@
 # IGNORE_FROM_TEST_ALL
 #
 
-baseline_file=${1:-insertion-rate-fw-data.txt}
+BASE_LINE_FILE=${BASE_LINE_FILE:-insertion-rate-fw-data.txt}
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -17,5 +17,5 @@ enable_legacy $NIC
 set_steering_fw
 enable_switchdev $NIC
 
-run_perf_test "$baseline_file" "all 1000000 10"
+run_perf_test "$BASE_LINE_FILE" "all 1000000 10"
 test_done
