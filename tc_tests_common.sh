@@ -293,7 +293,7 @@ function run_perf_test() {
     local tc_perf_update_params="$2"
 
     # Skip all test output until results
-    local res=$(./test-tc-perf-update.sh $tc_perf_update_params | sed -n '/^RESULTS:$/,$p' | tail -n +2)
+    local res=$($DIR/test-tc-perf-update.sh $tc_perf_update_params | sed -n '/^RESULTS:$/,$p' | tail -n +2)
 
     if [ $? -eq 0 ]
     then
