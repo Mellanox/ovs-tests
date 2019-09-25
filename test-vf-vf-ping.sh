@@ -59,6 +59,7 @@ fi
 
 trap cleanup EXIT
 cleanup
+require_interfaces VF VF2 REP REP2
 start_clean_openvswitch
 start_check_syndrome
 config_vf ns0 $VF $REP $IP1

@@ -71,6 +71,7 @@ else
     bind_vfs
 fi
 
+require_interfaces VF VF2 REP REP2
 start_clean_openvswitch
 config_vf ns0 $VF $REP $IP1
 config_vf ns1 $VF2 $REP2 $IP2
