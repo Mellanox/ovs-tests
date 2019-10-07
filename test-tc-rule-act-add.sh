@@ -75,7 +75,7 @@ function add_del_rule() {
     local rule2="flower $skip dst_mac e4:11:22:33:44:70 ip_proto udp dst_port 1 src_port 2"
 
     #module was not compiled
-    modinfo act_$act_type 2>/dev/null
+    modprobe -q act_$act_type
     if [ $? -ne 0 ]; then
         log "Didn't find act_${act_type}. skipping."
         return 0
@@ -99,7 +99,7 @@ function add_del_act() {
     local act="${actions[$act_type]}"
 
     #module was not compiled
-    modinfo act_$act_type 2>/dev/null || return 0
+    modprobe -q act_$act_type || return 0
     title "Test add_del_act for act_$act_type"
 
     tc actions flush action $act_type || err "action $act_type flush failed"
