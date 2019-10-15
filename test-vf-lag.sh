@@ -61,7 +61,7 @@ function config() {
 }
 
 function clean_shared_block() {
-    for i in bond0 ens1f0 ens1f1 ; do
+    for i in bond0 $NIC $NIC2 ; do
         tc qdisc del dev $i ingress_block 22 ingress &>/dev/null
     done
 }
