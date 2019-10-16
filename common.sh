@@ -566,6 +566,18 @@ function set_steering_fw() {
     devlink dev param set pci/$PCI name flow_steering_mode value "dmfs" cmode runtime
 }
 
+function set_uplink_nic_rep_mode() {
+    local nic=${1:-$NIC}
+    local pci=$(basename `readlink /sys/class/net/$nic/device`)
+    devlink dev param set pci/$pci name uplink_rep_mode value nic_rep cmode runtime
+}
+
+function set_uplink_new_rep_mode() {
+    local nic=${1:-$NIC}
+    local pci=$(basename `readlink /sys/class/net/$nic/device`)
+    devlink dev param set pci/$pci name uplink_rep_mode value new_rep cmode runtime
+}
+
 function get_multipath_mode() {
     if [ "$devlink_compat" = 1 ]; then
         cat `devlink_compat_dir $NIC`/multipath
