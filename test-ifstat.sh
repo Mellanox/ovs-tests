@@ -21,4 +21,9 @@ title "Test ifstat cpu_hits"
 ifstat -x cpu_hits $NIC || err "ifstat cpu_hits failed"
 ifstat -x cpu_hits $NIC || err "ifstat cpu_hits failed"
 
+fail_if_err
+
+title "Test ifstat cpu_hits valid output"
+ifstat -x cpu_hits $NIC | grep $NIC || err "ifstat cpu_hits missing output"
+
 test_done
