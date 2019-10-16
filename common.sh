@@ -130,8 +130,16 @@ function is_SimX() {
 }
 
 function is_bonded() {
-    dmesg | tail -n10 | grep -E "lag map port 1:. port 2:."
-    return $?
+    local rc
+    for _ in `seq 5`; do
+        sleep 1 # wait a second. saw up to 5 sec on nic mode.
+        dmesg | tail -n10 | grep -E "lag map port 1:. port 2:."
+        rc=$?
+        if [ $rc -eq 0 ]; then
+            break
+        fi
+    done
+    return $rc
 }
 
 function config_bonding() {
@@ -146,7 +154,6 @@ function config_bonding() {
     ip link set dev bond0 up
     ip link set dev $nic1 up
     ip link set dev $nic2 up
-    sleep 1 # takes a second before verifying
     if ! is_bonded ; then
         err "Driver bond failed"
     fi
