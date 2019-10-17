@@ -559,11 +559,13 @@ function enable_legacy() {
 }
 
 function set_steering_sw() {
-    devlink dev param set pci/$PCI name flow_steering_mode value "smfs" cmode runtime
+    devlink dev param set pci/$PCI name flow_steering_mode value "smfs" \
+        cmode runtime || err "Failed to set steering sw"
 }
 
 function set_steering_fw() {
-    devlink dev param set pci/$PCI name flow_steering_mode value "dmfs" cmode runtime
+    devlink dev param set pci/$PCI name flow_steering_mode value "dmfs" \
+        cmode runtime || err "Failed to set steering fw"
 }
 
 function set_uplink_rep_mode_nic_netdev() {
