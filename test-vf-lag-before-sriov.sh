@@ -38,8 +38,8 @@ function config() {
     config_sriov 2
     config_sriov 2 $NIC2
     title "- set uplink rep mode"
-    set_uplink_nic_rep_mode
-    set_uplink_nic_rep_mode $NIC2
+    set_uplink_rep_mode_nic_netdev
+    set_uplink_rep_mode_nic_netdev $NIC2
     title "- enable switchdev"
     enable_switchdev
     enable_switchdev $NIC2
@@ -62,8 +62,8 @@ function cleanup() {
     clear_bonding
     config_sriov 1
     config_sriov 1 $NIC2
-    set_uplink_new_rep_mode
-    set_uplink_new_rep_mode $NIC2
+    set_uplink_rep_mode_new_netdev
+    set_uplink_rep_mode_new_netdev $NIC2
     config_sriov 0
     config_sriov 0 $NIC2
 }
