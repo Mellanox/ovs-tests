@@ -91,7 +91,7 @@ function run() {
     echo $REP
     tc filter show dev $REP ingress
 
-    before_count=`ethtool -S $NIC | grep "tx_packets_phy:" | awk '{ print $2 }'`
+    before_count=`get_tx_pkts $NIC`
 
     packets=20
     interval=0.1
@@ -100,7 +100,7 @@ function run() {
     echo "ip netns exec ns0 ping -q -c $packets -i $interval -w $deadline $IP2"
     ip netns exec ns0 ping -q -c $packets -i $interval -w $deadline $IP2
 
-    after_count=`ethtool -S $NIC | grep "tx_packets_phy:" | awk '{ print $2 }'`
+    after_count=`get_tx_pkts $NIC`
 
     diff=$((after_count - before_count))
     echo "transmitted: $diff"

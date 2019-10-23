@@ -84,12 +84,6 @@ function config() {
     fi
 }
 
-function read_eth_val() {
-    dev=$1
-    tok=$2   
-    ethtool -S $dev | grep $tok | awk '{print $2}'
-}                                                     
-
 function do_traffic() {
     for i in $cores; do
         taskset -c $i timeout 5 iperf -u -c $ping_ip -t 5 -l 512 -P 2 >/dev/null &
@@ -126,11 +120,11 @@ function test_ecmp_load_balance() {
     ip n add $ping_ip dev $VF lladdr $dst_mac
 
     title "-- ping and expects packets on both uplinks"
-    pkts1=`read_eth_val $NIC vport_tx_packets`
-    pkts2=`read_eth_val $NIC2 vport_tx_packets`
+    pkts1=`get_tx_pkts $NIC`
+    pkts2=`get_tx_pkts $NIC2`
     do_traffic
-    pkts3=`read_eth_val $NIC vport_tx_packets`
-    pkts4=`read_eth_val $NIC2 vport_tx_packets`
+    pkts3=`get_tx_pkts $NIC`
+    pkts4=`get_tx_pkts $NIC2`
 
     let diff1=pkts3-pkts1
     let diff2=pkts4-pkts2

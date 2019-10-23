@@ -31,15 +31,11 @@ echo
 i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
 cat /tmp/port0 | grep "dest.*0xfff" -B 1 | grep sqn | tail -4
 
-function get_tx_pkts() {
-    ethtool -S $1 | grep tx_packets_phy | cut -d: -f2
-}
-
 function check_packets() {
     title "Check packets"
     ifconfig $NIC 2.2.2.2/24
     ip n r 2.2.2.3 dev $NIC lladdr e4:11:56:26:52:11
-    ethtool -S $NIC | grep tx_packets
+    get_tx_pkts $NIC
 
     phy1=`get_tx_pkts $NIC`
     if [ -z "$phy1" ]; then
