@@ -71,6 +71,22 @@ function get_nic_fw() {
     ethtool -i $1 | grep firmware-version | awk {'print $2'}
 }
 
+function get_rx_bytes() {
+    ethtool -S $1 | grep -E 'rx_bytes_phy|vport_rx_bytes' | awk {'print $2'}
+}
+
+function get_tx_bytes() {
+    ethtool -S $1 | grep -E 'tx_bytes_phy|vport_tx_bytes' | awk {'print $2'}
+}
+
+function get_rx_pkts() {
+    ethtool -S $1 | grep -E 'rx_packets_phy|vport_rx_packets' | awk {'print $2'}
+}
+
+function get_tx_pkts() {
+    ethtool -S $1 | grep -E 'tx_packets_phy|vport_tx_packets' | awk {'print $2'}
+}
+
 function __setup_common() {
     [ -f /etc/os-release ] && . /etc/os-release
     [ -n "$PRETTY_NAME" ] && echo $PRETTY_NAME
