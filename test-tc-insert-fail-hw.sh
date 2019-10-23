@@ -29,17 +29,18 @@ function test_tc_verbose() {
 function test_tc_filter() {
     local a
     local err
-    local inval
+    local fwddrop
 
     a=`eval tc filter $@ 2>&1`
     err=$?
 
-    echo "$a" | grep -q "Invalid argument" && true || false
-    inval=$?
+    # Also match for "Invalid argument" to preserve compatibility with old kernels
+    echo "$a" | grep -q "Rule must have at least one forward/drop action\|Invalid argument" && true || false
+    fwddrop=$?
 
-    if [ $inval -ne 0 ]; then
+    if [ $fwddrop -ne 0 ]; then
         [ -n "$a" ] && echo $a
-        fail "Expected invalid argument error"
+        fail "Expected mlx5-specific error message that requires at least on forward/drop action when offloading rule"
     fi
 }
 
