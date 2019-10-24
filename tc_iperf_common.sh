@@ -66,8 +66,8 @@ function spawn_n_iperf_pairs() {
         run_iperf_server $port
     done
 
-    # wait for iperf severs to start
-    sleep 0.1
+    # wait for iperf servers to start
+    sleep 1
 
     for port in $(seq $port_start $port_end); do
         run_iperf_client $IP2 $port $rate $time
