@@ -172,6 +172,7 @@ function config_bonding() {
     ip link set dev $nic2 up
     if ! is_bonded ; then
         err "Driver bond failed"
+        return
     fi
     reset_tc bond0
 }
