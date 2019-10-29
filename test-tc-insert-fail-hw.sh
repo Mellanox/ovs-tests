@@ -11,12 +11,15 @@ my_dir="$(dirname "$0")"
 enable_switchdev_if_no_rep $REP
 bind_vfs
 
+function stop_iperf() {
+    killall -9 iperf &>/dev/null
+    wait &>/dev/null
+}
+
 function cleanup() {
     ip n d 1.1.1.2 dev $VF lladdr aa:bb:cc:dd:ee:ff &>/dev/null
     reset_tc $REP
-    killall iperf &>/dev/null
-    killall iperf &>/dev/null
-    wait &>/dev/null
+    stop_iperf
 }
 
 function test_tc_verbose() {
@@ -61,8 +64,7 @@ function test_insert_hw_fail_during_traffic() {
     done
 
     sleep 6
-    killall iperf &>/dev/null
-    wait &>/dev/null
+    stop_iperf
     success
 }
 
