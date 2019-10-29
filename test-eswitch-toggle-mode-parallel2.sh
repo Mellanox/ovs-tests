@@ -20,10 +20,12 @@ tmp2="/tmp/b$$"
 for i in 1 2 3 4 5 ; do
     title " - config in parallel $i"
     rm -fr $tmp1 $tmp2
+    __ignore_errors=1
     enable_switchdev $NIC && touch $tmp1 &
     sleep 0.1
     enable_legacy $NIC && touch $tmp2 &
     wait
+    __ignore_errors=0
     if [ ! -f $tmp1 ] || [ ! -f $tmp2 ]; then
         err
     fi

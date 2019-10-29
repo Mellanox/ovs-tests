@@ -274,6 +274,10 @@ function warn() {
 # print error and exit
 function fail() {
     local m=${@:-Failed}
+    if [ "$__ignore_errors" == "1" ]; then
+        log $m
+        return
+    fi
     TEST_FAILED=1
     echo -e "${RED}ERROR: $m$NOCOLOR" >>/dev/stderr
     kmsg "ERROR: $m"
