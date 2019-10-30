@@ -436,11 +436,7 @@ function switch_mode() {
         echo $mode > `devlink_compat_dir $nic`/mode || fail "Failed to set mode $mode"
         sleep 10
     else
-        echo -n "Old mode: "
-        devlink dev eswitch show pci/$pci
         devlink dev eswitch set pci/$pci mode $mode $extra || fail "Failed to set mode $mode"
-        echo -n "New mode: "
-        devlink dev eswitch show pci/$pci
     fi
 
     if [ "$mode" = "switchdev" ]; then
