@@ -234,8 +234,9 @@ function iterate_bond_slaves() {
         t=10
         run_server
         run_client
-        sleep $((t+2))
+        sleep 2
         echo "wait"
+        sleep $t
         kill_traffic
         wait
         count2=`get_rx_pkts $slave1`
