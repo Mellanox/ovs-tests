@@ -230,6 +230,7 @@ function iterate_bond_slaves() {
     for i in `seq 5`; do
         echo "loop again $i"
         change_slaves
+        count1=`get_rx_pkts $slave1`
         t=10
         run_server
         run_client
@@ -237,6 +238,11 @@ function iterate_bond_slaves() {
         echo "wait"
         kill_traffic
         wait
+        count2=`get_rx_pkts $slave1`
+        ((count1+=100))
+        if [ "$count2" -lt "$count1" ]; then
+            err "No traffic?"
+        fi
     done
 }
 
