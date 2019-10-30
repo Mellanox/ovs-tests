@@ -248,6 +248,7 @@ function iterate_bond_slaves() {
 
 slave1=$NIC
 slave2=$NIC2
+active_slave=$NIC
 remote_active=$REMOTE_NIC
 function change_slaves() {
     log "change active slave from $slave1 to $slave2"
