@@ -173,6 +173,12 @@ function run() {
     config_remote
     add_openflow_rules
 
+    if [ "$B2B" == 1 ]; then
+        # set local and remote to the same port
+        echo $active_slave > /sys/class/net/bond0/bonding/active_slave
+        on_remote "echo $remote_active > /sys/class/net/bond0/bonding/active_slave"
+    fi
+
     # icmp
     ip netns exec ns0 ping -q -c 1 -i 0.1 -w 1 $REMOTE
     if [ $? -ne 0 ]; then
@@ -236,14 +242,24 @@ function iterate_bond_slaves() {
 
 slave1=$NIC
 slave2=$NIC2
+remote_active=$REMOTE_NIC
 function change_slaves() {
-    log "change bond slave from $slave1 to $slave2"
+    log "change active slave from $slave1 to $slave2"
     local tmpslave=$slave1
     slave1=$slave2
     slave2=$tmpslave
     ifconfig $tmpslave down
     sleep 0.5
     ifconfig $tmpslave up
+
+    if [ "$B2B" == 1 ]; then
+        if [ "$remote_active" == $REMOTE_NIC ]; then
+            remote_active=$REMOTE_NIC2
+        else
+            remote_active=$REMOTE_NIC
+        fi
+        on_remote "echo $remote_active > /sys/class/net/bond0/bonding/active_slave"
+    fi
 }
 
 start_check_syndrome
