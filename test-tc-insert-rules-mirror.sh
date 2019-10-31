@@ -26,11 +26,11 @@ function test1() {
 }
 
 function test2() {
-    title "Add mirror rule with duplicate destination"
+    title "Add mirror rule with duplicate destination (expected to fail)"
     reset_tc $REP
-    tc_filter add dev $REP ingress protocol arp prio 1 flower skip_sw \
+    tc filter add dev $REP ingress protocol arp prio 1 flower skip_sw \
         action mirred egress mirror dev $REP2 pipe \
-        action mirred egress redirect dev $REP2
+        action mirred egress redirect dev $REP2 && err || success
     reset_tc $REP
 }
 
