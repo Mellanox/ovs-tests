@@ -588,6 +588,13 @@ function set_steering_fw() {
 function set_uplink_rep_mode_nic_netdev() {
     local nic=${1:-$NIC}
     local pci=$(basename `readlink /sys/class/net/$nic/device`)
+
+    if [ "$devlink_compat" = 1 ]; then
+        echo nic_netdev > `devlink_compat_dir $nic`/uplink_rep_mode || fail "Failed to set mode $mode"
+        sleep 3
+        return
+    fi
+
     devlink dev param set pci/$pci name uplink_rep_mode value nic_netdev \
         cmode runtime || err "Failed to set uplink rep mode nic_netdev"
 }
@@ -595,6 +602,13 @@ function set_uplink_rep_mode_nic_netdev() {
 function set_uplink_rep_mode_new_netdev() {
     local nic=${1:-$NIC}
     local pci=$(basename `readlink /sys/class/net/$nic/device`)
+
+    if [ "$devlink_compat" = 1 ]; then
+        echo new_netdev > `devlink_compat_dir $nic`/uplink_rep_mode || fail "Failed to set mode $mode"
+        sleep 3
+        return
+    fi
+
     devlink dev param set pci/$pci name uplink_rep_mode value new_netdev \
         cmode runtime || err "Failed to set uplink rep mode new_netdev"
 }
