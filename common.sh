@@ -433,8 +433,11 @@ function switch_mode() {
     log "Change $nic eswitch ($pci) mode to $mode $extra"
 
     if [ "$devlink_compat" = 1 ]; then
-        echo $mode > `devlink_compat_dir $nic`/mode || fail "Failed to set mode $mode"
-        sleep 10
+        local tmp=$(cat `devlink_compat_dir $nic`/mode)
+        if [ "$mode" != "$tmp" ]; then
+            echo $mode > `devlink_compat_dir $nic`/mode || fail "Failed to set mode $mode"
+            sleep 10
+        fi
     else
         devlink dev eswitch set pci/$pci mode $mode $extra || fail "Failed to set mode $mode"
     fi
