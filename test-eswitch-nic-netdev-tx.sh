@@ -19,13 +19,15 @@ enable_switchdev
 
 title "Verify traffic with TX counter"
 count1=`get_tx_pkts $NIC`
-ping -c 10 -i 0.1 -w 3 -q 1.1.1.2 &>/dev/null
+ip n r 1.1.1.101 dev $NIC lladdr e4:11:22:33:44:55
+ping -i 0.1 -c 10 -w 3 -q 1.1.1.101 &>/dev/null
 count2=`get_tx_pkts $NIC`
 ((diff=count2-count1))
 if [ "$diff" -lt 10 ]; then
     err "Nic $NIC tx is not increasing (diff: $diff)"
 fi
 
+ip n del 1.1.1.101 dev $NIC
 enable_legacy
 ifconfig $NIC 0
 config_sriov 0
