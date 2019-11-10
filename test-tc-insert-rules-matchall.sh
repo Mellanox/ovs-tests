@@ -11,16 +11,19 @@ my_dir="$(dirname "$0")"
 
 
 function test_basic_matchall() {
-    title "Test matchall rule"
+    # testing on rep and uplink rep
+    for nic in $REP $NIC ; do
+        title "Test matchall rule on rep $nic"
 
-    tc_filter add dev $REP root prio 1 protocol ip matchall skip_sw action police rate 1mbit burst 20k
-    tc filter show dev $REP ingress
-    reset_tc $REP
+        reset_tc $nic
+        tc_filter add dev $nic root prio 1 protocol ip matchall skip_sw action police rate 1mbit burst 20k
+        tc filter show dev $nic ingress
+        reset_tc $nic
+    done
 }
 
 
 enable_switchdev
-reset_tc $REP
 test_basic_matchall
 check_kasan
 test_done
