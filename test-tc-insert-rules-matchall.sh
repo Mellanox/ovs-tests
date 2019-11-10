@@ -10,20 +10,26 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 
-function test_basic_matchall() {
-    # testing on rep and uplink rep
-    for nic in $REP $NIC ; do
-        title "Test matchall rule on rep $nic"
+function test_basic_matchall_rep() {
+    title "Test matchall rule on REP $REP"
 
-        reset_tc $nic
-        tc_filter add dev $nic root prio 1 protocol ip matchall skip_sw action police rate 1mbit burst 20k
-        tc filter show dev $nic ingress
-        reset_tc $nic
-    done
+    reset_tc $REP
+    tc_filter add dev $REP root prio 1 protocol ip matchall skip_sw action police rate 1mbit burst 20k
+    reset_tc $REP
+}
+
+function test_basic_matchall_uplink_rep() {
+    title "Test matchall rule on uplink rep $NIC"
+
+    reset_tc $NIC
+    tc filter add dev $NIC root prio 1 protocol ip matchall skip_sw action police rate 1mbit burst 20k && \
+        err "Expected to fail on uplink rep"
+    reset_tc $NIC
 }
 
 
 enable_switchdev
-test_basic_matchall
+test_basic_matchall_rep
+test_basic_matchall_uplink_rep
 check_kasan
 test_done
