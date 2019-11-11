@@ -17,6 +17,7 @@ let FIRST_PORT=50000
 let LAST_PORT=$FIRST_PORT+$NUM_PRIO-1
 RATE=1000000
 MAX_TIME=1000
+num_iter=3
 
 function run_test() {
     local iteration=$1
@@ -48,7 +49,7 @@ setup_veth $VETH0 $IP1 $VETH1 $IP2
 
 spawn_n_iperf_pairs $IP2 $FIRST_PORT $RATE $MAX_TIME $NUM_PRIO
 
-for i in $(seq 1 10); do
+for i in $(seq 1 $num_iter); do
     run_test $i
 done
 
