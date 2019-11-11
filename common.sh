@@ -149,7 +149,10 @@ function is_bonded() {
     local rc
     for _ in `seq 5`; do
         sleep 1 # wait a second. saw up to 5 sec on nic mode.
-        dmesg | tail -n10 | grep -E "lag map port 1:. port 2:."
+        # look for "lag map" and not "modify lag map".
+        # "lag map" print is from create lag.
+        # "modify lag map" print is from modify lag.
+        dmesg | tail -n10 | grep -E "lag map port 1:. port 2:." | grep -v "modify lag map"
         rc=$?
         if [ $rc -eq 0 ]; then
             break
