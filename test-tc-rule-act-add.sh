@@ -21,29 +21,18 @@ reset_tc $REP
 
 # This array defines action_type->action_text mapping
 declare -A actions
-actions=( ["bpf"]="action bpf bytecode '1,6 0 0 0,'"
-          ["connmark"]="action connmark zone 1"
-          ["csum"]="action csum ip4h udp"
+actions=( ["csum"]="action csum ip4h udp"
           ["gact"]="action drop"
-          ["ife"]="action ife encode type 0xDEAD allow mark dst 02:15:15:15:15:15"
           ["mirred"]="action mirred egress redirect dev $REP"
-          ["nat"]="action nat ingress any 192.168.1.1/24"
           ["pedit"]="action pedit munge ip dport set 10"
-          ["police"]="action police rate 1mbit burst 100k"
-          ["sample"]="action sample rate 100 group 12"
-          ["simple"]="action simple sdata test"
           ["skbedit"]="action skbedit priority 10"
-          ["skbmod"]="action skbmod swap mac"
           ["tunnel_key"]="action tunnel_key set src_ip 192.168.1.1 dst_ip 192.168.1.2 id 7"
           ["vlan"]="action vlan pop"
-          ["xt"]="action xt -j LOG --log-prefix PONG" )
+          ["ct"]="action ct" )
 
 # This array allows to specify estimator per action type
 declare -A action_to_estimator
-action_to_estimator=( ["police"]="estimator 1sec 2sec"
-                      ["vlan"]="estimator 1sec 2sec"
-                      ["bpf"]="estimator 1sec 2sec"
-                      ["ife"]="estimator 1sec 2sec" )
+action_to_estimator=( ["vlan"]="estimator 1sec 2sec" )
 
 function eval_cmd() {
     title "$1"
