@@ -84,8 +84,6 @@ function verify_bond_master() {
 
 function verify_vf_lag() {
     title " - verify vf lag"
-    ifconfig $NIC down
-    ifconfig $NIC up
     if ! is_bonded ; then
         err "VF lag check failed"
     fi
