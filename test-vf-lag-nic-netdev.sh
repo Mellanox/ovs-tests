@@ -92,7 +92,7 @@ function verify_vf_lag() {
 trap cleanup EXIT
 cleanup
 config
-verify_bond_master
 verify_vf_lag
+verify_bond_master
 cleanup
 test_done
