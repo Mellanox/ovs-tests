@@ -302,7 +302,7 @@ function run_perf_test() {
             key_val_to_array goal < "$input_file"
             check_test_results goal current
         else
-            title "No input file found. Create file $baseline_file."
+            title "No input file found. Create file $input_file."
             echo "$res" > "$input_file"
             success
         fi
