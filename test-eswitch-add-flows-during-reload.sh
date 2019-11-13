@@ -42,13 +42,9 @@ function add_rules() {
 title "test reload modules"
 start_check_syndrome
 
-# with cx5 we tested 1 second but with cx4 device already gone so decreased the
-# sleep from 1 second to have first rule add and then cleanup start.
-#sleep 0.2
-
 title "add $COUNT rules"
 add_rules &
-sleep 0.1
+sleep 1
 reload_modules &
 wait
 
