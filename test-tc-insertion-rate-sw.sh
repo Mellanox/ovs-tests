@@ -7,6 +7,7 @@
 #
 
 BASE_LINE_FILE=${BASE_LINE_FILE:-insertion-rate-sw-data.txt}
+user_act_flags=$1
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -17,7 +18,7 @@ enable_legacy $NIC
 set_steering_sw
 enable_switchdev $NIC
 
-run_perf_test "$BASE_LINE_FILE" "all 1000000 10"
+run_perf_test "$BASE_LINE_FILE" all 1000000 10 " " $user_act_flags
 
 enable_legacy $NIC
 set_steering_fw

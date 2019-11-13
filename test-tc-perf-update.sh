@@ -12,6 +12,7 @@ profile=${1:-all}
 total=${2:-100000}
 num_tc=${3:-1}
 skip=$4
+act_flags=$5
 let per_file=$total/$num_tc
 
 my_dir="$(dirname "$0")"

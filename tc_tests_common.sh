@@ -69,7 +69,7 @@ $skip \
 src_mac $SMAC \
 dst_mac $DMAC \
 $cls \
-action $_action"
+action $_action $act_flags"
 
                     [ $once = "0" ] && once=1 && echo "type of rules: $rule"
                     echo "filter add $rule" >> ${TC_OUT}/add.$n
@@ -144,8 +144,8 @@ src_mac $SMAC \
 dst_mac $DMAC \
 $cls \
 $extra_action \
-action tunnel_key set id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
-action mirred egress redirect dev $mirred_dev"
+action tunnel_key set id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} $act_flags \
+action mirred egress redirect dev $mirred_dev $act_flags"
 
                     [ $once = "0" ] && once=1 && echo "type of rules: $rule"
                     echo "filter add $rule" >> ${TC_OUT}/add.$n
@@ -223,8 +223,8 @@ src_mac $SMAC \
 dst_mac $DMAC \
 $cls \
 $pedit_act \
-action tunnel_key set id $id src_ip ${local_ip} dst_ip ${remote_ip_net}${remote_ip_host} dst_port ${dst_port} \
-action mirred egress redirect dev $mirred_dev"
+action tunnel_key set id $id src_ip ${local_ip} dst_ip ${remote_ip_net}${remote_ip_host} dst_port ${dst_port} $act_flags \
+action mirred egress redirect dev $mirred_dev $act_flags"
 
                     [ $once = "0" ] && once=1 && echo "type of rules: $rule"
                     echo "filter add $rule" >> ${TC_OUT}/add.$n
@@ -290,10 +290,14 @@ function check_test_results() {
 
 function run_perf_test() {
     local input_file="$1"
-    local tc_perf_update_params="$2"
+    local test_type="$2"
+    local num_rules="$3"
+    local num_instances="$4"
+    local flower_flags="$5"
+    local action_flags="$6"
 
     # Skip all test output until results
-    local res=$($DIR/test-tc-perf-update.sh $tc_perf_update_params | sed -n '/^RESULTS:$/,$p' | tail -n +2)
+    local res=$($DIR/test-tc-perf-update.sh "$test_type" "$num_rules" "$num_instances" "$flower_flags" "$action_flags" | sed -n '/^RESULTS:$/,$p' | tail -n +2)
 
     if [ $? -eq 0 ]
     then
