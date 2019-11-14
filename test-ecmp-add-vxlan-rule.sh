@@ -40,8 +40,7 @@ function add_vxlan_rule() {
 
     # tunnel key set
     ifconfig $NIC up
-    reset_tc $NIC
-    reset_tc $REP
+    reset_tc $NIC $NIC2 $REP
     tc_test_verbose
 
     log "add encap rule"
