@@ -42,15 +42,18 @@ function add_vxlan_rule() {
     ifconfig $NIC up
     reset_tc $NIC
     reset_tc $REP
+    tc_test_verbose
 
+    log "add encap rule"
     tc_filter add dev $REP protocol arp parent ffff: prio 1 \
-        flower dst_mac $dst_mac skip_sw \
+        flower $tc_verbose dst_mac $dst_mac skip_sw \
         action tunnel_key set \
             id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
         action mirred egress redirect dev vxlan1
 
+    log "add decap rule"
     tc_filter add dev vxlan1 protocol arp parent ffff: prio 2 \
-        flower src_mac $dst_mac \
+        flower $tc_verbose src_mac $dst_mac \
         enc_key_id $id enc_src_ip ${remote_ip} enc_dst_ip ${local_ip} enc_dst_port ${dst_port} \
         action tunnel_key unset \
         action mirred egress redirect dev $REP
