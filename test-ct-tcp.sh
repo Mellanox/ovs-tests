@@ -50,46 +50,39 @@ function get_pkts() {
     tc -j -p -s  filter show dev $REP protocol ip ingress | jq '.[] | select(.options.ct_state == "+trk+est") | .options.actions[0].stats.packets'
 }
 
-function test_tc_verbose() {
-    verbose="verbose"
-    tc filter add dev $REP ingress protocol arp prio 1 flower verbose \
-        action mirred egress redirect dev $REP2 &>/dev/null || verbose=""
-    reset_tc $REP
-}
-
 function run() {
     title "Test CT TCP"
-    test_tc_verbose
+    tc_test_verbose
     config_vf ns0 $VF $REP $IP1
     config_vf ns1 $VF2 $REP2 $IP2
 
     echo "add arp rules"
-    tc_filter add dev $REP ingress protocol arp prio 1 flower $verbose \
+    tc_filter add dev $REP ingress protocol arp prio 1 flower $tc_verbose \
         action mirred egress redirect dev $REP2
 
-    tc_filter add dev $REP2 ingress protocol arp prio 1 flower $verbose \
+    tc_filter add dev $REP2 ingress protocol arp prio 1 flower $tc_verbose \
         action mirred egress redirect dev $REP
 
     echo "add ct rules"
-    tc_filter add dev $REP ingress protocol ip prio 2 flower $verbose \
+    tc_filter add dev $REP ingress protocol ip prio 2 flower $tc_verbose \
         dst_mac $mac2 ct_state -trk \
         action ct action goto chain 1
 
-    tc_filter add dev $REP ingress protocol ip chain 1 prio 2 flower $verbose \
+    tc_filter add dev $REP ingress protocol ip chain 1 prio 2 flower $tc_verbose \
         dst_mac $mac2 ct_state +trk+new \
         action ct commit \
         action mirred egress redirect dev $REP2
 
-    tc_filter add dev $REP ingress protocol ip chain 1 prio 2 flower $verbose \
+    tc_filter add dev $REP ingress protocol ip chain 1 prio 2 flower $tc_verbose \
         dst_mac $mac2 ct_state +trk+est \
         action mirred egress redirect dev $REP2
 
     # chain0,ct -> chain1,fwd
-    tc_filter add dev $REP2 ingress protocol ip prio 2 flower $verbose \
+    tc_filter add dev $REP2 ingress protocol ip prio 2 flower $tc_verbose \
         dst_mac $mac1 \
         action ct action goto chain 1
 
-    tc_filter add dev $REP2 ingress protocol ip prio 2 chain 1 flower $verbose \
+    tc_filter add dev $REP2 ingress protocol ip prio 2 chain 1 flower $tc_verbose \
         action mirred egress redirect dev $REP
 
     fail_if_err

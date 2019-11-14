@@ -974,6 +974,13 @@ function tc_filter() {
     eval2 tc filter $@
 }
 
+function tc_test_verbose() {
+    tc_verbose="verbose"
+    tc filter add dev $REP ingress protocol arp prio 1 flower verbose \
+        action drop &>/dev/null || tc_verbose=""
+    reset_tc $REP
+}
+
 function verify_in_hw() {
     local dev=$1
     local prio=$2

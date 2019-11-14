@@ -22,13 +22,6 @@ function cleanup() {
     stop_iperf
 }
 
-function test_tc_verbose() {
-    verbose="verbose"
-    tc filter add dev $REP ingress protocol arp prio 1 flower verbose \
-        action mirred egress redirect dev $REP2 &>/dev/null || verbose=""
-    reset_tc $REP
-}
-
 function test_tc_filter() {
     local a
     local err
@@ -70,9 +63,9 @@ function test_insert_hw_fail_during_traffic() {
 
 
 trap cleanup EXIT
-test_tc_verbose
+tc_test_verbose
 tc_command="add dev $REP protocol ip parent ffff: prio 1 \
-            flower $verbose skip_sw dst_mac aa:bb:cc:dd:ee:ff \
+            flower $tc_verbose skip_sw dst_mac aa:bb:cc:dd:ee:ff \
             action tunnel_key unset"
 
 ifconfig $VF 1.1.1.1/24 up
