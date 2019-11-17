@@ -182,9 +182,9 @@ function config_bonding() {
 function clear_bonding() {
     local nic1=${1:-$NIC}
     local nic2=${2:-$NIC2}
+    ip link del bond0 &>/dev/null
     ip link set dev $nic1 nomaster &>/dev/null
     ip link set dev $nic2 nomaster &>/dev/null
-    ip link del bond0 &>/dev/null
 }
 
 function require_mlxdump() {
