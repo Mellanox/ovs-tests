@@ -53,15 +53,23 @@ function cleanup() {
 }
 trap cleanup EXIT
 
+function swap_recirc_id() {
+    echo `echo $@ | grep -o -P "recirc_id\(\dx?\d*\)"`,`echo $@ | sed 's/recirc_id(0x\?[[:digit:]]*),//'`
+}
+
+function sorted_dump_flow_swap_recirc_id() {
+    ovs-appctl dpctl/dump-flows $@ | while read x; do swap_recirc_id $x; done | sort
+}
+
 function check_ovs_stats() {
     local t=$1
     local exp=$2
 
     echo "Dump flows of type: $t"
-    ovs-appctl dpctl/dump-flows --names type=$t | grep 0x0800 | sort | grep "packets:[0-9]*"
-    local stats=`ovs-appctl dpctl/dump-flows --names type=$t | grep 0x0800 | sort | grep -o "packets:[0-9]*" | cut -d ":" -f 2 | xargs echo`
+    sorted_dump_flow_swap_recirc_id --names "type=$t" | grep 0x0800 | grep "packets:\d*"
+    local stats=`sorted_dump_flow_swap_recirc_id --names "type=$t" | grep 0x0800 | grep -o -P "packets:\d+" | cut -d ":" -f 2 | xargs echo`
     if [[ "$stats" != "$exp" ]]; then
-        err "Expected ovs $1 stats ($stats) to be $exp"
+        err "Expected ovs dump type=$t stats ($stats) to be $exp"
     fi
 
     echo "OVS stats ($stats) for type $t are correct"
