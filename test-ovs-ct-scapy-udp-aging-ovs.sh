@@ -89,9 +89,9 @@ function run() {
     # sleep ovs aging
     title "- wait for ovs aging"
     sleep 12
-    count=`ovs_dump_flows | wc -l`
+    count=`ovs_dump_flows | grep -v "0x86dd" | wc -l`
     if [ $count != 0 ]; then
-        ovs_dump_flows
+        ovs_dump_flows | grep -v "0x86dd"
         err "Expected 0 rules"
     fi
 
