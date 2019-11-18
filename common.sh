@@ -39,6 +39,9 @@ DEVICE_CX5_PCI_4="0x1019"
 # test in __setup_common()
 devlink_compat=0
 
+# Special variables
+__ignore_errors=0
+
 
 function get_mlx_iface() {
     for i in /sys/class/net/* ; do
@@ -290,6 +293,10 @@ function fail() {
 
 function err() {
     local m=${@:-Failed}
+    if [ "$__ignore_errors" == "1" ]; then
+        log $m
+        return
+    fi
     TEST_FAILED=1
     echo -e "${RED}ERROR: $m$NOCOLOR"
     kmsg "ERROR: $m"
