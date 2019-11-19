@@ -1,14 +1,12 @@
 #!/bin/bash
 #
-# Test parallel change mode and config qos and do bond
+# Test parallel change mode and netdev ndo open
 # Kernel crash when changing mode to switchdev and configuring bond without waiting.
 # [MLNX OFED] Bug SW #1970482: [VF-LAG] Port stuck after configuring pfc and ecn
 #
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
-
-require_module bonding
 
 function config() {
     config_sriov 0
@@ -32,36 +30,18 @@ function test_devlink() {
     custom_switch_mode switchdev $NIC2 &
 }
 
-function config_qos() {
-    mlnx_qos -i $NIC2 --trust dscp
-    mlnx_qos -i $NIC2 --pfc 0,0,0,1,0,0,0,0
-    mlnx_qos -i $NIC --trust dscp
-    mlnx_qos -i $NIC --pfc 0,0,0,1,0,0,0,0
-}
-
-function action() {
+function toggle_ports() {
     echo "toggle nic down/up"
-    for i in `seq 100`; do
-        ifconfig $NIC up
+    for i in `seq 10`; do
+        ifconfig $NIC up || break
         ifconfig $NIC2 up
         ifconfig $NIC down
         ifconfig $NIC2 down
     done
-
-    echo "qos"
-    config_qos &>/dev/null
-
-    echo "bond"
-    __ignore_errors=1
-    config_bonding $NIC $NIC2
-    __ignore_errors=0
 }
 
 function cleanup() {
-    clear_bonding
-    config_sriov 0
     config_sriov 0 $NIC2
-    config_sriov 2
 }
 
 
@@ -69,7 +49,7 @@ title "Test with devlink"
 cleanup
 config
 test_devlink
-action
+toggle_ports
 cleanup
 
 test_done
