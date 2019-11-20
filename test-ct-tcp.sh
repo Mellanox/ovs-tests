@@ -88,6 +88,7 @@ function run() {
         action ct action goto chain 1
 
     tc_filter add dev $REP2 ingress protocol ip prio 2 chain 1 flower $tc_verbose \
+        dst_mac $mac1 ct_state +trk+est \
         action mirred egress redirect dev $REP
 
     fail_if_err
