@@ -18,6 +18,7 @@ LOGDIR = ''
 TESTS = glob(MYDIR + '/test-*')
 IGNORE_TESTS = []
 SKIP_TESTS = {}
+TESTS_SUMMARY = []
 
 COLOURS = {
     "black": 30,
@@ -68,6 +69,8 @@ def parse_args():
                         help='DB file to read for tests to run')
     parser.add_argument('--log_dir',
                         help='Log dir to save all logs under')
+    parser.add_argument('--html', action='store_true',
+                        help='Save log files in HTML and a summary')
     args = parser.parse_args()
 
     if args.log_dir:
@@ -98,21 +101,25 @@ def run_test(cmd):
     return status
 
 
-def deco(line, color):
-    return "\033[%dm%s\033[0m" % (COLOURS[color], line)
+def deco(line, color, html=False):
+    if html:
+        return "<span style='color: %s'>%s</span>" % (color, line)
+    else:
+        return "\033[%dm%s\033[0m" % (COLOURS[color], line)
 
 
 def strip_color(line):
     return re.sub(r"\033\[[0-9 ;]*m", '', line)
 
 
-def print_result(res, out):
+def format_result(res, out='', html=False):
     res_color = {
         'SKIP': 'yellow',
         'TEST PASSED': 'green',
         'OK': 'green',
         'DRY': 'yellow',
         'FAILED': 'red',
+        'TERMINATED': 'red',
         'IGNORED': 'yellow',
     }
     color = res_color.get(res, 'yellow')
@@ -121,7 +128,7 @@ def print_result(res, out):
             res += ' (%s)' % out
         else:
             res += ' %s' % out
-    print deco(res, color)
+    return deco(res, color, html)
 
 
 def sort_tests(tests):
@@ -220,8 +227,48 @@ def should_ignore_test(name, exclude):
     return False
 
 
-def main():
-    args = parse_args()
+def save_summary_html():
+    html = """<!DOCTYPE html>
+<html>
+    <head>
+        <title>Summary</title>
+    </head>
+    <body>
+        <table>
+            <tr>
+                <th bgcolor='grey' align='left'>Test</th>
+                <th bgcolor='grey' align='left'>Time</th>
+                <th bgcolor='grey' align='left'>Status</th>
+            </tr>"""
+
+    for t in TESTS_SUMMARY:
+        status = t['status']
+        if 'SKIP' in status:
+            continue
+        if t.get('test_log', ''):
+            status = ("<a href='{test_log}'>{status}</a>".format(
+                        test_log=t['test_log'],
+                        status=status))
+        html += """
+            <tr>
+                <td bgcolor='lightgray' align='left'><b>{test}</b></td>
+                <td bgcolor='lightgray' align='left'>{run_time}</td>
+                <td bgcolor='lightgray' align='left'>{status}</td>
+            </tr>""" .format(test=t['test_name'],
+                             run_time=t['run_time'],
+                             status=status)
+    html += """
+        </table>
+    </body>
+</html>"""
+
+    with open("%s/summary.html" % LOGDIR, 'w') as f:
+        f.write(html)
+        f.close()
+
+
+def main(args):
+    global TESTS_SUMMARY
     exclude = []
     ignore = False
 
@@ -243,7 +290,7 @@ def main():
             update_skip_according_to_rm()
     except KeyboardInterrupt:
         print 'Interrupted'
-        sys.exit(1)
+        return 1
 
     print "%-54s %-8s %s" % ("Test", "Time", "Status")
     tests_results = []
@@ -257,10 +304,17 @@ def main():
             ignore = False
 
         print "%-62s " % deco(name, 'light-blue'),
+        test_summary = {'test_name': name,
+                        'test_log':  '%s.log' % name,
+                        'run_time':  '0.0',
+                        'status':    'UNKNOWN',
+                        }
         sys.stdout.flush()
 
         failed = False
+        terminated = False
         res = 'OK'
+        skip_reason = ''
         out = ''
 
         start_time = datetime.now()
@@ -268,7 +322,7 @@ def main():
             res = 'IGNORED'
         elif name in SKIP_TESTS:
             res = 'SKIP'
-            out = SKIP_TESTS[name]
+            skip_reason = SKIP_TESTS[name]
         elif args.dry:
             res = 'DRY'
         else:
@@ -280,17 +334,29 @@ def main():
                 res = 'FAILED'
                 out = str(e)
             except KeyboardInterrupt:
-                print 'Interrupted'
-                sys.exit(1)
+                terminated = True
+                res = 'TERMINATED'
 
         end_time = datetime.now()
-        print "%-7.2f " % (end_time-start_time).total_seconds(),
-        print_result(res, out)
+        total_seconds = "%-7.2f" % (end_time-start_time).total_seconds()
+        test_summary['run_time'] = total_seconds
+        print "%s " % total_seconds,
 
-        if args.stop and failed:
-            sys.exit(1)
+        test_summary['status'] = format_result(res, skip_reason, html=True)
+        print "%-60s" % format_result(res, skip_reason + out)
+
+        TESTS_SUMMARY.append(test_summary)
+
+        if (args.stop and failed) or terminated:
+            return 1
     # end test loop
+
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    args = parse_args()
+    rc = main(args)
+    if args.html:
+        save_summary_html()
+    sys.exit(rc)
