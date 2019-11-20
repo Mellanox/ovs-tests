@@ -381,6 +381,7 @@ def update_skip_according_to_db(data):
                 WONT_FIX[t] = "%s RM #%s: %s" % (task['status']['name'], bug, task['subject'])
             if rm.is_issue_open(task):
                 SKIP_TESTS[t] = "RM #%s: %s" % (bug, task['subject'])
+                break
             sys.stdout.write('.')
             sys.stdout.flush()
 
@@ -413,10 +414,11 @@ def update_skip_according_to_rm():
         bugs = re.findall(r"#\s*Bug SW #([0-9]+):", data)
         for b in bugs:
             task = rm.get_issue(b)
-            if rm.is_issue_open(task):
-                SKIP_TESTS[t] = "RM #%s: %s" % (b, task['subject'])
             sys.stdout.write('.')
             sys.stdout.flush()
+            if rm.is_issue_open(task):
+                SKIP_TESTS[t] = "RM #%s: %s" % (b, task['subject'])
+                break
 
         if t not in SKIP_TESTS and 'IGNORE_FROM_TEST_ALL' in data:
             SKIP_TESTS[t] = "IGNORE_FROM_TEST_ALL"
