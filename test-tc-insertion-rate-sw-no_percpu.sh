@@ -6,4 +6,6 @@
 # IGNORE_FROM_TEST_ALL
 #
 
-BASE_LINE_FILE=insertion-rate-sw-no_percpu-data.txt ./test-tc-insertion-rate-sw.sh no_percpu
+export BASE_LINE_FILE=${BASE_LINE_FILE:-insertion-rate-sw-no_percpu-data.txt}
+
+./test-tc-insertion-rate-sw.sh no_percpu
