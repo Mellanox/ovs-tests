@@ -50,6 +50,7 @@ cleanup
 config
 test_devlink
 toggle_ports
+wait # wait for change mode to complete
 cleanup
 
 test_done

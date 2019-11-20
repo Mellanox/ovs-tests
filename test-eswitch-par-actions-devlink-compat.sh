@@ -23,8 +23,10 @@ function config() {
 }
 
 function test_mlnx_ofed_devlink_compat() {
-    echo switchdev > `devlink_compat_dir $NIC`/mode
-    echo switchdev > `devlink_compat_dir $NIC2`/mode
+    # today devlink compat is async but run echo in background in case it will change
+    # to keep the async affect.
+    echo switchdev > `devlink_compat_dir $NIC`/mode &
+    echo switchdev > `devlink_compat_dir $NIC2`/mode &
 }
 
 function toggle_ports() {
@@ -47,6 +49,7 @@ cleanup
 config
 test_mlnx_ofed_devlink_compat
 toggle_ports
+sleep 10 # wait for change mode to complete
 cleanup
 
 test_done
