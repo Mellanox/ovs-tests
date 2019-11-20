@@ -5,6 +5,7 @@ import re
 import sys
 import argparse
 import subprocess
+import yaml
 from fnmatch import fnmatch
 from glob import glob
 from tempfile import mkdtemp
@@ -13,7 +14,7 @@ from datetime import datetime
 
 MYNAME = os.path.basename(__file__)
 MYDIR = os.path.abspath(os.path.dirname(__file__))
-LOGDIR = mkdtemp(prefix='log')
+LOGDIR = ''
 TESTS = glob(MYDIR + '/test-*')
 IGNORE_TESTS = []
 SKIP_TESTS = {}
@@ -49,6 +50,7 @@ class ExecCmdFailed(Exception):
 
 
 def parse_args():
+    global LOGDIR
     parser = argparse.ArgumentParser()
     parser.add_argument('--verbose', '-v', action='store_true',
                         help='verbose output')
@@ -62,10 +64,17 @@ def parse_args():
                         help='exclude tests')
     parser.add_argument('--glob', '-g', action='append',
                         help='glob of tests')
-    parser.add_argument('--parm', '-p',
-                        help='Pass parm to each test')
-
+    parser.add_argument('--db',
+                        help='DB file to read for tests to run')
+    parser.add_argument('--log_dir',
+                        help='Log dir to save all logs under')
     args = parser.parse_args()
+
+    if args.log_dir:
+        LOGDIR = args.log_dir
+        os.mkdir(LOGDIR)
+    else:
+        LOGDIR = mkdtemp(prefix='log')
     return args
 
 
@@ -141,6 +150,36 @@ def glob_tests(args, tests):
             tests.remove(test)
 
 
+def update_skip_according_to_db(db_file):
+    global SKIP_TESTS
+    data = {}
+    print "Check tests DB"
+    with open(db_file) as yaml_data:
+        data = yaml.load(yaml_data, Loader=yaml.FullLoader)
+    rm = MlxRedmine()
+    test_will_run = False
+    for t in TESTS:
+        t = os.path.basename(t)
+        if t not in data['tests']:
+            SKIP_TESTS[t] = 'Not part of the DB'
+            continue
+        if data['tests'][t] is None:
+            data['tests'][t] = {}
+        for bug in data['tests'][t].get('RM', []):
+            task = rm.get_issue(bug)
+            if rm.is_issue_open(task):
+                SKIP_TESTS[t] = "RM #%s: %s" % (bug, task['subject'])
+            sys.stdout.write('.')
+            sys.stdout.flush()
+
+        if t not in SKIP_TESTS:
+            test_will_run = True
+    print
+
+    if not test_will_run:
+        raise Exception('All Tests will be ignored !')
+
+
 def update_skip_according_to_rm():
     global SKIP_TESTS
 
@@ -198,7 +237,10 @@ def main():
 
     print "Log dir: " + LOGDIR
     try:
-        update_skip_according_to_rm()
+        if args.db:
+            update_skip_according_to_db(args.db)
+        else:
+            update_skip_according_to_rm()
     except KeyboardInterrupt:
         print 'Interrupted'
         sys.exit(1)
@@ -232,8 +274,6 @@ def main():
         else:
             try:
                 cmd = test
-                if args.parm:
-                    cmd += ' ' + args.parm
                 res = run_test(cmd)
             except ExecCmdFailed, e:
                 failed = True

@@ -1,0 +1,7 @@
+description:
+    This DB is for running basic tests for upstream CI (currently not supporting OVS)
+tests:
+    test-eswitch-set-vf-mac.sh:
+    test-tc-groups-overlapping.sh:
+    test-vf-rep-ping.sh:
+    test-tc-groups-multi-fgs.sh:
