@@ -9,6 +9,7 @@ from fnmatch import fnmatch
 from glob import glob
 from tempfile import mkdtemp
 from mlxredmine import MlxRedmine
+from datetime import datetime
 
 MYNAME = os.path.basename(__file__)
 MYDIR = os.path.abspath(os.path.dirname(__file__))
@@ -204,6 +205,7 @@ def main():
         print 'Interrupted'
         sys.exit(1)
 
+    print "%-54s %-8s %s" % ("Test", "Time", "Status")
     tests_results = []
     for test in TESTS:
         name = os.path.basename(test)
@@ -214,13 +216,14 @@ def main():
                 continue
             ignore = False
 
-        print "Test: %-60s  " % deco(name, 'light-blue'),
+        print "%-62s " % deco(name, 'light-blue'),
         sys.stdout.flush()
 
         failed = False
         res = 'OK'
         out = ''
 
+        start_time = datetime.now()
         if should_ignore_test(name, exclude):
             res = 'IGNORED'
         elif name in SKIP_TESTS:
@@ -242,6 +245,8 @@ def main():
                 print 'Interrupted'
                 sys.exit(1)
 
+        end_time = datetime.now()
+        print "%-7.2f " % (end_time-start_time).total_seconds(),
         print_result(res, out)
 
         if args.stop and failed:
