@@ -155,7 +155,7 @@ def update_skip_according_to_db(db_file):
     data = {}
     print "Check tests DB"
     with open(db_file) as yaml_data:
-        data = yaml.load(yaml_data, Loader=yaml.FullLoader)
+        data = yaml.safe_load(yaml_data)
     rm = MlxRedmine()
     test_will_run = False
     for t in TESTS:
