@@ -34,7 +34,7 @@ tc filter add dev $NIC protocol ip parent ffff: prio 1 \
                 dst_ip 2.2.2.2 \
             action mirred egress redirect dev $REP || err "Failed adding nic->rep rule"
 
-tc filter add dev $REP protocol ip parent ffff: prio 2 \
+tc filter add dev $REP protocol ip parent ffff: prio 1 \
         flower \
                 skip_sw \
                 dst_mac e4:11:22:11:4a:50 \
