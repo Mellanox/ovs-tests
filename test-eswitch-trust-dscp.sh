@@ -30,9 +30,7 @@ function config_qos() {
     ifconfig $NIC up
     ifconfig $NIC2 up
     mlnx_qos -i $NIC2 --trust dscp
-    mlnx_qos -i $NIC2 --pfc 0,0,0,1,0,0,0,0
     mlnx_qos -i $NIC --trust dscp
-    mlnx_qos -i $NIC --pfc 0,0,0,1,0,0,0,0
 }
 
 function cleanup() {
