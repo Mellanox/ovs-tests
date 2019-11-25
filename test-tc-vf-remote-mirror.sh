@@ -55,7 +55,6 @@ function run() {
     ip link add $vx type vxlan dstport $vxlan_port external
     [ $? -ne 0 ] && err "Failed to create vxlan interface" && return 1
     ip link set dev $vx up
-    tc qdisc add dev $vx ingress
 
     ip a show dev $vx
 
@@ -91,6 +90,10 @@ function run() {
     echo $REP
     tc filter show dev $REP ingress
 
+    title "- trigger neigh update event"
+    sleep 5
+    ip neigh replace $ip_dst dev $NIC lladdr e4:11:22:11:77:88
+    sleep 5
     before_count=`get_tx_pkts $NIC`
 
     packets=20
