@@ -7,5 +7,6 @@
 #
 
 export BASE_LINE_FILE=${BASE_LINE_FILE:-insertion-rate-skip_hw-no_percpu-data.txt}
+my_dir="$(dirname "$0")"
 
-./test-tc-insertion-rate-skip_hw.sh no_percpu
+. $my_dir/test-tc-insertion-rate-skip_hw.sh no_percpu
