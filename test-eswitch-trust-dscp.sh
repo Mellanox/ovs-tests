@@ -9,10 +9,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-if [ "$devlink_compat" != 1 ]; then
-    fail "Skipping MLNX OFED with devlink compat test."
-fi
-
 function config() {
     config_sriov 0
     config_sriov 0 $NIC2
