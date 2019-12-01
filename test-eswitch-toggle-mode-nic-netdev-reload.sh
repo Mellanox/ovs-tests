@@ -15,8 +15,6 @@ config_sriov 0
 config_sriov 2
 echo "set nic_netdev"
 set_uplink_rep_mode_nic_netdev
-
-config
 fail_if_err
 
 title "Toggle switchdev for $NIC"
