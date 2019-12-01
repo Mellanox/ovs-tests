@@ -18,6 +18,12 @@ function check_ndo() {
     success
 }
 
+function set_ndo() {
+    local ndo=$1
+    local value=$2
+    ip link set dev $NIC vf 0 $ndo $value 2>/dev/null || err "Failed to set ndo $ndo to $value"
+}
+
 function check_bridge_link_set() {
     bridge link set dev $NIC hwmode vepa 2>/dev/null && err "Expected to fail ndo bridge" && return
     success
@@ -50,6 +56,10 @@ function do_test() {
 
     title "- test state"
     check_ndo state auto
+
+    title "- test vlan"
+    check_ndo vlan 1
+    set_ndo vlan 0
 }
 
 
