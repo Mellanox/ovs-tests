@@ -198,6 +198,9 @@ function tc_batch_vxlan_multiple_encap() {
     local rules_per_encap=$((rules_per_file/encaps_per_file))
     TC_OUT=/tmp/tc-$$
     [ "$incr_prio" == 1 ] && prio=0
+    if [ $encaps_per_file -gt $rules_per_file ]; then
+        local rules_per_encap=$rules_per_file
+    fi
     [ $rules_per_encap == 0 ] && fail "rules_per_encap cannot be 0"
 
     rm -fr $TC_OUT
