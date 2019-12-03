@@ -6,7 +6,7 @@
 # IGNORE_FROM_TEST_ALL
 #
 
-BASE_LINE_FILE=${BASE_LINE_FILE:-insertion-rate-sw-data.txt}
+BASE_LINE_FILE=${BASE_LINE_FILE:-/tmp/insertion-rate-sw-data.txt}
 user_act_flags=$1
 
 my_dir="$(dirname "$0")"

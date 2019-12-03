@@ -6,7 +6,7 @@
 # IGNORE_FROM_TEST_ALL
 #
 
-export BASE_LINE_FILE=${BASE_LINE_FILE:-insertion-rate-fw-no_percpu-data.txt}
+export BASE_LINE_FILE=${BASE_LINE_FILE:-/tmp/insertion-rate-fw-no_percpu-data.txt}
 my_dir="$(dirname "$0")"
 
 . $my_dir/test-tc-insertion-rate-fw.sh no_percpu
