@@ -198,6 +198,7 @@ function tc_batch_vxlan_multiple_encap() {
     local rules_per_encap=$((rules_per_file/encaps_per_file))
     TC_OUT=/tmp/tc-$$
     [ "$incr_prio" == 1 ] && prio=0
+    [ $rules_per_encap == 0 ] && fail "rules_per_encap cannot be 0"
 
     rm -fr $TC_OUT
     mkdir -p $TC_OUT
@@ -297,21 +298,22 @@ function run_perf_test() {
     local action_flags="$6"
 
     # Skip all test output until results
-    local res=$($DIR/test-tc-perf-update.sh "$test_type" "$num_rules" "$num_instances" "$flower_flags" "$action_flags" | sed -n '/^RESULTS:$/,$p' | tail -n +2)
-
-    if [ $? -eq 0 ]
-    then
-        if [ -f "$input_file" ]; then
-            key_val_to_array current < <(echo "$res")
-            key_val_to_array goal < "$input_file"
-            check_test_results goal current
-        else
-            title "No input file found. Create file $input_file."
-            echo "$res" > "$input_file"
-            success
-        fi
-    else
+    local res
+    res=`$DIR/test-tc-perf-update.sh "$test_type" "$num_rules" "$num_instances" "$flower_flags" "$action_flags"`
+    local rc=$?
+    if [ $rc -ne 0 ]; then
         fail "Perf update test failed"
+    fi
+
+    res=`echo $res | sed -n '/^RESULTS:$/,$p' | tail -n +2`
+
+    if [ -f "$input_file" ]; then
+        key_val_to_array current < <(echo "$res")
+        key_val_to_array goal < "$input_file"
+        check_test_results goal current
+    else
+        title "No input file found. Create file $input_file."
+        echo "$res" > "$input_file" && success || fail "Failed to write results"
     fi
 }
 
