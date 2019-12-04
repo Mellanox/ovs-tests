@@ -16,6 +16,7 @@ my_dir="$(dirname "$0")"
 config_sriov 2 $NIC
 enable_legacy $NIC
 set_steering_fw
+fail_if_err
 enable_switchdev $NIC
 
 run_perf_test "$BASE_LINE_FILE" all 1000000 10 " " $user_act_flags
