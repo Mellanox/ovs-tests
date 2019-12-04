@@ -178,7 +178,7 @@ function check_alignment() {
             echo "${ovsArray[i]}"
             continue
         fi
-        sorted_id=$(./convert-ovs-ufid-to-tc-cookie.py $ufid)
+        sorted_id=$($my_dir/convert-ovs-ufid-to-tc-cookie.py $ufid)
         for j in "${!tcArray[@]}"; do
             cookie="$(echo "${tcArray[j]}" | grep -oP 'cookie \K[0-f]+' | head -1)"
             if [ -z "$cookie" ]; then
