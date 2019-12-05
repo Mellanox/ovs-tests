@@ -47,5 +47,4 @@ ifconfig $NIC 0
 config_sriov 0
 config_sriov 2
 set_uplink_rep_mode_new_netdev
-config_sriov 0
 test_done
