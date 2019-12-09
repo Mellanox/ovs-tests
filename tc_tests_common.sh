@@ -313,7 +313,12 @@ function run_perf_test() {
         fail "Empty result"
     fi
 
+    local input_res
     if [ -f "$input_file" ]; then
+        input_res=`cat $input_file`
+    fi
+
+    if [ -n "$input_res"]; then
         key_val_to_array current < <(echo -e "$res")
         key_val_to_array goal < "$input_file"
         check_test_results goal current
