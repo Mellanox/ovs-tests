@@ -132,7 +132,7 @@ done
 killall iperf3
 wait
 
-del_all_bridges
+start_clean_openvswitch
 cleanup
 if [ $MULTIPATH == 1 ]; then
     disable_sriov
