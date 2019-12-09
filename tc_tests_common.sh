@@ -309,6 +309,9 @@ function run_perf_test() {
     fi
 
     res=`echo $res | sed -n '/^RESULTS:$/,$p' | tail -n +2`
+    if [ -z "$res" ]; then
+        fail "Empty result"
+    fi
 
     if [ -f "$input_file" ]; then
         key_val_to_array current < <(echo "$res")
