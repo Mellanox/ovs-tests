@@ -32,7 +32,7 @@ function cleanup
 
     ovs-vsctl remove Open_vSwitch . other_config vlan-limit
     start_clean_openvswitch
-    rm -fr $tmpfile &>/dev/null
+    rm -f $tmpfile
 }
 
 function create_ip
