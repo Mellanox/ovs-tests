@@ -308,18 +308,18 @@ function run_perf_test() {
         fail "Perf update test failed"
     fi
 
-    res=`echo $res | sed -n '/^RESULTS:$/,$p' | tail -n +2`
+    res=`echo -e "$res" | sed -n '/^RESULTS:$/,$p' | tail -n +2`
     if [ -z "$res" ]; then
         fail "Empty result"
     fi
 
     if [ -f "$input_file" ]; then
-        key_val_to_array current < <(echo "$res")
+        key_val_to_array current < <(echo -e "$res")
         key_val_to_array goal < "$input_file"
         check_test_results goal current
     else
         title "No input file found. Create file $input_file."
-        echo "$res" > "$input_file" && success || fail "Failed to write results"
+        echo -e "$res" > "$input_file" && success || fail "Failed to write results"
     fi
 }
 
