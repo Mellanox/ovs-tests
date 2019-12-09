@@ -35,22 +35,19 @@ function config_vf() {
     ip netns exec $ns ifconfig $vf $ip/24 up
 }
 
-echo "Name of REP is $REP"
 enable_switchdev_if_no_rep $REP
 unbind_vfs
 bind_vfs
 
 trap cleanup EXIT
 cleanup
-start_clean_openvswitch
 start_check_syndrome
 config_vf ns0 $VF $REP $IP1
 config_vf ns1 $VF2 $REP2 $IP2
 
+start_clean_openvswitch
 ovs-vsctl add-br brv-1
-ovs-vsctl add-port brv-1 $NIC
 ovs-vsctl add-port brv-1 $REP
-ovs-vsctl add-port brv-1 $NIC2
 ovs-vsctl add-port brv-1 $REP2
 
 tc_dump=""
@@ -203,8 +200,9 @@ function check_alignment() {
     check_offload
 }
 
+
 title "Test ping $VF($IP1) -> $VF2($IP2)"
-ip netns exec ns0 ping -q -c 10 -i 0.2 -w 4 $IP2 && success || err
+ip netns exec ns0 ping -q -c 1 -w 1 $IP2 && success || fail "Ping failed"
 check_alignment
 
 del_all_bridges
