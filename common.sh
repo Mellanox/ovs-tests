@@ -911,7 +911,7 @@ function ovs_dump_ovs_flows() {
 }
 
 function del_all_bridges() {
-    ovs-vsctl list-br | xargs -r -l ovs-vsctl del-br 2>/dev/null
+    ovs-vsctl list-br | xargs -r -L 1 ovs-vsctl del-br 2>/dev/null
 }
 
 function service_ovs() {
