@@ -107,14 +107,12 @@ def print_result(res, out):
         'IGNORED': 'yellow',
     }
     color = res_color.get(res, 'yellow')
-    cres = deco(res, color)
     if out:
         if res == 'SKIP':
-            out = ' (%s)' % out
+            res += ' (%s)' % out
         else:
-            out = ' %s' % out
-        cres += deco(out, color)
-    print cres
+            res += ' %s' % out
+    print deco(res, color)
 
 
 def sort_tests(tests):
