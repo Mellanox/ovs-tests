@@ -33,10 +33,10 @@ function test_devlink() {
 function toggle_ports() {
     echo "toggle nic down/up"
     for i in `seq 10`; do
-        ifconfig $NIC up || break
-        ifconfig $NIC2 up
-        ifconfig $NIC down
-        ifconfig $NIC2 down
+        ifconfig $NIC up 2>/dev/null || break
+        ifconfig $NIC2 up 2>/dev/null
+        ifconfig $NIC down 2>/dev/null
+        ifconfig $NIC2 down 2>/dev/null
     done
 }
 
