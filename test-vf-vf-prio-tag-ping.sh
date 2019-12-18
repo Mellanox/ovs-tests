@@ -87,4 +87,5 @@ cleanup
 check_syndrome
 set_prio_tag_mode 0
 fw_reset
+config_sriov 2
 test_done

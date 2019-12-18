@@ -32,6 +32,7 @@ function config_qos() {
 function cleanup() {
     config_sriov 0
     config_sriov 0 $NIC2
+    config_sriov 2
 }
 
 
