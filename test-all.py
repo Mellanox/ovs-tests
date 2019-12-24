@@ -294,6 +294,8 @@ def main(args):
 
     print "%-54s %-8s %s" % ("Test", "Time", "Status")
     tests_results = []
+    failed = False
+    terminated = False
     for test in TESTS:
         name = os.path.basename(test)
         if name == MYNAME:
@@ -311,8 +313,6 @@ def main(args):
                         }
         sys.stdout.flush()
 
-        failed = False
-        terminated = False
         res = 'OK'
         skip_reason = ''
         out = ''
@@ -351,7 +351,7 @@ def main(args):
             return 1
     # end test loop
 
-    return 0
+    return failed
 
 
 if __name__ == "__main__":
