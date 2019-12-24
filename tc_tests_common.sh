@@ -318,7 +318,7 @@ function run_perf_test() {
         input_res=`cat $input_file`
     fi
 
-    if [ -n "$input_res"]; then
+    if [ -n "$input_res" ]; then
         key_val_to_array current < <(echo -e "$res")
         key_val_to_array goal < "$input_file"
         check_test_results goal current
