@@ -4,10 +4,6 @@
 # representor in switchdev mode
 #
 
-NIC=${1:-ens1f0}
-VF=${2:-ens1f2}
-REP=${3:-ens1f0_0}
-
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
