@@ -9,6 +9,10 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+function mlnx_qos() {
+   eval2 /usr/bin/mlnx_qos $@
+}
+
 function config() {
     config_sriov 0
     config_sriov 0 $NIC2
