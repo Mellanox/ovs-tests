@@ -135,7 +135,7 @@ function run() {
     if [[ $rc -eq 0 ]]; then
         :
     elif [[ $rc -eq 124 ]]; then
-        err "Expected for mirror packets"
+        err "Expected mirror packets"
     else
         err "Tcpdump mirror failed"
     fi
