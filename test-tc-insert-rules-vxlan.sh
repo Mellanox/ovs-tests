@@ -38,16 +38,15 @@ function config_vf() {
     ip netns exec $ns ifconfig $vf $ip/24 up
 }
 
-function run() {
+function test_duplicate_tunnel() {
     local ip_src=$1
     local ip_dst=$2
 
     ip -all netns delete
     title "Test duplicated encap entries"
     config_vf ns0 $VF $REP $IP1
-    echo "ip netns exec ns0 ip neigh add $IP2 lladdr $mac2 dev $VF"
 
-    title " - create vxlan interface"
+    title "- create vxlan interface"
     vx=vxlan1
     vxlan_port=4789
     ip link del $vx >/dev/null 2>&1
@@ -68,7 +67,7 @@ function run() {
         ttl 64
         nocsum"
 
-    echo "add vf mirror rules"
+    title "- add vf mirror rules and expect to fail"
     tc filter add dev $REP ingress protocol ip prio 2 flower skip_sw \
         dst_mac $mac2 \
         $TUNNEL_KEY_SET pipe \
@@ -77,6 +76,6 @@ function run() {
         action mirred egress redirect dev $vx && err || success
 }
 
-run 20.12.11.1 20.12.12.1
 
+test_duplicate_tunnel 20.12.11.1 20.12.12.1
 test_done
