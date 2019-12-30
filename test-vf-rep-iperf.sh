@@ -22,6 +22,11 @@ function cleanup() {
     ifconfig $REP 0
 }
 
+function kill_iperf() {
+    killall -9 iperf &>/dev/null
+    wait &>/dev/null
+}
+
 cleanup
 ifconfig $REP $IP1/24 up
 ip netns add ns0
@@ -33,14 +38,14 @@ timeout 7 ip netns exec ns0 iperf -s &
 sleep 0.5
 iperf -c $IP2 -P4 -t 5
 sleep 0.5 
-killall -9 iperf
+kill_iperf
 
 title "Test ping VF($IP2) -> REP($IP1)"
 timeout 7 iperf -s & 
 sleep 0.5
 ip netns exec ns0 iperf -c $IP1 -P4 -t 5
 sleep 0.5
-killall -9 iperf
+kill_iperf
 
 cleanup
 test_done
