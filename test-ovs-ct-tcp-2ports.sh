@@ -99,7 +99,7 @@ function run() {
     pid2=$!
 
     sleep $t
-    killall iperf &>/dev/null
+    killall -9 iperf &>/dev/null
     wait $! 2>/dev/null
 
     test_no_traffic $pid

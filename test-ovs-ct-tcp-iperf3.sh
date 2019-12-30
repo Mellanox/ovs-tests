@@ -79,8 +79,7 @@ function run() {
     ovs_dump_tc_flows --names | grep -q "ct(commit)" || err "Expected ct commit action"
 
     sleep $t
-    killall iperf3 &>/dev/null
-    killall iperf3 &>/dev/null
+    killall -9 iperf3 &>/dev/null
     wait $! 2>/dev/null
 
     # test sniff timedout

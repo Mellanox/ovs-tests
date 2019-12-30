@@ -123,8 +123,7 @@ function run() {
     ddumpct --names | grep -q -P "ct(.*commit.*)" || err "Expected ct commit action"
 
     sleep $t
-    killall iperf &>/dev/null
-    killall iperf &>/dev/null
+    killall -9 iperf &>/dev/null
     wait $! 2>/dev/null
 
     # test sniff timedout

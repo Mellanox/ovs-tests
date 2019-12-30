@@ -150,9 +150,9 @@ function run() {
     test_tcpdump $tpid
 
     kill -9 $pid1 &>/dev/null
-    killall iperf &>/dev/null
+    killall -9 iperf &>/dev/null
     echo "wait for bgs"
-    wait
+    wait 2>/dev/null
 }
 
 run
