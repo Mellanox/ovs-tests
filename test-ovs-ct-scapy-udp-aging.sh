@@ -14,16 +14,25 @@ require_module act_ct
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
+function test_ct_aging() {
+    if [ ! -e /sys/module/mlx5_core/parameters/offloaded_ct_timeout ]; then
+        fail "Missing offloaded_ct_timeout"
+    fi
+}
+
+function set_ct_aging() {
+    echo $1 > /sys/module/mlx5_core/parameters/offloaded_ct_timeout || err "Failed to write offloaded_ct_timeout"
+}
+
+
 enable_switchdev_if_no_rep $REP
 require_interfaces REP REP2
+test_ct_aging
 unbind_vfs
 bind_vfs
 reset_tc $REP
 reset_tc $REP2
 
-function set_ct_aging() {
-    echo $1 > /sys/module/mlx5_core/parameters/offloaded_ct_timeout || err "Failed to write offloaded_ct_timeout"
-}
 
 function cleanup() {
     ip netns del ns0 2> /dev/null
