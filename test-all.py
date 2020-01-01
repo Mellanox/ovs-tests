@@ -260,9 +260,12 @@ def save_summary_html():
     </body>
 </html>"""
 
-    with open("%s/summary.html" % LOGDIR, 'w') as f:
+    summary_file = "%s/summary.html" % LOGDIR
+    with open(summary_file, 'w') as f:
         f.write(html)
         f.close()
+
+    print "Summary: %s" % summary_file
 
 
 def main(args):
