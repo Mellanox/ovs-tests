@@ -243,8 +243,6 @@ def save_summary_html():
 
     for t in TESTS_SUMMARY:
         status = t['status']
-        if 'SKIP' in status:
-            continue
         if t.get('test_log', ''):
             status = ("<a href='{test_log}'>{status}</a>".format(
                         test_log=t['test_log'],
@@ -307,7 +305,7 @@ def main(args):
 
         print "%-62s " % deco(name, 'light-blue'),
         test_summary = {'test_name': name,
-                        'test_log':  '%s.log' % name,
+                        'test_log':  '',
                         'run_time':  '0.0',
                         'status':    'UNKNOWN',
                         }
@@ -327,6 +325,7 @@ def main(args):
             res = 'DRY'
         else:
             try:
+                test_summary['test_log'] = '%s.log' % name
                 cmd = test
                 res = run_test(cmd)
             except ExecCmdFailed, e:
