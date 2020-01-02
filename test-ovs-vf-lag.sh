@@ -37,6 +37,7 @@ function test_config_ovs_bond() {
     ip link set dev $NIC2 up
 
     verify_ingress_block
+    del_all_bridges
 }
 
 function test_config_ovs_bond_after_cleanup() {
@@ -51,7 +52,7 @@ function test_config_ovs_bond_after_cleanup() {
     restart_openvswitch
 
     verify_ingress_block
-    start_clean_openvswitch
+    del_all_bridges
 }
 
 function test_ovs_restart_block_support() {
@@ -71,7 +72,7 @@ function test_ovs_restart_block_support() {
     ip link set dev $NIC2 up
 
     verify_ingress_block
-    start_clean_openvswitch
+    del_all_bridges
 }
 
 function config() {
