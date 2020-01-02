@@ -20,8 +20,8 @@ function verify_ingress_block() {
     done
 }
 
-function test_config_ovs_bond() {
-    title "Test config ovs bond"
+function test_config_ovs_bond_port_order() {
+    title "Test config ovs bond port order"
     reset_tc bond0 $NIC $NIC2
     start_clean_openvswitch
     ovs-vsctl add-br br-ovs
@@ -35,6 +35,25 @@ function test_config_ovs_bond() {
     # so cause an event.
     ip link set dev $NIC2 down
     ip link set dev $NIC2 up
+
+    verify_ingress_block
+    del_all_bridges
+}
+
+function test_config_ovs_bond_simple() {
+    title "Test config ovs bond simple"
+    reset_tc bond0 $NIC $NIC2
+    start_clean_openvswitch
+    ovs-vsctl add-br br-ovs
+
+    # If we start with port down it also doesn't reproduce the issue
+    # if ports are up, OVS doesn't add the ingress block.
+    # dont uncomment as thats the purpose of the case.
+#    ifconfig $NIC down
+#    ifconfig $NIC2 down
+
+    ovs-vsctl add-port br-ovs bond0
+    ovs-vsctl add-port br-ovs $REP
 
     verify_ingress_block
     del_all_bridges
@@ -93,7 +112,8 @@ trap cleanup EXIT
 cleanup
 config
 fail_if_err
-test_config_ovs_bond
+test_config_ovs_bond_port_order
+test_config_ovs_bond_simple
 test_config_ovs_bond_after_cleanup
 test_ovs_restart_block_support
 test_done
