@@ -161,9 +161,10 @@ def glob_tests(args, tests):
 def update_skip_according_to_db(db_file):
     global SKIP_TESTS, SKIP_NOT_IN_DB
     data = {}
-    print "Check tests DB"
+    print "Reading DB: %s" % db_file
     with open(db_file) as yaml_data:
         data = yaml.safe_load(yaml_data)
+    print "Description: %s" % data.get("description", "DB doesn't include a description")
     rm = MlxRedmine()
     test_will_run = False
     for t in TESTS:
