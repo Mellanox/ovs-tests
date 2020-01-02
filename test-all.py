@@ -173,7 +173,13 @@ def update_skip_according_to_db(db_file):
             continue
         if data['tests'][t] is None:
             data['tests'][t] = {}
-        for bug in data['tests'][t].get('RM', []):
+        bugs_list = []
+        for kernel in data['tests'][t].get('ignore_kernel', {}):
+            if re.search("^%s$" % kernel, os.uname()[2]):
+                for bug in data['tests'][t]['ignore_kernel'][kernel]:
+                    bugs_list.append(bug)
+
+        for bug in bugs_list:
             task = rm.get_issue(bug)
             if rm.is_issue_open(task):
                 SKIP_TESTS[t] = "RM #%s: %s" % (bug, task['subject'])
