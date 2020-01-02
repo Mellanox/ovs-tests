@@ -18,6 +18,7 @@ LOGDIR = ''
 TESTS = glob(MYDIR + '/test-*')
 IGNORE_TESTS = []
 SKIP_TESTS = {}
+SKIP_NOT_IN_DB = []
 TESTS_SUMMARY = []
 
 COLOURS = {
@@ -158,7 +159,7 @@ def glob_tests(args, tests):
 
 
 def update_skip_according_to_db(db_file):
-    global SKIP_TESTS
+    global SKIP_TESTS, SKIP_NOT_IN_DB
     data = {}
     print "Check tests DB"
     with open(db_file) as yaml_data:
@@ -168,7 +169,7 @@ def update_skip_according_to_db(db_file):
     for t in TESTS:
         t = os.path.basename(t)
         if t not in data['tests']:
-            SKIP_TESTS[t] = 'Not part of the DB'
+            SKIP_NOT_IN_DB.append(t)
             continue
         if data['tests'][t] is None:
             data['tests'][t] = {}
@@ -300,6 +301,8 @@ def main(args):
     for test in TESTS:
         name = os.path.basename(test)
         if name == MYNAME:
+            continue
+        if name in SKIP_NOT_IN_DB:
             continue
         if ignore:
             if args.from_test != name:
