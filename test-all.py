@@ -246,8 +246,8 @@ def save_summary_html():
         status = t['status']
         if t.get('test_log', ''):
             status = ("<a href='{test_log}'>{status}</a>".format(
-                        test_log=t['test_log'],
-                        status=status))
+                test_log=t['test_log'],
+                status=status))
         html += """
             <tr>
                 <td bgcolor='lightgray' align='left'><b>{test}</b></td>
