@@ -389,7 +389,7 @@ def update_skip_according_to_db(data):
     print()
 
     if not test_will_run:
-        raise Exception('All Tests will be ignored !')
+        raise RuntimeError('All tests are ignored.')
 
 
 def get_test_header(fname):
@@ -587,6 +587,9 @@ def main():
 
     if len(TESTS) == 0:
         print("ERROR: No tests to run")
+        return 1
+    except RuntimeError, e:
+        print "ERROR: %s" % e
         return 1
 
     if args.from_test:
