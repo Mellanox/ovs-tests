@@ -6,9 +6,6 @@
 # and its continuation will always be in OVS datapath since it's action (controller) isn't suported.
 #
 
-ip -all netns delete
-sleep 1
-
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
@@ -18,8 +15,7 @@ echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
 ip1="1.1.1.1"
 ip2="1.1.1.2"
 
-add_netns()
-{
+function add_netns() {
     local ns=$1
     local ip=$2
     local peer=${ns}_peer
@@ -36,8 +32,7 @@ add_netns()
 }
 
 function setup() {
-    systemctl start openvswitch && sleep 1
-    systemctl restart openvswitch
+    start_clean_openvswitch
     sleep 1
 
     ovs-vsctl add-br ovs-br
@@ -48,8 +43,8 @@ function setup() {
 
 function cleanup() {
     killall -9 nc &> /dev/null
-    ip -all netns del || :
-    ovs-vsctl br-exists ovs-br && ovs-vsctl del-br ovs-br
+    ip -all netns del
+    del_all_bridges
 }
 trap cleanup EXIT
 
@@ -65,28 +60,30 @@ function check_ovs_stats() {
     local t=$1
     local exp=$2
 
-    echo "Dump flows of type: $t"
+    title "Dump flows of type: $t"
     sorted_dump_flow_swap_recirc_id --names "type=$t" | grep 0x0800 | grep "packets:\d*"
     local stats=`sorted_dump_flow_swap_recirc_id --names "type=$t" | grep 0x0800 | grep -o -P "packets:\d+" | cut -d ":" -f 2 | xargs echo`
     if [[ "$stats" != "$exp" ]]; then
         err "Expected ovs dump type=$t stats ($stats) to be $exp"
+        return
     fi
 
-    echo "OVS stats ($stats) for type $t are correct"
+    success2 "OVS stats ($stats) for type $t are correct"
 }
 
 function check_tc_stats() {
     local dev=${1}_veth
     local exp=$2
 
-    echo "Tc filter show on dev $dev"
-    tc -s filter show dev $dev ingress proto ip |grep -C 50 "Sent [0-9]* bytes [0-9]* pkt"
+    title "Tc filter show on dev $dev"
+    tc -s filter show dev $dev ingress proto ip | grep -C 50 "Sent [0-9]* bytes [0-9]* pkt"
     local stats=`tc -s filter show dev $dev ingress proto ip | grep -o "Sent [0-9]* bytes [0-9]* pkt" | cut -d " " -f 4 | xargs echo`
     if [[ "$stats" != "$exp" ]]; then
         err "Expected ovs $1 stats ($stats) to be $exp"
+        return
     fi
 
-    echo "Tc stats ($stats) for dev $dev are correct"
+    success2 "Tc stats ($stats) for dev $dev are correct"
 }
 
 function run_scpy_tcp() {
