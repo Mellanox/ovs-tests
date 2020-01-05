@@ -2,11 +2,6 @@
 #
 # Test OVS CT TCP with label and reconfig flows during traffic
 #
-# With CT multi-table we currently only support labels of 32 bits so we might
-# see an error in dmesg like
-# [95869.250616] mlx5_core 0000:82:00.0 ens1f0: Failed to offload ct entry, err: -95
-#
-# the purpose of the test is not catching this but the kasan bug reproduce later
 # [95966.187839] BUG: KASAN: use-after-free in rht_deferred_worker+0x14db/0x1600
 
 my_dir="$(dirname "$0")"
@@ -51,7 +46,8 @@ function reconfig_flows() {
     ovs-ofctl del-flows br-ovs
     ovs-ofctl add-flow br-ovs arp,actions=normal
     ovs-ofctl add-flow br-ovs "table=0, ip,ct_state=-trk actions=ct(table=1)"
-    ovs-ofctl add-flow br-ovs "table=1, ip,ct_state=+trk+new actions=ct(commit,exec(set_field:0xffffffffffffffffffff->ct_label)),normal"
+    ct_label="0x12345"
+    ovs-ofctl add-flow br-ovs "table=1, ip,ct_state=+trk+new actions=ct(commit,exec(set_field:$ct_label->ct_label)),normal"
     ovs-ofctl add-flow br-ovs "table=1, ip,ct_state=+trk+est actions=normal"
 }
 
@@ -69,7 +65,7 @@ function run() {
     reconfig_flows
     ovs-ofctl dump-flows br-ovs --color
 
-    t=30
+    t=15
     echo "run traffic for $t seconds"
     ip netns exec ns1 timeout $((t+1)) iperf -s &
     sleep 0.5
@@ -85,7 +81,7 @@ function run() {
     done
 
     killall -9 iperf &>/dev/null
-    wait $! 2>/dev/null
+    wait &>/dev/null
 
     ovs-vsctl del-br br-ovs
 }
