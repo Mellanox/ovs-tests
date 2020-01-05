@@ -46,7 +46,7 @@ function reconfig_flows() {
     ovs-ofctl add-flow br-ovs "table=0, ip,ct_state=-trk actions=ct(table=1)"
     ct_label="0x12345"
     ovs-ofctl add-flow br-ovs "table=1, ip,ct_state=+trk+new actions=ct(commit,exec(set_field:$ct_label->ct_label)),normal"
-    ovs-ofctl add-flow br-ovs "table=1, ip,ct_state=+trk+est,ct_label=$ct_label actions=normal"
+    ovs-ofctl add-flow br-ovs "table=1, ip,ct_state=+trk+est,ct_label=$ct_label/0xffffffff actions=normal"
 }
 
 function run() {
