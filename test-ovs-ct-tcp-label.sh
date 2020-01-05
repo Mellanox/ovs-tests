@@ -73,7 +73,7 @@ function run() {
     sleep 0.5
     ip netns exec ns0 timeout $((t+1)) iperf -t $t -c $IP2 -P 3 &
 
-    sleep 2
+    sleep 3
     pidof iperf &>/dev/null || err "iperf failed"
 
     echo "sniff packets on $REP"
