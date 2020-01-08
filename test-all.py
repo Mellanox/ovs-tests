@@ -6,6 +6,7 @@ import sys
 import argparse
 import subprocess
 import yaml
+from ansi2html import Ansi2HTMLConverter
 from fnmatch import fnmatch
 from glob import glob
 from tempfile import mkdtemp
@@ -82,21 +83,27 @@ def parse_args():
     return args
 
 
-def run_test(cmd):
-    logname = os.path.join(LOGDIR, os.path.basename(cmd)+'.log')
-    with open(logname, 'w') as f1:
-        # piping stdout to file seems to miss stderr msgs to we use pipe
-        # and write to file at the end.
-        subp = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
-                                stderr=subprocess.STDOUT, close_fds=True)
-        out = subp.communicate()
-        f1.write(out[0])
+def run_test(cmd, html=False):
+    logname = os.path.join(LOGDIR, os.path.basename(cmd))
+    # piping stdout to file seems to miss stderr msgs to we use pipe
+    # and write to file at the end.
+    subp = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT, close_fds=True)
+    out = subp.communicate()
+    log = out[0]
 
-    status = out[0].splitlines()[-1].strip()
+    with open("%s.log" % logname, 'w') as f1:
+        f1.write(log)
+
+    if html:
+        with open("%s.html" % logname, 'w') as f2:
+            f2.write(Ansi2HTMLConverter().convert(log))
+
+    status = log.splitlines()[-1].strip()
     status = strip_color(status)
 
     if subp.returncode:
-        status = "(%s) %s" % (status, logname)
+        status = "(%s) %s" % (status, logname+".log")
         raise ExecCmdFailed(cmd, subp.returncode, status)
 
     return status
@@ -338,9 +345,9 @@ def main(args):
             res = 'DRY'
         else:
             try:
-                test_summary['test_log'] = '%s.log' % name
+                test_summary['test_log'] = '%s.html' % name
                 cmd = test
-                res = run_test(cmd)
+                res = run_test(cmd, args.html)
             except ExecCmdFailed, e:
                 failed = True
                 res = 'FAILED'
