@@ -103,7 +103,20 @@ function add_openflow_rules() {
     ovs-ofctl dump-flows br-ovs --color
 }
 
-function test_tcpdump() {
+function test_have_traffic() {
+    local pid=$1
+    wait $pid
+    local rc=$?
+    if [[ $rc -eq 0 ]]; then
+        :
+    elif [[ $rc -eq 124 ]]; then
+        err "Expected to see packets"
+    else
+        err "Tcpdump failed rc $rc"
+    fi
+}
+
+function test_no_traffic() {
     local pid=$1
     wait $pid
     local rc=$?
@@ -112,7 +125,7 @@ function test_tcpdump() {
     elif [[ $rc -eq 0 ]]; then
         err "Didn't expect to see packets"
     else
-        err "Tcpdump failed"
+        err "Tcpdump failed rc $rc"
     fi
 }
 
@@ -129,6 +142,24 @@ function run() {
     fi
 
     t=15
+
+    # initial traffic
+    # this part is important when using multi-table CT.
+    # the firsat traffic will cause ovs to create initial tc rules
+    # and also tuple rules. but since ovs will add the ovs somewhat late
+    # conntrack will already mark the conn est. and tuple rules will be in hw.
+    # so we start second traffic which will be faster added to hw before
+    # conntrack and this will check the miss rule in our driver is ok
+    # (i.e. restoring reg_0 correctly)
+    ssh2 $REMOTE_SERVER timeout 4 iperf -s -t 3 &
+    pid1=$!
+    sleep 0.5
+    ip netns exec ns0 timeout 3 iperf -c $REMOTE -t 2 &
+    pid2=$!
+
+    killall -9 iperf &>/dev/null
+    wait $pid1 $pid2 &>/dev/null
+
     # traffic
     ssh2 $REMOTE_SERVER timeout $((t+2)) iperf -s -t $t &
     pid1=$!
@@ -144,15 +175,26 @@ function run() {
         return
     fi
 
-    timeout $((t-2)) tcpdump -qnnei $REP -c 10 'tcp' &
-    tpid=$!
+    # verify traffic
+    ip netns exec ns0 timeout $((t-2)) tcpdump -qnnei $VF -c 10 ip &
+    tpid1=$!
+    timeout $((t-2)) tcpdump -qnnei $REP -c 10 ip &
+    tpid2=$!
+    timeout $((t-2)) tcpdump -qnnei vxlan_sys_4789 -c 10 ip &
+    tpid3=$!
+
     sleep $t
-    test_tcpdump $tpid
+    title "Verify traffic on $VF"
+    test_have_traffic $tpid1
+    title "Verify offload on $REP"
+    test_no_traffic $tpid2
+    title "Verify offload on vxlan_sys_4789"
+    test_no_traffic $tpid3
 
     kill -9 $pid1 &>/dev/null
-    killall -9 iperf &>/dev/null
+    kill -9 $pid2 &>/dev/null
     echo "wait for bgs"
-    wait 2>/dev/null
+    wait &>/dev/null
 }
 
 run
