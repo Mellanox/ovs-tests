@@ -75,11 +75,12 @@ def parse_args():
                         help='Save log files in HTML and a summary')
     args = parser.parse_args()
 
-    if args.log_dir:
-        LOGDIR = args.log_dir
-        os.mkdir(LOGDIR)
-    else:
-        LOGDIR = mkdtemp(prefix='log')
+    if not args.dry:
+        if args.log_dir:
+            LOGDIR = args.log_dir
+            os.mkdir(LOGDIR)
+        else:
+            LOGDIR = mkdtemp(prefix='log')
     return args
 
 
@@ -376,6 +377,6 @@ def main(args):
 if __name__ == "__main__":
     args = parse_args()
     rc = main(args)
-    if args.html:
+    if args.html and not args.dry:
         save_summary_html()
     sys.exit(rc)
