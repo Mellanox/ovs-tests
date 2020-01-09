@@ -14,8 +14,6 @@ remote_tun="2.2.2.3"
 
 
 function cleanup() {
-    echo "cleanup"
-    start_clean_openvswitch
     ip l del dev gre_sys &>/dev/null
     ip netns del ns0 &> /dev/null
 
@@ -23,11 +21,13 @@ function cleanup() {
         ip link del veth$i &> /dev/null
     done
 }
+trap cleanup EXIT
 
 function create_gre_tunnel() {
     local grekey=$KEY
     local ovsop=""
 
+    echo "cleanup"
     cleanup
 
     echo "setup veth and ns"
@@ -48,10 +48,11 @@ function create_gre_tunnel() {
     fi
     echo "setup gre $grekey"
 
-    ip netns exec ns0 ip link add name gre_sys type gretap dev veth3 remote $local_tun nocsum $grekey
+    ip netns exec ns0 ip link add name gre_sys type gretap dev veth3 remote $local_tun nocsum $grekey || fail "Failed to create gre interface"
     ip netns exec ns0 ifconfig gre_sys $VM2_IP/24 up
 
     echo "setup ovs"
+    start_clean_openvswitch
     ovs-vsctl add-br brv-1
     ovs-vsctl add-port brv-1 veth1
     ovs-vsctl add-port brv-1 gre0 -- set interface gre0 type=gre options:local_ip=$local_tun options:remote_ip=$remote_tun $ovsop
@@ -88,6 +89,8 @@ KEY=nokey
 create_gre_tunnel
 do_traffic
 check_offloaded_rules 2
+start_clean_openvswitch
 
+echo "cleanup"
 cleanup
 test_done
