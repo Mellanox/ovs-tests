@@ -748,7 +748,7 @@ function get_vf() {
     local nic=${2:-$NIC}
     if [ -a /sys/class/net/$nic/device/virtfn$vfn/net ]; then
 	echo `ls /sys/class/net/$nic/device/virtfn$vfn/net/`
-    else 
+    else
 	fail "Cannot find vf $vfn of $nic"
     fi
 }
@@ -828,7 +828,7 @@ list_del corruption|which is not allocated|Objects remaining|assertion failed|\
 Slab cache still has objects"
     local look_ahead="Call Trace:|Allocated by task|Freed by task"
     local look_ahead_count=12
-    local filter="networkd-dispatcher|uses legacy ethtool link settings"
+    local filter="networkd-dispatcher|nm-dispatcher|uses legacy ethtool link settings"
 
     local a=`journalctl --since="$sec seconds ago" | grep -E -i "$look" | grep -v -E -i "$filter" || true`
     local b=`journalctl --since="$sec seconds ago" | grep -E -A $look_ahead_count -i "$look_ahead" || true`
