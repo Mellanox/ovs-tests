@@ -512,7 +512,7 @@ function get_eswitch_encap() {
             encap="enable"
         else
             fail "Failed to get encap"
-	fi
+        fi
     else
         output=`devlink dev eswitch show pci/$PCI`
         encap=`echo $output | grep -o "encap \w*" | awk {'print $2'}`
@@ -525,7 +525,7 @@ function set_eswitch_encap() {
     local val="$1"
 
     if [ "$devlink_compat" = 1 ]; then
-	if [ "$val" = "disable" ]; then
+        if [ "$val" = "disable" ]; then
             val="none"
         elif [ "$val" = "enable" ]; then
             val="basic"
@@ -747,44 +747,44 @@ function get_vf() {
     local vfn=$1
     local nic=${2:-$NIC}
     if [ -a /sys/class/net/$nic/device/virtfn$vfn/net ]; then
-	echo `ls /sys/class/net/$nic/device/virtfn$vfn/net/`
+        echo `ls /sys/class/net/$nic/device/virtfn$vfn/net/`
     else
-	fail "Cannot find vf $vfn of $nic"
+        fail "Cannot find vf $vfn of $nic"
     fi
 }
 
 function get_rep() {
-	local vf=$1
-	local id2
-	local count=0
-	local nic=${2:-$NIC}
-	local id=`get_sw_id $nic`
+    local vf=$1
+    local id2
+    local count=0
+    local nic=${2:-$NIC}
+    local id=`get_sw_id $nic`
 
-        local b="${nic}_$vf"
+    local b="${nic}_$vf"
 
-	if [ -e /sys/devices/virtual/net/$b ]; then
-	    echo $b
-	    return
-	fi
+    if [ -e /sys/devices/virtual/net/$b ]; then
+        echo $b
+        return
+    fi
 
-	if [ -z "$id" ]; then
-	    fail "Cannot find rep index $vf. Cannot get switch id for $nic"
-	fi
+    if [ -z "$id" ]; then
+        fail "Cannot find rep index $vf. Cannot get switch id for $nic"
+    fi
 
-	VIRTUAL="/sys/devices/virtual/net"
+    VIRTUAL="/sys/devices/virtual/net"
 
-	for i in `ls -1 $VIRTUAL`; do
-	    id2=`get_sw_id $i`
-	    if [ "$id" = "$id2" ]; then
-		if [ "$vf" = "$count" ]; then
-			echo $i
-			echo "Found rep $i" >>/dev/stderr
-			return
-		fi
-		((count=count+1))
-	    fi
-	done
-	fail "Cannot find rep index $vf"
+    for i in `ls -1 $VIRTUAL`; do
+        id2=`get_sw_id $i`
+        if [ "$id" = "$id2" ]; then
+            if [ "$vf" = "$count" ]; then
+                    echo $i
+                    echo "Found rep $i" >>/dev/stderr
+                    return
+            fi
+            ((count=count+1))
+        fi
+    done
+    fail "Cannot find rep index $vf"
 }
 
 function get_time() {
