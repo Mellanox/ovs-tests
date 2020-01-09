@@ -53,7 +53,6 @@ class ExecCmdFailed(Exception):
 
 
 def parse_args():
-    global LOGDIR
     parser = argparse.ArgumentParser()
     parser.add_argument('--verbose', '-v', action='store_true',
                         help='verbose output')
@@ -73,15 +72,8 @@ def parse_args():
                         help='Log dir to save all logs under')
     parser.add_argument('--html', action='store_true',
                         help='Save log files in HTML and a summary')
-    args = parser.parse_args()
 
-    if not args.dry:
-        if args.log_dir:
-            LOGDIR = args.log_dir
-            os.mkdir(LOGDIR)
-        else:
-            LOGDIR = mkdtemp(prefix='log')
-    return args
+    return parser.parse_args()
 
 
 def run_test(cmd, html=False):
@@ -284,10 +276,23 @@ def save_summary_html():
     print "Summary: %s" % summary_file
 
 
+def prepare_logdir():
+    global LOGDIR
+    if not args.dry:
+        if args.log_dir:
+            LOGDIR = args.log_dir
+            os.mkdir(LOGDIR)
+        else:
+            LOGDIR = mkdtemp(prefix='log')
+        print "Log dir: " + LOGDIR
+
+
 def main(args):
     global TESTS_SUMMARY
     exclude = []
     ignore = False
+
+    prepare_logdir()
 
     if args.from_test:
         ignore = True
@@ -299,7 +304,6 @@ def main(args):
     glob_tests(args, TESTS)
     sort_tests(TESTS)
 
-    print "Log dir: " + LOGDIR
     try:
         if args.db:
             update_skip_according_to_db(args.db)
