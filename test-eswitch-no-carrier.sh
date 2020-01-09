@@ -8,6 +8,7 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 function config_port() {
+    config_sriov 0
     config_sriov 2
     unbind_vfs
     enable_switchdev_if_no_rep $REP
@@ -23,6 +24,7 @@ function do_test() {
     switch_mode_legacy
     sleep 1
     require_interfaces NIC VF
+    echo "bring up interfaces"
     ip link set dev $NIC up
     ip link set dev $VF up
     sleep 1
@@ -51,6 +53,16 @@ function config_two_ports() {
     config_sriov 0 $NIC2
 }
 
+function pre_step() {
+    # bug sometimes reproduce after setting sriov and then cleaning it.
+    # so lets do that as first step before all cases.
+    title "pre step"
+    config_sriov 2
+    config_sriov 0
+}
+
+
+pre_step
 
 title "Test one port config"
 config_port
