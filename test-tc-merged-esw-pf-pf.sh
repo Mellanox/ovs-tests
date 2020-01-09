@@ -17,7 +17,7 @@ enable_switchdev $NIC2
 
 title "- add redirect rule $NIC2 -> $NIC - expect to fail as we don't support this"
 reset_tc $NIC2
-tc filter add dev $NIC2 protocol ip ingress prio 1 flower skip_sw dst_mac e4:11:22:11:4a:51 action \
+tc filter add dev $NIC2 protocol ip ingress prio 1 flower skip_sw action \
     mirred egress redirect dev $NIC && err "Expected to fail"
 
 disable_sriov_port2
