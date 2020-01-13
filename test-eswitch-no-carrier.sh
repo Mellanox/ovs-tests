@@ -31,14 +31,18 @@ function do_test() {
 }
 
 function test_carrier() {
-    carrier=`cat /sys/class/net/$VF/carrier`
+    local nic=${1:-$VF}
+    local expect=${2:-1}
+    local carrier=`cat /sys/class/net/$nic/carrier 2>/dev/null`
 
-    if [ "$carrier" == "0" ]; then
-        ip link show dev $VF
-        err "VF $VF has no carrier"
+    [ -z "$carrier" ] && carrier="0"
+
+    if [ "$carrier" != "$expect" ]; then
+        ip link show dev $nic
+        err "$nic carrier is $carrier but expected $expect"
         return
     fi
-    success
+    success2 "$nic carrier is $carrier"
 }
 
 function config_two_ports() {
@@ -61,24 +65,48 @@ function pre_step() {
     config_sriov 0
 }
 
+function test1() {
+    title "Test one port config"
+    config_port
+    do_test
+    test_carrier
+}
+
+function test_sync_carrier() {
+    title "Test carrier sync between VF and REP"
+    config_port
+    ip l set $VF up
+    ip l set $REP up
+    sleep 1
+    test_carrier $VF
+    title "- rep down"
+    ip l set $REP down
+    test_carrier $VF 0
+    # vf down case doesn't affect rep. not in the driver code. don't test.
+    title "- rep up"
+    ip l set $REP up
+    sleep 1
+    test_carrier $VF
+}
+
+function test2() {
+    title "Test two ports and disable second port"
+    # we saw issue start reproducing after configuring two ports.
+    config_two_ports
+    do_test
+    test_carrier
+    if [ $TEST_FAILED == 1 ]; then
+        # next run port one also fails. so for consistency between runs,
+        # reload the modules.
+        reload_modules
+        config_port
+    fi
+}
+
 
 pre_step
-
-title "Test one port config"
-config_port
-do_test
-test_carrier
-
-title "Test two ports config"
-# we saw issue start reproducing after configuring two ports.
-config_two_ports
-do_test
-test_carrier
-if [ $TEST_FAILED == 1 ]; then
-    # next run port one also fails. so for consistency between runs,
-    # reload the modules.
-    reload_modules
-    config_port
-fi
+test1
+test_sync_carrier
+test2
 
 test_done
