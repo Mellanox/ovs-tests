@@ -157,7 +157,7 @@ function run() {
     ip netns exec ns0 timeout 3 iperf -c $REMOTE -t 2 &
     pid2=$!
 
-    killall -9 iperf &>/dev/null
+    kill -9 $pid1 $pid2 &>/dev/null
     wait $pid1 $pid2 &>/dev/null
 
     # traffic
@@ -191,8 +191,7 @@ function run() {
     title "Verify offload on vxlan_sys_4789"
     test_no_traffic $tpid3
 
-    kill -9 $pid1 &>/dev/null
-    kill -9 $pid2 &>/dev/null
+    kill -9 $pid1 $pid2 &>/dev/null
     echo "wait for bgs"
     wait &>/dev/null
 }
