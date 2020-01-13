@@ -105,7 +105,20 @@ function add_openflow_rules() {
     ovs-ofctl dump-flows br-ovs --color
 }
 
-function test_tcpdump() {
+function test_have_traffic() {
+    local pid=$1
+    wait $pid
+    local rc=$?
+    if [[ $rc -eq 0 ]]; then
+        :
+    elif [[ $rc -eq 124 ]]; then
+        err "Expected to see packets"
+    else
+        err "Tcpdump failed rc $rc"
+    fi
+}
+
+function test_no_traffic() {
     local pid=$1
     wait $pid
     local rc=$?
@@ -114,7 +127,7 @@ function test_tcpdump() {
     elif [[ $rc -eq 0 ]]; then
         err "Didn't expect to see packets"
     else
-        err "Tcpdump failed"
+        err "Tcpdump failed rc $rc"
     fi
 }
 
@@ -132,22 +145,50 @@ function run() {
         return
     fi
 
-    # tcp
-    ssh2 $REMOTE_SERVER timeout 11 iperf -s -t 11 &
-    sleep 0.5
-    ip netns exec ns0 timeout 11 iperf -c $REMOTE -t 10 -P3 &
+    # initial traffic
+    ssh2 $REMOTE_SERVER timeout 4 iperf -s -t 3 &
     pid1=$!
+    sleep 0.5
+    ip netns exec ns0 timeout 3 iperf -c $REMOTE -t 2 &
+    pid2=$!
+
+    kill -9 $pid1 $pid2 &>/dev/null
+    wait $pid1 $pid2 &>/dev/null
+
+    # traffic
+    ssh2 $REMOTE_SERVER timeout 15 iperf -s -t 14 &
+    pid1=$!
+    sleep 0.5
+    ip netns exec ns0 timeout 15 iperf -c $REMOTE -t 14 -P3 &
+    pid2=$!
+
+    # verify pid
     sleep 2
-    kill -0 $pid1 &>/dev/null
+    kill -0 $pid2 &>/dev/null
     if [ $? -ne 0 ]; then
         err "iperf failed"
-    else
-        timeout 8 tcpdump -qnnei $REP -c 10 'tcp' &
-        pid2=$!
-        sleep 8
-        test_tcpdump $pid2
+        return
     fi
-    wait
+
+    # verify traffic
+    ip netns exec ns0 timeout 12 tcpdump -qnnei $VF -c 10 ip &
+    tpid1=$!
+    timeout 12 tcpdump -qnnei $REP -c 10 ip &
+    tpid2=$!
+    timeout 12 tcpdump -qnnei genev_sys_6081 -c 10 ip &
+    tpid3=$!
+
+    sleep 15
+    title "Verify traffic on $VF"
+    test_have_traffic $tpid1
+    title "Verify offload on $REP"
+    test_no_traffic $tpid2
+    title "Verify offload on genev_sys_6081"
+    test_no_traffic $tpid3
+
+    kill -9 $pid1 $pid2 &>/dev/null
+    echo "wait for bgs"
+    wait &>/dev/null
 }
 
 run
