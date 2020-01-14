@@ -63,7 +63,8 @@ ovs-vsctl add-port brv-1 veth6
 function check_offloaded_rules() {
     local count=$1
     title " - check for $count offloaded rules"
-    RES="ovs_dump_tc_flows | grep 0x86dd | grep \"ipv6(src=200\""
+    ipv6_broadcast_ip="33:33:ff:00:00:02"
+    RES="ovs_dump_tc_flows | grep 0x86dd | grep \"ipv6(src=200\" | grep -v $ipv6_broadcast_ip"
     eval $RES
     RES=`eval $RES | wc -l`
     if (( RES == $count )); then success; else err; fi
