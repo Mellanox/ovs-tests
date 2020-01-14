@@ -13,9 +13,17 @@ my_dir="$(dirname "$0")"
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
+pingpid=0
+
+function killping() {
+    if [ "$pingpid" != "0" ]; then
+        kill -9 $pingpid &>/dev/null
+        wait $pingpid &>/dev/null
+    fi
+}
+
 function cleanup() {
-    killall -9 ping &>/dev/null
-    wait $! 2>/dev/null
+    killping
     reset_tc $REP
     reset_tc $REP2
     ip netns del ns0 2> /dev/null
@@ -79,6 +87,7 @@ tc filter add dev $REP2 ingress protocol ip prio 1 flower skip_hw dst_mac aa:bb:
 
 title "Test ping $VF($IP1, $mac1) -> $VF2($IP2, $mac2)"
 ip netns exec ns0 ping -q -f $IP2 &
+pingpid=$!
 sleep 1
 
 # add with prio 3
