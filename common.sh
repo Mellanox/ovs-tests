@@ -1148,7 +1148,7 @@ function redmine_info() {
     RM_SUBJ=""
     eval `curl -m 1 -s "$url" | python -c "import sys, json; i=json.load(sys.stdin)['issue']; print \"RM_STATUS=%s\nRM_SUBJ=%s\" % (json.dumps(i['status']['id']), json.dumps(i['subject']))" 2>/dev/null`
     if [ -z "$RM_STATUS" ]; then
-        echo "Failed to fetch redmine info"
+        warn "Failed to fetch redmine info"
     fi
 }
 
