@@ -95,10 +95,8 @@ function config_remote() {
 
 function add_openflow_rules() {
     ovs-ofctl del-flows br-ovs
-    ovs-ofctl add-flow br-ovs in_port=$REP,dl_type=0x0806,actions=output:geneve1
-    ovs-ofctl add-flow br-ovs in_port=geneve1,dl_type=0x0806,actions=output:$REP
-    ovs-ofctl add-flow br-ovs in_port=$REP,icmp,actions=output:geneve1
-    ovs-ofctl add-flow br-ovs in_port=geneve1,icmp,actions=output:$REP
+    ovs-ofctl add-flow br-ovs arp,actions=normal
+    ovs-ofctl add-flow br-ovs icmp,actions=normal
     ovs-ofctl add-flow br-ovs "table=0, tcp,ct_state=-trk actions=ct(table=1)"
     ovs-ofctl add-flow br-ovs "table=1, tcp,ct_state=+trk+new actions=ct(commit),normal"
     ovs-ofctl add-flow br-ovs "table=1, tcp,ct_state=+trk+est actions=normal"
@@ -146,20 +144,21 @@ function run() {
     fi
 
     # initial traffic
-    ssh2 $REMOTE_SERVER timeout 4 iperf -s -t 3 &
+    ssh2 $REMOTE_SERVER timeout 4 iperf3 -s &
     pid1=$!
     sleep 0.5
-    ip netns exec ns0 timeout 3 iperf -c $REMOTE -t 2 &
+    ip netns exec ns0 timeout 3 iperf3 -c $REMOTE -t 2 &
     pid2=$!
 
+    sleep 4
     kill -9 $pid1 $pid2 &>/dev/null
     wait $pid1 $pid2 &>/dev/null
 
     # traffic
-    ssh2 $REMOTE_SERVER timeout 15 iperf -s -t 14 &
+    ssh2 $REMOTE_SERVER timeout 15 iperf3 -s &
     pid1=$!
     sleep 0.5
-    ip netns exec ns0 timeout 15 iperf -c $REMOTE -t 14 -P3 &
+    ip netns exec ns0 timeout 15 iperf3 -c $REMOTE -t 14 -P3 &
     pid2=$!
 
     # verify pid
@@ -171,7 +170,7 @@ function run() {
     fi
 
     # verify traffic
-    ip netns exec ns0 timeout 12 tcpdump -qnnei $VF -c 10 ip &
+    ip netns exec ns0 timeout 12 tcpdump -qnnei $VF -c 30 ip &
     tpid1=$!
     timeout 12 tcpdump -qnnei $REP -c 10 ip &
     tpid2=$!
