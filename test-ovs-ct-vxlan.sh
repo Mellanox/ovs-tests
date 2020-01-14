@@ -177,7 +177,7 @@ function run() {
     fi
 
     # verify traffic
-    ip netns exec ns0 timeout $((t-2)) tcpdump -qnnei $VF -c 10 ip &
+    ip netns exec ns0 timeout $((t-2)) tcpdump -qnnei $VF -c 30 ip &
     tpid1=$!
     timeout $((t-2)) tcpdump -qnnei $REP -c 10 ip &
     tpid2=$!
