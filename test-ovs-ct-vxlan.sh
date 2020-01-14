@@ -157,6 +157,7 @@ function run() {
     ip netns exec ns0 timeout 3 iperf -c $REMOTE -t 2 &
     pid2=$!
 
+    sleep 4
     kill -9 $pid1 $pid2 &>/dev/null
     wait $pid1 $pid2 &>/dev/null
 
