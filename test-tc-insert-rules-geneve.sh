@@ -16,7 +16,7 @@ function __test_geneve() {
     local ip_dst=$2
     local skip
 
-    title " - create geneve interface"
+    title "- create geneve interface"
     gv=geneve1
     geneve_port=6081
     ip link del $gv >/dev/null 2>&1
@@ -42,7 +42,7 @@ function __test_geneve() {
 
     reset_tc $REP
     reset_tc $gv
-    title "    - encap"
+    title "- encap"
     tc_filter add dev $REP protocol 0x806 parent ffff: prio 1 chain 1 \
                     flower \
                             skip_sw \
@@ -56,7 +56,7 @@ function __test_geneve() {
                     geneve_opts 1234:56:0708090a \
                     action mirred egress redirect dev $gv
 
-    title "    - decap"
+    title "- decap"
     tc_filter add dev $gv protocol 0x806 parent ffff: prio 2 chain 1 \
                     flower \
                             dst_mac e4:11:22:11:4a:51 \
@@ -66,6 +66,20 @@ function __test_geneve() {
                             enc_dst_port $geneve_port \
                             enc_key_id 100 \
                             geneve_opts 0102:34:05060708 \
+                    action tunnel_key unset \
+                    action mirred egress redirect dev $REP
+    verify_in_hw $gv 2
+
+    title "- decap geneve_opts mask 0"
+    tc_filter add dev $gv protocol 0x806 parent ffff: prio 2 chain 1 \
+                    flower \
+                            dst_mac e4:11:22:11:4a:51 \
+                            src_mac e4:11:22:11:4a:50 \
+                            enc_src_ip $ip_src \
+                            enc_dst_ip $ip_dst \
+                            enc_dst_port $geneve_port \
+                            enc_key_id 100 \
+                            geneve_opts 0102:34:05060708/0:0:00000000 \
                     action tunnel_key unset \
                     action mirred egress redirect dev $REP
     verify_in_hw $gv 2
