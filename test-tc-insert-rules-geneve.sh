@@ -43,7 +43,7 @@ function __test_geneve() {
     reset_tc $REP
     reset_tc $gv
     title "    - encap"
-    tc_filter add dev $REP protocol 0x806 parent ffff: prio 1 \
+    tc_filter add dev $REP protocol 0x806 parent ffff: prio 1 chain 1 \
                     flower \
                             skip_sw \
                             dst_mac e4:11:22:11:4a:51 \
@@ -57,7 +57,7 @@ function __test_geneve() {
                     action mirred egress redirect dev $gv
 
     title "    - decap"
-    tc_filter add dev $gv protocol 0x806 parent ffff: prio 2 \
+    tc_filter add dev $gv protocol 0x806 parent ffff: prio 2 chain 1 \
                     flower \
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
