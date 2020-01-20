@@ -71,7 +71,7 @@ function __test_geneve() {
     verify_in_hw $gv 2
 
     title "- decap geneve_opts mask 0"
-    tc_filter add dev $gv protocol 0x806 parent ffff: prio 2 chain 1 \
+    tc_filter add dev $gv protocol 0x806 parent ffff: prio 3 chain 1 \
                     flower \
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
@@ -82,7 +82,7 @@ function __test_geneve() {
                             geneve_opts 0102:34:05060708/0:0:00000000 \
                     action tunnel_key unset \
                     action mirred egress redirect dev $REP
-    verify_in_hw $gv 2
+    verify_in_hw $gv 3
 
     reset_tc $NIC
     reset_tc $REP
