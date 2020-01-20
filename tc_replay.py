@@ -88,7 +88,7 @@ def parse_dump():
                 rule = ""
             continue
 
-        skip = ['index', 'not_in_hw', 'in_hw']
+        skip = ['index', 'not_in_hw', 'in_hw', 'Sent', 'backlog', 'cookie', 'random', 'Action statistics']
         _skip = False
         for j in skip:
             if i.startswith(j):
@@ -114,6 +114,9 @@ def parse_dump():
             i = i.split()
             i = i[0:-2]
             i = ' '.join(i)
+        elif i.startswith('action order'):
+            i = i.split()[3:]
+            i = 'action ' + ' '.join(i)
         elif i.startswith('deleted filter'):
             i = i.replace('deleted filter', 'filter del ')
             i = i.replace('protocol all', '')
@@ -144,4 +147,4 @@ def parse_dump():
 cmds = parse_dump()
 for cmd in cmds:
     print cmd
-    os.system(cmd)
+    #os.system(cmd)
