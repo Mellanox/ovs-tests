@@ -73,19 +73,20 @@ function cleanup() {
 }
 
 function config_vxlan() {
-    ip link add vxlan1 type vxlan id $id dev $NIC dstport $dst_port
+    local nic1="bond0"
+    ip link add vxlan1 type vxlan id $id dev $nic1 dstport $dst_port
     ip link set vxlan1 up
-    ip addr add ${local_ip}/24 dev $NIC
+    ip addr add ${local_ip}/24 dev $nic1
     tc qdisc add dev vxlan1 ingress
-    ip link set $NIC up
-    ip n add $remote_ip lladdr $dst_mac dev $NIC
+    ip link set $nic1 up
+    ip n add $remote_ip lladdr $dst_mac dev $nic1
 }
 
 function clean_vxlan() {
+    local nic1="bond0"
     ip link del dev vxlan1 2> /dev/null
-    ip n del ${remote_ip} dev $NIC 2>/dev/null
-    ip n del ${remote_ip6} dev $NIC 2>/dev/null
-    ip addr flush dev $NIC
+    ip n del ${remote_ip} dev $nic1 2>/dev/null
+    ip addr flush dev $nic1
 }
 
 function add_vxlan_rule() {
