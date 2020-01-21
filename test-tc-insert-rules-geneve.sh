@@ -82,7 +82,23 @@ function __test_geneve() {
                             geneve_opts 0102:34:05060708/0:0:00000000 \
                     action tunnel_key unset \
                     action mirred egress redirect dev $REP
-    verify_in_hw $gv 3
+    # we expect it not_in_hw as we don't know in fw it to match key 0 or no key.
+    verify_not_in_hw $gv 3
+
+    title "- decap geneve_opts multiple"
+    tc_filter add dev $gv protocol 0x806 parent ffff: prio 4 chain 1 \
+                    flower \
+                            dst_mac e4:11:22:11:4a:51 \
+                            src_mac e4:11:22:11:4a:50 \
+                            enc_src_ip $ip_src \
+                            enc_dst_ip $ip_dst \
+                            enc_dst_port $geneve_port \
+                            enc_key_id 100 \
+                            geneve_opts 0102:34:05060707,0102:34:05060708,0102:34:05060709 \
+                    action tunnel_key unset \
+                    action mirred egress redirect dev $REP
+    # we expect it not_in_hw as we only support 1 option
+    verify_not_in_hw $gv 4
 
     reset_tc $NIC
     reset_tc $REP
