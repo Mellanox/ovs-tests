@@ -10,7 +10,7 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 REMOTE_SERVER=${1:?Require remote server}
-REMOTE_NIC=ens1f0
+REMOTE_NIC=${2:?ens1f0}
 
 function ssh2() {
     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes $@
