@@ -16,6 +16,13 @@ function ssh2() {
     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes $@
 }
 
+function on_remote() {
+    local cmd=$@
+    ssh2 $REMOTE_SERVER $cmd
+}
+
+on_remote true || fail "Remote command failed"
+
 IP=1.1.1.7
 REMOTE=1.1.1.8
 
@@ -62,11 +69,6 @@ function config() {
     ovs-vsctl add-br br-ovs
     ovs-vsctl add-port br-ovs $REP
     ovs-vsctl add-port br-ovs vxlan1 -- set interface vxlan1 type=vxlan options:local_ip=$LOCAL_TUN options:remote_ip=$REMOTE_IP options:key=$VXLAN_ID options:dst_port=4789
-}
-
-function on_remote() {
-    local cmd=$@
-    ssh2 $REMOTE_SERVER $cmd
 }
 
 function config_remote() {
