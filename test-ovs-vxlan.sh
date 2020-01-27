@@ -13,7 +13,7 @@ REMOTE_SERVER=${1:?Require remote server}
 REMOTE_NIC=${2:?ens1f0}
 
 function ssh2() {
-    ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes $@
+    ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes $@
 }
 
 function on_remote() {
