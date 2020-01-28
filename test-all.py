@@ -21,7 +21,6 @@ IGNORE_TESTS = []
 SKIP_TESTS = {}
 SKIP_NOT_IN_DB = []
 TESTS_SUMMARY = []
-TESTS_ARGS = {}
 
 COLOURS = {
     "black": 30,
@@ -159,8 +158,8 @@ def glob_tests(args, tests):
             tests.remove(test)
 
 
-def update_tests_according_to_db(db_file):
-    global SKIP_TESTS, SKIP_NOT_IN_DB, TESTS_ARGS
+def update_skip_according_to_db(db_file):
+    global SKIP_TESTS, SKIP_NOT_IN_DB
     data = {}
     print "Reading DB: %s" % db_file
     with open(db_file) as yaml_data:
@@ -190,7 +189,6 @@ def update_tests_according_to_db(db_file):
 
         if t not in SKIP_TESTS:
             test_will_run = True
-            TESTS_ARGS[t] = data['tests'][t].get('args', '')
     print
 
     if not test_will_run:
@@ -308,7 +306,7 @@ def main(args):
 
     try:
         if args.db:
-            update_tests_according_to_db(args.db)
+            update_skip_according_to_db(args.db)
         else:
             update_skip_according_to_rm()
     except KeyboardInterrupt:
@@ -353,7 +351,7 @@ def main(args):
         else:
             try:
                 test_summary['test_log'] = '%s.html' % name
-                cmd = test + " " + TESTS_ARGS[name]
+                cmd = test
                 res = run_test(cmd, args.html)
             except ExecCmdFailed, e:
                 failed = True
