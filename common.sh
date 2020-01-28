@@ -606,7 +606,7 @@ function set_uplink_rep_mode_nic_netdev() {
     local pci=$(basename `readlink /sys/class/net/$nic/device`)
 
     if [ "$devlink_compat" = 1 ]; then
-        echo nic_netdev > `devlink_compat_dir $nic`/uplink_rep_mode || fail "Failed to set mode $mode"
+        echo nic_netdev > `devlink_compat_dir $nic`/uplink_rep_mode || fail "Failed to set mode nic_netdev"
         sleep 3
         return
     fi
@@ -620,7 +620,7 @@ function set_uplink_rep_mode_new_netdev() {
     local pci=$(basename `readlink /sys/class/net/$nic/device`)
 
     if [ "$devlink_compat" = 1 ]; then
-        echo new_netdev > `devlink_compat_dir $nic`/uplink_rep_mode || fail "Failed to set mode $mode"
+        echo new_netdev > `devlink_compat_dir $nic`/uplink_rep_mode || fail "Failed to set mode new_netdev"
         sleep 3
         return
     fi
