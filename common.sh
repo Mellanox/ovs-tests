@@ -44,6 +44,7 @@ __ignore_errors=0
 
 
 function get_mlx_iface() {
+    local i
     for i in /sys/class/net/* ; do
         if [ ! -r $i/device/vendor ]; then
             continue
@@ -350,6 +351,7 @@ function count_reps() {
 }
 
 function get_reps() {
+    local i
     local nic=${1:-$NIC}
     local a
     local b
@@ -413,6 +415,7 @@ function get_reps_count() {
 }
 
 function wait_for_reps() {
+    local i
     local nic=$1
     local count=$2
     local reps=0
@@ -555,6 +558,7 @@ function require_multipath_support() {
 }
 
 function require_interfaces() {
+    local i
     local net
     for i in $@; do
         net=${!i}
@@ -691,6 +695,7 @@ function set_macs() {
 }
 
 function unbind_vfs() {
+    local i
     local nic=${1:-$NIC}
     log "unbind vfs of $nic"
     for i in `ls -1d /sys/class/net/$nic/device/virt*`; do
@@ -710,6 +715,7 @@ function get_bound_vfs_count() {
 }
 
 function wait_for_vfs() {
+    local i
     local nic=$1
     local count=$2
     local vfs=0
@@ -724,6 +730,7 @@ function wait_for_vfs() {
 }
 
 function bind_vfs() {
+    local i
     local nic=${1:-$NIC}
     local vf_count=`get_vfs_count $nic`
 
@@ -754,6 +761,7 @@ function get_vf() {
 }
 
 function get_rep() {
+    local i
     local vf=$1
     local id2
     local count=0
@@ -953,6 +961,7 @@ function start_clean_openvswitch() {
 }
 
 function wait_for_ifaces() {
+    local i
     local max=4
 
     for i in `seq $max`;do
@@ -1004,6 +1013,7 @@ function verify_not_in_hw() {
 }
 
 function wait_for_linkup() {
+    local i
     local net=$1
     local state
     local max=12
