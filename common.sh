@@ -1368,6 +1368,13 @@ function not_relevant_for_cx4lx() {
     fi
 }
 
+function relevant_for_cx4() {
+    if [ "$DEVICE_IS_CX4_LX" != 1 ] && [ "$DEVICE_IS_CX4_LX" != 1 ]; then
+        log "SKIP (Test relevant for ConnectX-4)"
+        exit 0
+    fi
+}
+
 function relevant_for_cx5() {
     if [ "$DEVICE_IS_CX5" != 1 ]; then
         log "SKIP (Test relevant for ConnectX-5)"
