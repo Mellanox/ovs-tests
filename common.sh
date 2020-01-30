@@ -1529,6 +1529,13 @@ function require_fw_opt() {
     fi
 }
 
+function relevant_for_cx4() {
+    if [ "$DEVICE_IS_CX4_LX" != 1 ] && [ "$DEVICE_IS_CX4_LX" != 1 ]; then
+        log "SKIP (Test relevant for ConnectX-4)"
+        exit 0
+    fi
+}
+
 function __load_config() {
     local conf
 

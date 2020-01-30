@@ -8,7 +8,7 @@ NIC=${1:-ens5f0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-not_relevant_for_cx5
+relevant_for_cx4
 
 function set_encap() {
     title " - test set encap $1"

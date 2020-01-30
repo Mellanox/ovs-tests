@@ -10,7 +10,7 @@ REP=${2:-ens5f0_0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-not_relevant_for_cx5
+relevant_for_cx4
 
 enable_switchdev
 unbind_vfs
