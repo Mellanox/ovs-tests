@@ -220,7 +220,9 @@ function require_min_kernel_5() {
 
 function cloud_fw_reset() {
     local ip=`hostname -i | awk {'print $NF'}`
+    unload_modules
     /workspace/cloud_tools/cloud_firmware_reset.sh -ips $ip || err "cloud_firmware_reset failed"
+    load_modules
 }
 
 function is_cloud() {
@@ -1022,6 +1024,23 @@ function wait_for_ifaces() {
         sleep 1
     done
     warn "Cannot find nic after $max seconds"
+}
+
+function unload_modules() {
+    if [ -e /etc/init.d/openibd ]; then
+        service openibd stop || fail "Failed to stop openibd service"
+    else
+        modprobe -r -q mlx5_ib || true
+        modprobe -r mlx5_core || fail "Failed to unload modules"
+    fi
+}
+
+function load_modules() {
+    if [ -e /etc/init.d/openibd ]; then
+        service openibd start || fail "Failed to start openibd service"
+    else
+        modprobe mlx5_core || fail "Failed to load modules"
+    fi
 }
 
 function reload_modules() {
