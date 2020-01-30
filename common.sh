@@ -224,8 +224,24 @@ function require_min_kernel_5() {
     [ $v -lt 5 ] && fail "Require minimum kernel 5"
 }
 
+function cloud_fw_reset() {
+    local ip=`hostname -i | awk {'print $NF'}`
+    /workspace/cloud_tools/cloud_firmware_reset.sh -ips $ip || err "cloud_firmware_reset failed"
+}
+
+function is_cloud() {
+    if [ -e /workspace/cloud_tools/ ]; then
+        return 0 # true
+    fi
+    return 1 # false
+}
+
 function fw_reset() {
-    mlxfwreset -y -d $PCI reset
+    if is_cloud ; then
+        cloud_fw_reset
+        return
+    fi
+    mlxfwreset -y -d $PCI reset || err "mlxfwreset failed"
 }
 
 function fw_config() {
