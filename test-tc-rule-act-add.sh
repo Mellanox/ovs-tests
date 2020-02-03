@@ -28,7 +28,10 @@ actions=( ["csum"]="action csum ip4h udp"
           ["skbedit"]="action skbedit priority 10"
           ["tunnel_key"]="action tunnel_key set src_ip 192.168.1.1 dst_ip 192.168.1.2 id 7"
           ["vlan"]="action vlan pop"
-          ["ct"]="action ct" )
+          ["ct"]="action ct"
+          ["police"]="action police rate 1mbit burst 100k"
+          ["sample"]="action sample rate 100 group 12"
+          ["mpls"]="action mpls push protocol mpls_uc label 123" )
 
 # This array allows to specify estimator per action type
 declare -A action_to_estimator
