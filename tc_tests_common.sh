@@ -324,7 +324,8 @@ function run_perf_test() {
         check_test_results goal current
     else
         title "No input file found. Create file $input_file."
-        echo -e "$res" > "$input_file" && success || fail "Failed to write results"
+        echo -e "$res" > "$input_file" || fail "Failed to write results"
+        fail "Please re-run the test"
     fi
 }
 
