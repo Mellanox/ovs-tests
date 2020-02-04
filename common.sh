@@ -143,12 +143,6 @@ function __setup_common() {
     echo $status
 }
 
-function is_SimX() {
-    local a=`dmidecode --string bios-vendor`
-    [ "$a" == "SeaBIOS" ] && return 0
-    return 1
-}
-
 function is_bonded() {
     local rc
     for _ in `seq 5`; do
@@ -206,7 +200,6 @@ function clear_bonding() {
 }
 
 function require_mlxdump() {
-    is_SimX && fail "mlxdump not supported in SimX"
     [[ -e /usr/bin/mlxdump ]] || fail "Missing mlxdump"
 }
 
