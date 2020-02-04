@@ -57,7 +57,7 @@ function is_offloaded_rules() {
         err "Cannot read used value"
         return
     fi
-    if [ "$used" -gt 2 ]; then
+    if [ "$used" -gt 3 ]; then
         err "Used value not being reset"
         return
     fi
@@ -99,6 +99,9 @@ ip netns exec ns0 ping -q -i 0.5 -w 5 $IP2 && success || err
 
 dst_mac=`ip netns exec ns1 ip link show $VF2 | grep ether | awk '{print $2}'`
 src_mac=`ip netns exec ns0 ip link show $VF1 | grep ether | awk '{print $2}'`
+
+# Do sleep to make sure that stats were updated before rule dump
+sleep 1
 
 title "Check $VF1->$VF2 rule offloaded"
 is_offloaded_rules $REP $src_mac $dst_mac
