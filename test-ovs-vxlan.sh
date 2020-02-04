@@ -12,16 +12,7 @@ my_dir="$(dirname "$0")"
 REMOTE_SERVER=${1:?Require remote server}
 REMOTE_NIC=${2:?ens1f0}
 
-function ssh2() {
-    ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes $@
-}
-
-function on_remote() {
-    local cmd=$@
-    ssh2 $REMOTE_SERVER $cmd
-}
-
-on_remote true || fail "Remote command failed"
+require_remote_server
 
 IP=1.1.1.7
 REMOTE=1.1.1.8

@@ -245,6 +245,19 @@ function fw_query_val() {
     mlxconfig -d $PCI q | grep $1 | awk {'print $2'}
 }
 
+function ssh2() {
+    ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes $@
+}
+
+function on_remote() {
+    local cmd=$@
+    ssh2 $REMOTE_SERVER $cmd
+}
+
+function require_remote_server() {
+    on_remote true || fail "Remote command failed"
+}
+
 function kmsg() {
     local m=$@
     if [ -w /dev/kmsg ]; then
