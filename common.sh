@@ -703,6 +703,7 @@ function config_sriov() {
         echo 0 > $numvfs
     fi
     echo $num > $numvfs || fail "Failed to config $num VFs on $nic"
+    udevadm trigger -c add -s net &>/dev/null
 }
 
 function disable_sriov() {
