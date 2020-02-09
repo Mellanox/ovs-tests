@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Test TC priorities and chains offload support
-# testing prio and chains old support that was limited to 4 chains.
+# Test TC priorities and chains offload support for higher prios and chains
+# This is to verify we have the new series that removed the limit for 4 chains.
 #
 
 my_dir="$(dirname "$0")"
@@ -72,28 +72,28 @@ start_check_syndrome
 
 echo "adding hw only rules"
 #pass '* -> 7-8' or '1-2 -> *'
-tc_filter add dev $port2 ingress protocol ip prio 1 chain 0 flower skip_sw dst_mac $dst_mac dst_ip 1.1.1.8 action goto chain 1
+tc_filter add dev $port2 ingress protocol ip prio 1 chain 0 flower skip_sw dst_mac $dst_mac dst_ip 1.1.1.8 action goto chain 1024
 # if first fails we probably dont support chains offload
 fail_if_err "TC chains offload is not supported"
-tc_filter add dev $port2 ingress protocol ip prio 1 chain 0 flower skip_sw dst_mac $dst_mac dst_ip 1.1.1.7 action goto chain 1
-tc_filter add dev $port2 ingress protocol ip prio 1 chain 0 flower skip_sw dst_mac $dst_mac src_ip 1.1.1.1 action goto chain 1
-tc_filter add dev $port2 ingress protocol ip prio 1 chain 0 flower skip_sw dst_mac $dst_mac src_ip 1.1.1.2 action goto chain 1
+tc_filter add dev $port2 ingress protocol ip prio 1 chain 0 flower skip_sw dst_mac $dst_mac dst_ip 1.1.1.7 action goto chain 1024
+tc_filter add dev $port2 ingress protocol ip prio 1 chain 0 flower skip_sw dst_mac $dst_mac src_ip 1.1.1.1 action goto chain 1024
+tc_filter add dev $port2 ingress protocol ip prio 1 chain 0 flower skip_sw dst_mac $dst_mac src_ip 1.1.1.2 action goto chain 1024
 #pass '3 -> 6'
-tc_filter add dev $port2 ingress protocol ip prio 2 chain 0 flower skip_sw dst_mac $dst_mac src_ip 1.1.1.3 dst_ip 1.1.1.6 action goto chain 1
+tc_filter add dev $port2 ingress protocol ip prio 2000 chain 0 flower skip_sw dst_mac $dst_mac src_ip 1.1.1.3 dst_ip 1.1.1.6 action goto chain 1024
 #drop otherwise
-tc_filter add dev $port2 ingress protocol ip prio 3 chain 0 flower skip_sw dst_mac $dst_mac dst_ip 1.1.1.0/24 action drop
+tc_filter add dev $port2 ingress protocol ip prio 3000 chain 0 flower skip_sw dst_mac $dst_mac dst_ip 1.1.1.0/24 action drop
 
 #fwd if passed the filter
-tc_filter add dev $port2 ingress protocol ip prio 1 chain 1 flower skip_sw dst_mac $dst_mac src_ip 1.1.1.0/24 action mirred egress redirect dev $port4
+tc_filter add dev $port2 ingress protocol ip prio 1 chain 1024 flower skip_sw dst_mac $dst_mac src_ip 1.1.1.0/24 action mirred egress redirect dev $port4
 
 #trap for testing slow path on second chain
-tc_filter add dev $port2 ingress protocol ip prio 1 chain 2 flower skip_sw dst_mac $dst_mac action mirred egress redirect dev $port4
+tc_filter add dev $port2 ingress protocol ip prio 1 chain 1025 flower skip_sw dst_mac $dst_mac action mirred egress redirect dev $port4
 
 echo "adding sw only rules"
 #arp and reverse traffic (skip_hw)
-tc_filter add dev $port4 ingress protocol ip  prio 5 flower skip_hw action mirred egress redirect dev $port2
-tc_filter add dev $port2 ingress protocol arp prio 4 flower skip_hw action mirred egress redirect dev $port4
-tc_filter add dev $port4 ingress protocol arp prio 4 flower skip_hw action mirred egress redirect dev $port2
+tc_filter add dev $port4 ingress protocol ip  prio 5000 flower skip_hw action mirred egress redirect dev $port2
+tc_filter add dev $port2 ingress protocol arp prio 4000 flower skip_hw action mirred egress redirect dev $port4
+tc_filter add dev $port4 ingress protocol arp prio 4000 flower skip_hw action mirred egress redirect dev $port2
 
 # fail test if we couldn't add all rules
 fail_if_err
