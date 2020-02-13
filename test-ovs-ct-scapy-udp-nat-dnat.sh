@@ -89,6 +89,7 @@ function run() {
     title "Test OVS CT DNAT UDP"
     config_vf ns0 $VF $REP $IP1
     config_vf ns1 $VF2 $REP2 $IP2
+    conntrack -F
 
     PROTO="udp"
     config_ovs
