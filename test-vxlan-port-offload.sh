@@ -14,10 +14,6 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 
-function tc_filter() {
-    eval2 tc filter $@ && success
-}
-
 function clean_ingress() {
     for i in `ls -1 /sys/class/net/` ; do tc qdisc del dev $i ingress 2>/dev/null ; done
 }
@@ -60,7 +56,7 @@ function __test_vxlan() {
         reset_tc $REP
         reset_tc $vx
         title "    - encap"
-        tc_filter add dev $REP protocol 0x806 parent ffff: prio 1 \
+        tc_filter_success add dev $REP protocol 0x806 parent ffff: prio 1 \
                     flower \
                             skip_sw \
                             dst_mac e4:11:22:11:4a:51 \
@@ -73,7 +69,7 @@ function __test_vxlan() {
                     action mirred egress redirect dev $vx
 
         title "    - decap"
-        tc_filter add dev $vx protocol 0x806 parent ffff: prio 2 \
+        tc_filter_success add dev $vx protocol 0x806 parent ffff: prio 2 \
                     flower \
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \

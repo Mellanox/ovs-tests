@@ -1028,6 +1028,10 @@ function tc_filter() {
     eval2 tc filter $@
 }
 
+function tc_filter_success() {
+    eval2 tc filter $@ && success
+}
+
 function tc_test_verbose() {
     tc_verbose="verbose"
     tc filter add dev $REP ingress protocol arp prio 1 flower verbose \

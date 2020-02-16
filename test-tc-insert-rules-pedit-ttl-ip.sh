@@ -16,10 +16,6 @@ my_dir="$(dirname "$0")"
 not_relevant_for_cx4
 not_relevant_for_cx4lx
 
-function tc_filter_success() {
-    tc_filter $@ && success
-}
-
 function tc_filter_failure() {
     std_error_text="$(tc filter $@ 2>&1)"
 

@@ -20,10 +20,6 @@ dst_mac="e4:1d:2d:fd:8b:02"
 dst_port=1234
 id=98
 
-function tc_filter() {
-    eval2 tc filter $@ && success
-}
-
 function verify_hw_rules() {
     local src=$1
     local dst=$2
@@ -101,7 +97,7 @@ function add_vxlan_rule() {
 
     # encap
     title "- encap"
-    tc_filter add dev $REP protocol arp parent ffff: prio 8 \
+    tc_filter_success add dev $REP protocol arp parent ffff: prio 8 \
         flower dst_mac $dst_mac skip_sw \
         action tunnel_key set \
             id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
@@ -109,7 +105,7 @@ function add_vxlan_rule() {
 
     # decap
     title "- decap"
-    tc_filter add dev vxlan1 protocol arp parent ffff: prio 9 \
+    tc_filter_success add dev vxlan1 protocol arp parent ffff: prio 9 \
         flower dst_mac $dst_mac \
             enc_src_ip $remote_ip \
             enc_dst_ip $local_ip \
@@ -130,7 +126,7 @@ function test_add_vxlan_rule() {
 }
 
 function test_add_drop_rule() {
-    tc_filter add block 22 protocol arp parent ffff: prio 5 \
+    tc_filter_success add block 22 protocol arp parent ffff: prio 5 \
         flower dst_mac $dst_mac action drop
     verify_in_hw $NIC 5
     verify_in_hw $NIC2 5
@@ -138,7 +134,7 @@ function test_add_drop_rule() {
 
 function test_add_redirect_rule() {
     title "- bond0 -> $REP"
-    tc_filter add block 22 protocol arp parent ffff: prio 3 \
+    tc_filter_success add block 22 protocol arp parent ffff: prio 3 \
         flower dst_mac $dst_mac \
         action mirred egress redirect dev $REP
     verify_in_hw $NIC 3
@@ -146,7 +142,7 @@ function test_add_redirect_rule() {
     verify_hw_rules 0xffff 0x1
 
     title "- $REP -> bond0"
-    tc_filter add dev $REP protocol arp parent ffff: prio 3 \
+    tc_filter_success add dev $REP protocol arp parent ffff: prio 3 \
         flower dst_mac $dst_mac skip_sw \
         action mirred egress redirect dev bond0
     verify_hw_rules 0x1 0xffff

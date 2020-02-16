@@ -7,12 +7,8 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 
-function tc_filter() {
-    eval2 tc filter $@ && success
-}
-
 function test_basic_L2() {
-    tc_filter add dev $NIC protocol ip parent ffff: \
+    tc_filter_success add dev $NIC protocol ip parent ffff: \
             flower \
                     skip_sw \
                     dst_mac e4:11:22:11:4a:51 \
@@ -21,7 +17,7 @@ function test_basic_L2() {
 }
 
 function test_basic_L3() {
-    tc_filter add dev $NIC protocol ip parent ffff: \
+    tc_filter_success add dev $NIC protocol ip parent ffff: \
             flower \
                     skip_sw \
                     dst_mac e4:11:22:11:4a:51 \
@@ -32,7 +28,7 @@ function test_basic_L3() {
 }
 
 function test_basic_L3_ipv6() {
-    tc_filter add dev $NIC protocol ipv6 parent ffff: \
+    tc_filter_success add dev $NIC protocol ipv6 parent ffff: \
             flower \
                     skip_sw \
                     dst_mac e4:11:22:11:4a:51 \
@@ -43,7 +39,7 @@ function test_basic_L3_ipv6() {
 }
 
 function test_basic_L4() {
-    tc_filter add dev $NIC protocol ip parent ffff: \
+    tc_filter_success add dev $NIC protocol ip parent ffff: \
             flower \
                     skip_sw \
                     dst_mac e4:11:22:11:4a:51 \

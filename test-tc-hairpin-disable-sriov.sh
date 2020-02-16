@@ -8,10 +8,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-function tc_filter() {
-    eval2 tc filter $@ && success
-}
-
 function test_hairpin() {
     local nic=$1
     local nic2=$2
@@ -19,7 +15,7 @@ function test_hairpin() {
     reset_tc $nic
 
     title "Add hairpin rule $nic to $nic2"
-    tc_filter add dev $nic protocol ip parent ffff: \
+    tc_filter_success add dev $nic protocol ip parent ffff: \
           prio 1 flower skip_sw ip_proto udp \
           action mirred egress redirect dev $nic2
 

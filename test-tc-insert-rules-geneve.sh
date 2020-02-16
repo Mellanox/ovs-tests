@@ -7,10 +7,6 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 
-function tc_filter() {
-    eval2 tc filter $@ && success
-}
-
 function __test_geneve() {
     local ip_src=$1
     local ip_dst=$2
@@ -43,7 +39,7 @@ function __test_geneve() {
     reset_tc $REP
     reset_tc $gv
     title "- encap"
-    tc_filter add dev $REP protocol 0x806 parent ffff: prio 1 chain 1 \
+    tc_filter_success add dev $REP protocol 0x806 parent ffff: prio 1 chain 1 \
                     flower \
                             skip_sw \
                             dst_mac e4:11:22:11:4a:51 \
@@ -57,7 +53,7 @@ function __test_geneve() {
                     action mirred egress redirect dev $gv
 
     title "- decap"
-    tc_filter add dev $gv protocol 0x806 parent ffff: prio 2 chain 1 \
+    tc_filter_success add dev $gv protocol 0x806 parent ffff: prio 2 chain 1 \
                     flower \
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
@@ -71,7 +67,7 @@ function __test_geneve() {
     verify_in_hw $gv 2
 
     title "- decap geneve_opts mask 0"
-    tc_filter add dev $gv protocol 0x806 parent ffff: prio 3 chain 1 \
+    tc_filter_success add dev $gv protocol 0x806 parent ffff: prio 3 chain 1 \
                     flower \
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
@@ -86,7 +82,7 @@ function __test_geneve() {
     verify_not_in_hw $gv 3
 
     title "- decap geneve_opts multiple"
-    tc_filter add dev $gv protocol 0x806 parent ffff: prio 4 chain 1 \
+    tc_filter_success add dev $gv protocol 0x806 parent ffff: prio 4 chain 1 \
                     flower \
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \

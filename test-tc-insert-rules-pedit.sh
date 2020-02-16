@@ -11,14 +11,10 @@ my_dir="$(dirname "$0")"
 not_relevant_for_cx4
 
 
-function tc_filter() {
-    eval2 tc filter $@ && success
-}
-
 function test_basic_header_rewrite() {
     title "Add basic pedit rule on representor"
     reset_tc $REP
-    tc_filter add dev $REP protocol ip parent ffff: prio 1 \
+    tc_filter_success add dev $REP protocol ip parent ffff: prio 1 \
         flower skip_sw ip_proto icmp \
         action pedit ex munge eth dst set 20:22:33:44:55:66 \
         pipe action mirred egress redirect dev $REP
@@ -29,7 +25,7 @@ function test_basic_header_rewrite_ip_icmp() {
     # [342371.556405] can't offload re-write of ip proto 1
     # fix commit: [342371.556405] can't offload re-write of ip proto 1
     reset_tc $REP
-    tc_filter add dev $REP protocol ip parent ffff: prio 1 \
+    tc_filter_success add dev $REP protocol ip parent ffff: prio 1 \
         flower skip_sw ip_proto icmp \
         action pedit ex munge ip dst set 7.7.7.2 \
         pipe action mirred egress redirect dev $REP
@@ -40,7 +36,7 @@ function test_complex_header_rewrite_add1() {
     title "Add complex (macs, ttl add) pedit rule rep->nic"
     # EXCEED_LIM          | 0x2EDCC3 |  alloc_modify_header_context: actions number exceeds HW limit
     reset_tc $REP
-    tc_filter add dev $REP protocol ip parent ffff: prio 2 \
+    tc_filter_success add dev $REP protocol ip parent ffff: prio 2 \
         flower skip_sw dst_mac aa:bb:cc:dd:ee:ff ip_proto tcp ip_ttl 40/ff dst_ip 7.7.7.3 \
         action pedit ex \
             munge ip ttl add 0xff \
@@ -54,7 +50,7 @@ function test_complex_header_rewrite_add2() {
     title "Add complex (macs, ips, ttl add) pedit rule rep->nic"
     # EXCEED_LIM          | 0x2EDCC3 |  alloc_modify_header_context: actions number exceeds HW limit
     reset_tc $REP
-    tc_filter add dev $REP protocol ip parent ffff: prio 2 \
+    tc_filter_success add dev $REP protocol ip parent ffff: prio 2 \
         flower skip_sw dst_mac aa:bb:cc:dd:ee:ff ip_proto tcp ip_ttl 40/ff dst_ip 7.7.7.3 \
         action pedit ex \
             munge ip ttl add 0xff \
@@ -70,7 +66,7 @@ function test_complex_header_rewrite_set() {
     title "Add complex (macs, ips, ttl set) pedit rule rep->nic"
     # EXCEED_LIM          | 0x2EDCC3 |  alloc_modify_header_context: actions number exceeds HW limit
     reset_tc $REP
-    tc_filter add dev $REP protocol ip parent ffff: prio 2 \
+    tc_filter_success add dev $REP protocol ip parent ffff: prio 2 \
         flower skip_sw dst_mac aa:bb:cc:dd:ee:ff ip_proto tcp ip_ttl 40/ff dst_ip 7.7.7.3 \
         action pedit ex \
             munge ip ttl set 0xff \

@@ -9,10 +9,6 @@ my_dir="$(dirname "$0")"
 enable_switchdev_if_no_rep $REP
 require_interfaces NIC REP
 
-function tc_filter() {
-    eval2 tc filter $@ && success
-}
-
 function __test_qinq_double_pushpop() {
     local skip=$1
 
@@ -21,7 +17,7 @@ function __test_qinq_double_pushpop() {
     reset_tc $REP
 
     title "    - vlan double push"
-    tc_filter add dev $REP protocol arp parent ffff: prio 1 \
+    tc_filter_success add dev $REP protocol arp parent ffff: prio 1 \
         flower \
         $skip \
         action vlan push id 6 \
@@ -29,7 +25,7 @@ function __test_qinq_double_pushpop() {
 
     title "- Setting rule on nic:$NIC skip:$skip"
     title "    - vlan double pop"
-    tc_filter add dev $NIC protocol 802.1ad parent ffff: prio 2 \
+    tc_filter_success add dev $NIC protocol 802.1ad parent ffff: prio 2 \
         flower \
         $skip \
         vlan_id 1000  \
@@ -51,7 +47,7 @@ function __test_qinq_double_push_one_pop() {
     reset_tc $REP
 
     title "    - vlan double push"
-    tc_filter add dev $REP protocol arp parent ffff: prio 1 \
+    tc_filter_success add dev $REP protocol arp parent ffff: prio 1 \
         flower \
         $skip \
         action vlan push id 6 \
@@ -59,7 +55,7 @@ function __test_qinq_double_push_one_pop() {
 
     title "- Setting rule on nic:$NIC skip:$skip"
     title "    - vlan pop"
-    tc_filter add dev $NIC protocol 802.1ad parent ffff: prio 2 \
+    tc_filter_success add dev $NIC protocol 802.1ad parent ffff: prio 2 \
         flower \
         $skip \
         vlan_id 1000  \
@@ -81,7 +77,7 @@ function __test_qinq_double_push_no_pop() {
     reset_tc $REP
 
     title "    - vlan double push"
-    tc_filter add dev $REP protocol arp parent ffff: prio 1 \
+    tc_filter_success add dev $REP protocol arp parent ffff: prio 1 \
         flower \
         $skip \
         action vlan push id 6 \
@@ -89,7 +85,7 @@ function __test_qinq_double_push_no_pop() {
 
     title "- Setting rule on nic:$NIC skip:$skip"
     title "    - vlan no pop"
-    tc_filter add dev $NIC protocol 802.1ad parent ffff: prio 2 \
+    tc_filter_success add dev $NIC protocol 802.1ad parent ffff: prio 2 \
         flower \
         $skip \
         vlan_id 1000  \
