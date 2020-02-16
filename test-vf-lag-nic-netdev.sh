@@ -17,10 +17,6 @@ dst_mac="e4:1d:2d:fd:8b:02"
 dst_port=1234
 id=98
 
-function tc_filter() {
-    eval2 tc filter $@ && success
-}
-
 function config_shared_block() {
     for i in bond0 $NIC $NIC2 ; do
         tc qdisc del dev $i ingress
