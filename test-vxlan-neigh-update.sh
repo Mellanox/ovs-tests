@@ -32,10 +32,6 @@ function cleanup() {
     ip addr flush dev $NIC
 }
 
-function tc_filter() {
-    eval2 tc filter $@
-}
-
 function neigh_update_test() {
     local local_ip="$1"
     local remote_ip="$2"

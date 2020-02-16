@@ -26,10 +26,6 @@ function cleanup() {
 }
 trap cleanup EXIT
 
-function tc_filter() {
-    eval2 tc filter $@
-}
-
 cleanup
 
 title "Test TC priorities"
