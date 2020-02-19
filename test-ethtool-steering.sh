@@ -25,15 +25,20 @@ function clear_num_rules() {
     local target=$1
 
     for i in `seq 0 $(( target - 1))`; do
-        ethtool -U $NIC delete $i 2>/dev/null
+        eval2 ethtool -U $NIC delete $i 2>/dev/null || return 1
     done
 }
 
 function verify_num_of_rules() {
     local current=$(get_num_of_rules)
     local target=${1:-0}
+    local failed=0
 
-    [ "$current" == "$target" ] && success || err "Wrong number of rules - $current (expected $target)"
+    [ "$current" == "$target" ] && success || failed=1
+    if [ "$failed" == 1 ]; then
+        err "Wrong number of rules - $current (expected $target)"
+        return 1
+    fi
 }
 
 function cleanup() {
@@ -41,14 +46,15 @@ function cleanup() {
 
     local num_of_channels=$(ethtool -l $NIC | grep Combined | tail -1 | cut -f2-)
 
-    [ $num_of_channels -ne $max_ch ] && ethtool -L $NIC combined $max_ch
+    [ $num_of_channels -ne $max_ch ] && eval2 ethtool -L $NIC combined $max_ch
     [ "$(get_num_of_rules)" != "0" ] && clear_num_rules $max_rules
-    ethtool -u $NIC
+    eval2 ethtool -u $NIC || return 1
 }
 
 function test_max_rules() {
     title "Test inserting/deleting of 1024 rules"
 
+    verify_num_of_rules || return
     echo "inserting..."
     for i in `seq 0 $(( max_rules - 1 ))`; do
         eval2 ethtool -U $NIC flow-type tcp4 src-port 1 action -1 loc $i || break
@@ -62,6 +68,7 @@ function test_max_rules() {
 function test_max_channels() {
     title "Test inserting on different channels"
 
+    verify_num_of_rules || return
     echo "inserting..."
     for i in `seq 0 $(( max_ch - 1))`; do
         eval2 ethtool -U $NIC flow-type tcp4 src-port 1 action $i loc $i || break
@@ -77,7 +84,7 @@ function test_max_channels() {
 function eth_scs() {
     local output=$(ethtool -U $@ 2>&1)
 
-    [ -n "$output" ] && err "Command failed ($output): $@"
+    [ -n "$output" ] && err "Command failed ($output): $@" && return 1
 }
 
 function eth_fail() {
@@ -102,7 +109,7 @@ function test_supported_flow_types() {
     title "Test supported fields and values"
 
     eth_scs $NIC flow-type ether src 11:22:33:44:55:66 m ff:00:ff:00:ff:00 \
-        dst 66:55:44:33:22:11 m 00:ff:00:ff:00:ff proto 0x123 m 0xff action 1 loc 0
+        dst 66:55:44:33:22:11 m 00:ff:00:ff:00:ff proto 0x123 m 0xff action 1 loc 0 || return
 
     verify_mask_val 'Src MAC addr: 11:22:33:44:55:66 mask: FF:00:FF:00:FF:00'
     verify_mask_val 'Dest MAC addr: 66:55:44:33:22:11 mask: 00:FF:00:FF:00:FF'
@@ -163,7 +170,7 @@ function verify_hash() {
 
 function test_rx_flow_hash() {
     title "Test rx-flow-hash layers"
-    eth_scs $NIC rx-flow-hash tcp4 sdfn
+    eth_scs $NIC rx-flow-hash tcp4 sdfn || return
     verify_hash tcp4 6
     eth_scs $NIC rx-flow-hash udp4 sdfn
     verify_hash udp4 6
@@ -175,6 +182,9 @@ function test_rx_flow_hash() {
 
 #tests for flow-type
 cleanup
+if [ $? != 0 ]; then
+    fail "ethtool steering is probably not supported"
+fi
 test_max_rules
 test_max_channels
 test_supported_flow_types
