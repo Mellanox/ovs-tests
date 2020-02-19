@@ -42,7 +42,7 @@ function cleanup() {
     local num_of_channels=$(ethtool -l $NIC | grep Combined | tail -1 | cut -f2-)
 
     [ $num_of_channels -ne $max_ch ] && ethtool -L $NIC combined $max_ch
-    [ $(get_num_of_rules) -ne 0 ] && clear_num_rules $max_rules
+    [ "$(get_num_of_rules)" != "0" ] && clear_num_rules $max_rules
     ethtool -u $NIC
 }
 
