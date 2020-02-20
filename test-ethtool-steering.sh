@@ -83,8 +83,13 @@ function test_max_channels() {
 # so eth_scs() & eth_fail() check stderr output
 function eth_scs() {
     local output=$(ethtool -U $@ 2>&1)
+    local failed=0
 
-    [ -n "$output" ] && err "Command failed ($output): $@" && return 1
+    [ -n "$output" ] && failed=1
+    if [ "$failed" == "1" ]; then
+        err "Command failed ($output): $@"
+        return 1
+    fi
 }
 
 function eth_fail() {
