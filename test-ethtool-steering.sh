@@ -151,13 +151,19 @@ function test_supported_flow_types() {
 function test_overflows() {
     title "Test overflow values of rules & channels"
 
-    # over maximum rules & channels
+    verify_num_of_rules
+
+    title "- check rule location max rules"
     expected_error="No space left on device"
     eth_fail $NIC flow-type tcp4 src-port 1 action -1 loc $max_rules
+    verify_num_of_rules
+
+    title "- check rule action max channel"
     expected_error="Invalid argument"
     eth_fail $NIC flow-type tcp4 src-port 1 action $max_ch loc 1
+    verify_num_of_rules
 
-    # channel > current num of channels
+    title "- check channel > current num of channels"
     ethtool -L $NIC combined 1
     eth_fail $NIC flow-type tcp4 src-port 1 action $(( max_ch - 1 )) loc 2
     ethtool -L $NIC combined $max_ch
