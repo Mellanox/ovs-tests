@@ -164,9 +164,9 @@ function test_overflows() {
     verify_num_of_rules
 
     title "- check channel > current num of channels"
-    ethtool -L $NIC combined 1
-    eth_fail $NIC flow-type tcp4 src-port 1 action $(( max_ch - 1 )) loc 2
-    ethtool -L $NIC combined $max_ch
+    eval2 ethtool -L $NIC combined 2
+    eth_fail $NIC flow-type tcp4 src-port 1 action 3 loc 2
+    eval2 ethtool -L $NIC combined $max_ch
 
     verify_num_of_rules
 }
