@@ -25,7 +25,7 @@ function clear_num_rules() {
     local target=$1
 
     for i in `seq 0 $(( target - 1))`; do
-        eval2 ethtool -U $NIC delete $i 2>/dev/null || return 1
+        ethtool -U $NIC delete $i 2>/dev/null
     done
 }
 
