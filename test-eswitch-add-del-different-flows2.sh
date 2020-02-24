@@ -50,7 +50,7 @@ function add_rules_vlan() {
             dst_mac e2:22:33:44:${num1}:$num2 \
             vlan_ethtype 0x800 \
             vlan_id 100 \
-            action mirred egress redirect dev $NIC1
+            action mirred egress redirect dev $REP
     done
 }
 
