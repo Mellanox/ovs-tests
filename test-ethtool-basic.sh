@@ -41,7 +41,8 @@ function test_stats()
 function test_rss()
 {
     local num_rings=4
-    local hkey="00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00"
+    local hkey1="00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00"
+    local hkey2="00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:ff"
 
     title "Test uplink representor RSS"
 
@@ -50,15 +51,20 @@ function test_rss()
 
     ethtool -X $NIC equal 2 || err "Failed to set indirect table size"
     ethtool -x $NIC | grep -q "0:      0     1     0     1     0     1     0     1" || err "Indirect table size is not equal to size that was set by previous command"
+    ethtool -X $NIC equal 1 || err "Failed to reset indirect table size"
 
-    ethtool -X $NIC hfunc xor || err "Failed to set hfunc"
-    ethtool -x $NIC | grep -q "xor: on" || err "Used hfunc type is not equal to hfunc set by previous command"
+    ethtool -X $NIC hfunc xor || err "Failed to set hfunc xor"
+    ethtool -x $NIC | grep -q "xor: on" || err "Expected hfunc xor"
+    ethtool -X $NIC hfunc toeplitz || err "Failed to set hfunc to toeplitz"
+    ethtool -x $NIC | grep -q "toeplitz: on" || err "Expected hfunc toeplitz"
 
-    ethtool -X $NIC hkey $hkey || err "Failed to set hkey"
-    ethtool -x $NIC | grep -q $hkey || err "Used hkey is not equal to hkey set by previous command"
+    ethtool -X $NIC hkey $hkey1 || err "Failed to set hkey1"
+    ethtool -X $NIC hkey $hkey2 || err "Failed to set hkey2"
+    ethtool -x $NIC | grep -q $hkey2 || err "Used hkey is not equal to hkey set by previous command"
 }
 
+start_check_syndrome
 test_stats
 test_rss
-
+check_syndrome
 test_done
