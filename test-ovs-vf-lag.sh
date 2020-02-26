@@ -79,8 +79,10 @@ function test_ovs_restart_block_support() {
     reset_tc bond0 $NIC $NIC2
     start_clean_openvswitch
     ovs-vsctl add-br br-ovs
+    # restart ovs after bridge is created but before bond is added
 
-    # Bug SW #1788801
+    # Bug SW #1788801: [upstream][VF lag] if ovs bridge exist, post ovs restart,
+    # the ovs fails to created shared block qdisc on bond
     restart_openvswitch
 
     ovs-vsctl add-port br-ovs bond0
