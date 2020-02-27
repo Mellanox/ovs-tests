@@ -58,9 +58,11 @@ function test_rss()
     ethtool -X $NIC hfunc toeplitz || err "Failed to set hfunc to toeplitz"
     ethtool -x $NIC | grep -q "toeplitz: on" || err "Expected hfunc toeplitz"
 
+    local backup_hkey=`ethtool -x ens1f0np0 | grep -A1 "RSS hash key:" | tail -1`
     ethtool -X $NIC hkey $hkey1 || err "Failed to set hkey1"
     ethtool -X $NIC hkey $hkey2 || err "Failed to set hkey2"
     ethtool -x $NIC | grep -q $hkey2 || err "Used hkey is not equal to hkey set by previous command"
+    ethtool -X $NIC hkey $backup_hkey || err "Failed to reset hkey"
 }
 
 start_check_syndrome
