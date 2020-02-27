@@ -14,8 +14,11 @@ enable_switchdev_if_no_rep $REP
 require_interfaces NIC
 
 max_ch=$(ethtool -l $NIC | grep Combined | head -1 | cut -f2-)
-# max_rules taken from en_fs_ethtool.c:MAX_NUM_OF_ETHTOOL_RULES
+# max_rules is hard coded 1024 in en_fs_ethtool.c:MAX_NUM_OF_ETHTOOL_RULES
+# but we could fail with resource busy and need to try again.
+# to check less.
 max_rules=1024
+max_rules_to_test=500
 
 function get_num_of_rules() {
     ethtool -u $NIC | grep Total | cut -d ' ' -f 2
@@ -52,14 +55,14 @@ function cleanup() {
 }
 
 function test_max_rules() {
-    title "Test inserting/deleting of 1024 rules"
+    title "Test inserting/deleting of $max_rules_to_test rules"
 
     verify_num_of_rules || return
     echo "inserting..."
-    for i in `seq 0 $(( max_rules - 1 ))`; do
+    for i in `seq 0 $(( max_rules_to_test - 1 ))`; do
         eval2 ethtool -U $NIC flow-type tcp4 src-port 1 action -1 loc $i || break
     done
-    verify_num_of_rules $max_rules
+    verify_num_of_rules $max_rules_to_test
     echo "deleting..."
     clear_num_rules $max_rules
     verify_num_of_rules
