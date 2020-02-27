@@ -4,6 +4,7 @@
 #
 # Bug SW #1788801: [upstream][VF lag] if ovs bridge exist, post ovs restart, the ovs fails to created shared block qdisc on bond
 # Bug SW #1806091: VF-LAG vlan after openvswitch restart ingress traffic not offloaded
+# Bug SW #2066643: [Upstream] Traffic and rules fail to pass offload with no offload on one side
 #
 
 my_dir="$(dirname "$0")"
@@ -20,6 +21,13 @@ function verify_ingress_block() {
     done
 }
 
+function wa_for_port2_missing_ingress_block() {
+    # XXX seems we dont get netdev event for slave NIC2
+    # so cause an event.
+    ip link set dev $NIC2 down
+    ip link set dev $NIC2 up
+}
+
 function test_config_ovs_bond_port_order() {
     title "Test config ovs bond port order"
     reset_tc bond0 $NIC $NIC2
@@ -31,10 +39,7 @@ function test_config_ovs_bond_port_order() {
     ovs-vsctl add-port br-ovs $REP
     ovs-vsctl add-port br-ovs bond0
 
-    # XXX seems we dont get netdev event for slave NIC2
-    # so cause an event.
-    ip link set dev $NIC2 down
-    ip link set dev $NIC2 up
+    wa_for_port2_missing_ingress_block
 
     verify_ingress_block
     del_all_bridges
@@ -87,10 +92,34 @@ function test_ovs_restart_block_support() {
 
     ovs-vsctl add-port br-ovs bond0
 
-    # XXX seems we dont get netdev event for slave NIC2
-    # so cause an event.
-    ip link set dev $NIC2 down
-    ip link set dev $NIC2 up
+    wa_for_port2_missing_ingress_block
+
+    verify_ingress_block
+    del_all_bridges
+}
+
+# OVS can't reattach qdisc to bond after restart if
+# ingress block have rules on it
+function test_ovs_restart_block_reattach {
+    title "Test block reattach after ovs restart"
+    reset_tc bond0 $NIC $NIC2
+    start_clean_openvswitch
+    ovs-vsctl add-br br-ovs
+    ovs-vsctl add-port br-ovs $REP
+    ovs-vsctl add-port br-ovs bond0
+
+    local id=$(tc qdisc show dev bond0 | grep ingress_block | awk '{ print $7 }')
+    if [[ -z "$id" ]];then
+        err "Failed to get bond ingress_block id."
+        del_all_bridges
+        return
+    fi
+    title "- Add rule to the ingress_block"
+    tc_filter add block $id protocol ip parent ffff: prio 1 flower action drop
+
+    restart_openvswitch
+
+    wa_for_port2_missing_ingress_block
 
     verify_ingress_block
     del_all_bridges
@@ -118,4 +147,5 @@ test_config_ovs_bond_port_order
 test_config_ovs_bond_simple
 test_config_ovs_bond_after_cleanup
 test_ovs_restart_block_support
+test_ovs_restart_block_reattach
 test_done
