@@ -93,8 +93,9 @@ function get_tx_pkts() {
 
 function __setup_common() {
     [ -f /etc/os-release ] && . /etc/os-release
-    [ -n "$PRETTY_NAME" ] && echo $PRETTY_NAME
-    uname -nsr
+    [ -n "$PRETTY_NAME" ] && log $PRETTY_NAME
+    local tmp=`uname -nsr`
+    log $tmp
 
     if [ "$NIC" == "" ]; then
         fail "Missing NIC"
@@ -140,7 +141,7 @@ function __setup_common() {
     fi
 
     status+=" $device"
-    echo $status
+    log $status
 }
 
 function is_bonded() {
