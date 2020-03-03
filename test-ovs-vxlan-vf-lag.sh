@@ -11,8 +11,8 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-REMOTE_SERVER=${1:?Require remote server}
-REMOTE_NIC=${2:-ens1f0}
+REMOTE_SERVER=${REMOTE_SERVER:-$1}
+REMOTE_NIC=${REMOTE_NIC:-$2}
 REMOTE_NIC2=${3:-ens1f1}
 
 require_remote_server

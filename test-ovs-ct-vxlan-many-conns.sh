@@ -12,8 +12,8 @@ pktgen=$DIR/scapy-traffic-tester.py
 
 require_module act_ct
 
-REMOTE_SERVER=${1:?Require remote server}
-REMOTE_NIC=${2:-ens1f0}
+REMOTE_SERVER=${REMOTE_SERVER:-$1}
+REMOTE_NIC=${REMOTE_NIC:-$2}
 
 require_remote_server
 
