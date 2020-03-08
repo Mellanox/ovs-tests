@@ -35,6 +35,8 @@ tc filter del dev $NIC parent ffff: pref 8 handle 0x1 flower
 tc filter del dev $NIC parent ffff: pref 9 handle 0x1 flower
 EOF
 
+enable_switchdev
+
 title "Test for groups overlapping"
 start_check_syndrome
 reset_tc $NIC
