@@ -6,6 +6,7 @@ import sys
 import argparse
 import subprocess
 import yaml
+import traceback
 from ansi2html import Ansi2HTMLConverter
 from fnmatch import fnmatch
 from glob import glob
@@ -21,7 +22,7 @@ IGNORE_TESTS = []
 SKIP_TESTS = {}
 SKIP_NOT_IN_DB = []
 TESTS_SUMMARY = []
-
+FW_VERSION = None
 COLOURS = {
     "black": 30,
     "red": 31,
@@ -40,6 +41,34 @@ COLOURS = {
     "light-cyan": 96,
     "white": 97,
 }
+
+def get_currnet_fw():
+    global FW_VERSION
+    if FW_VERSION is None:
+        try:
+            interface = None
+            if "CONFIG" not in os.environ:
+                print "CONFIG file is missing !!! consider export CONFIG environment variable."
+                return interface
+            with open(os.environ.get('CONFIG'), 'r') as f1:
+                for line in f1.readlines():
+                    if "NIC=" in line:
+                        interface = line.split("NIC=")[1].strip()
+            net_device_pci = None
+            pci_devices = subprocess.check_output("lspci -D | grep Ethernet | grep Mellanox |"
+                                                  " cut -d' ' -f1", shell=True).split()
+            for device in pci_devices:
+                for net_device in os.listdir("/sys/class/pci_bus/0000:00/device/%s/net/" % device):
+                    if net_device == interface:
+                        net_device_pci = device
+                        FW_VERSION = subprocess.check_output("flint -d %s -qq q |"
+                                                             " grep \"FW Version\"" % net_device_pci,
+                                                             shell=True).split()[2]
+                        return FW_VERSION
+        except Exception as e:
+            print "Failed reading CONFIG file:%s" % e
+            traceback.print_exc()
+    return FW_VERSION
 
 
 class ExecCmdFailed(Exception):
@@ -178,6 +207,11 @@ def update_skip_according_to_db(db_file):
         for kernel in data['tests'][t].get('ignore_kernel', {}):
             if re.search("^%s$" % kernel, os.uname()[2]):
                 for bug in data['tests'][t]['ignore_kernel'][kernel]:
+                    bugs_list.append(bug)
+
+        for fw in data['tests'][t].get('ignore_fw', {}):
+            if re.search("^%s$" % fw, get_currnet_fw()):
+                for bug in data['tests'][t]['ignore_fw'][fw]:
                     bugs_list.append(bug)
 
         for bug in bugs_list:
