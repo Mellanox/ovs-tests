@@ -22,7 +22,6 @@ IGNORE_TESTS = []
 SKIP_TESTS = {}
 SKIP_NOT_IN_DB = []
 TESTS_SUMMARY = []
-FW_VERSION = None
 COLOURS = {
     "black": 30,
     "red": 31,
@@ -41,34 +40,6 @@ COLOURS = {
     "light-cyan": 96,
     "white": 97,
 }
-
-def get_currnet_fw():
-    global FW_VERSION
-    if FW_VERSION is None:
-        try:
-            interface = None
-            if "CONFIG" not in os.environ:
-                print "CONFIG file is missing !!! consider export CONFIG environment variable."
-                return interface
-            with open(os.environ.get('CONFIG'), 'r') as f1:
-                for line in f1.readlines():
-                    if "NIC=" in line:
-                        interface = line.split("NIC=")[1].strip()
-            net_device_pci = None
-            pci_devices = subprocess.check_output("lspci -D | grep Ethernet | grep Mellanox |"
-                                                  " cut -d' ' -f1", shell=True).split()
-            for device in pci_devices:
-                for net_device in os.listdir("/sys/class/pci_bus/0000:00/device/%s/net/" % device):
-                    if net_device == interface:
-                        net_device_pci = device
-                        FW_VERSION = subprocess.check_output("flint -d %s -qq q |"
-                                                             " grep \"FW Version\"" % net_device_pci,
-                                                             shell=True).split()[2]
-                        return FW_VERSION
-        except Exception as e:
-            print "Failed reading CONFIG file:%s" % e
-            traceback.print_exc()
-    return FW_VERSION
 
 
 class ExecCmdFailed(Exception):
@@ -187,22 +158,52 @@ def glob_tests(args, tests):
             tests.remove(test)
 
 
+def get_currnet_fw():
+    if "CONFIG" not in os.environ:
+        print "ERROR: Cannot ignore by FW because CONFIG environment variable is missing."
+        return None
+
+    config = os.environ.get('CONFIG')
+    try:
+        with open(config, 'r') as f1:
+            for line in f1.readlines():
+                if "NIC=" in line:
+                    interface = line.split("NIC=")[1].strip()
+    except IOError:
+        print "ERROR: Cannot read config %s" % config
+        return None
+
+    if not interface:
+        print "ERROR: Cannot find NIC in CONFIG."
+        return None
+
+    fw = subprocess.check_output("ethtool -i enp0s8f0 | grep firmware-version | awk {'print $2'}", shell=True).strip()
+    return fw
+
+
 def update_skip_according_to_db(db_file):
     global SKIP_TESTS, SKIP_NOT_IN_DB
+
     data = {}
     print "Reading DB: %s" % db_file
     with open(db_file) as yaml_data:
         data = yaml.safe_load(yaml_data)
     print "Description: %s" % data.get("description", "DB doesn't include a description")
+
     rm = MlxRedmine()
     test_will_run = False
+    current_fw_ver = get_currnet_fw()
+
     for t in TESTS:
         t = os.path.basename(t)
+
         if t not in data['tests']:
             SKIP_NOT_IN_DB.append(t)
             continue
+
         if data['tests'][t] is None:
             data['tests'][t] = {}
+
         bugs_list = []
         for kernel in data['tests'][t].get('ignore_kernel', {}):
             if re.search("^%s$" % kernel, os.uname()[2]):
@@ -210,7 +211,7 @@ def update_skip_according_to_db(db_file):
                     bugs_list.append(bug)
 
         for fw in data['tests'][t].get('ignore_fw', {}):
-            if re.search("^%s$" % fw, get_currnet_fw()):
+            if re.search("^%s$" % fw, current_fw_ver):
                 for bug in data['tests'][t]['ignore_fw'][fw]:
                     bugs_list.append(bug)
 
