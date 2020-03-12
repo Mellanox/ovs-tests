@@ -28,19 +28,6 @@ function cleanup() {
     done
 }
 
-function config_vf() {
-    local ns=$1
-    local vf=$2
-    local rep=$3
-    local ip=$4
-
-    echo "$ns : $vf ($ip) -> $rep"
-    ifconfig $rep 0 up
-    ip netns add $ns
-    ip link set $vf netns $ns
-    ip netns exec $ns ifconfig $vf $ip/24 up
-}
-
 if [ $MULTIPATH == 1 ]; then
     disable_sriov
     enable_multipath || fail

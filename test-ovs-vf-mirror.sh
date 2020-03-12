@@ -27,19 +27,6 @@ function cleanup() {
 }
 trap cleanup EXIT
 
-function config_vf() {
-    local ns=$1
-    local vf=$2
-    local rep=$3
-    local ip=$4
-
-    echo "[$ns] $vf ($ip) -> $rep"
-    ifconfig $rep 0 up
-    ip netns add $ns
-    ip link set $vf netns $ns
-    ip netns exec $ns ifconfig $vf $ip/24 up
-}
-
 function config_ovs() {
     echo "setup ovs"
     start_clean_openvswitch

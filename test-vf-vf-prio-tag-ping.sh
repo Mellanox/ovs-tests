@@ -26,19 +26,6 @@ function cleanup() {
     done
 }
 
-function config_vf() {
-    local ns=$1
-    local vf=$2
-    local rep=$3
-    local ip=$4
-
-    echo "$ns : $vf ($ip) -> $rep"
-    ifconfig $rep 0 up
-    ip netns add $ns
-    ip link set $vf netns $ns
-    ip netns exec $ns ifconfig $vf $ip/24 up
-}
-
 function set_prio_tag_mode() {
     local mode=$1
     fw_config PRIO_TAG_REQUIRED_EN=$mode
