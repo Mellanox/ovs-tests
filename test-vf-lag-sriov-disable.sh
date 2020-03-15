@@ -12,6 +12,8 @@ require_module bonding
 
 function config() {
     echo "- Config"
+    config_sriov 0
+    config_sriov 0 $NIC2
     config_bonding $NIC $NIC2
     config_sriov 2
     config_sriov 2 $NIC2
