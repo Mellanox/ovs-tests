@@ -224,6 +224,7 @@ function cloud_fw_reset() {
     unload_modules
     /workspace/cloud_tools/cloud_firmware_reset.sh -ips $ip || err "cloud_firmware_reset failed"
     load_modules
+    wait_for_ifaces
 }
 
 function is_cloud() {
