@@ -39,7 +39,7 @@ function __test_geneve() {
     reset_tc $REP
     reset_tc $gv
     title "- encap"
-    tc_filter_success add dev $REP protocol 0x806 parent ffff: prio 1 chain 1 \
+    tc_filter_success add dev $REP protocol 0x806 parent ffff: prio 1 chain 0 \
                     flower \
                             skip_sw \
                             dst_mac e4:11:22:11:4a:51 \
@@ -53,7 +53,7 @@ function __test_geneve() {
                     action mirred egress redirect dev $gv
 
     title "- decap"
-    tc_filter_success add dev $gv protocol 0x806 parent ffff: prio 2 chain 1 \
+    tc_filter_success add dev $gv protocol 0x806 parent ffff: prio 2 chain 0 \
                     flower \
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
@@ -66,8 +66,21 @@ function __test_geneve() {
                     action mirred egress redirect dev $REP
     verify_in_hw $gv 2
 
+    title "- decap geneve_opts with goto"
+    tc_filter_success add dev $gv protocol 0x806 parent ffff: prio 12 chain 0 \
+                    flower \
+                            dst_mac e4:11:22:11:4a:51 \
+                            src_mac e4:11:22:11:4a:50 \
+                            enc_src_ip $ip_src \
+                            enc_dst_ip $ip_dst \
+                            enc_dst_port $geneve_port \
+                            enc_key_id 100 \
+                            geneve_opts 0102:34:05060708 \
+                    action goto chain 1
+    verify_in_hw $gv 12
+
     title "- decap geneve_opts mask 0"
-    tc_filter_success add dev $gv protocol 0x806 parent ffff: prio 3 chain 1 \
+    tc_filter_success add dev $gv protocol 0x806 parent ffff: prio 3 chain 0 \
                     flower \
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
@@ -82,7 +95,7 @@ function __test_geneve() {
     verify_not_in_hw $gv 3
 
     title "- decap geneve_opts multiple"
-    tc_filter_success add dev $gv protocol 0x806 parent ffff: prio 4 chain 1 \
+    tc_filter_success add dev $gv protocol 0x806 parent ffff: prio 4 chain 0 \
                     flower \
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
