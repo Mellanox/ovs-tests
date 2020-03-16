@@ -138,8 +138,8 @@ function run() {
 
     # initial traffic
     # this part is important when using multi-table CT.
-    # the firsat traffic will cause ovs to create initial tc rules
-    # and also tuple rules. but since ovs will add the ovs somewhat late
+    # the initial traffic will cause ovs to create initial tc rules
+    # and also tuple rules. but since ovs adds the rules somewhat late
     # conntrack will already mark the conn est. and tuple rules will be in hw.
     # so we start second traffic which will be faster added to hw before
     # conntrack and this will check the miss rule in our driver is ok
