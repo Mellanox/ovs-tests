@@ -274,6 +274,11 @@ function run() {
     title "Traffic partially in hardware, match on geneve with opts in software"
     on_remote timeout 10 iperf3 -c $ip1 -t 5 -p 8000 || err "failed iperf3 port 8000"
 
+    if [ $TEST_FAILED == 1 ]; then
+        # currently fail_if_err waits for bgs so kill iperf servers first
+        killall iperf3
+    fi
+
     fail_if_err
 
     title "Verify tc stats"
