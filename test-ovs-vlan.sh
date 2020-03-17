@@ -29,7 +29,7 @@ bind_vfs
 
 function cleanup_remote() {
     on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip l del dev vlan_dev &>/dev/null
+    on_remote ip l del dev $vlan_dev &>/dev/null
 }
 
 function cleanup() {
