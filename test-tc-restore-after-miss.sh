@@ -99,7 +99,7 @@ function has_pkts() {
 function run() {
     local geneve_opts="geneve_opts 1234:56:0708090a"
 
-    title "Test CT geneve udp"
+    title "Test geneve"
 
     config_remote
     config_geneve $NIC $tun_loc
@@ -250,10 +250,11 @@ function run() {
     fail_if_err
 
     title "Test tunnel connectivity"
-    ping $tun_rem -c 1
+    ping $tun_rem -c 1 -w 1 || err "ping failed"
     n=`ip n | grep $tun_rem | cut -d " " -f 1-5`
     ip n r $n
-    on_remote ping $tun_loc -c 1
+    on_remote ping $tun_loc -c 1 -w 1
+    fail_if_err
 
     title "Run traffic"
     iperf3 -s -p 5000 -1 &
