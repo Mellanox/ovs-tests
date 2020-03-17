@@ -16,7 +16,7 @@ require_module act_ct
 
 REMOTE_SERVER=${REMOTE_SERVER:-$1}
 REMOTE_NIC=${REMOTE_NIC:-$2}
-REMOTE_NIC2=${3:-ens1f1}
+REMOTE_NIC2=${REMOTE_NIC2:-$3}
 
 require_remote_server
 
