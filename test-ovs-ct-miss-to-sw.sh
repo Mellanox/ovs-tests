@@ -115,7 +115,7 @@ function run_scpy_tcp() {
     ip netns exec ns2 python -c "from scapy.all import *; send(IP(src=\"$ip2\",dst=\"$ip1\")/TCP(sport=$dport,dport=$sport,seq=52,ack=107,flags='A')/\"B1\")"
     ip netns exec ns2 python -c "from scapy.all import *; send(IP(src=\"$ip2\",dst=\"$ip1\")/TCP(sport=$dport,dport=$sport,seq=54,ack=107,flags='A')/\"B2\")"
 
-    est=`conntrack -L 2>/dev/null | grep $ip1 | grep $sport | grep $ip2 | grep $dport`
+    est=`cat /proc/net/nf_conntrack 2>/dev/null | grep $ip1 | grep $sport | grep $ip2 | grep $dport`
 
     #------------------ END - teardown  --------------
     ip netns exec ns1 python -c "from scapy.all import *; send(IP(src=\"$ip1\",dst=\"$ip2\")/TCP(sport=$sport,dport=$dport,seq=107,ack=56,flags='FA'))"
@@ -147,7 +147,7 @@ function test1() {
     est=""
     run_scpy_tcp
     echo "Connection was $est"
-    echo $est | grep -v "ESTABLISHED" && err "Connection wasn't established"
+    echo $est | grep -vP "ESTABLISHED|OFFLOAD" && err "Connection wasn't established/offloaded"
 
     check_ovs_stats tc "6 3 0"
     check_ovs_stats ovs "5 3"
