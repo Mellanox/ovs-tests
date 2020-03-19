@@ -266,6 +266,7 @@ function require_remote_server() {
     if [ -z "$REMOTE_NIC" ]; then
         fail "Remote nic is not configured"
     fi
+    log "Remote server $REMOTE_SERVER"
     on_remote true || fail "Remote command failed"
 }
 
