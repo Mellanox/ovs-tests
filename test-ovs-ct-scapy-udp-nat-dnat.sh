@@ -119,6 +119,9 @@ function run() {
     timeout $t ip netns exec ns1 tcpdump -qnnei $VF2 -c 4 dst $IP2 and dst port $NAT_PORT &
     pid4=$!
 
+    title "Verify traffic"
+    test_have_traffic $pid1
+
     title "Check for dnat rule"
     ovs_dump_tc_flows --names
     ovs_dump_tc_flows --names | grep -q "nat(dst="
@@ -133,7 +136,6 @@ function run() {
     wait $pk1 $pk2 2>/dev/null
  
     title "Verify traffic offloaded"
-    test_have_traffic $pid1
     test_no_traffic $pid2
     
     title "Verify nat traffic on $VF1"
