@@ -4,6 +4,7 @@ import os
 import sys
 import argparse
 import time
+import random
 from scapy.all import *
 
 
@@ -17,11 +18,11 @@ def parse_args():
                         help='Source ip')
     parser.add_argument('--dst-ip',
                         help='Destination ip')
-    parser.add_argument('--src-port', type=int, default=1026,
+    parser.add_argument('--src-port', type=int, default=0,
                         help='Source port')
     parser.add_argument('--src-port-count', type=int, default=1,
                         help='Source port count. helper to get more streams.')
-    parser.add_argument('--dst-port', type=int, default=3000,
+    parser.add_argument('--dst-port', type=int, default=0,
                         help='Destination port')
     parser.add_argument('--dst-port-count', type=int, default=1,
                         help='Destination port count. helper to get more streams.')
@@ -100,6 +101,11 @@ def run_listener(args):
 def run_client(args):
     print "---- Run as client ----"
 
+    if not args.src_port:
+        args.src_port = random.randrange(1026, 1999)
+    if not args.dst_port:
+        args.dst_port = random.randrange(2026, 2999)
+
     needed = ('dev', 'src_ip', 'dst_ip', 'src_port', 'src_port_count',
               'dst_port', 'dst_port_count', 'pkt_count', 'inter', 'time')
     verify_args(args, needed)
@@ -116,6 +122,7 @@ def run_client(args):
     data = 'Z'
     data_size = 1024
     payload = data*data_size
+
     for sport1 in range(args.src_port, args.src_port + args.src_port_count):
         for dport1 in range(args.dst_port, args.dst_port + args.dst_port_count):
             pkt = (IP(src=args.src_ip, dst=args.dst_ip)/
