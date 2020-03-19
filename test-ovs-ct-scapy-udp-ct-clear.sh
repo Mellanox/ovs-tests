@@ -81,11 +81,7 @@ function run() {
     ip netns exec ns0 $pktgen -i $VF1 --src-ip $IP1 --dst-ip $IP2 --time $t &
     pk2=$!
 
-    # first 4 packets not offloaded until conn is in established state.
-    sleep 2
-    echo "sniff packets on $REP"
-    timeout $t tcpdump -qnnei $REP -c 1 $proto &
-    pid2=$!
+    test_have_traffic $pid1
 
     title "Check for ct_clear rule"
     ovs_dump_tc_flows --names
@@ -99,10 +95,6 @@ function run() {
     sleep $t
     kill $pk1 &>/dev/null
     wait $pk1 $pk2 2>/dev/null
-
-    # expected not to be offloaded to dont check.
-    test_have_traffic $pid1
-#    test_no_traffic $pid2
 
     ovs-vsctl del-br br-ovs
 
