@@ -87,6 +87,10 @@ function run() {
     timeout $t tcpdump -qnnei $REP -c 1 $proto &
     pid2=$!
 
+    sleep $t
+    kill $pk1 &>/dev/null
+    wait $pk1 $pk2 2>/dev/null
+
     title "Check for ct_clear rule"
     ovs_dump_tc_flows --names
     ovs_dump_tc_flows --names | grep -q ct_clear
@@ -95,10 +99,6 @@ function run() {
     else
         err "Missing ct_clear rule"
     fi
-
-    sleep $t
-    kill $pk1 &>/dev/null
-    wait $pk1 $pk2 2>/dev/null
 
     # expected not to be offloaded to dont check.
     test_have_traffic $pid1
