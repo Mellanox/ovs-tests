@@ -1,8 +1,7 @@
 #!/bin/bash
 #
-# Test OVS CT ct_clear action
-# Currently only checking ct_clear translation from ovs to tc but not if
-# ct_clear action actually did what it needs to.
+# Test OVS CT NAT NOP udp traffic
+# Basically just empty nat action that shouln't do anything just to check traffic still works.
 #
 
 my_dir="$(dirname "$0")"
