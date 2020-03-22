@@ -373,12 +373,20 @@ function config_vf() {
     local vf=$2
     local rep=$3
     local ip=$4
+    local prefix=24
+
+    if [[ "$ip" == *":"* ]]; then
+        # ipv6
+        prefix=64
+    fi
 
     echo "[$ns] $vf ($ip) -> $rep"
-    ifconfig $rep 0 up
+    ip address flush dev $rep
+    ip link set dev $rep up
     ip netns add $ns
     ip link set $vf netns $ns
-    ip netns exec $ns ifconfig $vf $ip/24 up
+    ip -netns $ns address replace dev $vf $ip/$prefix
+    ip -netns $ns link set $vf up
 }
 
 function config_reps() {
