@@ -21,9 +21,6 @@
 # Bug SW #1497154: FW errors and use-after-free KASAN error after unloading mlx5_core
 #
 
-NIC=${1:-ens5f0}
-REP=${NIC}_0
-
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
@@ -31,7 +28,7 @@ function add_tc_rule_to_rep() {
     title "add tc rule to rep $REP"
     reset_tc $REP
     tc_filter add dev $REP protocol ip parent ffff: prio 1 \
-        flower skip_sw indev $REP \
+        flower skip_sw \
         src_mac e1:22:33:44:00:00 \
         dst_mac e2:22:33:44:00:00 \
         action drop
@@ -41,7 +38,7 @@ function add_tc_rule_to_pf() {
     title "add tc rule to pf"
     reset_tc $NIC
     tc_filter add dev $NIC protocol ip parent ffff: prio 2 \
-        flower skip_sw indev $NIC \
+        flower skip_sw \
         src_mac e1:22:33:44:00:01 \
         dst_mac e2:22:33:44:00:01 \
         action drop
@@ -58,8 +55,9 @@ function testA() {
 function testB() {
     title "TEST B - switchdev mode with tc rules"
 
-    if [ "$devlink_compat" = 1 ]; then
-       # not relevant in backport as mlx5_core is dependent on cls_flower
+    modinfo -F depends cls_flower | grep -q mlx5_core
+    if [ $? == 0 ]; then
+       # not relevant in backport if mlx5_core is dependent on cls_flower
        # and we cannot remove cls_flower when there are rules.
        echo "Test not relevant in backport"
        return
@@ -82,8 +80,9 @@ function testB() {
 function testC() {
     title "TEST C - legacy mode with tc rules"
 
-    if [ "$devlink_compat" = 1 ]; then
-       # not relevant in backport as mlx5_core is dependent on cls_flower
+    modinfo -F depends cls_flower | grep -q mlx5_core
+    if [ $? == 0 ]; then
+       # not relevant in backport if mlx5_core is dependent on cls_flower
        # and we cannot remove cls_flower when there are rules.
        echo "Test not relevant in backport"
        return
