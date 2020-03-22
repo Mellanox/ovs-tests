@@ -68,15 +68,16 @@ function run() {
 
     # first 4 packets not offloaded until conn is in established state.
     sleep 2
+    test_have_traffic $pid1
+
     echo "sniff packets on $REP"
-    timeout $t tcpdump -qnnei $REP -c 1 $proto &
+    timeout $t tcpdump -qnnei $REP -c 10 $proto &
     pid2=$!
 
     sleep $t
     kill $pk1 &>/dev/null
     wait $pk1 $pk2 2>/dev/null
 
-    test_have_traffic $pid1
     test_no_traffic $pid2
 
     ovs-vsctl del-br br-ovs
