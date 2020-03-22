@@ -109,11 +109,16 @@ function run() {
 
     # first 4 packets not offloaded until conn is in established state.
     sleep 2
+    title "test for traffic on $REP"
+    test_have_traffic $pid1
+    title "test for traffic on $REP3"
+    test_have_traffic $pid2
+
     echo "sniff packets on $REP"
-    timeout $t tcpdump -qnnei $REP -c 1 $proto &
+    timeout $t tcpdump -qnnei $REP -c 5 $proto &
     pid3=$!
     echo "sniff packets on $REP3"
-    timeout $t tcpdump -qnnei $REP3 -c 1 $proto &
+    timeout $t tcpdump -qnnei $REP3 -c 5 $proto &
     pid4=$!
 
     sleep $t
@@ -121,10 +126,6 @@ function run() {
     kill $pk2 &>/dev/null
     wait $pk3 $pk4 2>/dev/null
 
-    title "test for traffic on $REP"
-    test_have_traffic $pid1
-    title "test for traffic on $REP3"
-    test_have_traffic $pid2
     title "test for no traffic on $REP"
     test_no_traffic $pid3
     title "test for no traffic on $REP3"
