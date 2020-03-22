@@ -1044,7 +1044,7 @@ function wait_for_ifaces() {
 
 function unload_modules() {
     if [ -e /etc/init.d/openibd ]; then
-        service openibd stop || fail "Failed to stop openibd service"
+        service openibd force-stop || fail "Failed to stop openibd service"
     else
         modprobe -r -q mlx5_ib || true
         modprobe -r mlx5_core || fail "Failed to unload modules"
