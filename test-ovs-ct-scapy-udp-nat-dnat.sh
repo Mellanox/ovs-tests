@@ -96,8 +96,11 @@ function run() {
 
     # first 4 packets not offloaded until conn is in established state.
     sleep 2
+    title "Verify traffic"
+    test_have_traffic $pid1
+
     echo "sniff packets on $REP"
-    timeout $t tcpdump -qnnei $REP -c 1 $PROTO &
+    timeout $t tcpdump -qnnei $REP -c 4 $PROTO &
     pid2=$!
 
     # Make sure NAT works as expected
@@ -105,9 +108,6 @@ function run() {
     pid3=$!
     timeout $t ip netns exec ns1 tcpdump -qnnei $VF2 -c 4 dst $IP2 and dst port $NAT_PORT &
     pid4=$!
-
-    title "Verify traffic"
-    test_have_traffic $pid1
 
     title "Check for dnat rule"
     ovs_dump_tc_flows --names
