@@ -1043,6 +1043,7 @@ function wait_for_ifaces() {
 }
 
 function unload_modules() {
+    log "unload modules"
     if [ -e /etc/init.d/openibd ]; then
         service openibd force-stop || fail "Failed to stop openibd service"
     else
@@ -1052,6 +1053,7 @@ function unload_modules() {
 }
 
 function load_modules() {
+    log "load modules"
     if [ -e /etc/init.d/openibd ]; then
         service openibd start || fail "Failed to start openibd service"
     else
@@ -1060,6 +1062,7 @@ function load_modules() {
 }
 
 function reload_modules() {
+    log "reload modules"
     if [ -e /etc/init.d/openibd ]; then
         service openibd force-restart || fail "Failed to restart openibd service"
     else
