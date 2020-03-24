@@ -6,6 +6,7 @@ import sys
 import argparse
 import subprocess
 import yaml
+import random
 import traceback
 from ansi2html import Ansi2HTMLConverter
 from fnmatch import fnmatch
@@ -72,6 +73,9 @@ def parse_args():
                         help='Log dir to save all logs under')
     parser.add_argument('--html', action='store_true',
                         help='Save log files in HTML and a summary')
+    parser.add_argument('--randomize', '-r', default=False,
+                        help='Randomize the order of the tests',
+                        action='store_true')
 
     return parser.parse_args()
 
@@ -132,8 +136,12 @@ def format_result(res, out='', html=False):
     return deco(res, color, html)
 
 
-def sort_tests(tests):
-    tests.sort(key=lambda x: os.path.basename(x).split('.')[0])
+def sort_tests(args, tests):
+    if args.randomize:
+        print 'Randomizing the tests order'
+        random.shuffle(tests)
+    else:
+        tests.sort(key=lambda x: os.path.basename(x).split('.')[0])
 
 
 def glob_tests(args, tests):
@@ -337,7 +345,7 @@ def main(args):
 
     exclude.extend(IGNORE_TESTS)
     glob_tests(args, TESTS)
-    sort_tests(TESTS)
+    sort_tests(args, TESTS)
 
     try:
         if args.db:
@@ -352,6 +360,7 @@ def main(args):
     tests_results = []
     failed = False
     terminated = False
+
     for test in TESTS:
         name = os.path.basename(test)
         if name == MYNAME:
