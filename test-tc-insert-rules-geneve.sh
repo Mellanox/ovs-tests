@@ -12,6 +12,8 @@ function __test_geneve() {
     local ip_dst=$2
     local skip
 
+    tc_test_verbose
+
     title "- create geneve interface"
     gv=geneve1
     geneve_port=6081
@@ -26,8 +28,6 @@ function __test_geneve() {
     enable_switchdev
     ifconfig $NIC up
     ifconfig $REP up
-    reset_tc $NIC
-    reset_tc $REP
 
     m=`ip addr show $gv 2>&1`
     [ $? -ne 0 ] && fail $m
@@ -36,8 +36,8 @@ function __test_geneve() {
     ip addr add $ip_src/16 dev $NIC
     ip neigh add $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
 
-    reset_tc $REP
-    reset_tc $gv
+    reset_tc $REP $NIC $gv
+
     title "- encap"
     tc_filter_success add dev $REP protocol 0x806 parent ffff: prio 1 chain 0 \
                     flower \
@@ -51,10 +51,11 @@ function __test_geneve() {
                     id 100 \
                     geneve_opts 1234:56:0708090a \
                     action mirred egress redirect dev $gv
+    reset_tc $REP
 
     title "- decap"
     tc_filter_success add dev $gv protocol 0x806 parent ffff: prio 2 chain 0 \
-                    flower \
+                    flower $tc_verbose \
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
                             enc_src_ip $ip_src \
@@ -65,10 +66,11 @@ function __test_geneve() {
                     action tunnel_key unset \
                     action mirred egress redirect dev $REP
     verify_in_hw $gv 2
+    reset_tc $gv
 
     title "- decap geneve_opts with goto"
     tc_filter_success add dev $gv protocol 0x806 parent ffff: prio 12 chain 0 \
-                    flower \
+                    flower $tc_verbose \
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
                             enc_src_ip $ip_src \
@@ -78,8 +80,9 @@ function __test_geneve() {
                             geneve_opts 0102:34:05060708 \
                     action goto chain 1
     verify_in_hw $gv 12
+    reset_tc $gv
 
-    title "- decap geneve_opts mask 0"
+    title "- decap geneve_opts mask 0 chain 0 not supported"
     tc_filter_success add dev $gv protocol 0x806 parent ffff: prio 3 chain 0 \
                     flower \
                             dst_mac e4:11:22:11:4a:51 \
@@ -93,8 +96,24 @@ function __test_geneve() {
                     action mirred egress redirect dev $REP
     # we expect it not_in_hw as we don't know in fw it to match key 0 or no key.
     verify_not_in_hw $gv 3
+    reset_tc $gv
 
-    title "- decap geneve_opts multiple"
+    title "- decap geneve_opts mask 0 chain 1 is supported"
+    tc_filter_success add dev $gv protocol 0x806 parent ffff: prio 3 chain 1 \
+                    flower $tc_verbose \
+                            dst_mac e4:11:22:11:4a:51 \
+                            src_mac e4:11:22:11:4a:50 \
+                            enc_src_ip $ip_src \
+                            enc_dst_ip $ip_dst \
+                            enc_dst_port $geneve_port \
+                            enc_key_id 100 \
+                            geneve_opts 0102:34:05060708/0:0:00000000 \
+                    action tunnel_key unset \
+                    action mirred egress redirect dev $REP
+    verify_in_hw $gv 3
+    reset_tc $gv
+
+    title "- decap geneve_opts multiple chain 0 is not supported"
     tc_filter_success add dev $gv protocol 0x806 parent ffff: prio 4 chain 0 \
                     flower \
                             dst_mac e4:11:22:11:4a:51 \
@@ -108,10 +127,8 @@ function __test_geneve() {
                     action mirred egress redirect dev $REP
     # we expect it not_in_hw as we only support 1 option
     verify_not_in_hw $gv 4
-
-    reset_tc $NIC
-    reset_tc $REP
     reset_tc $gv
+
     ip addr flush dev $NIC
     ip link del $gv
 }
