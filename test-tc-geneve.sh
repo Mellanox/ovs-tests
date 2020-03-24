@@ -130,13 +130,13 @@ function run() {
 
     # OUTGOING
     title "REP chain 0 SEND"
-    tc_filter add dev $REP ingress protocol ip chain 0 prio 1 flower $verbose \
+    tc_filter add dev $REP ingress protocol ip chain 0 prio 1 flower $tc_verbose \
         action tunnel_key set src_ip 0.0.0.0 dst_ip $tun_rem id 48 dst_port $geneve_port $geneve_opts pipe \
         action mirred egress redirect dev geneve1
 
     # INCOMING CHAIN 0
     title "TCP, dst_port 5000, match geneve opts, in hardware"
-    tc_filter add dev geneve1 ingress protocol ip chain 0 prio 1 flower $verbose \
+    tc_filter add dev geneve1 ingress protocol ip chain 0 prio 1 flower $tc_verbose \
         enc_src_ip $tun_rem enc_dst_ip $tun_loc enc_key_id 48 enc_dst_port $geneve_port $geneve_opts \
         ip_proto tcp dst_port 5000 \
         action mirred egress redirect dev $REP
