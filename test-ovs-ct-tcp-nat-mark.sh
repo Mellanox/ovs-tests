@@ -69,7 +69,7 @@ function config() {
 }
 
 function run() {
-    title "- setup ovs with ct hops: $hops"
+    title "setup ovs with ct hops: $hops"
 
     start_clean_openvswitch
     ovs-vsctl add-br br-ovs
@@ -102,6 +102,8 @@ function run() {
     echo "sleep before traffic"
     sleep 2
 
+    ip netns exec ns0 ping -c 10 -i 0.1 -w 4 $ip_remote || err "Ping failed"
+
     echo "run traffic"
     t=12
     echo "run traffic for $t seconds"
@@ -109,14 +111,14 @@ function run() {
     sleep 0.5
     ip netns exec ns0 timeout $((t+1)) iperf -t $t -c $ip_remote -P 3 &
 
-    sleep 2
+    sleep 4
     pidof iperf &>/dev/null || err "iperf failed"
 
     echo "sniff packets on $REP"
     timeout $t tcpdump -qnnei $REP -c 10 'tcp' &
     pid=$!
 
-
+    title "verify ct commit action"
     ddumpct
     ovs_dump_tc_flows --names | grep -q -P "ct(.*commit.*)" || err "Expected ct commit action"
 
