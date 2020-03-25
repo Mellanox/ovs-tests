@@ -8,6 +8,7 @@ import subprocess
 import yaml
 import random
 import traceback
+import signal
 from ansi2html import Ansi2HTMLConverter
 from fnmatch import fnmatch
 from glob import glob
@@ -335,8 +336,6 @@ def main(args):
     exclude = []
     ignore = False
 
-    prepare_logdir()
-
     if args.from_test:
         ignore = True
 
@@ -352,14 +351,13 @@ def main(args):
             update_skip_according_to_db(args.db)
         else:
             update_skip_according_to_rm()
-    except KeyboardInterrupt:
-        print 'Interrupted'
+    except RuntimeError, e:
+        print "ERROR: %s" % e
         return 1
 
     print "%-54s %-8s %s" % ("Test", "Time", "Status")
     tests_results = []
     failed = False
-    terminated = False
 
     for test in TESTS:
         name = os.path.basename(test)
@@ -401,9 +399,6 @@ def main(args):
                 failed = True
                 res = 'FAILED'
                 out = str(e)
-            except KeyboardInterrupt:
-                terminated = True
-                res = 'TERMINATED'
 
         end_time = datetime.now()
         total_seconds = "%-7.2f" % (end_time-start_time).total_seconds()
@@ -415,15 +410,26 @@ def main(args):
 
         TESTS_SUMMARY.append(test_summary)
 
-        if (args.stop and failed) or terminated:
+        if args.stop and failed:
             return 1
     # end test loop
 
     return failed
 
 
+def signal_handler(signum, frame):
+    print "\nterminated"
+    if args.html and not args.dry:
+        print "Saving results..."
+        save_summary_html()
+    sys.exit(signum)
+
+
 if __name__ == "__main__":
     args = parse_args()
+    prepare_logdir()
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
     rc = main(args)
     if args.html and not args.dry:
         save_summary_html()
