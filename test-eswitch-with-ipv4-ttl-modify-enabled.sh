@@ -5,6 +5,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+relevant_for_cx5
 require_mlxconfig
 
 function set_eswitch_ipv4_ttl_modify_enable() {
