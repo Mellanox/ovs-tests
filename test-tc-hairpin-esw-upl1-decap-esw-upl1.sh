@@ -7,18 +7,29 @@ my_dir="$(dirname "$0")"
 source $my_dir/common.sh
 
 # set test variables
-UPLSRC=$NIC
+UPLSRC=vx0
 UPLDEST=$NIC
+
+function cleanup() {
+    ip link del dev vx0 2>/dev/null
+}
+trap cleanup EXIT
+
 
 title "Test redirect rule encaulated traffic from uplink of esw0 back to the same uplink (after decap)"
 enable_switchdev_if_no_rep $REP
 #disable_sriov_port2
 
+
+# create vxlan interface
+ip link add dev $UPLSRC type vxlan dstport 4789 external
+tc qdisc add dev $UPLSRC ingress
+
 # bring up interfaces
 ip link set up dev $UPLSRC
 ip link set up dev $UPLDEST
-
-tc_filter add dev $UPLSRC protocol ip prio 1 root flower dst_ip 11.12.13.14 skip_sw action tunnel_key unset action mirred egress redirect dev $UPLDEST
+tc_filter add dev $UPLSRC protocol ip prio 1 root flower enc_dst_ip 11.12.13.14 enc_dst_port 4789 action tunnel_key unset action mirred egress redirect dev $UPLDEST
+verify_in_hw $UPLSRC 1
 
 title "Check hardware tables..."
 mlxdump -d $PCI fsdump --type FT > /tmp/_fsdump
@@ -36,4 +47,5 @@ fi
 
 reset_tc $UPLSRC
 
+cleanup
 test_done
