@@ -35,6 +35,10 @@ EOT
 DEVICE_CX4_LX="0x1015"
 DEVICE_CX5_PCI_3="0x1017"
 DEVICE_CX5_PCI_4="0x1019"
+DEVICE_CX6="0x101b"
+DEVICE_CX6_DX="0x101d"
+DEVICE_CX6_LX="0x101f"
+DEVICE_CX7="0x1021"
 
 # test in __setup_common()
 devlink_compat=0
@@ -134,7 +138,6 @@ function __setup_common() {
     elif [ "$DEVICE" == "$DEVICE_CX5_PCI_3" ]; then
         DEVICE_IS_CX5=1
         device="ConnectX-5"
-
     elif [ "$DEVICE" == "$DEVICE_CX5_PCI_4" ]; then
         DEVICE_IS_CX5=1
         device="ConnectX-5"
