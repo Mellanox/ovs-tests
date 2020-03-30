@@ -48,11 +48,15 @@ function test_time_cmd() {
 function test_time_set_channels() {
     local dev=$1
     echo "test time set channels for $dev"
+    ethtool -L $dev combined 1
     test_time_cmd $expected_time "ethtool -L $dev combined 4"
 }
 
 function get_time_set_channels() {
     local dev=$1
+
+    ethtool -L $dev combined 1
+
     local t1=`get_ms_time`
     ethtool -L $dev combined 4
     local t2=`get_ms_time`
@@ -60,6 +64,7 @@ function get_time_set_channels() {
     if [ $t = "" ]; then
         err "Got time 0"
     fi
+
     ethtool -L $dev combined 1
 }
 
