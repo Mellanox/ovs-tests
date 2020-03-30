@@ -21,6 +21,7 @@ reset_tc $REP2
 
 mac1=`cat /sys/class/net/$VF/address`
 mac2=`cat /sys/class/net/$VF2/address`
+fake_mac="20:22:33:44:55:66"
 
 test "$mac1" || fail "no mac1"
 test "$mac2" || fail "no mac2"
@@ -32,6 +33,32 @@ function cleanup() {
     reset_tc $REP2
 }
 trap cleanup EXIT
+
+function test_have_traffic() {
+    local pid=$1
+    wait $pid
+    local rc=$?
+    if [[ $rc -eq 0 ]]; then
+        :
+    elif [[ $rc -eq 124 ]]; then
+        err "Expected to see packets"
+    else
+        err "Tcpdump failed rc $rc"
+    fi
+}
+
+function test_no_traffic() {
+    local pid=$1
+    wait $pid
+    local rc=$?
+    if [[ $rc -eq 124 ]]; then
+        :
+    elif [[ $rc -eq 0 ]]; then
+        err "Didn't expect to see packets"
+    else
+        err "Tcpdump failed rc $rc"
+    fi
+}
 
 function run() {
     title "Test CT TCP pedit"
@@ -48,17 +75,18 @@ function run() {
     echo "add ct rules"
     # req
     tc_filter add dev $REP ingress protocol ip prio 2 flower \
-        dst_mac $mac2 ct_state -trk \
+        dst_mac $fake_mac ct_state -trk \
         action ct action goto chain 1
 
     tc_filter add dev $REP ingress protocol ip chain 1 prio 2 flower \
-        dst_mac $mac2 ct_state +trk+new \
+        dst_mac $fake_mac ct_state +trk+new \
         action ct commit \
+        action pedit ex munge eth dst set $mac2 pipe \
         action mirred egress redirect dev $REP2
 
     tc_filter add dev $REP ingress protocol ip chain 1 prio 2 flower \
-        dst_mac $mac2 ct_state +trk+est \
-        action pedit ex munge eth src set 20:22:33:44:55:66 pipe \
+        dst_mac $fake_mac ct_state +trk+est \
+        action pedit ex munge eth dst set $mac2 pipe \
         action mirred egress redirect dev $REP2
 
     # reply chain0,ct -> chain1,fwd
@@ -80,30 +108,29 @@ function run() {
     echo "run traffic"
     ip netns exec ns1 timeout 13 iperf -s &
     sleep 0.5
+    ip netns exec ns0 ip n r $IP2 dev $VF lladdr $fake_mac
     ip netns exec ns0 timeout 13 iperf -t 12 -c $IP2 &
 
     sleep 2
     pidof iperf &>/dev/null || err "iperf failed"
+
 
     echo "sniff packets on $REP2"
     # first 4 packets not offloaded until conn is in established state.
     timeout 12 tcpdump -qnnei $REP2 -c 10 'tcp' &
     pid=$!
 
+    timeout 12 ip netns exec ns1 tcpdump -qnnei $VF2 -c 10 'tcp' &
+    pid2=$!
+
     sleep 13
     killall -9 iperf &>/dev/null
     wait $! 2>/dev/null
 
-    wait $pid
-    # test sniff timedout
-    rc=$?
-    if [[ $rc -eq 124 ]]; then
-        :
-    elif [[ $rc -eq 0 ]]; then
-        err "Didn't expect to see packets"
-    else
-        err "Tcpdump failed"
-    fi
+    title "Verify traffic on $VF2"
+    test_have_traffic $pid2
+    title "Verify offload traffic on $REP2"
+    test_no_traffic $pid
 
     reset_tc $REP
     reset_tc $REP2
