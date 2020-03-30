@@ -2,6 +2,8 @@
 #
 # Test CT fwd with pedit+ct_clear and tcp traffic.
 #
+# Bug SW #2122590: [MT CT] header rewrite is not working after ct clear action
+#
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
