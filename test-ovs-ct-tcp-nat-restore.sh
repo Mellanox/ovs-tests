@@ -25,7 +25,7 @@ VETH_REP=vrep0
 VETH_VF=vvf0
 
 function cleanup() {
-    ovs-vsctl del-br br-ovs
+    ovs-vsctl del-br br-ovs &>/dev/null
 
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
@@ -112,11 +112,11 @@ function run() {
     echo "sleep before traffic"
     sleep 2
 
-    echo "start tcpdump to sniff syn and ack packets"
+    title "start tcpdump to sniff syn and ack packets"
     timeout $t tcpdump -qnnei $REP -c 2 'tcp' &
     pid=$!
 
-    echo "run traffic for $t seconds"
+    title "run traffic for $t seconds"
     ip netns exec ns1 timeout $((t+1)) iperf -s -i 1 &
     sleep 0.5
     ip netns exec ns0 timeout $((t+1)) iperf -t $t -c $ip_remote &
@@ -133,15 +133,15 @@ function run() {
     echo "sleep to wait for offload"
     sleep 2
 
-    echo "check if offloaded to flow table"
+    title "check if offloaded to flow table"
     res=`cat /proc/net/nf_conntrack | grep -i "zone=3" | grep "$ip_remote"`
     echo $res | grep --color=always -e "^" -i -e "offload"
     echo $res | grep -q -i offload || err "not offloaded to flow table"
 
     ddumpct
 
-    echo "sniff $pkts software packets on $REP to /tmp/dump"
-    rm /tmp/dump
+    title "sniff $pkts software packets on $REP to /tmp/dump"
+    rm -f /tmp/dump
     timeout $t tcpdump -qnnei $REP -c $pkts 'tcp' -w /tmp/dump &
     pid=$!
 
