@@ -32,6 +32,13 @@ function run() {
         action mirred egress redirect dev $REP
     verify_in_hw $vlan_dev 11
 
+    title "Add TC drop rule on $vlan_dev"
+    reset_tc $vlan_dev
+    tc_filter add dev $vlan_dev protocol ip ingress prio 11 flower \
+        dst_mac e4:11:22:33:44:60 ip_proto udp \
+        action drop
+    verify_in_hw $vlan_dev 11
+
     reset_tc $REP
     ip l del dev $vlan_dev
 }
