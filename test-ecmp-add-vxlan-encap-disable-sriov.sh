@@ -86,6 +86,8 @@ function test_add_encap_and_disable_sriov() {
     config_sriov 0 $NIC2
     title "- disable sriov $NIC"
     config_sriov 0 $NIC
+    title "- enable sriov $NIC"
+    config_sriov 2 $NIC
 }
 
 cleanup

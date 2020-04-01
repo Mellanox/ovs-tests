@@ -9,7 +9,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-config_sriov 1
+config_sriov 2
 enable_switchdev_if_no_rep $REP
 require_interfaces REP
 
@@ -57,6 +57,5 @@ function test_supported_hw_stats() {
 reset_tc $REP
 test_unsupported_hw_stats
 test_supported_hw_stats
-config_sriov 0
 
 test_done
