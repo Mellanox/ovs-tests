@@ -97,8 +97,6 @@ function run() {
     ip netns exec ns0 ping -q -c 1 -i 0.1 -w 1 $REMOTE
     if [ $? -ne 0 ]; then
         err "ping failed"
-    echo pause
-    read
         return
     fi
 
