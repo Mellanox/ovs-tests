@@ -905,6 +905,18 @@ function check_kasan() {
     return 0
 }
 
+function check_for_ofed_memtrack_errors() {
+    local sec=$1
+    local look="memtrack_report: Summary: .* leak(s) detected"
+    local filter="memtrack_report: Summary: 0 leak(s) detected"
+    local a=`journalctl --since="$sec seconds ago" | grep -i "$look" |grep -v -i "$filter" || true`
+
+    if [ "$a" != "" ] || [ "$b" != "" ]; then
+        err "Detected memtrack errors in the log"
+    fi
+    [ "$a" != "" ] && echo "$a"
+}
+
 function check_for_errors_log() {
     journalctl --sync &>/dev/null || sleep 0.5
     local rc=0
@@ -926,6 +938,8 @@ Slab cache still has objects|failed reclaiming pages"
     fi
     [ "$a" != "" ] && echo "$a"
     [ "$b" != "" ] && echo "$b"
+
+    check_for_ofed_memtrack_errors $sec
 
     return $rc
 }
