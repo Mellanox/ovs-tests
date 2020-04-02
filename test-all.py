@@ -19,10 +19,9 @@ from datetime import datetime
 MYNAME = os.path.basename(__file__)
 MYDIR = os.path.abspath(os.path.dirname(__file__))
 LOGDIR = ''
-TESTS = glob(MYDIR + '/test-*')
+TESTS = []
 IGNORE_TESTS = []
 SKIP_TESTS = {}
-SKIP_NOT_IN_DB = []
 TESTS_SUMMARY = []
 COLOURS = {
     "black": 30,
@@ -190,14 +189,8 @@ def get_current_fw():
     return fw
 
 
-def update_skip_according_to_db(db_file):
-    global SKIP_TESTS, SKIP_NOT_IN_DB
-
-    data = {}
-    print "Reading DB: %s" % db_file
-    with open(db_file) as yaml_data:
-        data = yaml.safe_load(yaml_data)
-    print "Description: %s" % data.get("description", "DB doesn't include a description")
+def update_skip_according_to_db(data):
+    global SKIP_TESTS
 
     rm = MlxRedmine()
     test_will_run = False
@@ -205,11 +198,6 @@ def update_skip_according_to_db(db_file):
 
     for t in TESTS:
         t = os.path.basename(t)
-
-        if t not in data['tests']:
-            SKIP_NOT_IN_DB.append(t)
-            continue
-
         if data['tests'][t] is None:
             data['tests'][t] = {}
 
@@ -331,10 +319,49 @@ def prepare_logdir():
         print "Log dir: " + LOGDIR
 
 
+def read_db():
+    print "Reading DB: %s" % args.db
+    with open(args.db) as yaml_data:
+        data = yaml.safe_load(yaml_data)
+        print "Description: %s" % data.get("description", "DB doesn't include a description")
+        return data
+
+
+def load_tests_from_db(data):
+    return [MYDIR + '/' + key for key in data['tests']]
+
+
+def get_tests():
+    global TESTS
+    try:
+        if args.db:
+            data = read_db()
+            TESTS = load_tests_from_db(data)
+            update_skip_according_to_db(data)
+        else:
+            TESTS = glob(MYDIR + '/test-*')
+            glob_tests(args, TESTS)
+            update_skip_according_to_rm()
+
+        return 0
+    except RuntimeError, e:
+        print "ERROR: %s" % e
+        return 1
+
+
 def main(args):
     global TESTS_SUMMARY
     exclude = []
     ignore = False
+
+    rc = get_tests()
+
+    if rc != 0:
+        return 1
+
+    if len(TESTS) == 0:
+        print "ERROR: No tests to run"
+        return 1
 
     if args.from_test:
         ignore = True
@@ -343,17 +370,7 @@ def main(args):
         exclude.extend(args.exclude)
 
     exclude.extend(IGNORE_TESTS)
-    glob_tests(args, TESTS)
     sort_tests(args, TESTS)
-
-    try:
-        if args.db:
-            update_skip_according_to_db(args.db)
-        else:
-            update_skip_according_to_rm()
-    except RuntimeError, e:
-        print "ERROR: %s" % e
-        return 1
 
     print "%-54s %-8s %s" % ("Test", "Time", "Status")
     tests_results = []
@@ -362,8 +379,6 @@ def main(args):
     for test in TESTS:
         name = os.path.basename(test)
         if name == MYNAME:
-            continue
-        if name in SKIP_NOT_IN_DB:
             continue
         if ignore:
             if args.from_test != name:
