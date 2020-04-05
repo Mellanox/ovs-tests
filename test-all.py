@@ -101,7 +101,7 @@ def run_test(cmd, html=False):
     status = strip_color(status)
 
     if subp.returncode:
-        status = "(%s) %s" % (status, logname+".log")
+        status = "(%s) %s" % (status, logname + ".log")
         raise ExecCmdFailed(cmd, subp.returncode, status)
 
     return status
@@ -167,7 +167,7 @@ def glob_tests(args, tests):
             tests.remove(test)
 
 
-def get_currnet_fw():
+def get_current_fw():
     if "CONFIG" not in os.environ:
         print "ERROR: Cannot ignore by FW because CONFIG environment variable is missing."
         return None
@@ -201,7 +201,7 @@ def update_skip_according_to_db(db_file):
 
     rm = MlxRedmine()
     test_will_run = False
-    current_fw_ver = get_currnet_fw()
+    current_fw_ver = get_current_fw()
 
     for t in TESTS:
         t = os.path.basename(t)
@@ -304,9 +304,9 @@ def save_summary_html():
                 <td bgcolor='lightgray' align='left'><b>{test}</b></td>
                 <td bgcolor='lightgray' align='left'>{run_time}</td>
                 <td bgcolor='lightgray' align='left'>{status}</td>
-            </tr>""" .format(test=t['test_name'],
-                             run_time=t['run_time'],
-                             status=status)
+            </tr>""".format(test=t['test_name'],
+                            run_time=t['run_time'],
+                            status=status)
     html += """
         </table>
     </body>
@@ -401,7 +401,7 @@ def main(args):
                 out = str(e)
 
         end_time = datetime.now()
-        total_seconds = "%-7.2f" % (end_time-start_time).total_seconds()
+        total_seconds = "%-7.2f" % (end_time - start_time).total_seconds()
         test_summary['run_time'] = total_seconds
         print "%s " % total_seconds,
 
