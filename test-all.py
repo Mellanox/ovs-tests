@@ -16,6 +16,59 @@ from tempfile import mkdtemp
 from mlxredmine import MlxRedmine
 from datetime import datetime
 
+# HTML components
+SUMMARY_ROW = """<tr>
+    <td bgcolor='lightgray' align='left'><b>{number_of_tests}</b></td>
+    <td bgcolor='lightgray' align='left'><b>{passed_tests}</b></td>
+    <td bgcolor='lightgray' align='left'><b>{failed_tests}</b></td>
+    <td bgcolor='lightgray' align='left'><b>{skip_tests}</b></td>
+    <td bgcolor='lightgray' align='left'><b>{ignored_tests}</b></td>
+    <td bgcolor='lightgray' align='left'><b>{pass_rate}</b></td>
+                </tr>"""
+RESULT_ROW = """<tr>
+    <td bgcolor='lightgray' align='left'><b>{test}</b></td>
+    <td bgcolor='lightgray' align='left'>{run_time}</td>
+    <td bgcolor='lightgray' align='left'>{status}</td>
+                </tr>"""
+HTML = """
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Summary</title>
+    </head>
+    <body>
+        <table>
+            <thead>
+                <tr>
+                    <th bgcolor='grey' align='left'>Number of tests</th>
+                    <th bgcolor='grey' align='left'>Number of passed tests</th>
+                    <th bgcolor='grey' align='left'>Number of failed tests</th>
+                    <th bgcolor='grey' align='left'>Number of skipped tests</th>
+                    <th bgcolor='grey' align='left'>Number of ignored tests</th>
+                    <th bgcolor='grey' align='left'>Passrate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {summary}
+            </tbody>
+        </table>
+        <br>
+        <table>
+            <thead>
+                 <tr>
+                    <th bgcolor='grey' align='left'>Test</th>
+                    <th bgcolor='grey' align='left'>Time</th>
+                    <th bgcolor='grey' align='left'>Status</th>
+                 </tr>
+            </thead>
+            <tbody>
+                {results}
+            </tbody>
+        </table>
+    </body>
+</html>
+"""
+
 MYNAME = os.path.basename(__file__)
 MYDIR = os.path.abspath(os.path.dirname(__file__))
 LOGDIR = ''
@@ -268,41 +321,41 @@ def should_ignore_test(name, exclude):
 
 
 def save_summary_html():
-    html = """<!DOCTYPE html>
-<html>
-    <head>
-        <title>Summary</title>
-    </head>
-    <body>
-        <table>
-            <tr>
-                <th bgcolor='grey' align='left'>Test</th>
-                <th bgcolor='grey' align='left'>Time</th>
-                <th bgcolor='grey' align='left'>Status</th>
-            </tr>"""
+    number_of_tests = len(TESTS)
+    passed_tests = sum(map(lambda test: 'TEST PASSED' in test['status'], TESTS_SUMMARY))
+    failed_tests = sum(map(lambda test: 'FAILED' in test['status'], TESTS_SUMMARY))
+    skip_tests = sum(map(lambda test: 'SKIP' in test['status'], TESTS_SUMMARY))
+    ignored_tests = sum(map(lambda test: 'IGNORED' in test['status'], TESTS_SUMMARY))
+    pass_rate = str(int(passed_tests / float(number_of_tests - skip_tests - ignored_tests) * 100)) + '%'
 
+    summary = SUMMARY_ROW.format(number_of_tests=number_of_tests, passed_tests=passed_tests,
+                                 failed_tests=failed_tests,
+                                 skip_tests=skip_tests, ignored_tests=ignored_tests, pass_rate=pass_rate)
+    results = ''
     for t in TESTS_SUMMARY:
         status = t['status']
         if t.get('test_log', ''):
             status = ("<a href='{test_log}'>{status}</a>".format(
                 test_log=t['test_log'],
                 status=status))
-        html += """
-            <tr>
-                <td bgcolor='lightgray' align='left'><b>{test}</b></td>
-                <td bgcolor='lightgray' align='left'>{run_time}</td>
-                <td bgcolor='lightgray' align='left'>{status}</td>
-            </tr>""".format(test=t['test_name'],
-                            run_time=t['run_time'],
-                            status=status)
-    html += """
-        </table>
-    </body>
-</html>"""
+        results += RESULT_ROW.format(test=t['test_name'],
+                                     run_time=t['run_time'],
+                                     status=status)
+
+    running_tests_names = [t['test_name'] for t in TESTS_SUMMARY]
+
+    for t in TESTS:
+        t = os.path.basename(t)
+        if t not in running_tests_names:
+            status = deco("DID'T RUN", 'darkred', html=True)
+            results += RESULT_ROW.format(
+                test=t,
+                run_time=0.0,
+                status=status)
 
     summary_file = "%s/summary.html" % LOGDIR
     with open(summary_file, 'w') as f:
-        f.write(html)
+        f.write(HTML.format(summary=summary, results=results))
         f.close()
 
     print "Summary: %s" % summary_file
