@@ -56,6 +56,7 @@ function del_rules() {
 
 title "test reload modules"
 reload_modules &
+reload_modules_pid=$!
 # with cx5 we tested 1 second but with cx4 device already gone so decreased the
 # sleep from 1 second to have first rule add and then cleanup start.
 sleep 0.2
@@ -63,5 +64,9 @@ title "del $COUNT rules"
 del_rules
 sleep 5
 reset_tc $rep
-
+wait $reload_modules_pid
+if [ $? != 0 ]; then
+  load_modules
+  fail "TEST FAILED"
+fi
 test_done
