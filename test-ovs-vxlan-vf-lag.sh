@@ -34,6 +34,7 @@ function config_ports() {
     require_interfaces REP NIC
     unbind_vfs
     config_bonding $NIC $NIC2
+    fail_if_err
     bind_vfs
 }
 
