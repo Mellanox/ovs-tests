@@ -12,7 +12,7 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 pktgen=$my_dir/scapy-traffic-tester.py
 
-require_module act_ct
+require_module act_ct bonding
 
 REMOTE_SERVER=${REMOTE_SERVER:-$1}
 REMOTE_NIC=${REMOTE_NIC:-$2}

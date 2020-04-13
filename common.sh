@@ -212,8 +212,10 @@ function require_mlxconfig() {
 }
 
 function require_module() {
-    local module=$1
-    modprobe -q $module || fail "Missing module $module"
+    local module
+    for module in $@ ; do
+        modprobe -q $module || fail "Missing module $module"
+    done
 }
 
 function require_min_kernel_5() {
