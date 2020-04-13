@@ -50,9 +50,7 @@ function set_nf_liberal() {
 }
 
 function cleanup_remote() {
-    on_remote ip link set dev $REMOTE_NIC nomaster &>/dev/null
-    on_remote ip link set dev $REMOTE_NIC2 nomaster &>/dev/null
-    on_remote ip link del bond0 &>/dev/null
+    clear_remote_bonding
     on_remote "ip a flush dev $REMOTE_NIC ; ip a flush dev $REMOTE_NIC2 ; ip l del dev vxlan1 &>/dev/null"
 }
 
@@ -92,22 +90,6 @@ function config() {
     ovs-vsctl add-port br-ovs $REP
     ovs-vsctl add-port br-ovs vxlan1 -- set interface vxlan1 type=vxlan options:local_ip=$LOCAL_TUN options:remote_ip=$REMOTE_IP options:key=$VXLAN_ID options:dst_port=4789
 }
-
-function config_remote_bonding() {
-    local nic1=$REMOTE_NIC
-    local nic2=$REMOTE_NIC2
-    on_remote ip link add name bond0 type bond || fail "Failed to create bond interface"
-    on_remote ip link set dev bond0 type bond mode active-backup miimon 100 || fail "Failed to set bond mode"
-    on_remote ip link set dev $nic1 down
-    on_remote ip link set dev $nic2 down
-    on_remote ip link set dev $nic1 master bond0
-    on_remote ip link set dev $nic2 master bond0
-    on_remote ip link set dev bond0 up
-    on_remote ip link set dev $nic1 up
-    on_remote ip link set dev $nic2 up
-    sleep 1
-}
-
 
 function config_remote() {
     on_remote ip link del vxlan1 2>/dev/null

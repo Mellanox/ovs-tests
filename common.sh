@@ -203,6 +203,29 @@ function clear_bonding() {
     ip link set dev $nic2 nomaster &>/dev/null
 }
 
+function config_remote_bonding() {
+    local nic1=$REMOTE_NIC
+    local nic2=$REMOTE_NIC2
+    on_remote modprobe -q bonding || fail "Remote missing module bonding"
+    clear_remote_bonding
+    on_remote ip link add name bond0 type bond || fail "Failed to create remote bond interface"
+    on_remote "echo 100 > /sys/class/net/bond0/bonding/miimon"
+    on_remote "echo active-backup > /sys/class/net/bond0/bonding/mode"
+    on_remote "ip link set dev $nic1 down; \
+               ip link set dev $nic2 down; \
+               ip link set dev $nic1 master bond0; \
+               ip link set dev $nic2 master bond0; \
+               ip link set dev bond0 up; \
+               ip link set dev $nic1 up; \
+               ip link set dev $nic2 up"
+}
+
+function clear_remote_bonding() {
+    on_remote ip link set dev $REMOTE_NIC nomaster &>/dev/null
+    on_remote ip link set dev $REMOTE_NIC2 nomaster &>/dev/null
+    on_remote ip link del bond0 &>/dev/null
+}
+
 function require_mlxdump() {
     [[ -e /usr/bin/mlxdump ]] || fail "Missing mlxdump"
 }
