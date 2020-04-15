@@ -16,6 +16,7 @@ my_dir="$(dirname "$0")"
 
 not_relevant_for_cx4
 
+enable_switchdev_if_no_rep $REP
 REP=`get_rep 0`
 if [ -z "$REP" ]; then
     fail "Missing rep $REP"
