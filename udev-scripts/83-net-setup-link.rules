@@ -1,0 +1,3 @@
+SUBSYSTEM=="net", ACTION=="add", \
+	IMPORT{program}="/etc/udev/legacy-name.sh" \
+	NAME="$env{NAME}"
