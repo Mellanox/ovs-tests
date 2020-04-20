@@ -24,7 +24,8 @@ function test_hairpin() {
 
 start_check_syndrome
 
-enable_legacy
+enable_legacy $NIC
+enable_legacy $NIC2
 
 test_hairpin $NIC $NIC2
 test_hairpin $NIC2 $NIC
