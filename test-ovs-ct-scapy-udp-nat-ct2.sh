@@ -50,8 +50,10 @@ function config_ovs_nat() {
     ovs-ofctl1 add-flow ovs-br -O openflow13 "table=0,in_port=$VM2_PORT,ip,udp,ct_state=-trk,action=ct(table=1,zone=1,nat)"
 
     ovs-ofctl1 add-flow ovs-br -O openflow13 "table=1,in_port=$VM1_PORT,ip,udp,ct_state=+trk+new,ct_zone=1,action=ct(commit,nat(dst=$IP2:$NAT_PORT)),$VM2_PORT"
-    ovs-ofctl1 add-flow ovs-br -O openflow13 "table=1,in_port=$VM1_PORT,ip,udp,ct_state=+trk+est,ct_zone=1,action=ct(zone=1),$VM2_PORT"
+    ovs-ofctl1 add-flow ovs-br -O openflow13 "table=1,in_port=$VM1_PORT,ip,udp,ct_state=+trk+est,ct_zone=1,action=ct(zone=1,table=2)"
     ovs-ofctl1 add-flow ovs-br -O openflow13 "table=1,in_port=$VM2_PORT,ip,udp,ct_state=+trk+est,ct_zone=1,action=$VM1_PORT"
+
+    ovs-ofctl1 add-flow ovs-br -O openflow13 "table=2,in_port=$VM1_PORT,ip,udp,ct_state=+trk+est,ct_zone=1,action=ct(zone=1),$VM2_PORT"
 
     fail_if_err "Failed to set ofctl rules"
 }
@@ -103,7 +105,7 @@ function run() {
     test_have_traffic $pid1
 
     echo "sniff packets on $REP"
-    timeout $t tcpdump -qnnei $REP -c 4 $PROTO &
+    timeout $t tcpdump -qnnei $REP -c 10 $PROTO &
     pid2=$!
 
     # Make sure NAT works as expected
