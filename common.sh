@@ -559,6 +559,8 @@ function switch_mode() {
         wait_for_reps $nic $vf_count
         bring_up_reps $nic
     fi
+
+    wait_for_ifaces
 }
 
 function switch_mode_legacy() {
