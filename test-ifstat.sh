@@ -5,13 +5,12 @@
 # Bug SW #1416331: reading SW stats through ifstat cause kernel crash
 #
 
-NIC=${1:-ens5f0}
-
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-# issue was when VFs are bound so this is important.
+# cpu_hits is supported in switchdev mode
 enable_switchdev
+# issue was when VFs are bound so this is important.
 bind_vfs
 
 title "Test ifstat"
