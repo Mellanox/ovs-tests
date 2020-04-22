@@ -157,16 +157,21 @@ function __setup_common() {
     if [ "$DEVICE" == "$DEVICE_CX4_LX" ]; then
         DEVICE_IS_CX4=1
         DEVICE_IS_CX4_LX=1
-        device="ConnectX-4 Lx"
+        device_name="ConnectX-4 Lx"
     elif [ "$DEVICE" == "$DEVICE_CX5_PCI_3" ]; then
         DEVICE_IS_CX5=1
-        device="ConnectX-5"
+        device_name="ConnectX-5"
     elif [ "$DEVICE" == "$DEVICE_CX5_PCI_4" ]; then
         DEVICE_IS_CX5=1
-        device="ConnectX-5"
+        device_name="ConnectX-5"
     fi
 
-    status+=" $device"
+    tmp=`lspci -s $PCI | cut -d\[ -f2 | tr -d ]`
+    if [ -n "$tmp" ]; then
+        device_name=$tmp
+    fi
+
+    status+=" $device_name"
     log $status
 }
 
