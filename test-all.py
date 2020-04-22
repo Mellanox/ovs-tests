@@ -37,7 +37,7 @@ HTML = """
         <title>Summary</title>
     </head>
     <body>
-        <table>
+        <table id="summary_table">
             <thead>
                 <tr>
                     <th bgcolor='grey' align='left'>Number of tests</th>
@@ -53,7 +53,7 @@ HTML = """
             </tbody>
         </table>
         <br>
-        <table>
+        <table id="results_table">
             <thead>
                  <tr>
                     <th bgcolor='grey' align='left'>Test</th>
