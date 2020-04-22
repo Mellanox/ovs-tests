@@ -109,6 +109,15 @@ function get_tx_pkts() {
     ethtool -S $1 | grep -E 'tx_packets_phy|vport_tx_packets' | awk {'print $2'} | tail -1
 }
 
+function require_cmd() {
+    local i
+    for i in $@ ; do
+        if ! `which $i &>/dev/null` ; then
+            err "Missing required command $i"
+        fi
+    done
+}
+
 function __setup_common() {
     [ -f /etc/os-release ] && . /etc/os-release
     [ -n "$PRETTY_NAME" ] && log $PRETTY_NAME
@@ -127,8 +136,8 @@ function __setup_common() {
         fail "Cannot find NIC2 $NIC2"
     fi
 
-    local status
-    local device
+    require_cmd lspci ethtool tc
+    fail_if_err
 
     sysfs_pci_device=`readlink -f /sys/class/net/$NIC/../../`
     SRIOV_NUMVFS_NIC=$sysfs_pci_device/sriov_numvfs
