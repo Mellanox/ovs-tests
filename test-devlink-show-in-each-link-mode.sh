@@ -10,10 +10,10 @@ NIC=${1:-ens5f0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-# not relevant for cx4lx because it doesn't support link_type
-not_relevant_for_cx4lx
-require_mlxconfig
 
+require_mlxconfig
+# not relevant for cards that don't support multiple link_type like cx4lx
+require_fw_opt LINK_TYPE_P1
 
 function set_link_type() {
     local mode=$1

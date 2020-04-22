@@ -1281,6 +1281,14 @@ function relevant_for_cx5() {
     fi
 }
 
+function require_fw_opt() {
+    mlxconfig -d $PCI q | grep -q -w $1
+    if [ "$?" != 0 ]; then
+        log "SKIP (fw option $1 is not supported)"
+        exit 0
+    fi
+}
+
 function __load_config() {
     local conf
 
