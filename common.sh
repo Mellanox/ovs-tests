@@ -20,16 +20,30 @@ ERRMSG=""
 VENDOR_MELLANOX="0x15b3"
 
 <<EOT
+
+#define PCI_DEVICE_ID_MELLANOX_CONNECTX3        0x1003
+#define PCI_DEVICE_ID_MELLANOX_CONNECTX3_PRO    0x1007
+#define PCI_DEVICE_ID_MELLANOX_CONNECTIB        0x1011
+#define PCI_DEVICE_ID_MELLANOX_CONNECTX4        0x1013
+#define PCI_DEVICE_ID_MELLANOX_CONNECTX4_LX     0x1015
+
     { PCI_VDEVICE(MELLANOX, 0x1011) },                  /* Connect-IB */
     { PCI_VDEVICE(MELLANOX, 0x1012), MLX5_PCI_DEV_IS_VF},       /* Connect-IB VF */
     { PCI_VDEVICE(MELLANOX, 0x1013) },                  /* ConnectX-4 */
     { PCI_VDEVICE(MELLANOX, 0x1014), MLX5_PCI_DEV_IS_VF},       /* ConnectX-4 VF */
     { PCI_VDEVICE(MELLANOX, 0x1015) },                  /* ConnectX-4LX */
-    { PCI_VDEVICE(MELLANOX, 0x1016), MLX5_PCI_DEV_IS_VF},       /* ConnectX-4LX VF */
-    { PCI_VDEVICE(MELLANOX, 0x1017) },                  /* ConnectX-5, PCIe 3.0 */
-    { PCI_VDEVICE(MELLANOX, 0x1018), MLX5_PCI_DEV_IS_VF},       /* ConnectX-5 VF */
-    { PCI_VDEVICE(MELLANOX, 0x1019) },                  /* ConnectX-5, PCIe 4.0 */
-    { PCI_VDEVICE(MELLANOX, 0x101a), MLX5_PCI_DEV_IS_VF},       /* ConnectX-5, PCIe 4.0 VF */
+
+        { PCI_VDEVICE(MELLANOX, 0x1016), MLX5_PCI_DEV_IS_VF},   /* ConnectX-4LX VF */
+        { PCI_VDEVICE(MELLANOX, 0x1017) },                      /* ConnectX-5, PCIe 3.0 */
+        { PCI_VDEVICE(MELLANOX, 0x1018), MLX5_PCI_DEV_IS_VF},   /* ConnectX-5 VF */
+        { PCI_VDEVICE(MELLANOX, 0x1019) },                      /* ConnectX-5 Ex */
+        { PCI_VDEVICE(MELLANOX, 0x101a), MLX5_PCI_DEV_IS_VF},   /* ConnectX-5 Ex VF */
+        { PCI_VDEVICE(MELLANOX, 0x101b) },                      /* ConnectX-6 */
+        { PCI_VDEVICE(MELLANOX, 0x101c), MLX5_PCI_DEV_IS_VF},   /* ConnectX-6 VF */
+        { PCI_VDEVICE(MELLANOX, 0x101d) },                      /* ConnectX-6 Dx */
+        { PCI_VDEVICE(MELLANOX, 0x101e), MLX5_PCI_DEV_IS_VF},   /* ConnectX Family mlx5Gen Virtual Function */
+        { PCI_VDEVICE(MELLANOX, 0x101f) },                      /* ConnectX-6 LX */
+        { PCI_VDEVICE(MELLANOX, 0x1021) },                      /* ConnectX-7 */
 EOT
 
 DEVICE_CX4_LX="0x1015"
