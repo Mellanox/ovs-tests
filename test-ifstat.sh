@@ -11,6 +11,7 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 # issue was when VFs are bound so this is important.
+enable_switchdev
 bind_vfs
 
 title "Test ifstat"
