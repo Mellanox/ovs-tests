@@ -77,7 +77,7 @@ function test_tcp() {
     TMPFILE=/tmp/iperf.log
     ip netns exec ns0 timeout 11 iperf -s &
     sleep 0.5
-    ip netns exec ns1 timeout 11 iperf -c $IP1 -i 5 -t 10 -y c -P10 > $TMPFILE &
+    ip netns exec ns1 timeout 11 iperf -c $IP1 -i 5 -t 10 -y c -P2 > $TMPFILE &
     sleep 11
     killall -9 iperf &>/dev/null
     sleep 0.5
@@ -88,7 +88,7 @@ function test_udp() {
     TMPFILE=/tmp/iperf.log
     ip netns exec ns0 timeout 11 iperf -u -s &
     sleep 0.5
-    ip netns exec ns1 timeout 11 iperf -u -c $IP1 -i 5 -t 10 -y c -b1G -P10 > $TMPFILE &
+    ip netns exec ns1 timeout 11 iperf -u -c $IP1 -i 5 -t 10 -y c -b10G -P2 > $TMPFILE &
     sleep 11
     killall -9 iperf &>/dev/null
     sleep 0.5
