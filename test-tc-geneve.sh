@@ -39,13 +39,13 @@ function cleanup() {
 
     cleanup_remote
 }
-cleanup
+
 
 enable_switchdev_if_no_rep $REP
 require_interfaces REP
 unbind_vfs
 bind_vfs
-
+cleanup
 trap cleanup EXIT
 
 function config_remote() {
