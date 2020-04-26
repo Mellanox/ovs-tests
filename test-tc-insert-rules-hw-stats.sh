@@ -55,7 +55,10 @@ function test_supported_hw_stats() {
 }
 
 reset_tc $REP
-test_unsupported_hw_stats
 test_supported_hw_stats
+# checking unsupported hw stats expect to fail so
+# fail early hw stats fails.
+fail_if_err
+test_unsupported_hw_stats
 
 test_done
