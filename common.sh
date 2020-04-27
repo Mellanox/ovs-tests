@@ -1158,6 +1158,21 @@ function reload_modules() {
     echo "reload modules done"
 }
 
+__probe_fs="/sys/class/net/$NIC/device/sriov_drivers_autoprobe"
+__probe=0
+function disable_sriov_autoprobe() {
+    if [ -e $__probe_fs ]; then
+        __autoprobe=`cat $__probe_fs`
+        echo 0 > $__probe_fs
+    fi
+}
+
+function restore_sriov_autoprobe() {
+    if [ $__probe == 1 ]; then
+        echo 1 > $__probe_fs
+    fi
+}
+
 function tc_filter() {
     eval2 tc filter $@
 }

@@ -8,21 +8,6 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 
-probe_fs="/sys/class/net/$NIC/device/sriov_drivers_autoprobe"
-probe=0
-function disable_sriov_autoprobe() {
-    if [ -e $probe_fs ]; then
-        probe=`cat $probe_fs`
-        echo 0 > $probe_fs
-    fi
-}
-
-function restore_sriov_autoprobe() {
-    if [ $probe == 1 ]; then
-        echo 1 > $probe_fs
-    fi
-}
-
 function cleanup() {
     restore_sriov_autoprobe
 }
