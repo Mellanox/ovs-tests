@@ -18,8 +18,11 @@ bind_vfs
 reset_tc $REP
 
 mac2="e4:11:22:11:77:77"
+vx=vxlan1
+vxlan_port=4789
 
 function cleanup() {
+    ip link del $vx &>/dev/null
     ip -all netns delete
     reset_tc $REP
 }
@@ -34,8 +37,6 @@ function test_duplicate_tunnel() {
     config_vf ns0 $VF $REP $IP1
 
     title "- create vxlan interface"
-    vx=vxlan1
-    vxlan_port=4789
     ip link del $vx >/dev/null 2>&1
     ip link add $vx type vxlan dstport $vxlan_port external
     [ $? -ne 0 ] && err "Failed to create vxlan interface" && return 1
