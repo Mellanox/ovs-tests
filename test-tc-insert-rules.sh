@@ -205,8 +205,7 @@ function __test_basic_vxlan() {
                     action mirred egress redirect dev $vx
         title "    - decap"
         if [ "$skip" = "skip_sw" ]; then
-            warn "We fail to add vxlan decap with skip_sw policy because of open issue. so add without policy and check in_hw flag"
-            # Bug SW #1360599: [upstream] decap rule offload attempt with skip_sw fails
+            # skip_sw on tunnel device is not supported
             skip=""
             skip_sw_wa=1
         fi
