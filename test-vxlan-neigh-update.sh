@@ -21,15 +21,18 @@ flag=skip_sw
 dst_port=1234
 id=98
 
+function config() {
+    ip link add vxlan1 type vxlan id $id dev $NIC dstport $dst_port
+    ip link set vxlan1 up
+}
 
 function cleanup() {
     ip link del dev vxlan1 2> /dev/null
-    ip link add vxlan1 type vxlan id $id dev $NIC dstport $dst_port
-    ip link set vxlan1 up
     ip n del ${remote_ip} dev $NIC 2>/dev/null
     ip n del ${remote_ip6} dev $NIC 2>/dev/null
     ifconfig $NIC down
     ip addr flush dev $NIC
+    reset_tc $REP
 }
 
 function neigh_update_test() {
@@ -84,15 +87,15 @@ function neigh_update_test() {
     title "-- forcing addr change 2"
     sleep 5
     ip n replace ${remote_ip} dev $NIC lladdr 11:22:33:44:55:99
-
-    ip l del vxlan1
 }
 
 function test_neigh_update_ipv4() {
     title "Test neigh update ipv4"
     cleanup
+    config
     ip addr add ${local_ip}/24 dev $NIC
     neigh_update_test $local_ip $remote_ip
+    cleanup
 }
 
 function test_neigh_update_ipv6() {
@@ -103,8 +106,10 @@ function test_neigh_update_ipv6() {
         return
     fi
     cleanup
+    config
     ip -6 addr add ${local_ip6}/64 dev $NIC
     neigh_update_test $local_ip6 $remote_ip6
+    cleanup
 }
 
 
