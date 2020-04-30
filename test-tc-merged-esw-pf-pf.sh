@@ -3,7 +3,7 @@
 # Test add redirect rule from uplink on esw0 to uplink on esw1
 # Expect to fail as we don't support this.
 #
-# Bug SW #2053699: FW accepts unsupported FTE to forward packets from uplink1 to uplink2
+# BugSW #2053699: FW accepts unsupported FTE to forward packets from uplink1 to uplink2
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
