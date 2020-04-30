@@ -25,10 +25,12 @@ function test_hairpin() {
 start_check_syndrome
 
 enable_legacy $NIC
+config_sriov 2 $NIC2
 enable_legacy $NIC2
 
 test_hairpin $NIC $NIC2
 test_hairpin $NIC2 $NIC
 
+config_sriov 0 $NIC2
 check_syndrome
 test_done
