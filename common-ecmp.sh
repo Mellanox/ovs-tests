@@ -52,7 +52,7 @@ n_mac="e4:1d:2d:31:eb:08"
 
 function config_multipath_route() {
     log "config multipath route"
-    ip l add dev $out_dev type dummy &>/dev/null
+    ip l add dev $out_dev type dummy || err "Failed to create dummy interface"
     ifconfig $out_dev $local_ip/24 up
     ifconfig $dev1 $dev1_ip/24 up
     ifconfig $dev2 $dev2_ip/24 up
