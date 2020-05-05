@@ -26,12 +26,13 @@ SUMMARY_ROW = """<tr>
     <td bgcolor='lightgray' align='left'><b>{skip_tests}</b></td>
     <td bgcolor='lightgray' align='left'><b>{ignored_tests}</b></td>
     <td bgcolor='lightgray' align='left'><b>{pass_rate}</b></td>
-                </tr>"""
+    <td bgcolor='lightgray' align='left'><b>{runtime}</b></td>
+</tr>"""
 RESULT_ROW = """<tr>
     <td bgcolor='lightgray' align='left'><b>{test}</b></td>
     <td bgcolor='lightgray' align='left'>{run_time}</td>
     <td bgcolor='lightgray' align='left'>{status}</td>
-                </tr>"""
+</tr>"""
 HTML = """<!DOCTYPE html>
 <html>
     <head>
@@ -41,12 +42,13 @@ HTML = """<!DOCTYPE html>
         <table id="summary_table">
             <thead>
                 <tr>
-                    <th bgcolor='grey' align='left'>Number of tests</th>
-                    <th bgcolor='grey' align='left'>Number of passed tests</th>
-                    <th bgcolor='grey' align='left'>Number of failed tests</th>
-                    <th bgcolor='grey' align='left'>Number of skipped tests</th>
-                    <th bgcolor='grey' align='left'>Number of ignored tests</th>
+                    <th bgcolor='grey' align='left'>Tests</th>
+                    <th bgcolor='grey' align='left'>Passed</th>
+                    <th bgcolor='grey' align='left'>Failed</th>
+                    <th bgcolor='grey' align='left'>Skipped</th>
+                    <th bgcolor='grey' align='left'>Ignored</th>
                     <th bgcolor='grey' align='left'>Passrate</th>
+                    <th bgcolor='grey' align='left'>Runtime</th>
                 </tr>
             </thead>
             <tbody>
@@ -328,10 +330,15 @@ def save_summary_html():
     skip_tests = sum(map(lambda test: 'SKIP' in test['status'], TESTS_SUMMARY))
     ignored_tests = sum(map(lambda test: 'IGNORED' in test['status'], TESTS_SUMMARY))
     pass_rate = str(int(passed_tests / float(number_of_tests - skip_tests - ignored_tests) * 100)) + '%'
+    runtime = sum([t['run_time'] for t in TESTS_SUMMARY])
 
-    summary = SUMMARY_ROW.format(number_of_tests=number_of_tests, passed_tests=passed_tests,
+    summary = SUMMARY_ROW.format(number_of_tests=number_of_tests,
+                                 passed_tests=passed_tests,
                                  failed_tests=failed_tests,
-                                 skip_tests=skip_tests, ignored_tests=ignored_tests, pass_rate=pass_rate)
+                                 skip_tests=skip_tests,
+                                 ignored_tests=ignored_tests,
+                                 pass_rate=pass_rate,
+                                 runtime=runtime)
     results = ''
     for t in TESTS_SUMMARY:
         status = t['status']
@@ -442,7 +449,7 @@ def main(args):
         print("%-62s " % deco(name, 'light-blue'), end=' ')
         test_summary = {'test_name': name,
                         'test_log':  '',
-                        'run_time':  '0.0',
+                        'run_time':  0.0,
                         'status':    'UNKNOWN',
                         }
         sys.stdout.flush()
@@ -470,8 +477,10 @@ def main(args):
                 out = str(e)
 
         end_time = datetime.now()
-        total_seconds = "%-7.2f" % (end_time - start_time).total_seconds()
+        total_seconds = float("%.2f" % (end_time - start_time).total_seconds())
         test_summary['run_time'] = total_seconds
+
+        total_seconds = "%-7s" % total_seconds
         print("%s " % total_seconds, end=' ')
 
         test_summary['status'] = format_result(res, skip_reason, html=True)
