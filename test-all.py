@@ -200,22 +200,22 @@ def sort_tests(tests, randomize=False):
         tests.sort(key=lambda x: os.path.basename(x).split('.')[0])
 
 
-def glob_tests(args, tests):
-    if not args.glob:
+def glob_tests(glob_filter, tests):
+    if not glob_filter:
         return
     _tests = []
 
-    if len(args.glob) == 1 and (' ' in args.glob[0] or '\n' in args.glob[0]):
-        args.glob = args.glob[0].strip().split()
+    if len(glob_filter) == 1 and (' ' in glob_filter[0] or '\n' in glob_filter[0]):
+        glob_filter = glob_filter[0].strip().split()
 
-    if len(args.glob) == 1 and ',' in args.glob[0]:
-        args.glob = args.glob[0].split(',')
+    if len(glob_filter) == 1 and ',' in glob_filter[0]:
+        glob_filter = glob_filter[0].split(',')
 
     for test in tests[:]:
         name = os.path.basename(test)
         if name == MYNAME:
             continue
-        for g in args.glob:
+        for g in glob_filter:
             if fnmatch(name, g):
                 _tests.append(test)
                 break
@@ -406,7 +406,7 @@ def get_tests():
             update_skip_according_to_db(data)
         else:
             TESTS = glob(MYDIR + '/test-*')
-            glob_tests(args, TESTS)
+            glob_tests(args.glob, TESTS)
             update_skip_according_to_rm()
 
         return True
