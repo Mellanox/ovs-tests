@@ -224,7 +224,7 @@ def glob_tests(args, tests):
 
 def get_current_fw():
     if "CONFIG" not in os.environ:
-        print("ERROR: Cannot ignore by FW because CONFIG environment variable is missing.")
+        print("ERROR: Cannot ignore by FW, CONFIG environment variable is missing.")
         return None
 
     config = os.environ.get('CONFIG')
@@ -325,11 +325,12 @@ def should_ignore_test(name, exclude):
 
 def save_summary_html():
     number_of_tests = len(TESTS)
-    passed_tests = sum(map(lambda test: 'TEST PASSED' in test['status'], TESTS_SUMMARY))
+    passed_tests = sum(map(lambda test: 'PASSED' in test['status'], TESTS_SUMMARY))
     failed_tests = sum(map(lambda test: 'FAILED' in test['status'], TESTS_SUMMARY))
     skip_tests = sum(map(lambda test: 'SKIP' in test['status'], TESTS_SUMMARY))
     ignored_tests = sum(map(lambda test: 'IGNORED' in test['status'], TESTS_SUMMARY))
-    pass_rate = str(int(passed_tests / float(number_of_tests - skip_tests - ignored_tests) * 100)) + '%'
+    running = number_of_tests - skip_tests - ignored_tests
+    pass_rate = str(int(passed_tests / float(running) * 100)) + '%'
     runtime = sum([t['run_time'] for t in TESTS_SUMMARY])
 
     summary = SUMMARY_ROW.format(number_of_tests=number_of_tests,
@@ -343,9 +344,9 @@ def save_summary_html():
     for t in TESTS_SUMMARY:
         status = t['status']
         if t.get('test_log', ''):
-            status = ("<a href='{test_log}'>{status}</a>".format(
-                test_log=t['test_log'],
-                status=status))
+            status = "<a href='{test_log}'>{status}</a>".format(
+                        test_log=t['test_log'],
+                        status=status)
         results += RESULT_ROW.format(test=t['test_name'],
                                      run_time=t['run_time'],
                                      status=status)
@@ -384,7 +385,7 @@ def read_db():
     print("Reading DB: %s" % args.db)
     with open(args.db) as yaml_data:
         data = yaml.safe_load(yaml_data)
-        print( "Description: %s" % data.get("description", "DB doesn't include a description"))
+        print("Description: %s" % data.get("description", "Empty"))
         return data
 
 
