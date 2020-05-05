@@ -213,6 +213,8 @@ def glob_tests(args, tests):
 
     for test in tests[:]:
         name = os.path.basename(test)
+        if name == MYNAME:
+            continue
         for g in args.glob:
             if fnmatch(name, g):
                 _tests.append(test)
@@ -438,8 +440,6 @@ def main(args):
 
     for test in TESTS:
         name = os.path.basename(test)
-        if name == MYNAME:
-            continue
         if ignore:
             if args.from_test != name:
                 continue
