@@ -5,18 +5,18 @@ from __future__ import print_function
 import os
 import re
 import sys
+import random
+import signal
 import argparse
 import subprocess
-import yaml
-import random
-import traceback
-import signal
-from ansi2html import Ansi2HTMLConverter
-from fnmatch import fnmatch
 from glob import glob
+from fnmatch import fnmatch
 from tempfile import mkdtemp
-from mlxredmine import MlxRedmine
 from datetime import datetime
+
+import yaml
+from mlxredmine import MlxRedmine
+from ansi2html import Ansi2HTMLConverter
 
 # HTML components
 SUMMARY_ROW = """<tr>
@@ -246,8 +246,6 @@ def get_current_fw():
 
 
 def update_skip_according_to_db(data):
-    global SKIP_TESTS
-
     rm = MlxRedmine()
     test_will_run = False
     current_fw_ver = get_current_fw()
@@ -284,11 +282,8 @@ def update_skip_according_to_db(data):
 
 
 def update_skip_according_to_rm():
-    global SKIP_TESTS
-
     print("Check redmine for open issues")
     rm = MlxRedmine()
-    SKIP_TESTS = {}
     for t in TESTS:
         data = []
         with open(t) as f:
@@ -345,8 +340,8 @@ def save_summary_html():
         status = t['status']
         if t.get('test_log', ''):
             status = "<a href='{test_log}'>{status}</a>".format(
-                        test_log=t['test_log'],
-                        status=status)
+                test_log=t['test_log'],
+                status=status)
         results += RESULT_ROW.format(test=t['test_name'],
                                      run_time=t['run_time'],
                                      status=status)
@@ -357,10 +352,9 @@ def save_summary_html():
         t = os.path.basename(t)
         if t not in running_tests_names:
             status = deco("DID'T RUN", 'darkred', html=True)
-            results += RESULT_ROW.format(
-                test=t,
-                run_time=0.0,
-                status=status)
+            results += RESULT_ROW.format(test=t,
+                                         run_time=0.0,
+                                         status=status)
 
     summary_file = "%s/summary.html" % LOGDIR
     with open(summary_file, 'w') as f:
@@ -405,20 +399,17 @@ def get_tests():
             glob_tests(args, TESTS)
             update_skip_according_to_rm()
 
-        return 0
+        return True
     except RuntimeError as e:
         print("ERROR: %s" % e)
-        return 1
+        return False
 
 
 def main(args):
-    global TESTS_SUMMARY
     exclude = []
     ignore = False
 
-    rc = get_tests()
-
-    if rc != 0:
+    if not get_tests():
         return 1
 
     if len(TESTS) == 0:
@@ -435,7 +426,6 @@ def main(args):
     sort_tests(args, TESTS)
 
     print("%-54s %-8s %s" % ("Test", "Time", "Status"))
-    tests_results = []
     failed = False
 
     for test in TESTS:
@@ -452,7 +442,7 @@ def main(args):
                         'test_log':  '',
                         'run_time':  0.0,
                         'status':    'UNKNOWN',
-                        }
+                       }
         sys.stdout.flush()
 
         res = 'OK'
