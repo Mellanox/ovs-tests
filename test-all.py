@@ -232,17 +232,17 @@ def get_current_fw():
         with open(config, 'r') as f1:
             for line in f1.readlines():
                 if "NIC=" in line:
-                    interface = line.split("NIC=")[1].strip()
+                    nic = line.split("NIC=")[1].strip()
     except IOError:
         print("ERROR: Cannot read config %s" % config)
         return None
 
-    if not interface:
+    if not nic:
         print("ERROR: Cannot find NIC in CONFIG.")
         return None
 
-    fw = subprocess.check_output("ethtool -i enp0s8f0 | grep firmware-version | awk {'print $2'}", shell=True).strip()
-    return fw
+    cmd = "ethtool -i %s | grep firmware-version | awk {'print $2'}" % nic
+    return subprocess.check_output(cmd, shell=True).strip()
 
 
 def update_skip_according_to_db(data):
