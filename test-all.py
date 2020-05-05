@@ -281,18 +281,23 @@ def update_skip_according_to_db(data):
         raise Exception('All Tests will be ignored !')
 
 
+def get_test_header(fname):
+    """Get commented lines from top of the file"""
+    data = []
+    with open(fname) as f:
+        for line in f.readlines():
+            if line.startswith('#') or not line.strip():
+                data.append(line)
+            else:
+                break
+    return ''.join(data)
+
+
 def update_skip_according_to_rm():
     print("Check redmine for open issues")
     rm = MlxRedmine()
     for t in TESTS:
-        data = []
-        with open(t) as f:
-            for line in f.readlines():
-                if line.startswith('#') or not line.strip():
-                    data.append(line)
-                else:
-                    break
-        data = ''.join(data)
+        data = get_test_header(t)
         t = os.path.basename(t)
         bugs = re.findall(r"#\s*Bug SW #([0-9]+):", data)
         for b in bugs:
