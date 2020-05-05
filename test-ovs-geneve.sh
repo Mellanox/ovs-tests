@@ -125,16 +125,16 @@ function run() {
     #ip netns exec ns0 ip a s dev $VF
 
     # icmp
-    ip netns exec ns0 ping -q -c 1 -i 0.1 -w 1 $REMOTE
+    ip netns exec ns0 ping -q -c 1 -w 1 $REMOTE
     if [ $? -ne 0 ]; then
         err "ping failed"
         return
     fi
 
     # initial traffic
-    ssh2 $REMOTE_SERVER timeout 4 iperf3 -s &
+    ssh2 $REMOTE_SERVER timeout 5 iperf3 -s &
     pid1=$!
-    sleep 0.5
+    sleep 1
     ip netns exec ns0 timeout 3 iperf3 -c $REMOTE -t 2 &
     pid2=$!
 
@@ -145,8 +145,8 @@ function run() {
     # traffic
     ssh2 $REMOTE_SERVER timeout 15 iperf3 -s &
     pid1=$!
-    sleep 0.5
-    ip netns exec ns0 timeout 15 iperf3 -c $REMOTE -t 14 -P3 &
+    sleep 1
+    ip netns exec ns0 timeout 15 iperf3 -c $REMOTE -t 12 -P3 &
     pid2=$!
 
     # verify pid

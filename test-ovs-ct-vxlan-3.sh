@@ -140,7 +140,7 @@ function run_server() {
     ssh2 $REMOTE_SERVER timeout $((t+2)) iperf -s -t $t &
 #    ssh2 $REMOTE_SERVER $pktgen -l -i $REMOTE_NIC --src-ip $IP --time $((t+1)) &
     pk1=$!
-    sleep 0.5
+    sleep 1
 }
 
 function run_client() {
@@ -161,7 +161,7 @@ function run() {
     add_openflow_rules
 
     # icmp
-    ip netns exec ns0 ping -q -c 1 -i 0.1 -w 1 $REMOTE
+    ip netns exec ns0 ping -q -c 1 -w 1 $REMOTE
     if [ $? -ne 0 ]; then
         err "ping failed"
         return

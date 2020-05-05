@@ -94,7 +94,7 @@ function run() {
     add_openflow_rules
 
     # icmp
-    ip netns exec ns0 ping -q -c 1 -i 0.1 -w 1 $REMOTE
+    ip netns exec ns0 ping -q -c 1 -w 1 $REMOTE
     if [ $? -ne 0 ]; then
         err "ping failed"
         return
@@ -104,7 +104,7 @@ function run() {
     # traffic
     ssh2 $REMOTE_SERVER timeout $((t+2)) iperf -s -t $t &
     pid1=$!
-    sleep 0.5
+    sleep 1
     ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -P3 &
     pid2=$!
 

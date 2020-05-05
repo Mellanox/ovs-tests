@@ -105,8 +105,6 @@ function run() {
     ip netns exec ns0 ping -c 100 -i 0.5 $REMOTE
     if [ $? -ne 0 ]; then
         err "ping failed"
-        echo pause
-        read
         return
     fi
 
@@ -114,7 +112,7 @@ function run() {
     # traffic
     ssh2 $REMOTE_SERVER timeout $((t+2)) iperf -s -t $t &
     pid1=$!
-    sleep 0.5
+    sleep 1
     ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -P3 &
     pid2=$!
 
