@@ -231,6 +231,16 @@ function clear_bonding() {
     ip link set dev $nic2 nomaster &>/dev/null
 }
 
+function remote_disable_sriov() {
+    local nic1=$REMOTE_NIC
+    local nic2=$REMOTE_NIC2
+    echo "Disabling sriov in remote server"
+    on_remote "echo 0 > /sys/class/net/$nic1/device/sriov_numvfs &>/dev/null"
+    if [ -n "$nic2" ]; then
+      on_remote "echo 0 > /sys/class/net/$nic2/device/sriov_numvfs &>/dev/null"
+    fi
+}
+
 function config_remote_bonding() {
     local nic1=$REMOTE_NIC
     local nic2=$REMOTE_NIC2
