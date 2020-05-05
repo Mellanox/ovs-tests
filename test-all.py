@@ -100,11 +100,7 @@ COLOURS = {
 
 
 class ExecCmdFailed(Exception):
-    def __init__(self, status):
-        self._status = status
-
-    def __str__(self):
-        return self._status
+    pass
 
 
 def parse_args():
