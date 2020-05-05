@@ -192,8 +192,8 @@ def format_result(res, out='', html=False):
     return deco(res, color, html)
 
 
-def sort_tests(args, tests):
-    if args.randomize:
+def sort_tests(tests, randomize=False):
+    if randomize:
         print('Randomizing the tests order')
         random.shuffle(tests)
     else:
@@ -433,7 +433,7 @@ def main(args):
         exclude.extend(args.exclude)
 
     exclude.extend(IGNORE_TESTS)
-    sort_tests(args, TESTS)
+    sort_tests(TESTS, args.randomize)
 
     print("%-54s %-8s %s" % ("Test", "Time", "Status"))
     failed = False
