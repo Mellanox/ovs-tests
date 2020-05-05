@@ -100,13 +100,11 @@ COLOURS = {
 
 
 class ExecCmdFailed(Exception):
-    def __init__(self, cmd, rc, logname):
-        self._cmd = cmd
-        self._rc = rc
-        self._logname = logname
+    def __init__(self, status):
+        self._status = status
 
     def __str__(self):
-        return self._logname
+        return self._status
 
 
 def parse_args():
@@ -157,7 +155,7 @@ def run_test(cmd, html=False):
 
     if subp.returncode:
         status = "(%s) %s" % (status, logname + ".log")
-        raise ExecCmdFailed(cmd, subp.returncode, status)
+        raise ExecCmdFailed(status)
 
     return status
 
