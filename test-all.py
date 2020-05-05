@@ -325,7 +325,10 @@ def save_summary_html():
     skip_tests = sum(map(lambda test: 'SKIP' in test['status'], TESTS_SUMMARY))
     ignored_tests = sum(map(lambda test: 'IGNORED' in test['status'], TESTS_SUMMARY))
     running = number_of_tests - skip_tests - ignored_tests
-    pass_rate = str(int(passed_tests / float(running) * 100)) + '%'
+    if running:
+        pass_rate = str(int(passed_tests / float(running) * 100)) + '%'
+    else:
+        pass_rate = 0
     runtime = sum([t['run_time'] for t in TESTS_SUMMARY])
 
     summary = SUMMARY_ROW.format(number_of_tests=number_of_tests,
