@@ -30,8 +30,7 @@ RESULT_ROW = """<tr>
     <td bgcolor='lightgray' align='left'>{run_time}</td>
     <td bgcolor='lightgray' align='left'>{status}</td>
                 </tr>"""
-HTML = """
-<!DOCTYPE html>
+HTML = """<!DOCTYPE html>
 <html>
     <head>
         <title>Summary</title>
