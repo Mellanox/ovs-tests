@@ -15,9 +15,12 @@ trap cleanup EXIT
 start_check_syndrome
 disable_sriov_autoprobe
 
+config_sriov 0 $NIC2
+
 title "Config 8 VFs on $NIC"
 config_reps 8 $NIC
 count_reps 9 $NIC
+
 title "Config 8 VFs on $NIC2"
 config_reps 8 $NIC2
 count_reps 18 $NIC
