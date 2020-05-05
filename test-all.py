@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+from __future__ import print_function
+
 import os
 import re
 import sys
@@ -139,7 +141,7 @@ def run_test(cmd, html=False):
     subp = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT, close_fds=True)
     out = subp.communicate()
-    log = out[0]
+    log = out[0].decode('ascii')
 
     with open("%s.log" % logname, 'w') as f1:
         f1.write(log)
@@ -190,7 +192,7 @@ def format_result(res, out='', html=False):
 
 def sort_tests(args, tests):
     if args.randomize:
-        print 'Randomizing the tests order'
+        print('Randomizing the tests order')
         random.shuffle(tests)
     else:
         tests.sort(key=lambda x: os.path.basename(x).split('.')[0])
@@ -220,7 +222,7 @@ def glob_tests(args, tests):
 
 def get_current_fw():
     if "CONFIG" not in os.environ:
-        print "ERROR: Cannot ignore by FW because CONFIG environment variable is missing."
+        print("ERROR: Cannot ignore by FW because CONFIG environment variable is missing.")
         return None
 
     config = os.environ.get('CONFIG')
@@ -230,11 +232,11 @@ def get_current_fw():
                 if "NIC=" in line:
                     interface = line.split("NIC=")[1].strip()
     except IOError:
-        print "ERROR: Cannot read config %s" % config
+        print("ERROR: Cannot read config %s" % config)
         return None
 
     if not interface:
-        print "ERROR: Cannot find NIC in CONFIG."
+        print("ERROR: Cannot find NIC in CONFIG.")
         return None
 
     fw = subprocess.check_output("ethtool -i enp0s8f0 | grep firmware-version | awk {'print $2'}", shell=True).strip()
@@ -273,7 +275,7 @@ def update_skip_according_to_db(data):
 
         if t not in SKIP_TESTS:
             test_will_run = True
-    print
+    print()
 
     if not test_will_run:
         raise Exception('All Tests will be ignored !')
@@ -282,13 +284,13 @@ def update_skip_according_to_db(data):
 def update_skip_according_to_rm():
     global SKIP_TESTS
 
-    print "Check redmine for open issues"
+    print("Check redmine for open issues")
     rm = MlxRedmine()
     SKIP_TESTS = {}
     for t in TESTS:
         data = []
         with open(t) as f:
-            for line in f.xreadlines():
+            for line in f.readlines():
                 if line.startswith('#') or not line.strip():
                     data.append(line)
                 else:
@@ -305,7 +307,7 @@ def update_skip_according_to_rm():
 
         if t not in SKIP_TESTS and 'IGNORE_FROM_TEST_ALL' in data:
             SKIP_TESTS[t] = "IGNORE_FROM_TEST_ALL"
-    print
+    print()
 
 
 def should_ignore_test(name, exclude):
@@ -357,7 +359,7 @@ def save_summary_html():
         f.write(HTML.format(summary=summary, results=results))
         f.close()
 
-    print "Summary: %s" % summary_file
+    print("Summary: %s" % summary_file)
 
 
 def prepare_logdir():
@@ -368,14 +370,14 @@ def prepare_logdir():
             os.mkdir(LOGDIR)
         else:
             LOGDIR = mkdtemp(prefix='log')
-        print "Log dir: " + LOGDIR
+        print("Log dir: " + LOGDIR)
 
 
 def read_db():
-    print "Reading DB: %s" % args.db
+    print("Reading DB: %s" % args.db)
     with open(args.db) as yaml_data:
         data = yaml.safe_load(yaml_data)
-        print "Description: %s" % data.get("description", "DB doesn't include a description")
+        print( "Description: %s" % data.get("description", "DB doesn't include a description"))
         return data
 
 
@@ -396,8 +398,8 @@ def get_tests():
             update_skip_according_to_rm()
 
         return 0
-    except RuntimeError, e:
-        print "ERROR: %s" % e
+    except RuntimeError as e:
+        print("ERROR: %s" % e)
         return 1
 
 
@@ -412,7 +414,7 @@ def main(args):
         return 1
 
     if len(TESTS) == 0:
-        print "ERROR: No tests to run"
+        print("ERROR: No tests to run")
         return 1
 
     if args.from_test:
@@ -424,7 +426,7 @@ def main(args):
     exclude.extend(IGNORE_TESTS)
     sort_tests(args, TESTS)
 
-    print "%-54s %-8s %s" % ("Test", "Time", "Status")
+    print("%-54s %-8s %s" % ("Test", "Time", "Status"))
     tests_results = []
     failed = False
 
@@ -437,7 +439,7 @@ def main(args):
                 continue
             ignore = False
 
-        print "%-62s " % deco(name, 'light-blue'),
+        print("%-62s " % deco(name, 'light-blue'), end=' ')
         test_summary = {'test_name': name,
                         'test_log':  '',
                         'run_time':  '0.0',
@@ -462,7 +464,7 @@ def main(args):
                 test_summary['test_log'] = '%s.html' % name
                 cmd = test
                 res = run_test(cmd, args.html)
-            except ExecCmdFailed, e:
+            except ExecCmdFailed as e:
                 failed = True
                 res = 'FAILED'
                 out = str(e)
@@ -470,10 +472,10 @@ def main(args):
         end_time = datetime.now()
         total_seconds = "%-7.2f" % (end_time - start_time).total_seconds()
         test_summary['run_time'] = total_seconds
-        print "%s " % total_seconds,
+        print("%s " % total_seconds, end=' ')
 
         test_summary['status'] = format_result(res, skip_reason, html=True)
-        print "%-60s" % format_result(res, skip_reason + out)
+        print("%-60s" % format_result(res, skip_reason + out))
 
         TESTS_SUMMARY.append(test_summary)
 
@@ -485,9 +487,9 @@ def main(args):
 
 
 def signal_handler(signum, frame):
-    print "\nterminated"
+    print("\nterminated")
     if args.html and not args.dry:
-        print "Saving results..."
+        print("Saving results...")
         save_summary_html()
     sys.exit(signum)
 
