@@ -102,7 +102,7 @@ function stop() {
     kill $pid1 &>/dev/null
     kill $pid2 &>/dev/null
     echo "wait for bgs"
-    wait &>/dev/null
+    wait $pid2 $pid1 &>/dev/null
 }
 
 function run() {
@@ -117,17 +117,17 @@ function run() {
         return
     fi
 
-    t=20
-    port_count=8000
+    t=25
+    port_count=6000
     # traffic
     ssh2 $REMOTE_SERVER $pktgen -i vxlan1 --src-ip $REMOTE --src-port 1000 --src-port-count $port_count --dst-port $port_count --dst-port-count 1 --pkt-count 1 --inter 0 --dst-ip $IP --time $t &
     pid1=$!
-    sleep 4
     ip netns exec ns0 $pktgen -i $VF --src-ip $IP --src-port $port_count --src-port-count 1 --dst-port 1000 --dst-port-count $port_count --pkt-count 1 --inter 0 --dst-ip $REMOTE --time $t &
     pid2=$!
+    # sending traffic from both directions without listener so sleep for both
+    sleep 5
 
-    # verify pid
-    sleep 2
+    # verify pids
     kill -0 $pid1 &>/dev/null
     if [ $? -ne 0 ]; then
         err "pktgen server failed"
@@ -143,15 +143,16 @@ function run() {
     echo "pids ok"
 
     sleep $t
+    stop
 
-    count=`conntrack -L | grep ASSURED | wc -l`
+    echo "verify number of offload flows in connrack"
+    count=`cat /proc/net/nf_conntrack | grep -i offload | wc -l`
     echo "flows: $count"
     if [ "$count" -lt $port_count ]; then
         err "Expected at least $port_count flows"
     fi
 
-    stop
-    # wait for ovs aging (default 10)
+    echo "wait for ovs aging (10 seconds)"
     sleep 12
 }
 
