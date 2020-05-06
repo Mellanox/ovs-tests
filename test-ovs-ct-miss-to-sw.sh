@@ -33,8 +33,7 @@ function add_netns() {
 
 function setup() {
     start_clean_openvswitch
-    sleep 1
-
+    ovs-vsctl set Open_vSwitch . other_config:max-idle=20000
     ovs-vsctl add-br ovs-br
 
     add_netns ns1 $ip1
@@ -45,6 +44,7 @@ function cleanup() {
     killall -9 nc &> /dev/null
     ip -all netns del
     del_all_bridges
+    ovs-vsctl remove Open_vSwitch . other_config max-idle
 }
 trap cleanup EXIT
 
