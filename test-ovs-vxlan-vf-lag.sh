@@ -17,6 +17,9 @@ REMOTE_NIC=${REMOTE_NIC:-$2}
 REMOTE_NIC2=${REMOTE_NIC2:-$3}
 
 require_remote_server
+if [ -z "$REMOTE_NIC2" ]; then
+    fail "Remote nic2 is not configured"
+fi
 
 IP=1.1.1.7
 REMOTE=1.1.1.8
