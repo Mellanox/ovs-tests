@@ -24,7 +24,7 @@ title "Test decap mpls over udp rule and forward to VF rep"
 enable_switchdev_if_no_rep $REP
 
 # create tunnel interface
-ip link add dev bareudp0 type bareudp dstport $UDPPORT ethertype 0x8847
+ip link add dev bareudp0 type bareudp dstport $UDPPORT ethertype 0x8847 || fail "Failed to create bareudp device"
 tc qdisc add dev bareudp0 ingress
 
 # bring up interfaces
