@@ -488,11 +488,16 @@ def main():
     return failed
 
 
+def cleanup():
+    runtime = sum([t['run_time'] for t in TESTS_SUMMARY])
+    print("runtime: %s" % runtime)
+    if args.html and not args.dry:
+        save_summary_html()
+
+
 def signal_handler(signum, frame):
     print("\nterminated")
-    if args.html and not args.dry:
-        print("Saving results...")
-        save_summary_html()
+    cleanup()
     sys.exit(signum)
 
 
@@ -502,6 +507,5 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
     rc = main()
-    if args.html and not args.dry:
-        save_summary_html()
+    cleanup()
     sys.exit(rc)
