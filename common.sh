@@ -317,12 +317,11 @@ function fw_query_val() {
 }
 
 function ssh2() {
-    ssh -tt -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes $@
+    ssh -tt -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes "$@"
 }
 
 function on_remote() {
-    local cmd=$@
-    ssh2 $REMOTE_SERVER $cmd
+    ssh2 $REMOTE_SERVER "$@"
 }
 
 function require_remote_server() {
