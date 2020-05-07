@@ -60,7 +60,7 @@ def run_listener(args):
     src_ip = args.src_ip
 
     # ignore icmp unreachable packets
-    #os.system("iptables -I OUTPUT -p icmp --icmp-type destination-unreachable -j DROP")
+    os.system("iptables -I OUTPUT -p icmp --icmp-type destination-unreachable -j DROP")
 
     global _c
     _c = 0
@@ -111,7 +111,7 @@ def run_client(args):
     verify_args(args, needed)
 
     # ignore icmp unreachable packets
-    #os.system("iptables -I OUTPUT -p icmp --icmp-type destination-unreachable -j DROP")
+    os.system("iptables -I OUTPUT -p icmp --icmp-type destination-unreachable -j DROP")
 
     # no need for promiscuous mode
     #conf.sniff_promisc = 0
