@@ -45,7 +45,7 @@ success
 
 title "test fail change mode when flows are configured"
 tc filter add dev $NIC protocol ip parent ffff: prio 1 \
-    flower skip_sw indev $NIC \
+    flower skip_sw \
     src_mac e4:22:33:44:00:01 \
     dst_mac e4:22:33:44:00:01 \
     action drop || fail "Failed to add rule"
@@ -63,7 +63,7 @@ success
 
 title "test fail to add ipv4 rule to rep"
 tc filter add dev $REP protocol ip parent ffff: prio 1 \
-    flower skip_sw indev $REP \
+    flower skip_sw \
     src_mac e1:22:33:44:00:00 \
     dst_mac e2:22:33:44:00:00 \
     src_ip 1.1.1.1 \
@@ -72,7 +72,7 @@ tc filter add dev $REP protocol ip parent ffff: prio 1 \
 
 title "test fail to add ipv6 rule to rep"
 tc filter add dev $REP protocol ipv6 parent ffff: prio 2 \
-    flower skip_sw indev $REP \
+    flower skip_sw \
     src_mac e1:22:33:44:00:00 \
     dst_mac e2:22:33:44:00:00 \
     src_ip 2001:0db8:85a3::8a2e:0370:7334 \
@@ -81,7 +81,7 @@ tc filter add dev $REP protocol ipv6 parent ffff: prio 2 \
 
 title "test add ipv6 rule to pf"
 tc filter add dev $NIC protocol ipv6 parent ffff: prio 3 \
-    flower skip_sw indev $NIC \
+    flower skip_sw \
     src_mac e1:22:33:44:00:01 \
     dst_mac e2:22:33:44:00:01 \
     src_ip 2001:0db8:85a3::8a2e:0370:7334 \
@@ -104,7 +104,7 @@ success
 if [ -e /sys/class/net/$REP ]; then
     title "test add ipv6 rule"
     tc filter add dev $REP protocol ipv6 parent ffff: prio 1 \
-        flower skip_sw indev $REP \
+        flower skip_sw \
         src_mac e1:22:33:44:00:00 \
         dst_mac e2:22:33:44:00:00 \
         src_ip 2001:0db8:85a3::8a2e:0370:7334 \

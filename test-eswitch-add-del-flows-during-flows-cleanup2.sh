@@ -41,7 +41,7 @@ function add_rules() {
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
         tc filter add dev $nic protocol ip parent ffff: prio $i \
-            flower skip_sw indev $nic \
+            flower skip_sw \
             src_mac e1:22:33:44:${num1}:$num2 \
             dst_mac e2:22:33:44:${num1}:$num2 \
             action drop || return

@@ -296,7 +296,7 @@ function test_insert_ip_with_unmatched_bits_mask() {
 # a6e169312971 net/sched: cls_flower: Set the filter Hardware device for all use-cases
 function test_simple_insert_missing_action() {
     reset_tc $NIC
-    tc_filter_success add dev $NIC protocol ip parent ffff: `prio` flower indev $NIC
+    tc_filter_success add dev $NIC protocol ip parent ffff: `prio` flower
 }
 
 function test_five_tuple_match() {

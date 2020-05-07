@@ -32,7 +32,7 @@ function add_rules() {
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
         tc_filter add dev $NIC1 protocol ip parent ffff: prio $i \
-            flower skip_sw indev $NIC1 \
+            flower skip_sw \
             src_mac e1:22:33:44:${num1}:$num2 \
             dst_mac e2:22:33:44:${num1}:$num2 \
             action drop
@@ -45,7 +45,7 @@ function add_rules_vlan() {
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
         tc_filter add dev $NIC1 protocol 802.1Q parent ffff: prio $i \
-            flower skip_sw indev $NIC1 \
+            flower skip_sw \
             src_mac e1:22:33:44:${num1}:$num2 \
             dst_mac e2:22:33:44:${num1}:$num2 \
             vlan_ethtype 0x800 \
@@ -60,7 +60,7 @@ function add_rules_vlan_drop() {
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
         tc_filter add dev $NIC1 protocol 802.1Q parent ffff: prio $i \
-            flower skip_sw indev $NIC1 \
+            flower skip_sw \
             src_mac e1:22:33:44:${num1}:$num2 \
             dst_mac e2:22:33:44:${num1}:$num2 \
             vlan_ethtype 0x800 \
