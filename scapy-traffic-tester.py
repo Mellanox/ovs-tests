@@ -133,13 +133,14 @@ def run_client(args):
     print "Prepared %d packets" % len(pkt_list)
     t_end = time.time() + args.time
     s = conf.L3socket(iface=args.dev)
+    progress = random.choice(['.', ',', 'a', 'b', 'c', 'z'])
     try:
         while time.time() < t_end:
             for pkt in pkt_list:
                 send(pkt, verbose=0, count=args.pkt_count, inter=args.inter, iface=args.dev, socket=s)
                 sent += args.pkt_count
                 if sent % 500 == 0:
-                    sys.stdout.write('.')
+                    sys.stdout.write(progress)
                     sys.stdout.flush()
     finally:
         s.close()
