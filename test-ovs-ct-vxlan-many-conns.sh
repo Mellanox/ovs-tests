@@ -46,6 +46,7 @@ function cleanup_remote() {
 }
 
 function cleanup() {
+    stop
     ip a flush dev $NIC
     ip netns del ns0 &>/dev/null
     ip netns del ns1 &>/dev/null
@@ -98,10 +99,8 @@ function add_openflow_rules() {
 }
 
 function stop() {
-    echo "stop"
-    kill $pid1 &>/dev/null
-    kill $pid2 &>/dev/null
-    echo "wait for bgs"
+    [ -n "$pid1" ] && kill $pid1 &>/dev/null
+    [ -n "$pid2" ] && kill $pid2 &>/dev/null
     wait $pid2 $pid1 &>/dev/null
 }
 
