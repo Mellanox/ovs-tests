@@ -317,7 +317,7 @@ function fw_query_val() {
 }
 
 function ssh2() {
-    ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes $@
+    ssh -tt -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes $@
 }
 
 function on_remote() {
