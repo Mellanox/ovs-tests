@@ -46,9 +46,15 @@ title "add $COUNT rules"
 add_rules &
 sleep 1
 reload_modules &
-wait
+reload_modules_pid=$!
+wait $reload_modules_pid
+reload_modules_result=$?
 
 check_syndrome
 reset_tc $REP &>/dev/null
 
+if [ $reload_modules_result != 0 ]; then
+  load_modules
+  fail "Failed to reload modules"
+fi
 test_done

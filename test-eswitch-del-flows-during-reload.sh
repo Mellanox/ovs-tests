@@ -67,6 +67,6 @@ reset_tc $rep
 wait $reload_modules_pid
 if [ $? != 0 ]; then
   load_modules
-  fail "TEST FAILED"
+  fail "Failed to reload modules"
 fi
 test_done
