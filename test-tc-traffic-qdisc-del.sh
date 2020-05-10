@@ -13,7 +13,7 @@ my_dir="$(dirname "$0")"
 
 IP1="7.7.7.1"
 IP2="7.7.7.2"
-let NUM_PRIO=100
+let NUM_PRIO=60
 let PRIO_PER_CHAIN=$NUM_PRIO/5
 let FIRST_PORT=50000
 let LAST_PORT=$FIRST_PORT+$NUM_PRIO-1
