@@ -107,7 +107,7 @@ function test_tcpdump() {
 function run_server() {
     ssh2 $REMOTE_SERVER timeout $((t+2)) iperf -s -t $t &
     pk1=$!
-    sleep 1
+    sleep 2
 }
 
 function run_client() {

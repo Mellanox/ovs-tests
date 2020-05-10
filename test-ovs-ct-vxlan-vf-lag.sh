@@ -133,7 +133,7 @@ function run_server() {
     ssh2 $REMOTE_SERVER timeout $((t+2)) iperf -s -t $t &
 #    ssh2 $REMOTE_SERVER $pktgen -l -i $REMOTE_NIC --src-ip $IP --time $((t+1)) &
     pk1=$!
-    sleep 1
+    sleep 2
 }
 
 function run_client() {

@@ -134,18 +134,18 @@ function run() {
     # initial traffic
     ssh2 $REMOTE_SERVER timeout 5 iperf3 -s &
     pid1=$!
-    sleep 1
+    sleep 2
     ip netns exec ns0 timeout 3 iperf3 -c $REMOTE -t 2 &
     pid2=$!
 
-    sleep 4
+    sleep 3
     kill -9 $pid1 $pid2 &>/dev/null
     wait $pid1 $pid2 &>/dev/null
 
     # traffic
     ssh2 $REMOTE_SERVER timeout 15 iperf3 -s &
     pid1=$!
-    sleep 1
+    sleep 2
     ip netns exec ns0 timeout 15 iperf3 -c $REMOTE -t 12 -P3 &
     pid2=$!
 
