@@ -90,9 +90,10 @@ function do_test
     title "Test OVS QinQ with qinq-ethtype=802.1ad"
     rm -f $tmpfile
     timeout 5 tcpdump -enn -i $VETH1 -w $tmpfile &
+    pid=$!
     ip netns exec $NS1 ping 1.1.1.2 -c 5 && success || err "Ping failed"
     # verify tpid 802.1ad (by default) and vid 1000
-    sleep 1
+    wait $pid
     tcpdump -xxr $tmpfile  | grep 88a8 | grep 03e8 && success || err "Cannot find packet 88a8"
 
     title "Test OVS QinQ with qinq-ethtype=802.1q"
@@ -102,8 +103,9 @@ function do_test
 
     rm -f $tmpfile
     timeout 5 tcpdump -enn -i $VETH1 -w $tmpfile &
+    pid=$!
     ip netns exec $NS1 ping 1.1.1.2 -c 5 && success || err "Ping failed"
-    sleep 1
+    wait $pid
     tcpdump -xxr $tmpfile  | grep 8100 | grep 03e8 && success || err "Cannot find packet 8100"
 }
 
