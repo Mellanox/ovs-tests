@@ -122,11 +122,8 @@ function check_filters_traffic() {
 
     check_num_filters $dev $num_filters
 
-    for sent in $(tc -s filter show dev $dev ingress | grep -Eo 'Sent [0-9]+' | cut -d " " -f 2); do
-        if (( $sent == 0 ))
-        then
-            err "Zero packets on filter"
-            break
-        fi
-    done
+    local a=$(tc -s filter show dev $dev ingress | grep -Eo 'Sent 0' | wc -l)
+    if [ "$a" != 0 ]; then
+        err "Zero packets on $a filters"
+    fi
 }
