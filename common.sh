@@ -975,10 +975,10 @@ function check_for_ofed_memtrack_errors() {
     local filter="memtrack_report: Summary: 0 leak(s) detected"
     local a=`journalctl --since="$sec seconds ago" | grep -i "$look" |grep -v -i "$filter" || true`
 
-    if [ "$a" != "" ] || [ "$b" != "" ]; then
+    if [ "$a" != "" ]; then
         err "Detected memtrack errors in the log"
+        echo "$a"
     fi
-    [ "$a" != "" ] && echo "$a"
 }
 
 function check_for_errors_log() {
