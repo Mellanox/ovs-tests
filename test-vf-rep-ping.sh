@@ -24,6 +24,12 @@ function cleanup() {
     ifconfig $REP 0
 }
 
+# make sure uplink is down. reproduces an issue if uplink is down no traffic
+# between vf and rep.
+ip link set $NIC down
+ip link set $NIC up
+ip link set $NIC down
+
 cleanup
 ifconfig $REP $IP1/24 up
 ip netns add ns0
