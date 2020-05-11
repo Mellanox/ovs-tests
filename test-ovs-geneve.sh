@@ -141,6 +141,7 @@ function run() {
     sleep 3
     kill -9 $pid1 $pid2 &>/dev/null
     wait $pid1 $pid2 &>/dev/null
+    sleep 2
 
     # traffic
     ssh2 $REMOTE_SERVER timeout 15 iperf3 -s &
