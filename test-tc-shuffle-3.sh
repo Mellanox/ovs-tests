@@ -32,6 +32,8 @@ tc filter add dev $NIC parent ffff: protocol ip flower dst_mac e4:1d:2d:5d:25:39
 tc filter del dev $NIC parent ffff:
 EOF
 
+enable_switchdev
+
 title "Test for groups overlapping"
 reset_tc $NIC
 for i in `seq 100`; do

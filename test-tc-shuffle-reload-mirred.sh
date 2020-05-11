@@ -18,6 +18,8 @@ ROUND_LOOP=${ROUND_LOOP:-200}
 rm -f $TMPFILE
 rm -f $RUNFILE
 
+enable_switchdev
+
 title "Test"
 title "- generate rules"
 

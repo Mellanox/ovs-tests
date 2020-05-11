@@ -17,6 +17,8 @@ ROUND_COUNT=${ROUND_COUNT:-50}
 rm -f $TMPFILE
 rm -f $RUNFILE
 
+enable_switchdev
+
 title "Test"
 title "- generate rules"
 

@@ -30,6 +30,8 @@ tc filter add dev $NIC parent ffff: protocol ip prio 8 flower dst_mac e4:1d:2d:5
 tc filter del dev $NIC parent ffff:
 EOF
 
+enable_switchdev
+
 title "Test for groups overlapping"
 start_check_syndrome
 reset_tc $NIC
