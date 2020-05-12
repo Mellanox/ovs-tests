@@ -45,40 +45,6 @@ function test_config_ovs_bond_port_order() {
     del_all_bridges
 }
 
-function test_config_ovs_bond_simple() {
-    title "Test config ovs bond simple"
-    reset_tc bond0 $NIC $NIC2
-    start_clean_openvswitch
-    ovs-vsctl add-br br-ovs
-
-    # If we start with port down it also doesn't reproduce the issue
-    # if ports are up, OVS doesn't add the ingress block.
-    # dont uncomment as thats the purpose of the case.
-#    ifconfig $NIC down
-#    ifconfig $NIC2 down
-
-    ovs-vsctl add-port br-ovs bond0
-    ovs-vsctl add-port br-ovs $REP
-
-    verify_ingress_block
-    del_all_bridges
-}
-
-function test_config_ovs_bond_after_cleanup() {
-    title "Test config ovs bond after ovs restart"
-    reset_tc bond0 $NIC $NIC2
-    start_clean_openvswitch
-    ovs-vsctl add-br br-ovs
-    ovs-vsctl add-port br-ovs bond0
-
-    stop_openvswitch
-    reset_tc bond0 $NIC $NIC2
-    restart_openvswitch
-
-    verify_ingress_block
-    del_all_bridges
-}
-
 function test_ovs_restart_block_support() {
     title "Test tc block support post ovs restart"
     reset_tc bond0 $NIC $NIC2
@@ -144,8 +110,6 @@ cleanup
 config
 fail_if_err
 test_config_ovs_bond_port_order
-test_config_ovs_bond_simple
-test_config_ovs_bond_after_cleanup
 test_ovs_restart_block_support
 test_ovs_restart_block_reattach
 test_done
