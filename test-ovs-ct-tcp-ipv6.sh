@@ -59,7 +59,6 @@ function config() {
     config_vf ns0 $VF $REP $ip1
     config_vf ns1 $VF2 $REP2 $ip2
 
-    nat_range="1024-2048"
     ip -6 -netns ns0 neigh replace $ip2 dev $VF lladdr $mac2
     ip -6 -netns ns1 neigh replace $ip1 dev $VF2 lladdr $mac1
 }
