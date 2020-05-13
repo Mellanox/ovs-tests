@@ -102,6 +102,8 @@ function run() {
 
     config_vf ns0 $VF $REP $IP1
     config_ovs
+    ip link set $NIC up
+    ip link set $REP up
 
     echo "prepare for offload, 2048 hugepages and nf_flow_offload_timeout=600, nf_conntrack_max=524288"
     #echo 600 > /sys/module/nf_flow_table/parameters/nf_flow_offload_timeout
