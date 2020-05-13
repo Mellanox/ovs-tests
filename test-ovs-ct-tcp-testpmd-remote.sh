@@ -50,7 +50,11 @@ trap cleanup EXIT
 
 function run_pktgen() {
     echo "run traffic"
-    ip netns exec ns0 timeout --kill-after=1 $t $pktgen -i $VF -t 10 -d $IP2 -m $mac2 &
+    # with different number of threads we get different result
+    # -t 10 cpu hogs and getting ~50k flows. reproduced the kfree(ft) and rhashtable rehash race
+    # -t 1 got ~260k flows
+    # -t 2 got ~520k flows
+    ip netns exec ns0 timeout --kill-after=1 $t $pktgen -i $VF -t 1 -d $IP2 -m $mac2 &
     pid_pktgen=$!
     sleep 4
     if [ ! -e /proc/$pid_pktgen ]; then
@@ -111,10 +115,27 @@ function run() {
     echo "sleep 3 sec, fg now"
     sleep 3
 
-    t=60
+    t=300
+    echo "running for $t seconds"
     run_testpmd || return
     run_pktgen || return
+    w=100
+    sleep $w
+    let t-=w
+    echo "start tcpdump"
+    timeout $t tcpdump -qnnei $NIC -c 20 udp &
+    tpid=$!
     sleep $t
+    wait $tpid
+    rc=$?
+
+    if [[ $rc -eq 124 ]]; then
+        : tcpdump timeout, no traffic
+    elif [[ $rc -eq 0 ]]; then
+        err "Didn't expect to see packets"
+    else
+        err "Tcpdump failed"
+    fi
 
     log "check count"
     a=`cat /sys/kernel/debug/mlx5/$PCI/ct/offloaded`
