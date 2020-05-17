@@ -47,6 +47,7 @@ function remote-ovs-ctl() {
 
 function cleanup_remote() {
     on_remote ip a flush dev $REMOTE_NIC
+    on_remote ovs-vsctl del-br br-ovs &>/dev/null
     remote-ovs-ctl stop
     on_remote ip link del veth0 &>/dev/null
 }
