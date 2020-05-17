@@ -208,7 +208,7 @@ function run() {
 function iterate_bond_slaves() {
     title "iterate bond slaves"
     for i in `seq 5`; do
-        echo "loop again $i"
+        title "Iter $i"
         change_slaves
         count1=`get_rx_pkts $slave1`
         t=10
@@ -232,7 +232,7 @@ slave2=$NIC2
 active_slave=$NIC
 remote_active=$REMOTE_NIC
 function change_slaves() {
-    log "change active slave from $slave1 to $slave2"
+    title "change active slave from $slave1 to $slave2"
     local tmpslave=$slave1
     slave1=$slave2
     slave2=$tmpslave

@@ -199,7 +199,7 @@ slave2=$NIC2
 active_slave=$NIC
 remote_active=$REMOTE_NIC
 function change_slaves() {
-    log "change active slave from $slave1 to $slave2"
+    title "change active slave from $slave1 to $slave2"
     local tmpslave=$slave1
     slave1=$slave2
     slave2=$tmpslave
