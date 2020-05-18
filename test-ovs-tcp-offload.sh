@@ -87,7 +87,7 @@ function test_tcp() {
     title "Test iperf tcp $VF($VM1_IP) -> $VF2($VM2_IP)"
     timeout 13 ip netns exec ns0 iperf -s &
     sleep 0.5
-    iperf -c $VM2_IP -t 10
+    iperf -c $VM2_IP -t 12
     killall -9 iperf
     wait &>/dev/null
 }

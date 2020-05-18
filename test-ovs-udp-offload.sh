@@ -89,7 +89,7 @@ function test_udp() {
     title "Test iperf udp $VF($VM1_IP) -> $VF2($VM2_IP)"
     timeout 13 ip netns exec ns0 iperf -u -s &
     sleep 0.5
-    iperf -u -c $VM2_IP -t 10 -b1G
+    iperf -u -c $VM2_IP -t 12 -b1G
     killall -9 iperf
     wait &>/dev/null
 }
