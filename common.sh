@@ -1098,19 +1098,23 @@ function stop_openvswitch() {
     sleep 1
 }
 
-function check_hw_offload_enabled() {
-    local a=`ovs-vsctl get Open_vSwitch . other_config:hw-offload 2>/dev/null | tr -d '"'`
-    if [ "$a" == "true" ]; then
-        return 0
+function check_ovs_settings() {
+    local a
+    a=`ovs-vsctl get Open_vSwitch . other_config:hw-offload 2>/dev/null | tr -d '"'`
+    if [ "$a" != "true" ]; then
+        warn "OVS hw-offload is disabled"
     fi
-    warn "OVS hw-offload is disabled"
-    return 1
+    a=`ovs-vsctl get Open_vSwitch . other_config:max-idle 2>/dev/null`
+    if [ -n "$a" ]; then
+        warn "OVS cleaning max-idle"
+        ovs-vsctl remove Open_vSwitch . other_config max-idle
+    fi
 }
 
 function restart_openvswitch() {
     stop_openvswitch
     service_ovs start
-    check_hw_offload_enabled
+    check_ovs_settings
     sleep 1
 }
 
