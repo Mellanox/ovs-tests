@@ -69,12 +69,11 @@ function config_vf() {
     ip netns exec $ns ifconfig $vf $ip/24 up
 }
 
-cleanup
-
 enable_switchdev_if_no_rep $REP
 unbind_vfs
 bind_vfs
 require_interfaces VF VF2 REP REP2
+cleanup
 
 mac1=`cat /sys/class/net/$VF/address`
 mac2=`cat /sys/class/net/$VF2/address`
