@@ -99,7 +99,6 @@ check_double_action_rules 0
 title "change ofctl normal rule to all"
 start_check_syndrome
 ovs-ofctl del-flows br3
-sleep 1
 ovs-ofctl add-flow br3 dl_type=0x0800,actions=all
 sleep 1
 check_double_action_rules 2
@@ -108,7 +107,6 @@ check_syndrome || err
 title "change ofctl all rule to normal"
 start_check_syndrome
 ovs-ofctl del-flows br3
-sleep 1
 ovs-ofctl add-flow br3 dl_type=0x0800,actions=normal
 sleep 1
 check_offloaded_rules 2
@@ -118,7 +116,6 @@ check_syndrome || err
 title "change ofctl normal rule to drop"
 start_check_syndrome
 ovs-ofctl del-flows br3
-sleep 1
 ovs-ofctl add-flow br3 dl_type=0x0800,actions=drop
 sleep 1
 check_offloaded_rules 2
