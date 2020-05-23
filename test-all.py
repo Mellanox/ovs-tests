@@ -42,13 +42,13 @@ HTML = """<!DOCTYPE html>
         <table id="summary_table">
             <thead>
                 <tr>
-                    <th bgcolor='grey' align='left'>Tests</th>
-                    <th bgcolor='grey' align='left'>Passed</th>
-                    <th bgcolor='grey' align='left'>Failed</th>
-                    <th bgcolor='grey' align='left'>Skipped</th>
-                    <th bgcolor='grey' align='left'>Ignored</th>
-                    <th bgcolor='grey' align='left'>Passrate</th>
-                    <th bgcolor='grey' align='left'>Runtime</th>
+                    <th bgcolor='gray' align='left'>Tests</th>
+                    <th bgcolor='gray' align='left'>Passed</th>
+                    <th bgcolor='gray' align='left'>Failed</th>
+                    <th bgcolor='gray' align='left'>Skipped</th>
+                    <th bgcolor='gray' align='left'>Ignored</th>
+                    <th bgcolor='gray' align='left'>Passrate</th>
+                    <th bgcolor='gray' align='left'>Runtime</th>
                 </tr>
             </thead>
             <tbody>
@@ -59,9 +59,9 @@ HTML = """<!DOCTYPE html>
         <table id="results_table">
             <thead>
                  <tr>
-                    <th bgcolor='grey' align='left'>Test</th>
-                    <th bgcolor='grey' align='left'>Time</th>
-                    <th bgcolor='grey' align='left'>Status</th>
+                    <th bgcolor='gray' align='left'>Test</th>
+                    <th bgcolor='gray' align='left'>Time</th>
+                    <th bgcolor='gray' align='left'>Status</th>
                  </tr>
             </thead>
             <tbody>
