@@ -469,8 +469,12 @@ def prepare_logdir():
 
 
 def read_db():
-    print("Reading DB: %s" % args.db)
-    with open(args.db) as yaml_data:
+    db = args.db
+    print("Reading DB: %s" % db)
+    db2 = os.path.join(MYDIR, 'databases', db)
+    if not os.path.exists(db) and os.path.exists(db2):
+        db = db2
+    with open(db) as yaml_data:
         data = yaml.safe_load(yaml_data)
         print("Description: %s" % data.get("description", "Empty"))
         return data
