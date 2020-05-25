@@ -430,7 +430,9 @@ def main():
         exclude.extend(args.exclude)
 
     exclude.extend(IGNORE_TESTS)
-    sort_tests(TESTS, args.randomize)
+
+    if not args.db or args.randomize:
+        sort_tests(TESTS, args.randomize)
 
     print("%-54s %-8s %s" % ("Test", "Time", "Status"))
     failed = False
