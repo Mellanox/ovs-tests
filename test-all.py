@@ -242,6 +242,9 @@ def get_current_fw():
 
 
 def update_skip_according_to_db(data):
+    if type(data['tests']) is list:
+        return
+
     rm = MlxRedmine()
     test_will_run = False
     current_fw_ver = get_current_fw()
