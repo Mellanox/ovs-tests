@@ -66,8 +66,10 @@ function del_rules() {
 
 function test_switch_mode_to() {
     title "switch mode to $1"
+    __ignore_errors=1
     eval switch_mode_$1
     echo "switch mode $1 done"
+    __ignore_errors=0
 }
 
 function test_case_del_in_switchdev() {
