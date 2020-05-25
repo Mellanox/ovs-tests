@@ -391,7 +391,7 @@ def read_db():
 
 
 def load_tests_from_db(data):
-    return [MYDIR + '/' + key for key in data['tests']]
+    return [os.path.join(MYDIR, key) for key in data['tests']]
 
 
 def get_tests():
