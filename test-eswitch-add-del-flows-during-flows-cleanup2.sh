@@ -53,8 +53,6 @@ function del_rules() {
     local first=true
     title "del rules from $nic"
     for i in `seq $COUNT`; do
-        num1=`printf "%02x" $((i / 100))`
-        num2=`printf "%02x" $((i % 100))`
         tc filter del dev $nic protocol ip parent ffff: prio $i
         if [ "$?" != 0 ]; then
             if [ $first = true ]; then
