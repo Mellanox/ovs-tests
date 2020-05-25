@@ -524,7 +524,7 @@ function bring_up_reps() {
     ifs=`__get_reps $nic`
 
     if [ -z "$ifs" ]; then
-        err "bring_up_reps: didn't find reps for $nic"
+        warn "bring_up_reps: didn't find reps for $nic"
         return
     fi
 
