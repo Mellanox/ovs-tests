@@ -72,11 +72,8 @@ function add_rules_vlan_drop() {
 }
 
 function del_rules() {
-    local count="$1"
     echo "del rules"
     for i in `seq $COUNT`; do
-        num1=`printf "%02x" $((i / 100))`
-        num2=`printf "%02x" $((i % 100))`
         tc_filter del dev $NIC1 parent ffff: prio $i
     done
 }
