@@ -895,6 +895,17 @@ function get_sw_id() {
     cat /sys/class/net/$1/phys_switch_id 2>/dev/null
 }
 
+function get_port_name() {
+    cat /sys/class/net/$1/phys_port_name 2>/dev/null
+}
+
+function get_parent_port_name() {
+    local a=`cat /sys/class/net/$1/phys_port_name 2>/dev/null`
+    a=${a%vf*}
+    a=${a//f}
+    echo $a
+}
+
 function get_vf() {
     local vfn=$1
     local nic=${2:-$NIC}
@@ -912,6 +923,8 @@ function get_rep() {
     local count=0
     local nic=${2:-$NIC}
     local id=`get_sw_id $nic`
+    local pn=`get_port_name $nic`
+    local pn2
 
     local b="${nic}_$vf"
 
@@ -928,7 +941,8 @@ function get_rep() {
 
     for i in `ls -1 $VIRTUAL`; do
         id2=`get_sw_id $i`
-        if [ "$id" = "$id2" ]; then
+        pn2=`get_parent_port_name $i`
+        if [ "$id" = "$id2" ] && [ "$pn" = "$pn2" ]; then
             if [ "$vf" = "$count" ]; then
                     echo $i
                     echo "Found rep $i" >>/dev/stderr
