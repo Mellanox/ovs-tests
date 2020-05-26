@@ -11,6 +11,7 @@ my_dir="$(dirname "$0")"
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
+require_interfaces NIC NIC2
 config_sriov 3
 config_sriov 1 $NIC2
 enable_switchdev_if_no_rep $REP
@@ -26,6 +27,7 @@ VF3=`get_vf 2`
 VF4=`get_vf 0 $NIC2`
 reset_tc $REP
 reset_tc $REP2
+require_interfaces VF VF2 VF3 VF4
 
 mac1=`cat /sys/class/net/$VF/address`
 mac2=`cat /sys/class/net/$VF2/address`
