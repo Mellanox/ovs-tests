@@ -3,7 +3,7 @@
 # Testing we return tc rule stats even if when one port is down.
 # In vxlan case it also means there is no rule offloaded.
 #
-# Bug SW #1431290: [IBM ECMP] intermediate high latency pings when a PF is down
+# Bug SW #1431290: [ECMP] intermediate high latency pings when a PF is down
 #
 # not related to ecmp but we test stats of vxlan traffic here
 # Bug SW #1800513: tc filters counters doesn't count all packets

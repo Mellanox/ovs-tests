@@ -3,7 +3,7 @@
 # Test OVS CT NAT udp traffic
 # Test CT action rule again after CT NAT action rule.
 #
-# Bug SW #2127833: [NGN] Pod to Cluster Ip traffic in not being offloaded
+# Bug SW #2127833: [] Pod to Cluster Ip traffic in not being offloaded
 #
 
 my_dir="$(dirname "$0")"

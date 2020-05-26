@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Reported traffic not working from IBM
+# Reported traffic not working
 # Paul debug result: link down/up overflow the sqn to loop around as fw use 32
 # bits but driver used 16 bits.
 
