@@ -1123,6 +1123,35 @@ function check_ovs_settings() {
         warn "OVS cleaning max-idle"
         ovs-vsctl remove Open_vSwitch . other_config max-idle
     fi
+    check_dpdk_init
+}
+
+function check_dpdk_init() {
+    local a
+    a=`ovs-vsctl get Open_vSwitch . other_config:dpdk-init 2>/dev/null | tr -d '"'`
+    local want
+
+    if [ "${DPDK}" == 1 ]; then
+        want="true"
+    else
+        want="false"
+    fi
+
+    if [ "$a" != "true" ]; then
+        if [ "$want" == true ]; then
+            warn "OVS initializing DPDK"
+            ovs-vsctl set Open_vSwitch . other_config:dpdk-init=true
+            stop_openvswitch
+            service_ovs start
+        fi
+    else
+        if [ "$want" == "false" ]; then
+            warn "OVS uninitalizing DPDK"
+            ovs-vsctl set Open_vSwitch . other_config:dpdk-init=false
+            stop_openvswitch
+            service_ovs start
+        fi
+    fi
 }
 
 function restart_openvswitch() {
