@@ -10,6 +10,12 @@ my_dir="$(dirname "$0")"
 
 require_module bonding
 
+# When rules added with metadata instead of source_port,
+# we cannot verify it because of mlxdump limitation not showing reg_c content.
+# so set to true checking kernels not using metadata or false if using metadata
+# to avoid false error.
+VERIFY_SOURCE_PORT=false
+
 config_sriov 2
 # TODO require vf lag support ?
 reset_tc $NIC
@@ -19,6 +25,14 @@ remote_ip="2.2.2.3"
 dst_mac="e4:1d:2d:fd:8b:02"
 dst_port=1234
 id=98
+
+function err_or_warn() {
+    if $VERIFY_SOURCE_PORT ; then
+        err $@
+    else
+        warn $@
+    fi
+}
 
 function verify_hw_rules() {
     local src=$1
@@ -33,7 +47,7 @@ function verify_hw_rules() {
     for i in 0 1 ; do
         title "- verify hw rule on port$i"
         mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
-        grep -A5 $mac /tmp/port$i | grep -q "$src_tag\s*:$src" || err "Expected rule with source port $src"
+        grep -A5 $mac /tmp/port$i | grep -q "$src_tag\s*:$src" || err_or_warn "Expected rule with source port $src"
         grep -A5 $mac /tmp/port$i | grep -q "$dst_tag\s*:$dst" || err "Expected rule with dest port $dst"
     done
 }
