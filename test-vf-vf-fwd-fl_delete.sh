@@ -89,7 +89,7 @@ killall -9 ping
 rm -f /tmp/tc_batch_1234
 cleanup
 # reload modules
-sleep 1
+sleep 2
 modprobe -rv act_mirred cls_flower || err "failed unload"
 modprobe -a act_mirred cls_flower
 test_done
