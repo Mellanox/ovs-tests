@@ -318,7 +318,7 @@ function fw_query_val() {
 }
 
 function ssh2() {
-    ssh -tt -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes "$@"
+    ssh -tt -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=3 "$@"
 }
 
 function on_remote() {
