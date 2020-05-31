@@ -30,7 +30,7 @@ function cleanup() {
 trap cleanup EXIT
 
 function run() {
-    title "Test CT ICMP"
+    title "Test ICMP with 4 rx channels"
     config_vf ns0 $VF $REP $IP1
     config_vf ns1 $VF2 $REP2 $IP2
 
