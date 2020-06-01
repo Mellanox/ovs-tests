@@ -14,7 +14,7 @@ function ovs_dpctl_dump_flows() {
 
 ovs_dpctl_dump_flows 2>&1 | grep -q "Invalid argument 'type'"
 if [ $? -eq 0 ]; then
-    echo "Test not relevant for this version of ovs"
+    echo "SKIP (Test not relevant for this version of ovs)"
     exit 0
 fi
 
