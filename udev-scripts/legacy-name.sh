@@ -13,6 +13,9 @@ else
     NAME=${ID_NET_NAME}
 fi
 
+# WA Strip invalid chars. kernel 5.2.0 shows invalid characters in ID_NET_NAME_PATH
+NAME=`echo $NAME | tr -cd '[:alnum:]._-'`
+
 NAME=${NAME%%np[[:digit:]]}
 # strip npX even from middle of the name.
 # e.g. new kernels have vf name as ens0f0np1vf0
