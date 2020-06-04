@@ -400,9 +400,9 @@ function fail() {
         return
     fi
     TEST_FAILED=1
+    kill_all_bgs
     echo -e "${RED}ERROR: $m$NOCOLOR" >>/dev/stderr
     kmsg "ERROR: $m"
-    wait
     exit 1
 }
 
@@ -1290,8 +1290,13 @@ function fail_if_err() {
     fi
 }
 
-function test_done() {
+function kill_all_bgs() {
+    kill -9 $(jobs -p) 2>/dev/null
     wait
+}
+
+function test_done() {
+    kill_all_bgs
     set +e
     check_for_errors_log
     if [ $TEST_FAILED == 0 ]; then
