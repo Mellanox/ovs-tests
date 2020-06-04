@@ -122,7 +122,7 @@ wait $tdpid
 
 echo "checking offload stats"
 sleep 3
-stats=`sudo tc -s filter show dev $REP ingress proto ip | grep "Sent [0-9]* bytes" | awk '{ print $4 };' | xargs echo`
+stats=`tc -s filter show dev $REP ingress proto ip | grep "Sent [0-9]* bytes" | awk '{ print $4 };' | xargs echo`
 expected="2 1 1 1 1 3 5 0"
 echo "got stats: $stats (expected: $expected)"
 [[ "$stats" == "$expected" ]] && success || err "expected different packet stats, expected ($expected) but got ($stats)"

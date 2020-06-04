@@ -66,7 +66,7 @@ function run_python_ns() {
     local ns=$1; shift;
 
     echo "[$ns] python: $@"
-    sudo ip netns exec $ns python -c "$@"
+    ip netns exec $ns python -c "$@"
 }
 
 function scpyudp() {
@@ -115,8 +115,8 @@ function run() {
     config_ovs $proto
 
     # needed for scapy
-    sudo ip netns exec ns0 ip link set lo up
-    sudo ip netns exec ns1 ip link set lo up
+    ip netns exec ns0 ip link set lo up
+    ip netns exec ns1 ip link set lo up
 
     title "run traffic once"
     scpyudp
