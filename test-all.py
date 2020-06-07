@@ -19,7 +19,8 @@ from mlxredmine import MlxRedmine
 from ansi2html import Ansi2HTMLConverter
 
 # HTML components
-SUMMARY_ROW = """<tr>
+SUMMARY_ROW = """
+<tr>
     <td bgcolor='lightgray' align='left'><b>{number_of_tests}</b></td>
     <td bgcolor='lightgray' align='left'><b>{passed_tests}</b></td>
     <td bgcolor='lightgray' align='left'><b>{failed_tests}</b></td>
@@ -28,11 +29,15 @@ SUMMARY_ROW = """<tr>
     <td bgcolor='lightgray' align='left'><b>{pass_rate}</b></td>
     <td bgcolor='lightgray' align='left'><b>{runtime}</b></td>
 </tr>"""
-RESULT_ROW = """<tr>
+
+RESULT_ROW = """
+<tr>
     <td bgcolor='lightgray' align='left'><b>{test}</b></td>
     <td bgcolor='lightgray' align='left'>{run_time}</td>
     <td bgcolor='lightgray' align='left'>{status}</td>
-</tr>"""
+</tr>
+"""
+
 HTML = """<!DOCTYPE html>
 <html>
     <head>
