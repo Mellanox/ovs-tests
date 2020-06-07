@@ -371,7 +371,6 @@ def save_summary_html():
     summary_file = "%s/summary.html" % LOGDIR
     with open(summary_file, 'w') as f:
         f.write(HTML.format(summary=summary, results=results))
-        f.close()
 
     print("Summary: %s" % summary_file)
 
