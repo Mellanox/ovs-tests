@@ -21,39 +21,50 @@ from ansi2html import Ansi2HTMLConverter
 # HTML components
 SUMMARY_ROW = """
 <tr>
-    <td bgcolor='lightgray' align='left'><b>{number_of_tests}</b></td>
-    <td bgcolor='lightgray' align='left'><b>{passed_tests}</b></td>
-    <td bgcolor='lightgray' align='left'><b>{failed_tests}</b></td>
-    <td bgcolor='lightgray' align='left'><b>{skip_tests}</b></td>
-    <td bgcolor='lightgray' align='left'><b>{ignored_tests}</b></td>
-    <td bgcolor='lightgray' align='left'><b>{pass_rate}</b></td>
-    <td bgcolor='lightgray' align='left'><b>{runtime}</b></td>
+    <td>{number_of_tests}</td>
+    <td>{passed_tests}</td>
+    <td>{failed_tests}</td>
+    <td>{skip_tests}</td>
+    <td>{ignored_tests}</td>
+    <td>{pass_rate}</td>
+    <td>{runtime}</td>
 </tr>"""
 
 RESULT_ROW = """
 <tr>
-    <td bgcolor='lightgray' align='left'><b>{test}</b></td>
-    <td bgcolor='lightgray' align='left'>{run_time}</td>
-    <td bgcolor='lightgray' align='left'>{status}</td>
+    <td class="testname">{test}</td>
+    <td>{run_time}</td>
+    <td>{status}</td>
 </tr>
+"""
+
+HTML_CSS = """
+    <style>
+      td { background-color: lightgray; }
+      td.testname { font-weight: bold; }
+      table#summary_table th { background-color: gray; }
+      table#summary_table td { font-weight: bold; }
+      table#results_table th { background-color: gray; }
+    </style>
 """
 
 HTML = """<!DOCTYPE html>
 <html>
     <head>
         <title>Summary</title>
+        {style}
     </head>
     <body>
         <table id="summary_table">
             <thead>
                 <tr>
-                    <th bgcolor='gray' align='left'>Tests</th>
-                    <th bgcolor='gray' align='left'>Passed</th>
-                    <th bgcolor='gray' align='left'>Failed</th>
-                    <th bgcolor='gray' align='left'>Skipped</th>
-                    <th bgcolor='gray' align='left'>Ignored</th>
-                    <th bgcolor='gray' align='left'>Passrate</th>
-                    <th bgcolor='gray' align='left'>Runtime</th>
+                    <th>Tests</th>
+                    <th>Passed</th>
+                    <th>Failed</th>
+                    <th>Skipped</th>
+                    <th>Ignored</th>
+                    <th>Passrate</th>
+                    <th>Runtime</th>
                 </tr>
             </thead>
             <tbody>
@@ -64,9 +75,9 @@ HTML = """<!DOCTYPE html>
         <table id="results_table">
             <thead>
                  <tr>
-                    <th bgcolor='gray' align='left'>Test</th>
-                    <th bgcolor='gray' align='left'>Time</th>
-                    <th bgcolor='gray' align='left'>Status</th>
+                    <th>Test</th>
+                    <th>Time</th>
+                    <th>Status</th>
                  </tr>
             </thead>
             <tbody>
@@ -370,7 +381,7 @@ def save_summary_html():
 
     summary_file = "%s/summary.html" % LOGDIR
     with open(summary_file, 'w') as f:
-        f.write(HTML.format(summary=summary, results=results))
+        f.write(HTML.format(style=HTML_CSS, summary=summary, results=results))
 
     print("Summary: %s" % summary_file)
 
