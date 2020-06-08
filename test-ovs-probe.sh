@@ -10,13 +10,9 @@ my_dir="$(dirname "$0")"
 
 LOCAL_TUN=7.7.7.7
 REMOTE_IP=7.7.7.8
-VXLAN_ID=42
 
 config_sriov 2
 enable_switchdev_if_no_rep $REP
-require_interfaces REP NIC
-unbind_vfs
-bind_vfs
 
 
 function cleanup() {
@@ -34,8 +30,9 @@ function run() {
     start_clean_openvswitch
 
     ovs-vsctl add-br br-ovs
-    ovs-vsctl add-port br-ovs vxlan1 -- set interface vxlan1 type=vxlan options:local_ip=$LOCAL_TUN options:remote_ip=$REMOTE_IP options:key=$VXLAN_ID options:dst_port=4789
-    ovs-vsctl add-port br-ovs $REP
+    ovs-vsctl add-port br-ovs vxlan1 -- set interface vxlan1 type=vxlan options:local_ip=$LOCAL_TUN options:remote_ip=$REMOTE_IP options:key=222 options:dst_port=4789
+    ovs-vsctl add-port br-ovs vxlan2 -- set interface vxlan2 type=vxlan options:local_ip=$LOCAL_TUN options:remote_ip=$REMOTE_IP options:key=333 options:dst_port=4789
+    ovs-vsctl add-port br-ovs vxlan3 -- set interface vxlan3 type=vxlan options:local_ip=$LOCAL_TUN options:remote_ip=$REMOTE_IP options:key=444 options:dst_port=4789
 
     log "set ovs hw offload true"
     ovs-vsctl set Open_vSwitch . other_config:hw-offload=true
