@@ -13,8 +13,10 @@ my_dir="$(dirname "$0")"
 function relevant_kernel() {
     local v1=`uname -r | tr ._- " " | awk {'print $1'}`
     local v2=`uname -r | tr ._- " " | awk {'print $2'}`
-    [ $v1 -gt 4 ] && fail "This test is relevant for kernel <= 4.10"
-    [ $v2 -gt 10 ] && fail "This test is relevant for kernel <= 4.10"
+    if [ $v1 -gt 4 ] || [ $v2 -gt 10 ]; then
+        log "SKIP (Test relevant for kernel <= 4.10)"
+        exit 0
+    fi
 }
 
 relevant_kernel
