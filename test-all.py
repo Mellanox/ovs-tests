@@ -40,9 +40,9 @@ RESULT_ROW = """
 
 HTML_CSS = """
     <style>
-      td { background-color: lightgray; }
-      td.testname { font-weight: bold; }
-      th { text-align: left; }
+      .asap_table td { background-color: lightgray; }
+      .asap_table th { text-align: left; }
+      .asap_table td.testname { font-weight: bold; }
       table#summary_table th { background-color: gray; }
       table#summary_table td { font-weight: bold; }
       table#results_table th { background-color: gray; }
@@ -56,7 +56,7 @@ HTML = """<!DOCTYPE html>
         {style}
     </head>
     <body>
-        <table id="summary_table">
+        <table id="summary_table" class="asap_table">
             <thead>
                 <tr>
                     <th>Tests</th>
@@ -73,7 +73,7 @@ HTML = """<!DOCTYPE html>
             </tbody>
         </table>
         <br>
-        <table id="results_table">
+        <table id="results_table" class="asap_table">
             <thead>
                  <tr>
                     <th>Test</th>
