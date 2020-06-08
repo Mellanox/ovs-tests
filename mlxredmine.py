@@ -30,6 +30,9 @@ class MlxRedmine(object):
         task = j['issue']
         return task
 
+    def is_issue_wont_fix(self, task):
+        return task['status']['id'] == STATUS_WONT_FIX
+
     def is_issue_closed(self, task):
         return task['status']['id'] in (STATUS_FIXED, STATUS_CLOSED, STATUS_CLOSED_REJECTED)
 

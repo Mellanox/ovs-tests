@@ -95,6 +95,7 @@ LOGDIR = ''
 TESTS = []
 IGNORE_TESTS = []
 SKIP_TESTS = {}
+WONT_FIX = {}
 TESTS_SUMMARY = []
 COLOURS = {
     "black": 30,
@@ -136,6 +137,8 @@ def parse_args():
                         help='glob of tests')
     parser.add_argument('--db',
                         help='DB file to read for tests to run')
+    parser.add_argument('--db-check', action='store_true',
+                        help='DB check')
     parser.add_argument('--log_dir',
                         help='Log dir to save all logs under')
     parser.add_argument('--html', action='store_true',
@@ -284,6 +287,8 @@ def update_skip_according_to_db(data):
 
         for bug in bugs_list:
             task = rm.get_issue(bug)
+            if rm.is_issue_wont_fix(task):
+                WONT_FIX[t] = "RM #%s: %s" % (bug, task['subject'])
             if rm.is_issue_open(task):
                 SKIP_TESTS[t] = "RM #%s: %s" % (bug, task['subject'])
             sys.stdout.write('.')
@@ -428,6 +433,15 @@ def get_tests():
         return False
 
 
+def db_check():
+    for test in TESTS:
+        name = os.path.basename(test)
+        if name in WONT_FIX:
+            print("%-62s " % deco(name, 'light-blue'), end=' ')
+            print("WONT FIX  %-30s" % deco(WONT_FIX[name], 'yellow'))
+    return 0
+
+
 def main():
     exclude = []
     ignore = False
@@ -449,6 +463,9 @@ def main():
 
     if not args.db or args.randomize:
         sort_tests(TESTS, args.randomize)
+
+    if args.db_check:
+        return db_check()
 
     print("%-54s %-8s %s" % ("Test", "Time", "Status"))
     failed = False
