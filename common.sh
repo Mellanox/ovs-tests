@@ -282,7 +282,10 @@ function require_module() {
 
 function require_min_kernel_5() {
     local v=`uname -r | cut -d. -f1`
-    [ $v -lt 5 ] && fail "Require minimum kernel 5"
+    if [ $v -lt 5 ]; then
+        log "SKIP (Require minimum kernel 5)"
+        exit 0
+    fi
 }
 
 function cloud_fw_reset() {
