@@ -42,6 +42,7 @@ HTML_CSS = """
     <style>
       td { background-color: lightgray; }
       td.testname { font-weight: bold; }
+      th { text-align: left; }
       table#summary_table th { background-color: gray; }
       table#summary_table td { font-weight: bold; }
       table#results_table th { background-color: gray; }
