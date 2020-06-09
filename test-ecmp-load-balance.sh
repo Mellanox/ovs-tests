@@ -2,8 +2,8 @@
 #
 # Test ecmp load balance
 #
-# Bug SW #1747774: [OFED 4.6] Load balancing not working over VF LAG configuration
-# Bug SW #1755805: [ECMP MOFED 4.6] - Load balance not working at all on TX side over ECMP Configuration
+# Bug SW # 1747774 : [OFED 4.6] Load balancing not working over VF LAG configuration
+# Bug SW # 1755805 : [ECMP MOFED 4.6] - Load balance not working at all on TX side over ECMP Configuration
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
