@@ -529,7 +529,8 @@ def main():
 
 def cleanup():
     runtime = sum([t['run_time'] for t in TESTS_SUMMARY])
-    print("runtime: %s" % runtime)
+    if runtime > 0:
+        print("runtime: %s" % runtime)
     if args.html and not args.dry:
         save_summary_html()
 
