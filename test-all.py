@@ -295,6 +295,12 @@ def update_skip_according_to_db(data):
                     continue
 
         bugs_list = []
+        issue_keys = [x for x in data['tests'][t].keys() if isinstance(x, int)]
+        for issue in issue_keys:
+            for kernel in data['tests'][t][issue]:
+                if re.search("^%s$" % kernel, current_kernel):
+                    bugs_list.append(issue)
+
         ignore_kernel = data['tests'][t].get('ignore_kernel', {})
         for kernel in ignore_kernel:
             if re.search("^%s$" % kernel, current_kernel):
