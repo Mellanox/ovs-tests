@@ -1,15 +1,17 @@
 #!/usr/bin/python
 
+import re
+
 class VersionInfo(object):
     def __init__(self, version):
         self.version = str(version)
+        s = re.sub('[.-]', ' ', self.version).split()
         # Quick WA to avoid split errors for short versions
-        v = self.version + '.0.0.0'
-        s = v.split('.')
-        self.major = s[0]
-        self.minor = s[1]
-        self.patch = s[2]
-        self.build = '.'.join(s[3:])
+        s += [0, 0, 0, 0]
+        self.major = int(s[0])
+        self.minor = int(s[1])
+        self.patch = int(s[2])
+        self.build = int(s[3])
 
     def __gt__(self, other):
         raise RuntimeError("not supported")
@@ -26,6 +28,10 @@ class VersionInfo(object):
         if self.patch < other.patch:
             return True
         if self.patch > other.patch:
+            return False
+        if self.build < other.build:
+            return True
+        if self.build > other.build:
             return False
         raise RuntimeError("not supported")
 

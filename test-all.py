@@ -276,7 +276,10 @@ def update_skip_according_to_db(data):
         if data['tests'][t] is None:
             data['tests'][t] = {}
 
-        min_kernel = data['tests'][t].get('min_kernel', None)
+        if 'el' in current_kernel:
+            min_kernel = data['tests'][t].get('min_kernel_rhel', None)
+        else:
+            min_kernel = data['tests'][t].get('min_kernel', None)
         kernels = data['tests'][t].get('kernels', [])
         if kernels and not min_kernel:
             raise RuntimeError("%s: Specifying kernels without min_kernel is not allowed." % t)
