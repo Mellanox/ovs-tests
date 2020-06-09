@@ -13,6 +13,7 @@ from glob import glob
 from fnmatch import fnmatch
 from tempfile import mkdtemp
 from datetime import datetime
+from semver import VersionInfo
 
 import yaml
 from mlxredmine import MlxRedmine
@@ -268,16 +269,35 @@ def update_skip_according_to_db(data):
     rm = MlxRedmine()
     test_will_run = False
     current_fw_ver = get_current_fw()
+    current_kernel = os.uname()[2]
 
     for t in TESTS:
         t = os.path.basename(t)
         if data['tests'][t] is None:
             data['tests'][t] = {}
 
+        min_kernel = data['tests'][t].get('min_kernel', None)
+        kernels = data['tests'][t].get('kernels', [])
+        if kernels and not min_kernel:
+            raise RuntimeError("%s: Specifying kernels without min_kernel is not allowed." % t)
+
+        if min_kernel:
+            ok = False
+            for kernel in kernels:
+                if re.search("^%s$" % kernel, current_kernel):
+                    ok = True
+                    break
+            if not ok:
+                a = VersionInfo(min_kernel)
+                b = VersionInfo(current_kernel)
+                if b < a:
+                    SKIP_TESTS[t] = "Unsupported kernel version. Minimum %s" % min_kernel
+                    continue
+
         bugs_list = []
         ignore_kernel = data['tests'][t].get('ignore_kernel', {})
         for kernel in ignore_kernel:
-            if re.search("^%s$" % kernel, os.uname()[2]):
+            if re.search("^%s$" % kernel, current_kernel):
                 for bug in ignore_kernel[kernel]:
                     bugs_list.append(bug)
 
