@@ -44,7 +44,7 @@ function get_pkts() {
 }
 
 function run() {
-    title "Test CT TCP"
+    title "Test CT nat tcp ipv6"
     tc_test_verbose
     config_vf ns0 $VF $REP $IP1
     config_vf ns1 $VF2 $REP2 $IP2
@@ -88,7 +88,7 @@ function run() {
     t=15
     echo "run traffic for $t seconds"
     ip netns exec ns1 timeout $((t+7)) iperf -s --ipv6_domain &
-    sleep 2 
+    sleep 2
 
     #ozzz
     ip netns exec ns0 timeout $((t+2)) iperf --ipv6_domain -t $t -c $IP3 -P 1 -i 1 &
