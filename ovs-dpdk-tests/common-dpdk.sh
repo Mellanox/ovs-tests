@@ -15,7 +15,11 @@ function config_local_tunnel_ip() {
 }
 
 function config_ns() {
-    ip netns add ns0
-    ip link set $VF netns ns0
-    ip netns exec ns0 ifconfig $VF $1 up
+    local ns=$1
+    local dev=$2
+    local ip_addr=$3
+
+    ip netns add $ns
+    ip link set $dev netns $ns
+    ip netns exec $ns ifconfig $dev $ip_addr up
 }

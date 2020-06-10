@@ -50,7 +50,7 @@ function config() {
     config_simple_bridge
     config_remote_bridge $VXLAN_ID $REMOTE_IP
     config_local_tunnel_ip $LOCAL_TUN br-phy
-    config_ns $IP
+    config_ns ns0 $VF $IP
 }
 
 function config_remote() {
