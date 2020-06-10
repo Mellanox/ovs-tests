@@ -90,7 +90,6 @@ function run() {
     ip netns exec ns1 timeout $((t+7)) iperf -s --ipv6_domain &
     sleep 2
 
-    #ozzz
     ip netns exec ns0 timeout $((t+2)) iperf --ipv6_domain -t $t -c $IP3 -P 1 -i 1 &
 
     sleep 2
