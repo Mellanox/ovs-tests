@@ -97,16 +97,17 @@ function run() {
     timeout $t tcpdump -qnnei $REP -c 10 'tcp' &
     pid=$!
 
+    sleep 4
     pkts1=`get_pkts`
 
-    sleep $((t+2))
+    sleep $t
     killall -9 iperf &>/dev/null
     wait $! 2>/dev/null
 
     title "verify tc stats"
     pkts2=`get_pkts`
     let a=pkts2-pkts1
-    if (( a < 5 )); then
+    if (( a < 100 )); then
         err "TC stats are not updated"
     fi
 
