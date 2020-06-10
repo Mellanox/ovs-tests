@@ -11,6 +11,7 @@ API_KEY = "1bccd1f0f6699b60a652fcfdfa2210d6011488d0"
 # redmine status codes
 STATUS_IN_PROGRESS = 2
 STATUS_FIXED = 16
+STATUS_RELEASE_NOTES = 14
 STATUS_WONT_FIX = 11
 STATUS_REJECTED = 6
 STATUS_CLOSED = 5
@@ -30,8 +31,8 @@ class MlxRedmine(object):
         task = j['issue']
         return task
 
-    def is_issue_wont_fix(self, task):
-        return task['status']['id'] == STATUS_WONT_FIX
+    def is_issue_wont_fix_or_release_notes(self, task):
+        return task['status']['id'] in (STATUS_WONT_FIX, STATUS_RELEASE_NOTES)
 
     def is_issue_closed(self, task):
         return task['status']['id'] in (STATUS_FIXED, STATUS_CLOSED, STATUS_CLOSED_REJECTED)

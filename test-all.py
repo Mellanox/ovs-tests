@@ -319,8 +319,8 @@ def update_skip_according_to_db(data):
 
         for bug in bugs_list:
             task = rm.get_issue(bug)
-            if rm.is_issue_wont_fix(task):
-                WONT_FIX[t] = "RM #%s: %s" % (bug, task['subject'])
+            if rm.is_issue_wont_fix_or_release_notes(task):
+                WONT_FIX[t] = "%s RM #%s: %s" % (task['status']['name'], bug, task['subject'])
             if rm.is_issue_open(task):
                 SKIP_TESTS[t] = "RM #%s: %s" % (bug, task['subject'])
             sys.stdout.write('.')
@@ -470,7 +470,7 @@ def db_check():
         name = os.path.basename(test)
         if name in WONT_FIX:
             print("%-62s " % deco(name, 'light-blue'), end=' ')
-            print("WONT FIX  %-30s" % deco(WONT_FIX[name], 'yellow'))
+            print("%-30s" % deco(WONT_FIX[name], 'yellow'))
     return 0
 
 
