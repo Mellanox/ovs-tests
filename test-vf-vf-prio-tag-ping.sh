@@ -5,6 +5,7 @@
 # The prio-tag mode would set prio tag so OVS receives tagged packets and pop.
 # The rules are for VLAN rewrite (VID=0) instead of pop, so the rules are offloaded.
 #
+# IGNORE_FROM_TEST_ALL
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
