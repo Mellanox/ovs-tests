@@ -140,6 +140,8 @@ def parse_args():
                         help='DB file to read for tests to run')
     parser.add_argument('--db-check', action='store_true',
                         help='DB check')
+    parser.add_argument('--test-kernel',
+                        help='Test specified kernel against db instead of current kernel. works with db.')
     parser.add_argument('--log_dir',
                         help='Log dir to save all logs under')
     parser.add_argument('--html', action='store_true',
@@ -269,7 +271,13 @@ def update_skip_according_to_db(data):
     rm = MlxRedmine()
     test_will_run = False
     current_fw_ver = get_current_fw()
-    current_kernel = os.uname()[2]
+    if args.test_kernel:
+        current_kernel = args.test_kernel
+    else:
+        current_kernel = os.uname()[2]
+
+    print("Current fw: %s" % current_fw_ver)
+    print("Current kernel: %s" % current_kernel)
 
     for t in TESTS:
         t = os.path.basename(t)
