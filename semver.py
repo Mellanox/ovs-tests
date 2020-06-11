@@ -20,6 +20,11 @@ class VersionInfo(object):
         self.minor = tryint(s[1])
         self.patch = tryint(s[2])
         self.build = tryint(s[3])
+        # rc tags appear in the patch part
+        self.rc = None
+        if 'rc' in str(self.patch):
+            self.rc = int(self.patch.strip('rc'))
+            self.patch = 0
 
     def __gt__(self, other):
         raise RuntimeError("not supported")
@@ -41,7 +46,18 @@ class VersionInfo(object):
             return True
         if self.build > other.build:
             return False
-        raise RuntimeError("not supported")
+        # without rc consider stable and its a newer version
+        if self.rc and not other.rc:
+            return True
+        if not self.rc and other.rc:
+            return False
+        if self.rc < other.rc:
+            return True
+        if self.rc > other.rc:
+            return False
+        # missing checks?
+        # consider equal, so not lt.
+        return False
 
     def __str__(self):
         return "<%s>" % self.version
