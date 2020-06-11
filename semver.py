@@ -2,16 +2,24 @@
 
 import re
 
+
+def tryint(i):
+    try:
+        return int(i)
+    except ValueError:
+        return i
+
+
 class VersionInfo(object):
     def __init__(self, version):
         self.version = str(version)
         s = re.sub('[.-]', ' ', self.version).split()
         # Quick WA to avoid split errors for short versions
         s += [0, 0, 0, 0]
-        self.major = int(s[0])
-        self.minor = int(s[1])
-        self.patch = int(s[2])
-        self.build = int(s[3])
+        self.major = tryint(s[0])
+        self.minor = tryint(s[1])
+        self.patch = tryint(s[2])
+        self.build = tryint(s[3])
 
     def __gt__(self, other):
         raise RuntimeError("not supported")
