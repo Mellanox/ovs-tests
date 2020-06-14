@@ -55,6 +55,5 @@ reset_tc $REP &>/dev/null
 
 if [ $reload_modules_result != 0 ]; then
   load_modules
-  fail "Failed to reload modules"
 fi
 test_done
