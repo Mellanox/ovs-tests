@@ -1,6 +1,7 @@
 #!/bin/bash
 
 require_interfaces NIC NIC2
+require_module dummy
 
 function config_ports() {
     config_sriov 2
