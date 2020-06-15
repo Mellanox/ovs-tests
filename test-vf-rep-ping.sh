@@ -23,6 +23,7 @@ function cleanup() {
     ip netns del ns0 2> /dev/null
     ifconfig $REP 0
 }
+trap cleanup EXIT
 
 # make sure uplink is down. reproduces an issue if uplink is down no traffic
 # between vf and rep.
