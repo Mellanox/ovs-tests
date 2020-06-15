@@ -14,8 +14,8 @@ class VersionInfo(object):
     def __init__(self, version):
         self.version = str(version)
         self.plus = self.version[-1] == '+'
-        self.version = self.version.strip('+')
-        s = re.sub('[.-]', ' ', self.version).split()
+        stripped_version = self.version.strip('+')
+        s = re.sub('[.-]', ' ', stripped_version).split()
         # Quick WA to avoid split errors for short versions
         s += [0, 0, 0, 0]
         self.major = tryint(s[0])
@@ -30,6 +30,9 @@ class VersionInfo(object):
 
     def __gt__(self, other):
         raise RuntimeError("not supported")
+
+    def __eq__(self, other):
+        return self.version == other.version
 
     def __lt__(self, other):
         if self.major < other.major:
