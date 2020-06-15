@@ -98,4 +98,10 @@ config_vf ns1 $VF2 $REP2 $IP2
 
 run "Test VF mirror, with mirror on same nic." $VF3 $REP3
 run "Test VF mirror, with mirror on different nic." $VF4 $REP4
+
+# back to defaults
+trap - EXIT
+cleanup
+config_sriov 2
+config_sriov 0 $NIC2
 test_done
