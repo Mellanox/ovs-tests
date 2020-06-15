@@ -264,6 +264,14 @@ def get_current_fw():
     return subprocess.check_output(cmd, shell=True).strip()
 
 
+def kernel_match(kernel1, kernel2):
+    # regex issue with strings like "3.10-100+$" so use string compare for exact match.
+    if (kernel1.strip('()') == kernel2 or
+        re.search("^%s$" % kernel1, kernel2)):
+        return True
+    return False
+
+
 def update_skip_according_to_db(data):
     if type(data['tests']) is list:
         return
@@ -301,7 +309,7 @@ def update_skip_according_to_db(data):
             kernels += data.get('custom_kernels', [])
             ok = False
             for kernel in kernels:
-                if re.search("^%s$" % kernel, current_kernel):
+                if kernel_match(kernel, current_kernel):
                     ok = True
                     break
             if not ok:
@@ -315,12 +323,12 @@ def update_skip_according_to_db(data):
         issue_keys = [x for x in data['tests'][t].keys() if isinstance(x, int)]
         for issue in issue_keys:
             for kernel in data['tests'][t][issue]:
-                if re.search("^%s$" % kernel, current_kernel):
+                if kernel_match(kernel, current_kernel):
                     bugs_list.append(issue)
 
         ignore_kernel = data['tests'][t].get('ignore_kernel', {})
         for kernel in ignore_kernel:
-            if re.search("^%s$" % kernel, current_kernel):
+            if kernel_match(kernel, current_kernel):
                 for bug in ignore_kernel[kernel]:
                     bugs_list.append(bug)
 
