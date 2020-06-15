@@ -264,17 +264,18 @@ def get_current_fw():
     return subprocess.check_output(cmd, shell=True).strip()
 
 
-def kernel_match(kernel1, kernel2):
-    # regex issue with strings like "3.10-100+$" so use string compare for exact match.
-    if (kernel1.strip('()') == kernel2 or
-        re.search("^%s$" % kernel1, kernel2)):
-        return True
-    return False
-
-
 def update_skip_according_to_db(data):
     if type(data['tests']) is list:
         return
+
+    def kernel_match(kernel1, kernel2):
+        if kernel1 in custom_kernels:
+            kernel1 = custom_kernels[kernel1]
+        # regex issue with strings like "3.10-100+$" so use string compare for exact match.
+        if (kernel1.strip('()') == kernel2 or
+            re.search("^%s$" % kernel1, kernel2)):
+            return True
+        return False
 
     rm = MlxRedmine()
     test_will_run = False
@@ -301,12 +302,13 @@ def update_skip_according_to_db(data):
         else:
             min_kernel = data['tests'][t].get('min_kernel', None)
 
+        custom_kernels = data.get('custom_kernels', {})
         kernels = data['tests'][t].get('kernels', [])
         if kernels and not min_kernel:
             raise RuntimeError("%s: Specifying kernels without min_kernel is not allowed." % t)
 
         if min_kernel:
-            kernels += data.get('custom_kernels', [])
+            kernels += custom_kernels.values()
             ok = False
             for kernel in kernels:
                 if kernel_match(kernel, current_kernel):
