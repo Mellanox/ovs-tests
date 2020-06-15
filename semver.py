@@ -13,6 +13,8 @@ def tryint(i):
 class VersionInfo(object):
     def __init__(self, version):
         self.version = str(version)
+        self.plus = self.version[-1] == '+'
+        self.version = self.version.strip('+')
         s = re.sub('[.-]', ' ', self.version).split()
         # Quick WA to avoid split errors for short versions
         s += [0, 0, 0, 0]
