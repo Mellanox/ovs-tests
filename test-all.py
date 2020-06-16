@@ -303,6 +303,10 @@ def update_skip_according_to_db(data):
             SKIP_TESTS[t] = "Ignore on for-upstream kernel"
             continue
 
+        if data['tests'][t].get('ignore_not_supported', 0):
+            SKIP_TESTS[t] = "Not supported"
+            continue
+
         if 'el' in current_kernel:
             min_kernel = data['tests'][t].get('min_kernel_rhel', None)
         else:
