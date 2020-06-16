@@ -136,7 +136,7 @@ def parse_args():
                         help='exclude tests')
     parser.add_argument('--glob', '-g', action='append',
                         help='glob of tests')
-    parser.add_argument('--db',
+    parser.add_argument('--db', action='append',
                         help='DB file to read for tests to run')
     parser.add_argument('--db-check', action='store_true',
                         help='DB check')
@@ -468,16 +468,31 @@ def prepare_logdir():
         print("Log dir: " + LOGDIR)
 
 
+def merge_data(out, data):
+    for key in data:
+        if key not in out:
+            out[key] = data[key]
+        else:
+            if type(data[key]) is str:
+                continue
+            else:
+                out[key].update(data[key])
+    return out
+
+
 def read_db():
-    db = args.db
-    print("Reading DB: %s" % db)
-    db2 = os.path.join(MYDIR, 'databases', db)
-    if not os.path.exists(db) and os.path.exists(db2):
-        db = db2
-    with open(db) as yaml_data:
-        data = yaml.safe_load(yaml_data)
-        print("Description: %s" % data.get("description", "Empty"))
-        return data
+    dbs = args.db
+    out = {}
+    for db in dbs:
+        print("Reading DB: %s" % db)
+        db2 = os.path.join(MYDIR, 'databases', db)
+        if not os.path.exists(db) and os.path.exists(db2):
+            db = db2
+        with open(db) as yaml_data:
+            data = yaml.safe_load(yaml_data)
+            print("Description: %s" % data.get("description", "Empty"))
+            merge_data(out, data)
+    return out
 
 
 def load_tests_from_db(data):
