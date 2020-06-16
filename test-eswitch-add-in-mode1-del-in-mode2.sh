@@ -95,7 +95,9 @@ function test_legacy_switchdev() {
     title "- unbind vfs"
     unbind_vfs
     title "- switch to switchdev"
+    __ignore_errors=1
     switch_mode_switchdev
+    __ignore_errors=0
     reset_tc $NIC
     success
 }
@@ -112,7 +114,9 @@ function test_switchdev_legacy() {
     title "- unbind vfs"
     unbind_vfs
     title "- switch to legacy"
+    __ignore_errors=1
     switch_mode_legacy
+    __ignore_errors=0
     reset_tc $NIC
     success
 }
