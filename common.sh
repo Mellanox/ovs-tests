@@ -905,7 +905,9 @@ function get_port_name() {
 function get_parent_port_name() {
     local a=`cat /sys/class/net/$1/phys_port_name 2>/dev/null`
     a=${a%vf*}
-    a=${a//f}
+    a=${a//pf}
+    ((a&=0x7))
+    a="p$a"
     echo $a
 }
 
