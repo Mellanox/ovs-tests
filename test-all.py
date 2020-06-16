@@ -517,12 +517,22 @@ def get_tests():
         return False
 
 
+def print_test_line(name, reason):
+    print("%-62s " % deco(name, 'light-blue'), end=' ')
+    print("%-30s" % deco(reason, 'yellow'))
+
+
 def db_check():
+    ALL_TESTS = glob(MYDIR + '/test-*')
+    for test in ALL_TESTS:
+        if test not in TESTS:
+            name = os.path.basename(test)
+            print_test_line(name, "Missing in db")
+
     for test in TESTS:
         name = os.path.basename(test)
         if name in WONT_FIX:
-            print("%-62s " % deco(name, 'light-blue'), end=' ')
-            print("%-30s" % deco(WONT_FIX[name], 'yellow'))
+            print_test_line(name, WONT_FIX[name])
     return 0
 
 
