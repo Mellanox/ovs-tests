@@ -105,6 +105,7 @@ function add_openflow_rules() {
     ovs-ofctl del-flows br-ovs
     ovs-ofctl add-flow br-ovs arp,actions=normal
     ovs-ofctl add-flow br-ovs icmp,actions=normal
+    ovs-ofctl add-flow br-ovs icmp6,actions=normal
     ovs-ofctl add-flow br-ovs "table=0, tcp,ct_state=-trk actions=ct(table=1)"
     ovs-ofctl add-flow br-ovs "table=1, tcp,ct_state=+trk+new actions=ct(commit),normal"
     ovs-ofctl add-flow br-ovs "table=1, tcp,ct_state=+trk+est actions=normal"
