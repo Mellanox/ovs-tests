@@ -1253,6 +1253,12 @@ function verify_not_in_hw() {
     tc filter show dev $dev ingress prio $prio | grep -q -w not_in_hw || err "rule expected not in hw dev $dev"
 }
 
+function verify_in_hw_count() {
+    local dev=$1
+    local count=$2
+    tc filter show dev $dev ingress | grep -q -w "in_hw_count $count" || err "rule not in hw dev $dev or expected count $count doesn't match"
+}
+
 function wait_for_linkup() {
     local i
     local net=$1
