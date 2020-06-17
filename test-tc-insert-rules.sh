@@ -317,11 +317,8 @@ function test_five_tuple_match() {
 }
 
 enable_switchdev
-REP=`get_rep 0`
-if [ -z "$REP" ]; then
-    fail "Missing rep $rep"
-fi
 unbind_vfs
+require_interfaces NIC REP
 reset_tc $NIC $REP
 
 # clean vxlan interfaces
