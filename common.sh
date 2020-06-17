@@ -499,9 +499,7 @@ function get_reps() {
         return
     fi
     for i in `ls -1 /sys/class/net`; do
-        if [ $i == $nic ]; then
-            continue
-        fi
+        if [ $i == $nic ]; then continue ; fi
         b=`cat /sys/class/net/$i/phys_switch_id 2>/dev/null`
         if [ "$a" == "$b" ]; then
             o+=" $i"
@@ -933,7 +931,7 @@ function get_rep() {
 
     local b="${nic}_$vf"
 
-    if [ -e /sys/devices/virtual/net/$b ]; then
+    if [ -e /sys/class/net/$b ]; then
         echo $b
         return
     fi
@@ -942,9 +940,9 @@ function get_rep() {
         fail "Cannot find rep index $vf. Cannot get switch id for $nic"
     fi
 
-    VIRTUAL="/sys/devices/virtual/net"
+    for i in `ls -1 /sys/class/net`; do
+        if [ $i == $nic ]; then continue ; fi
 
-    for i in `ls -1 $VIRTUAL`; do
         id2=`get_sw_id $i`
         pn2=`get_parent_port_name $i`
         if [ "$id" = "$id2" ] && [ "$pn" = "$pn2" ]; then
