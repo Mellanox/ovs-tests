@@ -470,6 +470,9 @@ def prepare_logdir():
 
 def merge_data(out, data):
     for key in data:
+        # skip mini regression which uses list.
+        if 'tests' in data and type(data['tests']) is list:
+            continue
         if key not in out:
             out[key] = data[key]
         else:
@@ -481,8 +484,9 @@ def merge_data(out, data):
 
 
 def read_db():
-    dbs = args.db
     out = {}
+    if len(args.db) == 1 and '*' in args.db[0]:
+        dbs = glob(args.db[0])
     for db in dbs:
         print("Reading DB: %s" % db)
         db2 = os.path.join(MYDIR, 'databases', db)
