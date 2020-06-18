@@ -491,21 +491,23 @@ function count_reps() {
 function get_reps() {
     local i
     local nic=${1:-$NIC}
-    local a
-    local b
-    local o=""
-    a=`cat /sys/class/net/$nic/phys_switch_id`
-    if [ -z "$a" ]; then
+    local out=""
+    local sid1=`get_sw_id $nic`
+    local sid2
+
+    if [ -z "$sid1" ]; then
+        echo "get_rep: Failed to get sw id for $nic"
         return
     fi
+
     for i in `ls -1 /sys/class/net`; do
         if [ $i == $nic ]; then continue ; fi
-        b=`cat /sys/class/net/$i/phys_switch_id 2>/dev/null`
-        if [ "$a" == "$b" ]; then
-            o+=" $i"
+        sid2=`get_sw_id $i`
+        if [ "$sid1" == "$sid2" ]; then
+            out+=" $i"
         fi
     done
-    echo $o
+    echo $out
     # usage example:
     #        local reps=`get_reps`
     #        cmd="echo -n $reps | xargs -I {} -d ' ' ip link set dev {} up"
