@@ -786,14 +786,6 @@ function get_multipath_mode() {
     fi
 }
 
-function enable_switchdev_if_no_rep() {
-    local rep=$1
-
-    if [ ! -e /sys/class/net/$rep ]; then
-        enable_switchdev
-    fi
-}
-
 function config_sriov() {
     local num=${1:-2}
     local nic=${2:-$NIC}

@@ -36,7 +36,7 @@ function create_namespace() {
 function setup() {
     title "- setup"
     config_sriov
-    enable_switchdev_if_no_rep $REP
+    enable_switchdev
     unbind_vfs
     bind_vfs
     require_interfaces VF VF2 REP REP2

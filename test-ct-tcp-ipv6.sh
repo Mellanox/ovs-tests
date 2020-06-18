@@ -12,7 +12,7 @@ echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
 IP1="2001:0db8:0:f101::1"
 IP2="2001:0db8:0:f101::2"
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 require_interfaces REP REP2
 unbind_vfs
 bind_vfs

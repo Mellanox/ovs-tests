@@ -32,7 +32,7 @@ function cleanup() {
     done
 }
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 unbind_vfs
 bind_vfs
 require_interfaces VF REP VF2 REP2

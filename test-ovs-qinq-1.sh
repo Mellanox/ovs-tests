@@ -50,7 +50,7 @@ function create_ns_vlan
 function setup
 {
     config_sriov
-    enable_switchdev_if_no_rep $REP
+    enable_switchdev
     bind_vfs
 
     ip link set $REP up

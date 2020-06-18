@@ -15,7 +15,7 @@ IP1="7.7.7.1"
 IP2="7.7.7.2"
 
 config_sriov 2 $NIC
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 bind_vfs
 
 function cleanup() {

@@ -12,7 +12,7 @@ LOCAL_TUN=7.7.7.7
 REMOTE_IP=7.7.7.8
 
 config_sriov 2
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 
 
 function cleanup() {

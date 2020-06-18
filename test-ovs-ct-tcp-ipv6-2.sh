@@ -19,7 +19,7 @@ require_remote_server
 IP="2001:0db8:0:f101::1"
 REMOTE="2001:0db8:0:f101::2"
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 require_interfaces REP NIC
 unbind_vfs
 bind_vfs

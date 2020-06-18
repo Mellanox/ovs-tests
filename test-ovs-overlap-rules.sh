@@ -51,7 +51,7 @@ if [[ "$TEST_VETH" == 1 ]]; then
     ifconfig veth2 up
     ifconfig veth3 up
 else
-    enable_switchdev_if_no_rep $REP
+    enable_switchdev
     bind_vfs
 fi
 

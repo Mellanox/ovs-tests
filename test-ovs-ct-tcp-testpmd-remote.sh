@@ -17,7 +17,7 @@ IP1="7.7.7.1"
 IP2="7.7.7.2"
 
 config_sriov 2
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 unbind_vfs
 bind_vfs
 mac2=`on_remote cat /sys/class/net/$REMOTE_NIC/address`

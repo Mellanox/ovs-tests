@@ -32,7 +32,7 @@ fw_reset
 
 title "- set switchdev"
 config_sriov 2
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 
 trap - EXIT
 cleanup

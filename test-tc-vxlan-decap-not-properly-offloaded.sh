@@ -16,7 +16,7 @@ TUN_SRC_V4=20.1.184.1
 TUN_DST_V4=20.1.183.1
 VM_DST_MAC=e4:11:22:33:44:70
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 bind_vfs
 
 title "Verify vxlan rule is being deleted from FW when deleted from TC"

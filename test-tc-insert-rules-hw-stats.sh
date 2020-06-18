@@ -10,7 +10,7 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 config_sriov 2
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 require_interfaces REP
 
 function tc_wrapper() {

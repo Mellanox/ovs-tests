@@ -14,7 +14,7 @@ IP2="7.7.7.2"
 require_interfaces NIC NIC2
 config_sriov 3
 config_sriov 1 $NIC2
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 enable_switchdev $NIC2
 REP3=`get_rep 2`
 REP4=`get_rep 0 $NIC2`

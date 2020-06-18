@@ -12,7 +12,7 @@ my_dir="$(dirname "$0")"
 
 echo "setup"
 config_sriov 2 $NIC
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 
 require_interfaces NIC
 reset_tc $NIC

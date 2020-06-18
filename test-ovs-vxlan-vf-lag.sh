@@ -32,7 +32,7 @@ VXLAN_ID=42
 function config_ports() {
     config_sriov 2
     config_sriov 2 $NIC2
-    enable_switchdev_if_no_rep $REP
+    enable_switchdev
     enable_switchdev $NIC2
     require_interfaces REP NIC
     unbind_vfs

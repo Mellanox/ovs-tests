@@ -11,7 +11,7 @@ UPLSRC=$NIC
 UPLDEST=$NIC
 
 title "Test redirect rule from uplink on esw0 back to the same uplink"
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 
 # bring up interfaces
 ip link set up dev $UPLSRC

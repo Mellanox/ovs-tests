@@ -17,7 +17,7 @@ trap cleanup EXIT
 
 
 title "Test redirect rule encaulated traffic from uplink of esw0 back to the same uplink (after decap)"
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 #disable_sriov_port2
 
 

@@ -39,7 +39,7 @@ if [ $MULTIPATH == 1 ]; then
     bind_vfs $NIC
     bind_vfs $NIC2
 else
-    enable_switchdev_if_no_rep $REP
+    enable_switchdev
     unbind_vfs
     bind_vfs
 fi

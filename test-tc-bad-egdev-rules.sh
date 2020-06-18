@@ -9,7 +9,7 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 
 function cleanup() {
     ip link del veth0 2>/dev/null

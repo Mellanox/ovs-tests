@@ -13,7 +13,7 @@ IP1="2001:0db8:0:f101::1"
 IP2="2001:0db8:0:f101::2"
 IP3="2001:0db8:0:f101::3"
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 require_interfaces REP REP2
 unbind_vfs
 bind_vfs

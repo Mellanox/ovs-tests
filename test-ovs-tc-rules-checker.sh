@@ -22,7 +22,7 @@ function cleanup() {
     reset_tc $REP $REP2 &>/dev/null
 }
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 unbind_vfs
 bind_vfs
 

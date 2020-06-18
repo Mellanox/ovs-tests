@@ -13,7 +13,7 @@ IP1="7.7.7.1"
 IP2="7.7.7.2"
 IP3="7.7.7.3"
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 require_interfaces REP REP2
 unbind_vfs
 bind_vfs

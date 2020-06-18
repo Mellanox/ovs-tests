@@ -10,7 +10,7 @@ my_dir="$(dirname "$0")"
 
 require_mlxdump
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 require_interfaces REP
 unbind_vfs
 set_eswitch_inline_mode_transport

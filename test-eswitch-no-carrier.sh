@@ -11,7 +11,7 @@ function config_port() {
     config_sriov 0
     config_sriov 2
     unbind_vfs
-    enable_switchdev_if_no_rep $REP
+    enable_switchdev
     set_macs 2
     bind_vfs
     sleep 1

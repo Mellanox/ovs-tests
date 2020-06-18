@@ -11,7 +11,7 @@ my_dir="$(dirname "$0")"
 
 title "Test redirect rule from uplink on esw0 to uplink on esw1"
 start_check_syndrome
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 disable_sriov_port2
 enable_sriov_port2
 enable_switchdev $NIC2

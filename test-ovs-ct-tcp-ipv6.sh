@@ -13,7 +13,7 @@ ip1="2001:0db8:0:f101::1"
 ip2="2001:0db8:0:f101::2"
 
 config_sriov 2
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 require_interfaces REP REP2
 unbind_vfs
 bind_vfs

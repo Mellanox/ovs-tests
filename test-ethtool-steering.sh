@@ -10,7 +10,7 @@ not_relevant_for_cx4lx
 
 echo "setup"
 config_sriov
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 require_interfaces NIC
 
 max_ch=$(ethtool -l $NIC | grep Combined | head -1 | cut -f2-)

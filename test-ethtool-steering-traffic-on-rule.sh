@@ -18,7 +18,7 @@ IP=1.1.1.7
 REMOTE_IP=1.1.1.8
 
 config_sriov
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 require_interfaces NIC
 
 

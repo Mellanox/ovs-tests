@@ -14,7 +14,7 @@ my_dir="$(dirname "$0")"
 
 echo "setup"
 config_sriov 2 $NIC
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 bind_vfs
 
 local_ip="2.2.2.2"

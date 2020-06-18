@@ -40,7 +40,7 @@ function create_namespace() {
 function setup() {
     title "setup"
     config_sriov 2 $NIC
-    enable_switchdev_if_no_rep $REP
+    enable_switchdev
     ip l set $NIC vf 0 mac $VF1_MAC
     ip l set $NIC vf 1 mac $VF2_MAC
     unbind_vfs

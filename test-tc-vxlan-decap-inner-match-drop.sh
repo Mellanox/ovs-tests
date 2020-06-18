@@ -17,7 +17,7 @@ VXLAN=vxlan1
 TUN_SRC_V4=20.1.184.1
 VM_DST_MAC=e4:11:22:33:44:70
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 
 function cleanup() {
     ip link del $VXLAN &>/dev/null

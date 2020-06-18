@@ -36,7 +36,7 @@ trap cleanup EXIT
 
 cleanup
 config_sriov 2
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 unbind_vfs
 bind_vfs
 
@@ -47,7 +47,7 @@ fw_reset
 
 cleanup
 config_sriov 2
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 unbind_vfs
 bind_vfs
 

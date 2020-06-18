@@ -15,7 +15,7 @@ router_external_ip="8.8.8.1"
 router_local_ip="7.7.7.2"
 
 config_sriov 2
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 require_interfaces REP REP2
 unbind_vfs
 bind_vfs

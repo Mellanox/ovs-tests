@@ -25,7 +25,7 @@ function set_ct_aging() {
 }
 
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 require_interfaces REP REP2
 test_ct_aging
 unbind_vfs

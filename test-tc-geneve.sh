@@ -39,7 +39,7 @@ function cleanup() {
 }
 
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 require_interfaces REP
 unbind_vfs
 bind_vfs

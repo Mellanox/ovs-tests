@@ -27,7 +27,7 @@ trap cleanup EXIT
 
 config_sriov 2 $NIC
 config_sriov 2 $NIC2
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 enable_switchdev $NIC2
 unbind_vfs
 unbind_vfs $NIC2

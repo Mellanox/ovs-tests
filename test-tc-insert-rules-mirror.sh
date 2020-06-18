@@ -9,7 +9,7 @@ my_dir="$(dirname "$0")"
 not_relevant_for_cx4
 
 config_sriov 3
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 REP3=`get_rep 2`
 
 function test1() {

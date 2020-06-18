@@ -15,7 +15,7 @@ IP1="7.7.7.1"
 IP2="7.7.7.2"
 
 config_sriov 3
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 REP3=`get_rep 2`
 require_interfaces REP REP2 REP3
 unbind_vfs

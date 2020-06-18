@@ -22,7 +22,7 @@ vlan=5
 vlan_dev=${REMOTE_NIC}.$vlan
 
 config_sriov 2
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 require_interfaces REP NIC
 unbind_vfs
 bind_vfs

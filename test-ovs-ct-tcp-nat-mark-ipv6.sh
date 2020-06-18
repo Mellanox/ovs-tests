@@ -15,7 +15,7 @@ router_external_ip="2002:0db8:0:f101::1"
 router_local_ip="2001:0db8:0:f101::2"
 
 config_sriov 2
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 require_interfaces REP REP2
 unbind_vfs
 bind_vfs

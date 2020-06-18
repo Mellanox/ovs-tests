@@ -29,9 +29,9 @@ require_ingress_block_support
 
 echo "setup"
 config_sriov 2 $NIC
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 config_sriov 2 $NIC2
-enable_switchdev_if_no_rep $REP2
+enable_switchdev
 
 require_interfaces NIC NIC2 REP REP2
 reset_tc $NIC

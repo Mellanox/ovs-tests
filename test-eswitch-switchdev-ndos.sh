@@ -8,7 +8,7 @@ my_dir="$(dirname "$0")"
 
 function config() {
     config_sriov 2
-    enable_switchdev_if_no_rep $REP
+    enable_switchdev
 }
 
 function check_ndo() {

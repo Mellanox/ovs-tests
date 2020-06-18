@@ -13,7 +13,7 @@ skip=$2
 
 echo "setup"
 config_sriov 2 $NIC
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 
 require_interfaces NIC REP
 reset_tc $NIC

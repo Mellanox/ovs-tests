@@ -71,7 +71,7 @@ function config_vf() {
     ip netns exec $ns ifconfig $vf $ip/24 up
 }
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 unbind_vfs
 bind_vfs
 require_interfaces VF VF2 REP REP2

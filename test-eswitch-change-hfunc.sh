@@ -15,7 +15,7 @@ function change_hfunc() {
     start_check_syndrome
     # make sure in sriov and switchdev
     config_sriov 2 $NIC
-    enable_switchdev_if_no_rep $REP
+    enable_switchdev
 
     log "set hfunc toeplitz"
     ethtool -X $NIC hfunc toeplitz || err "Failed to set hfunc toeplitz"

@@ -48,7 +48,7 @@ function config_ports() {
     # config first port
     config_sriov 2
     enable_legacy
-    enable_switchdev_if_no_rep $REP
+    enable_switchdev
     require_interfaces REP NIC
     unbind_vfs
     bind_vfs

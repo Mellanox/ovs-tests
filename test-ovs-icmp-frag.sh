@@ -30,7 +30,7 @@ function cleanup() {
 }
 
 cleanup
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 unbind_vfs
 bind_vfs
 

@@ -154,9 +154,9 @@ function test_case_add_and_disable_sriov() {
 
 test_case_add_and_disable_sriov $NIC
 
-enable_switchdev_if_no_rep $rep
+enable_switchdev
 test_case_add_in_switchdev $rep
-enable_switchdev_if_no_rep $rep
+enable_switchdev
 test_case_del_in_switchdev $rep
 
 test_case_add_in_switchdev $NIC

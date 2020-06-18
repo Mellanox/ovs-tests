@@ -16,7 +16,7 @@ IP1="7.7.7.1"
 IP2="7.7.7.2"
 NAT_IP="7.7.7.101"
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 require_interfaces REP REP2
 unbind_vfs
 bind_vfs

@@ -25,7 +25,7 @@ LOCAL_TUN="2001:0db8:0:f101::1"
 REMOTE_TUN="2001:0db8:0:f101::2"
 VXLAN_ID=42
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 require_interfaces REP NIC
 unbind_vfs
 bind_vfs

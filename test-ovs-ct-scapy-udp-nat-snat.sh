@@ -16,7 +16,7 @@ NAT_IP="7.7.7.101"
 PORT=6000
 NAT_PORT=7000
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 require_interfaces REP REP2
 unbind_vfs
 bind_vfs

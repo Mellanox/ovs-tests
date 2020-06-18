@@ -14,7 +14,7 @@ function cleanup() {
     start_clean_openvswitch
 }
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 unbind_vfs
 set_eswitch_inline_mode_transport
 bind_vfs

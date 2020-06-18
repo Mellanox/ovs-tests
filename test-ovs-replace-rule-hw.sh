@@ -14,7 +14,7 @@ VF2=${3:-ens5f3}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 bind_vfs
 
 LOCAL_IP=99.99.99.5

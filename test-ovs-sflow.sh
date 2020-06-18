@@ -43,7 +43,7 @@ on_remote which sflowtool || \
 on_remote pkill sflowtool
 
 config_sriov 2
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 require_interfaces REP REP2
 unbind_vfs
 bind_vfs

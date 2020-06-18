@@ -6,7 +6,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 
 VFIP=10.0.0.1
 BRIP=10.0.0.2

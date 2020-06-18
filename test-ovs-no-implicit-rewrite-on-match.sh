@@ -99,7 +99,7 @@ function test_case() {
 		REP=veth0
 		REP2=veth2
 	elif [[ "$cs" == "hw" ]]; then
-		enable_switchdev_if_no_rep $REP
+		enable_switchdev
 		unbind_vfs
 		bind_vfs
                 require_interfaces VF VF2 REP REP2

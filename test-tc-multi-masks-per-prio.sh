@@ -7,7 +7,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 unbind_vfs
 bind_vfs
 

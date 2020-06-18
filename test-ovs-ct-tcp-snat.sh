@@ -21,7 +21,7 @@ REMOTE="7.7.7.2"
 REMOTE_NET="7.7.7.0/24"
 NAT_IP="6.6.6.6"
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 require_interfaces REP NIC
 unbind_vfs
 bind_vfs

@@ -46,7 +46,7 @@ function create_ip
 function setup
 {
     config_sriov
-    enable_switchdev_if_no_rep $REP
+    enable_switchdev
     bind_vfs
 
     ip link set $REP up

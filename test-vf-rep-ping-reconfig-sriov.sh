@@ -17,7 +17,7 @@ my_dir="$(dirname "$0")"
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 bind_vfs
 
 function cleanup() {
@@ -46,7 +46,7 @@ function reconfig_sriov() {
     config_sriov 0
     config_sriov 2
     set_macs
-    enable_switchdev_if_no_rep $REP
+    enable_switchdev
     bind_vfs
 }
 
