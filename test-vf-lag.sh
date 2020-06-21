@@ -16,6 +16,8 @@ require_module bonding
 # to avoid false error.
 VERIFY_SOURCE_PORT=false
 
+require_interfaces NIC NIC2
+
 config_sriov 2
 # TODO require vf lag support ?
 reset_tc $NIC
