@@ -297,6 +297,11 @@ function cloud_fw_reset() {
     wait_for_ifaces
 }
 
+function is_ofed() {
+    modprobe -q mlx_compat && return 0
+    return 1
+}
+
 function is_cloud() {
     if [ -e /workspace/cloud_tools/ ]; then
         return 0 # true

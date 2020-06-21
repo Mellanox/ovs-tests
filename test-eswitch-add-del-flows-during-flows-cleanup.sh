@@ -23,7 +23,10 @@ COUNT=500
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-require_min_kernel_5
+# expected to work on upstream from kernel 5 or with ofed 5.1.
+if ! is_ofed; then
+    require_min_kernel_5
+fi
 
 enable_switchdev
 rep=`get_rep 0`
