@@ -16,9 +16,8 @@ require_remote_server
 IP=1.1.1.7
 REMOTE=1.1.1.8
 
-
 config_sriov 2
-enable_switchdev_if_no_rep $REP
+enable_switchdev
 require_interfaces REP NIC
 unbind_vfs
 bind_vfs
