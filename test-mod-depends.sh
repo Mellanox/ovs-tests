@@ -12,7 +12,8 @@ my_dir="$(dirname "$0")"
 function run() {
     title "Look for unexpected mlx5_core dependent modules"
 
-    local expected="ptp|tls|mlxfw|pci_hyperv_intf"
+    local from_ofed="devlink|mlx_compat"
+    local expected="ptp|tls|mlxfw|pci_hyperv_intf|$from_ofed"
     local dependent=`lsmod | grep mlx5_core | grep -v ^mlx5_core | awk {'print $1'} | grep -vE -w "$expected" | xargs echo`
 
     if [ -n "$dependent" ]; then
