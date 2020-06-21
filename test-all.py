@@ -487,6 +487,8 @@ def read_db():
     out = {}
     if len(args.db) == 1 and '*' in args.db[0]:
         dbs = glob(args.db[0])
+    else:
+        dbs = args.db
     for db in dbs:
         print("Reading DB: %s" % db)
         db2 = os.path.join(MYDIR, 'databases', db)
