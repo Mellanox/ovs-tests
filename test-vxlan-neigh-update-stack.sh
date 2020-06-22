@@ -29,6 +29,7 @@ function cleanup() {
     ip link del dev vxlan1 &> /dev/null
     ip link del dev veth0 &> /dev/null
     killpid
+    reset_tc $REP
 }
 trap cleanup EXIT
 

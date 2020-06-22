@@ -34,12 +34,17 @@ id=98
 
 function cleanup() {
     ip link del dev vxlan1 2> /dev/null
-    ip link add vxlan1 type vxlan id $id dev $NIC dstport $dst_port
-    ip link set vxlan1 up
     ip n del ${remote_ip} dev $NIC 2>/dev/null
     ip n del ${remote_ip6} dev $NIC 2>/dev/null
     ifconfig $NIC down
     ip addr flush dev $NIC
+    reset_tc $REP
+}
+trap cleanup EXIT
+
+function config() {
+    ip link add vxlan1 type vxlan id $id dev $NIC dstport $dst_port
+    ip link set vxlan1 up
 }
 
 function neigh_update_test() {
@@ -128,11 +133,13 @@ start_check_syndrome
 
 title "Test neigh update ipv4"
 cleanup
+config
 ip addr add ${local_ip}/24 dev $NIC
 neigh_update_test $local_ip $remote_ip
 
 title "Test neigh update ipv6"
 cleanup
+config
 ip -6 addr add ${local_ip6}/64 dev $NIC
 neigh_update_test $local_ip6 $remote_ip6
 

@@ -33,7 +33,9 @@ function cleanup() {
     ip n del ${remote_ip6} dev $NIC 2>/dev/null
     ifconfig $NIC down
     ip addr flush dev $NIC
+    reset_tc $REP
 }
+trap cleanup EXIT
 
 function neigh_update_test() {
     local local_ip="$1"
