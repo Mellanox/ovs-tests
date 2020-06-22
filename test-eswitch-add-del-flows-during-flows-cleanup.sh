@@ -77,6 +77,8 @@ function test_case_del_in_switchdev() {
     local case=$1
 
     title "Test del flows case in switchdev $case"
+    enable_switchdev
+    [ $case == $VF ] && bind_vfs
     test -e /sys/class/net/$case || fail "Cannot find $case"
     reset_tc $case
     add_rules $case
@@ -107,6 +109,8 @@ function test_case_add_in_switchdev() {
     local case=$1
 
     title "Test add flows case in switchdev $case"
+    enable_switchdev
+    [ $case == $VF ] && bind_vfs
     test -e /sys/class/net/$case || fail "Cannot find $case"
     reset_tc $case
     add_rules $case &
@@ -157,9 +161,7 @@ function test_case_add_and_disable_sriov() {
 
 test_case_add_and_disable_sriov $NIC
 
-enable_switchdev
 test_case_add_in_switchdev $rep
-enable_switchdev
 test_case_del_in_switchdev $rep
 
 test_case_add_in_switchdev $NIC
@@ -168,9 +170,7 @@ test_case_del_in_switchdev $NIC
 test_case_add_in_legacy $NIC
 test_case_del_in_legacy $NIC
 
-bind_vfs
 test_case_add_in_switchdev $VF
 test_case_del_in_switchdev $VF
-unbind_vfs
 
 test_done
