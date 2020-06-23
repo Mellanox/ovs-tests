@@ -8,6 +8,8 @@ my_dir="$(dirname "$0")"
 
 IP1="7.7.7.1"
 IP2="7.7.7.2"
+vx=vxlan1
+vxlan_port=4789
 
 config_sriov 2
 enable_switchdev
@@ -20,6 +22,7 @@ mac2="e4:11:22:11:77:77"
 
 function cleanup() {
     ip -all netns delete
+    ip link del $vx &>/dev/null
     reset_tc $REP
 }
 trap cleanup EXIT
@@ -36,8 +39,6 @@ function run() {
 
     title " - create vxlan interface"
     # note: we support adding decap to vxlan interface only.
-    vx=vxlan1
-    vxlan_port=4789
     ip link del $vx >/dev/null 2>&1
     ip link add $vx type vxlan dstport $vxlan_port external
     [ $? -ne 0 ] && err "Failed to create vxlan interface" && return 1
