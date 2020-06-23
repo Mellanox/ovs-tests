@@ -45,7 +45,7 @@ function add_rules() {
             flower skip_sw \
             src_mac e1:22:33:44:${num1}:$num2 \
             dst_mac e2:22:33:44:${num1}:$num2 \
-            action drop || return
+            action drop &>/dev/null
     done
 }
 
