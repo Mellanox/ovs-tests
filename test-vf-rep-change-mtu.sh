@@ -18,7 +18,7 @@ function run() {
     local nic=$1
     for mtu in 1000 1600 1500 ; do
         echo "set to $mtu"
-        ip link set $nic mtu $mtu || err "Fiailed to set mtu to $nic"
+        ip link set $nic mtu $mtu || err "Failed to set mtu to $nic"
     done
 }
 
