@@ -105,6 +105,7 @@ function test_case_del_in_legacy() {
     reset_tc $case
     success
 }
+
 function test_case_add_in_switchdev() {
     local case=$1
 
@@ -136,30 +137,8 @@ function test_case_add_in_legacy() {
     success
 }
 
-function test_case_add_and_disable_sriov() {
-    local case=$1
-
-    title "Test add and disable sriov case $case"
-    test -e /sys/class/net/$case || fail "Cannot find $case"
-    num=`cat /sys/class/net/$case/device/sriov_numvfs`
-    config_sriov 2 $case
-    reset_tc $case
-    add_rules $case &
-    sleep .2
-    config_sriov 0 $case
-    wait
-    reset_tc $case
-    if [ "$num" != "0" ]; then
-        config_sriov $num $case
-        set_macs $num
-    fi
-    success
-}
-
 
 ## cases
-
-test_case_add_and_disable_sriov $NIC
 
 test_case_add_in_switchdev $rep
 test_case_del_in_switchdev $rep
