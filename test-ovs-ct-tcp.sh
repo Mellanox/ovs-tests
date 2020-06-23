@@ -39,10 +39,12 @@ function run() {
     ovs-vsctl add-port br-ovs $REP
     ovs-vsctl add-port br-ovs $REP2
 
+    zone=99
+
     ovs-ofctl add-flow br-ovs arp,actions=normal
-    ovs-ofctl add-flow br-ovs "table=0, ip,ct_state=-trk actions=ct(table=1)"
-    ovs-ofctl add-flow br-ovs "table=1, ip,ct_state=+trk+new actions=ct(commit),normal"
-    ovs-ofctl add-flow br-ovs "table=1, ip,ct_state=+trk+est actions=normal"
+    ovs-ofctl add-flow br-ovs "table=0, ip,ct_state=-trk actions=ct(table=1,zone=$zone)"
+    ovs-ofctl add-flow br-ovs "table=1, ip,ct_state=+trk+new actions=ct(zone=$zone, commit),normal"
+    ovs-ofctl add-flow br-ovs "table=1, ip,ct_zone=$zone,ct_state=+trk+est actions=normal"
 
     ovs-ofctl dump-flows br-ovs --color
 
@@ -61,7 +63,7 @@ function run() {
     pid=$!
 
     ovs_dump_tc_flows --names
-    ovs_dump_tc_flows --names | grep -q "ct(commit)" || err "Expected ct commit action"
+    ovs_dump_tc_flows --names | grep -q "ct(.*commit.*)" || err "Expected ct commit action"
 
     sleep $t
     killall -9 iperf &>/dev/null
