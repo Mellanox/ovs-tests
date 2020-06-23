@@ -148,6 +148,9 @@ function __setup_common() {
     FW=`get_nic_fw $NIC`
     status="NIC $NIC FW $FW PCI $PCI DEVICE $DEVICE"
 
+    # mlnx ofed from sources will show the static version from upstream
+    # and not real mlnx ofed version.
+    is_ofed && echo "MLNX_OFED `modinfo --field version mlx5_core`"
     __test_for_devlink_compat
 
     DEVICE_IS_CX4=0
