@@ -211,6 +211,9 @@ def format_result(res, out='', html=False):
 
 def sort_tests(tests, randomize=False):
     if randomize:
+        print('Randomize temporarily disabled. sort by name.')
+        randomize = False
+    if randomize:
         print('Randomizing the tests order')
         random.shuffle(tests)
     else:
