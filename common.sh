@@ -1429,7 +1429,7 @@ function redmine_bug_is_open() {
 
 function redmine_info() {
     local id=$1
-    local key="1bccd1f0f6699b60a652fcfdfa2210d6011488d0"
+    local key="1c438dfd8cf008a527ad72f01bd5e1bac24deca5"
     local url="https://redmine.mellanox.com/issues/${id}.json?key=$key"
     RM_STATUS=""
     RM_SUBJ=""

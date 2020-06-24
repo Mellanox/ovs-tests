@@ -6,7 +6,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 REDMINE_URL = 'http://redmine.mellanox.com'
-API_KEY = "1bccd1f0f6699b60a652fcfdfa2210d6011488d0"
+API_KEY = "1c438dfd8cf008a527ad72f01bd5e1bac24deca5"
 
 # redmine status codes
 STATUS_IN_PROGRESS = 2
