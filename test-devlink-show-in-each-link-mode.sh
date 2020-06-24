@@ -38,12 +38,14 @@ start_check_syndrome
 title "Test devlink show in IB mode"
 set_link_type_ib || fail
 fw_reset
+config_sriov 2
 devlink_eswitch_show
 success
 
 title "Test devlink show in ETH mode"
 set_link_type_eth || fail
 fw_reset
+config_sriov 2
 devlink_eswitch_show
 success
 
