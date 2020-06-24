@@ -508,11 +508,12 @@ def load_tests_from_db(data):
 
 
 def get_tests():
-    global TESTS
+    global TESTS, IGNORE_TESTS
     try:
         if args.db:
             data = read_db()
             TESTS = load_tests_from_db(data)
+            IGNORE_TESTS += data.get('ignore', [])
             update_skip_according_to_db(data)
         else:
             TESTS = glob(MYDIR + '/test-*')
