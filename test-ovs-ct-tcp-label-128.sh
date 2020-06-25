@@ -72,37 +72,11 @@ function run() {
     wait $! 2>/dev/null
 
     title "test have initial traffic"
-    test_have_traffic $pid1
+    verify_have_traffic $pid1
     title "test offloaded traffic"
-    test_no_traffic $pid2
+    verify_no_traffic $pid2
 
     ovs-vsctl del-br br-ovs
-}
-
-function test_have_traffic() {
-    local pid=$1
-    wait $pid
-    rc=$?
-    if [[ $rc -eq 0 ]]; then
-        :
-    elif [[ $rc -eq 124 ]]; then
-        err "Expected to see packets"
-    else
-        err "Tcpdump failed"
-    fi
-}
-
-function test_no_traffic() {
-    local pid=$1
-    wait $pid
-    rc=$?
-    if [[ $rc -eq 124 ]]; then
-        :
-    elif [[ $rc -eq 0 ]]; then
-        err "Didn't expect to see packets"
-    else
-        err "Tcpdump failed"
-    fi
 }
 
 

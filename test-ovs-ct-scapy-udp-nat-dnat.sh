@@ -97,7 +97,7 @@ function run() {
     # first 4 packets not offloaded until conn is in established state.
     sleep 2
     title "Verify traffic"
-    test_have_traffic $pid1
+    verify_have_traffic $pid1
 
     echo "sniff packets on $REP"
     timeout $t tcpdump -qnnei $REP -c 4 $PROTO &
@@ -121,45 +121,19 @@ function run() {
     sleep $t
     kill $pk1 &>/dev/null
     wait $pk1 $pk2 2>/dev/null
- 
+
     title "Verify traffic offloaded"
-    test_no_traffic $pid2
-    
+    verify_no_traffic $pid2
+
     title "Verify nat traffic on $VF1"
-    test_have_traffic $pid3
+    verify_have_traffic $pid3
     title "Verify nat traffic on $VF2"
-    test_have_traffic $pid4
+    verify_have_traffic $pid4
 
     ovs-vsctl del-br ovs-br
 
     # wait for traces as merging & offloading is done in workqueue.
     sleep 3
-}
-
-function test_have_traffic() {
-    local pid=$1
-    wait $pid
-    rc=$?
-    if [[ $rc -eq 0 ]]; then
-        :
-    elif [[ $rc -eq 124 ]]; then
-        err "Expected to see packets"
-    else
-        err "Tcpdump failed"
-    fi
-}
-
-function test_no_traffic() {
-    local pid=$1
-    wait $pid
-    rc=$?
-    if [[ $rc -eq 124 ]]; then
-        :
-    elif [[ $rc -eq 0 ]]; then
-        err "Didn't expect to see packets"
-    else
-        err "Tcpdump failed"
-    fi
 }
 
 

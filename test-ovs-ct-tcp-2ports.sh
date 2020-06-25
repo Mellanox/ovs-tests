@@ -102,23 +102,10 @@ function run() {
     killall -9 iperf &>/dev/null
     wait $! 2>/dev/null
 
-    test_no_traffic $pid
-    test_no_traffic $pid2
+    verify_no_traffic $pid
+    verify_no_traffic $pid2
 
     ovs-vsctl del-br br-ovs
-}
-
-function test_no_traffic() {
-    local pid=$1
-    wait $pid
-    rc=$?
-    if [[ $rc -eq 124 ]]; then
-        :
-    elif [[ $rc -eq 0 ]]; then
-        err "Didn't expect to see packets"
-    else
-        err "Tcpdump failed"
-    fi
 }
 
 

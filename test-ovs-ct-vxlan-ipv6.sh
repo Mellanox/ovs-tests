@@ -112,32 +112,6 @@ function add_openflow_rules() {
     ovs-ofctl dump-flows br-ovs --color
 }
 
-function test_have_traffic() {
-    local pid=$1
-    wait $pid
-    local rc=$?
-    if [[ $rc -eq 0 ]]; then
-        :
-    elif [[ $rc -eq 124 ]]; then
-        err "Expected to see packets"
-    else
-        err "Tcpdump failed rc $rc"
-    fi
-}
-
-function test_no_traffic() {
-    local pid=$1
-    wait $pid
-    local rc=$?
-    if [[ $rc -eq 124 ]]; then
-        :
-    elif [[ $rc -eq 0 ]]; then
-        err "Didn't expect to see packets"
-    else
-        err "Tcpdump failed rc $rc"
-    fi
-}
-
 function run() {
     config
     config_remote
@@ -195,11 +169,11 @@ function run() {
 
     sleep $t
     title "Verify traffic on $VF"
-    test_have_traffic $tpid1
+    verify_have_traffic $tpid1
     title "Verify offload on $REP"
-    test_no_traffic $tpid2
+    verify_no_traffic $tpid2
     title "Verify offload on vxlan_sys_4789"
-    test_no_traffic $tpid3
+    verify_no_traffic $tpid3
 
     kill -9 $pid1 $pid2 &>/dev/null
     echo "wait for bgs"

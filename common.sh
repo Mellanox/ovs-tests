@@ -1259,6 +1259,32 @@ function verify_in_hw_count() {
     tc filter show dev $dev ingress | grep -q -w "in_hw_count $count" || err "rule not in hw dev $dev or expected count $count doesn't match"
 }
 
+function verify_have_traffic() {
+    local pid=$1
+    wait $pid
+    local rc=$?
+    if [[ $rc -eq 0 ]]; then
+        :
+    elif [[ $rc -eq 124 ]]; then
+        err "Expected to see packets"
+    else
+        err "Tcpdump failed"
+    fi
+}
+
+function verify_no_traffic() {
+    local pid=$1
+    wait $pid
+    local rc=$?
+    if [[ $rc -eq 124 ]]; then
+        :
+    elif [[ $rc -eq 0 ]]; then
+        err "Didn't expect to see packets"
+    else
+        err "Tcpdump failed"
+    fi
+}
+
 function wait_for_linkup() {
     local i
     local net=$1

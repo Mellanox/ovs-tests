@@ -137,22 +137,9 @@ function run() {
     title "run traffic 2nd time - should be offloaded"
     scpyudp
 
-    test_no_traffic $pid1
+    verify_no_traffic $pid1
 
     ovs-vsctl del-br br-ovs
-}
-
-function test_no_traffic() {
-    local pid=$1
-    wait $pid
-    rc=$?
-    if [[ $rc -eq 124 ]]; then
-        :
-    elif [[ $rc -eq 0 ]]; then
-        err "Didn't expect to see packets"
-    else
-        err "Tcpdump failed"
-    fi
 }
 
 run

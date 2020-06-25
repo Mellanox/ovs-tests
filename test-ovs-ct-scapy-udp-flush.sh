@@ -85,7 +85,7 @@ function run() {
     echo "check for offloaded - no traffic on rep"
     timeout 1 tcpdump -qnnei $REP -c 1 $proto &
     pid1=$!
-    test_no_traffic $pid1
+    verify_no_traffic $pid1
 
     echo "check offloaded in zone $zone"
     cat /proc/net/nf_conntrack | grep --color -i offload | grep -i $IP1 | grep -i $IP2 | grep "zone=$zone" || err "tuple not offloaded"
@@ -100,19 +100,6 @@ function run() {
     sleep 1
     echo "check offloaded rules are flushed"
     cat /proc/net/nf_conntrack | grep --color -i offload | grep -i $IP1 | grep -i $IP2 | grep "zone=$zone" && err "tuple not flushed"
-}
-
-function test_no_traffic() {
-    local pid=$1
-    wait $pid
-    rc=$?
-    if [[ $rc -eq 124 ]]; then
-        :
-    elif [[ $rc -eq 0 ]]; then
-        err "Didn't expect to see packets"
-    else
-        err "Tcpdump failed"
-    fi
 }
 
 run

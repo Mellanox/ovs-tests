@@ -67,34 +67,10 @@ function run() {
     echo "run traffic"
     ip netns exec ns0 ping -q -c 10 -i 0.1 -w 2 $IP2 || err "Ping failed"
 
-    test_have_traffic $pid
-    test_timeout $pid2
-}
-
-function test_have_traffic() {
-    local pid=$1
-    wait $pid
-    rc=$?
-    if [[ $rc -eq 0 ]]; then
-        :
-    elif [[ $rc -eq 124 ]]; then
-        err "Expected to see packets"
-    else
-        err "Tcpdump failed"
-    fi
-}
-
-function test_timeout() {
-    local pid=$1
-    wait $pid
-    rc=$?
-    if [[ $rc -eq 124 ]]; then
-        :
-    elif [[ $rc -eq 0 ]]; then
-        err "Found duplicated packets"
-    else
-        err "Tcpdump failed"
-    fi
+    title "Verify traffic on $VF"
+    verify_have_traffic $pid
+    Title "Verify no duplicate packets on $VF"
+    verify_no_traffic $pid2
 }
 
 

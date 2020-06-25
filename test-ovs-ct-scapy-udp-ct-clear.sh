@@ -68,7 +68,7 @@ function run() {
     ip netns exec ns0 $pktgen -i $VF1 --src-ip $IP1 --dst-ip $IP2 --time $t &
     pk2=$!
 
-    test_have_traffic $pid1
+    verify_have_traffic $pid1
 
     title "Check for ct_clear rule"
     ovs_dump_tc_flows --names
@@ -87,32 +87,6 @@ function run() {
 
     # wait for traces as merging & offloading is done in workqueue.
     sleep 3
-}
-
-function test_have_traffic() {
-    local pid=$1
-    wait $pid
-    rc=$?
-    if [[ $rc -eq 0 ]]; then
-        :
-    elif [[ $rc -eq 124 ]]; then
-        err "Expected to see packets"
-    else
-        err "Tcpdump failed"
-    fi
-}
-
-function test_no_traffic() {
-    local pid=$1
-    wait $pid
-    rc=$?
-    if [[ $rc -eq 124 ]]; then
-        :
-    elif [[ $rc -eq 0 ]]; then
-        err "Didn't expect to see packets"
-    else
-        err "Tcpdump failed"
-    fi
 }
 
 

@@ -76,24 +76,11 @@ function run() {
     wait $! 2>/dev/null
 
     title "test have initial traffic"
-    test_have_traffic $pid1
+    verify_have_traffic $pid1
     title "test have traffic"
-    test_have_traffic $pid2
+    verify_have_traffic $pid2
 
     ovs-vsctl del-br br-ovs
-}
-
-function test_have_traffic() {
-    local pid=$1
-    wait $pid
-    rc=$?
-    if [[ $rc -eq 0 ]]; then
-        :
-    elif [[ $rc -eq 124 ]]; then
-        err "Expected to see packets"
-    else
-        err "Tcpdump failed"
-    fi
 }
 
 

@@ -36,32 +36,6 @@ function cleanup() {
 }
 trap cleanup EXIT
 
-function test_have_traffic() {
-    local pid=$1
-    wait $pid
-    local rc=$?
-    if [[ $rc -eq 0 ]]; then
-        :
-    elif [[ $rc -eq 124 ]]; then
-        err "Expected to see packets"
-    else
-        err "Tcpdump failed rc $rc"
-    fi
-}
-
-function test_no_traffic() {
-    local pid=$1
-    wait $pid
-    local rc=$?
-    if [[ $rc -eq 124 ]]; then
-        :
-    elif [[ $rc -eq 0 ]]; then
-        err "Didn't expect to see packets"
-    else
-        err "Tcpdump failed rc $rc"
-    fi
-}
-
 function run() {
     title "Test CT TCP pedit"
     config_vf ns0 $VF $REP $IP1
@@ -131,9 +105,9 @@ function run() {
     wait $! 2>/dev/null
 
     title "Verify traffic on $VF2"
-    test_have_traffic $pid2
+    verify_have_traffic $pid2
     title "Verify offload traffic on $REP2"
-    test_no_traffic $pid
+    verify_no_traffic $pid
 
     reset_tc $REP
     reset_tc $REP2
