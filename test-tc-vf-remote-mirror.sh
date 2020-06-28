@@ -86,7 +86,7 @@ function run() {
 
     packets=20
     interval=0.1
-    deadline=$((packets/10))
+    deadline=4
     echo "run traffic"
     echo "ip netns exec ns0 ping -q -c $packets -i $interval -w $deadline $IP2"
     ip netns exec ns0 ping -q -c $packets -i $interval -w $deadline $IP2
