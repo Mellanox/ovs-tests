@@ -2,13 +2,12 @@
 #
 # Test basic matchall rule
 #
-# require cls_matchall and act_police modules.
-#
 # Bug SW #1909500: Rate limit is not working in openstack ( tc rule not in hw)
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+require_module cls_matchall act_police
 
 function test_basic_matchall_rep() {
     title "Test matchall rule on REP $REP"
