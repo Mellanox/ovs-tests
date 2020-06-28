@@ -75,7 +75,7 @@ function config() {
 }
 
 function config_remote() {
-    on_remote ip link del geneve1 2>/dev/null
+    on_remote ip link del geneve1 &>/dev/null
     on_remote ip link add geneve1 type geneve id $TUN_ID remote $LOCAL_TUN dstport 6081
     on_remote ip a flush dev $REMOTE_NIC
     on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC

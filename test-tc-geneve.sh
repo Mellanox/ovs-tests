@@ -31,7 +31,7 @@ function kill_iperf() {
 function cleanup() {
     kill_iperf
     sleep 1
-    ip link del geneve1 2>/dev/null
+    ip link del geneve1 &>/dev/null
     reset_tc $REP
     reset_tc $NIC
 
@@ -47,7 +47,7 @@ cleanup
 trap cleanup EXIT
 
 function config_remote() {
-    on_remote ip link del geneve1 2>/dev/null
+    on_remote ip link del geneve1 &>/dev/null
     on_remote ip link add geneve1 type geneve dstport $geneve_port external
     if [ $? != 0 ]; then
         err "Failed to create remote geneve interface"
