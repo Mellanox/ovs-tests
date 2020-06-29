@@ -268,8 +268,9 @@ def get_current_fw():
     try:
         with open(config, 'r') as f1:
             for line in f1.readlines():
-                if "NIC=" in line:
-                    nic = line.split("NIC=")[1].strip()
+                if line.startswith("NIC="):
+                    nic = line.split("=")[1].strip()
+                    break
     except IOError:
         print("ERROR: Cannot read config %s" % config)
         return
