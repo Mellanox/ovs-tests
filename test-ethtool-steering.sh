@@ -68,17 +68,21 @@ function test_max_rules() {
     verify_num_of_rules
 }
 
+function count_rx_chans() {
+    ls -1d /sys/class/net/$NIC/queues/rx* | wc -l
+}
+
 function test_max_channels() {
     title "Test inserting on different channels"
-
     verify_num_of_rules || return
-    echo "inserting..."
-    for i in `seq 0 $(( max_ch - 1))`; do
+    num_rules=`count_rx_chans`
+    echo "inserting $num_rules rules..."
+    for i in `seq 0 $(( num_rules - 1))`; do
         eval2 ethtool -U $NIC flow-type tcp4 src-port 1 action $i loc $i || break
     done
-    verify_num_of_rules $max_ch
+    verify_num_of_rules $num_rules
     echo "deleting..."
-    clear_num_rules $max_ch
+    clear_num_rules $num_rules
     verify_num_of_rules
 }
 
@@ -163,12 +167,14 @@ function test_overflows() {
 
     title "- check rule action max channel"
     expected_error="Invalid argument"
-    eth_fail $NIC flow-type tcp4 src-port 1 action $max_ch loc 1
+    num_rules=`count_rx_chans`
+    eth_fail $NIC flow-type tcp4 src-port 1 action $num_rules loc 1
     verify_num_of_rules
 
     title "- check channel > current num of channels"
     eval2 ethtool -L $NIC combined 2
-    eth_fail $NIC flow-type tcp4 src-port 1 action 3 loc 2
+    num_rules=`count_rx_chans`
+    eth_fail $NIC flow-type tcp4 src-port 1 action $num_rules loc 2
     eval2 ethtool -L $NIC combined $max_ch
 
     verify_num_of_rules
