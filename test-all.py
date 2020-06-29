@@ -244,12 +244,27 @@ def glob_tests(glob_filter, tests):
             tests.remove(test)
 
 
+def get_config():
+    if "CONFIG" not in os.environ:
+        print("WARNING: CONFIG environment variable is missing.")
+        return
+
+    config = os.environ.get('CONFIG')
+    if os.path.exists(config):
+        return config
+    elif os.path.exists(os.path.join(MYDIR, config)):
+        return os.path.join(MYDIR, config)
+
+    print("WARNING: Cannot find config %s" % config)
+    return
+
+
 def get_current_fw():
     if "CONFIG" not in os.environ:
         print("ERROR: Cannot ignore by FW, CONFIG environment variable is missing.")
-        return None
+        return
 
-    config = os.environ.get('CONFIG')
+    config = get_config()
     try:
         with open(config, 'r') as f1:
             for line in f1.readlines():
@@ -257,11 +272,11 @@ def get_current_fw():
                     nic = line.split("NIC=")[1].strip()
     except IOError:
         print("ERROR: Cannot read config %s" % config)
-        return None
+        return
 
     if not nic:
         print("ERROR: Cannot find NIC in CONFIG.")
-        return None
+        return
 
     cmd = "ethtool -i %s | grep firmware-version | awk {'print $2'}" % nic
     return subprocess.check_output(cmd, shell=True).strip()
