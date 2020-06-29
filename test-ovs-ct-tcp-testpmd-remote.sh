@@ -140,11 +140,16 @@ function run() {
         err "Tcpdump failed"
     fi
 
-    log "check count"
-    a=`cat /sys/kernel/debug/mlx5/$PCI/ct/offloaded`
-    echo $a
-    if [ $a -lt 1000 ]; then
-        err "low count"
+    sysfs_counter="/sys/kernel/debug/mlx5/$PCI/ct/offloaded"
+    if [ -f $sysfs_counter ]; then
+        log "check count"
+        a=`cat $sysfs_counter`
+        echo $a
+        if [ $a -lt 1000 ]; then
+            err "low count"
+        fi
+    else
+        warn "Cannot check offloaded count"
     fi
 #    cat /proc/net/nf_conntrack | grep --color=auto -i offload
 
