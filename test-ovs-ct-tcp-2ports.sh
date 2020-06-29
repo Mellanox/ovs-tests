@@ -6,7 +6,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-test -z "$NIC2" && fail "Missing NIC2"
+require_interface NIC2
 
 require_module act_ct
 echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
@@ -88,7 +88,7 @@ function run() {
     ip netns exec ns0 timeout $((t+1)) iperf -t $t -c $IP2 -P3 &
     ip netns exec ns0 timeout $((t+1)) iperf -t $t -c $IP4 -P3 &
 
-    sleep 2
+    sleep 4
     pidof iperf &>/dev/null || err "iperf failed"
 
     echo "sniff packets on $REP"
