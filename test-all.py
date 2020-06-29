@@ -504,7 +504,14 @@ def read_db():
 
 
 def load_tests_from_db(data):
-    return [os.path.join(MYDIR, key) for key in data['tests']]
+    global IGNORE_TESTS
+    tests = [os.path.join(MYDIR, key) for key in data['tests']]
+    # Instead of failing, add non existent test file to ignore list
+    for i in tests:
+        if not os.path.exists(i):
+            print("WARNING: Cannot find test %s" % os.path.basename(i))
+            IGNORE_TESTS.append(i)
+    return tests
 
 
 def get_tests():
