@@ -52,9 +52,9 @@ trap cleanup EXIT
 
 function run_pktgen() {
     echo "run traffic"
-    ip netns exec ns0 $pktgen -i $VF -t 10 -d $IP2 -m $mac2 &
+    ip netns exec ns0 timeout --kill-after 1 $t $pktgen -i $VF -t 10 -d $IP2 -m $mac2 &
     pid_pktgen=$!
-    sleep 1
+    sleep 4
     if [ ! -e /proc/$pid_pktgen ]; then
         pid_pktgen=""
         err "pktgen failed"
@@ -65,10 +65,11 @@ function run_pktgen() {
 
 function run_testpmd() {
     echo "run fwder"
+    ip link set dev $NIC up
     echo 2048 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
-    timeout --kill-after=10 60 ip netns exec ns1 tail -f /dev/null | $testpmd --vdev=eth_af_packet0,iface=$VF2 -- --forward-mode=macswap -a &
+    timeout --kill-after=10 $t ip netns exec ns1 sh -c "tail -f /dev/null | $testpmd --vdev=eth_af_packet0,iface=$VF2 -- --forward-mode=macswap -a" &
     pid_testpmd=$!
-    sleep 1
+    sleep 12
     if [ ! -e /proc/$pid_testpmd ]; then
         pid_testpmd=""
         err "testpmd failed"
@@ -113,13 +114,26 @@ function run() {
     echo "sleep 3 sec, fg now"
     sleep 3
 
-#    run_pktgen || return
-#    run_testpmd || return
-#    sleep 65
+    t=60
+    echo "running for $t seconds"
+    run_testpmd || return
+    run_pktgen || return
+    sleep $((t+10))
 
-    echo "count"
+    sysfs_counter="/sys/kernel/debug/mlx5/$PCI/ct/offloaded"
+    if [ -f $sysfs_counter ]; then
+        log "check count"
+        a=`cat $sysfs_counter`
+        echo $a
+        if [ $a -lt 1000 ]; then
+            err "low count"
+        fi
+    else
+        warn "Cannot check offloaded count"
+    fi
 #    cat /proc/net/nf_conntrack | grep --color=auto -i offload
 
+    log "flush"
     kill_pktgen
     kill_testpmd
     ovs-vsctl del-br br-ovs
