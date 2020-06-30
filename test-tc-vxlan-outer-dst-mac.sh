@@ -39,8 +39,8 @@ function __test_basic_vxlan() {
                 flower \
                         dst_mac e4:11:22:11:4a:51 \
                         src_mac e4:11:22:11:4a:50 \
-                        enc_src_ip $ip_src \
-                        enc_dst_ip $ip_dst \
+                        enc_src_ip $ip_dst \
+                        enc_dst_ip $ip_src \
                         enc_dst_port $vxlan_port \
                         enc_key_id 100 \
                 action tunnel_key unset \
