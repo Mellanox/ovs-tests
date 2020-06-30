@@ -72,7 +72,7 @@ function check_offloaded_rules() {
     local cmd="ovs_dump_tc_flows | grep tcp"
     eval $cmd
     RES=`eval $cmd | wc -l`
-    if (( RES == $count )); then success; else err; fi
+    if (( RES == $count )); then success; else err "Expected $count rules but got $RES rules"; fi
 
     if eval $cmd | grep "packets:0, bytes:0" ; then
         err "packets:0, bytes:0"
