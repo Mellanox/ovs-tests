@@ -70,6 +70,9 @@ function do_test() {
     title "- test state"
     check_ndo state auto
 
+    title "- test rate"
+    set_ndo rate 0
+
     title "- test vf vlan"
     check_ndo vlan 1
     set_ndo vlan 0
