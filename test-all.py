@@ -97,7 +97,7 @@ TESTS = []
 IGNORE_TESTS = []
 SKIP_TESTS = {}
 WONT_FIX = {}
-TESTS_SUMMARY = []
+TESTS_SUMMARY = {}
 COLOURS = {
     "black": 30,
     "red": 31,
@@ -192,13 +192,14 @@ def strip_color(line):
 
 def format_result(res, out='', html=False):
     res_color = {
-        'SKIP': 'yellow',
         'TEST PASSED': 'green',
-        'OK': 'green',
-        'DRY': 'yellow',
-        'FAILED': 'red',
-        'TERMINATED': 'red',
-        'IGNORED': 'yellow',
+        'SKIP':        'yellow',
+        'OK':          'green',
+        'DRY':         'yellow',
+        'FAILED':      'red',
+        'TERMINATED':  'red',
+        'IGNORED':     'yellow',
+        "DIDN'T RUN":  'darkred',
     }
     color = res_color.get(res, 'yellow')
     if out:
@@ -430,16 +431,17 @@ def should_ignore_test(name, exclude):
 
 def save_summary_html():
     number_of_tests = len(TESTS)
-    passed_tests = sum(map(lambda test: 'PASSED' in test['status'], TESTS_SUMMARY))
-    failed_tests = sum(map(lambda test: 'FAILED' in test['status'], TESTS_SUMMARY))
-    skip_tests = sum(map(lambda test: 'SKIP' in test['status'], TESTS_SUMMARY))
-    ignored_tests = sum(map(lambda test: 'IGNORED' in test['status'], TESTS_SUMMARY))
+    values = TESTS_SUMMARY.values()
+    passed_tests = sum(map(lambda test: 'PASSED' in test['status'], values))
+    failed_tests = sum(map(lambda test: 'FAILED' in test['status'], values))
+    skip_tests = sum(map(lambda test: 'SKIP' in test['status'], values))
+    ignored_tests = sum(map(lambda test: 'IGNORED' in test['status'], values))
     running = number_of_tests - skip_tests - ignored_tests
     if running:
         pass_rate = str(int(passed_tests / float(running) * 100)) + '%'
     else:
         pass_rate = 0
-    runtime = sum([t['run_time'] for t in TESTS_SUMMARY])
+    runtime = sum([t['run_time'] for t in values])
 
     summary = SUMMARY_ROW.format(number_of_tests=number_of_tests,
                                  passed_tests=passed_tests,
@@ -449,31 +451,34 @@ def save_summary_html():
                                  pass_rate=pass_rate,
                                  runtime=runtime)
     results = ''
-    for t in TESTS_SUMMARY:
+    for test in TESTS:
+        name = os.path.basename(test)
+        if name not in TESTS_SUMMARY:
+            TESTS_SUMMARY[name] = {
+                        'test_name': name,
+                        'test_log':  '',
+                        'run_time':  0.0,
+                        'status':    "DIDN'T RUN",
+                       }
+
+        t = TESTS_SUMMARY[name]
         status = t['status']
+        if status in ('UNKNOWN', "DIDN'T RUN"):
+            status = format_result(status, '', html=True)
+
         if t.get('test_log', ''):
             status = "<a href='{test_log}'>{status}</a>".format(
                 test_log=t['test_log'],
                 status=status)
+
         results += RESULT_ROW.format(test=t['test_name'],
                                      run_time=t['run_time'],
                                      status=status)
 
-    running_tests_names = [t['test_name'] for t in TESTS_SUMMARY]
-
-    for t in TESTS:
-        t = os.path.basename(t)
-        if t not in running_tests_names:
-            status = deco("DID'T RUN", 'darkred', html=True)
-            results += RESULT_ROW.format(test=t,
-                                         run_time=0.0,
-                                         status=status)
-
     summary_file = "%s/summary.html" % LOGDIR
     with open(summary_file, 'w') as f:
         f.write(HTML.format(style=HTML_CSS, summary=summary, results=results))
-
-    print("Summary: %s" % summary_file)
+    return summary_file
 
 
 def prepare_logdir():
@@ -612,6 +617,11 @@ def main():
                        }
         sys.stdout.flush()
 
+        # Pre update summary report before running next test.
+        # In case we crash we still might want the report.
+        TESTS_SUMMARY[name] = test_summary
+        save_summary_html()
+
         res = 'OK'
         skip_reason = ''
         out = ''
@@ -644,7 +654,7 @@ def main():
         test_summary['status'] = format_result(res, skip_reason, html=True)
         print("%-60s" % format_result(res, skip_reason + out))
 
-        TESTS_SUMMARY.append(test_summary)
+        TESTS_SUMMARY[name] = test_summary
 
         if args.stop and failed:
             return 1
@@ -654,11 +664,12 @@ def main():
 
 
 def cleanup():
-    runtime = sum([t['run_time'] for t in TESTS_SUMMARY])
+    runtime = sum([t['run_time'] for t in TESTS_SUMMARY.values()])
     if runtime > 0:
         print("runtime: %s" % runtime)
     if args.html and not args.dry:
-        save_summary_html()
+        summary_file = save_summary_html()
+        print("Summary: %s" % summary_file)
 
 
 def signal_handler(signum, frame):
