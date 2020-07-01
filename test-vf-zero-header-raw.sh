@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Bug SW #1333837: In inline-mode transport UDP fragments from VF are dropped
+# #1333837: In inline-mode transport UDP fragments from VF are dropped
 #
 
 NIC=${1:-ens5f0}
