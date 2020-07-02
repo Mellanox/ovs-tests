@@ -14,11 +14,10 @@ enable_switchdev
 bind_vfs
 
 function cleanup() {
-    ip netns del ns0 2> /dev/null
-    sleep 0.5 # wait for VF to bind back
-    ip link set $REP mtu 1500
-    ip link set $VF mtu 1500
-    ifconfig $REP 0
+    ip netns exec ns0 ip link set $VF mtu 1500 &>/dev/null
+    ip netns del ns0 &>/dev/null
+    ip link set $REP mtu 1500 &>/dev/nulll
+    ifconfig $REP 0 &>/dev/null
 }
 
 trap cleanup EXIT
