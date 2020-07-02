@@ -620,7 +620,8 @@ def main():
         # Pre update summary report before running next test.
         # In case we crash we still might want the report.
         TESTS_SUMMARY[name] = test_summary
-        save_summary_html()
+        if args.html and not args.dry:
+            save_summary_html()
 
         res = 'OK'
         skip_reason = ''
