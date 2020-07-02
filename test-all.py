@@ -94,7 +94,7 @@ MYNAME = os.path.basename(__file__)
 MYDIR = os.path.abspath(os.path.dirname(__file__))
 LOGDIR = ''
 TESTS = []
-IGNORE_TESTS = []
+IGNORE_TESTS = {}
 SKIP_TESTS = {}
 WONT_FIX = {}
 TESTS_SUMMARY = {}
@@ -284,6 +284,11 @@ def get_current_fw():
     return subprocess.check_output(cmd, shell=True).strip()
 
 
+def add_test_ignore(name, reason):
+    global IGNORE_TESTS
+    IGNORE_TESTS[name] = reason
+
+
 def update_skip_according_to_db(data):
     if type(data['tests']) is list:
         return
@@ -418,15 +423,17 @@ def update_skip_according_to_rm():
     print()
 
 
-def should_ignore_test(name, exclude):
-    if name in exclude or name in ' '.join(exclude):
-        return True
+def get_test_ignore_reason(name):
+    global IGNORE_TESTS
 
-    for x in exclude:
+    if name in IGNORE_TESTS:
+        return IGNORE_TESTS[name] or 'IGNORED'
+
+    for x in IGNORE_TESTS:
         if fnmatch(name, x):
-            return True
+            return IGNORE_TESTS[x]
 
-    return False
+    return
 
 
 def save_summary_html():
@@ -533,13 +540,14 @@ def load_tests_from_db(data):
 
 
 def get_tests():
-    global TESTS, IGNORE_TESTS
+    global TESTS
     try:
         if args.db:
             data = read_db()
             if 'tests' in data:
                 TESTS = load_tests_from_db(data)
-                IGNORE_TESTS += data.get('ignore', [])
+                for item in data.get('ignore', []):
+                    add_test_ignore(item, "In ignore list")
                 update_skip_according_to_db(data)
         else:
             TESTS = glob(MYDIR + '/test-*')
@@ -572,7 +580,6 @@ def db_check():
 
 
 def main():
-    exclude = []
     ignore = False
 
     if not get_tests():
@@ -586,9 +593,8 @@ def main():
         ignore = True
 
     if args.exclude:
-        exclude.extend(args.exclude)
-
-    exclude.extend(IGNORE_TESTS)
+        for item in args.exclude:
+            add_test_ignore(item, "")
 
     if not args.db or args.randomize:
         sort_tests(TESTS, args.randomize)
@@ -623,13 +629,16 @@ def main():
         res = 'OK'
         skip_reason = ''
         out = ''
+        ignore_reason = get_test_ignore_reason(name)
 
         start_time = datetime.now()
         if not os.path.exists(test):
             res = 'FAILED'
             out = 'Cannot find test'
-        elif should_ignore_test(name, exclude):
+        elif ignore_reason:
             res = 'IGNORED'
+            if ignore_reason != 'IGNORED':
+                out = "(%s)" % ignore_reason
         elif name in SKIP_TESTS:
             res = 'SKIP'
             skip_reason = SKIP_TESTS[name]
