@@ -525,13 +525,10 @@ def read_db():
 
 
 def load_tests_from_db(data):
-    global IGNORE_TESTS
     tests = [os.path.join(MYDIR, key) for key in data['tests']]
-    # Instead of failing, add non existent test file to ignore list
     for i in tests:
         if not os.path.exists(i):
             print("WARNING: Cannot find test %s" % os.path.basename(i))
-            IGNORE_TESTS.append(i)
     return tests
 
 
@@ -628,7 +625,10 @@ def main():
         out = ''
 
         start_time = datetime.now()
-        if should_ignore_test(name, exclude):
+        if not os.path.exists(test):
+            res = 'FAILED'
+            out = 'Cannot find test'
+        elif should_ignore_test(name, exclude):
             res = 'IGNORED'
         elif name in SKIP_TESTS:
             res = 'SKIP'
