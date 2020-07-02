@@ -353,7 +353,7 @@ def update_skip_according_to_db(data):
                 a = VersionInfo(min_kernel)
                 b = VersionInfo(current_kernel)
                 if b < a:
-                    SKIP_TESTS[t] = "Unsupported kernel version. Minimum %s" % min_kernel
+                    add_test_ignore(t, "Unsupported kernel version. Minimum %s" % min_kernel)
                     continue
 
         bugs_list = []
