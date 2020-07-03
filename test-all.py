@@ -329,7 +329,7 @@ def update_skip_according_to_db(data):
             continue
 
         if data['tests'][t].get('ignore_not_supported', 0):
-            SKIP_TESTS[t] = "Not supported"
+            add_test_ignore(t, "Not supported")
             continue
 
         if 'el' in current_kernel:
