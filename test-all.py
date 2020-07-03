@@ -285,7 +285,6 @@ def get_current_fw():
 
 
 def add_test_ignore(name, reason):
-    global IGNORE_TESTS
     IGNORE_TESTS[name] = reason
 
 
@@ -417,17 +416,15 @@ def update_skip_according_to_rm():
             sys.stdout.write('.')
             sys.stdout.flush()
             if rm.is_issue_open(task):
-                SKIP_TESTS[t] = "RM #%s: %s" % (b, task['subject'])
+                add_test_skip(t, "RM #%s: %s" % (b, task['subject']))
                 break
 
         if t not in SKIP_TESTS and 'IGNORE_FROM_TEST_ALL' in data:
-            SKIP_TESTS[t] = "IGNORE_FROM_TEST_ALL"
+            add_test_ignore(t, "IGNORE_FROM_TEST_ALL")
     print()
 
 
 def get_test_ignore_reason(name):
-    global IGNORE_TESTS
-
     if name in IGNORE_TESTS:
         return IGNORE_TESTS[name] or 'IGNORED'
 
