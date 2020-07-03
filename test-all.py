@@ -288,6 +288,10 @@ def add_test_ignore(name, reason):
     IGNORE_TESTS[name] = reason
 
 
+def add_test_skip(name, reason):
+    SKIP_TESTS[name] = reason
+
+
 def update_skip_according_to_db(data):
     if type(data['tests']) is list:
         return
@@ -319,12 +323,12 @@ def update_skip_according_to_db(data):
 
         if (data['tests'][t].get('ignore_for_linust', 0) and
             'linust' in current_kernel):
-            SKIP_TESTS[t] = "Ignore on for-linust kernel"
+            add_test_skip(t, "Ignore on for-linust kernel")
             continue
 
         if (data['tests'][t].get('ignore_for_upstream', 0) and
             'upstream' in current_kernel):
-            SKIP_TESTS[t] = "Ignore on for-upstream kernel"
+            add_test_skip(t, "Ignore on for-upstream kernel")
             continue
 
         if data['tests'][t].get('ignore_not_supported', 0):
@@ -379,7 +383,7 @@ def update_skip_according_to_db(data):
             if rm.is_issue_wont_fix_or_release_notes(task):
                 WONT_FIX[t] = "%s RM #%s: %s" % (task['status']['name'], bug, task['subject'])
             if rm.is_issue_open(task):
-                SKIP_TESTS[t] = "RM #%s: %s" % (bug, task['subject'])
+                add_test_skip(t, "RM #%s: %s" % (bug, task['subject']))
                 break
             sys.stdout.write('.')
             sys.stdout.flush()
