@@ -522,11 +522,17 @@ def read_db():
         dbs = glob(args.db[0])
     else:
         dbs = args.db
+
     for db in dbs:
-        print("Reading DB: %s" % db)
         db2 = os.path.join(MYDIR, 'databases', db)
-        if not os.path.exists(db) and os.path.exists(db2):
-            db = db2
+        if not os.path.exists(db):
+            if os.path.exists(db2):
+                db = db2
+            else:
+                print("ERROR: Cannot find db %s" % db)
+                return out
+
+        print("Reading DB: %s" % db)
         with open(db) as yaml_data:
             data = yaml.safe_load(yaml_data)
             print("Description: %s" % data.get("description", "Empty"))
