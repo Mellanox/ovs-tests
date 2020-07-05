@@ -94,8 +94,6 @@ MYNAME = os.path.basename(__file__)
 MYDIR = os.path.abspath(os.path.dirname(__file__))
 LOGDIR = ''
 TESTS = []
-IGNORE_TESTS = {}
-SKIP_TESTS = {}
 WONT_FIX = {}
 TESTS_SUMMARY = {}
 COLOURS = {
@@ -120,6 +118,52 @@ COLOURS = {
 
 class ExecCmdFailed(Exception):
     pass
+
+
+class Test(object):
+    def __init__(self, test_file):
+        self._test_file = test_file
+        self._name = os.path.basename(test_file)
+        self._skip = False
+        self._ignore = False
+        self._reason = ''
+        self.test_log = ''
+        self.run_time = 0.0
+        self.status = 'UNKNOWN'
+
+    @property
+    def fname(self):
+        return self._test_file
+
+    def exists(self):
+        return os.path.exists(self._test_file)
+
+    @property
+    def skip(self):
+        return self._skip
+
+    def set_skip(self, reason):
+        self._skip = True
+        self._reason = reason
+
+    @property
+    def ignore(self):
+        return self._ignore
+
+    def set_ignore(self, reason):
+        self._ignore = True
+        self._reason = reason
+
+    @property
+    def reason(self):
+        return self._reason
+
+    @property
+    def name(self):
+        return self._name
+
+    def __repr__(self):
+        return "<Test %s>" % self._name
 
 
 def parse_args():
@@ -218,10 +262,10 @@ def sort_tests(tests, randomize=False):
         print('Randomizing the tests order')
         random.shuffle(tests)
     else:
-        tests.sort(key=lambda x: os.path.basename(x).split('.')[0])
+        tests.sort(key=lambda x: x.name.split('.')[0])
 
 
-def glob_tests(glob_filter, tests):
+def glob_tests(glob_filter):
     if not glob_filter:
         return
     _tests = []
@@ -232,17 +276,18 @@ def glob_tests(glob_filter, tests):
     if len(glob_filter) == 1 and ',' in glob_filter[0]:
         glob_filter = glob_filter[0].split(',')
 
-    for test in tests[:]:
-        name = os.path.basename(test)
+    for test in TESTS:
+        name = test.name
         if name == MYNAME:
             continue
         for g in glob_filter:
             if fnmatch(name, g):
                 _tests.append(test)
                 break
-    for test in tests[:]:
+
+    for test in TESTS[:]:
         if test not in _tests:
-            tests.remove(test)
+            TESTS.remove(test)
 
 
 def get_config():
@@ -284,14 +329,6 @@ def get_current_fw():
     return subprocess.check_output(cmd, shell=True).strip()
 
 
-def add_test_ignore(name, reason):
-    IGNORE_TESTS[name] = reason
-
-
-def add_test_skip(name, reason):
-    SKIP_TESTS[name] = reason
-
-
 def update_skip_according_to_db(data):
     if type(data['tests']) is list:
         return
@@ -317,33 +354,33 @@ def update_skip_according_to_db(data):
     print("Current kernel: %s" % current_kernel)
 
     for t in TESTS:
-        t = os.path.basename(t)
-        if data['tests'][t] is None:
-            data['tests'][t] = {}
+        name = t.name
+        if data['tests'][name] is None:
+            data['tests'][name] = {}
 
-        if (data['tests'][t].get('ignore_for_linust', 0) and
+        if (data['tests'][name].get('ignore_for_linust', 0) and
             'linust' in current_kernel):
-            add_test_skip(t, "Ignore on for-linust kernel")
+            t.set_skip("Ignore on for-linust kernel")
             continue
 
-        if (data['tests'][t].get('ignore_for_upstream', 0) and
+        if (data['tests'][name].get('ignore_for_upstream', 0) and
             'upstream' in current_kernel):
-            add_test_skip(t, "Ignore on for-upstream kernel")
+            t.set_skip("Ignore on for-upstream kernel")
             continue
 
-        if data['tests'][t].get('ignore_not_supported', 0):
-            add_test_ignore(t, "Not supported")
+        if data['tests'][name].get('ignore_not_supported', 0):
+            t.set_ignore("Not supported")
             continue
 
         if 'el' in current_kernel:
-            min_kernel = data['tests'][t].get('min_kernel_rhel', None)
+            min_kernel = data['tests'][name].get('min_kernel_rhel', None)
         else:
-            min_kernel = data['tests'][t].get('min_kernel', None)
+            min_kernel = data['tests'][name].get('min_kernel', None)
 
         custom_kernels = data.get('custom_kernels', {})
-        kernels = data['tests'][t].get('kernels', [])
+        kernels = data['tests'][name].get('kernels', [])
         if kernels and not min_kernel:
-            raise RuntimeError("%s: Specifying kernels without min_kernel is not allowed." % t)
+            raise RuntimeError("%s: Specifying kernels without min_kernel is not allowed." % name)
 
         if min_kernel:
             kernels += custom_kernels.values()
@@ -356,39 +393,39 @@ def update_skip_according_to_db(data):
                 a = VersionInfo(min_kernel)
                 b = VersionInfo(current_kernel)
                 if b < a:
-                    add_test_ignore(t, "Unsupported kernel version. Minimum %s" % min_kernel)
+                    t.set_ignore("Unsupported kernel version. Minimum %s" % min_kernel)
                     continue
 
         bugs_list = []
-        issue_keys = [x for x in data['tests'][t].keys() if isinstance(x, int)]
+        issue_keys = [x for x in data['tests'][name].keys() if isinstance(x, int)]
         for issue in issue_keys:
-            for kernel in data['tests'][t][issue]:
+            for kernel in data['tests'][name][issue]:
                 if kernel_match(kernel, current_kernel):
                     bugs_list.append(issue)
 
-        ignore_kernel = data['tests'][t].get('ignore_kernel', {})
+        ignore_kernel = data['tests'][name].get('ignore_kernel', {})
         for kernel in ignore_kernel:
             if kernel_match(kernel, current_kernel):
                 for bug in ignore_kernel[kernel]:
                     bugs_list.append(bug)
 
         if current_fw_ver:
-            for fw in data['tests'][t].get('ignore_fw', {}):
+            for fw in data['tests'][name].get('ignore_fw', {}):
                 if re.search("^%s$" % fw, current_fw_ver):
-                    for bug in data['tests'][t]['ignore_fw'][fw]:
+                    for bug in data['tests'][name]['ignore_fw'][fw]:
                         bugs_list.append(bug)
 
         for bug in bugs_list:
             task = rm.get_issue(bug)
             if rm.is_issue_wont_fix_or_release_notes(task):
-                WONT_FIX[t] = "%s RM #%s: %s" % (task['status']['name'], bug, task['subject'])
+                WONT_FIX[name] = "%s RM #%s: %s" % (task['status']['name'], bug, task['subject'])
             if rm.is_issue_open(task):
-                add_test_skip(t, "RM #%s: %s" % (bug, task['subject']))
+                t.set_skip("RM #%s: %s" % (bug, task['subject']))
                 break
             sys.stdout.write('.')
             sys.stdout.flush()
 
-        if t not in SKIP_TESTS:
+        if not t.skip:
             test_will_run = True
     print()
 
@@ -412,31 +449,27 @@ def update_skip_according_to_rm():
     print("Check redmine for open issues")
     rm = MlxRedmine()
     for t in TESTS:
-        data = get_test_header(t)
-        t = os.path.basename(t)
+        data = get_test_header(t.fname)
+        name = t.name
         bugs = re.findall(r"#\s*Bug SW #([0-9]+):", data)
         for b in bugs:
             task = rm.get_issue(b)
             sys.stdout.write('.')
             sys.stdout.flush()
             if rm.is_issue_open(task):
-                add_test_skip(t, "RM #%s: %s" % (b, task['subject']))
+                t.set_skip("RM #%s: %s" % (b, task['subject']))
                 break
 
-        if t not in SKIP_TESTS and 'IGNORE_FROM_TEST_ALL' in data:
-            add_test_ignore(t, "IGNORE_FROM_TEST_ALL")
+        if not t.skip and 'IGNORE_FROM_TEST_ALL' in data:
+            t.set_ignore("IGNORE_FROM_TEST_ALL")
     print()
 
 
-def get_test_ignore_reason(name):
-    if name in IGNORE_TESTS:
-        return IGNORE_TESTS[name] or 'IGNORED'
-
-    for x in IGNORE_TESTS:
-        if fnmatch(name, x):
-            return IGNORE_TESTS[x]
-
-    return
+def ignore_from_exclude():
+    for item in args.exclude:
+        for t in TESTS:
+            if t.name == item or fnmatch(t.name, item):
+                t.set_ignore('IGNORED')
 
 
 def save_summary_html():
@@ -541,10 +574,10 @@ def read_db():
 
 
 def load_tests_from_db(data):
-    tests = [os.path.join(MYDIR, key) for key in data['tests']]
-    for i in tests:
-        if not os.path.exists(i):
-            print("WARNING: Cannot find test %s" % os.path.basename(i))
+    tests = [Test(os.path.join(MYDIR, key)) for key in data['tests']]
+    for test in tests:
+        if not test.exists():
+            print("WARNING: Cannot find test %s" % test.name)
     return tests
 
 
@@ -559,8 +592,9 @@ def get_tests():
                     add_test_ignore(item, "In ignore list")
                 update_skip_according_to_db(data)
         else:
-            TESTS = glob(MYDIR + '/test-*')
-            glob_tests(args.glob, TESTS)
+            tmp = glob(MYDIR + '/test-*')
+            TESTS = [Test(t) for t in tmp]
+            glob_tests(args.glob)
             update_skip_according_to_rm()
 
         return True
@@ -605,8 +639,7 @@ def main():
         ignore = True
 
     if args.exclude:
-        for item in args.exclude:
-            add_test_ignore(item, "")
+        ignore_from_exclude()
 
     if not args.db or args.randomize:
         sort_tests(TESTS, args.randomize)
@@ -618,7 +651,7 @@ def main():
     failed = False
 
     for test in TESTS:
-        name = os.path.basename(test)
+        name = test.name
         if ignore:
             if args.from_test != name:
                 continue
@@ -639,21 +672,20 @@ def main():
             save_summary_html()
 
         res = 'OK'
-        skip_reason = ''
+        reason = ''
         out = ''
-        ignore_reason = get_test_ignore_reason(name)
 
         start_time = datetime.now()
-        if not os.path.exists(test):
+        if not test.exists():
             res = 'FAILED'
             out = 'Cannot find test'
-        elif ignore_reason:
+        elif test.ignore:
             res = 'IGNORED'
-            if ignore_reason != 'IGNORED':
-                out = "(%s)" % ignore_reason
-        elif name in SKIP_TESTS:
+            if test.reason != 'IGNORED':
+                out = "(%s)" % test.reason
+        elif test.skip:
             res = 'SKIP'
-            skip_reason = SKIP_TESTS[name]
+            reason = test.reason
         elif args.dry:
             res = 'DRY'
         else:
@@ -673,8 +705,8 @@ def main():
         total_seconds = "%-7s" % total_seconds
         print("%s " % total_seconds, end=' ')
 
-        test_summary['status'] = format_result(res, skip_reason, html=True)
-        print("%-60s" % format_result(res, skip_reason + out))
+        test_summary['status'] = format_result(res, reason, html=True)
+        print("%-60s" % format_result(res, reason + out))
 
         TESTS_SUMMARY[name] = test_summary
 
