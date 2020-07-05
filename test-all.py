@@ -131,6 +131,9 @@ class Test(object):
         self.run_time = 0.0
         self.status = 'UNKNOWN'
 
+    def run(self, html=False):
+        return run_test(self._test_file, html)
+
     @property
     def fname(self):
         return self._test_file
@@ -692,7 +695,7 @@ def main():
             try:
                 test_summary['test_log'] = '%s.html' % name
                 cmd = test
-                res = run_test(cmd, args.html)
+                res = test.run(args.html)
             except ExecCmdFailed as e:
                 failed = True
                 res = 'FAILED'
