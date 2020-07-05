@@ -220,7 +220,7 @@ def run_test(cmd, html=False):
     status = strip_color(status)
 
     if subp.returncode:
-        status = "(%s) %s" % (status, logname + ".log")
+        status = "%s %s" % (status, logname + ".log")
         raise ExecCmdFailed(status)
 
     return status
@@ -250,10 +250,7 @@ def format_result(res, out='', html=False):
     }
     color = res_color.get(res, 'yellow')
     if out:
-        if res == 'SKIP':
-            res += ' (%s)' % out
-        else:
-            res += ' %s' % out
+        res += ' (%s)' % out
     return deco(res, color, html)
 
 
@@ -472,7 +469,7 @@ def ignore_from_exclude():
     for item in args.exclude:
         for t in TESTS:
             if t.name == item or fnmatch(t.name, item):
-                t.set_ignore('IGNORED')
+                t.set_ignore('excluded')
 
 
 def save_summary_html():
@@ -666,12 +663,12 @@ def main():
 
         start_time = datetime.now()
         if not test.exists():
+            failed = True
             res = 'FAILED'
-            out = 'Cannot find test'
+            reason = 'Cannot find test'
         elif test.ignore:
             res = 'IGNORED'
-            if test.reason != 'IGNORED':
-                out = "(%s)" % test.reason
+            reason = test.reason
         elif test.skip:
             res = 'SKIP'
             reason = test.reason
@@ -679,7 +676,6 @@ def main():
             res = 'DRY'
         else:
             try:
-                cmd = test
                 res = test.run(args.html)
             except ExecCmdFailed as e:
                 failed = True
