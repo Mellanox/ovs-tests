@@ -26,11 +26,13 @@ start_check_syndrome
 
 config_sriov 2
 enable_legacy
+config_sriov 2 $NIC2
+enable_legacy $NIC2
 
 test_hairpin $NIC $NIC2
 
-config_sriov 0
-config_sriov 2
+reset_tc $NIC
+config_sriov 0 $NIC2
 
 # wait for syndrome. noticed it after 6 seconds.
 echo "Wait for syndrome"
