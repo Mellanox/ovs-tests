@@ -1,6 +1,8 @@
 #!/bin/bash
 #
 # Bug SW #2094097: [Upstream] Fail to switch mode to switchdev while ESWITCH_IPV4_TTL_MODIFY_ENABLE is enabled
+#
+# IGNORE_FROM_TEST_ALL
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
