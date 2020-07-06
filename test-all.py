@@ -524,14 +524,15 @@ def save_summary_html():
 
 
 def prepare_logdir():
-    global LOGDIR
-    if not args.dry:
-        if args.log_dir:
-            LOGDIR = args.log_dir
-            os.mkdir(LOGDIR)
-        else:
-            LOGDIR = mkdtemp(prefix='log')
-        print("Log dir: " + LOGDIR)
+    if args.dry:
+        return
+    if args.log_dir:
+        logdir = args.log_dir
+        os.mkdir(logdir)
+    else:
+        logdir = mkdtemp(prefix='log')
+    print("Log dir: " + logdir)
+    return logdir
 
 
 def merge_data(data, out):
@@ -723,7 +724,7 @@ def signal_handler(signum, frame):
 
 if __name__ == "__main__":
     args = parse_args()
-    prepare_logdir()
+    LOGDIR = prepare_logdir()
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
     rc = main()
