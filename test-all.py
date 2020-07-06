@@ -350,6 +350,8 @@ def update_skip_according_to_db(data):
     else:
         current_kernel = os.uname()[2]
 
+    custom_kernels = data.get('custom_kernels', {})
+
     print("Current fw: %s" % current_fw_ver)
     print("Current kernel: %s" % current_kernel)
 
@@ -368,16 +370,21 @@ def update_skip_according_to_db(data):
             t.set_skip("Ignore on for-upstream kernel")
             continue
 
-        if data['tests'][name].get('ignore_not_supported', 0):
+        ignore_not_supported = data['tests'][name].get('ignore_not_supported', 0)
+
+        if ignore_not_supported == True:
             t.set_ignore("Not supported")
             continue
+        elif type(ignore_not_supported) == list:
+            for kernel in ignore_not_supported:
+                if kernel_match(kernel, current_kernel):
+                    t.set_ignore("Not supported")
 
         if 'el' in current_kernel:
             min_kernel = data['tests'][name].get('min_kernel_rhel', None)
         else:
             min_kernel = data['tests'][name].get('min_kernel', None)
 
-        custom_kernels = data.get('custom_kernels', {})
         kernels = data['tests'][name].get('kernels', [])
         if kernels and not min_kernel:
             raise RuntimeError("%s: Specifying kernels without min_kernel is not allowed." % name)
