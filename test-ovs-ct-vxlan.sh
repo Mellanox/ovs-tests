@@ -109,7 +109,7 @@ function run() {
 
     t=15
 
-    # initial traffic
+    title "initial traffic"
     # this part is important when using multi-table CT.
     # the initial traffic will cause ovs to create initial tc rules
     # and also tuple rules. but since ovs adds the rules somewhat late
@@ -127,7 +127,7 @@ function run() {
     kill -9 $pid1 $pid2 &>/dev/null
     wait $pid1 $pid2 &>/dev/null
 
-    # traffic
+    title "traffic"
     ssh2 $REMOTE_SERVER timeout $((t+2)) iperf -s -t $t &
     pid1=$!
     sleep 1
