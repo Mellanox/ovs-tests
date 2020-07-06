@@ -16,8 +16,8 @@ enable_switchdev
 # bring up interfaces
 ip link set up dev $UPLSRC
 ip link set up dev $UPLDEST
-reset_tc $UPLSRC
 
+reset_tc $UPLSRC
 tc_filter add dev $UPLSRC protocol ip prio 1 root flower dst_ip 11.12.13.14 skip_sw action mirred egress redirect dev $UPLDEST
 
 title "Check hardware tables..."
@@ -29,5 +29,4 @@ else
 fi
 
 reset_tc $UPLSRC
-
 test_done

@@ -11,23 +11,22 @@ UPLSRC=vx0
 UPLDEST=$NIC
 
 function cleanup() {
-    ip link del dev vx0 2>/dev/null
+    reset_tc $UPLSRC &>/dev/null
+    ip link del dev $UPLSRC &>/dev/null
 }
 trap cleanup EXIT
 
-
 title "Test redirect rule encaulated traffic from uplink of esw0 back to the same uplink (after decap)"
 enable_switchdev
-#disable_sriov_port2
-
 
 # create vxlan interface
 ip link add dev $UPLSRC type vxlan dstport 4789 external
-tc qdisc add dev $UPLSRC ingress
 
 # bring up interfaces
 ip link set up dev $UPLSRC
 ip link set up dev $UPLDEST
+
+reset_tc $UPLSRC
 tc_filter add dev $UPLSRC protocol ip prio 1 root flower enc_dst_ip 11.12.13.14 enc_dst_port 4789 action tunnel_key unset action mirred egress redirect dev $UPLDEST
 verify_in_hw $UPLSRC 1
 
@@ -44,8 +43,6 @@ if cat /tmp/_fsdump | grep -B 44 -A 57 "outer_headers.dst_ip_31_0.*:0x0b0c0d0e" 
 else
     err
 fi
-
-reset_tc $UPLSRC
 
 cleanup
 test_done
