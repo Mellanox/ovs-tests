@@ -49,8 +49,8 @@ function run() {
 
     ovs-ofctl dump-flows br-ovs --color
 
-    echo "run traffic"
     t=12
+
     echo "run traffic for $t seconds"
     ip netns exec ns1 timeout $((t+1)) iperf -s &
     sleep 0.5
@@ -58,6 +58,10 @@ function run() {
 
     sleep 2
     pidof iperf &>/dev/null || err "iperf failed"
+
+    echo "sniff packets on $VF2"
+    ip netns exec ns1 timeout $t tcpdump -qnnei $VF2 -c 10 tcp &
+    pid1=$!
 
     echo "sniff packets on $REP"
     timeout $t tcpdump -qnnei $REP -c 10 'tcp' &
@@ -70,16 +74,11 @@ function run() {
     killall -9 iperf &>/dev/null
     wait $! 2>/dev/null
 
-    # test sniff timedout
-    wait $pid
-    rc=$?
-    if [[ $rc -eq 124 ]]; then
-        :
-    elif [[ $rc -eq 0 ]]; then
-        err "Didn't expect to see packets"
-    else
-        err "Tcpdump failed"
-    fi
+    title "Verify traffic on $VF2"
+    verify_have_traffic $pid1
+
+    title "Verify no traffic on $REP"
+    verify_no_traffic $pid
 
     ovs-vsctl del-br br-ovs
 }
