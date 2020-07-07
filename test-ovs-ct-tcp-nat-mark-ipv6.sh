@@ -111,8 +111,6 @@ function run() {
     ddumpct
     ddumpct --names | grep -q -P "ct(.*commit.*)" || err "Expected ct commit action"
 
-    /labhome/roid/scripts/tc_show.sh > /tmp/tc.log
-
     sleep $t
     killall -9 iperf &>/dev/null
     wait $! 2>/dev/null
