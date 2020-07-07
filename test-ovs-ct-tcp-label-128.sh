@@ -51,7 +51,7 @@ function run() {
     ovs-ofctl dump-flows br-ovs --color
 
     echo "sniff packets on $REP"
-    timeout 5 tcpdump -qnnei $REP -c 10 'tcp' &
+    timeout 5 tcpdump -qnnei $REP -c 8 'tcp' &
     pid1=$!
 
     t=12
