@@ -84,16 +84,15 @@ function run() {
     add_openflow_rules
 
     t=15
-    # server
-        port=16
-        for j in {0..9}; do
-            on_remote timeout $((t*2)) iperf -s -p $((port)) &> /dev/null &
-            let "port=port*2"
-        done
+    echo "Start listeners"
+    port=16
+    for j in {0..9}; do
+        on_remote timeout $((t*2)) iperf -s -p $((port)) &> /dev/null &
+        let "port=port*2"
+    done
+    sleep 5
 
-    sleep 15
-
-    #client
+    echo "Start clients"
     cport=16
     for i in {0..9}; do
         port=16
@@ -103,7 +102,7 @@ function run() {
         done
         let "cport=cport*2"
     done
-    sleep 15
+    sleep $t
 
     check_offloaded_rules 100
 
