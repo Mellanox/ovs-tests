@@ -70,7 +70,6 @@ function check_offloaded_rules() {
     local count=$1
     title " - check for $count offloaded rules"
     local cmd="ovs_dump_tc_flows | grep tcp"
-    eval $cmd
     RES=`eval $cmd | wc -l`
     if (( RES == $count )); then success; else err "Expected $count rules but got $RES rules"; fi
 
