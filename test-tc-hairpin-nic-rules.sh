@@ -25,6 +25,7 @@ start_check_syndrome
 
 title "Test hairpin rules in NIC mode"
 disable_sriov
+wait_for_ifaces
 
 test_hairpin $NIC $NIC2
 test_hairpin $NIC2 $NIC
