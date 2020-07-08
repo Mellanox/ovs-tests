@@ -2,7 +2,7 @@
 #
 # Test OVS CT with vxlan traffic over ipv6
 #
-# Bug SW #2127467: [ASAP, OFED5.0-] no tcp, udp traffic after basic connection tracking rules over vxlan ipv6 tunnel
+# #2127467: [ASAP, OFED5.0] no tcp, udp traffic after basic connection tracking rules over vxlan ipv6 tunnel
 #
 # Require external server
 #
