@@ -69,13 +69,10 @@ function add_openflow_rules() {
 function check_offloaded_rules() {
     local count=$1
     title " - check for $count offloaded rules"
-    local cmd="ovs_dump_tc_flows | grep tcp"
+    # make sure we have port masks
+    local cmd='ovs_dump_tc_flows | grep -o "eth_type(0x0800).*ipv4(src=.*),tcp(src=[0-9]*/0x.*,dst=[0-9]*/0x.*)"'
     RES=`eval $cmd | wc -l`
     if (( RES == $count )); then success; else err "Expected $count rules but got $RES rules"; fi
-
-    if eval $cmd | grep "packets:0, bytes:0" ; then
-        err "packets:0, bytes:0"
-    fi
 }
 
 function run() {
@@ -83,11 +80,10 @@ function run() {
     config_remote
     add_openflow_rules
 
-    t=15
     echo "Start listeners"
     port=16
     for j in {0..9}; do
-        on_remote timeout $((t*2)) iperf -s -p $((port)) &> /dev/null &
+        on_remote timeout 10 iperf -s -p $((port)) &> /dev/null &
         let "port=port*2"
     done
     sleep 5
@@ -97,12 +93,12 @@ function run() {
     for i in {0..9}; do
         port=16
         for j in {0..9}; do
-            ip netns exec ns0 timeout $t iperf -c $REMOTE -t  $t  --port $((port)) -B $IP:$((cport+j)) &> /dev/null &
+            timeout 2 ip netns exec ns0 iperf -c $REMOTE -t 2 --port $((port)) -B $IP:$((cport+j)) &> /dev/null &
             let "port=port*2"
         done
         let "cport=cport*2"
     done
-    sleep $t
+    sleep 2
 
     check_offloaded_rules 100
 
