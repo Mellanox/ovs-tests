@@ -286,8 +286,7 @@ function require_module() {
 function require_min_kernel_5() {
     local v=`uname -r | cut -d. -f1`
     if [ $v -lt 5 ]; then
-        log "SKIP (Require minimum kernel 5)"
-        exit 0
+        fail "Require minimum kernel 5"
     fi
 }
 
@@ -1349,44 +1348,38 @@ function test_done() {
 
 function not_relevant_for_cx5() {
     if [ "$DEVICE_IS_CX5" = 1 ]; then
-        log "Test not relevant for ConnectX-5"
-        exit 0
+        fail "Test not relevant for ConnectX-5"
     fi
 }
 
 function not_relevant_for_cx4() {
     if [ "$DEVICE_IS_CX4" = 1 ]; then
-        log "Test not relevant for ConnectX-4"
-        exit 0
+        fail "Test not relevant for ConnectX-4"
     fi
 }
 
 function not_relevant_for_cx4lx() {
     if [ "$DEVICE_IS_CX4_LX" = 1 ]; then
-        log "Test not relevant for ConnectX-4 Lx"
-        exit 0
+        fail "Test not relevant for ConnectX-4 Lx"
     fi
 }
 
 function relevant_for_cx4() {
     if [ "$DEVICE_IS_CX4_LX" != 1 ] && [ "$DEVICE_IS_CX4_LX" != 1 ]; then
-        log "SKIP (Test relevant for ConnectX-4)"
-        exit 0
+        fail "Test relevant for ConnectX-4"
     fi
 }
 
 function relevant_for_cx5() {
     if [ "$DEVICE_IS_CX5" != 1 ]; then
-        log "SKIP (Test relevant for ConnectX-5)"
-        exit 0
+        fail "Test relevant for ConnectX-5"
     fi
 }
 
 function require_fw_opt() {
     mlxconfig -d $PCI q | grep -q -w $1
     if [ "$?" != 0 ]; then
-        log "SKIP (fw option $1 is not supported)"
-        exit 0
+        fail "fw option $1 is not supported"
     fi
 }
 

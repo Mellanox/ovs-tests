@@ -14,8 +14,7 @@ function relevant_kernel() {
     local v1=`uname -r | tr ._- " " | awk {'print $1'}`
     local v2=`uname -r | tr ._- " " | awk {'print $2'}`
     if [ $v1 -gt 4 ] || [ $v2 -gt 10 ]; then
-        log "SKIP (Test relevant for kernel <= 4.10)"
-        exit 0
+        fail "Test relevant for kernel <= 4.10"
     fi
 }
 
