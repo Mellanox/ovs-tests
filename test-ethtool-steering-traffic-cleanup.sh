@@ -82,6 +82,8 @@ function run() {
     else
         err "rx bytes didn't increase"
     fi
+
+    config_sriov
 }
 
 
