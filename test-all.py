@@ -114,6 +114,28 @@ COLOURS = {
     "white": 97,
 }
 
+class DeviceType(object):
+    CX4_LX = "0x1015"
+    CX5_PCI_3 = "0x1017"
+    CX5_PCI_4 = "0x1019"
+    CX6 = "0x101b"
+    CX6_DX = "0x101d"
+    CX6_LX = "0x101f"
+    CX7 = "0x1021"
+
+    @staticmethod
+    def get(device_id):
+        tmp = {
+            DeviceType.CX4_LX: "cx4lx",
+            DeviceType.CX5_PCI_3: "cx5",
+            DeviceType.CX5_PCI_4: "cx5",
+            DeviceType.CX6:    "cx6",
+            DeviceType.CX6_DX: "cx6dx",
+            DeviceType.CX6_LX: "cx6lx",
+            DeviceType.CX7: "cx7",
+        }
+        return tmp.get(device_id, '')
+
 
 class ExecCmdFailed(Exception):
     pass
@@ -305,28 +327,43 @@ def get_config():
     return
 
 
-def get_current_fw():
+def get_config_value(key):
     if "CONFIG" not in os.environ:
-        print("ERROR: Cannot ignore by FW, CONFIG environment variable is missing.")
+        print("ERROR: CONFIG environment variable is missing.")
         return
 
     config = get_config()
     try:
         with open(config, 'r') as f1:
             for line in f1.readlines():
-                if line.startswith("NIC="):
-                    nic = line.split("=")[1].strip()
-                    break
+                if line.startswith("%s=" % key):
+                    val = line.split("=")[1].strip()
+                    return val
     except IOError:
         print("ERROR: Cannot read config %s" % config)
         return
 
+    print("ERROR: Cannot get %s from CONFIG." % key)
+
+
+def get_current_fw():
+    nic = get_config_value('NIC')
     if not nic:
-        print("ERROR: Cannot find NIC in CONFIG.")
         return
 
     cmd = "ethtool -i %s | grep firmware-version | awk {'print $2'}" % nic
-    return subprocess.check_output(cmd, shell=True).strip()
+    output = subprocess.check_output(cmd, shell=True).strip()
+    if not output:
+        print("ERROR: Cannot get FW version")
+    return output
+
+
+def get_current_nic_type():
+    nic = get_config_value('NIC')
+    if not nic:
+        return
+    with open('/sys/class/net/%s/device/device' % nic, 'r') as f:
+        return f.read().strip()
 
 
 def update_skip_according_to_db(data):
@@ -345,6 +382,7 @@ def update_skip_according_to_db(data):
     rm = MlxRedmine()
     test_will_run = False
     current_fw_ver = get_current_fw()
+    current_nic = DeviceType.get(get_current_nic_type())
     if args.test_kernel:
         current_kernel = args.test_kernel
     else:
@@ -352,6 +390,7 @@ def update_skip_according_to_db(data):
 
     custom_kernels = data.get('custom_kernels', {})
 
+    print("Current nic: %s" % current_nic)
     print("Current fw: %s" % current_fw_ver)
     print("Current kernel: %s" % current_kernel)
 
@@ -402,6 +441,11 @@ def update_skip_according_to_db(data):
                 if b < a:
                     t.set_ignore("Unsupported kernel version. Minimum %s" % min_kernel)
                     continue
+
+        for nic in data['tests'][name].get('ignore_nic', []):
+            if nic == current_nic:
+                t.set_ignore("Unsupported nic %s" % nic)
+                continue
 
         bugs_list = []
         issue_keys = [x for x in data['tests'][name].keys() if isinstance(x, int)]
