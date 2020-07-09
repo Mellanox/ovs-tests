@@ -15,13 +15,20 @@ IP1="7.7.7.1"
 IP2="7.7.7.2"
 
 function test_ct_aging() {
-    if [ ! -e /sys/module/mlx5_core/parameters/offloaded_ct_timeout ]; then
-        fail "Missing offloaded_ct_timeout"
-    fi
+    [ -e /sys/module/mlx5_core/parameters/offloaded_ct_timeout ] && return
+    [ -e /sys/module/act_ct/parameters/offload_timeout ] && return
+    fail "Cannot set conntrack offload aging"
 }
 
 function set_ct_aging() {
-    echo $1 > /sys/module/mlx5_core/parameters/offloaded_ct_timeout || err "Failed to write offloaded_ct_timeout"
+    local val=$1
+    local dest
+    if [ -e /sys/module/mlx5_core/parameters/offloaded_ct_timeout ]; then
+        dest=/sys/module/mlx5_core/parameters/offloaded_ct_timeout
+    elif [ -e /sys/module/act_ct/parameters/offload_timeout ]; then
+        dest=/sys/module/act_ct/parameters/offload_timeout
+    fi
+    echo $val > $dest || err "Failed to set conntrack offload aging"
 }
 
 
@@ -84,7 +91,10 @@ function run() {
     kill $pk1 &>/dev/null
     wait $pk1 $pk2 2>/dev/null
 
+    echo wait
     sleep 10
+
+    echo clean
     ovs-vsctl del-br br-ovs
 
     # wait for traces as merging & offloading is done in workqueue.
