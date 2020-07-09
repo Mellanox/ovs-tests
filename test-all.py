@@ -346,11 +346,9 @@ def get_config_value(key):
     print("ERROR: Cannot get %s from CONFIG." % key)
 
 
-def get_current_fw():
-    nic = get_config_value('NIC')
+def get_current_fw(nic):
     if not nic:
-        return
-
+        return ''
     cmd = "ethtool -i %s | grep firmware-version | awk {'print $2'}" % nic
     output = subprocess.check_output(cmd, shell=True).strip()
     if not output:
@@ -358,10 +356,9 @@ def get_current_fw():
     return output
 
 
-def get_current_nic_type():
-    nic = get_config_value('NIC')
+def get_current_nic_type(nic):
     if not nic:
-        return
+        return ''
     with open('/sys/class/net/%s/device/device' % nic, 'r') as f:
         return f.read().strip()
 
@@ -381,8 +378,9 @@ def update_skip_according_to_db(data):
 
     rm = MlxRedmine()
     test_will_run = False
-    current_fw_ver = get_current_fw()
-    current_nic = DeviceType.get(get_current_nic_type())
+    nic = get_config_value('NIC')
+    current_fw_ver = get_current_fw(nic)
+    current_nic = DeviceType.get(get_current_nic_type(nic))
     if args.test_kernel:
         current_kernel = args.test_kernel
     else:
