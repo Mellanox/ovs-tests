@@ -61,10 +61,12 @@ function config() {
         ip link set vxlan0 addr 0a:40:bd:30:89:99;\
         ip addr add $REMOTE_IP/24 dev $REMOTE_NIC;\
         ip link set $REMOTE_NIC up"
+
+    sleep 1
 }
 
 function run() {
-    local t=10
+    local t=5
 
     echo "sniff packets on $VF"
     timeout $t tcpdump -qnnei $VF -c 5 -Q in icmp &
@@ -72,13 +74,13 @@ function run() {
     sleep 0.5
 
     echo "run ping for $t seconds"
-    ip netns exec ns0 ping -I $VF2 $REMOTE_VF_IP -i 0.1 -w $t -q &
+    ip netns exec ns0 ping -I $VF2 $REMOTE_VF_IP -c $t -w $t -q &
     ppid=$!
     sleep 0.5
 
     echo "sniff packets on $REP2"
     timeout $t tcpdump -qnnei $REP2 -c 3 -Q in icmp &
-    tpid2=$1
+    tpid2=$!
 
     wait $ppid &>/dev/null
     [ $? -ne 0 ] && err "Ping failed" && return 1
