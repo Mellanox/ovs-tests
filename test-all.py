@@ -259,6 +259,14 @@ def strip_color(line):
     return re.sub(r"\033\[[0-9 ;]*m", '', line)
 
 
+def err(line):
+    print(deco('ERROR', 'red') + ' %s' % line)
+
+
+def warn(line):
+    print(deco('WARNING', 'yellow') + ' %s' % line)
+
+
 def format_result(res, out='', html=False):
     res_color = {
         'TEST PASSED': 'green',
@@ -316,7 +324,7 @@ def glob_tests(glob_filter):
 
 def get_config():
     if "CONFIG" not in os.environ:
-        print("WARNING: CONFIG environment variable is missing.")
+        warn("CONFIG environment variable is missing.")
         return
 
     config = os.environ.get('CONFIG')
@@ -325,16 +333,14 @@ def get_config():
     elif os.path.exists(os.path.join(MYDIR, config)):
         return os.path.join(MYDIR, config)
 
-    print("WARNING: Cannot find config %s" % config)
+    warn("Cannot find config %s" % config)
     return
 
 
 def get_config_value(key):
-    if "CONFIG" not in os.environ:
-        print("ERROR: CONFIG environment variable is missing.")
-        return
-
     config = get_config()
+    if not config:
+        return
     try:
         with open(config, 'r') as f1:
             for line in f1.readlines():
@@ -342,10 +348,10 @@ def get_config_value(key):
                     val = line.split("=")[1].strip()
                     return val
     except IOError:
-        print("ERROR: Cannot read config %s" % config)
+        err("Cannot read config %s" % config)
         return
 
-    print("ERROR: Cannot get %s from CONFIG." % key)
+    err("Cannot get %s from CONFIG." % key)
 
 
 def get_current_fw(nic):
@@ -354,7 +360,7 @@ def get_current_fw(nic):
     cmd = "ethtool -i %s | grep firmware-version | awk {'print $2'}" % nic
     output = subprocess.check_output(cmd, shell=True).strip()
     if not output:
-        print("ERROR: Cannot get FW version")
+        err("Cannot get FW version")
     return output
 
 
@@ -605,7 +611,7 @@ def read_db():
             if os.path.exists(db2):
                 db = db2
             else:
-                print("ERROR: Cannot find db %s" % db)
+                err("Cannot find db %s" % db)
                 return out
 
         print("Reading DB: %s" % db)
@@ -620,7 +626,7 @@ def load_tests_from_db(data):
     tests = [Test(os.path.join(MYDIR, key)) for key in data['tests']]
     for test in tests:
         if not test.exists():
-            print("WARNING: Cannot find test %s" % test.name)
+            warn("Cannot find test %s" % test.name)
     return tests
 
 
@@ -641,7 +647,7 @@ def get_tests():
 
         return True
     except RuntimeError as e:
-        print("ERROR: %s" % e)
+        err("%s" % e)
         return False
 
 
@@ -674,7 +680,7 @@ def main():
         return 1
 
     if len(TESTS) == 0:
-        print("ERROR: No tests to run")
+        err("No tests to run")
         return 1
     except RuntimeError, e:
         print "ERROR: %s" % e
