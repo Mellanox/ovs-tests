@@ -283,6 +283,8 @@ def sort_tests(tests, randomize=False):
     if randomize:
         print('Randomizing the tests order')
         random.shuffle(tests)
+    elif type(tests[0]) == str:
+        tests.sort(key=lambda x: os.path.basename(x).split('.')[0])
     else:
         tests.sort(key=lambda x: x.name.split('.')[0])
 
@@ -650,6 +652,7 @@ def print_test_line(name, reason):
 
 def db_check():
     all_tests = glob(MYDIR + '/test-*')
+    sort_tests(all_tests)
     for test in TESTS:
         if test.fname in all_tests:
             all_tests.remove(test.fname)
@@ -686,6 +689,8 @@ def main():
         sort_tests(TESTS, args.randomize)
 
     if args.db_check:
+        # we dont sort db file (we should probably if dict and not list) so do it now.
+        sort_tests(TESTS)
         return db_check()
 
     print("%-54s %-8s %s" % ("Test", "Time", "Status"))
