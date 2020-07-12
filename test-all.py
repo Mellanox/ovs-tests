@@ -649,15 +649,17 @@ def print_test_line(name, reason):
 
 
 def db_check():
-    ALL_TESTS = glob(MYDIR + '/test-*')
-    for test in ALL_TESTS:
-        if test not in TESTS:
-            name = os.path.basename(test)
-            print_test_line(name, "Missing in db")
+    all_tests = glob(MYDIR + '/test-*')
+    for test in TESTS:
+        if test.fname in all_tests:
+            all_tests.remove(test.fname)
+    for test in all_tests:
+        name = os.path.basename(test)
+        print_test_line(name, "Missing in db")
 
     for test in TESTS:
-        name = os.path.basename(test)
-        if name in WONT_FIX:
+        name = test.name
+        if test.name in WONT_FIX:
             print_test_line(name, WONT_FIX[name])
     return 0
 
