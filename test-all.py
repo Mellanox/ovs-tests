@@ -618,6 +618,11 @@ def read_db():
         with open(db) as yaml_data:
             data = yaml.safe_load(yaml_data)
             print("Description: %s" % data.get("description", "Empty"))
+            # handle special case
+            # already merging dict setups so skip lists like mini reg.
+            if 'tests' in out and type(data['tests']) is list and type(out['tests']) is dict:
+                print("Skip db")
+                continue
             merge_data(data, out)
     return out
 
