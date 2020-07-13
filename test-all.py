@@ -673,8 +673,11 @@ def db_check():
     for test in TESTS:
         if test.fname in all_tests:
             all_tests.remove(test.fname)
+
     for test in all_tests:
         name = os.path.basename(test)
+        if name == MYNAME:
+            continue
         print_test_line(name, "Missing in db")
 
     for test in TESTS:
