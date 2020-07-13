@@ -49,7 +49,7 @@ function test_supported_hw_stats() {
         local output=$(tc -s filter show dev $REP ingress)
         echo $output
         echo $output | grep -q $stats_type && \
-            success || error "No $stats_type stats found"
+            success || err "No $stats_type stats found"
         reset_tc $REP
     done
 }
