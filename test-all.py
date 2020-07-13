@@ -598,6 +598,17 @@ def merge_data(data, out):
     return out
 
 
+def get_db_path(db):
+    db2 = os.path.join(MYDIR, 'databases', db)
+    if not os.path.exists(db):
+        if os.path.exists(db2):
+            db = db2
+        else:
+            err("Cannot find db %s" % db)
+            return
+    return db
+
+
 def read_db():
     out = {}
     if len(args.db) == 1 and '*' in args.db[0]:
@@ -606,14 +617,9 @@ def read_db():
         dbs = args.db
 
     for db in dbs:
-        db2 = os.path.join(MYDIR, 'databases', db)
-        if not os.path.exists(db):
-            if os.path.exists(db2):
-                db = db2
-            else:
-                err("Cannot find db %s" % db)
-                return out
-
+        db = get_db_path(db)
+        if not db:
+            return out
         print("Reading DB: %s" % db)
         with open(db) as yaml_data:
             data = yaml.safe_load(yaml_data)
