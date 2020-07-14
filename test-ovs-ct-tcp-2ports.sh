@@ -102,7 +102,9 @@ function run() {
     killall -9 iperf &>/dev/null
     wait $! 2>/dev/null
 
+    title "verify offload on $REP"
     verify_no_traffic $pid
+    title "verify offload on $REP3"
     verify_no_traffic $pid2
 
     ovs-vsctl del-br br-ovs
