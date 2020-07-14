@@ -71,7 +71,7 @@ function run() {
     timeout 8 tcpdump -qnnei $REP -c 20 $proto &
     pid1=$!
 
-    echo "run traffic for $t seconds"
+    title "run traffic for $t seconds"
     ip netns exec ns1 $pktgen -l -i $VF2 --src-ip $IP1 --time $((t+1)) &
     pk1=$!
     sleep 1
@@ -82,24 +82,24 @@ function run() {
     wait $pid1
     ovs_dump_tc_flows --names
 
-    echo "check for offloaded - no traffic on rep"
+    title "check for offloaded - no traffic on rep"
     timeout 1 tcpdump -qnnei $REP -c 1 $proto &
     pid1=$!
     verify_no_traffic $pid1
 
-    echo "check offloaded in zone $zone"
-    cat /proc/net/nf_conntrack | grep --color -i offload | grep -i $IP1 | grep -i $IP2 | grep "zone=$zone" || err "tuple not offloaded"
+    title "check offloaded in zone $zone"
+    cat /proc/net/nf_conntrack | grep -i offload | grep $IP1 | grep $IP2 | grep "zone=$zone" || err "tuple not offloaded"
 
     sleep $t
     kill $pk1 &>/dev/null
     wait $pk1 $pk2 2>/dev/null
 
-    echo "del tc rules which should cause a flush"
+    title "del tc rules which should cause a flush"
     ovs-vsctl del-br br-ovs
 
     sleep 1
-    echo "check offloaded rules are flushed"
-    cat /proc/net/nf_conntrack | grep --color -i offload | grep -i $IP1 | grep -i $IP2 | grep "zone=$zone" && err "tuple not flushed"
+    title "check offloaded rules are flushed"
+    cat /proc/net/nf_conntrack | grep -i offload | grep $IP1 | grep $IP2 | grep "zone=$zone" && err "tuple not flushed"
 }
 
 run
