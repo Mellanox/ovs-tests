@@ -83,7 +83,7 @@ function run() {
     ovs_dump_tc_flows --names
 
     title "check for offloaded - no traffic on rep"
-    timeout 1 tcpdump -qnnei $REP -c 1 $proto &
+    timeout 3 tcpdump -qnnei $REP -c 1 $proto &
     pid1=$!
     verify_no_traffic $pid1
 
