@@ -298,7 +298,7 @@ def format_result(res, out='', html=False):
         "DIDN'T RUN":  'darkred',
     }
     color = res_color.get(res, 'yellow')
-    if out and "TEST FAILED" not in out:
+    if out and "TEST FAILED" not in out and "TEST PASSED" not in out:
         res += ' (%s)' % out
     return deco(res, color, html)
 
@@ -771,7 +771,8 @@ def main():
             res = 'DRY'
         else:
             try:
-                res = test.run(args.html)
+                reason = test.run(args.html)
+                res = 'TEST PASSED'
                 test.set_passed()
             except ExecCmdFailed as e:
                 failed = True
