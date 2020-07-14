@@ -75,6 +75,7 @@ function config() {
     ip link set dev $NIC up
     ip netns add ns0
     ip link set dev $VF netns ns0
+    ip netns exec ns0 ifconfig $VF mtu 1200
     ip netns exec ns0 ifconfig $VF $IP/24 up
 
     echo "Restarting OVS"
