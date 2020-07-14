@@ -145,6 +145,8 @@ class Test(object):
     def __init__(self, test_file):
         self._test_file = test_file
         self._name = os.path.basename(test_file)
+        self._passed = False
+        self._failed = False
         self._skip = False
         self._ignore = False
         self._reason = ''
@@ -155,6 +157,22 @@ class Test(object):
 
     def run(self, html=False):
         return run_test(self, html)
+
+    @property
+    def passed(self):
+        return self._passed and not self._failed
+
+    def set_passed(self):
+        self._passed = True
+        self._failed = False
+
+    @property
+    def failed(self):
+        return self._failed
+
+    def set_failed(self):
+        self._passed = False
+        self._failed = True
 
     @property
     def fname(self):
@@ -533,10 +551,10 @@ def ignore_from_exclude(exclude):
 
 def save_summary_html():
     number_of_tests = len(TESTS)
-    passed_tests = sum(map(lambda test: 'PASSED' in test.status, TESTS))
-    failed_tests = sum(map(lambda test: 'FAILED' in test.status, TESTS))
-    skip_tests = sum(map(lambda test: 'SKIP' in test.status, TESTS))
-    ignored_tests = sum(map(lambda test: 'IGNORED' in test.status, TESTS))
+    passed_tests = sum(map(lambda test: test.passed, TESTS))
+    failed_tests = sum(map(lambda test: test.failed, TESTS))
+    skip_tests = sum(map(lambda test: test.skip, TESTS))
+    ignored_tests = sum(map(lambda test: test.ignore, TESTS))
     running = number_of_tests - skip_tests - ignored_tests
     if running:
         pass_rate = str(int(passed_tests / float(running) * 100)) + '%'
@@ -740,6 +758,7 @@ def main():
         start_time = datetime.now()
         if not test.exists():
             failed = True
+            test.set_failed()
             res = 'FAILED'
             reason = 'Cannot find test'
         elif test.ignore:
@@ -753,8 +772,10 @@ def main():
         else:
             try:
                 res = test.run(args.html)
+                test.set_passed()
             except ExecCmdFailed as e:
                 failed = True
+                test.set_failed()
                 res = 'FAILED'
                 reason = str(e)
 
