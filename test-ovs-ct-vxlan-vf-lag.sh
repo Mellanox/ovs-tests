@@ -171,9 +171,9 @@ function run() {
     sleep 1
     title "reconfig ovs during traffic"
     add_openflow_rules
-    sleep 4
+    sleep 6
 
-    timeout $((t-4)) tcpdump -qnnei $REP -c 30 'tcp' &
+    timeout $((t-6)) tcpdump -qnnei $REP -c 30 'tcp' &
     tpid=$!
 
     sleep $t
