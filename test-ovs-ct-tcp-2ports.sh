@@ -6,7 +6,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-require_interface NIC2
+require_interfaces NIC2
 
 require_module act_ct
 echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
