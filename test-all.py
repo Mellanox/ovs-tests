@@ -154,7 +154,7 @@ class Test(object):
         self.status = "DIDN'T RUN"
 
     def run(self, html=False):
-        return run_test(self._test_file, html)
+        return run_test(self, html)
 
     @property
     def fname(self):
@@ -222,8 +222,10 @@ def parse_args():
     return parser.parse_args()
 
 
-def run_test(cmd, html=False):
-    logname = os.path.join(LOGDIR, os.path.basename(cmd))
+def run_test(test, html=False):
+    cmd = test.fname
+    logname = os.path.join(LOGDIR, test.test_log)
+    logname_html = os.path.join(LOGDIR, test.test_log_html)
     # piping stdout to file seems to miss stderr msgs to we use pipe
     # and write to file at the end.
     subp = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
@@ -231,18 +233,17 @@ def run_test(cmd, html=False):
     out = subp.communicate()
     log = out[0].decode('ascii')
 
-    with open("%s.log" % logname, 'w') as f1:
+    with open(logname, 'w') as f1:
         f1.write(log)
 
     if html:
-        with open("%s.html" % logname, 'w') as f2:
+        with open(logname_html, 'w') as f2:
             f2.write(Ansi2HTMLConverter().convert(log))
 
     status = log.splitlines()[-1].strip()
     status = strip_color(status)
 
     if subp.returncode:
-        status = "%s %s" % (status, logname + ".log")
         raise ExecCmdFailed(status)
 
     return status
@@ -279,7 +280,7 @@ def format_result(res, out='', html=False):
         "DIDN'T RUN":  'darkred',
     }
     color = res_color.get(res, 'yellow')
-    if out:
+    if out and "TEST FAILED" not in out:
         res += ' (%s)' % out
     return deco(res, color, html)
 
@@ -735,7 +736,6 @@ def main():
 
         res = ''
         reason = ''
-        out = ''
 
         start_time = datetime.now()
         if not test.exists():
@@ -756,7 +756,7 @@ def main():
             except ExecCmdFailed as e:
                 failed = True
                 res = 'FAILED'
-                out = str(e)
+                reason = str(e)
 
         end_time = datetime.now()
         total_seconds = float("%.2f" % (end_time - start_time).total_seconds())
@@ -766,7 +766,8 @@ def main():
         print("%s " % total_seconds, end=' ')
 
         test.status = format_result(res, reason, html=True)
-        print("%-60s" % format_result(res, reason + out))
+        logname = os.path.join(LOGDIR, test.test_log)
+        print("%s %s" % (format_result(res, reason), logname))
 
         if args.stop and failed:
             return 1
