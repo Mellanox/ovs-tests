@@ -91,19 +91,6 @@ function config_remote() {
     on_remote ip l set dev bond0 up
 }
 
-function test_tcpdump() {
-    local pid=$1
-    wait $pid
-    local rc=$?
-    if [[ $rc -eq 124 ]]; then
-        :
-    elif [[ $rc -eq 0 ]]; then
-        err "Didn't expect to see packets"
-    else
-        err "Tcpdump failed"
-    fi
-}
-
 function run_server() {
     ssh2 $REMOTE_SERVER timeout $((t+2)) iperf -s -t $t &
     pk1=$!
@@ -159,7 +146,7 @@ function run() {
 
     sleep $t
     title "Verify traffic is offloaded"
-    test_tcpdump $tpid
+    verify_no_traffic $tpid
 
     i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i
     i=1 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i

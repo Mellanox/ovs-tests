@@ -116,19 +116,6 @@ function add_openflow_rules() {
     ovs-ofctl dump-flows br-ovs --color
 }
 
-function test_tcpdump() {
-    local pid=$1
-    wait $pid
-    local rc=$?
-    if [[ $rc -eq 124 ]]; then
-        :
-    elif [[ $rc -eq 0 ]]; then
-        err "Didn't expect to see packets"
-    else
-        err "Tcpdump failed"
-    fi
-}
-
 function run() {
     config
     config_remote
@@ -160,7 +147,7 @@ function run() {
     timeout $((t-2)) tcpdump -qnnei $REP -c 10 'tcp' &
     tpid=$!
     sleep $t
-    test_tcpdump $tpid
+    verify_no_traffic $tpid
 
     conntrack -L | grep $IP
 
