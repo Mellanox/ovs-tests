@@ -123,5 +123,7 @@ function run() {
     sleep 3
 }
 
+start_check_syndrome
 run
+check_syndrome
 test_done
