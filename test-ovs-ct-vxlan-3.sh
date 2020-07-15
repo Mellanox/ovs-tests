@@ -175,8 +175,8 @@ function run() {
 
     initial_traffic
 
+    title "Start traffic"
     t=15
-    # traffic
     run_server
     run_client
 
