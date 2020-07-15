@@ -137,14 +137,14 @@ function run() {
     pid2=$!
 
     # verify pid
-    sleep 2
+    sleep 4
     kill -0 $pid2 &>/dev/null
     if [ $? -ne 0 ]; then
         err "iperf failed"
         return
     fi
 
-    timeout $((t-2)) tcpdump -qnnei $REP -c 10 'tcp' &
+    timeout $((t-4)) tcpdump -qnnei $REP -c 10 'tcp' &
     tpid=$!
     sleep $t
     verify_no_traffic $tpid

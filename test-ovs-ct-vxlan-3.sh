@@ -159,7 +159,7 @@ function run() {
     run_client
 
     # verify pid
-    sleep 2
+    sleep 4
     kill -0 $pk1 &>/dev/null
     p1=$?
     kill -0 $pk2 &>/dev/null
@@ -169,7 +169,7 @@ function run() {
         return
     fi
 
-    timeout $((t-2)) tcpdump -qnnei $REP -c 10 'tcp' &
+    timeout $((t-4)) tcpdump -qnnei $REP -c 10 'tcp' &
     tpid=$!
     sleep $t
     verify_no_traffic $tpid
