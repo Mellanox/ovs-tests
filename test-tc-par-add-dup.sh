@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # This verifies that parallel rule insertion doesn't cause for duplicate rules
-# Bug SW #1598025: [JD] Duplicate rules when running udp traffic
+# Bug SW #1598025: Duplicate rules when running udp traffic
 #
 
 total=${1:-1000}

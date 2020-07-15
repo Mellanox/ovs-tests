@@ -2,7 +2,7 @@
 #
 # Test toggle sriov on and bring up vfs
 #
-# Bug SW #1590053: [JD] Failing to bring up 100 VFs net devices
+# Bug SW #1590053: Failing to bring up 100 VFs net devices
 #
 
 my_dir="$(dirname "$0")"

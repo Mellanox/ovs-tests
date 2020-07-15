@@ -2,7 +2,7 @@
 #
 # Test OVS CT udp traffic with VF mirror
 #
-# Bug SW #1604925: [JD] traffic is not offloaded with OVS and VF mirror
+# Bug SW #1604925: traffic is not offloaded with OVS and VF mirror
 #
 
 my_dir="$(dirname "$0")"

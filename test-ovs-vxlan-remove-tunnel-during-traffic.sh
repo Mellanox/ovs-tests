@@ -5,7 +5,7 @@
 # Related upstream commit:
 # 8e1da73acded gro_cell: add napi_disable in gro_cells_destroy
 #
-# Bug SW #1609215: [JD] kernel crash removing vxlan tunnel interface during traffic
+# Bug SW #1609215: kernel crash removing vxlan tunnel interface during traffic
 #
 
 my_dir="$(dirname "$0")"

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Bug SW #1601565: [JD] long time to bring up reps
+# Bug SW #1601565: long time to bring up reps
 # Bug SW #1605626: [upstream] long time to bring up reps
 #
 

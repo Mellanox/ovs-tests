@@ -2,7 +2,7 @@
 #
 # Test OVS CT vxlan traffic with VF mirror
 #
-# Bug SW #1806549: [JD] traffic not offloaded + syndrome (0xd29096) during CT vxlan and mirroring
+# Bug SW #1806549: traffic not offloaded + syndrome (0xd29096) during CT vxlan and mirroring
 #
 # Require external server
 #

@@ -2,7 +2,7 @@
 #
 # Change number of channels of representor
 #
-# Related to Bug SW #1601565: [JD] long time to bring up reps
+# Related to Bug SW #1601565: long time to bring up reps
 #
 # results tested with 16 reps
 # bad: 400ms

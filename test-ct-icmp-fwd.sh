@@ -2,7 +2,7 @@
 #
 # Test CT fwd with icmp traffic and rule ct+fwd
 #
-# Bug SW #1601350: [JD] illegal action syndrome when testing CT rule ct+fwd and icmp traffic
+# Bug SW #1601350: illegal action syndrome when testing CT rule ct+fwd and icmp traffic
 #
 
 my_dir="$(dirname "$0")"

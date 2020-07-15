@@ -2,7 +2,7 @@
 #
 # Test vxlan and pedit with gro off on the vxlan interface.
 #
-# Bug SW #1605385: [JD] pedit of src port on vxlan traffic doesn't work
+# Bug SW #1605385: pedit of src port on vxlan traffic doesn't work
 # Bug SW #1658441: [upstream] Cannot find packets after header rewrite of src port when gro is off
 #
 

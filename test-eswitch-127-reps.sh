@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Bug SW #1487302: [upstream] failing to set mode switchdev when we have 127 vfs
-# Bug SW #1601565: [JD] long time to bring up reps
+# Bug SW #1601565: long time to bring up reps
 #
 
 my_dir="$(dirname "$0")"
