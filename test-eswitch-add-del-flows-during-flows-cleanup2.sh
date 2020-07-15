@@ -15,6 +15,8 @@
 #
 # Expected result: not to crash
 #
+# Expected to work on upstream from kernel 5 or with ofed 5.1.
+#
 # Bug RN #1013092: Kernel trace between flower configure/delete and mlx5 eswitch disable sriov
 # Bug SW #1293937: Kernel trace between flower configure/delete and mlx5 eswitch disable sriov
 
@@ -24,11 +26,6 @@ COUNT=500
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
-
-# expected to work on upstream from kernel 5 or with ofed 5.1.
-if ! is_ofed; then
-    require_min_kernel_5
-fi
 
 enable_switchdev
 rep=`get_rep 0`
