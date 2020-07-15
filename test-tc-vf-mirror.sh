@@ -75,11 +75,11 @@ function run() {
     tc filter show dev $REP ingress
 
     echo "sniff packets on $vf_mirror"
-    timeout 2 tcpdump -qnei $vf_mirror -c 6 'icmp' &
+    timeout 5 tcpdump -qnei $vf_mirror -c 6 'icmp' &
     pid=$!
 
     echo "run traffic"
-    ip netns exec ns0 ping -q -c 10 -i 0.1 -w 2 $IP2 || err "Ping failed"
+    ip netns exec ns0 ping -q -i 0.2 -w 5 $IP2 || err "Ping failed"
 
     wait $pid
     # test sniff timedout
