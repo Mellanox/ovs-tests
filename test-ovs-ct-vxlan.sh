@@ -95,6 +95,26 @@ function add_openflow_rules() {
     ovs-ofctl dump-flows br-ovs --color
 }
 
+function initial_traffic() {
+    title "initial traffic"
+    # this part is important when using multi-table CT.
+    # the initial traffic will cause ovs to create initial tc rules
+    # and also tuple rules. but since ovs adds the rules somewhat late
+    # conntrack will already mark the conn est. and tuple rules will be in hw.
+    # so we start second traffic which will be faster added to hw before
+    # conntrack and this will check the miss rule in our driver is ok
+    # (i.e. restoring reg_0 correctly)
+    on_remote timeout 4 iperf -s -t 3 &
+    pid1=$!
+    sleep 1
+    ip netns exec ns0 timeout 3 iperf -c $REMOTE -t 2 &
+    pid2=$!
+
+    sleep 4
+    kill -9 $pid1 $pid2 &>/dev/null
+    wait $pid1 $pid2 &>/dev/null
+}
+
 function run() {
     config
     config_remote
@@ -109,23 +129,7 @@ function run() {
 
     t=15
 
-    title "initial traffic"
-    # this part is important when using multi-table CT.
-    # the initial traffic will cause ovs to create initial tc rules
-    # and also tuple rules. but since ovs adds the rules somewhat late
-    # conntrack will already mark the conn est. and tuple rules will be in hw.
-    # so we start second traffic which will be faster added to hw before
-    # conntrack and this will check the miss rule in our driver is ok
-    # (i.e. restoring reg_0 correctly)
-    ssh2 $REMOTE_SERVER timeout 4 iperf -s -t 3 &
-    pid1=$!
-    sleep 1
-    ip netns exec ns0 timeout 3 iperf -c $REMOTE -t 2 &
-    pid2=$!
-
-    sleep 4
-    kill -9 $pid1 $pid2 &>/dev/null
-    wait $pid1 $pid2 &>/dev/null
+    initial_traffic
 
     title "traffic"
     ssh2 $REMOTE_SERVER timeout $((t+2)) iperf -s -t $t &
