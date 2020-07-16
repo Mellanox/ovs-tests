@@ -191,7 +191,7 @@ function run() {
         return
     fi
 
-    timeout $((t-4)) tcpdump -qnnei $REP -c 10 'tcp' &
+    timeout $((t-6)) tcpdump -qnnei $REP -c 10 'tcp' &
     tpid=$!
     sleep $t
     verify_no_traffic $tpid
