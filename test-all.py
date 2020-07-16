@@ -754,6 +754,7 @@ def main():
 
         res = ''
         reason = ''
+        logname = ''
 
         start_time = datetime.now()
         if not test.exists():
@@ -769,7 +770,6 @@ def main():
             reason = test.reason
         elif args.dry:
             res = 'DRY'
-            logname = ''
         else:
             logname = os.path.join(LOGDIR, test.test_log)
             try:
