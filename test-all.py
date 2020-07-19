@@ -376,7 +376,7 @@ def get_current_fw(nic):
     if not nic:
         return ''
     cmd = "ethtool -i %s | grep firmware-version | awk {'print $2'}" % nic
-    output = subprocess.check_output(cmd, shell=True).strip()
+    output = subprocess.check_output(cmd, shell=True).decode().strip()
     if not output:
         err("Cannot get FW version")
     return output
