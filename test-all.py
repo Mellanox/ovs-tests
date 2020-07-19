@@ -376,9 +376,21 @@ def get_pci(nic):
     return os.path.basename(os.readlink("/sys/class/net/%s/device" % nic))
 
 
+def get_flow_steering_mode_compat(nic):
+    ofed_compat = "/sys/class/net/%s/compat/devlink/steering_mode" % nic
+    try:
+        with open(ofed_compat, 'r') as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        pass
+
+
 def get_flow_steering_mode(nic):
     if not nic:
         return ''
+    mode = get_flow_steering_mode_compat(nic)
+    if mode:
+        return mode
     pci = get_pci(nic)
     cmd = "devlink dev param show pci/%s name flow_steering_mode" % pci
     try:
