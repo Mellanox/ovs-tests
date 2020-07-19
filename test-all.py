@@ -323,8 +323,7 @@ def glob_tests(glob_filter):
 
     if len(glob_filter) == 1 and (' ' in glob_filter[0] or '\n' in glob_filter[0]):
         glob_filter = glob_filter[0].strip().split()
-
-    if len(glob_filter) == 1 and ',' in glob_filter[0]:
+    elif len(glob_filter) == 1 and ',' in glob_filter[0]:
         glob_filter = glob_filter[0].split(',')
 
     for test in TESTS:
@@ -364,7 +363,7 @@ def get_config_value(key):
         with open(config, 'r') as f1:
             for line in f1.readlines():
                 if line.startswith("%s=" % key):
-                    val = line.split("=")[1].strip()
+                    val = line.split('=')[1].strip()
                     return val
     except IOError:
         err("Cannot read config %s" % config)
