@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+from __future__ import print_function
+
 import os
 import sys
 import argparse
@@ -44,14 +46,14 @@ def verify_args(args, needed):
         if v is None:
             v = '(Missing)'
             err = True
-        print '%s: %s' % (i, v)
+        print('%s: %s' % (i, v))
 
     if err:
         sys.exit(1)
 
 
 def run_listener(args):
-    print "---- Run as listener ----"
+    print("---- Run as listener ----")
 
     needed = ('dev', 'src_ip', 'time')
     verify_args(args, needed)
@@ -86,20 +88,20 @@ def run_listener(args):
         return packet_fwd
 
     filter1 = "udp and src host %s" % src_ip
-    print "Start sniff and fwd on %s" % ifname
-    print "filter: %s" % filter1
+    print("Start sniff and fwd on %s" % ifname)
+    print("filter: %s" % filter1)
     sock = conf.L3socket(iface=args.dev)
     try:
         x = sniff(iface=ifname, prn=custom_action(sock), filter=filter1, timeout=args.time, store=0)
     finally:
         sock.close()
 
-    print
-    print 'received %s packets' % _c
+    print()
+    print('received %s packets' % _c)
 
 
 def run_client(args):
-    print "---- Run as client ----"
+    print("---- Run as client ----")
 
     if not args.src_port:
         args.src_port = random.randrange(1026, 1999)
@@ -130,7 +132,7 @@ def run_client(args):
                     payload)
             pkt_list.append(pkt)
 
-    print "Prepared %d packets" % len(pkt_list)
+    print("Prepared %d packets" % len(pkt_list))
     t_end = time.time() + args.time
     s = conf.L3socket(iface=args.dev)
     progress = random.choice(['.', ',', 'a', 'b', 'c', 'z'])
@@ -144,8 +146,8 @@ def run_client(args):
                     sys.stdout.flush()
     finally:
         s.close()
-    print
-    print "sent %d packets" % sent
+    print()
+    print("sent %d packets" % sent)
 
 
 def run():
