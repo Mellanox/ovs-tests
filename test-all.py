@@ -372,6 +372,22 @@ def get_config_value(key):
     err("Cannot get %s from CONFIG." % key)
 
 
+def get_pci(nic):
+    return os.path.basename(os.readlink("/sys/class/net/%s/device" % nic))
+
+
+def get_flow_steering_mode(nic):
+    if not nic:
+        return ''
+    pci = get_pci(nic)
+    cmd = "devlink dev param show pci/%s name flow_steering_mode" % pci
+    try:
+        output = subprocess.check_output(cmd, shell=True).decode().strip()
+    except subprocess.CalledProcessError:
+        return
+    return output.split()[-1]
+
+
 def get_current_fw(nic):
     if not nic:
         return ''
@@ -411,12 +427,14 @@ def update_skip_according_to_db(data):
         current_kernel = args.test_kernel
     else:
         current_kernel = os.uname()[2]
+    flow_steering_mode = get_flow_steering_mode(nic)
 
     custom_kernels = data.get('custom_kernels', {})
 
-    print("Current nic: %s" % current_nic)
-    print("Current fw: %s" % current_fw_ver)
-    print("Current kernel: %s" % current_kernel)
+    print("nic: %s" % current_nic)
+    print("fw: %s" % current_fw_ver)
+    print("flow steering: %s" % flow_steering_mode)
+    print("kernel: %s" % current_kernel)
 
     for t in TESTS:
         name = t.name
@@ -431,6 +449,11 @@ def update_skip_according_to_db(data):
         if (data['tests'][name].get('ignore_for_upstream', 0) and
             'upstream' in current_kernel):
             t.set_skip("Ignore on for-upstream kernel")
+            continue
+
+        ignore_fs = data['tests'][name].get('ignore_flow_steering', '')
+        if ignore_fs and (not flow_steering_mode or ignore_fs == flow_steering_mode):
+            t.set_ignore("Ignore flow steering mode %s" % ignore_fs)
             continue
 
         ignore_not_supported = data['tests'][name].get('ignore_not_supported', 0)
