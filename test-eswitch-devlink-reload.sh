@@ -12,6 +12,8 @@ config_sriov 2 $NIC
 enable_switchdev
 
 title "Reload pci $PCI"
-devlink dev reload pci/$PCI || fail "Failed to reload pci device"
+devlink dev reload pci/$PCI 2>&1 | tee /tmp/log
+# if blocked as reload not supported don't fail the test
+grep -q "Reload not supported in switchdev mode" /tmp/log || fail "Failed to reload pci device"
 
 test_done
