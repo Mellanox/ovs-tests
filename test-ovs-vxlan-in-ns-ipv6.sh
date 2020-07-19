@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Test ovs with vxlan tunnel over ipv6
+#
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh

@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+# Test ICMP offload with OVS
 #
 
 my_dir="$(dirname "$0")"

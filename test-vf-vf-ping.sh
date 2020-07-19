@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# 
+# Ping and ping flood between two VFs
 #
 
 NIC=${1:-ens5f0}

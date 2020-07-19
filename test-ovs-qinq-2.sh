@@ -1,4 +1,10 @@
 #!/bin/bash
+#
+# In this test, both svlan and cvlan tags are pushed and popped using
+# open flow rules.
+#
+# In test-ovs-qinq-1.sh, there are no openflow rules. They are two
+# different configurations.
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh

@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+# Test TCP offload with OVS
 #
 #setup:
 #       veth0 <-> veth1 <-> OVS <-> veth2 <-> veth3@ns0
