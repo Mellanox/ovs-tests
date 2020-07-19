@@ -443,12 +443,12 @@ def update_skip_according_to_db(data):
 
         if (data['tests'][name].get('ignore_for_linust', 0) and
             'linust' in current_kernel):
-            t.set_skip("Ignore on for-linust kernel")
+            t.set_ignore("Ignore on for-linust kernel")
             continue
 
         if (data['tests'][name].get('ignore_for_upstream', 0) and
             'upstream' in current_kernel):
-            t.set_skip("Ignore on for-upstream kernel")
+            t.set_ignore("Ignore on for-upstream kernel")
             continue
 
         ignore_fs = data['tests'][name].get('ignore_flow_steering', '')
