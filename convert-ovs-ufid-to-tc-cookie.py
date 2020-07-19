@@ -8,17 +8,25 @@
 from __future__ import print_function
 import sys
 
+if len(sys.argv) < 2:
+    print("USAGE: Missing ufid argument")
+    sys.exit(1)
+
 ufid = sys.argv[1]
 
 out = ""
 word = []
-sp = ufid.split('-')
-w3 = sp[4][:4]
-w4 = sp[3]
-w5 = sp[4][-8:]
-sp[3] = w3
-sp[4] = w4
-sp.append(w5)
+try:
+    sp = ufid.split('-')
+    w3 = sp[4][:4]
+    w4 = sp[3]
+    w5 = sp[4][-8:]
+    sp[3] = w3
+    sp[4] = w4
+    sp.append(w5)
+except IndexError:
+    print("ERROR: Invalid ufid?")
+    sys.exit(1)
 
 #replace w1 and w2
 tmp = sp[1]
