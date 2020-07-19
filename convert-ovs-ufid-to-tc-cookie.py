@@ -5,6 +5,7 @@
 # ./convert-ovs-ufid-to-tc-cookie.py [ufid]
 #
 
+from __future__ import print_function
 import sys
 
 ufid = sys.argv[1]
@@ -34,4 +35,4 @@ for i in sp:
 
 out = ''.join(word)
 
-print out
+print(out)
