@@ -31,155 +31,10 @@ try:
 except ImportError:
     from ordereddict import OrderedDict
 
+from ansi2html.style import get_styles, SCHEME
 import six
 from six.moves import map
 from six.moves import zip
-
-
-class Rule(object):
-
-    def __init__(self, klass, **kw):
-
-        self.klass = klass
-        self.kw = '; '.join([(k.replace('_', '-')+': '+kw[k])
-                             for k in sorted(kw.keys())]).strip()
-        self.kwl = [(k.replace('_', '-'), kw[k][1:])
-                    for k in sorted(kw.keys())]
-
-    def __str__(self):
-        return '%s { %s; }' % (self.klass, self.kw)
-
-
-def index(r, g, b):
-    return str(16 + (r * 36) + (g * 6) + b)
-
-
-def color_component(x):
-    if x == 0:
-        return 0
-    return 0x37 + (0x28 * x)
-
-
-def color(r, g, b):
-    return "#%.2x%.2x%.2x" % (color_component(r), color_component(g), color_component(b))
-
-
-def level(grey):
-    return "#%.2x%.2x%.2x" % (((grey * 10) + 8,) * 3)
-
-
-def index2(grey):
-    return str(232 + grey)
-
-
-# http://en.wikipedia.org/wiki/ANSI_escape_code#Colors
-SCHEME = {
-    # black red green brown/yellow blue magenta cyan grey/white
-    'ansi2html': (
-        "#000316", "#aa0000", "#00aa00", "#aa5500",
-        "#0000aa", "#E850A8", "#00aaaa", "#F5F1DE",
-        "#7f7f7f", "#ff0000", "#00ff00", "#ffff00",
-        "#5c5cff", "#ff00ff", "#00ffff", "#ffffff"),
-
-    'xterm': (
-        "#000000", "#cd0000", "#00cd00", "#cdcd00",
-        "#0000ee", "#cd00cd", "#00cdcd", "#e5e5e5",
-        "#7f7f7f", "#ff0000", "#00ff00", "#ffff00",
-        "#5c5cff", "#ff00ff", "#00ffff", "#ffffff"),
-
-    'osx': (
-        "#000000", "#c23621", "#25bc24", "#adad27",
-        "#492ee1", "#d338d3", "#33bbc8", "#cbcccd") * 2,
-
-    # http://ethanschoonover.com/solarized
-    'solarized': (
-        "#262626", "#d70000", "#5f8700", "#af8700",
-        "#0087ff", "#af005f", "#00afaf", "#e4e4e4",
-        "#1c1c1c", "#d75f00", "#585858", "#626262",
-        "#808080", "#5f5faf", "#8a8a8a", "#ffffd7"),
-
-    'mint-terminal': (
-        "#2E3436", "#CC0000", "#4E9A06", "#C4A000",
-        "#3465A4", "#75507B", "#06989A", "#D3D7CF",
-        "#555753", "#EF2929", "#8AE234", "#FCE94F",
-        "#729FCF", "#AD7FA8", "#34E2E2", "#EEEEEC"),
-}
-
-
-def intensify(color, dark_bg, amount=64):
-    if not dark_bg:
-        amount = -amount
-    rgb = tuple(max(0, min(255, amount + int(color[i:i+2], 16))) for i in (1, 3, 5))
-    return "#%.2x%.2x%.2x" % rgb
-
-
-def get_styles(dark_bg=True, line_wrap=True, scheme='ansi2html'):
-    css = [
-        Rule(
-            '.ansi2html-content', white_space=('pre', 'pre-wrap')[line_wrap],
-            word_wrap='break-word', display='inline'),
-        Rule('.body_foreground', color=('#000000', '#AAAAAA')[dark_bg]),
-        Rule('.body_background', background_color=('#AAAAAA', '#000000')[dark_bg]),
-        Rule(
-            '.body_foreground > .bold,.bold > .body_foreground, body.body_foreground > pre > .bold',
-            color=('#000000', '#FFFFFF')[dark_bg],
-            font_weight=('bold', 'normal')[dark_bg]),
-        Rule('.inv_foreground', color=('#000000', '#FFFFFF')[not dark_bg]),
-        Rule('.inv_background', background_color=('#AAAAAA', '#000000')[not dark_bg]),
-        Rule('.ansi1', font_weight='bold'),
-        Rule('.ansi2', font_weight='lighter'),
-        Rule('.ansi3', font_style='italic'),
-        Rule('.ansi4', text_decoration='underline'),
-        Rule('.ansi5', text_decoration='blink'),
-        Rule('.ansi6', text_decoration='blink'),
-        Rule('.ansi8', visibility='hidden'),
-        Rule('.ansi9', text_decoration='line-through'), ]
-
-    # set palette
-    pal = SCHEME[scheme]
-    for _index in range(8):
-        css.append(Rule('.ansi3%s' % _index, color=pal[_index]))
-        css.append(Rule('.inv3%s' % _index, background_color=pal[_index]))
-    for _index in range(8):
-        css.append(Rule('.ansi4%s' % _index, background_color=pal[_index]))
-        css.append(Rule('.inv4%s' % _index, color=pal[_index]))
-    for _index in range(8):
-        css.append(Rule('.ansi9%s' % _index, color=intensify(pal[_index], dark_bg)))
-        css.append(Rule('.inv9%s' % _index, background_color=intensify(pal[_index], dark_bg)))
-    for _index in range(8):
-        css.append(Rule('.ansi10%s' % _index, background_color=intensify(pal[_index], dark_bg)))
-        css.append(Rule('.inv10%s' % _index, color=intensify(pal[_index], dark_bg)))
-
-    # set palette colors in 256 color encoding
-    pal = SCHEME[scheme]
-    for _index in range(len(pal)):
-        css.append(Rule('.ansi38-%s' % _index, color=pal[_index]))
-        css.append(Rule('.inv38-%s' % _index, background_color=pal[_index]))
-    for _index in range(len(pal)):
-        css.append(Rule('.ansi48-%s' % _index, background_color=pal[_index]))
-        css.append(Rule('.inv48-%s' % _index, color=pal[_index]))
-
-    # css.append("/* Define the explicit color codes (obnoxious) */\n\n")
-
-    for green in range(0, 6):
-        for red in range(0, 6):
-            for blue in range(0, 6):
-                css.append(Rule(".ansi38-%s" % index(red, green, blue),
-                                color=color(red, green, blue)))
-                css.append(Rule(".inv38-%s" % index(red, green, blue),
-                                background=color(red, green, blue)))
-                css.append(Rule(".ansi48-%s" % index(red, green, blue),
-                                background=color(red, green, blue)))
-                css.append(Rule(".inv48-%s" % index(red, green, blue),
-                                color=color(red, green, blue)))
-
-    for grey in range(0, 24):
-        css.append(Rule('.ansi38-%s' % index2(grey), color=level(grey)))
-        css.append(Rule('.inv38-%s' % index2(grey), background=level(grey)))
-        css.append(Rule('.ansi48-%s' % index2(grey), background=level(grey)))
-        css.append(Rule('.inv48-%s' % index2(grey), color=level(grey)))
-
-    return css
 
 
 ANSI_FULL_RESET = 0
@@ -245,8 +100,7 @@ _latex_template = '''\\documentclass{scrartcl}
 \\end{document}
 '''
 
-_html_template = six.u(
-    """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+_html_template = six.u("""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=%(output_encoding)s">
@@ -261,7 +115,6 @@ _html_template = six.u(
 
 </html>
 """)
-
 
 class _State(object):
     def __init__(self):
@@ -323,8 +176,8 @@ class _State(object):
             if value != default:
                 prefix = 'inv' if negative else 'ansi'
                 css_class_index = str(value) \
-                    if (parameter is None) \
-                    else '%d-%d' % (value, parameter)
+                        if (parameter is None) \
+                        else '%d-%d' % (value, parameter)
                 output.append(prefix + css_class_index)
             elif negative:
                 output.append(neg_css_class)
@@ -337,12 +190,8 @@ class _State(object):
         append_unless_default(css_classes, self.visibility, ANSI_VISIBILITY_ON)
 
         flip_fore_and_background = (self.negative == ANSI_NEGATIVE_ON)
-        append_color_unless_default(
-            css_classes, self.foreground, ANSI_FOREGROUND_DEFAULT, flip_fore_and_background,
-            'inv_background')
-        append_color_unless_default(
-            css_classes, self.background, ANSI_BACKGROUND_DEFAULT, flip_fore_and_background,
-            'inv_foreground')
+        append_color_unless_default(css_classes, self.foreground, ANSI_FOREGROUND_DEFAULT, flip_fore_and_background, 'inv_background')
+        append_color_unless_default(css_classes, self.background, ANSI_BACKGROUND_DEFAULT, flip_fore_and_background, 'inv_foreground')
 
         return css_classes
 
@@ -357,11 +206,9 @@ def linkify(line, latex_mode):
     else:
         return url_matcher.sub(r'<a href="\1">\1</a>', line)
 
-
 def map_vt100_box_code(char):
     char_hex = hex(ord(char))
     return VT100_BOX_CODES[char_hex] if char_hex in VT100_BOX_CODES else char
-
 
 def _needs_extra_newline(text):
     if not text or text.endswith('\n'):
@@ -394,7 +241,7 @@ class Ansi2HTMLConverter(object):
                  output_encoding='utf-8',
                  scheme='ansi2html',
                  title=''
-                 ):
+                ):
 
         self.latex = latex
         self.inline = inline
@@ -410,8 +257,7 @@ class Ansi2HTMLConverter(object):
         self._attrs = None
 
         if inline:
-            self.styles = dict([(item.klass.strip('.'), item)
-                                for item in get_styles(self.dark_bg, self.line_wrap, self.scheme)])
+            self.styles = dict([(item.klass.strip('.'), item) for item in get_styles(self.dark_bg, self.line_wrap, self.scheme)])
 
         self.vt100_box_codes_prog = re.compile('\033\\(([B0])')
         self.ansi_codes_prog = re.compile('\033\\[' '([\\d;]*)' '([a-zA-z])')
@@ -437,7 +283,7 @@ class Ansi2HTMLConverter(object):
 
     def _apply_regex(self, ansi, styles_used):
         if self.escaped:
-            if self.latex:
+            if self.latex: # Known Perl function which does this: https://tex.stackexchange.com/questions/34580/escape-character-in-latex/119383#119383
                 specials = OrderedDict([
                 ])
             else:
@@ -627,16 +473,16 @@ class Ansi2HTMLConverter(object):
             used_styles = filter(lambda e: e.klass.lstrip(".") in attrs["styles"], all_styles)
 
             return _template % {
-                'style': "\n".join(list(map(str, backgrounds + list(used_styles)))),
-                'title': self.title,
-                'font_size': self.font_size,
-                'content':  attrs["body"],
-                'output_encoding': self.output_encoding,
+                'style' : "\n".join(list(map(str, backgrounds + list(used_styles)))),
+                'title' : self.title,
+                'font_size' : self.font_size,
+                'content' :  attrs["body"],
+                'output_encoding' : self.output_encoding,
             }
 
     def produce_headers(self):
         return '<style type="text/css">\n%(style)s\n</style>\n' % {
-            'style': "\n".join(map(str, get_styles(self.dark_bg, self.line_wrap, self.scheme)))
+            'style' : "\n".join(map(str, get_styles(self.dark_bg, self.line_wrap, self.scheme)))
         }
 
 
@@ -648,8 +494,18 @@ def main():
     """
 
     scheme_names = sorted(six.iterkeys(SCHEME))
-    parser = optparse.OptionParser()
-
+    version_str = pkg_resources.get_distribution('ansi2html').version
+    parser = optparse.OptionParser(
+        usage=main.__doc__,
+        version="%%prog %s" % version_str)
+    parser.add_option(
+        "-p", "--partial", dest="partial",
+        default=False, action="store_true",
+        help="Process lines as them come in.  No headers are produced.")
+    parser.add_option(
+        "-L", "--latex", dest="latex",
+        default=False, action="store_true",
+        help="Export as LaTeX instead of HTML.")
     parser.add_option(
         "-i", "--inline", dest="inline",
         default=False, action="store_true",
@@ -670,6 +526,10 @@ def main():
         "-W", '--no-line-wrap', dest='no_line_wrap',
         default=False, action="store_true",
         help="Disable line wrapping.")
+    parser.add_option(
+        "-a", '--linkify', dest='linkify',
+        default=False, action="store_true",
+        help="Transform URLs into <a> links.")
     parser.add_option(
         "-u", '--unescape', dest='escaped',
         default=True, action="store_false",
@@ -695,26 +555,16 @@ def main():
         '-t', '--title', dest='output_title',
         default='',
         help="Specify output title")
-    parser.add_option(
-        '--input_file', dest='input_file',
-        default='',
-        help="Specify ansi input file")
-    parser.add_option(
-        '--output_file', dest='output_file',
-        default='',
-        help="Specify html output file")
+
     opts, args = parser.parse_args()
 
-    if not opts.input_file:
-        raise Exception("Input file must be given")
-
     conv = Ansi2HTMLConverter(
-        latex=False,
+        latex=opts.latex,
         inline=opts.inline,
         dark_bg=not opts.light_background,
         line_wrap=not opts.no_line_wrap,
         font_size=opts.font_size,
-        linkify=True,
+        linkify=opts.linkify,
         escaped=opts.escaped,
         markup_lines=opts.markup_lines,
         output_encoding=opts.output_encoding,
@@ -722,12 +572,39 @@ def main():
         title=opts.output_title,
     )
 
-    ansi = ""
+    if six.PY3:
+        try:
+            sys.stdin = io.TextIOWrapper(sys.stdin.detach(), opts.input_encoding, "replace")
+        except io.UnsupportedOperation:
+            # This only fails in the test suite...
+            pass
 
-    with open(opts.input_file, "r") as f:
-        ansi = " ".join(f.readlines())
-    output = conv.convert(ansi)
-    if opts.output_file:
-        with open(opts.output_file, "w") as f:
-            f.write(output)
-    print(output)
+    def _read(input_bytes):
+        if six.PY3:
+            return input_bytes
+        else:
+            return input_bytes.decode(opts.input_encoding)
+
+    def _print(output_unicode, end='\n'):
+        if hasattr(sys.stdout, 'buffer'):
+            output_bytes = (output_unicode + end).encode(opts.output_encoding)
+            sys.stdout.buffer.write(output_bytes)
+        elif not six.PY3:
+            sys.stdout.write((output_unicode + end).encode(opts.output_encoding))
+        else:
+            sys.stdout.write(output_unicode + end)
+
+    # Produce only the headers and quit
+    if opts.headers:
+        _print(conv.produce_headers(), end='')
+        return
+
+    full = not bool(opts.partial or opts.inline)
+    if six.PY3:
+        output = conv.convert("".join(sys.stdin.readlines()), full=full, ensure_trailing_newline=True)
+        _print(output, end='')
+    else:
+        output = conv.convert(six.u("").join(
+            map(_read, sys.stdin.readlines())
+        ), full=full, ensure_trailing_newline=True)
+        _print(output, end='')
