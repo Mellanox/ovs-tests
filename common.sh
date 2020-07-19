@@ -85,7 +85,7 @@ function __test_for_devlink_compat() {
     elif [ -e /sys/class/net/$NIC/compat/devlink ]; then
         echo "Using devlink compat sysfs"
         devlink_compat=1
-        __devlink_compat_dir="/sys/class/net/\$nic/compat/devlink/"
+        __devlink_compat_dir="/sys/class/net/\$nic/compat/devlink"
     fi
 }
 
@@ -577,7 +577,7 @@ function wait_for_reps() {
 function devlink_compat_dir() {
     local nic=$1
     local pci=$(basename `readlink /sys/class/net/$nic/device`)
-    eval echo "$__devlink_compat_dir";
+    eval echo "$__devlink_compat_dir"
 }
 
 function wait_switch_mode_compat() {
