@@ -88,7 +88,9 @@ function run() {
     verify_no_traffic $pid1
 
     title "check offloaded in zone $zone"
-    cat /proc/net/nf_conntrack | grep -i offload | grep $IP1 | grep $IP2 | grep "zone=$zone" || err "tuple not offloaded"
+    # we cat twice. statiscally we fail first time but always succeed second time.
+    cat /proc/net/nf_conntrack >/dev/null
+    cat /proc/net/nf_conntrack | grep -i offload | grep $IP1 | grep $IP2 | grep "zone=$zone" || err "tuple not offloaded $e"
 
     sleep $t
     kill $pk1 &>/dev/null
