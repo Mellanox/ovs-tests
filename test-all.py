@@ -631,6 +631,8 @@ def read_db():
     out = {}
     if len(args.db) == 1 and '*' in args.db[0]:
         dbs = glob(args.db[0])
+    elif len(args.db) == 1 and ',' in args.db[0]:
+        dbs = args.db[0].split(',')
     else:
         dbs = args.db
 
