@@ -748,7 +748,6 @@ function set_steering_sw() {
     else
         devlink dev param set pci/$PCI name flow_steering_mode value "smfs" \
             cmode runtime || err "Failed to set steering sw"
-
     fi
 }
 
