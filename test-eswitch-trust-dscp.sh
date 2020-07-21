@@ -37,11 +37,12 @@ function cleanup() {
     config_sriov 0
     config_sriov 0 $NIC2
     config_sriov 2
+    mlnx_qos -i $NIC2 --trust pcp
+    mlnx_qos -i $NIC --trust pcp
 }
 
 
 title "Test qos"
-cleanup
 config
 config_qos
 a=`journalctl --since="5 seconds ago" | grep "Failed to add"`
