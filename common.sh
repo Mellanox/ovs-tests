@@ -124,18 +124,7 @@ function __setup_common() {
     local tmp=`uname -nsr`
     log $tmp
 
-    if [ "$NIC" == "" ]; then
-        fail "Missing NIC"
-    fi
-
-    if [ ! -e /sys/class/net/$NIC/device ]; then
-        fail "Cannot find NIC $NIC"
-    fi
-
-    if [ -n "$NIC2" ] && [ ! -e /sys/class/net/$NIC2/device ]; then
-        fail "Cannot find NIC2 $NIC2"
-    fi
-
+    require_interfaces NIC NIC2
     require_cmd lspci ethtool tc
     fail_if_err
 
