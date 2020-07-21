@@ -35,7 +35,7 @@ sp[2] = tmp
 
 for i in sp:
         tmp=""
-        for j in range(len(i)/2):
+        for j in range(int(len(i)/2)):
                 pos = j*2
                 m = i[pos:pos+2]
                 tmp = m+tmp
