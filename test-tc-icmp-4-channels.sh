@@ -69,7 +69,7 @@ function run() {
 
     title "Verify traffic on $VF"
     verify_have_traffic $pid
-    Title "Verify no duplicate packets on $VF"
+    title "Verify no duplicate packets on $VF"
     verify_no_traffic $pid2
 }
 
