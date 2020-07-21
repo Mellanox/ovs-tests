@@ -163,6 +163,10 @@ function check_alignment() {
             continue
         fi
         sorted_id=$($my_dir/convert-ovs-ufid-to-tc-cookie.py $ufid)
+        if [ $? -ne 0 ] || [ -z "$sorted_id" ]; then
+            err "Failed to translate ufid '$ufid' to cookie"
+            continue
+        fi
         for j in "${!tcArray[@]}"; do
             cookie="$(echo "${tcArray[j]}" | grep -oP 'cookie \K[0-f]+' | head -1)"
             if [ -z "$cookie" ]; then
