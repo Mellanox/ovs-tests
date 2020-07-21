@@ -165,6 +165,55 @@ function __setup_common() {
 
     status+=" $device_name"
     log $status
+
+    setup_expected_steering_mode
+}
+
+function get_flow_steering_mode() {
+    local nic=$1
+    local pci=$(basename `readlink /sys/class/net/$nic/device`)
+
+    if [ "$devlink_compat" = 1 ]; then
+        cat `devlink_compat_dir $nic`/steering_mode
+    else
+        devlink dev param show pci/$pci name flow_steering_mode | grep "runtime value" | awk {'print $NF'}
+    fi
+}
+
+function set_flow_steering_mode() {
+    local nic=$1
+    local mode=$2
+    local pci=$(basename `readlink /sys/class/net/$nic/device`)
+
+    if [ "$devlink_compat" = 1 ]; then
+        echo $mode > `devlink_compat_dir $nic`/steering_mode || fail "Failed to set $mode flow steering mode"
+    else
+        devlink dev param set pci/$pci name flow_steering_mode value $mode cmode runtime || fail "Failed to set $mode flow steering mode"
+    fi
+
+    echo "Set $mode flow steering mode on $nic"
+}
+
+function setup_expected_steering_mode() {
+    if [ -z "$STEERING_MODE" ]; then
+        return
+    fi
+    local mode1=`get_flow_steering_mode $NIC`
+    local mode2=`get_flow_steering_mode $NIC2`
+    if [ "$mode1" != $STEERING_MODE ]; then
+        config_sriov 2
+        enable_legacy $NIC
+        set_flow_steering_mode $NIC $STEERING_MODE
+    fi
+    if [ "$mode2" != $STEERING_MODE ]; then
+        config_sriov 2 $NIC2
+        enable_legacy $NIC2
+        set_flow_steering_mode $NIC2 $STEERING_MODE
+    fi
+    mode1=`get_flow_steering_mode $NIC`
+    mode2=`get_flow_steering_mode $NIC2`
+    echo "Flow steering mode for $NIC is $mode1"
+    echo "Flow steering mode for $NIC2 is $mode2"
 }
 
 function is_bonded() {
