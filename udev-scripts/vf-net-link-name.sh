@@ -14,11 +14,16 @@ fi
 # for pf and uplink rep fall to slot or path.
 if [ -n "$ID_NET_NAME_SLOT" ]; then
     echo NAME="${ID_NET_NAME_SLOT%%np[[:digit:]]}"
-    exit
 fi
 
 if [ -n "$ID_NET_NAME_PATH" ]; then
     echo NAME="${ID_NET_NAME_PATH%%np[[:digit:]]}"
+fi
+
+if [ -n "$NAME" ]; then
+    NAME=`echo $NAME | sed 's/npf.vf/_/'`
+    NAME=`echo $NAME | sed 's/np.v/v/'`
+    echo NAME=$NAME
     exit
 fi
 
@@ -29,7 +34,9 @@ function get_name() {
 
 # for vf rep get parent slot/path.
 parent_phys_port_name=${PORT_NAME%vf*}
-parent_phys_port_name=${parent_phys_port_name//f}
+parent_phys_port_name=${parent_phys_port_name//pf}
+((parent_phys_port_name&=0x7))
+parent_phys_port_name="p$parent_phys_port_name"
 # try at most two times
 for cnt in {1..2}; do
     for i in `ls -1 /sys/class/net/*/phys_switch_id`; do
