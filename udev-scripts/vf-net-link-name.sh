@@ -13,11 +13,11 @@ fi
 
 # for pf and uplink rep fall to slot or path.
 if [ -n "$ID_NET_NAME_SLOT" ]; then
-    echo NAME="${ID_NET_NAME_SLOT%%np[[:digit:]]}"
+    NAME="${ID_NET_NAME_SLOT%%np[[:digit:]]}"
 fi
 
 if [ -n "$ID_NET_NAME_PATH" ]; then
-    echo NAME="${ID_NET_NAME_PATH%%np[[:digit:]]}"
+    NAME="${ID_NET_NAME_PATH%%np[[:digit:]]}"
 fi
 
 if [ -n "$NAME" ]; then
