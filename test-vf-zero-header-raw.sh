@@ -27,7 +27,7 @@ function run_test() {
 
     pkt="Ether(dst=\"$FAKE_MAC\")/$D"
     title "sending $pkt"
-    /usr/bin/python -c "from scapy.all import * ; sendp($pkt, iface=\"$VF\")"
+    python -c "from scapy.all import sendp, Ether, IP, Dot1Q; sendp($pkt, iface=\"$VF\")"
     wait $tdpid
     rc=$?
     if [[ $rc -eq 0 ]]; then
