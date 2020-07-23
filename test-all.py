@@ -381,7 +381,7 @@ def get_flow_steering_mode_compat(nic):
     try:
         with open(ofed_compat, 'r') as f:
             return f.read().strip()
-    except FileNotFoundError:
+    except IOError:
         pass
 
 
