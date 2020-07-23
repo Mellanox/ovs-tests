@@ -38,12 +38,15 @@ ip neigh add $REMOTE_TUN_IP lladdr 00:11:22:33:44:55 dev $UPLDEST
 reset_tc $UPLSRC
 tc_filter add dev $UPLSRC protocol ip prio 1 root flower dst_ip 11.12.13.14 skip_sw action tunnel_key set src_ip ${LOCAL_TUN_IP} dst_ip $REMOTE_TUN_IP id $TUNID dst_port $DPORT action mirred egress redirect dev $TUN
 
-title "Check hardware tables... "
-mlxdump -d $PCI fsdump --type FT > /tmp/_fsdump
-if cat /tmp/_fsdump | grep -B 44 -A 57 "outer_headers.dst_ip_31_0.*:0x0b0c0d0e" | grep "destination\[0\].destination_type.*:FLOW_TABLE_" > /dev/null; then
-    success
-else
-    err
+mode=`get_flow_steering_mode $NIC`
+if [ "$mode" == "dmfs" ]; then
+    title "Check hardware tables... "
+    mlxdump -d $PCI fsdump --type FT > /tmp/_fsdump
+    if cat /tmp/_fsdump | grep -B 44 -A 57 "outer_headers.dst_ip_31_0.*:0x0b0c0d0e" | grep "destination\[0\].destination_type.*:FLOW_TABLE_" > /dev/null; then
+        success
+    else
+        err
+    fi
 fi
 
 cleanup
