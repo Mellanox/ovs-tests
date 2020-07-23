@@ -148,9 +148,6 @@ function run() {
     title "Verify traffic is offloaded"
     verify_no_traffic $tpid
 
-    i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i
-    i=1 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i
-
     kill_traffic
     echo "wait for bgs"
     wait
