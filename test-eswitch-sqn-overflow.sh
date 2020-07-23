@@ -10,8 +10,12 @@ my_dir="$(dirname "$0")"
 config_sriov 2
 enable_switchdev
 
+max_ch=$(ethtool -l $NIC | grep Combined | head -1 | cut -f2-)
 channels=24
-ethtool -L $NIC combined $channels
+if [ $max_ch -lt $channels ]; then
+    channels=$max_ch
+fi
+ethtool -L $NIC combined $channels || fail "Failed to set $NIC channels to $channels"
 
 # we 4 increaments in sqn per down/up.
 jumps=4
