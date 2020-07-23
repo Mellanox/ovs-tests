@@ -594,7 +594,7 @@ def save_summary_html():
         pass_rate = str(int(passed_tests / float(running) * 100)) + '%'
     else:
         pass_rate = 0
-    runtime = sum([t.run_time for t in TESTS])
+    runtime = round(sum([t.run_time for t in TESTS]), 2)
 
     summary = SUMMARY_ROW.format(number_of_tests=number_of_tests,
                                  passed_tests=passed_tests,
