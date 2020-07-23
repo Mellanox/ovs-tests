@@ -21,7 +21,7 @@ function run_test() {
     FAKE_MAC="a2:b4:c0:f0:fc:8b"
 
     # verify we have packet with fragment offset > 0
-    timeout 3 tcpdump -nnvei $REP -c 1 ether "dst $FAKE_MAC and ip[6:2] & 0x1fff > 0" &
+    timeout 4 tcpdump -nnvei $REP -c 1 ether "dst $FAKE_MAC and ip[6:2] & 0x1fff > 0" &
     sleep 0.5
     tdpid=$!
 
