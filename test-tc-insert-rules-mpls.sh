@@ -36,14 +36,17 @@ tc_filter add dev bareudp0 protocol mpls_uc prio 1 ingress flower mpls_label $LA
 
 verify_in_hw bareudp0 1
 
-title "Check hardware tables..."
-hexport=$(printf "%x" $UDPPORT)
-mlxdump -d $PCI fsdump --type FT > /tmp/_fsdump
-if grep "outer_headers.udp_dport.*0xffff$" /tmp/_fsdump > /dev/null &&
-   grep "outer_headers.udp_dport.*${hexport}$" /tmp/_fsdump > /dev/null; then
-    success
-else
-    err
+mode=`get_flow_steering_mode $NIC`
+if [ "$mode" == "dmfs" ]; then
+    title "Check hardware tables..."
+    hexport=$(printf "%x" $UDPPORT)
+    mlxdump -d $PCI fsdump --type FT > /tmp/_fsdump
+    if grep "outer_headers.udp_dport.*0xffff$" /tmp/_fsdump > /dev/null &&
+       grep "outer_headers.udp_dport.*${hexport}$" /tmp/_fsdump > /dev/null; then
+        success
+    else
+        err
+    fi
 fi
 
 # set tunnel addressing
@@ -54,14 +57,16 @@ ip neigh add 8.8.8.24 lladdr 00:11:22:33:44:55 dev $NIC
 tc_filter add dev $REP protocol ip prio 1 root flower skip_sw src_ip 2.2.2.21 dst_ip 2.2.2.24 action tunnel_key set src_ip 8.8.8.21 dst_ip 8.8.8.24 id $LABEL dst_port $UDPPORT tos 4 ttl 6 csum action mpls push protocol mpls_uc label $LABEL tc 3 action mirred egress redirect dev bareudp0
 verify_in_hw $REP 1
 
-title "Check hardware tables..."
-mlxdump -d $PCI fsdump --type FT > /tmp/_fsdump
-if grep -q "outer_headers.src_ip_31_0.*0x02020215$" /tmp/_fsdump &&
-   grep -q "outer_headers.dst_ip_31_0.*0x02020218$" /tmp/_fsdump &&
-   grep -q "action.*0x1c$" /tmp/_fsdump; then
-    success
-else
-    err
+if [ "$mode" == "dmfs" ]; then
+    title "Check hardware tables..."
+    mlxdump -d $PCI fsdump --type FT > /tmp/_fsdump
+    if grep -q "outer_headers.src_ip_31_0.*0x02020215$" /tmp/_fsdump &&
+       grep -q "outer_headers.dst_ip_31_0.*0x02020218$" /tmp/_fsdump &&
+       grep -q "action.*0x1c$" /tmp/_fsdump; then
+        success
+    else
+        err
+    fi
 fi
 
 reset_tc $NIC
