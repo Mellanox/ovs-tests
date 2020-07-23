@@ -147,7 +147,6 @@ function run() {
     tc -s filter show dev geneve1 ingress chain 0 proto ip > /tmp/chain0_geneve_dump
     tc -s filter show dev $REP ingress chain 0 proto ip > /tmp/chain0_rep_dump
     tc -s filter show dev $NIC ingress chain 0 proto ip > /tmp/chain0_nic_dump
-    i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
 
     title "Test tunnel connectivity"
     ping $tun_rem -c 1 -w 1 || err "ping failed"
