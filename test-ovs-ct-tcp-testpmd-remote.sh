@@ -87,23 +87,25 @@ function config_ovs() {
     ovs-vsctl add-br br-ovs
     ovs-vsctl add-port br-ovs $REP
     ovs-vsctl add-port br-ovs $NIC
+}
 
+function reconfig_flows() {
+    ovs-ofctl del-flows br-ovs
     ovs-ofctl add-flow br-ovs arp,actions=normal
     ovs-ofctl add-flow br-ovs "table=0, ip,ct_state=-trk,udp actions=ct(zone=12,table=1)"
     ovs-ofctl add-flow br-ovs "table=0, ip,ct_state=-trk,tcp actions=ct(zone=12,table=1)"
     ovs-ofctl add-flow br-ovs "table=1, ip,ct_state=+trk+new actions=ct(zone=12,commit),normal"
     ovs-ofctl add-flow br-ovs "table=1, ip,ct_state=+trk+est,ct_zone=12 actions=normal"
-
-    ovs-ofctl dump-flows br-ovs --color
 }
 
 function run() {
     title "Test OVS CT TCP"
 
+    ip link set $NIC up
     config_vf ns0 $VF $REP $IP1
     config_ovs
-    ip link set $NIC up
-    ip link set $REP up
+    reconfig_flows
+    ovs-ofctl dump-flows br-ovs --color
 
     echo "prepare for offload, 2048 hugepages and nf_flow_offload_timeout=600, nf_conntrack_max=524288"
     #echo 600 > /sys/module/nf_flow_table/parameters/nf_flow_offload_timeout
