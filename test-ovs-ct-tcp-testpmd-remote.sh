@@ -5,7 +5,7 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
-testpmd="/labhome/roid/SWS/testpmd/testpmd"
+testpmd="$my_dir/testpmd/testpmd"
 pktgen="/labhome/roid/SWS/git2/network-testing/pktgen/pktgen_sample04_many_flows.sh"
 
 require_module act_ct pktgen
