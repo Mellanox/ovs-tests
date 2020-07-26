@@ -81,7 +81,12 @@ function test_add_encap_and_disable_sriov() {
     is_vf_lag_active || return 1
     ip r show $net
     add_vxlan_rule $local_ip $remote_ip
-    verify_rule_in_hw
+
+    mode=`get_flow_steering_mode $NIC`
+    if [ "$mode" == "dmfs" ]; then
+        verify_rule_in_hw
+    fi
+
     title "- disable sriov $NIC2"
     config_sriov 0 $NIC2
     title "- disable sriov $NIC"
