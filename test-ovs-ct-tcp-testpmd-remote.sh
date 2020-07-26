@@ -129,17 +129,7 @@ function run() {
     echo "start tcpdump"
     timeout $t tcpdump -qnnei $NIC -c 20 udp &
     tpid=$!
-    sleep $t
-    wait $tpid
-    rc=$?
-
-    if [[ $rc -eq 124 ]]; then
-        : tcpdump timeout, no traffic
-    elif [[ $rc -eq 0 ]]; then
-        err "Didn't expect to see packets"
-    else
-        err "Tcpdump failed"
-    fi
+    verify_no_traffic $tpid
 
     sysfs_counter="/sys/kernel/debug/mlx5/$PCI/ct/offloaded"
     if [ -f $sysfs_counter ]; then
