@@ -51,7 +51,7 @@ trap cleanup EXIT
 
 function run_pktgen() {
     echo "run traffic"
-    ip netns exec ns0 timeout --kill-after 1 $t $pktgen -i $VF -t 10 -d $IP2 -m $mac2 &
+    ip netns exec ns0 timeout --kill-after 1 $t $pktgen -i $VF -t 1 -d $IP2 -m $mac2 &
     pid_pktgen=$!
     sleep 4
     if [ ! -e /proc/$pid_pktgen ]; then
