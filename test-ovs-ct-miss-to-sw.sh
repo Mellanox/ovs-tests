@@ -93,8 +93,8 @@ function run_scpy_tcp() {
     ip netns exec ns1 ip link set lo up
     ip netns exec ns2 ip link set lo up
 
-    ip netns exec ns1 iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP
-    ip netns exec ns2 iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP
+    ip netns exec ns1 iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP || fail "Failed to add iptables rule"
+    ip netns exec ns2 iptables -A OUTPUT -p tcp --tcp-flags RST RST -j DROP || fail "Failed to add iptables rule"
 
     echo "Connection $ip1:$sport <-> $ip2:$dport - start"
 
