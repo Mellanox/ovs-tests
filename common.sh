@@ -4,6 +4,7 @@ TESTNAME=`basename $0`
 DIR=$(cd `dirname $0` ; pwd)
 SET_MACS="$DIR/set-macs.sh"
 
+COLOR0="\033["
 NOCOLOR="\033[0;0m"
 RED="\033[0;31m"
 GREEN="\033[0;32m"
@@ -120,7 +121,10 @@ function require_cmd() {
 
 function __setup_common() {
     [ -f /etc/os-release ] && . /etc/os-release
-    [ -n "$PRETTY_NAME" ] && log $PRETTY_NAME
+    if [ -n "$PRETTY_NAME" ]; then
+        kmsg $PRETTY_NAME
+        echo -e "$COLOR0${ANSI_COLOR}m$PRETTY_NAME$NOCOLOR"
+    fi
     local tmp=`uname -nsr`
     log $tmp
 
