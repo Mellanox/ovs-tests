@@ -98,6 +98,21 @@ function reconfig_flows() {
     ovs-ofctl add-flow br-ovs "table=1, ip,ct_state=+trk+est,ct_zone=12 actions=normal"
 }
 
+function verify_counter() {
+    sysfs_counter="/sys/kernel/debug/mlx5/$PCI/ct/offloaded"
+    if [ -f $sysfs_counter ]; then
+        log "check count"
+        a=`cat $sysfs_counter`
+        echo $a
+        if [ $a -lt 1000 ]; then
+            err "low count"
+        fi
+    else
+        warn "Cannot check offloaded count"
+    fi
+#    cat /proc/net/nf_conntrack | grep --color=auto -i offload
+}
+
 function run() {
     title "Test OVS CT TCP"
 
@@ -131,18 +146,7 @@ function run() {
     tpid=$!
     verify_no_traffic $tpid
 
-    sysfs_counter="/sys/kernel/debug/mlx5/$PCI/ct/offloaded"
-    if [ -f $sysfs_counter ]; then
-        log "check count"
-        a=`cat $sysfs_counter`
-        echo $a
-        if [ $a -lt 1000 ]; then
-            err "low count"
-        fi
-    else
-        warn "Cannot check offloaded count"
-    fi
-#    cat /proc/net/nf_conntrack | grep --color=auto -i offload
+    verify_counter
 
     log "flush"
     kill_pktgen
