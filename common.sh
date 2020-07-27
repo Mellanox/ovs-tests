@@ -1065,7 +1065,7 @@ list_del corruption|which is not allocated|Objects remaining|assertion failed|\
 Slab cache still has objects|failed reclaiming pages|new suspected memory leaks|Unknown object at"
     local look_ahead="Call Trace:|Allocated by task|Freed by task"
     local look_ahead_count=12
-    local filter="networkd-dispatcher|nm-dispatcher|uses legacy ethtool link settings"
+    local filter="networkd-dispatcher|nm-dispatcher|uses legacy ethtool link settings|EAL: WARNING: cpu flags constant_tsc=yes nonstop_tsc=no"
 
     local a=`journalctl --since="$sec seconds ago" | grep -E -i "$look" | grep -v -E -i "$filter" || true`
     local b=`journalctl --since="$sec seconds ago" | grep -E -A $look_ahead_count -i "$look_ahead" || true`
