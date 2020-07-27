@@ -17,11 +17,7 @@ title "Test set other channels on VF rep"
 function run() {
     local chans=$1
     log "test chans $chans"
-    ethtool -L $REP other $chans 2>&1 | tee /tmp/log
-    if [ $? -ne 0 ]; then
-        # If feature not supported its ok.
-        grep -q "Invalid argument" /tmp/log || fail "Failed to change channels"
-    fi
+    ethtool -L $REP other $chans || fail "ethtool command failed"
 }
 
 run 2
