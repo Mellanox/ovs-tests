@@ -34,8 +34,9 @@ pid_testpmd=""
 function kill_testpmd() {
     test $pid_testpmd || return
     [ -e /proc/$pid_testpmd ] || return
-    killall -9 $pid_testpmd &>/dev/null
-    killall $pid_testpmd &>/dev/null
+    kill $pid_testpmd
+    wait $pid_testpmd 2>/dev/null
+    pid_testpmd=""
 }
 
 function cleanup() {
@@ -145,6 +146,7 @@ function run() {
     timeout $t tcpdump -qnnei $NIC -c 20 udp &
     tpid=$!
     verify_no_traffic $tpid
+    sleep 10
 
     verify_counter
 
