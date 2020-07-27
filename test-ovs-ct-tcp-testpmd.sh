@@ -5,8 +5,8 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
-testpmd="$my_dir/testpmd/testpmd"
-pktgen="/labhome/roid/SWS/git2/network-testing/pktgen/pktgen_sample04_many_flows.sh"
+testpmd="$DIR/testpmd/testpmd"
+pktgen="$DIR/network-testing/pktgen/pktgen_sample04_many_flows.sh"
 
 require_module act_ct pktgen
 echo 0 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal

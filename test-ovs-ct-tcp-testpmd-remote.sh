@@ -6,7 +6,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 testpmd="$DIR/testpmd/testpmd"
-pktgen="/labhome/roid/SWS/git2/network-testing/pktgen/pktgen_sample04_many_flows.sh"
+pktgen="$DIR/network-testing/pktgen/pktgen_sample04_many_flows.sh"
 
 require_module act_ct pktgen
 require_remote_server
