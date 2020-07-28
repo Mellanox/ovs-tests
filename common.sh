@@ -172,6 +172,12 @@ function __setup_common() {
 
     setup_expected_steering_mode
     setup_iptables_legacy
+    clear_warn_once
+}
+
+function clear_warn_once() {
+    local fs="/sys/kernel/debug/clear_warn_once"
+    [ -w $fs ] && echo 1 > $fs
 }
 
 function setup_iptables_legacy() {
