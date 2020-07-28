@@ -22,7 +22,6 @@ REMOTE_IP=7.7.7.8
 VXLAN_ID=42
 
 config_sriov 2
-enable_switchdev_if_no_rep $REP
 require_interfaces REP NIC
 unbind_vfs
 bind_vfs
