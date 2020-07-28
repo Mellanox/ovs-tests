@@ -88,14 +88,14 @@ function run() {
     ip netns exec ns0 timeout $t iperf -t $t -c $IP2 -P3 &
     ip netns exec ns0 timeout $t iperf -t $t -c $IP4 -P3 &
 
-    sleep 4
+    sleep 6
     pidof iperf &>/dev/null || err "iperf failed"
 
     echo "sniff packets on $REP"
-    timeout $((t-5)) tcpdump -qnnei $REP -c 10 'tcp' &
+    timeout $((t-6)) tcpdump -qnnei $REP -c 10 'tcp' &
     pid=$!
     echo "sniff packets on $REP3"
-    timeout $((t-5)) tcpdump -qnnei $REP3 -c 10 'tcp' &
+    timeout $((t-6)) tcpdump -qnnei $REP3 -c 10 'tcp' &
     pid2=$!
 
     sleep $t
