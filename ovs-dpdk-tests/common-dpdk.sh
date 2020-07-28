@@ -11,7 +11,6 @@ function config_simple_bridge_with_rep() {
 
     for (( i=0; i<$reps; i++ ))
     do
-        echo $i
         ovs-vsctl add-port br-phy rep$i -- set Interface rep$i type=dpdk options:dpdk-devargs=$PCI,representor=[$i]
     done
 }
@@ -19,6 +18,16 @@ function config_simple_bridge_with_rep() {
 function config_local_tunnel_ip() {
     ip addr add $1/24 dev $2
     ip link set $2 up
+}
+
+function config_static_arp_ns() {
+    local ns=$1
+    local ns2=$2
+    local dev=$3
+    local ip_addr=$4
+
+    ip netns exec $ns ip link set $dev address e4:11:22:33:44:50
+    ip netns exec $ns2 arp -s $ip_addr e4:11:22:33:44:50
 }
 
 function config_ns() {
