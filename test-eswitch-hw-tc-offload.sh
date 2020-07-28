@@ -10,7 +10,7 @@ require_interfaces NIC
 reload_modules
 config_sriov 2
 enable_switchdev
-value=`ethtool -k enp0s8f0 | grep hw-tc-offload | awk {'print $2'}`
+value=`ethtool -k $NIC | grep hw-tc-offload | awk {'print $2'}`
 
 if [ "$value" != "on" ]; then
     err "Expected hw-tc-offload=on"
