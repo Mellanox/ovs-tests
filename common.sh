@@ -171,6 +171,16 @@ function __setup_common() {
     log $status
 
     setup_expected_steering_mode
+    setup_iptables_legacy
+}
+
+function setup_iptables_legacy() {
+    if [ -f /usr/sbin/iptables-legacy ]; then
+        if update-alternatives --list | grep -w iptables | grep -q legacy ; then
+            return
+        fi
+        update-alternatives  --set iptables /usr/sbin/iptables-legacy
+    fi
 }
 
 function get_flow_steering_mode() {
