@@ -42,6 +42,9 @@ function config() {
 
     ifconfig $VF $LOCAL_IP/24 up
     config_vf ns0 $VF2 $REP2 $VF_IP 24
+    ip addr flush dev $NIC
+    ip link set dev $NIC up
+
     start_clean_openvswitch
     ovs-vsctl add-br ovs-br
     ovs-vsctl add-port ovs-br $NIC
@@ -69,7 +72,8 @@ function run() {
     local t=5
 
     echo "sniff packets on $VF"
-    timeout $t tcpdump -qnnei $VF -c 5 -Q in icmp &
+    # VXLAN payload ethertype=IPv4
+    timeout $t tcpdump -qnnei $VF -c 4 "port 4789 and udp[8:2] = 0x0800 & 0x0800 and udp[11:4] = 98 & 0x00FFFFFF and udp[28:2] = 0x0800" &
     tpid=$!
     sleep 0.5
 
