@@ -1263,7 +1263,7 @@ function unload_modules() {
 function load_modules() {
     log "load modules"
     if [ -e /etc/init.d/openibd ]; then
-        service openibd start || fail "Failed to start openibd service"
+        service openibd force-start || fail "Failed to start openibd service"
     else
         modprobe mlx5_core || fail "Failed to load modules"
     fi
