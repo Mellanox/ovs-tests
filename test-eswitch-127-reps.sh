@@ -28,6 +28,7 @@ function test_reps() {
 trap cleanup EXIT
 start_check_syndrome
 disable_sriov_autoprobe
+config_sriov 0 $NIC2
 
 test_reps 32
 if [ $TEST_FAILED -eq 0 ] || [ -e $probe_fs ]; then
