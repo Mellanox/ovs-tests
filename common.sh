@@ -80,11 +80,11 @@ function get_mlx_iface() {
 
 function __test_for_devlink_compat() {
     if [ -e /sys/kernel/debug/mlx5/$PCI/compat ]; then
-        echo "Using devlink compat debugfs"
+        log "Using devlink compat debugfs"
         devlink_compat=1
         __devlink_compat_dir="/sys/kernel/debug/mlx5/\$pci/compat"
     elif [ -e /sys/class/net/$NIC/compat/devlink ]; then
-        echo "Using devlink compat sysfs"
+        log "Using devlink compat sysfs"
         devlink_compat=1
         __devlink_compat_dir="/sys/class/net/\$nic/compat/devlink"
     fi
@@ -143,7 +143,7 @@ function __setup_common() {
 
     # mlnx ofed from sources will show the static version from upstream
     # and not real mlnx ofed version.
-    is_ofed && echo "MLNX_OFED `modinfo --field version mlx5_core`"
+    is_ofed && log "MLNX_OFED `modinfo --field version mlx5_core`"
     __test_for_devlink_compat
 
     DEVICE_IS_CX4=0
@@ -211,7 +211,7 @@ function set_flow_steering_mode() {
         devlink dev param set pci/$pci name flow_steering_mode value $mode cmode runtime || fail "Failed to set $mode flow steering mode"
     fi
 
-    echo "Set $mode flow steering mode on $nic"
+    log "Set $mode flow steering mode on $nic"
 }
 
 function setup_expected_steering_mode() {
@@ -232,8 +232,8 @@ function setup_expected_steering_mode() {
     fi
     mode1=`get_flow_steering_mode $NIC`
     mode2=`get_flow_steering_mode $NIC2`
-    echo "Flow steering mode for $NIC is $mode1"
-    echo "Flow steering mode for $NIC2 is $mode2"
+    log "Flow steering mode for $NIC is $mode1"
+    log "Flow steering mode for $NIC2 is $mode2"
 }
 
 function is_bonded() {
