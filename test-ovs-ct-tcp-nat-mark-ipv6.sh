@@ -96,15 +96,15 @@ function run() {
     echo "run traffic"
     t=12
     echo "run traffic for $t seconds"
-    ip netns exec ns1 timeout $((t+1)) iperf -s --ipv6_domain &
-    sleep 0.5
-    ip netns exec ns0 timeout $((t+1)) iperf --ipv6_domain -c $ip_remote -t $t -P 3 &
+    ip netns exec ns1 timeout $((t+2)) iperf -s --ipv6_domain &
+    sleep 1
+    ip netns exec ns0 timeout $t iperf --ipv6_domain -c $ip_remote -t $t -P 3 &
 
     sleep 4
     pidof iperf &>/dev/null || err "iperf failed"
 
     echo "sniff packets on $REP"
-    timeout $t tcpdump -qnnei $REP -c 10 'tcp' &
+    timeout $((t-4)) tcpdump -qnnei $REP -c 10 'tcp' &
     pid=$!
 
     title "verify ct commit action"
