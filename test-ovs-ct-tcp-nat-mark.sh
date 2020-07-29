@@ -126,16 +126,7 @@ function run() {
     killall -9 iperf &>/dev/null
     wait $! 2>/dev/null
 
-    # test sniff timedout
-    wait $pid
-    rc=$?
-    if [[ $rc -eq 124 ]]; then
-        :
-    elif [[ $rc -eq 0 ]]; then
-        err "Didn't expect to see packets"
-    else
-        err "Tcpdump failed"
-    fi
+    verify_no_traffic $pid
 
     ovs-vsctl del-br br-ovs
 }
