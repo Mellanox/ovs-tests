@@ -328,8 +328,6 @@ def glob_tests(glob_filter):
 
     for test in TESTS:
         name = test.name
-        if name == MYNAME:
-            continue
         for g in glob_filter:
             if fnmatch(name, g):
                 _tests.append(test)
@@ -706,7 +704,7 @@ def get_tests():
                 ignore_from_exclude(data.get('ignore', []))
                 update_skip_according_to_db(data)
         else:
-            tmp = glob(MYDIR + '/test-*')
+            tmp = glob(MYDIR + '/test-*.sh')
             TESTS = [Test(t) for t in tmp]
             glob_tests(args.glob)
             update_skip_according_to_rm()
@@ -731,8 +729,6 @@ def db_check():
 
     for test in all_tests:
         name = os.path.basename(test)
-        if name == MYNAME:
-            continue
         print_test_line(name, "Missing in db")
 
     for test in TESTS:
