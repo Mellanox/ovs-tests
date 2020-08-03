@@ -674,7 +674,9 @@ def read_db():
         db = get_db_path(db)
         if not db:
             return {}
-        if multi and ('mini_reg' in db or 'ignore' in db):
+        if multi and 'mini_reg' in db:
+            continue
+        if multi and 'ignore' in db and not args.db_check:
             continue
         print("Reading DB: %s" % db)
         with open(db) as yaml_data:
