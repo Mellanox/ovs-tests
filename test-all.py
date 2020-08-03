@@ -674,12 +674,14 @@ def read_db():
         db = get_db_path(db)
         if not db:
             return out
+        if multi and ('mini_reg' in db or 'ignore' in db):
+            continue
         print("Reading DB: %s" % db)
         with open(db) as yaml_data:
             data = yaml.safe_load(yaml_data)
             print("Description: %s" % data.get("description", "Empty"))
             # handle special case. if merging multi dbs skip lists like mini reg.
-            if args.db_check and multi and type(data['tests']) is list:
+            if multi and (type(data['tests']) is list):
                 print("Skip db")
                 continue
             merge_data(data, out)
