@@ -673,7 +673,7 @@ def read_db():
     for db in dbs:
         db = get_db_path(db)
         if not db:
-            return out
+            return {}
         if multi and ('mini_reg' in db or 'ignore' in db):
             continue
         print("Reading DB: %s" % db)
