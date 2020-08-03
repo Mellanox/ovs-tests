@@ -723,7 +723,7 @@ def print_test_line(name, reason):
 
 
 def db_check():
-    all_tests = glob(MYDIR + '/test-*')
+    all_tests = glob(MYDIR + '/test-*.sh')
     sort_tests(all_tests)
     for test in TESTS:
         if test.fname in all_tests:
