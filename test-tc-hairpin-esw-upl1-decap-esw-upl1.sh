@@ -9,6 +9,7 @@ source $my_dir/common.sh
 # set test variables
 UPLSRC=vx0
 UPLDEST=$NIC
+DST_IP=11.12.13.14
 
 function cleanup() {
     reset_tc $UPLSRC &>/dev/null
@@ -24,10 +25,11 @@ ip link add dev $UPLSRC type vxlan dstport 4789 external
 
 # bring up interfaces
 ip link set up dev $UPLSRC
+ip a add $DST_IP/24 dev $UPLDEST
 ip link set up dev $UPLDEST
 
 reset_tc $UPLSRC
-tc_filter add dev $UPLSRC protocol ip prio 1 root flower enc_dst_ip 11.12.13.14 enc_dst_port 4789 action tunnel_key unset action mirred egress redirect dev $UPLDEST
+tc_filter add dev $UPLSRC protocol ip prio 1 root flower enc_dst_ip $DST_IP enc_dst_port 4789 action tunnel_key unset action mirred egress redirect dev $UPLDEST
 verify_in_hw $UPLSRC 1
 
 mode=`get_flow_steering_mode $NIC`
