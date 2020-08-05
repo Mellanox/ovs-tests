@@ -260,7 +260,7 @@ function is_rh72_kernel() {
     return 1 # false
 }
 
-function config_bonding() {
+function __config_bonding() {
     local nic1=${1:-$NIC}
     local nic2=${2:-$NIC2}
     if is_rh72_kernel ; then
@@ -277,6 +277,10 @@ function config_bonding() {
     ip link set dev bond0 up
     ip link set dev $nic1 up
     ip link set dev $nic2 up
+}
+
+function config_bonding() {
+    __config_bonding
     if ! is_bonded ; then
         err "Driver bond failed"
         return
