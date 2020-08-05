@@ -19,6 +19,7 @@ function do_test() {
     enable_switchdev
 }
 
+enable_switchdev
 for i in `seq 5`; do
     title "test iteration $i"
     do_test
