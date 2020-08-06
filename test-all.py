@@ -663,7 +663,7 @@ def get_db_path(db):
 def read_db():
     out = {}
     if len(args.db) == 1 and '*' in args.db[0]:
-        dbs = glob(args.db[0])
+        dbs = glob(args.db[0]) or glob(os.path.join(MYDIR, 'databases', args.db[0]))
     elif len(args.db) == 1 and ',' in args.db[0]:
         dbs = args.db[0].split(',')
     else:
