@@ -51,6 +51,11 @@ enable_switchdev
 unbind_vfs
 bind_vfs
 
+ip link set $VF up
+ip link set $VF2 up
+wait_for_linkup $VF
+wait_for_linkup $VF2
+
 start_clean_openvswitch
 start_check_syndrome
 config_vf ns0 $VF $REP $IP1
@@ -59,6 +64,7 @@ BR=ov1
 ovs-vsctl add-br $BR
 ovs-vsctl add-port $BR $REP
 ovs-vsctl add-port $BR $REP2
+sleep 1
 
 title "Test ping $VF($IP1) -> $VF2($IP2)"
 ip netns exec ns0 ping -q -c 10 -i 0.2 -w 4 $IP2 && success || err
