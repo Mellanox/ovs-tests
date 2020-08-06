@@ -742,6 +742,29 @@ def db_check():
     return 0
 
 
+def pre_quick_status_updates():
+    if not args.html or args.dry:
+        return
+
+    for test in TESTS:
+        res = ''
+        reason = ''
+
+        if not test.exists():
+            res = 'FAILED'
+            reason = 'Cannot find test'
+        elif test.ignore:
+            res = 'IGNORED'
+            reason = test.reason
+        elif test.skip:
+            res = 'SKIP'
+            reason = test.reason
+        else:
+            continue
+
+        test.status = format_result(res, reason, html=True)
+
+
 def main():
     ignore = False
 
@@ -770,6 +793,8 @@ def main():
 
     print("%-54s %-8s %s" % ("Test", "Time", "Status"))
     failed = False
+
+    pre_quick_status_updates()
 
     for test in TESTS:
         name = test.name
