@@ -3,6 +3,14 @@
 require_interfaces NIC NIC2
 require_module dummy
 
+function config_vxlan() {
+    echo "config vxlan dev"
+    ip link add vxlan1 type vxlan id $id dev $NIC dstport $dst_port || fail "Failed to config vxlan"
+    ip link set vxlan1 up
+    ip addr add ${local_ip}/24 dev $NIC
+    tc qdisc add dev vxlan1 ingress
+}
+
 function config_ports() {
     config_sriov 2
     config_sriov 2 $NIC2

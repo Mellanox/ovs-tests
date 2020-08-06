@@ -27,14 +27,6 @@ function cleanup() {
 }
 trap cleanup EXIT
 
-function config_vxlan() {
-    echo "config vxlan dev"
-    ip link add vxlan1 type vxlan id $id dev $NIC dstport $dst_port
-    ip link set vxlan1 up
-    ip addr add ${local_ip}/24 dev $NIC
-    tc qdisc add dev vxlan1 ingress
-}
-
 function add_vxlan_rule() {
     local local_ip="$1"
     local remote_ip="$2"

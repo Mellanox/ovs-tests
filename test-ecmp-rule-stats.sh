@@ -31,14 +31,6 @@ function cleanup() {
 }
 trap cleanup EXIT
 
-function config_vxlan() {
-    echo "config vxlan dev"
-    ip link add vxlan1 type vxlan id $id dev $NIC dstport $dst_port
-    ip link set vxlan1 up
-    ip addr add ${local_ip}/24 dev $NIC
-    tc qdisc add dev vxlan1 ingress
-}
-
 function config_gre() {
     echo "config gre dev"
     ip link add gre_sys type gretap dev $NIC nocsum
