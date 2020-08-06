@@ -791,8 +791,8 @@ def main():
         res = ''
         reason = ''
         logname = ''
+        total_seconds = 0.0
 
-        start_time = datetime.now()
         if not test.exists():
             failed = True
             test.set_failed()
@@ -807,6 +807,7 @@ def main():
         elif args.dry:
             res = 'DRY'
         else:
+            start_time = datetime.now()
             logname = os.path.join(LOGDIR, test.test_log)
             try:
                 reason = test.run(args.html)
@@ -817,11 +818,10 @@ def main():
                 test.set_failed()
                 res = 'FAILED'
                 reason = str(e)
+            end_time = datetime.now()
+            total_seconds = float("%.2f" % (end_time - start_time).total_seconds())
 
-        end_time = datetime.now()
-        total_seconds = float("%.2f" % (end_time - start_time).total_seconds())
         test.run_time = total_seconds
-
         total_seconds = "%-7s" % total_seconds
         print("%s " % total_seconds, end=' ')
 
