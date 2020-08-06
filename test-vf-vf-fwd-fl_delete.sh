@@ -73,19 +73,22 @@ tc filter add dev $REP2 ingress protocol ip prio 1 handle 1 flower skip_hw dst_m
 
 tc filter add dev $REP2 ingress protocol ip prio 1 handle 2 flower skip_sw dst_mac $mac1 action mirred egress redirect dev $REP || fail "tc - failed adding correct rule"
 
+echo "generate batch file"
 cnt=100000
 for i in `seq $cnt`; do
     echo filter add dev $REP ingress protocol ip prio 1 handle 2 flower skip_hw dst_mac $mac2 action mirred egress redirect dev $REP2
     echo filter del dev $REP ingress protocol ip prio 1 handle 2 flower
-    echo -en "$i/$cnt\r" >> /dev/stderr
 done > /tmp/tc_batch_1234
 
 title "Test ping $VF($IP1, $mac1) -> $VF2($IP2, $mac2)"
 ip netns exec ns0 ping -q -f $IP2 &
 sleep 1
+echo "apply batch file"
 tc -b /tmp/tc_batch_1234 || err "tc batch failed"
-killall -9 ping
+killall -9 ping &>/dev/null
+wait &>/dev/null
 
+echo "cleanup"
 rm -f /tmp/tc_batch_1234
 cleanup
 # reload modules
