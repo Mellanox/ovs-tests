@@ -173,6 +173,24 @@ function __setup_common() {
     setup_expected_steering_mode
     setup_iptables_legacy
     clear_warn_once
+    kmemleak_config
+    kmemleak_clear
+}
+
+kmemleak_sysfs="/sys/kernel/debug/kmemleak"
+
+function kmemleak_config() {
+    # default autoscan is 600. instead of disabling completely set to 120.
+    [ -w $kmemleak_sysfs ] && echo scan=120 > $kmemleak_sysfs
+}
+
+function kmemleak_clear() {
+    [ -w $kmemleak_sysfs ] && echo clear > $kmemleak_sysfs
+}
+
+function kmemleak_scan() {
+    # looks like we don't get a report on first scan but doing double scan works.
+    [ -w $kmemleak_sysfs ] && echo scan > $kmemleak_sysfs && echo scan > $kmemleak_sysfs
 }
 
 function clear_warn_once() {
@@ -1392,6 +1410,7 @@ function kill_all_bgs() {
 function test_done() {
     kill_all_bgs
     set +e
+    kmemleak_scan
     check_for_errors_log
     if [ $TEST_FAILED == 0 ]; then
         success "TEST PASSED"
