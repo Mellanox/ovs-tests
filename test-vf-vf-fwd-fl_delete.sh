@@ -92,7 +92,7 @@ echo "cleanup"
 rm -f /tmp/tc_batch_1234
 cleanup
 # reload modules
-sleep 2
+sleep 4
 modprobe -rv act_mirred cls_flower || err "failed unload"
 modprobe -a act_mirred cls_flower
 test_done
