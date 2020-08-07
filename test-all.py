@@ -861,7 +861,7 @@ def main():
 
 
 def cleanup():
-    runtime = sum([t.run_time for t in TESTS])
+    runtime = round(sum([t.run_time for t in TESTS]), 2)
     if runtime > 0:
         print("runtime: %s" % runtime)
     if args.html and not args.dry:
