@@ -189,8 +189,10 @@ function kmemleak_clear() {
 }
 
 function kmemleak_scan() {
+    [ ! -w $kmemleak_sysfs ] && return
+    log "Initiate kmemleak scan"
     # looks like we don't get a report on first scan but doing double scan works.
-    [ -w $kmemleak_sysfs ] && echo scan > $kmemleak_sysfs && echo scan > $kmemleak_sysfs
+    echo scan > $kmemleak_sysfs && echo scan > $kmemleak_sysfs
 }
 
 function clear_warn_once() {
