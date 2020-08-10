@@ -173,16 +173,15 @@ function __setup_common() {
     setup_expected_steering_mode
     setup_iptables_legacy
     clear_warn_once
-    kmemleak_config
-    kmemleak_clear
+    kmemleak_scan_per_test && kmemleak_clear
+}
+
+function kmemleak_scan_per_test() {
+    [ "$KMEMLEAK_SCAN_PER_TEST" == 1 ] && return 0
+    return 1
 }
 
 kmemleak_sysfs="/sys/kernel/debug/kmemleak"
-
-function kmemleak_config() {
-    # default autoscan is 600. instead of disabling completely set to 120.
-    [ -w $kmemleak_sysfs ] && echo scan=120 > $kmemleak_sysfs
-}
 
 function kmemleak_clear() {
     [ -w $kmemleak_sysfs ] && echo clear > $kmemleak_sysfs
@@ -1412,7 +1411,7 @@ function kill_all_bgs() {
 function test_done() {
     kill_all_bgs
     set +e
-    kmemleak_scan
+    kmemleak_scan_per_test && kmemleak_scan
     check_for_errors_log
     if [ $TEST_FAILED == 0 ]; then
         success "TEST PASSED"
