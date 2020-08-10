@@ -5,6 +5,8 @@
 #
 # Bug SW #2244416: OFED 5.1 Call trace and kernel panic when trying to set channels on VF representor
 #
+# Fix was to block this in swichdev mode so don't fail on ethtool error.
+# mlx5/core: Disable rate limit queues on VF representors
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -16,8 +18,8 @@ title "Test set other channels on VF rep"
 
 function run() {
     local chans=$1
-    log "test chans $chans"
-    ethtool -L $REP other $chans || fail "ethtool command failed"
+    log "try chans $chans"
+    ethtool -L $REP other $chans 2>/dev/null
 }
 
 run 2
