@@ -53,6 +53,14 @@ function check_offloaded_rules() {
 	fi
 }
 
+function kill_iperf_server() {
+    if [ -n "$iperf_server_pid" ]; then
+        kill -9 $iperf_server_pid &>/dev/null
+        wait $iperf_server_pid &>/dev/null
+    fi
+}
+trap kill_iperf_server EXIT
+
 function test_traffic() {
 	local dev=$1
 	shift
@@ -69,8 +77,7 @@ function test_traffic() {
 	title "Verify with tcpdump"
 	wait $tdpid && err || success
 
-	killall -9 iperf &>/dev/null
-	wait &>/dev/null
+        kill_iperf_server
 }
 
 function add_flow() {
@@ -114,6 +121,7 @@ function test_case() {
 	ip link set $VF2 netns ns0
 	ip netns exec ns0 ifconfig $VF2 $VM2_IP/24 up
 	ip netns exec ns0 iperf -s -i 999 &
+        iperf_server_pid=$!
 
 	echo "setup ovs"
 	ovs-vsctl add-br brv-1
