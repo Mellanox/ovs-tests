@@ -68,7 +68,7 @@ function check_rules() {
     RES=`eval $RES | wc -l`
     if (( RES == $count )); then success
     else
-         ovs_dump_ovs_flow | grep 0x0800 | grep -v drop
+         ovs_dump_ovs_flows | grep 0x0800 | grep -v drop
          err "rules not offloaded"
     fi
 }
