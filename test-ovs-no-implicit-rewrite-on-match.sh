@@ -66,12 +66,14 @@ function test_traffic() {
 	shift
 	local iperf_extra=$@
 
-	timeout 4 iperf -c $FAKE_VM2_IP $iperf_extra -i 999 -t 1
+	timeout -k1 4 iperf -c $FAKE_VM2_IP $iperf_extra -i 999 -t 1
+        [ $? -ne 0 ] && fail "Iperf failed"
 
 	timeout 2 tcpdump -nnei $dev -c 3 'tcp' &
 	tdpid=$!
 
-	timeout 4 iperf -c $FAKE_VM2_IP $iperf_extra -i 999 -t 3 && success || err
+	timeout -k1 4 iperf -c $FAKE_VM2_IP $iperf_extra -i 999 -t 3 && success || err
+        [ $? -ne 0 ] && fail "Iperf failed"
 	check_offloaded_rules 2
 
 	title "Verify with tcpdump"
