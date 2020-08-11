@@ -24,7 +24,8 @@ function config() {
 }
 
 function cleanup() {
-    brctl delbr brrr9 &>/dev/null
+    ip link set bond0 nomaster &>/dev/null
+    ip link del brrr9 &>/dev/null
     clear_bonding
     config_sriov 0
     config_sriov 0 $NIC2
@@ -32,8 +33,8 @@ function cleanup() {
 
 function add_bond_to_bridge() {
     title "add bridge and attach bond0"
-    brctl addbr brrr9 || fail "Failed adding bridge"
-    brctl addif brrr9 bond0 || fail "Failed adding bond0 to bridge"
+    ip link add brrr9 type bridge || fail "Failed adding bridge"
+    ip link set dev bond0 master brrr9 || fail "Failed adding bond0 to bridge"
 }
 
 trap cleanup EXIT
