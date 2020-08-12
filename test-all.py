@@ -521,7 +521,11 @@ def update_skip_according_to_db(data):
                 bugs_list += data['tests'][name]['ignore_fw'][fw]
 
         for bug in bugs_list:
-            task = rm.get_issue(bug)
+            try:
+                task = rm.get_issue(bug)
+            except ValueError:
+                t.set_skip("Cannot fetch RM #%s" % bug)
+                continue
             if rm.is_issue_wont_fix_or_release_notes(task):
                 WONT_FIX[name] = "%s RM #%s: %s" % (task['status']['name'], bug, task['subject'])
             if rm.is_issue_open(task):
