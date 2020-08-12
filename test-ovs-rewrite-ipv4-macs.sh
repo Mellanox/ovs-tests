@@ -41,17 +41,25 @@ function check_offloaded_rules() {
 	fi
 }
 
+function kill_iperf_server() {
+    if [ -n "$iperf_server_pid" ]; then
+        kill -9 $iperf_server_pid &>/dev/null
+        wait $iperf_server_pid &>/dev/null
+    fi
+}
+trap kill_iperf_server EXIT
+
 function test_traffic() {
     local dev=$1
     shift
     local iperf_extra=$@
 
-    iperf -c $FAKE_VM2_IP $iperf_extra -i 999 -t 1
+    timeout -k1 4 iperf -c $FAKE_VM2_IP $iperf_extra -i 999 -t 1 || fail "Iperf failed"
 
     timeout 2 tcpdump -nnei $dev -c 3 'tcp' &
     tdpid=$!
 
-    iperf -c $FAKE_VM2_IP $iperf_extra -i 999 -t 3 && success || err
+    timeout -k1 4 iperf -c $FAKE_VM2_IP $iperf_extra -i 999 -t 3 && success || fail "Iperf failed"
     check_offloaded_rules 2
 
     title "Verify with tcpdump"
@@ -99,6 +107,7 @@ function test_case() {
 	ip link set $VF2 netns ns0
 	ip netns exec ns0 ifconfig $VF2 $VM2_IP/24 up
 	ip netns exec ns0 iperf -s -i 999 &
+        iperf_server_pid=$!
 
 	echo "setup ovs"
 	ovs-vsctl add-br brv-1
@@ -151,8 +160,7 @@ function test_case() {
         test_traffic $REP "-p 5020"
 
 	check_syndrome
-	killall -9 iperf &>/dev/null
-	killall -9 iperf &>/dev/null
+        kill_iperf_server
 }
 
 for cs in $CASES; do
