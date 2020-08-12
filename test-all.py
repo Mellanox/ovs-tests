@@ -514,13 +514,11 @@ def update_skip_according_to_db(data):
         ignore_kernel = data['tests'][name].get('ignore_kernel', {})
         for kernel in ignore_kernel:
             if kernel_match(kernel, current_kernel):
-                for bug in ignore_kernel[kernel]:
-                    bugs_list.append(bug)
+                bugs_list += ignore_kernel[kernel]
 
         for fw in data['tests'][name].get('ignore_fw', {}):
             if not current_fw_ver or re.search("^%s$" % fw, current_fw_ver):
-                for bug in data['tests'][name]['ignore_fw'][fw]:
-                    bugs_list.append(bug)
+                bugs_list += data['tests'][name]['ignore_fw'][fw]
 
         for bug in bugs_list:
             task = rm.get_issue(bug)
