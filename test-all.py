@@ -520,6 +520,10 @@ def update_skip_according_to_db(data):
             if not current_fw_ver or re.search("^%s$" % fw, current_fw_ver):
                 bugs_list += data['tests'][name]['ignore_fw'][fw]
 
+        ignore_smfs = data['tests'][name].get('ignore_smfs', [])
+        if ignore_smfs and (not flow_steering_mode or flow_steering_mode == 'smfs'):
+            bugs_list.extend(ignore_smfs)
+
         for bug in bugs_list:
             try:
                 task = rm.get_issue(bug)
