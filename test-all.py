@@ -429,7 +429,6 @@ def update_skip_according_to_db(data):
         return False
 
     rm = MlxRedmine()
-    test_will_run = False
     nic = get_config_value('NIC')
     current_fw_ver = get_current_fw(nic)
     current_nic = DeviceType.get(get_current_nic_type(nic))
@@ -505,6 +504,7 @@ def update_skip_according_to_db(data):
                 continue
 
         bugs_list = []
+        # issue number key with list of kernels
         issue_keys = [x for x in data['tests'][name].keys() if isinstance(x, int)]
         for issue in issue_keys:
             for kernel in data['tests'][name][issue]:
@@ -531,13 +531,7 @@ def update_skip_according_to_db(data):
                 break
             sys.stdout.write('.')
             sys.stdout.flush()
-
-        if not t.skip:
-            test_will_run = True
     print()
-
-    if not test_will_run:
-        raise RuntimeError('All tests are ignored.')
 
 
 def get_test_header(fname):
