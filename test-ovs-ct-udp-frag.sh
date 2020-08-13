@@ -51,7 +51,7 @@ function run() {
     ip netns exec ns1 timeout $((t+1)) iperf3 -s &
     sleep 0.5
     # by default iperf3 udp packet is 8K but specify it explictly
-    ip netns exec ns0 timeout $((t+1)) iperf3 -u -t $t -c $IP2 -P 3 -l 8192 &
+    ip netns exec ns0 timeout $((t+1)) iperf3 -u -t $t -c $IP2 -l 8192 -b 10G &
 
     sleep 2
     pgrep iperf3 &>/dev/null || err "iperf3 failed"
