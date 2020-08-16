@@ -12,12 +12,12 @@ function get_ifindex() {
 }
 
 function verify_ifindex() {
-    local tmp1=`get_ifindex $NIC`
-    local tmp2=`get_ifindex $NIC2`
-    if [ $nicid != $tmp1 ]; then
+    local tmp1=`get_ifindex $NIC` || err "Failed to get ifindex for $NIC"
+    local tmp2=`get_ifindex $NIC2` || err "Failed to get ifindex for $NIC2"
+    if [ "$nicid" != "$tmp1" ]; then
         err "Nic $NIC changed ifindex"
     fi
-    if [ $nicid2 != $tmp2 ]; then
+    if [ "$nicid2" != "$tmp2" ]; then
         err "Nic $NIC2 changed ifindex"
     fi
 }
@@ -26,8 +26,8 @@ function test_ifindex() {
     title "disable sriov"
     config_sriov 0
     config_sriov 0 $NIC2
-    nicid=`get_ifindex $NIC`
-    nicid2=`get_ifindex $NIC2`
+    nicid=`get_ifindex $NIC` || fail "Failed to get ifindex for $NIC"
+    nicid2=`get_ifindex $NIC2` || fail "Failed to get ifindex for $NIC2"
     title "enable sriov"
     config_sriov 2
     config_sriov 2 $NIC2
