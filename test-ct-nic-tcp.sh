@@ -145,5 +145,6 @@ function run() {
 start_check_syndrome
 cleanup
 run
+config_sriov
 check_syndrome
 test_done
