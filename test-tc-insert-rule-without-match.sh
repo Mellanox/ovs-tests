@@ -8,8 +8,6 @@
 # Currently in ConnectX-4 we will still get syndrome about missing dst mac.
 #
 
-NIC=${1:-ens5f0}
-
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
@@ -51,6 +49,7 @@ function do_test() {
     reset_tc $NIC
 }
 
+config_sriov
 test_in_legacy
 test_in_switchdev
 test_done

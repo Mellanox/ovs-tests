@@ -51,8 +51,8 @@ function test_basic_L4() {
 }
 
 
-unbind_vfs
-switch_mode_legacy
+config_sriov
+enable_legacy
 reset_tc $NIC
 
 # Execute all test_* functions

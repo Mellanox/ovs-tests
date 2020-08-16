@@ -7,6 +7,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+config_sriov
 enable_switchdev
 unbind_vfs
 bind_vfs

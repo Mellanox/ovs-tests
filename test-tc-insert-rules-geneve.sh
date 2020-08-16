@@ -6,6 +6,8 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+config_sriov
+enable_switchdev
 
 function __test_geneve() {
     local ip_src=$1

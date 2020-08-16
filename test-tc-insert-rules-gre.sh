@@ -81,6 +81,7 @@ function test_basic_gre_ipv6() {
 }
 
 
+config_sriov
 enable_switchdev
 test_basic_gre_ipv4
 test_basic_gre_ipv6

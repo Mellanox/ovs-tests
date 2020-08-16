@@ -31,7 +31,7 @@ function test_macvlan() {
     ip link del dev mymacvlan1
 }
 
-
+config_sriov
 enable_switchdev
 test_macvlan
 check_kasan

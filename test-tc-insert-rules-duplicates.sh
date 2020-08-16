@@ -117,6 +117,7 @@ function test_duplicate_vxlan() {
 }
 
 
+config_sriov
 enable_switchdev
 
 # Execute all test_* functions

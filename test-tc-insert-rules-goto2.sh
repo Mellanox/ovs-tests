@@ -22,6 +22,7 @@ function test_goto_back() {
     reset_tc $NIC
 }
 
+config_sriov
 enable_switchdev
 test_goto_fwd
 test_goto_back

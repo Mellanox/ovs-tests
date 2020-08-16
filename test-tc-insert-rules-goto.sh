@@ -22,6 +22,7 @@ function test_goto_back() {
     reset_tc $REP
 }
 
+config_sriov
 enable_switchdev
 test_goto_fwd
 test_goto_back

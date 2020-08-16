@@ -10,6 +10,7 @@ NIC=${1:-ens5f0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+config_sriov
 enable_switchdev
 REP=`get_rep 0`
 if [ -z "$REP" ]; then
