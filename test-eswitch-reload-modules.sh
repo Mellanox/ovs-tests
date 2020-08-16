@@ -19,6 +19,7 @@ function do_test() {
     enable_switchdev
 }
 
+config_sriov
 enable_switchdev
 for i in `seq 5`; do
     title "test iteration $i"

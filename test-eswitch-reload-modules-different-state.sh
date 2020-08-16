@@ -95,6 +95,7 @@ function testC() {
     reload_modules
 }
 
+config_sriov
 testA
 testB
 testC
