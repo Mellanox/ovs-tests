@@ -26,15 +26,18 @@ function test_ifindex() {
     title "disable sriov"
     config_sriov 0
     config_sriov 0 $NIC2
+    sleep 0.5
     nicid=`get_ifindex $NIC` || fail "Failed to get ifindex for $NIC"
     nicid2=`get_ifindex $NIC2` || fail "Failed to get ifindex for $NIC2"
     title "enable sriov"
     config_sriov 2
     config_sriov 2 $NIC2
+    sleep 0.5
     verify_ifindex
     title "enable switchdev"
     enable_switchdev
     enable_switchdev $NIC2
+    sleep 0.5
     verify_ifindex
     title "cleanup"
     config_sriov 0
