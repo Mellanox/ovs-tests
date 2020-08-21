@@ -99,8 +99,6 @@ function run() {
     config
     config_remote
     add_openflow_rules
-    #ip a show dev $NIC
-    #ip netns exec ns0 ip a s dev $VF
 
     # icmp
     ip netns exec ns0 ping -q -c 1 -w 1 $REMOTE
