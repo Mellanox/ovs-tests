@@ -29,6 +29,8 @@ require_interfaces REP NIC
 unbind_vfs
 bind_vfs
 
+DUMMY_MAC=00:00:0a:e3:c4:01
+VF_MAC=$(cat /sys/class/net/$VF/address)
 
 function cleanup_remote() {
     on_remote ip a flush dev $REMOTE_NIC
@@ -52,7 +54,6 @@ function config() {
     config_remote_bridge_tunnel $VXLAN_ID $REMOTE_IP
     config_local_tunnel_ip $LOCAL_TUN br-phy
     config_ns ns0 $VF $IP
-    ip netns exec ns0 ip link set $VF address e4:11:22:33:44:50
 }
 
 function config_remote() {
@@ -62,7 +63,7 @@ function config_remote() {
     on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
     on_remote ip a add $REMOTE/24 dev vxlan1
     on_remote ip l set dev vxlan1 up
-    on_remote ip link set vxlan1 address e4:11:22:33:44:55
+    VXLAN_MAC=$(on_remote cat /sys/class/net/vxlan1/address)
     on_remote ip l set dev $REMOTE_NIC up
 }
 
@@ -76,11 +77,11 @@ function add_openflow_rules() {
     ovs-ofctl add-flow br-int "table=10, priority=1,idle_age=0,actions=resubmit(,17)"
     ovs-ofctl add-flow br-int "table=17, priority=1,idle_age=0,actions=resubmit(,20)"
     ovs-ofctl add-flow br-int "table=20, priority=1,idle_age=0,actions=resubmit(,55)"
-    ovs-ofctl add-flow br-int "table=55, priority=200,idle_age=0,metadata=0x1,dl_dst=e4:11:22:33:44:55 actions=resubmit(,60)"
-    ovs-ofctl add-flow br-int "table=60, priority=200,idle_age=0,ip,metadata=0x1,nw_dst=192.168.10.0/24 actions=mod_dl_src:00:00:0a:e3:c4:01,resubmit(,65)"
-    ovs-ofctl add-flow br-int "table=65, priority=200,idle_age=0,ip,metadata=0x1,nw_dst=$REMOTE actions=mod_dl_dst:e4:11:22:33:44:55,load:0x5b2->NXM_NX_REG7[],resubmit(,75)"
+    ovs-ofctl add-flow br-int "table=55, priority=200,idle_age=0,metadata=0x1,dl_dst=$VXLAN_MAC actions=resubmit(,60)"
+    ovs-ofctl add-flow br-int "table=60, priority=200,idle_age=0,ip,metadata=0x1,nw_dst=$REMOTE actions=mod_dl_src:$DUMMY_MAC,resubmit(,65)"
+    ovs-ofctl add-flow br-int "table=65, priority=200,idle_age=0,ip,metadata=0x1,nw_dst=$REMOTE actions=mod_dl_dst:$VXLAN_MAC,load:0x5b2->NXM_NX_REG7[],resubmit(,75)"
     ovs-ofctl add-flow br-int "table=75, priority=100,idle_age=0,reg7=0x5b2 actions=load:0->OXM_OF_IN_PORT[],load:0xaca80102->NXM_NX_TUN_IPV4_DST[],load:0x64->NXM_NX_TUN_ID[],output:vxlan0"
-    ovs-ofctl add-flow br-int "table=100, idle_age=0, priority=200,metadata=0x1,dl_dst=e4:11:22:33:44:50 actions=load:0x4f6->NXM_NX_REG7[],resubmit(,105)"
+    ovs-ofctl add-flow br-int "table=100, idle_age=0, priority=200,metadata=0x1,dl_dst=$VF_MAC actions=load:0x4f6->NXM_NX_REG7[],resubmit(,105)"
     ovs-ofctl add-flow br-int "table=105, idle_age=0, priority=1 actions=resubmit(,112)"
     ovs-ofctl add-flow br-int "table=112, idle_age=0, priority=1 actions=resubmit(,114)"
     ovs-ofctl add-flow br-int "table=114, idle_age=0, priority=1 actions=resubmit(,115)"
