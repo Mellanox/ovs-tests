@@ -575,7 +575,7 @@ def update_skip_according_to_rm():
     print()
 
 
-def ignore_from_exclude(exclude):
+def ignore_excluded(exclude):
     if not exclude:
         return
     for item in exclude:
@@ -708,7 +708,7 @@ def get_tests():
             data = read_db()
             if 'tests' in data:
                 TESTS = load_tests_from_db(data)
-                ignore_from_exclude(data.get('ignore', []))
+                ignore_excluded(data.get('ignore', []))
                 update_skip_according_to_db(data)
         else:
             tmp = glob(MYDIR + '/test-*.sh')
@@ -784,7 +784,7 @@ def main():
     if args.from_test:
         ignore = True
 
-    ignore_from_exclude(args.exclude)
+    ignore_excluded(args.exclude)
 
     if not args.db or args.randomize:
         sort_tests(TESTS, args.randomize)
