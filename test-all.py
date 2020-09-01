@@ -474,6 +474,9 @@ def update_skip_according_to_db(data):
             for kernel in ignore_not_supported:
                 if kernel_match(kernel, current_kernel):
                     t.set_ignore("Not supported")
+                    break
+            if t.ignore:
+                continue
 
         if 'el' in current_kernel:
             min_kernel = data['tests'][name].get('min_kernel_rhel', None)
