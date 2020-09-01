@@ -578,6 +578,8 @@ def update_skip_according_to_rm():
 def ignore_excluded(exclude):
     if not exclude:
         return
+    if type(exclude[0]) is str and ',' in exclude[0]:
+        exclude = exclude[0].split(',')
     for item in exclude:
         for t in TESTS:
             if t.name == item or fnmatch(t.name, item):
