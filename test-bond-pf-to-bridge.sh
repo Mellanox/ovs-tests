@@ -29,6 +29,7 @@ function cleanup() {
     clear_bonding
     config_sriov 0
     config_sriov 0 $NIC2
+    config_sriov 2
 }
 
 function add_bond_to_bridge() {
