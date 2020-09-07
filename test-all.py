@@ -696,7 +696,8 @@ def read_db():
 
 
 def load_tests_from_db(data):
-    tests = [Test(os.path.join(MYDIR, key)) for key in data['tests']]
+    subfolder = data.get('tests_subfolder', '')
+    tests = [Test(os.path.join(MYDIR, subfolder, key)) for key in data['tests']]
     for test in tests:
         if not test.exists():
             warn("Cannot find test %s" % test.name)
