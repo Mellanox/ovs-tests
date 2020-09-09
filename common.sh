@@ -1075,17 +1075,19 @@ function check_for_errors_log() {
     journalctl --sync &>/dev/null || sleep 0.5
     local rc=0
     local sec=`get_test_time_elapsed`
-    local look="health compromised|firmware internal error|assert_var|\
-DEADLOCK|possible circular locking|possible recursive locking|\
+    local look="DEADLOCK|possible circular locking|possible recursive locking|\
 WARNING:|RIP:|BUG:|refcount > 1|refcount_t|segfault|in_atomic|hw csum failure|\
 list_del corruption|which is not allocated|Objects remaining|assertion failed|\
-Slab cache still has objects|failed reclaiming pages|new suspected memory leaks|Unknown object at|\
+Slab cache still has objects|new suspected memory leaks|Unknown object at|\
 warning: consoletype is now deprecated|warning: use tty|\
-Command completion arrived after timeout|kfree for unknown address|Error cqe"
+kfree for unknown address"
+    local fw_errs="health compromised|firmware internal error|assert_var|\
+Command completion arrived after timeout|Error cqe|failed reclaiming pages"
     local look_ahead="Call Trace:|Allocated by task|Freed by task"
     local look_ahead_count=12
     local filter="networkd-dispatcher|nm-dispatcher|uses legacy ethtool link settings|EAL: WARNING: cpu flags constant_tsc=yes nonstop_tsc=no"
 
+    look="$look|$fw_errs"
     local a=`journalctl --since="$sec seconds ago" | grep -E -i "$look" | grep -v -E -i "$filter" || true`
     local b=`journalctl --since="$sec seconds ago" | grep -E -A $look_ahead_count -i "$look_ahead" || true`
     if [ "$a" != "" ] || [ "$b" != "" ]; then
