@@ -14,6 +14,7 @@ REMOTE_NIC=${REMOTE_NIC:-$2}
 require_remote_server
 
 disable_sriov
+wait_for_ifaces
 require_interfaces NIC NIC2
 remote_disable_sriov
 SRC_IP="7.7.7.1"
