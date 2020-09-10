@@ -67,11 +67,11 @@ function run() {
 
     echo "add ct rules"
     tc filter add dev $NIC ingress protocol ip prio 2 flower $tc_verbose \
-        dst_mac $NIC_MAC ct_state -trk action ct action goto chain 1
+        dst_mac $NIC_MAC ct_state -trk action ct zone 5 action goto chain 1
     verify_in_hw $NIC 2
 
     tc filter add dev $NIC ingress protocol ip chain 1 prio 3 flower $tc_verbose \
-        dst_mac $NIC_MAC ct_state +trk+new action mirred egress redirect dev $REP
+        dst_mac $NIC_MAC ct_state +trk+new ct_zone 5 action mirred egress redirect dev $REP
     verify_in_hw $NIC 3
 
     fail_if_err
