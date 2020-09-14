@@ -16,8 +16,11 @@ function config_simple_bridge_with_rep() {
 }
 
 function config_local_tunnel_ip() {
-    ip addr add $1/24 dev $2
-    ip link set $2 up
+    local ip_addr=$1
+    local dev=$2
+
+    ip addr add $ip_addr/24 dev $dev
+    ip link set $dev up
 }
 
 function config_static_arp_ns() {
