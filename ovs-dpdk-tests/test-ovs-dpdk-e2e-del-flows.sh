@@ -22,12 +22,14 @@ function cleanup() {
     ip a flush dev $NIC
     ip netns del ns0 &>/dev/null
     ip netns del ns1 &>/dev/null
+    cleanup_e2e_cache
     sleep 0.5
 }
 trap cleanup EXIT
 
 function config() {
     cleanup
+    enable_e2e_cache
     echo "Restarting OVS"
     start_clean_openvswitch
 
