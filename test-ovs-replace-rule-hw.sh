@@ -68,8 +68,9 @@ ovs-vsctl add-br br3
 ovs-vsctl add-port br3 $port2
 ovs-vsctl add-port br3 $port4
 
-# generate rule
-ip netns exec red ping -i 0.25 -c 8 $REMOTE_IP
+function short_ping() {
+    ip netns exec red ping -i 0.1 -c 8 -w 1 -q $REMOTE_IP &>/dev/null
+}
 
 function check_offloaded_rules() {
     title " - check for $1 offloaded rules"
@@ -88,6 +89,7 @@ function check_double_action_rules() {
 }
 
 
+short_ping
 check_offloaded_rules 2
 check_double_action_rules 0
 
@@ -95,6 +97,7 @@ title "change ofctl normal rule to all"
 start_check_syndrome
 ovs-ofctl del-flows br3
 ovs-ofctl add-flow br3 dl_type=0x0800,actions=all
+short_ping
 sleep 1
 check_double_action_rules 2
 check_syndrome || err
@@ -103,6 +106,7 @@ title "change ofctl all rule to normal"
 start_check_syndrome
 ovs-ofctl del-flows br3
 ovs-ofctl add-flow br3 dl_type=0x0800,actions=normal
+short_ping
 sleep 1
 check_offloaded_rules 2
 check_double_action_rules 0
@@ -111,7 +115,9 @@ check_syndrome || err
 title "change ofctl normal rule to drop"
 start_check_syndrome
 ovs-ofctl del-flows br3
-ovs-ofctl add-flow br3 dl_type=0x0800,actions=drop
+ovs-ofctl add-flow br3 priority=100,actions=normal
+short_ping
+ovs-ofctl add-flow br3 priority=90,dl_type=0x0800,actions=drop
 sleep 1
 check_offloaded_rules 2
 check_double_action_rules 0
