@@ -114,7 +114,7 @@ function run() {
         err "get $n packets, expected $expected"
     fi
 
-    count=$(ovs_dump_tc_flows | grep 0x0800 | grep sample | wc -l)
+    count=$(ovs_dump_tc_flows | grep 0x0800 | grep sFlow | wc -l)
     if (( count != 2 )); then
         ovs_dump_tc_flows --names
         err "No sample offloaded rules"
