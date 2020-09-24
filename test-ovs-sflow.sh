@@ -30,9 +30,6 @@ SFLOW_PORT=6343
 # trunc size
 SFLOW_HEADER=96
 
-# sample rate, 1/10
-SFLOW_SAMPLING=10
-
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
@@ -60,6 +57,9 @@ trap cleanup EXIT
 
 function config_ovs() {
     title "setup ovs"
+
+    SFLOW_SAMPLING=$1
+
     start_clean_openvswitch
     ovs-vsctl add-br br-ovs
     ovs-vsctl add-port br-ovs $REP
@@ -76,13 +76,9 @@ function config_ovs() {
 
 function run() {
     title "Test OVS sFlow"
-    config_vf ns0 $VF $REP $IP1
-    config_vf ns1 $VF2 $REP2 $IP2
     local file=/tmp/sflow.txt
     local t=10
-    local interval=0.1
-
-    config_ovs
+    interval=$1
 
     ssh2 $SFLOW_TARGET timeout $((t+2)) sflowtool -p $SFLOW_PORT \
         -L localtime,srcIP,dstIP > $file&
@@ -102,7 +98,7 @@ function run() {
     fi
 
     #
-    # The packet interval is 0.1, send 10 seconds, the total packet
+    # If packet interval is 0.1, send 10 seconds, the total packet
     # number is 10 / 0.1 * 2 = 200, (REP and REP2)
     # The sampling rate is 1/10, so we expect to receive 20 sFlow packets.
     #
@@ -123,5 +119,13 @@ function run() {
     ovs-vsctl del-br br-ovs
 }
 
-run
+config_vf ns0 $VF $REP $IP1
+config_vf ns1 $VF2 $REP2 $IP2
+
+config_ovs 10
+run 0.1
+
+config_ovs 1
+run 1
+
 test_done
