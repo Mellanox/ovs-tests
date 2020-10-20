@@ -1217,8 +1217,13 @@ function check_dpdk_init() {
 
     if [ "$a" != "$want" ]; then
         warn "OVS reset dpdk-init=$want"
-        [ "$want" == "true" ] && ovs-vsctl set Open_vSwitch . other_config:dpdk-init=true
-        [ "$want" == "" ] && ovs-vsctl remove Open_vSwitch . other_config dpdk-init
+        if [ "$want" == "true" ]; then
+           ovs-vsctl set Open_vSwitch . other_config:dpdk-init=true
+           ovs-vsctl set Open_vSwitch . other_config:dpdk-extra="-w $PCI,representor=[0,1],dv_xmeta_en=1"
+        else
+           ovs-vsctl remove Open_vSwitch . other_config dpdk-init
+           ovs-vsctl remove Open_vSwitch . other_config dpdk-extra
+        fi
         stop_openvswitch
         service_ovs start
     fi
