@@ -6,7 +6,7 @@ PORT=${2##*f}
 PORT_NAME=$2
 
 if [[ "$ID_NET_DRIVER" != *"mlx5"* ]]; then
-    exit 0
+    exit 1
 fi
 
 is_bf=`lspci -s 00:00.0 2> /dev/null | grep -wq "PCI bridge: Mellanox Technologies" && echo 1 || echo 0`
