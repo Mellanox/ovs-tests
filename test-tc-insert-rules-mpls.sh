@@ -6,6 +6,7 @@
 my_dir="$(dirname "$0")"
 source $my_dir/common.sh
 require_module bareudp
+require_mlxconfig
 
 # set test variables
 UDPPORT=6635
@@ -18,9 +19,18 @@ function cleanup() {
 }
 trap cleanup EXIT
 
+function set_flex_parser_profile() {
+    local profile=$1
+    fw_config FLEX_PARSER_PROFILE_ENABLE=$profile
+}
+
 cleanup
 
+set_flex_parser_profile 1 || fail "Cannot set flex parser profile"
+fw_reset
+
 title "Test decap mpls over udp rule and forward to VF rep"
+config_sriov 2
 enable_switchdev
 
 # create tunnel interface
@@ -54,6 +64,7 @@ ip addr add 8.8.8.21/24 dev $NIC
 ip link set up dev $NIC
 ip neigh add 8.8.8.24 lladdr 00:11:22:33:44:55 dev $NIC
 
+reset_tc $REP
 tc_filter add dev $REP protocol ip prio 1 root flower skip_sw src_ip 2.2.2.21 dst_ip 2.2.2.24 action tunnel_key set src_ip 8.8.8.21 dst_ip 8.8.8.24 id $LABEL dst_port $UDPPORT tos 4 ttl 6 csum action mpls push protocol mpls_uc label $LABEL tc 3 action mirred egress redirect dev bareudp0
 verify_in_hw $REP 1
 
@@ -70,5 +81,8 @@ if [ "$mode" == "dmfs" ]; then
 fi
 
 reset_tc $NIC
+
+set_flex_parser_profile 0
+fw_reset
 
 test_done
