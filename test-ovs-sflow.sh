@@ -66,7 +66,7 @@ function config_ovs() {
     ovs-vsctl add-port br-ovs $REP2
 
     title "create sFlow"
-    ovs-vsctl -- --id=@sflow create sflow agent=$SFLOW_AGENT \
+    ovs-vsctl -- --id=@sflow create sflow agent=\"$SFLOW_AGENT\" \
               target=\"$SFLOW_TARGET:$SFLOW_PORT\" header=$SFLOW_HEADER \
               sampling=$SFLOW_SAMPLING polling=10 \
               -- set bridge br-ovs sflow=@sflow
