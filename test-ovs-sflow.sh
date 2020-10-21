@@ -85,11 +85,7 @@ function run() {
     sleep 1
 
     title "run ping for $t seconds"
-    ip netns exec ns0 ping $IP2 -q -i $interval -w $t &
-    pk1=$!
-    sleep 0.5
-
-    wait $pk1 &>/dev/null
+    ip netns exec ns0 ping $IP2 -q -i $interval -w $t
 
     if grep $IP1 $file | grep $IP2 > /dev/null; then
         success2 "get the expected IP addresses: $IP1, $IP2"
