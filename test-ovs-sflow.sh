@@ -102,7 +102,7 @@ function run() {
     #
     n=$(awk 'END {print NR}' $file)
     expected=$(echo $t/$interval*2/$SFLOW_SAMPLING | bc)
-    if (( n >= expected - 10 && n <= expected + 10 )); then
+    if (( n >= expected - 5 && n <= expected + 10 )); then
         success2 "get $n packets, expected $expected"
     else
         err "get $n packets, expected $expected"
