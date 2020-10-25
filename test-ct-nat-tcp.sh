@@ -115,15 +115,7 @@ function run() {
     fi
 
     title "verify traffic offloaded"
-    wait $pid
-    rc=$?
-    if [[ $rc -eq 124 ]]; then
-        :
-    elif [[ $rc -eq 0 ]]; then
-        err "Didn't expect to see packets"
-    else
-        err "Tcpdump failed"
-    fi
+    verify_no_traffic $pid
 
     reset_tc $REP
     reset_tc $REP2
