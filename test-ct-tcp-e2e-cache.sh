@@ -103,7 +103,7 @@ function run() {
     echo
 
     for i in $REP $REP2; do
-        echo e2e_cache $i
+        title e2e_cache $i
         tc_filter show dev $i ingress e2e_cache
         tc_filter show dev $i ingress e2e_cache | grep -q handle
         if [ "$?" != 0 ]; then

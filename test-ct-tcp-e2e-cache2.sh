@@ -105,7 +105,7 @@ function run() {
     echo
 
     for i in $REP $REP2; do
-        echo e2e_cache $i
+        title e2e_cache $i
         tc_filter show dev $i ingress e2e_cache
         count=`tc_filter show dev $i ingress e2e_cache | grep handle | wc -l`
         if [ "$count" != 2 ]; then
