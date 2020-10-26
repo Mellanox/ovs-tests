@@ -377,7 +377,6 @@ function cloud_fw_reset() {
     unload_modules
     /workspace/cloud_tools/cloud_firmware_reset.sh -ips $ip || err "cloud_firmware_reset failed"
     load_modules
-    wait_for_ifaces
 }
 
 function is_ofed() {
@@ -395,9 +394,11 @@ function is_cloud() {
 function fw_reset() {
     if is_cloud ; then
         cloud_fw_reset
-        return
+    else
+        mlxfwreset -y -d $PCI reset || err "mlxfwreset failed"
     fi
-    mlxfwreset -y -d $PCI reset || err "mlxfwreset failed"
+    wait_for_ifaces
+    setup_expected_steering_mode
 }
 
 function fw_config() {
@@ -1293,6 +1294,7 @@ function reload_modules() {
 
     check_kasan || err "Detected KASAN in journalctl"
     set_macs
+    setup_expected_steering_mode
     echo "reload modules done"
 }
 
