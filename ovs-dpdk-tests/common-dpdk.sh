@@ -47,12 +47,9 @@ function config_ns() {
     ip netns exec $ns ifconfig $dev $ip_addr up
 }
 
-function enable_e2e_cache() {
-    ovs-vsctl set Open_vSwitch . other_config:e2e-enable=true
-}
-
-function disable_e2e_cache() {
-    ovs-vsctl set Open_vSwitch . other_config:e2e-enable=false
+function set_e2e_cache_enable() {
+    local enabled=${1:-true}
+    ovs-vsctl set Open_vSwitch . other_config:e2e-enable=${enabled}
 }
 
 function cleanup_e2e_cache() {

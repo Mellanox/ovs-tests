@@ -46,7 +46,7 @@ trap cleanup EXIT
 
 function config() {
     cleanup
-    enable_e2e_cache
+    set_e2e_cache_enable true
     echo "Restarting OVS"
     start_clean_openvswitch
 
