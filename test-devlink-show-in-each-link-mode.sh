@@ -36,6 +36,10 @@ function devlink_eswitch_show() {
 
 start_check_syndrome
 
+# setting steering mode is not working with IB mode as we use eth NIC mode
+# and also its not needed for this test so lets skip it.
+unset STEERING_MODE
+
 title "Test devlink show in IB mode"
 set_link_type_ib || fail
 fw_reset
