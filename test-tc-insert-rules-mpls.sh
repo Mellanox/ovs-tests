@@ -15,9 +15,7 @@ LABEL=555
 function cleanup() {
     ip link del dev bareudp0 2>/dev/null
     ip addr flush dev $NIC 2>/dev/null
-    reset_tc $REP
 }
-trap cleanup EXIT
 
 function set_flex_parser_profile() {
     local profile=$1
@@ -80,9 +78,11 @@ if [ "$mode" == "dmfs" ]; then
     fi
 fi
 
-reset_tc $NIC
+reset_tc $REP
+cleanup
 
 set_flex_parser_profile 0
 fw_reset
+config_sriov 2
 
 test_done
