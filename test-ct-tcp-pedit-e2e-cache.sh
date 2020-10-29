@@ -56,7 +56,7 @@ function run() {
         dst_mac $fake_mac ct_state +trk+new \
         action ct commit \
         action pedit ex munge eth dst set $mac2 pipe \
-        action mirred egress redirect dev $REP2
+        action goto chain 2
 
     tc_filter add dev $REP ingress protocol ip chain 1 prio 2 flower \
         dst_mac $fake_mac ct_state +trk+est \
@@ -64,7 +64,7 @@ function run() {
         action goto chain 2
 
     tc_filter add dev $REP ingress protocol ip chain 2 prio 2 flower \
-        dst_mac $mac2 ct_state +trk+est \
+        dst_mac $mac2 \
         action mirred egress redirect dev $REP2
 
     # reply chain0,ct -> chain1,fwd
@@ -111,11 +111,18 @@ function run() {
     verify_no_traffic $pid
 
     for i in $REP $REP2; do
-        title "e2e_cache $i"
+        title e2e_cache $i
         tc_filter show dev $i ingress e2e_cache
-        tc_filter show dev $i ingress e2e_cache | grep -q pedit
-        if [ "$?" != 0 ]; then
-            err "Expected pedit e2e_cache rule"
+        if [ "$i" == "$REP" ]; then
+            tc_filter show dev $i ingress e2e_cache | grep -q pedit
+            if [ "$?" != 0 ]; then
+                err "Expected e2e_cache pedit rule"
+            fi
+        else
+            tc_filter show dev $i ingress e2e_cache | grep -q handle
+            if [ "$?" != 0 ]; then
+                err "Expected e2e_cache rule"
+            fi
         fi
     done
 
