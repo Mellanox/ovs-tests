@@ -115,7 +115,7 @@ function run() {
         title e2e_cache $i
         tc_filter show dev $i ingress e2e_cache
         if [ "$i" == "$REP" ]; then
-            count=`tc_filter show dev $i ingress e2e_cache | grep -q pedit | wc -l`
+            count=`tc_filter show dev $i ingress e2e_cache | grep pedit | wc -l`
             if [ "$count" != 1 ]; then
                 err "Expected e2e_cache single pedit rule"
             fi
