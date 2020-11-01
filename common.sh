@@ -470,7 +470,7 @@ function reset_tc() {
     for nic1 in $@ ; do
         ethtool_hw_tc_offload $nic1
         tc qdisc del dev $nic1 ingress >/dev/null 2>&1  || true
-        tc qdisc add dev $nic1 ingress $TC_ARG
+        tc qdisc add dev $nic1 ingress $TC_ARG || err "Failed to add ingress qdisc"
     done
 }
 
