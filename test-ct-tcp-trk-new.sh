@@ -91,7 +91,7 @@ function run() {
 
     sleep 1
     echo "run traffic for $t seconds"
-    on_remote ping -q -i 0.1 -c 30 -W0.1 $IP
+    on_remote ping -q -i 0.1 -c 30 -W0.1 -w 3 $IP
     # ping expected to fail we just test one direction and dont reply
 
     title "verify traffic on $REP"
