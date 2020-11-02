@@ -63,9 +63,9 @@ sleep 0.2
 title "del $COUNT rules"
 del_rules
 sleep 5
-reset_tc $rep
 wait $reload_modules_pid
 if [ $? != 0 ]; then
   load_modules
 fi
+[ -e /sys/class/net/$rep ] && reset_tc $rep
 test_done
