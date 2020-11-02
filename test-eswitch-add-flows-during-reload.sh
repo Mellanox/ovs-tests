@@ -51,7 +51,7 @@ wait $reload_modules_pid
 reload_modules_result=$?
 
 check_syndrome
-reset_tc $REP &>/dev/null
+[ -e /sys/class/net/$REP ] && reset_tc $REP
 
 if [ $reload_modules_result != 0 ]; then
   load_modules
