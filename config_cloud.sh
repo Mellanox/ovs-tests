@@ -1,8 +1,8 @@
-NIC=enp0s8f0
-NIC2=enp0s8f1
-VF=enp0s8f0v0
+NIC=enp8s0f0
+NIC2=enp8s0f1
+VF=enp8s0f0v0
 VF1=$VF
-VF2=enp0s8f0v1
+VF2=enp8s0f0v1
 REP=${NIC}_0
 REP2=${NIC}_1
 B2B=1
