@@ -13,7 +13,7 @@ function run() {
     title "Look for unexpected mlx5_core dependent modules"
 
     local from_ofed="devlink|mlx_compat|mdev|memtrack"
-    local expected="ptp|tls|mlxfw|pci_hyperv_intf|$from_ofed|nf_conntrack"
+    local expected="ptp|tls|mlxfw|pci_hyperv_intf|$from_ofed|nf_conntrack|psample"
     local dependent=`lsmod | grep mlx5_core | grep -v ^mlx5_core | awk {'print $1'} | grep -vE -w "$expected" | xargs echo`
 
     if [ -n "$dependent" ]; then
