@@ -1,8 +1,6 @@
 #!/bin/bash
 #
-# Test CT fwd with tcp traffic
-#
-# Diff from test-ct-tcp-e2e-cache.sh is 2 conns instead of 1.
+# Test CT fwd with udp traffic
 #
 
 my_dir="$(dirname "$0")"
@@ -93,7 +91,7 @@ function run() {
     ip netns exec ns1 $pktgen -l -i $VF2 --src-ip $IP1 --time 10 &
     pk1=$!
     sleep 2
-    ip netns exec ns0 $pktgen -i $VF1 --src-ip $IP1 --dst-ip $IP2 --time 2 --inter 1 --pkt-count 1 --dst-port-count 2 &
+    ip netns exec ns0 $pktgen -i $VF1 --src-ip $IP1 --dst-ip $IP2 --time 2 --inter 1 --pkt-count 1 &
     pk2=$!
 
     sleep 10
@@ -107,9 +105,9 @@ function run() {
     for i in $REP $REP2; do
         title e2e_cache $i
         tc_filter show dev $i ingress e2e_cache
-        count=`tc_filter show dev $i ingress e2e_cache | grep handle | wc -l`
-        if [ "$count" != 2 ]; then
-            err "Expected two e2e_cache rules"
+        tc_filter show dev $i ingress e2e_cache | grep -q handle
+        if [ "$?" != 0 ]; then
+            err "Expected e2e_cache rule"
         fi
     done
 
