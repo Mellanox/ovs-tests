@@ -22,7 +22,7 @@ function run_test() {
 
     # verify we have packet with fragment offset > 0
     timeout 4 tcpdump -nnvei $REP -c 1 ether "dst $FAKE_MAC and ip[6:2] & 0x1fff > 0" &
-    sleep 0.5
+    sleep 1
     tdpid=$!
 
     pkt="Ether(dst=\"$FAKE_MAC\")/$D"
