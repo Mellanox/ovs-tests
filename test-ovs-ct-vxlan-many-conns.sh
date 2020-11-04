@@ -101,6 +101,7 @@ function stop() {
     [ -n "$pid1" ] && kill $pid1 &>/dev/null
     [ -n "$pid2" ] && kill $pid2 &>/dev/null
     wait $pid2 $pid1 &>/dev/null
+    sleep 1
 }
 
 function run() {
@@ -143,10 +144,12 @@ function run() {
     sleep $t
     stop
 
-    echo "verify number of offload flows in connrack"
+    echo "verify number of offload flows in connrack ~$port_count"
     count=`cat /proc/net/nf_conntrack | grep -i offload | wc -l`
     echo "flows: $count"
-    if [ "$count" -lt $port_count ]; then
+    # allow to miss 10
+    let count2=count+10
+    if [ "$count2" -lt $port_count ]; then
         err "Expected at least $port_count flows"
     fi
 
