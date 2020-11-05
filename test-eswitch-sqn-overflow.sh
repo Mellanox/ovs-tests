@@ -61,4 +61,9 @@ function check_packets() {
 
 check_packets
 ifconfig $NIC 0
+
+# we saw an issue changing modes now
+enable_legacy
+enable_switchdev
+
 test_done
