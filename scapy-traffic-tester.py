@@ -141,7 +141,7 @@ def run_client(args):
             for pkt in pkt_list:
                 send(pkt, verbose=0, count=args.pkt_count, inter=args.inter, iface=args.dev, socket=s)
                 sent += args.pkt_count
-                if sent % 500 == 0:
+                if sent % 500 == 0 or args.inter >= 1:
                     sys.stdout.write(progress)
                     sys.stdout.flush()
     finally:
