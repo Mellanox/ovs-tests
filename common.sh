@@ -1320,7 +1320,7 @@ function tc_test_verbose() {
     tc_verbose="verbose"
     tc filter add dev $NIC ingress protocol arp prio 1 flower verbose \
         action drop &>/dev/null || tc_verbose=""
-    reset_tc $NIC
+    tc filter del dev $NIC ingress &>/dev/null
 }
 
 function verify_in_hw() {
