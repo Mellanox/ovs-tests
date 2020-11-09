@@ -68,6 +68,7 @@ check_offloaded_rules 2
 
 title "Test aging mechanism"
 ovs-vsctl set Open_vSwitch . other_config:max-idle=1 || err "set max-idle failed"
+sleep 1
 ovs-vsctl remove Open_vSwitch . other_config max-idle || err "remove max-idle failed"
 check_offloaded_rules 0
 
