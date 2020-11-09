@@ -255,10 +255,10 @@ function run() {
     fail_if_err
 
     title "Run traffic"
-    iperf3 -s -p 5000 -1 &
-    iperf3 -s -p 6000 -1 &
-    iperf3 -s -p 7000 -1 &
-    iperf3 -s -p 8000 -1 &
+    iperf3 -s -p 5000 -1 -D &>/dev/null
+    iperf3 -s -p 6000 -1 -D &>/dev/null
+    iperf3 -s -p 7000 -1 -D &>/dev/null
+    iperf3 -s -p 8000 -1 -D &>/dev/null
 
     title "Traffic fully in hardware, match on geneve without opts"
     on_remote timeout 10 iperf3 -c $ip1 -t 5 -p 5000 || err "failed iperf3 port 5000"
