@@ -33,7 +33,7 @@ function add_netns() {
 
 function setup() {
     start_clean_openvswitch
-    ovs-vsctl set Open_vSwitch . other_config:max-idle=20000
+    ovs-vsctl set Open_vSwitch . other_config:max-idle=60000
     ovs-vsctl add-br ovs-br
 
     add_netns ns1 $ip1
