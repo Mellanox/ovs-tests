@@ -86,10 +86,11 @@ function run() {
 
     packets=20
     interval=0.1
-    deadline=4
+    deadline=5
     echo "run traffic"
-    echo "ip netns exec ns0 ping -q -c $packets -i $interval -w $deadline $IP2"
-    ip netns exec ns0 ping -q -c $packets -i $interval -w $deadline $IP2
+    cmd="ip netns exec ns0 ping -q -c $packets -i $interval -w $deadline $IP2"
+    echo $cmd
+    eval $cmd
 
     after_count=`get_tx_pkts $NIC`
 
