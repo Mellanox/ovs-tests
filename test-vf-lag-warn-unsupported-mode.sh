@@ -26,8 +26,11 @@ function test_bond_mode() {
     local ret1
     local ret2
     local bonded
+    local mode=$1
 
-    ip link add name bond1 type bond mode $1 miimon 100 || fail "Failed to create bond interface"
+    title "Test $1 mode"
+
+    ip link add name bond1 type bond mode $mode miimon 100 || fail "Failed to create bond interface"
 
     ip link set dev $NIC down
     ip link set dev $NIC2 down
@@ -61,11 +64,9 @@ start_check_syndrome
 config
 
 warning=""
-title "Test active-backup mode"
 test_bond_mode active-backup
 
 warning="Warning: mlx5_core: Can't activate LAG offload, TX type isn't supported."
-title "Test boardcast mode"
 test_bond_mode broadcast
 
 check_syndrome
