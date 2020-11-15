@@ -113,6 +113,13 @@ function run() {
         fi
     done
 
+    sysfs_counter="/sys/kernel/debug/mlx5/$PCI/ct/e2e_offloaded"
+    count=`cat $sysfs_counter`
+    echo "e2e offloaded counter: $count"
+    if [ "$count" != 4 ]; then
+        err "Expected e2e offloaded counter to be 4"
+    fi
+
 # delete filter case
 #    tc filter del prio 2 dev $REP ingress
 #    tc filter del prio 2 dev $REP2 ingress
