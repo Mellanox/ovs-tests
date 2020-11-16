@@ -717,12 +717,26 @@ function switch_mode() {
     wait_for_ifaces
 }
 
+function switch_mode_no_rep() {
+    local mode=$1
+    local nic=${2:-$NIC}
+    local pci=$(basename `readlink /sys/class/net/$nic/device`)
+
+    log "Change $nic eswitch ($pci) mode to $mode"
+
+    devlink dev eswitch set pci/$pci mode $mode $extra || fail "Failed to set mode $mode"
+}
+
 function switch_mode_legacy() {
     switch_mode legacy $1
 }
 
 function switch_mode_switchdev() {
     switch_mode switchdev $1
+}
+
+function switch_mode_no_rep_switchdev() {
+    switch_mode_no_rep switchdev $1
 }
 
 function get_eswitch_mode() {
@@ -840,6 +854,12 @@ function enable_switchdev() {
     local nic=${1:-$NIC}
     unbind_vfs $nic
     switch_mode_switchdev $nic
+}
+
+function enable_norep_switchdev() {
+    local nic=${1:-$NIC}
+    unbind_vfs $nic
+    switch_mode_no_rep_switchdev $nic
 }
 
 function enable_legacy() {
