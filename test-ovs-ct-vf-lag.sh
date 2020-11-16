@@ -78,6 +78,12 @@ function config() {
     ovs-vsctl add-br br-ovs
     ovs-vsctl add-port br-ovs $REP
     ovs-vsctl add-port br-ovs bond0
+
+    # WA bug ovs not getting netdev event for slave to add the shared block
+    for n in $NIC $NIC2; do
+        ip link set down $n
+        ip link set up $n
+    done
 }
 
 function config_remote() {
