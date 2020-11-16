@@ -137,6 +137,7 @@ function __setup_common() {
     sysfs_pci_device2=`readlink -f /sys/class/net/$NIC2/../../`
     SRIOV_NUMVFS_NIC2=$sysfs_pci_device2/sriov_numvfs
     PCI=$(basename `readlink /sys/class/net/$NIC/device`)
+    PCI2=$(basename `readlink /sys/class/net/$NIC2/device`)
     DEVICE=`cat /sys/class/net/$NIC/device/device`
     FW=`get_nic_fw $NIC`
     status="NIC $NIC FW $FW PCI $PCI DEVICE $DEVICE"
