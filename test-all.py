@@ -236,6 +236,8 @@ def parse_args():
     parser.add_argument('--randomize', '-r', default=False,
                         help='Randomize the order of the tests',
                         action='store_true')
+    parser.add_argument('--loops', default=0, type=int,
+                        help='Loop the tests')
 
     return parser.parse_args()
 
@@ -800,68 +802,76 @@ def main():
     print("%-54s %-8s %s" % ("Test", "Time", "Status"))
     failed = False
 
-    pre_quick_status_updates()
+    if not args.loops:
+        args.loops = 1
 
-    for test in TESTS:
-        name = test.name
-        if ignore:
-            if args.from_test != name:
-                continue
-            ignore = False
+    for loop in range(args.loops):
+        pre_quick_status_updates()
 
-        print("%-62s " % deco(name, 'light-blue'), end=' ')
-        sys.stdout.flush()
+        for test in TESTS:
+            name = test.name
+            if ignore:
+                if args.from_test != name:
+                    continue
+                ignore = False
 
-        test.status = 'UNKNOWN'
+            print("%-62s " % deco(name, 'light-blue'), end=' ')
+            sys.stdout.flush()
 
-        # Pre update summary report before running next test.
-        # In case we crash we still might want the report.
-        if args.html and not args.dry:
-            save_summary_html()
+            test.status = 'UNKNOWN'
 
-        res = ''
-        reason = ''
-        logname = ''
-        total_seconds = 0.0
+            # Pre update summary report before running next test.
+            # In case we crash we still might want the report.
+            if args.html and not args.dry:
+                save_summary_html()
 
-        if not test.exists():
-            failed = True
-            test.set_failed()
-            res = 'FAILED'
-            reason = 'Cannot find test'
-        elif test.ignore:
-            res = 'IGNORED'
-            reason = test.reason
-        elif test.skip:
-            res = 'SKIP'
-            reason = test.reason
-        elif args.dry:
-            res = 'DRY'
-        else:
-            start_time = datetime.now()
-            logname = os.path.join(LOGDIR, test.test_log)
-            try:
-                reason = test.run(args.html)
-                res = 'TEST PASSED'
-                test.set_passed()
-            except ExecCmdFailed as e:
+            res = ''
+            reason = ''
+            logname = ''
+            total_seconds = 0.0
+
+            if not test.exists():
                 failed = True
                 test.set_failed()
                 res = 'FAILED'
-                reason = str(e)
-            end_time = datetime.now()
-            total_seconds = float("%.2f" % (end_time - start_time).total_seconds())
+                reason = 'Cannot find test'
+            elif test.ignore:
+                res = 'IGNORED'
+                reason = test.reason
+            elif test.skip:
+                res = 'SKIP'
+                reason = test.reason
+            elif args.dry:
+                res = 'DRY'
+            else:
+                start_time = datetime.now()
+                logname = os.path.join(LOGDIR, test.test_log)
+                try:
+                    reason = test.run(args.html)
+                    res = 'TEST PASSED'
+                    test.set_passed()
+                except ExecCmdFailed as e:
+                    failed = True
+                    test.set_failed()
+                    res = 'FAILED'
+                    reason = str(e)
+                end_time = datetime.now()
+                total_seconds = float("%.2f" % (end_time - start_time).total_seconds())
 
-        test.run_time = total_seconds
-        total_seconds = "%-7s" % total_seconds
-        print("%s " % total_seconds, end=' ')
+            test.run_time = total_seconds
+            total_seconds = "%-7s" % total_seconds
+            print("%s " % total_seconds, end=' ')
 
-        test.status = format_result(res, reason, html=True)
-        print("%s %s" % (format_result(res, reason), logname))
+            test.status = format_result(res, reason, html=True)
+            print("%s %s" % (format_result(res, reason), logname))
 
-        if args.stop and failed:
-            return 1
-    # end test loop
+            if args.stop and failed:
+                return 1
+        # end test loop
+
+        if failed:
+            break
+    # end loops
 
     return failed
 
