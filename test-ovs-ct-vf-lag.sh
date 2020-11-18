@@ -161,7 +161,7 @@ function run() {
     add_openflow_rules
     sleep 6
 
-    timeout $((t-6)) tcpdump -qnnei $REP -c 30 'tcp' &
+    timeout 4 tcpdump -qnnei $REP -c 30 'tcp' &
     tpid=$!
 
     sleep $t
