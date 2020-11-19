@@ -19,12 +19,10 @@ IP1="7.7.7.1"
 IP2="7.7.7.2"
 
 function cleanup() {
+    reset_tc $REP $REP2
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
     sleep 1
-
-    reset_tc $REP
-    reset_tc $REP2
 }
 
 function config_vf() {
