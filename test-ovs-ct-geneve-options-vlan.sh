@@ -146,6 +146,8 @@ function run() {
     sleep 2
     kill -0 $pid2 &>/dev/null
     if [ $? -ne 0 ]; then
+        kill -9 $pid1 &>/dev/null
+        wait $pid1 &>/dev/null
         err "iperf failed"
         return
     fi
