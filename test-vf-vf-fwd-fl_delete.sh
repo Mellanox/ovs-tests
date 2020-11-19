@@ -89,8 +89,16 @@ wait &>/dev/null
 echo "cleanup"
 rm -f /tmp/tc_batch_1234
 cleanup
+# wait for refcnt
+for i in `seq 6`; do
+    count1=`cat /sys/module/cls_flower/refcnt`
+    count2=`cat /sys/module/act_mirred/refcnt`
+    if [ "$count1" == "0" ] && [ "$count2" == "0" ]; then
+        break
+    fi
+    sleep 1
+done
 # reload modules
-sleep 4
 modprobe -rv act_mirred cls_flower || err "failed unload"
 modprobe -a act_mirred cls_flower
 test_done
