@@ -11,11 +11,12 @@
  * Using genl-ctrl-list, we know that the psample multicast group ID is 0x0b.
  */
 
+#include <arpa/inet.h>
+#include <endian.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
-
 #include <libmnl/libmnl.h>
 #include <linux/genetlink.h>
 #include <linux/psample.h>
@@ -32,7 +33,7 @@
                                     (nla)->nla_len <= (len))
 
 /* similar to print_hex_dump() */
-void print_nlmsghdr(const void *n, size_t len)
+static void print_nlmsghdr(const void *n, size_t len)
 {
     int i = 0;
 
@@ -48,7 +49,7 @@ void print_nlmsghdr(const void *n, size_t len)
 }
 
 /* create a netlink socket and join the psample multicast group */
-int open_psample_netlink(int group)
+static int open_psample_netlink(int group)
 {
     struct sockaddr_nl addr;
     int sock;
@@ -77,8 +78,46 @@ int open_psample_netlink(int group)
     return sock;
 }
 
+static void print_tunnel(struct nlattr *tunnel_nla)
+{
+    struct nlattr *nla;
+    int len;
+    int i;
+
+    printf("tunnel info:\n");
+    len = mnl_attr_get_len(tunnel_nla);
+    print_nlmsghdr(tunnel_nla, len);
+
+    nla = NLA_DATA(tunnel_nla);
+    for (i = 0; mnl_attr_ok(nla, len); nla = mnl_attr_next(nla), ++i) {
+        if (mnl_attr_get_type(nla) == PSAMPLE_TUNNEL_KEY_ATTR_ID) {
+            uint64_t id;
+
+            id = mnl_attr_get_u64(nla);
+            printf("tunnel id: %ld\n", be64toh(id));
+        } else if (mnl_attr_get_type(nla) == PSAMPLE_TUNNEL_KEY_ATTR_IPV4_SRC) {
+            int src;
+
+            src = mnl_attr_get_u32(nla);
+            printf("src ipv4: %d.%d.%d.%d\n", src & 0xff, (src & 0xff00) >> 8,
+                   (src & 0xff0000) >> 16, (src & 0xff000000) >> 24);
+        } else if (mnl_attr_get_type(nla) == PSAMPLE_TUNNEL_KEY_ATTR_IPV4_DST) {
+            int dst;
+
+            dst = mnl_attr_get_u32(nla);
+            printf("dst ipv4: %d.%d.%d.%d\n", dst & 0xff, (dst & 0xff00) >> 8,
+                   (dst & 0xff0000) >> 16, (dst & 0xff000000) >> 24);
+        } else if (mnl_attr_get_type(nla) == PSAMPLE_TUNNEL_KEY_ATTR_TP_DST) {
+            uint16_t port;
+
+            port = mnl_attr_get_u16(nla);
+            printf("dst port: %d\n", ntohs(port));
+        }
+    }
+}
+
 /* read, parse and print the psample netlink message */
-void read_psample_netlink(int sock)
+static void read_psample_netlink(int sock)
 {
     char buffer[MNL_SOCKET_BUFFER_SIZE];
     char skb[MNL_SOCKET_BUFFER_SIZE];
@@ -136,6 +175,8 @@ void read_psample_netlink(int sock)
         } else if (nla->nla_type == PSAMPLE_ATTR_SAMPLE_RATE) {
             rate = mnl_attr_get_u32(nla);
             printf("rate: %d\n", rate);
+        } else if (nla->nla_type == PSAMPLE_ATTR_TUNNEL) {
+            print_tunnel(nla);
         }
     }
     printf("\n");
