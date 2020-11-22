@@ -84,7 +84,7 @@ function run() {
     ip netns exec ns1 $pktgen -l -i $VF2 --src-ip $IP1 --time 10 &
     pk1=$!
     sleep 2
-    ip netns exec ns0 $pktgen -i $VF1 --src-ip $IP1 --dst-ip $IP2 --time 2 --inter 1 --pkt-count 1 --dst-port-count 2 &
+    ip netns exec ns0 $pktgen -i $VF1 --src-ip $IP1 --dst-ip $IP2 --time 2 --inter 0.5 --pkt-count 1 --dst-port-count 2 &
     pk2=$!
 
     sleep 10
