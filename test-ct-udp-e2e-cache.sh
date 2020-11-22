@@ -34,15 +34,6 @@ function cleanup() {
 }
 trap cleanup EXIT
 
-function get_pkts() {
-    # single table tc show doesn't have nested keys attribute
-    s1=`tc -j -p -s  filter show dev $REP protocol ip ingress | jq '.[] | select(.options.ct_state == "+trk+est") | .options.actions[0].stats.packets' || 0`
-    # upstream tc dump
-    s2=`tc -j -p -s  filter show dev $REP protocol ip ingress | jq '.[] | select(.options.keys.ct_state == "+trk+est") | .options.actions[0].stats.packets' || 0`
-
-    echo $(( s1 > s2 ? s1 : s2 ))
-}
-
 function run() {
     title "Test CT TCP"
     tc_test_verbose
