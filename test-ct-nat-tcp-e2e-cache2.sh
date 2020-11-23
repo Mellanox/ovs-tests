@@ -64,7 +64,6 @@ function run() {
     flag=""
     # use this flag to test miss handling
     #flag2="skip_hw"
-    tc_verbose="skip_hw"
 
     echo "add ct rules"
     tc_filter add dev $REP ingress protocol ip prio 2 flower $flag $tc_verbose \
