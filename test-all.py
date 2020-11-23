@@ -449,16 +449,21 @@ def update_skip_according_to_db(data):
 
     for t in TESTS:
         name = t.name
+
         if data['tests'][name] is None:
             data['tests'][name] = {}
 
-        if (data['tests'][name].get('ignore_for_linust', 0) and
-            'linust' in current_kernel):
+        ignore_for_linust = data['tests'][name].get('ignore_for_linust', 0)
+        ignore_for_upstream = data['tests'][name].get('ignore_for_upstream', 0)
+
+        if ignore_for_linust and ignore_for_upstream:
+            raise RuntimeError("%s: Do not ignore on both for_linust and for_upstream." % name)
+
+        if ignore_for_linust and 'linust' in current_kernel:
             t.set_ignore("Ignore on for-linust kernel")
             continue
 
-        if (data['tests'][name].get('ignore_for_upstream', 0) and
-            'upstream' in current_kernel):
+        if ignore_for_upstream and 'upstream' in current_kernel:
             t.set_ignore("Ignore on for-upstream kernel")
             continue
 
