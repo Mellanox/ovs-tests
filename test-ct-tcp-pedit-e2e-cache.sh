@@ -34,6 +34,24 @@ function cleanup() {
 }
 trap cleanup EXIT
 
+function e2e_cache_verify() {
+    for i in $REP $REP2; do
+        title e2e_cache $i
+        tc_filter show dev $i ingress e2e_cache
+        if [ "$i" == "$REP" ]; then
+            count=`tc_filter show dev $i ingress e2e_cache | grep pedit | wc -l`
+            if [ "$count" != 1 ]; then
+                err "Expected e2e_cache single pedit rule"
+            fi
+        else
+            tc_filter show dev $i ingress e2e_cache | grep -q handle
+            if [ "$?" != 0 ]; then
+                err "Expected e2e_cache rule"
+            fi
+        fi
+    done
+}
+
 function run() {
     title "Test CT TCP pedit"
     config_vf ns0 $VF $REP $IP1
@@ -93,6 +111,7 @@ function run() {
     sleep 2
     pidof iperf &>/dev/null || err "iperf failed"
 
+    e2e_cache_verify
 
     echo "sniff packets on $REP2"
     # first 4 packets not offloaded until conn is in established state.
@@ -110,22 +129,6 @@ function run() {
     verify_have_traffic $pid2
     title "Verify offload traffic on $REP2"
     verify_no_traffic $pid
-
-    for i in $REP $REP2; do
-        title e2e_cache $i
-        tc_filter show dev $i ingress e2e_cache
-        if [ "$i" == "$REP" ]; then
-            count=`tc_filter show dev $i ingress e2e_cache | grep pedit | wc -l`
-            if [ "$count" != 1 ]; then
-                err "Expected e2e_cache single pedit rule"
-            fi
-        else
-            tc_filter show dev $i ingress e2e_cache | grep -q handle
-            if [ "$?" != 0 ]; then
-                err "Expected e2e_cache rule"
-            fi
-        fi
-    done
 
     reset_tc $REP $REP2
 }

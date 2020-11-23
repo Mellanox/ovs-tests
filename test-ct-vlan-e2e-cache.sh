@@ -151,12 +151,12 @@ function run() {
         return
     fi
 
+    e2e_cache_verify
+
     timeout $((t-2)) tcpdump -qnnei $REP -c 10 'tcp' &
     tpid=$!
     sleep $t
     verify_no_traffic $tpid
-
-    e2e_cache_verify
 
     kill -9 $pid1 &>/dev/null
     killall iperf &>/dev/null
