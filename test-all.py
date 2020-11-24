@@ -300,6 +300,8 @@ def format_result(res, out='', html=False):
         "DIDN'T RUN":  'darkred',
     }
     color = res_color.get(res, 'yellow')
+    if "SHOW STOPPER" in res:
+        color = 'red'
     if out and "TEST FAILED" not in out and "TEST PASSED" not in out:
         res += ' (%s)' % out
     return deco(res, color, html)
@@ -672,7 +674,9 @@ def get_db_path(db):
     return db
 
 
+DB_PATH = None
 def read_db():
+    global DB_PATH
     out = {}
     if len(args.db) == 1 and '*' in args.db[0]:
         dbs = glob(args.db[0]) or glob(os.path.join(MYDIR, 'databases', args.db[0]))
@@ -682,6 +686,7 @@ def read_db():
         dbs = args.db
 
     multi = len(dbs) > 1
+    DB_PATH = os.path.dirname(dbs[0])
     for db in dbs:
         db = get_db_path(db)
         if not db:
@@ -702,6 +707,25 @@ def read_db():
     return out
 
 
+MINI_REG_LIST = []
+def read_mini_reg_list():
+    global MINI_REG_LIST
+
+    if not DB_PATH:
+        return
+
+    mini = os.path.join(DB_PATH, 'mini_regression.yaml')
+    if not os.path.exists(mini):
+        return
+
+    with open(mini) as f:
+        data = yaml.safe_load(f)
+        if type(data['tests']) is dict:
+            MINI_REG_LIST = data['tests'].keys()
+        if type(data['tests']) is list:
+            MINI_REG_LIST = data['tests']
+
+
 def load_tests_from_db(data):
     subfolder = data.get('tests_subfolder', '')
     tests = [Test(os.path.join(MYDIR, subfolder, key)) for key in data['tests']]
@@ -716,6 +740,7 @@ def get_tests():
     try:
         if args.db:
             data = read_db()
+            read_mini_reg_list()
             if 'tests' in data:
                 TESTS = load_tests_from_db(data)
                 ignore_excluded(data.get('ignore', []))
@@ -867,6 +892,8 @@ def main():
             total_seconds = "%-7s" % total_seconds
             print("%s " % total_seconds, end=' ')
 
+            if (test.name in MINI_REG_LIST) and (test.skip or test.ignore or test.failed):
+                res = "SHOW STOPPER - %s" %res
             test.status = format_result(res, reason, html=True)
             print("%s %s" % (format_result(res, reason), logname))
 
