@@ -686,11 +686,12 @@ def read_db():
         dbs = args.db
 
     multi = len(dbs) > 1
-    DB_PATH = os.path.dirname(dbs[0])
     for db in dbs:
         db = get_db_path(db)
         if not db:
             return {}
+        if not DB_PATH:
+            DB_PATH = os.path.dirname(db)
         if multi and 'mini_reg' in db:
             continue
         if multi and 'ignore' in db and not args.db_check:
