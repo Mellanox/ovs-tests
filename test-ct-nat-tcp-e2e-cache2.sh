@@ -118,13 +118,14 @@ function run() {
     pidof iperf &>/dev/null || err "iperf failed"
 
     echo "sniff packets on $VF2"
-    ip netns exec ns1 timeout $t tcpdump -qnnei $VF2 -c 10 'tcp' &
+    TMP="/tmp/tcpdump-1"
+    ip netns exec ns1 timeout $t tcpdump -qnnei $VF2 -c 10 -w $TMP 'tcp' &
     pid1=$!
 
-#    echo "sniff packets on $REP"
-#    # first 4 packets not offloaded until conn is in established state.
-#    timeout $t tcpdump -qnnei $REP -c 10 'tcp' &
-#    pid=$!
+    echo "sniff packets on $REP"
+    # first 4 packets not offloaded until conn is in established state.
+    timeout $t tcpdump -qnnei $REP -c 10 'tcp' &
+    pid=$!
 
     e2e_cache_verify
 
@@ -132,16 +133,20 @@ function run() {
     killall -9 iperf &>/dev/null
     wait $! 2>/dev/null
 
-    title "verify traffic on $VF2"
-    verify_have_traffic $pid1
-
-#    title "verify traffic offloaded on $REP"
-#    verify_no_traffic $pid
-
     echo $REP
     tc -s filter show dev $REP ingress
     echo $REP2
     tc -s filter show dev $REP2 ingress
+
+    title "verify traffic on $VF2"
+    verify_have_traffic $pid1
+    tcpdump -vvv -r $TMP | grep incorrect
+    if [ $? -eq 0 ]; then
+        err "Detected checksum incorrect"
+    fi
+
+    title "verify traffic offloaded on $REP"
+    verify_no_traffic $pid
 
     reset_tc $REP $REP2
 }
