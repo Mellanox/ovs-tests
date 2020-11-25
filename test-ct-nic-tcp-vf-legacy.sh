@@ -29,15 +29,21 @@ REMOTE_IP="7.7.7.2"
 REMOTE_IP2="8.8.8.2"
 net=`getnet $REMOTE_IP2 24`
 
+function cleanup_exit() {
+    cleanup
+    config_sriov 0 $NIC2
+ }
+
 function cleanup() {
     on_remote "ip netns exec ns0 ip l s $REMOTE_NIC2 netns 1; ip netns del ns0; \
                ip addr flush $REMOTE_NIC; ip addr flush $REMOTE_NIC2" &>/dev/null
 
     ip addr flush $NIC
     ip addr flush $NIC2
-    config_sriov 0 $NIC2
+    conntrack -F &>/dev/null
+
 }
-trap cleanup EXIT
+trap cleanup_exit EXIT
 
 function get_pkts() {
     tc -j -p -s  filter show dev $VF1 protocol ip ingress | jq '.[] | select(.options.keys.ct_state == "+trk+est") | .options.actions[0].stats.packets' || 0
@@ -158,6 +164,7 @@ function run() {
 
 
 start_check_syndrome
+cleanup
 run
 check_syndrome
 test_done

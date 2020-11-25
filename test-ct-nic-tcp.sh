@@ -29,6 +29,7 @@ function cleanup() {
 
     ip addr flush $NIC
     ip addr flush $NIC2
+    conntrack -F &>/dev/null
 }
 trap cleanup EXIT
 
