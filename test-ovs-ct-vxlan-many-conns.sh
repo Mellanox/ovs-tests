@@ -119,11 +119,11 @@ function run() {
     t=25
     port_count=6000
     # traffic
-    ssh2 $REMOTE_SERVER $pktgen -i vxlan1 --src-ip $REMOTE --src-port 1000 --src-port-count $port_count --dst-port $port_count --dst-port-count 1 --pkt-count 1 --inter 0 --dst-ip $IP --time $t &
+    on_remote timeout $t $pktgen -i vxlan1 --src-ip $REMOTE --src-port 1000 --src-port-count $port_count --dst-port $port_count --dst-port-count 1 --pkt-count 1 --inter 0 --dst-ip $IP --time $t &
     pid1=$!
-    ip netns exec ns0 $pktgen -i $VF --src-ip $IP --src-port $port_count --src-port-count 1 --dst-port 1000 --dst-port-count $port_count --pkt-count 1 --inter 0 --dst-ip $REMOTE --time $t &
+    sleep 2
+    timeout $t ip netns exec ns0 $pktgen -i $VF --src-ip $IP --src-port $port_count --src-port-count 1 --dst-port 1000 --dst-port-count $port_count --pkt-count 1 --inter 0 --dst-ip $REMOTE --time $t &
     pid2=$!
-    # sending traffic from both directions without listener so sleep for both
     sleep 5
 
     # verify pids
@@ -141,9 +141,9 @@ function run() {
     fi
     echo "pids ok"
 
-    sleep $t
-    stop
+    wait $pid2 $pid1 &>/dev/null
 
+    echo
     echo "verify number of offload flows in connrack ~$port_count"
     count=`cat /proc/net/nf_conntrack | grep -i offload | wc -l`
     echo "flows: $count"
@@ -151,6 +151,8 @@ function run() {
     let count2=count+10
     if [ "$count2" -lt $port_count ]; then
         err "Expected at least $port_count flows"
+    else
+        success
     fi
 
     echo "wait for ovs aging (10 seconds)"
