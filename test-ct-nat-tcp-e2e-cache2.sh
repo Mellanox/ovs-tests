@@ -118,8 +118,7 @@ function run() {
     pidof iperf &>/dev/null || err "iperf failed"
 
     echo "sniff packets on $VF2"
-    TMP="/tmp/tcpdump-1"
-    ip netns exec ns1 timeout $t tcpdump -qnnei $VF2 -c 10 -w $TMP 'tcp' &
+    ip netns exec ns1 timeout $t tcpdump -qnnei $VF2 -c 10 'tcp' &
     pid1=$!
 
     echo "sniff packets on $REP"
@@ -140,10 +139,6 @@ function run() {
 
     title "verify traffic on $VF2"
     verify_have_traffic $pid1
-    tcpdump -vvv -r $TMP | grep incorrect
-    if [ $? -eq 0 ]; then
-        err "Detected checksum incorrect"
-    fi
 
     title "verify traffic offloaded on $REP"
     verify_no_traffic $pid
