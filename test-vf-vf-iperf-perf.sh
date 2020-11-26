@@ -100,7 +100,7 @@ check_bw
 test_udp
 check_bw
 
-del_all_bridges
+ovs_clear_bridges
 cleanup
 if [ $MULTIPATH == 1 ]; then
     disable_sriov

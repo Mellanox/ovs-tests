@@ -34,7 +34,7 @@ rep0=`get_rep 0`
 rep1=`get_rep 1`
 
 title "add bridge"
-del_all_bridges
+ovs_clear_bridges
 ovs-vsctl add-br $BRIDGE
 ovs-vsctl add-port $BRIDGE $rep0
 ovs-vsctl add-port $BRIDGE $rep1

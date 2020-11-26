@@ -99,7 +99,7 @@ is_offloaded_rules $REP2 $dst_mac $src_mac
 title "Verify with tcpdump"
 wait $tdpid && err || success
 
-del_all_bridges
+ovs_clear_bridges
 cleanup
 if [ $MULTIPATH == 1 ]; then
     disable_sriov

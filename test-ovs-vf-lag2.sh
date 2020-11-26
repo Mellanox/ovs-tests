@@ -35,7 +35,7 @@ function test_config_ovs_bond_simple() {
     ovs-vsctl add-port br-ovs $REP
 
     verify_ingress_block
-    del_all_bridges
+    ovs_clear_bridges
 }
 
 function test_config_ovs_bond_after_cleanup() {
@@ -50,7 +50,7 @@ function test_config_ovs_bond_after_cleanup() {
     restart_openvswitch
 
     verify_ingress_block
-    del_all_bridges
+    ovs_clear_bridges
 }
 
 function config() {

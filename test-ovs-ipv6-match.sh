@@ -52,7 +52,7 @@ ifconfig veth6 up
 echo "setup ovs"
 systemctl restart openvswitch
 sleep 2
-del_all_bridges
+ovs_clear_bridges
 
 ovs-vsctl add-br brv-1
 ovs-vsctl add-port brv-1 veth1

@@ -42,7 +42,7 @@ function test_config_ovs_bond_port_order() {
     wa_for_port2_missing_ingress_block
 
     verify_ingress_block
-    del_all_bridges
+    ovs_clear_bridges
 }
 
 function test_ovs_restart_block_support() {
@@ -61,7 +61,7 @@ function test_ovs_restart_block_support() {
     wa_for_port2_missing_ingress_block
 
     verify_ingress_block
-    del_all_bridges
+    ovs_clear_bridges
 }
 
 # OVS can't reattach qdisc to bond after restart if
@@ -77,7 +77,7 @@ function test_ovs_restart_block_reattach {
     local id=$(tc qdisc show dev bond0 | grep ingress_block | awk '{ print $7 }')
     if [[ -z "$id" ]];then
         err "Failed to get bond ingress_block id."
-        del_all_bridges
+        ovs_clear_bridges
         return
     fi
     title "- Add rule to the ingress_block"
@@ -88,7 +88,7 @@ function test_ovs_restart_block_reattach {
     wa_for_port2_missing_ingress_block
 
     verify_ingress_block
-    del_all_bridges
+    ovs_clear_bridges
 }
 
 function config() {

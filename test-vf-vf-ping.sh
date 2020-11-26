@@ -93,7 +93,7 @@ ip netns exec ns0 ping -q -f -w 4 $IP2 && success || err
 echo "verify tcpdump"
 verify_timedout $tpid
 
-del_all_bridges
+ovs_clear_bridges
 cleanup
 if [ $MULTIPATH == 1 ]; then
     disable_sriov

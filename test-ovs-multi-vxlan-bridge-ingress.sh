@@ -21,5 +21,5 @@ ovs-vsctl add-br ov2
 ovs-vsctl add-port ov2 vxlan2 -- set interface vxlan2 type=vxlan options:key=42 options:remote_ip=2.1.1.1 options:dst_port=4789
 tc qdisc show dev vxlan_sys_4789 ingress | grep -q ingress || err "Missing qdisc ingress on vxlan_sys_4789"
 
-del_all_bridges
+ovs_clear_bridges
 test_done

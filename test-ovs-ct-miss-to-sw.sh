@@ -43,7 +43,7 @@ function setup() {
 function cleanup() {
     killall -9 nc &> /dev/null
     ip -all netns del
-    del_all_bridges
+    ovs_clear_bridges
     ovs-vsctl remove Open_vSwitch . other_config max-idle
 }
 trap cleanup EXIT

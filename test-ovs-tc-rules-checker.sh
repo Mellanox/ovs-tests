@@ -196,7 +196,7 @@ title "Test ping $VF($IP1) -> $VF2($IP2)"
 ip netns exec ns0 ping -q -c 1 -w 1 $IP2 && success || fail "Ping failed"
 check_alignment
 
-del_all_bridges
+ovs_clear_bridges
 cleanup
 check_syndrome
 test_done

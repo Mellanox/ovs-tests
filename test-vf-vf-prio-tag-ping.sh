@@ -76,7 +76,7 @@ if [ "$count" -ne "2" ]; then
     err "No prio tag offloaded rules"
 fi
 
-del_all_bridges
+ovs_clear_bridges
 cleanup
 check_syndrome
 set_prio_tag_mode 0

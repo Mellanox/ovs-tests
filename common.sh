@@ -1178,7 +1178,7 @@ function ovs_dump_ovs_flows() {
     ovs-appctl dpctl/dump-flows $args type=ovs 2>/dev/null
 }
 
-function del_all_bridges() {
+function ovs_clear_bridges() {
     ovs-vsctl list-br | xargs -r -L 1 ovs-vsctl del-br 2>/dev/null
 }
 
@@ -1246,7 +1246,7 @@ function restart_openvswitch() {
 
 function start_clean_openvswitch() {
     restart_openvswitch
-    del_all_bridges
+    ovs_clear_bridges
 }
 
 function wait_for_ifaces() {
