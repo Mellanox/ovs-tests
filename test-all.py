@@ -513,7 +513,9 @@ def update_skip_according_to_db(data):
         for nic in data['tests'][name].get('ignore_nic', []):
             if nic == current_nic:
                 t.set_ignore("Unsupported nic %s" % nic)
-                continue
+                break
+        if t.ignore:
+            continue
 
         bugs_list = []
         # issue number key with list of kernels
