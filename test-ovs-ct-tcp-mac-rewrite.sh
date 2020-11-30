@@ -21,6 +21,8 @@ reset_tc $REP
 reset_tc $REP2
 
 function cleanup() {
+    conntrack -F &>/dev/null
+    killall -9 iperf &>/dev/null
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
     reset_tc $REP
@@ -92,6 +94,6 @@ function run() {
     ovs-vsctl del-br br-ovs
 }
 
-
+cleanup
 run
 test_done
