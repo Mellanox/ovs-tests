@@ -111,6 +111,8 @@ def run_client(args):
     needed = ('dev', 'src_ip', 'dst_ip', 'src_port', 'src_port_count',
               'dst_port', 'dst_port_count', 'pkt_count', 'inter', 'time')
     verify_args(args, needed)
+    progress = random.choice(['.', 'a', 'b', 'c', 'z'])
+    print("char: %s" % progress)
 
     # ignore icmp unreachable packets
     os.system("iptables -I OUTPUT -p icmp --icmp-type destination-unreachable -j DROP")
@@ -135,7 +137,6 @@ def run_client(args):
     print("Prepared %d packets" % len(pkt_list))
     t_end = time.time() + args.time
     s = conf.L3socket(iface=args.dev)
-    progress = random.choice(['.', 'a', 'b', 'c', 'z'])
     try:
         while time.time() < t_end:
             for pkt in pkt_list:
