@@ -1215,6 +1215,7 @@ function check_ovs_settings() {
 
 function check_dpdk_init() {
     local a
+    local b
     local want=""
 
     if [ "${DPDK}" == 1 ]; then
@@ -1222,8 +1223,9 @@ function check_dpdk_init() {
     fi
 
     a=`ovs-vsctl get Open_vSwitch . other_config:dpdk-init 2>/dev/null | tr -d '"'`
+    b=`ovs-vsctl get Open_vSwitch . other_config:dpdk-extra 2>/dev/null | tr -d '"'`
 
-    if [ "$a" != "$want" ]; then
+    if [ "$a" != "$want" ] || [ "$b" == "" ]; then
         warn "OVS reset dpdk-init=$want"
         if [ "$want" == "true" ]; then
            ovs-vsctl set Open_vSwitch . other_config:dpdk-init=true
