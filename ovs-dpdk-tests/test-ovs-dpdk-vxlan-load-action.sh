@@ -104,6 +104,7 @@ function run() {
         return
     fi
 
+    sleep 11
     # check offloads
     check_dpdk_offloads $IP
 }
