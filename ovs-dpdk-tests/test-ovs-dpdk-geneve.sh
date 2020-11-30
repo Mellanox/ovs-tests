@@ -93,14 +93,7 @@ function run() {
     fi
 
     # check offloads
-    x=$(ovs-appctl dpctl/dump-flows -m | grep -v 'ipv6\|icmpv6\|arp\|drop\|ct_state(0x21/0x21)' | grep -- $IP'\|tnl_pop' | wc -l)
-    echo "Number of filtered rules: $x"
-    y=$(ovs-appctl dpctl/dump-flows -m type=offloaded | grep -v 'ipv6\|icmpv6\|arp\|drop\|flow-dump' | wc -l)
-    echo "Number of offloaded rules: $y"
-
-    if [ $x -ne $y ]; then
-        err "offloads failed"
-    fi
+    check_dpdk_offloads $IP
 
     kill -9 $pid1 &>/dev/null
     killall iperf &>/dev/null

@@ -105,14 +105,7 @@ function run() {
     fi
 
     # check offloads
-    x=$(ovs-appctl dpctl/dump-flows -m | grep -v 'ipv6\|icmpv6\|arp' | grep -- $IP'\|tnl_pop' | wc -l)
-    echo $x
-    y=$(ovs-appctl dpctl/dump-flows -m type=offloaded | grep -v 'ipv6\|icmpv6\|arp' | wc -l)
-    echo $y
-
-    if [ $x -ne $y ]; then
-        err "offloads failed"
-    fi
+    check_dpdk_offloads $IP
 }
 
 run

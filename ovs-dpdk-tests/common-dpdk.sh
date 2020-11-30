@@ -55,3 +55,19 @@ function set_e2e_cache_enable() {
 function cleanup_e2e_cache() {
     ovs-vsctl remove Open_vSwitch . other_config e2e-enable
 }
+
+function check_dpdk_offloads() {
+    local IP=$1
+
+    local x=$(ovs-appctl dpctl/dump-flows -m | grep -v 'ipv6\|icmpv6\|arp\|drop\|ct_state(0x21/0x21)\|flow-dump' | grep -- $IP'\|tnl_pop' | wc -l)
+    echo -e "Number of filtered rules:\n$x"
+    local y=$(ovs-appctl dpctl/dump-flows -m type=offloaded | grep -v 'ipv6\|icmpv6\|arp\|drop\|flow-dump' | wc -l)
+    echo -e "Number of offloaded rules:\n$y"
+    if [ $x -ne $y ]; then
+        err "offloads failed"
+        echo "Filtered rules:"
+        ovs-appctl dpctl/dump-flows -m | grep -v 'ipv6\|icmpv6\|arp\|drop\|ct_state(0x21/0x21)\|flow-dump' | grep -- $IP'\|tnl_pop'
+        echo -e "\n\nOffloaded rules:"
+        ovs-appctl dpctl/dump-flows -m type=offloaded | grep -v 'ipv6\|icmpv6\|arp\|flow-dump'
+    fi
+}
