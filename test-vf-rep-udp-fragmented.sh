@@ -16,7 +16,7 @@ bind_vfs
 
 function cleanup() {
     ip netns del ns0 2> /dev/null
-    sleep 0.5
+    sleep 1
     ip addr flush dev $REP
 }
 trap cleanup EXIT
@@ -26,7 +26,7 @@ function start_tcpdump() {
     rm -f $tdtmpfile
     tcpdump -nnepi $REP udp -c 30 -w $tdtmpfile &
     tdpid=$!
-    sleep 0.5
+    sleep 1
 }
 
 function stop_tcpdump() {
@@ -104,7 +104,7 @@ function config_ipv6() {
     # ipv6 assignment seems to take some time.
     # if we try iperf really quick we get an error:
     # connect failed: Cannot assign requested address
-    sleep 2
+    sleep 3
 }
 
 function run_cases() {
