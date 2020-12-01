@@ -1214,22 +1214,26 @@ function check_ovs_settings() {
 }
 
 function check_dpdk_init() {
-    local a
-    local b
+    local force=0
     local want=""
+    local want_extra="-w $PCI,representor=[0,1],dv_xmeta_en=1"
 
     if [ "${DPDK}" == 1 ]; then
         want="true"
     fi
 
-    a=`ovs-vsctl get Open_vSwitch . other_config:dpdk-init 2>/dev/null | tr -d '"'`
-    b=`ovs-vsctl get Open_vSwitch . other_config:dpdk-extra 2>/dev/null | tr -d '"'`
+    local init1=`ovs-vsctl get Open_vSwitch . other_config:dpdk-init 2>/dev/null | tr -d '"'`
+    local extra1=`ovs-vsctl get Open_vSwitch . other_config:dpdk-extra 2>/dev/null | tr -d '"'`
 
-    if [ "$a" != "$want" ] || [ "$b" == "" ]; then
+    if [ "$want" == "true" ] && [ "$want_extra" != "$extra1" ]; then
+        force=1
+    fi
+
+    if [ "$init1" != "$want" ] || [ "$force" == 1 ]; then
         warn "OVS reset dpdk-init=$want"
         if [ "$want" == "true" ]; then
            ovs-vsctl set Open_vSwitch . other_config:dpdk-init=true
-           ovs-vsctl set Open_vSwitch . other_config:dpdk-extra="-w $PCI,representor=[0,1],dv_xmeta_en=1"
+           ovs-vsctl set Open_vSwitch . other_config:dpdk-extra="$want_extra"
         else
            ovs-vsctl remove Open_vSwitch . other_config dpdk-init
            ovs-vsctl remove Open_vSwitch . other_config dpdk-extra
