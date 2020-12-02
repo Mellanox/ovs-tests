@@ -81,7 +81,7 @@ function run() {
     config_remote
 
     # icmp
-    ip netns exec ns0 ping -c 100 -i 0.5 $REMOTE
+    ip netns exec ns0 ping -q -c 10 -i 0.1 $REMOTE
     if [ $? -ne 0 ]; then
         err "ping failed"
         return
