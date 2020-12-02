@@ -23,6 +23,8 @@ reset_tc $REP
 reset_tc $REP2
 
 function cleanup() {
+    ovs-vsctl remove Open_vSwitch . other_config max-idle &>/dev/null
+    conntrack -F &>/dev/null
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
     reset_tc $REP
@@ -36,6 +38,7 @@ function config_ovs() {
 
     echo "setup ovs"
     start_clean_openvswitch
+    ovs-vsctl set Open_vSwitch . other_config:max-idle=60000
     ovs-vsctl add-br br-ovs
     ovs-vsctl add-port br-ovs $REP
     ovs-vsctl add-port br-ovs $REP2
@@ -142,5 +145,6 @@ function run() {
     ovs-vsctl del-br br-ovs
 }
 
+cleanup
 run
 test_done
