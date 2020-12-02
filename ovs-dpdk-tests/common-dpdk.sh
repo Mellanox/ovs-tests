@@ -49,11 +49,11 @@ function config_ns() {
 
 function set_e2e_cache_enable() {
     local enabled=${1:-true}
-    ovs-vsctl set Open_vSwitch . other_config:e2e-enable=${enabled}
+    ovs-vsctl --no-wait set Open_vSwitch . other_config:e2e-enable=${enabled}
 }
 
 function cleanup_e2e_cache() {
-    ovs-vsctl remove Open_vSwitch . other_config e2e-enable
+    ovs-vsctl --no-wait remove Open_vSwitch . other_config e2e-enable
 }
 
 function check_dpdk_offloads() {
