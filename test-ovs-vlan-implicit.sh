@@ -76,17 +76,9 @@ function config_remote() {
         "
 }
 
-function add_openflow_rules() {
-#    ovs-ofctl del-flows br-ovs
-#    ovs-ofctl add-flow br-ovs arp,actions=normal
-#    ovs-ofctl add-flow br-ovs icmp,actions=normal
-    ovs-ofctl dump-flows br-ovs --color
-}
-
 function run() {
     config
     config_remote
-    add_openflow_rules
 
     # icmp
     ip netns exec ns0 ping -c 100 -i 0.5 $REMOTE
