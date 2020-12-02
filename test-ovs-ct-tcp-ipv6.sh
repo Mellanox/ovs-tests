@@ -27,6 +27,7 @@ test "$mac1" || fail "no mac1"
 test "$mac2" || fail "no mac2"
 
 function cleanup() {
+    conntrack -F &>/dev/null
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
     reset_tc $REP
@@ -120,6 +121,7 @@ function run() {
 
 title "Test OVS CT tcp - ipv6"
 
+cleanup
 config
 run
 
