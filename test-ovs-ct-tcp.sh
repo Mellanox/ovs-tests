@@ -60,11 +60,11 @@ function run() {
     pidof iperf &>/dev/null || err "iperf failed"
 
     echo "sniff packets on $VF2"
-    ip netns exec ns1 timeout $t tcpdump -qnnei $VF2 -c 10 tcp &
+    ip netns exec ns1 timeout 4 tcpdump -qnnei $VF2 -c 10 tcp &
     pid1=$!
 
     echo "sniff packets on $REP"
-    timeout $t tcpdump -qnnei $REP -c 10 'tcp' &
+    timeout 4 tcpdump -qnnei $REP -c 10 'tcp' &
     pid=$!
 
     ovs_dump_tc_flows --names

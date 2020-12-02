@@ -96,7 +96,7 @@ function run() {
 
     echo "sniff packets on $REP"
     # first 4 packets not offloaded until conn is in established state.
-    timeout $t tcpdump -qnnei $REP -c 10 'tcp' &
+    timeout 4 tcpdump -qnnei $REP -c 10 'tcp' &
     pid=$!
 
     pkts1=`get_pkts`
