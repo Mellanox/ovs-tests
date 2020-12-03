@@ -33,6 +33,7 @@ vx=vxlan1
 vxlan_port=4789
 
 function cleanup() {
+    ip link set $NIC down
     ip link del $vx &>/dev/null
     ip -all netns delete
     reset_tc $REP
@@ -58,6 +59,7 @@ function test_tunnel() {
     create_vxlan
     ip addr flush dev $NIC
     ip addr add $ip_src/16 dev $NIC
+    ip link set $NIC up
     ip neigh replace $ip_dst1 lladdr e4:11:22:11:55:11 dev $NIC
     ip neigh replace $ip_dst2 lladdr e4:11:22:11:55:22 dev $NIC
 
@@ -120,6 +122,7 @@ function test_tunnel() {
 #   action: CTR, index 0x801000 & ENCAP_L2, devx obj id 0x4 & VPORT, num 0xffff
 
     reset_tc $REP
+    ip link set $NIC down
 }
 
 
