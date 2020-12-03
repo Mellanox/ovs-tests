@@ -1594,6 +1594,19 @@ function wa_reset_multipath() {
     enable_switchdev $NIC2
 }
 
+function smfs_dump() {
+    local dump=${1:-dump}
+    cat /proc/driver/mlx5_core/smfs_dump/fdb/$PCI > /tmp/$dump
+}
+
+function fw_dump() {
+    local dump=$1
+# if smfs
+    smfs_dump $dump
+# else if dmfs
+#    i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
+}
+
 ### main
 title2 `basename $0`
 __load_config
