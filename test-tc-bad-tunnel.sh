@@ -108,7 +108,9 @@ function test_tunnel() {
 
     fail_if_err
 
+    title "fw dump"
     fw_dump dump1
+    warn "Not verifiying the dump"
 
 # Example for the bug. last rule created encap 0x4 instead of using encap 0x0
 # domain 0x7cdc02, table 0xffff930cb6498300, matcher 0xffff930e60622000, rule 0xffff930f4f686a20
