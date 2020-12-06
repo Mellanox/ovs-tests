@@ -12,6 +12,8 @@ REMOTE_SERVER=${REMOTE_SERVER:-$1}
 REMOTE_NIC=${REMOTE_NIC:-$2}
 
 require_remote_server
+# relevant for cx6dx
+not_relevant_for_nic cx4 cx5 cx6 cx6lx
 
 IP=1.1.1.7
 REMOTE=1.1.1.8
