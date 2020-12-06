@@ -101,7 +101,7 @@ function run() {
     x=$(ovs-appctl dpctl/dump-e2e-stats | grep 'add merged flows messages to HW' | awk '{print $8}')
     echo "Number of offload messages: ";echo $x
 
-    if [ $x -ne 21 ]; then
+    if [ $x -lt 21 ]; then
         err "offloads failed"
     fi
 
@@ -115,7 +115,7 @@ function run() {
     y=$(ovs-appctl dpctl/dump-e2e-stats | grep 'merged flows in e2e cache' | awk '{print $7}')
     echo "Number of DB entries: ";echo $y
 
-    if [ $y -ne 0 ]; then
+    if [ $y -ge 2 ]; then
         err "deletion from DB failed"
     fi
 
@@ -123,7 +123,7 @@ function run() {
     z=$(ovs-appctl dpctl/dump-e2e-stats | grep 'delete merged flows messages to HW' | awk '{print $8}')
     echo "Number of delete HW messages: ";echo $z
 
-    if [ $z -ne 21 ]; then
+    if [ $z -lt 21 ]; then
         err "offloads failed"
     fi
 }
