@@ -43,6 +43,11 @@ function verify_hw_rules() {
     local mac=`echo $dst_mac | tr -d :`
     mac=${mac::6}
 
+    local mode=`get_flow_steering_mode $NIC`
+    if [ "$mode" != "dmfs" ]; then
+        return
+    fi
+
     local src_tag="source_port"
     local dst_tag="destination_id"
 
