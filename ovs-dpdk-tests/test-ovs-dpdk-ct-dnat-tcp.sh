@@ -45,7 +45,7 @@ function add_openflow_rules() {
     ovs-ofctl del-flows br-phy
     ovs-ofctl add-flow br-phy "arp,actions=normal"
     ovs-ofctl add-flow br-phy "table=0,in_port=rep0,tcp,ct_state=-trk actions=ct(zone=2, table=1)"
-    ovs-ofctl add-flow br-phy "table=1,in_port=rep0,tcp,ct_state=+trk+new actions=ct(zone=2, commit, nat(dst=4.4.4.11:5001)),rep1"
+    ovs-ofctl add-flow br-phy "table=1,in_port=rep0,tcp,ct_state=+trk+new actions=ct(zone=2, commit, nat(dst=4.4.4.11:5201)),rep1"
     ovs-ofctl add-flow br-phy "table=1,in_port=rep0,tcp,ct_state=+trk+est actions=ct(zone=2, nat),rep1"
     ovs-ofctl add-flow br-phy "table=0,in_port=rep1,tcp,ct_state=-trk actions=ct(zone=2, table=1)"
     ovs-ofctl add-flow br-phy "table=1,in_port=rep1,tcp,ct_state=+trk+new actions=ct(zone=2, commit, nat),rep0"
@@ -61,17 +61,17 @@ function run() {
     echo;echo "Testing TCP traffic"
     t=15
     # traffic
-    ip netns exec ns1 timeout $((t+2)) iperf -s &
+    ip netns exec ns1 timeout $((t+2)) iperf3 -s &
     pid1=$!
     sleep 1
-    ip netns exec ns0 iperf -c $FAKE_IP -t $t &
+    ip netns exec ns0 iperf3 -c $FAKE_IP -t $t &
     pid2=$!
 
     # verify pid
     sleep 3
     kill -0 $pid2 &>/dev/null
     if [ $? -ne 0 ]; then
-        err "iperf failed"
+        err "iperf3 failed"
         return
     fi
 
@@ -79,7 +79,7 @@ function run() {
     # check offloads
     check_dpdk_offloads $IP
 
-    killall iperf &>/dev/null
+    killall iperf3 &>/dev/null
     echo "wait for bgs"
     wait
 }

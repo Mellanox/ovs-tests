@@ -78,17 +78,17 @@ function run() {
     echo -e "\nTesting TCP traffic"
     t=15
     # traffic
-    ip netns exec ns0 timeout $((t+2)) iperf -s &
+    ip netns exec ns0 timeout $((t+2)) iperf3 -s &
     pid1=$!
     sleep 2
-    on_remote timeout $((t+2)) iperf -c $IP -t $t &
+    on_remote timeout $((t+2)) iperf3 -c $IP -t $t &
     pid2=$!
 
     # verify pid
     sleep 2
     kill -0 $pid2 &>/dev/null
     if [ $? -ne 0 ]; then
-        err "iperf failed"
+        err "iperf3 failed"
         return
     fi
 
@@ -97,7 +97,7 @@ function run() {
     check_dpdk_offloads $IP
 
     kill -9 $pid1 &>/dev/null
-    killall iperf &>/dev/null
+    killall iperf3 &>/dev/null
     echo "wait for bgs"
     wait
 }
