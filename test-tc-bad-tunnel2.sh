@@ -86,7 +86,7 @@ function test_tunnel() {
     ip addr add $ip_src/16 dev $NIC
     ip link set $NIC up
 
-    encaps=100
+    encaps=20
 
     title "add tc rules m1 & m2"
     for i in `seq $encaps`; do
