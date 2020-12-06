@@ -1182,6 +1182,17 @@ function expect_syndrome() {
     return 0
 }
 
+function ovs_conf_set() {
+    local key=$1
+    local val=$2
+    ovs-vsctl set Open_vSwitch . other_config:$key=$val || err "Failed to set ovs other_config $key=$val"
+}
+
+function ovs_conf_remove() {
+    local key=$1
+    ovs-vsctl remove Open_vSwitch . other_config $key || err "Failed to remove ovs other_config $key"
+}
+
 function ovs_dump_flows() {
     local args=$@
     ovs-appctl dpctl/dump-flows $args 2>/dev/null
