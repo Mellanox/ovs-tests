@@ -14,7 +14,6 @@ my_dir="$(dirname "$0")"
 REMOTE_SERVER=${REMOTE_SERVER:-$1}
 REMOTE_NIC=${REMOTE_NIC:-$2}
 require_remote_server
-require_min_kernel_5
 
 IP=1.1.1.7
 REMOTE=1.1.1.8
