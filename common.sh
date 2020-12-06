@@ -166,6 +166,7 @@ function __setup_common() {
     tmp=`lspci -s $PCI | cut -d\[ -f2 | tr -d ]`
     if [ -n "$tmp" ]; then
         device_name=$tmp
+        short_device_name=`echo $device_name | tr [:upper:] [:lower:] | sed -e 's/connectx-/cx/' -e 's/ /_/g'`
     fi
 
     status+=" $device_name"
@@ -1472,6 +1473,15 @@ function test_done() {
     else
         fail "TEST FAILED"
     fi
+}
+
+function not_relevant_for_nic() {
+    local nic
+    for nic in $@ ; do
+        if [ "$short_device_name" == "$nic" ]; then
+            fail "Test not relevant for $device_name"
+        fi
+    done
 }
 
 function not_relevant_for_cx5() {
