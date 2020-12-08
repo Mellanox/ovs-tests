@@ -23,7 +23,6 @@ REMOTE_IP=7.7.7.8
 VXLAN_ID=42
 
 enable_switchdev
-enable_switchdev $NIC2
 require_interfaces REP NIC
 unbind_vfs
 bind_vfs
