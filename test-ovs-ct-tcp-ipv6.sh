@@ -94,7 +94,7 @@ function run() {
     pidof iperf &>/dev/null || err "iperf failed"
 
     echo "sniff packets on $REP"
-    timeout 4 tcpdump -qnnei $REP -c 10 'tcp' &
+    timeout $t tcpdump -qnnei $REP -c 10 'tcp' &
     pid=$!
 
 
