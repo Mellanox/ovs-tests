@@ -143,7 +143,7 @@ function run() {
     initial_traffic
 
     title "Start traffic"
-    t=15
+    t=20
     ssh2 $REMOTE_SERVER timeout $((t+2)) iperf -s -t $t &
     pid1=$!
     sleep 1
