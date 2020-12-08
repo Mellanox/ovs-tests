@@ -110,16 +110,16 @@ function run() {
     pid2=$!
 
     # verify pid
-    sleep 4
+    sleep 2
     kill -0 $pid2 &>/dev/null
     if [ $? -ne 0 ]; then
         err "iperf failed"
         return
     fi
 
-    timeout 4 ip netns exec ns0 tcpdump -qnnei $VF -c 60 'tcp' &
+    timeout $((t-4)) ip netns exec ns0 tcpdump -qnnei $VF -c 60 'tcp' &
     tpid1=$!
-    timeout 4 tcpdump -qnnei $REP -c 10 'tcp' &
+    timeout $((t-4)) tcpdump -qnnei $REP -c 10 'tcp' &
     tpid2=$!
 
     sleep $t

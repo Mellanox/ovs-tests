@@ -81,21 +81,21 @@ function run() {
     ovs-ofctl dump-flows br-ovs --color
 
     echo "run traffic"
-    t=12
+    t=15
     echo "run traffic for $t seconds"
     ip netns exec ns1 timeout $((t+2)) iperf -s &
     sleep 1
     ip netns exec ns0 timeout $t iperf -t $t -c $IP2 -P3 -b10pps &
     ip netns exec ns0 timeout $t iperf -t $t -c $IP4 -P3 -b10pps &
 
-    sleep 6
+    sleep 2
     pidof iperf &>/dev/null || err "iperf failed"
 
     echo "sniff packets on $REP"
-    timeout 4 tcpdump -qnnei $REP -c 10 'tcp' &
+    timeout $((t-4)) tcpdump -qnnei $REP -c 10 'tcp' &
     pid=$!
     echo "sniff packets on $REP3"
-    timeout 4 tcpdump -qnnei $REP3 -c 10 'tcp' &
+    timeout $((t-4)) tcpdump -qnnei $REP3 -c 10 'tcp' &
     pid2=$!
 
     sleep $t

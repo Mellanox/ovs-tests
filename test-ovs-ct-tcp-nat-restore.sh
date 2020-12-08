@@ -142,7 +142,7 @@ function run() {
 
     title "sniff $pkts software packets on $REP to /tmp/dump"
     rm -f /tmp/dump
-    timeout $t tcpdump -qnnei $REP -c $pkts 'tcp' -w /tmp/dump &
+    timeout $((t-4)) tcpdump -qnnei $REP -c $pkts 'tcp' -w /tmp/dump &
     pid=$!
 
     sleep $t

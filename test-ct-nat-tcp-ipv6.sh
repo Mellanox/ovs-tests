@@ -88,8 +88,7 @@ function run() {
     t=15
     echo "run traffic for $t seconds"
     ip netns exec ns1 timeout $((t+7)) iperf -s --ipv6_domain &
-    sleep 2
-
+    sleep 1
     ip netns exec ns0 timeout $((t+2)) iperf --ipv6_domain -t $t -c $IP3 -P 1 -i 1 &
 
     sleep 2
@@ -97,7 +96,7 @@ function run() {
 
     echo "sniff packets on $REP"
     # first 4 packets not offloaded until conn is in established state.
-    timeout $t tcpdump -qnnei $REP -c 10 'tcp' &
+    timeout $((t-4)) tcpdump -qnnei $REP -c 10 'tcp' &
     pid=$!
 
     sleep 4
