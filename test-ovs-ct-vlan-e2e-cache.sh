@@ -103,11 +103,11 @@ function run() {
         return
     fi
 
-    t=15
+    t=20
     # traffic
     ssh2 $REMOTE_SERVER timeout $((t+2)) iperf -s -t $t &
     pid1=$!
-    sleep 2
+    sleep 1
     ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -P3 &
     pid2=$!
 
@@ -121,7 +121,7 @@ function run() {
 
     e2e_cache_verify
 
-    timeout $((t-2)) tcpdump -qnnei $REP -c 10 'tcp' &
+    timeout $((t-4)) tcpdump -qnnei $REP -c 10 'tcp' &
     tpid=$!
     sleep $t
     verify_no_traffic $tpid
