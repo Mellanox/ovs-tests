@@ -107,12 +107,12 @@ function run() {
     # traffic
     ssh2 $REMOTE_SERVER timeout $((t+2)) iperf -s -t $t &
     pid1=$!
-    sleep 1
-    ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -P3 -b 1000pps &
+    sleep 2
+    ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -P3 &
     pid2=$!
 
     # verify pid
-    sleep 4
+    sleep 2
     kill -0 $pid2 &>/dev/null
     if [ $? -ne 0 ]; then
         err "iperf failed"
