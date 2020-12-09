@@ -116,7 +116,7 @@ function add_openflow_rules() {
 }
 
 function run_server() {
-    ssh2 $REMOTE_SERVER timeout $((t+2)) iperf -s -t $t &
+    ssh2 $REMOTE_SERVER timeout $((t+3)) iperf -s &
 #    ssh2 $REMOTE_SERVER $pktgen -l -i $REMOTE_NIC --src-ip $IP --time $((t+1)) &
     pk1=$!
     sleep 2
@@ -220,8 +220,6 @@ function change_slaves() {
     slave1=$slave2
     slave2=$tmpslave
     ifconfig $tmpslave down
-    sleep 0.5
-    ifconfig $tmpslave up
 
     if [ "$B2B" == 1 ]; then
         if [ "$remote_active" == $REMOTE_NIC ]; then
@@ -231,6 +229,9 @@ function change_slaves() {
         fi
         on_remote "echo $remote_active > /sys/class/net/bond0/bonding/active_slave"
     fi
+
+    sleep 2
+    ifconfig $tmpslave up
 }
 
 start_check_syndrome
