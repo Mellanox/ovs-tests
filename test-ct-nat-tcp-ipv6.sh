@@ -50,6 +50,8 @@ function run() {
     config_vf ns1 $VF2 $REP2 $IP2
     ip -6 -netns ns0 neigh replace $IP3 dev $VF lladdr $mac2
     ip -6 -netns ns1 neigh replace $IP1 dev $VF2 lladdr $mac1
+    # ipv6 link takes longer to be up
+    sleep 1
 
     flag=""
     # use this flag for miss handling

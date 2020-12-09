@@ -49,6 +49,8 @@ function run() {
     config_vf ns1 $VF2 $REP2 $IP2
     ip -6 -netns ns0 neigh replace $IP2 dev $VF lladdr $mac2
     ip -6 -netns ns1 neigh replace $IP1 dev $VF2 lladdr $mac1
+    # ipv6 link takes longer to be up
+    sleep 1
 
     # use this flag for miss handling
     #flag="skip_hw"
@@ -86,7 +88,7 @@ function run() {
     t=15
     echo "run traffic for $t seconds"
     ip netns exec ns1 timeout $((t+7)) iperf -s --ipv6_domain &
-    sleep 2
+    sleep 1
     ip netns exec ns0 timeout $((t+2)) iperf --ipv6_domain -t $t -c $IP2 -P 3 -i 1 &
 
     sleep 2
@@ -94,7 +96,7 @@ function run() {
 
     echo "sniff packets on $REP"
     # first 4 packets not offloaded until conn is in established state.
-    timeout $t tcpdump -qnnei $REP -c 10 'tcp' &
+    timeout $((t-4)) tcpdump -qnnei $REP -c 10 'tcp' &
     pid=$!
 
     sleep 4
