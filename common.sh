@@ -1554,7 +1554,8 @@ function __setup_clean() {
     for n in $NIC $NIC2 $VF $VF2 ; do
         if [ -e /sys/class/net/$n ]; then
             reset_tc $n
-            ifconfig $n 0
+            ip address flush dev $n
+            ip -6 address flush dev $n
         fi
     done
 }
