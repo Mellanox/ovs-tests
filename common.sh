@@ -1348,11 +1348,11 @@ function restore_sriov_autoprobe() {
 }
 
 function tc_filter() {
-    eval2 tc filter $@
+    eval2 tc -s filter $@
 }
 
 function tc_filter_success() {
-    eval2 tc filter $@ && success
+    eval2 tc -s filter $@ && success
 }
 
 function tc_test_verbose() {
