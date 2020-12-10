@@ -84,7 +84,7 @@ function run() {
     sleep 1
 
     echo "run traffic"
-    t=12
+    t=15
     echo "run traffic for $t seconds"
     ip netns exec ns1 timeout $((t+1)) iperf -s --ipv6_domain &
     sleep 0.5

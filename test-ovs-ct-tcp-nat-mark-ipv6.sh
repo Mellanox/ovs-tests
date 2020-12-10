@@ -94,13 +94,13 @@ function run() {
     ip netns exec ns0 ping -c 10 -i 0.1 -w 4 $ip_remote || err "Ping failed"
 
     echo "run traffic"
-    t=12
+    t=15
     echo "run traffic for $t seconds"
     ip netns exec ns1 timeout $((t+2)) iperf -s --ipv6_domain &
     sleep 1
     ip netns exec ns0 timeout $t iperf --ipv6_domain -c $ip_remote -t $t -P 3 &
 
-    sleep 4
+    sleep 2
     pidof iperf &>/dev/null || err "iperf failed"
 
     echo "sniff packets on $REP"

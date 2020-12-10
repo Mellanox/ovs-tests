@@ -47,7 +47,7 @@ function run() {
     ovs-ofctl dump-flows br-ovs --color
 
     echo "run traffic"
-    t=12
+    t=15
     echo "run traffic for $t seconds"
     ip netns exec ns1 timeout $((t+1)) iperf3 -s &
     sleep 0.5
@@ -59,7 +59,7 @@ function run() {
     echo "sniff packets on $REP"
     # make sure tcpdump finish before iperf3 finish because fin/reset packets
     # are not offloaded.
-    timeout $((t-2)) tcpdump -nnvvvi $REP -c 10 'tcp' &
+    timeout $((t-4)) tcpdump -nnvvvi $REP -c 10 'tcp' &
     pid=$!
 
     ovs_dump_tc_flows --names

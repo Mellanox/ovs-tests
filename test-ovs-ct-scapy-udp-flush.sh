@@ -66,7 +66,7 @@ function run() {
     proto="udp"
     config_ovs $proto
 
-    t=12
+    t=15
     echo "sniff packets on $REP"
     timeout 8 tcpdump -qnnei $REP -c 20 $proto &
     pid1=$!
@@ -83,7 +83,7 @@ function run() {
     ovs_dump_tc_flows --names
 
     title "check for offloaded - no traffic on rep"
-    timeout 3 tcpdump -qnnei $REP -c 1 $proto &
+    timeout $((t-4)) tcpdump -qnnei $REP -c 1 $proto &
     pid1=$!
     verify_no_traffic $pid1
 

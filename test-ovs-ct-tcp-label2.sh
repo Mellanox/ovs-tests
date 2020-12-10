@@ -58,13 +58,13 @@ function run() {
     timeout 5 tcpdump -qnnei $REP -c 8 'tcp' &
     pid1=$!
 
-    t=12
+    t=15
     echo "run traffic for $t seconds"
     ip netns exec ns1 timeout $((t+1)) iperf -s &
     sleep 0.5
     ip netns exec ns0 timeout $((t+1)) iperf -t $t -c $IP2 -P 3 &
 
-    sleep 3
+    sleep 2
     pidof iperf &>/dev/null || err "iperf failed"
 
     echo "sniff packets on $REP"

@@ -50,7 +50,7 @@ function run() {
 
     ovs-ofctl dump-flows br-ovs --color
 
-    t=12
+    t=15
 
     echo "run traffic for $t seconds"
     ip netns exec ns1 timeout $((t+1)) iperf -s &
