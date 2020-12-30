@@ -418,6 +418,15 @@ def get_current_nic_type(nic):
     with open('/sys/class/net/%s/device/device' % nic, 'r') as f:
         return f.read().strip()
 
+def check_simx(nic):
+    if not nic:
+        return False
+    current_pci = get_pci(nic)
+    cmd = "lspci -s %s -vvv | grep SimX" % current_pci
+    output = subprocess.check_output(cmd, shell=True).decode().strip()
+    if not output:
+        return False
+    return True
 
 def update_skip_according_to_db(data):
     if type(data['tests']) is list:
@@ -441,6 +450,7 @@ def update_skip_according_to_db(data):
     else:
         current_kernel = os.uname()[2]
     flow_steering_mode = get_flow_steering_mode(nic)
+    simx_mode = check_simx(nic)
 
     custom_kernels = data.get('custom_kernels', {})
 
@@ -448,6 +458,8 @@ def update_skip_according_to_db(data):
     print("fw: %s" % current_fw_ver)
     print("flow steering: %s" % flow_steering_mode)
     print("kernel: %s" % current_kernel)
+    if simx_mode:
+        print("simx mode")
 
     for t in TESTS:
         name = t.name
@@ -457,6 +469,7 @@ def update_skip_according_to_db(data):
 
         ignore_for_linust = data['tests'][name].get('ignore_for_linust', 0)
         ignore_for_upstream = data['tests'][name].get('ignore_for_upstream', 0)
+        simx_ignore = data['tests'][name].get('simx_ignore', 0)
 
         if ignore_for_linust and ignore_for_upstream:
             raise RuntimeError("%s: Do not ignore on both for_linust and for_upstream." % name)
@@ -472,6 +485,10 @@ def update_skip_according_to_db(data):
         ignore_fs = data['tests'][name].get('ignore_flow_steering', '')
         if ignore_fs and (not flow_steering_mode or ignore_fs == flow_steering_mode):
             t.set_ignore("Ignore flow steering mode %s" % ignore_fs)
+            continue
+
+        if simx_mode and simx_ignore:
+            t.set_ignore("Ignore for SimX mode with reason %s" % simx_ignore)
             continue
 
         ignore_not_supported = data['tests'][name].get('ignore_not_supported', 0)
@@ -539,6 +556,10 @@ def update_skip_according_to_db(data):
             for kernel in ignore_smfs:
                 if kernel_match(kernel, current_kernel):
                     bugs_list.extend(ignore_smfs[kernel])
+
+        if simx_mode:
+            simx_ignore_issues = data['tests'][name].get('simx_ignore_issue', [])
+            bugs_list.extend(simx_ignore_issues)
 
         for bug in bugs_list:
             try:
