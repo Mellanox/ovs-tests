@@ -423,8 +423,9 @@ def check_simx(nic):
         return False
     current_pci = get_pci(nic)
     cmd = "lspci -s %s -vvv | grep SimX" % current_pci
-    output = subprocess.check_output(cmd, shell=True).decode().strip()
-    if not output:
+    try:
+        output = subprocess.check_output(cmd, shell=True).decode().strip()
+    except subprocess.CalledProcessError:
         return False
     return True
 
