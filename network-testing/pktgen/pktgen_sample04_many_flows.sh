@@ -57,8 +57,8 @@ for ((thread = $F_THREAD; thread <= $L_THREAD; thread++)); do
 
     # Randomize source IP-addresses
     pg_set $dev "flag IPSRC_RND"
-    pg_set $dev "src_min 198.18.0.0"
-    pg_set $dev "src_max 198.19.255.255"
+    pg_set $dev "src_min 198.$((thread+1)).0.1"
+    pg_set $dev "src_max 198.$((thread+1)).255.255"
 
     # Limit number of flows (max 65535)
     pg_set $dev "flows $FLOWS"
