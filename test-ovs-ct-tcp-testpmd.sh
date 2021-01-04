@@ -67,7 +67,7 @@ function run_pktgen() {
 function run_testpmd() {
     echo "run fwder"
     ip link set dev $NIC up
-    echo 2048 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+    echo 512 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
     timeout --kill-after=10 $t ip netns exec ns1 sh -c "tail -f /dev/null | $testpmd --no-pci --vdev=eth_af_packet0,iface=$VF2 -- --forward-mode=5tswap -a" &
     pid_testpmd=$!
     sleep 12
@@ -121,7 +121,7 @@ function run() {
     reconfig_flows
     ovs-ofctl dump-flows br-ovs --color
 
-    echo "prepare for offload, 2048 hugepages and nf_flow_offload_timeout=600, nf_conntrack_max=524288"
+    echo "prepare for offload"
     #echo 600 > /sys/module/nf_flow_table/parameters/nf_flow_offload_timeout
     sysctl -w 'net.netfilter.nf_conntrack_max=524288'
 
