@@ -127,7 +127,7 @@ function run() {
     # initial traffic
     ssh2 $REMOTE_SERVER timeout 4 iperf3 -s &
     pid1=$!
-    sleep 1
+    sleep 2
     ip netns exec ns0 timeout 3 iperf3 -c $REMOTE -t 2 &
     pid2=$!
 
@@ -136,10 +136,10 @@ function run() {
     wait $pid1 $pid2 &>/dev/null
 
     # traffic
-    ssh2 $REMOTE_SERVER timeout 15 iperf3 -s &
+    ssh2 $REMOTE_SERVER timeout 16 iperf3 -s &
     pid1=$!
-    sleep 1
-    ip netns exec ns0 timeout 15 iperf3 -c $REMOTE -t 14 -P3 &
+    sleep 2
+    ip netns exec ns0 timeout 16 iperf3 -c $REMOTE -t 14 -P3 &
     pid2=$!
 
     # verify pid
@@ -158,7 +158,7 @@ function run() {
     timeout 12 tcpdump -qnnei genev_sys_6081 -c 10 ip &
     tpid3=$!
 
-    sleep 15
+    sleep 16
     title "Verify traffic on $VF"
     verify_have_traffic $tpid1
     title "Verify offload on $REP"

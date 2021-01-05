@@ -118,9 +118,9 @@ function run() {
     # so we start second traffic which will be faster added to hw before
     # conntrack and this will check the miss rule in our driver is ok
     # (i.e. restoring reg_0 correctly)
-    ssh2 $REMOTE_SERVER timeout 4 iperf -s -t 3 &
+    ssh2 $REMOTE_SERVER timeout 5 iperf -s -t 4 &
     pid1=$!
-    sleep 1
+    sleep 2
     ip netns exec ns0 timeout 3 iperf -c $REMOTE -t 2 &
     pid2=$!
 
@@ -129,9 +129,9 @@ function run() {
     wait $pid1 $pid2 &>/dev/null
 
     # traffic
-    ssh2 $REMOTE_SERVER timeout $((t+2)) iperf -s -t $t &
+    ssh2 $REMOTE_SERVER timeout $((t+3)) iperf -s -t $t &
     pid1=$!
-    sleep 1
+    sleep 2
     ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -P3 &
     pid2=$!
 
