@@ -76,4 +76,5 @@ function del_openflow_rules() {
     local bridge=$1
 
     ovs-ofctl del-flows $bridge
+    sleep 1
 }
