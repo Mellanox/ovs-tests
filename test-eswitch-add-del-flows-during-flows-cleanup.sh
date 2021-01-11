@@ -83,7 +83,6 @@ function test_case_del_in_switchdev() {
     sleep .2
     test_switch_mode_to legacy &
     wait
-    reset_tc $case
     success
 }
 
@@ -115,7 +114,6 @@ function test_case_add_in_switchdev() {
     sleep .2
     test_switch_mode_to legacy &
     wait
-    reset_tc $case
     success
 }
 
