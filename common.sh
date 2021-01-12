@@ -744,7 +744,7 @@ function get_eswitch_mode() {
     if [ "$devlink_compat" = 1 ]; then
         cat `devlink_compat_dir $NIC`/mode
     else
-        devlink dev eswitch show pci/$PCI | grep -o "\bmode [a-z]\+" | awk {'print $2'}
+        devlink dev eswitch show pci/$PCI | grep -o " mode [a-z]\+" | awk {'print $2'}
     fi
 }
 
