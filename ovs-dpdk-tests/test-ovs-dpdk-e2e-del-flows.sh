@@ -48,12 +48,6 @@ function add_openflow_rules1() {
     ovs-ofctl dump-flows br-phy --color
 }
 
-function del_openflow_rules() {
-    ovs-ofctl del-flows br-phy
-    echo -e "\nOVS deleted flows rules:"
-    ovs-ofctl dump-flows br-phy --color
-}
-
 function run() {
     config
     add_openflow_rules1
@@ -84,7 +78,7 @@ function run() {
     x=$(ovs-appctl dpctl/dump-e2e-flows |wc -l)
     echo "Number of merged flows: ";echo $x
 
-    del_openflow_rules
+    del_openflow_rules br-phy
     y=$(ovs-appctl dpctl/dump-e2e-flows |wc -l)
     echo "Number of merged flows after deletion: ";echo $y
     if [ $y -ne 0 ]; then

@@ -71,3 +71,9 @@ function check_dpdk_offloads() {
         ovs-appctl dpctl/dump-flows -m type=offloaded | grep -v 'ipv6\|icmpv6\|arp\|flow-dump'
     fi
 }
+
+function del_openflow_rules() {
+    local bridge=$1
+
+    ovs-ofctl del-flows $bridge
+}
