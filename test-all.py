@@ -251,7 +251,7 @@ def run_test(test, html=False):
     subp = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT, close_fds=True)
     out = subp.communicate()
-    log = out[0].decode('ascii')
+    log = out[0].decode('ascii', 'ignore')
 
     with open(logname, 'w') as f1:
         f1.write(log)
