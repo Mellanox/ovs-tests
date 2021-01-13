@@ -31,7 +31,7 @@ disable_sriov_autoprobe
 config_sriov 0 $NIC2
 
 test_reps 32
-if [ $TEST_FAILED -eq 0 ] || [ -e $probe_fs ]; then
+if [ $TEST_FAILED -eq 0 ] || [ -e $__probe_fs ]; then
     test_reps 127
 else
     err "Skipping 127 reps case due to failure in prev case"
