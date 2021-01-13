@@ -1332,9 +1332,10 @@ function reload_modules() {
     echo "reload modules done"
 }
 
-__probe_fs="/sys/class/net/$NIC/device/sriov_drivers_autoprobe"
-__probe=0
+__probe_fs=""
+__autoprobe=0
 function disable_sriov_autoprobe() {
+    __probe_fs="/sys/class/net/$NIC/device/sriov_drivers_autoprobe"
     if [ -e $__probe_fs ]; then
         __autoprobe=`cat $__probe_fs`
         echo 0 > $__probe_fs
@@ -1342,7 +1343,7 @@ function disable_sriov_autoprobe() {
 }
 
 function restore_sriov_autoprobe() {
-    if [ $__probe == 1 ]; then
+    if [ $__autoprobe == 1 ] && [ -n "$__probe_fs" ]; then
         echo 1 > $__probe_fs
     fi
 }
