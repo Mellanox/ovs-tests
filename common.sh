@@ -673,12 +673,19 @@ function devlink_compat_dir() {
 function wait_switch_mode_compat() {
     local nic=$1
     local mode=$2
+    local vf_count=$3
+    local count
     local tmp
     local i
 
     sleep 3
 
-    for i in `seq 20`; do
+    count=`echo $vf_count/1.5 | bc`
+    if [ $count -lt 20 ]; then
+        count=20
+    fi
+
+    for i in `seq $count`; do
         tmp=$(cat `devlink_compat_dir $nic`/mode 2>/dev/null)
         if [ $? -eq 0 ]; then
            break
@@ -687,7 +694,7 @@ function wait_switch_mode_compat() {
     done
 
     if [ "$mode" != "$tmp" ]; then
-        fail "Failed to set mode $mode"
+        fail "compat: Failed to set mode $mode"
     fi
 }
 
@@ -704,7 +711,7 @@ function switch_mode() {
         local tmp=$(cat `devlink_compat_dir $nic`/mode)
         if [ "$mode" != "$tmp" ]; then
             echo $mode > `devlink_compat_dir $nic`/mode || fail "Failed to set mode $mode"
-            wait_switch_mode_compat $nic $mode
+            wait_switch_mode_compat $nic $mode $vf_count
         fi
     else
         devlink dev eswitch set pci/$pci mode $mode $extra || fail "Failed to set mode $mode"
