@@ -129,7 +129,7 @@ function __setup_common() {
     log $tmp
 
     require_interfaces NIC NIC2
-    require_cmd lspci ethtool tc
+    require_cmd lspci ethtool tc bc
     fail_if_err
 
     sysfs_pci_device=`readlink -f /sys/class/net/$NIC/../../`
