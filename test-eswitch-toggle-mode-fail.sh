@@ -22,4 +22,8 @@ else
     err "Expected to fail"
 fi
 
+if is_ofed ; then
+    reload_modules
+fi
+
 test_done
