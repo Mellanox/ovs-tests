@@ -10,14 +10,16 @@ my_dir="$(dirname "$0")"
 
 
 function run() {
-    title "Look for unexpected mlx5_core dependent modules"
+    title "Check for unexpected mlx5_core module dependencies"
 
     local from_ofed="devlink|mlx_compat|mdev|memtrack"
     local expected="ptp|tls|mlxfw|pci_hyperv_intf|$from_ofed|nf_conntrack|psample"
-    local dependent=`lsmod | grep mlx5_core | grep -v ^mlx5_core | awk {'print $1'} | grep -vE -w "$expected" | xargs echo`
+    local dependent=`modinfo -F depends mlx5_core | tr ',' '\n' | grep -vE -w "$expected" | xargs echo`
+
+    modinfo -F depends mlx5_core
 
     if [ -n "$dependent" ]; then
-        err "Found dependent modules: $dependent"
+        err "Unexpected module dependencies: $dependent"
         return
     fi
 
