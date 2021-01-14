@@ -33,10 +33,19 @@ UFID="ufid:c5f9a0b1-3399-4436-b742-30825c64a1e5"
 ipv4="1.1.1.1"
 ipv6="2002:db8:0:f101::55"
 
+function is_ovs_2_10() {
+    ovs-vsctl --version | grep -q 2.10
+}
+
+dump_sleep=":"
+if is_ofed && is_ovs_2_10 ; then
+    dump_sleep="sleep 0.2"
+fi
+
 function add_flow() {
     local g=$1
-    m=`ovs-appctl dpctl/add-flow $flow 2 ; ovs_dump_tc_flows | grep -m1 $g`
-    [ -z "$m" ] && m=`ovs-appctl dpctl/add-flow $flow 2 ; ovs_dump_tc_flows | grep -m1 $g`
+    m=`ovs-appctl dpctl/add-flow $flow 2 ; $dump_sleep ; ovs_dump_tc_flows | grep -m1 $g`
+    [ -z "$m" ] && m=`ovs-appctl dpctl/add-flow $flow 2 ; $dump_sleep ; ovs_dump_tc_flows | grep -m1 $g`
     if [ -z "$m" ]; then
         err "Failed to add test flow: $flow"
         return 1
