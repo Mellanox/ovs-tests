@@ -114,6 +114,10 @@ COLOURS = {
     "white": 97,
 }
 
+DB_PATH = None
+MINI_REG_LIST = []
+
+
 class DeviceType(object):
     CX4_LX = "0x1015"
     CX5_PCI_3 = "0x1017"
@@ -228,7 +232,7 @@ def parse_args():
     parser.add_argument('--db-check', action='store_true',
                         help='DB check')
     parser.add_argument('--test-kernel',
-                        help='Test specified kernel against db instead of current kernel. works with db.')
+                        help='Test specified kernel instead of current kernel. works with db.')
     parser.add_argument('--log_dir',
                         help='Log dir to save all logs under')
     parser.add_argument('--html', action='store_true',
@@ -418,6 +422,7 @@ def get_current_nic_type(nic):
     with open('/sys/class/net/%s/device/device' % nic, 'r') as f:
         return f.read().strip()
 
+
 def check_simx(nic):
     if not nic:
         return False
@@ -429,6 +434,7 @@ def check_simx(nic):
         return False
     return True
 
+
 def update_skip_according_to_db(data):
     if type(data['tests']) is list:
         return
@@ -437,8 +443,7 @@ def update_skip_according_to_db(data):
         if kernel1 in custom_kernels:
             kernel1 = custom_kernels[kernel1]
         # regex issue with strings like "3.10-100+$" so use string compare for exact match.
-        if (kernel1.strip('()') == kernel2 or
-            re.search("^%s$" % kernel1, kernel2)):
+        if (kernel1.strip('()') == kernel2 or re.search("^%s$" % kernel1, kernel2)):
             return True
         return False
 
@@ -494,7 +499,7 @@ def update_skip_according_to_db(data):
 
         ignore_not_supported = data['tests'][name].get('ignore_not_supported', 0)
 
-        if ignore_not_supported == True:
+        if ignore_not_supported is True:
             t.set_ignore("Not supported")
             continue
         elif type(ignore_not_supported) == list:
@@ -700,7 +705,6 @@ def get_db_path(db):
     return db
 
 
-DB_PATH = None
 def read_db():
     global DB_PATH
     out = {}
@@ -734,7 +738,6 @@ def read_db():
     return out
 
 
-MINI_REG_LIST = []
 def read_mini_reg_list():
     global MINI_REG_LIST
 
@@ -920,7 +923,7 @@ def main():
             print("%s " % total_seconds, end=' ')
 
             if (test.name in MINI_REG_LIST) and (test.skip or test.ignore or test.failed):
-                res = "SHOW STOPPER - %s" %res
+                res = "SHOW STOPPER - %s" % res
             test.status = format_result(res, reason, html=True)
             print("%s %s" % (format_result(res, reason), logname))
 
