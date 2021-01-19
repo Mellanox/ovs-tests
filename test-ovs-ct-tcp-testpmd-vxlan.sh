@@ -69,7 +69,7 @@ function run_pktgen() {
     # -t 2 got ~520k flows
     ip netns exec ns0 timeout --kill-after=1 $t $pktgen -i $VF -t 1 -d $IP2 -m $mac2 &
     pid_pktgen=$!
-    sleep 4
+    sleep 8
     if [ ! -e /proc/$pid_pktgen ]; then
         pid_pktgen=""
         err "pktgen failed"
@@ -117,8 +117,7 @@ function reconfig_flows() {
     ovs-ofctl del-flows br-ovs
     ovs-ofctl add-flow br-ovs arp,actions=normal
     ovs-ofctl add-flow br-ovs icmp,actions=normal
-    ovs-ofctl add-flow br-ovs "table=0, ip,ct_state=-trk,udp actions=ct(zone=12,table=1)"
-    ovs-ofctl add-flow br-ovs "table=0, ip,ct_state=-trk,tcp actions=ct(zone=12,table=1)"
+    ovs-ofctl add-flow br-ovs "table=0, ip,ct_state=-trk actions=ct(zone=12,table=1)"
     ovs-ofctl add-flow br-ovs "table=1, ip,ct_state=+trk+new actions=ct(zone=12,commit),normal"
     ovs-ofctl add-flow br-ovs "table=1, ip,ct_state=+trk+est,ct_zone=12 actions=normal"
 }

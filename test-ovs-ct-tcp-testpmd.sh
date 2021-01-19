@@ -71,7 +71,7 @@ function run_testpmd() {
     echo 512 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
     timeout --kill-after=10 $t ip netns exec ns1 sh -c "tail -f /dev/null | $testpmd --no-pci --vdev=eth_af_packet0,iface=$VF2 -- --forward-mode=5tswap -a" &
     pid_testpmd=$!
-    sleep 5
+    sleep 8
     if [ ! -e /proc/$pid_testpmd ]; then
         pid_testpmd=""
         err "testpmd failed"
@@ -92,8 +92,7 @@ function config_ovs() {
 function reconfig_flows() {
     ovs-ofctl del-flows br-ovs
     ovs-ofctl add-flow br-ovs arp,actions=normal
-    ovs-ofctl add-flow br-ovs "table=0, ip,ct_state=-trk,udp actions=ct(zone=12,table=1)"
-    ovs-ofctl add-flow br-ovs "table=0, ip,ct_state=-trk,tcp actions=ct(zone=12,table=1)"
+    ovs-ofctl add-flow br-ovs "table=0, ip,ct_state=-trk actions=ct(zone=12,table=1)"
     ovs-ofctl add-flow br-ovs "table=1, ip,ct_state=+trk+new actions=ct(zone=12,commit),normal"
     ovs-ofctl add-flow br-ovs "table=1, ip,ct_state=+trk+est,ct_zone=12 actions=normal"
 }
