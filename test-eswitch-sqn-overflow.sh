@@ -3,6 +3,8 @@
 # Reported traffic not working
 # Paul debug result: link down/up overflow the sqn to loop around as fw use 32
 # bits but driver used 16 bits.
+#
+# IGNORE_FROM_TEST_ALL
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
