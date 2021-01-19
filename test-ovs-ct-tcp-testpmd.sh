@@ -43,6 +43,7 @@ function kill_testpmd() {
 function cleanup() {
     kill_testpmd
     kill_pktgen
+    conntrack -F
 
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
@@ -70,7 +71,7 @@ function run_testpmd() {
     echo 512 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
     timeout --kill-after=10 $t ip netns exec ns1 sh -c "tail -f /dev/null | $testpmd --no-pci --vdev=eth_af_packet0,iface=$VF2 -- --forward-mode=5tswap -a" &
     pid_testpmd=$!
-    sleep 12
+    sleep 5
     if [ ! -e /proc/$pid_testpmd ]; then
         pid_testpmd=""
         err "testpmd failed"
@@ -145,11 +146,11 @@ function run() {
     kill_pktgen
     kill_testpmd
     ovs-vsctl del-br br-ovs
-    conntrack -F
 }
 
 
 cleanup
 run
 cleanup
+trap - EXIT
 test_done

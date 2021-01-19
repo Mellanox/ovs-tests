@@ -43,6 +43,7 @@ function kill_testpmd() {
 function cleanup() {
     kill_testpmd
     kill_pktgen
+    conntrack -F
 
     ip netns del ns0 2> /dev/null
     reset_tc $REP
@@ -73,7 +74,7 @@ function run_testpmd() {
     on_remote "timeout --kill-after=10 $t tail -f /dev/null | \
                $testpmd --no-pci --vdev=eth_af_packet0,iface=$REMOTE_NIC -- --forward-mode=5tswap -a" &
     pid_testpmd=$!
-    sleep 12
+    sleep 5
     if [ ! -e /proc/$pid_testpmd ]; then
         pid_testpmd=""
         err "testpmd failed"
@@ -155,11 +156,11 @@ function run() {
     kill_pktgen
     kill_testpmd
     ovs-vsctl del-br br-ovs
-    conntrack -F
 }
 
 
 cleanup
 run
 cleanup
+trap - EXIT
 test_done
