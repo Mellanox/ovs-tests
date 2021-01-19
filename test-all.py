@@ -117,6 +117,23 @@ COLOURS = {
 DB_PATH = None
 MINI_REG_LIST = []
 
+TIME_DURATION_UNITS = (
+    ('h', 60*60),
+    ('m', 60),
+    ('s', 1)
+)
+
+
+def human_time_duration(seconds):
+    if seconds == 0:
+        return 'inf'
+    parts = []
+    for unit, div in TIME_DURATION_UNITS:
+        amount, seconds = divmod(int(seconds), div)
+        if amount > 0:
+            parts.append('{}{}'.format(amount, unit))
+    return ''.join(parts)
+
 
 class DeviceType(object):
     CX4_LX = "0x1015"
@@ -638,6 +655,7 @@ def save_summary_html():
     else:
         pass_rate = 0
     runtime = round(sum([t.run_time for t in TESTS]), 2)
+    runtime = human_time_duration(runtime)
 
     summary = SUMMARY_ROW.format(number_of_tests=number_of_tests,
                                  passed_tests=passed_tests,
@@ -941,7 +959,7 @@ def main():
 def cleanup():
     runtime = round(sum([t.run_time for t in TESTS]), 2)
     if runtime > 0:
-        print("runtime: %s" % runtime)
+        print("runtime: %s" % human_time_duration(runtime))
     if args.html and not args.dry:
         summary_file = save_summary_html()
         print("Summary: %s" % summary_file)
