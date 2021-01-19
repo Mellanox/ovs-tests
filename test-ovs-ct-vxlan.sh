@@ -22,6 +22,10 @@ LOCAL_TUN=7.7.7.7
 REMOTE_IP=7.7.7.8
 VXLAN_ID=42
 
+# make sure port2 is not configured in switchdev as we could have issue when
+# both ports configured. we have test-ovs-ct-vxlan-2.sh and test-ovs-ct-vxlan-3.sh
+# to verify with both ports configured.
+config_sriov 0 $NIC2
 enable_switchdev
 require_interfaces REP NIC
 unbind_vfs
