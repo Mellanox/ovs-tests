@@ -779,24 +779,11 @@ function set_eswitch_inline_mode_transport() {
 }
 
 function get_eswitch_encap() {
-    local encap
-    local output
-
     if [ "$devlink_compat" = 1 ]; then
-        output=$(cat `devlink_compat_dir $NIC`/encap)
-        if [ "$output" = "none" ]; then
-            encap="disable"
-        elif [ "$output" = "basic" ]; then
-            encap="enable"
-        else
-            fail "Failed to get encap"
-        fi
+        cat `devlink_compat_dir $NIC`/encap
     else
-        output=`devlink dev eswitch show pci/$PCI`
-        encap=`echo $output | grep -o "encap \w*" | awk {'print $2'}`
+        devlink dev eswitch show pci/$PCI | grep -o "\bencap-mode [a-z]\+" | awk {'print $2'}
     fi
-
-    echo $encap
 }
 
 function set_eswitch_encap() {
@@ -807,12 +794,10 @@ function set_eswitch_encap() {
             val="none"
         elif [ "$val" = "enable" ]; then
             val="basic"
-        else
-            fail "Failed to set encap"
         fi
-        echo $val > `devlink_compat_dir $NIC`/encap && success || fail "Failed to set encap"
+        echo $val > `devlink_compat_dir $NIC`/encap || err "Failed to set encap"
     else
-        devlink dev eswitch set pci/$PCI encap $val && success || fail "Failed to set encap"
+        devlink dev eswitch set pci/$PCI encap $val || err "Failed to set encap"
     fi
 }
 
