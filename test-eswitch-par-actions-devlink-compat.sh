@@ -9,8 +9,13 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-if [ "$devlink_compat" != 1 ]; then
+if ! is_ofed ; then
     fail "Skipping MLNX OFED with devlink compat test."
+fi
+
+tmp=`devlink_compat_dir`
+if [ -z "$tmp" ]; then
+    fail "Missing devlink compat dir"
 fi
 
 function config() {

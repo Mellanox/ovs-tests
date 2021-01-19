@@ -80,14 +80,15 @@ function get_mlx_iface() {
 
 function __test_for_devlink_compat() {
     if [ -e /sys/kernel/debug/mlx5/$PCI/compat ]; then
-        log "Using devlink compat debugfs"
-        devlink_compat=1
         __devlink_compat_dir="/sys/kernel/debug/mlx5/\$pci/compat"
     elif [ -e /sys/class/net/$NIC/compat/devlink ]; then
-        log "Using devlink compat sysfs"
-        devlink_compat=1
         __devlink_compat_dir="/sys/class/net/\$nic/compat/devlink"
     fi
+    if devlink dev param show &>/dev/null ; then
+        return
+    fi
+    log "Using devlink compat"
+    devlink_compat=1
 }
 
 function get_nic_fw() {
