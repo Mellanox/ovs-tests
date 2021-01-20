@@ -19,8 +19,6 @@ function test_encap() {
 }
 
 
-set -e
-
 unbind_vfs
 switch_mode_switchdev
 

@@ -26,8 +26,6 @@ if [ -e /sys/class/net/$REP ]; then
     reset_tc $REP
 fi
 
-set -e
-
 switch_mode_switchdev
 unbind_vfs
 

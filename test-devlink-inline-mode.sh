@@ -17,8 +17,6 @@ unbind_vfs
 reset_tc $NIC
 reset_tc $REP
 
-set -e
-
 old=`date +"%s"`
 
 for i in `ls -1d /sys/class/net/$NIC/device/virt*`; do
