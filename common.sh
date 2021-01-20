@@ -1102,7 +1102,7 @@ WARNING:|RIP:|BUG:|refcount > 1|refcount_t|segfault|in_atomic|hw csum failure|\
 list_del corruption|which is not allocated|Objects remaining|assertion failed|\
 Slab cache still has objects|new suspected memory leaks|Unknown object at|\
 warning: consoletype is now deprecated|warning: use tty|\
-kfree for unknown address"
+kfree for unknown address|UBSAN"
     local fw_errs="health compromised|firmware internal error|assert_var|\
 Command completion arrived after timeout|Error cqe|failed reclaiming pages"
     local look_ahead="Call Trace:|Allocated by task|Freed by task"
