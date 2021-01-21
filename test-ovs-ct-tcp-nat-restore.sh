@@ -135,7 +135,7 @@ function run() {
 
     title "check if offloaded to flow table"
     res=`cat /proc/net/nf_conntrack | grep -i "zone=3" | grep "$ip_remote"`
-    echo $res | grep --color=always -e "^" -i -e "offload"
+    echo $res
     echo $res | grep -q -i offload || err "not offloaded to flow table"
 
     ddumpct
