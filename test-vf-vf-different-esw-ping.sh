@@ -9,9 +9,6 @@
 #  Nov GA). (16.24.0286)
 #
 
-NIC=${1:-ens5f0}
-VF=${2:-ens5f2}
-REP=${4:-ens5f0_0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
@@ -26,6 +23,7 @@ MULTIPATH=${MULTIPATH:-0}
 function cleanup() {
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
+    config_sriov 0 $NIC2
 }
 
 function is_offloaded_rules() {
@@ -39,7 +37,7 @@ function is_offloaded_rules() {
         err "Rules are not offloaded"
         return
     fi
-    local used=`tc -s filter show protocol ip dev $REP ingress |grep -o "used [0-9]*" | awk {'print $2'}`
+    local used=`tc -s filter show protocol ip dev $rep ingress |grep -o "used [0-9]*" | awk {'print $2'}`
     if [ -z "$used" ]; then
         err "Cannot read used value"
         return
