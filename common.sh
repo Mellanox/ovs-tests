@@ -84,7 +84,7 @@ function __test_for_devlink_compat() {
     elif [ -e /sys/class/net/$NIC/compat/devlink ]; then
         __devlink_compat_dir="/sys/class/net/\$nic/compat/devlink"
     fi
-    if devlink dev param show &>/dev/null ; then
+    if devlink dev param show pci/$PCI name flow_steering_mode &>/dev/null ; then
         return
     fi
     log "Using devlink compat"
