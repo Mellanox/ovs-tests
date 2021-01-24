@@ -92,6 +92,7 @@ function run() {
     PROTO="udp"
     config_ovs
 
+    local start1=`get_time`
     t=30
     port_count=100
     port_count2=100
@@ -107,10 +108,20 @@ function run() {
     # wait for mini rules
     sleep 10
 
+    local now1
+    local sec
+    local i
+
     for i in `seq $((t-15))`; do
         log "reconfig $i"
         config_ovs_nat
         sleep 1
+        now1=`get_time`
+        sec=`echo $now1 - $start1 + 1 | bc`
+        if [ $sec -gt $t ]; then
+            echo "elapsed $sec seconds"
+            break
+        fi
     done
 
     echo "stop"
