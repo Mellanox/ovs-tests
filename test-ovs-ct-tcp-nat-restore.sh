@@ -134,6 +134,8 @@ function run() {
     sleep 2
 
     title "check if offloaded to flow table"
+    # we cat twice. statiscally we fail first time but always succeed second time.
+    cat /proc/net/nf_conntrack >/dev/null
     res=`cat /proc/net/nf_conntrack | grep -i "zone=3" | grep "$ip_remote"`
     echo $res
     echo $res | grep -q -i offload || err "not offloaded to flow table"
