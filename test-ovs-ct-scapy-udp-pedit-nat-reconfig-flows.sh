@@ -95,7 +95,7 @@ function run() {
     local start1=`get_time`
     t=30
     port_count=100
-    port_count2=100
+    port_count2=30
 
     echo "run traffic for $t seconds"
     ip netns exec ns1 ip a add dev $VF2 $NAT_IP
