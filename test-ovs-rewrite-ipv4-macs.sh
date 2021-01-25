@@ -129,8 +129,6 @@ function test_case() {
 
     test_traffic $REP
 
-    stop_openvswitch
-    service_ovs start
     ovs-ofctl del-flows brv-1
 
     title "Test [$VM1_IP @ $VF_MAC] -> [fake $FAKE_VM2_IP and fake mac $FAKE_MAC] (will be rewritten to [$FAKE_VM1_IP @ $FAKE_MAC_SRC] -> [$VM2_IP @ $VF2_MAC])"
@@ -144,8 +142,6 @@ function test_case() {
 
     test_traffic $REP
 
-    stop_openvswitch
-    service_ovs start
     ovs-ofctl del-flows brv-1
 
     title "Test [$VM1_IP @ $VF_MAC] -> [fake $FAKE_VM2_IP and fake mac $FAKE_MAC]:fake port 5020 (will be rewritten to [$FAKE_VM1_IP @ $FAKE_MAC_SRC] -> [$VM2_IP @ $VF2_MAC]: port 5001)"
