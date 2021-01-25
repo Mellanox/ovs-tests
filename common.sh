@@ -908,6 +908,7 @@ function config_sriov() {
         echo 0 > $numvfs
     fi
     echo $num > $numvfs || fail "Failed to config $num VFs on $nic"
+    sleep 0.5
     udevadm trigger -c add -s net &>/dev/null
 }
 

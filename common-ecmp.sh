@@ -1,6 +1,5 @@
 #!/bin/bash
 
-sleep 0.5
 require_interfaces NIC NIC2
 require_module dummy
 
