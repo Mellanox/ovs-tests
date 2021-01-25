@@ -1242,7 +1242,7 @@ function check_ovs_settings() {
 function check_dpdk_init() {
     local force=0
     local want=""
-    local want_extra="-w $PCI,representor=[0,1],dv_xmeta_en=1,mtr_log_max_num=0,log_max_flow_per_mtr=0"
+    local want_extra="-w $PCI,representor=[0,1],dv_xmeta_en=1"
 
     if [ "${DPDK}" == 1 ]; then
         want="true"
