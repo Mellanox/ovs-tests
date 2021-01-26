@@ -260,7 +260,12 @@ def parse_args():
     parser.add_argument('--loops', default=0, type=int,
                         help='Loop the tests. stop if loop fails.')
 
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.loops > 1 and args.html:
+        print("WARNING: Cannot use html and loops. disabling html")
+        args.html = False
+
+    return args
 
 
 def run_test(test, html=False):
