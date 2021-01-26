@@ -21,6 +21,7 @@ CASES=${CASES:-"hw"}
 function cleanup() {
     echo "cleanup"
     start_clean_openvswitch
+    ip n flush all
     ip netns del ns0 &> /dev/null
 
     for i in `seq 0 7`; do
@@ -30,14 +31,14 @@ function cleanup() {
 
 function check_offloaded_rules() {
     local count=$1
-    title " - check for $count offloaded rules"
+    title "Check for $count offloaded rules"
     RES="ovs_dump_tc_flows | grep 0x0800 | grep -v drop"
     eval $RES
     RES=`eval $RES | wc -l`
     if (( RES == $count )); then success
     else
         ovs_dump_ovs_flows | grep 0x0800 | grep -v drop
-        err
+        err "Expected $count rules and got $RES rules"
     fi
 }
 
@@ -70,7 +71,7 @@ function add_flow() {
     ovs-ofctl add-flow brv-1 $@
 }
 
-function test_case() {
+function config() {
     local cs=$1
     local VF=$VF
     local VF2=$VF2
@@ -109,14 +110,20 @@ function test_case() {
     ip netns exec ns0 iperf -s -i 999 &
     iperf_server_pid=$!
 
-    echo "setup ovs"
-    ovs-vsctl add-br brv-1
-    ovs-vsctl add-port brv-1 $REP -- set Interface $REP ofport_request=1
-    ovs-vsctl add-port brv-1 $REP2 -- set Interface $REP2 ofport_request=2
-
     VF_MAC=`cat /sys/class/net/$VF/address`
     VF2_MAC=`ip netns exec ns0 cat /sys/class/net/$VF2/address`
 
+    reconfig_ovs
+}
+
+function reconfig_ovs() {
+    start_clean_openvswitch
+    ovs-vsctl add-br brv-1
+    ovs-vsctl add-port brv-1 $REP -- set Interface $REP ofport_request=1
+    ovs-vsctl add-port brv-1 $REP2 -- set Interface $REP2 ofport_request=2
+}
+
+function case1() {
     title "Test $VM1_IP -> fake $FAKE_VM2_IP (will be rewritten to $FAKE_VM1_IP -> $VM2_IP)"
 
     ovs-ofctl del-flows brv-1
@@ -128,11 +135,13 @@ function test_case() {
     ip netns exec ns0 ip n replace $FAKE_VM1_IP dev $VF2 lladdr $VF_MAC
 
     test_traffic $REP
-
     ovs-ofctl del-flows brv-1
+}
 
+function case2() {
     title "Test [$VM1_IP @ $VF_MAC] -> [fake $FAKE_VM2_IP and fake mac $FAKE_MAC] (will be rewritten to [$FAKE_VM1_IP @ $FAKE_MAC_SRC] -> [$VM2_IP @ $VF2_MAC])"
 
+    reconfig_ovs
     add_flow "ip,nw_src=$VM1_IP,nw_dst=$FAKE_VM2_IP,dl_src=$VF_MAC,dl_dst=$FAKE_MAC,actions=mod_nw_src=$FAKE_VM1_IP,mod_nw_dst=$VM2_IP,mod_dl_src=$FAKE_MAC_SRC,mod_dl_dst=$VF2_MAC,output:2"
     add_flow "ip,nw_src=$VM2_IP,nw_dst=$FAKE_VM1_IP,dl_src=$VF2_MAC,dl_dst=$FAKE_MAC_SRC,actions=mod_nw_src=$FAKE_VM2_IP,mod_nw_dst=$VM1_IP,mod_dl_src=$FAKE_MAC_SRC,mod_dl_dst=$VF_MAC,output:1"
     add_flow "arp,actions=normal"
@@ -141,11 +150,13 @@ function test_case() {
     ip netns exec ns0 ip n replace $FAKE_VM1_IP dev $VF2 lladdr $FAKE_MAC_SRC
 
     test_traffic $REP
-
     ovs-ofctl del-flows brv-1
+}
 
+function case3() {
     title "Test [$VM1_IP @ $VF_MAC] -> [fake $FAKE_VM2_IP and fake mac $FAKE_MAC]:fake port 5020 (will be rewritten to [$FAKE_VM1_IP @ $FAKE_MAC_SRC] -> [$VM2_IP @ $VF2_MAC]: port 5001)"
 
+    ovs-ofctl del-flows brv-1
     add_flow "ip,nw_src=$VM1_IP,nw_dst=$FAKE_VM2_IP,dl_src=$VF_MAC,dl_dst=$FAKE_MAC,tcp,tcp_dst=5020,actions=mod_nw_src=$FAKE_VM1_IP,mod_nw_dst=$VM2_IP,mod_dl_src=$FAKE_MAC_SRC,mod_dl_dst=$VF2_MAC,mod_tp_dst=5001,output:2"
     add_flow "ip,nw_src=$VM2_IP,nw_dst=$FAKE_VM1_IP,dl_src=$VF2_MAC,dl_dst=$FAKE_MAC_SRC,tcp,tcp_src=5001actions=mod_nw_src=$FAKE_VM2_IP,mod_nw_dst=$VM1_IP,mod_dl_src=$FAKE_MAC_SRC,mod_dl_dst=$VF_MAC,mod_tp_src=5020,output:1"
     add_flow "arp,actions=normal"
@@ -154,13 +165,17 @@ function test_case() {
     ip netns exec ns0 ip n replace $FAKE_VM1_IP dev $VF2 lladdr $FAKE_MAC_SRC
 
     test_traffic $REP "-p 5020"
-
-    check_syndrome
-    kill_iperf_server
+    ovs-ofctl del-flows brv-1
 }
 
+
 for cs in $CASES; do
-    test_case $cs
+    config $cs
+    case1
+    case2
+    case3
+    check_syndrome
+    kill_iperf_server
 done
 
 cleanup
