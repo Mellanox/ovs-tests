@@ -851,11 +851,17 @@ def pre_quick_status_updates():
         test.status = format_result(res, reason, html=True)
 
 
-def run_tests():
+def run_tests(iteration):
     ignore = args.from_test is not None
     failed = False
 
     pre_quick_status_updates()
+
+    if iteration == 0:
+        if args.loops > 1:
+            print("%-54s %-5s %-8s %s" % ("Test", "Iter", "Time", "Status"))
+        else:
+            print("%-54s %-8s %s" % ("Test", "Time", "Status"))
 
     for test in TESTS:
         name = test.name
@@ -865,6 +871,8 @@ def run_tests():
             ignore = False
 
         print("%-62s " % deco(name, 'light-blue'), end=' ')
+        if args.loops > 1:
+            print("%-5s" % iteration, end=' ')
         sys.stdout.flush()
 
         test.status = 'UNKNOWN'
@@ -948,10 +956,9 @@ def main():
         args.loops = 1
 
     failed = False
-    print("%-54s %-8s %s" % ("Test", "Time", "Status"))
 
-    for loop in range(args.loops):
-        failed = run_tests()
+    for iteration in range(args.loops):
+        failed = run_tests(iteration)
         if failed:
             break
     # end loops
