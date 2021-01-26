@@ -659,7 +659,7 @@ def save_summary_html():
         pass_rate = str(int(passed_tests / float(running) * 100)) + '%'
     else:
         pass_rate = 0
-    runtime = round(sum([t.run_time for t in TESTS]), 2)
+    runtime = get_total_runtime()
     runtime = human_time_duration(runtime)
 
     summary = SUMMARY_ROW.format(number_of_tests=number_of_tests,
@@ -972,8 +972,8 @@ def main():
 
 
 def cleanup():
-    runtime = round(sum([t.run_time for t in TESTS]), 2)
-    if runtime > 0:
+    runtime = get_total_runtime()
+    if runtime > 1:
         print("runtime: %s" % human_time_duration(runtime))
     if args.html and not args.dry:
         summary_file = save_summary_html()
@@ -981,12 +981,17 @@ def cleanup():
 
 
 def signal_handler(signum, frame):
-    print("\nterminated")
+    print("\nTerminated")
     cleanup()
     sys.exit(signum)
 
 
+def get_total_runtime():
+    return float("%.2f" % (datetime.now() - test_all_start_time).total_seconds())
+
+
 if __name__ == "__main__":
+    test_all_start_time = datetime.now()
     args = parse_args()
     LOGDIR = prepare_logdir()
     signal.signal(signal.SIGINT, signal_handler)
