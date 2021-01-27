@@ -78,3 +78,12 @@ function del_openflow_rules() {
     ovs-ofctl del-flows $bridge
     sleep 1
 }
+
+function check_offloaded_connections() {
+    local num_of_connections=$1
+
+    local x=$(ovs-appctl dpctl/offload-stats-show | grep 'Total  CT bi-dir Connections:' | awk '{print $5}')
+    if [ $x -lt $num_of_connections ]; then
+        err "No offloaded connections created, expected $num_of_connections, got $x"
+    fi
+}

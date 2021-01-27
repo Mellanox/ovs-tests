@@ -64,7 +64,7 @@ function run() {
     ip netns exec ns1 timeout $((t+2)) iperf3 -s &
     pid1=$!
     sleep 1
-    ip netns exec ns0 iperf3 -c $FAKE_IP -t $t &
+    ip netns exec ns0 iperf3 -c $FAKE_IP -t $t -P 5 &
     pid2=$!
 
     # verify pid
@@ -78,7 +78,7 @@ function run() {
     sleep $((t-4))
     # check offloads
     check_dpdk_offloads $IP
-
+    check_offloaded_connections 5
     killall iperf3 &>/dev/null
     echo "wait for bgs"
     wait
