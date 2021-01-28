@@ -642,7 +642,7 @@ function bring_up_reps() {
 
 function get_vfs_count() {
     local nic=$1
-    ls -1d /sys/class/net/$nic/device/virtfn* | wc -l
+    ls -1d /sys/class/net/$nic/device/virtfn* 2>/dev/null | wc -l
 }
 
 function get_reps_count() {
@@ -939,7 +939,7 @@ function unbind_vfs() {
     local i
     local nic=${1:-$NIC}
     log "unbind vfs of $nic"
-    for i in `ls -1d /sys/class/net/$nic/device/virt*`; do
+    for i in `ls -1d /sys/class/net/$nic/device/virt* 2>/dev/null`; do
         vfpci=$(basename `readlink $i`)
         if [ -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
             echo $vfpci > /sys/bus/pci/drivers/mlx5_core/unbind
