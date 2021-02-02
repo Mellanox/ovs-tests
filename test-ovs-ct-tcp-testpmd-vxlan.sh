@@ -69,7 +69,7 @@ function run_pktgen() {
     # -t 2 got ~520k flows
     ip netns exec ns0 timeout --kill-after=1 $t $pktgen -i $VF -t 1 -d $IP2 -m $mac2 &
     pid_pktgen=$!
-    sleep 8
+    sleep 4
     if [ ! -e /proc/$pid_pktgen ]; then
         pid_pktgen=""
         err "pktgen failed"
@@ -85,7 +85,7 @@ function run_testpmd() {
     on_remote "timeout --kill-after=10 $t tail -f /dev/null | \
                $testpmd --no-pci --vdev=eth_af_packet0,iface=vxlan1 -- --forward-mode=5tswap -a" &
     pid_testpmd=$!
-    sleep 5
+    sleep 8
     if [ ! -e /proc/$pid_testpmd ]; then
         pid_testpmd=""
         err "testpmd failed"
