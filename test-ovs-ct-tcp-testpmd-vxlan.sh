@@ -159,18 +159,11 @@ function run() {
     echo "sleep 3 sec, fg now"
     sleep 3
 
-    t=300
+    t=60
     echo "running for $t seconds"
     run_testpmd || return
     run_pktgen || return
-    w=100
-    sleep $w
-    let t-=w
-    echo "start tcpdump"
-    timeout $t tcpdump -qnnei $NIC -c 20 udp &
-    tpid=$!
-    verify_no_traffic $tpid
-    sleep 10
+    sleep $((t+10))
 
     verify_counter
 
