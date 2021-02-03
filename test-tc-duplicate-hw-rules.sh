@@ -57,7 +57,12 @@ fi
 
 count=`diff -u /tmp/fsdump_before_add /tmp/fsdump_after_add | grep "+- FTE" | wc -l`
 
-if [[ $count -eq 2 ]]; then
+if indir_table_used
+then expected_count=3
+else expected_count=2
+fi
+
+if [[ $count -eq $expected_count ]]; then
     success
 else
     err "Expected 2 new FTEs in HW but got $count"

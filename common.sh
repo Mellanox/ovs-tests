@@ -1633,6 +1633,13 @@ function fw_dump() {
 #    i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
 }
 
+function indir_table_used() {
+    local dump="/tmp/indir_dump"
+
+    mlxdump -d $PCI fsdump --type FT --gvmi=0 --no_zero > $dump|| err "mlxdump failed"
+    grep -A5 ip_version $dump | grep -A3 dst_ip_31_0 | grep -A3 vxlan_vni | grep metadata_reg_c_0 >/dev/null
+}
+
 ### main
 title2 `basename $0`
 __load_config
