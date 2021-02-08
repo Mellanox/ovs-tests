@@ -751,7 +751,9 @@ def read_db():
             continue
         if multi and 'ignore' in db and not args.db_check:
             continue
-        print("Reading DB: %s" % db)
+        if args.db_check and 'dpdk' in db:
+            continue
+        print("DB: %s" % db)
         with open(db) as yaml_data:
             data = yaml.safe_load(yaml_data)
             print("Description: %s" % data.get("description", "Empty"))
