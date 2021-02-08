@@ -728,9 +728,9 @@ def get_db_path(db):
     return db
 
 
-def read_db():
+def get_dbs():
     global DB_PATH
-    out = {}
+
     if len(args.db) == 1 and '*' in args.db[0]:
         dbs = glob(args.db[0]) or glob(os.path.join(MYDIR, 'databases', args.db[0]))
     elif len(args.db) == 1 and os.path.isdir(args.db[0]):
@@ -741,6 +741,7 @@ def read_db():
         dbs = args.db
 
     multi = len(dbs) > 1
+    dbs_out = []
     for db in dbs:
         db = get_db_path(db)
         if not db:
@@ -753,6 +754,17 @@ def read_db():
             continue
         if args.db_check and 'dpdk' in db:
             continue
+        dbs_out.append(db)
+
+    return dbs_out
+
+
+def read_db(dbs):
+    multi = len(dbs) > 1
+    out = {}
+
+    for db in dbs:
+        db = get_db_path(db)
         print("DB: %s" % db)
         with open(db) as yaml_data:
             data = yaml.safe_load(yaml_data)
@@ -796,7 +808,8 @@ def get_tests():
     global TESTS
     try:
         if args.db:
-            data = read_db()
+            dbs = get_dbs()
+            data = read_db(dbs)
             read_mini_reg_list()
             if 'tests' in data:
                 TESTS = load_tests_from_db(data)
