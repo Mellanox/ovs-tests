@@ -791,7 +791,7 @@ def read_mini_reg_list():
         data = yaml.safe_load(f)
         if type(data['tests']) is dict:
             MINI_REG_LIST = data['tests'].keys()
-        if type(data['tests']) is list:
+        elif type(data['tests']) is list:
             MINI_REG_LIST = data['tests']
 
 
