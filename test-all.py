@@ -852,6 +852,7 @@ def db_check():
         name = test.name
         if test.name in WONT_FIX:
             print_test_line(name, WONT_FIX[name])
+            continue
         for task in test.issues:
             if rm.is_tracker_bug(task):
                 if 'fixed_version' in task:
@@ -859,7 +860,7 @@ def db_check():
                     if not target_version:
                         target_version = fixed_version
                     elif fixed_version != target_version:
-                        print_test_line(name, "Mismatch target versions '%s' vs '%s'" % (fixed_version, target_version))
+                        print_test_line(name, "Mismatch target versions '%s' vs '%s' (RM #%s)" % (fixed_version, target_version, task['id']))
                 else:
                     tmp = "%s RM #%s: %s" % (task['status']['name'], task['id'], task['subject'])
                     print_test_line(name, "Missing target version: %s" % tmp)
