@@ -835,8 +835,10 @@ def print_test_line(name, reason):
 
 
 def db_check():
+    rm = MlxRedmine()
     all_tests = glob(MYDIR + '/test-*.sh')
     sort_tests(all_tests)
+
     for test in TESTS:
         if test.fname in all_tests:
             all_tests.remove(test.fname)
@@ -845,10 +847,22 @@ def db_check():
         name = os.path.basename(test)
         print_test_line(name, "Missing in db")
 
+    target_version = ''
     for test in TESTS:
         name = test.name
         if test.name in WONT_FIX:
             print_test_line(name, WONT_FIX[name])
+        for task in test.issues:
+            if rm.is_tracker_bug(task):
+                if 'fixed_version' in task:
+                    fixed_version = task['fixed_version']['name']
+                    if not target_version:
+                        target_version = fixed_version
+                    elif fixed_version != target_version:
+                        print_test_line(name, "Mismatch target versions '%s' vs '%s'" % (fixed_version, target_version))
+                else:
+                    tmp = "%s RM #%s: %s" % (task['status']['name'], task['id'], task['subject'])
+                    print_test_line(name, "Missing target version: %s" % tmp)
     return 0
 
 

@@ -8,6 +8,9 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 REDMINE_URL = 'http://redmine.mellanox.com'
 API_KEY = "1c438dfd8cf008a527ad72f01bd5e1bac24deca5"
 
+# tracker ids
+TRACKER_BUG_SW = 28
+
 # redmine status codes
 STATUS_IN_PROGRESS = 2
 STATUS_FIXED = 16
@@ -39,3 +42,6 @@ class MlxRedmine(object):
 
     def is_issue_open(self, task):
         return not self.is_issue_closed(task)
+
+    def is_tracker_bug(self, task):
+        return task['tracker']['id'] == TRACKER_BUG_SW
