@@ -175,6 +175,7 @@ class Test(object):
         self.test_log_html = self._name + '.html'
         self.run_time = 0.0
         self.status = "DIDN'T RUN"
+        self.issues = []
 
     def run(self, html=False):
         return run_test(self, html)
@@ -592,6 +593,7 @@ def update_skip_according_to_db(data):
         for bug in bugs_list:
             try:
                 task = rm.get_issue(bug)
+                t.issues.append(task)
             except ValueError:
                 t.set_skip("Cannot fetch RM #%s" % bug)
                 continue
