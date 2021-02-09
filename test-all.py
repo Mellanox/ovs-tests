@@ -862,7 +862,7 @@ def db_check():
                     elif fixed_version != target_version:
                         print_test_line(name, "Mismatch target versions '%s' vs '%s' (RM #%s)" % (fixed_version, target_version, task['id']))
                 else:
-                    tmp = "%s RM #%s: %s" % (task['status']['name'], task['id'], task['subject'])
+                    tmp = "RM #%s: %s" % (task['id'], task['subject'])
                     print_test_line(name, "Missing target version: %s" % tmp)
     return 0
 
