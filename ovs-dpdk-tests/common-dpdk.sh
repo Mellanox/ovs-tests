@@ -2,10 +2,15 @@ function config_remote_bridge_tunnel() {
     local vni=$1
     local remote_ip=$2
     local tnl_type=${3:-vxlan}
+    local reps=${4:-1}
 
     ovs-vsctl --may-exist add-br br-int   -- set Bridge br-int datapath_type=netdev   -- br-set-external-id br-int bridge-id br-int   -- set bridge br-int fail-mode=standalone
-    ovs-vsctl add-port br-int rep0 -- set Interface rep0 type=dpdk options:dpdk-devargs=$PCI,representor=[0]
     ovs-vsctl add-port br-int ${tnl_type}0   -- set interface ${tnl_type}0 type=${tnl_type} options:key=${vni} options:remote_ip=${remote_ip}
+
+    for (( i=0; i<$reps; i++ ))
+    do
+        ovs-vsctl add-port br-int rep$i -- set Interface rep$i type=dpdk options:dpdk-devargs=$PCI,representor=[$i]
+    done
 }
 
 function config_simple_bridge_with_rep() {
