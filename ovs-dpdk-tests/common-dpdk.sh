@@ -94,3 +94,33 @@ function check_offloaded_connections() {
         echo "Number of offloaded connections: $x"
     fi
 }
+
+function add_local_mirror() {
+    local port=${1:-local-mirror}
+    local rep_num=$2
+    local bridge=$3
+
+    ovs-vsctl add-port $bridge $port -- set interface $port type=dpdk options:dpdk-devargs=$PCI,representor=[${rep_num}] \
+    -- --id=@p get port $port -- --id=@m create mirror name=m0 select-all=true output-port=@p \
+    -- set bridge $bridge mirrors=@m
+}
+
+function add_remote_mirror() {
+    local type=$1
+    local bridge=$2
+    local vni=$3
+    local remote_addr=$4
+    local local_addr=$5
+
+    ip a add $local_addr/24 dev br-phy &> /dev/null
+    ip l set br-phy up &> /dev/null
+    ovs-vsctl add-port $bridge ${type}M -- set interface ${type}M type=$type options:key=$vni options:remote_ip=$remote_addr options:local_ip=$local_addr \
+    -- --id=@p get port ${type}M -- --id=@m create mirror name=m0 select-all=true output-port=@p \
+    -- set bridge $bridge mirrors=@m
+}
+
+function cleanup_mirrors() {
+    local bridge=$1
+
+    ovs-vsctl clear bridge $bridge mirrors &> /dev/null
+}
