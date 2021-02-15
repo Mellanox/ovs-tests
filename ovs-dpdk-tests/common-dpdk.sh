@@ -90,5 +90,7 @@ function check_offloaded_connections() {
     local x=$(ovs-appctl dpctl/offload-stats-show | grep 'Total  CT bi-dir Connections:' | awk '{print $5}')
     if [ $x -lt $num_of_connections ]; then
         err "No offloaded connections created, expected $num_of_connections, got $x"
+    else
+        echo "Number of offloaded connections: $x"
     fi
 }
