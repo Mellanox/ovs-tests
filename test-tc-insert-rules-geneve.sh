@@ -89,8 +89,8 @@ function __test_geneve() {
                     flower \
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
-                            enc_src_ip $ip_src \
-                            enc_dst_ip $ip_dst \
+                            enc_src_ip $ip_dst \
+                            enc_dst_ip $ip_src \
                             enc_dst_port $geneve_port \
                             enc_key_id 100 \
                             geneve_opts 0102:34:05060708/0:0:00000000 \
@@ -105,8 +105,8 @@ function __test_geneve() {
                     flower $tc_verbose \
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
-                            enc_src_ip $ip_src \
-                            enc_dst_ip $ip_dst \
+                            enc_src_ip $ip_dst \
+                            enc_dst_ip $ip_src \
                             enc_dst_port $geneve_port \
                             enc_key_id 100 \
                             geneve_opts 0102:34:05060708/0:0:00000000 \
@@ -120,8 +120,8 @@ function __test_geneve() {
                     flower \
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
-                            enc_src_ip $ip_src \
-                            enc_dst_ip $ip_dst \
+                            enc_src_ip $ip_dst \
+                            enc_dst_ip $ip_src \
                             enc_dst_port $geneve_port \
                             enc_key_id 100 \
                             geneve_opts 0102:34:05060707,0102:34:05060708,0102:34:05060709 \
@@ -136,8 +136,8 @@ function __test_geneve() {
                     flower $tc_verbose \
                             dst_mac e4:11:22:11:4a:51 \
                             src_mac e4:11:22:11:4a:50 \
-                            enc_src_ip $ip_src \
-                            enc_dst_ip $ip_dst \
+                            enc_src_ip $ip_dst \
+                            enc_dst_ip $ip_src \
                             enc_dst_port $geneve_port \
                             enc_key_id 100 \
                             geneve_opts 0102:80:00010004/ffff:ff:7fffffff \
