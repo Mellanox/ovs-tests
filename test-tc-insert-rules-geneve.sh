@@ -84,22 +84,6 @@ function __test_geneve() {
     verify_in_hw $gv 12
     reset_tc $gv
 
-    title "- decap geneve_opts mask 0 chain 0 not supported"
-    tc_filter_success add dev $gv protocol 0x806 parent ffff: prio 3 chain 0 \
-                    flower \
-                            dst_mac e4:11:22:11:4a:51 \
-                            src_mac e4:11:22:11:4a:50 \
-                            enc_src_ip $ip_dst \
-                            enc_dst_ip $ip_src \
-                            enc_dst_port $geneve_port \
-                            enc_key_id 100 \
-                            geneve_opts 0102:34:05060708/0:0:00000000 \
-                    action tunnel_key unset \
-                    action mirred egress redirect dev $REP
-    # we expect it not_in_hw as we don't know in fw it to match key 0 or no key.
-    verify_not_in_hw $gv 3
-    reset_tc $gv
-
     title "- decap geneve_opts mask 0 chain 1 is supported"
     tc_filter_success add dev $gv protocol 0x806 parent ffff: prio 3 chain 1 \
                     flower $tc_verbose \
