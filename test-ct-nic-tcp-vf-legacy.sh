@@ -14,10 +14,15 @@ REMOTE_NIC=${REMOTE_NIC:-$2}
 
 require_remote_server
 
+require_mlxreg
 config_sriov 2 $NIC
 config_sriov 2 $NIC2
 enable_legacy $NIC
 enable_legacy $NIC2
+unbind_vfs $NIC
+unbind_vfs $NIC2
+set_trusted_vf_mode $NIC
+set_trusted_vf_mode $NIC2
 bind_vfs $NIC
 bind_vfs $NIC2
 VF1_NIC2=`get_vf 0 $NIC2`
@@ -135,9 +140,9 @@ function run() {
     sleep 2
     on_remote pidof iperf &>/dev/null || err "iperf failed"
 
-    echo "sniff packets on $NIC"
+    echo "sniff packets on $VF1"
     # first 4 packets not offloaded until conn is in established state.
-    timeout $((t-4)) tcpdump -qnnei $NIC -c 10 'tcp' &
+    timeout $((t-4)) tcpdump -qnnei $VF1 -c 10 'tcp' &
     tpid2=$!
 
     sleep $t

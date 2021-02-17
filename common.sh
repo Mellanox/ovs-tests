@@ -211,6 +211,13 @@ function setup_iptables_legacy() {
     fi
 }
 
+function set_trusted_vf_mode() {
+    local nic=$1
+    local pci=$(basename `readlink /sys/class/net/$nic/device`)
+
+    mlxreg -d $pci --reg_id 0xc007 --reg_len 0x40 --indexes "0x0.31:1=1" --yes --set "0x4.0:32=0x1"
+}
+
 function get_flow_steering_mode() {
     local nic=$1
     local pci=$(basename `readlink /sys/class/net/$nic/device`)
@@ -350,6 +357,10 @@ function clear_remote_bonding() {
     on_remote ip link set dev $REMOTE_NIC nomaster &>/dev/null
     on_remote ip link set dev $REMOTE_NIC2 nomaster &>/dev/null
     on_remote ip link del bond0 &>/dev/null
+}
+
+function require_mlxreg() {
+    [[ -e /usr/bin/mlxreg ]] || fail "Missing mlxreg"
 }
 
 function require_mlxdump() {
