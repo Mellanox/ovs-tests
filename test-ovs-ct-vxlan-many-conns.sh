@@ -147,10 +147,10 @@ function run() {
     echo "verify number of offload flows in connrack ~$port_count"
     count=`cat /proc/net/nf_conntrack | grep -i offload | wc -l`
     echo "flows: $count"
-    # allow to miss 10
-    let count2=count+10
+    # allow to miss some its not perfect tool
+    let count2=count+200
     if [ "$count2" -lt $port_count ]; then
-        err "Expected at least $port_count flows"
+        err "Expected ~$port_count flows"
     else
         success
     fi
