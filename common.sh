@@ -122,9 +122,10 @@ function require_cmd() {
 
 function __setup_common() {
     [ -f /etc/os-release ] && . /etc/os-release
+    ANSI_COLOR0="$COLOR0${ANSI_COLOR}m"
     if [ -n "$PRETTY_NAME" ]; then
         kmsg $PRETTY_NAME
-        echo -e "$COLOR0${ANSI_COLOR}m$PRETTY_NAME$NOCOLOR"
+        echo -e "${ANSI_COLOR0}$PRETTY_NAME$NOCOLOR"
     fi
     local tmp=`uname -nsr`
     log $tmp
