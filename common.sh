@@ -117,6 +117,16 @@ function print_key_val() {
     awk "{for (i=1; i<=NF; i+=2) print \"$c\"\$i\"$NOCOLOR\", \$(i+1)}" <<< $m | xargs echo
 }
 
+function __get_device_name() {
+    device_name="NA"
+    short_device_name="NA"
+    local tmp=`lspci -s $PCI | cut -d\[ -f2 | tr -d ]`
+    if [ -n "$tmp" ]; then
+        device_name=$tmp
+        short_device_name=`echo $device_name | tr [:upper:] [:lower:] | sed -e 's/connectx-/cx/' -e 's/ //g'`
+    fi
+}
+
 function __setup_common() {
     [ -f /etc/os-release ] && . /etc/os-release
     ANSI_COLOR0="$COLOR0${ANSI_COLOR}m"
@@ -139,13 +149,7 @@ function __setup_common() {
     DEVICE=`cat /sys/class/net/$NIC/device/device`
     FW=`get_nic_fw $NIC`
 
-    device_name="NA"
-    short_device_name="NA"
-    local tmp=`lspci -s $PCI | cut -d\[ -f2 | tr -d ]`
-    if [ -n "$tmp" ]; then
-        device_name=$tmp
-        short_device_name=`echo $device_name | tr [:upper:] [:lower:] | sed -e 's/connectx-/cx/' -e 's/ //g'`
-    fi
+    __get_device_name
 
     status="NIC $NIC FW $FW PCI $PCI DEVICE $DEVICE $device_name"
     log $status
