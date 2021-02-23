@@ -168,7 +168,7 @@ function __setup_common() {
     tmp=`lspci -s $PCI | cut -d\[ -f2 | tr -d ]`
     if [ -n "$tmp" ]; then
         device_name=$tmp
-        short_device_name=`echo $device_name | tr [:upper:] [:lower:] | sed -e 's/connectx-/cx/' -e 's/ /_/g'`
+        short_device_name=`echo $device_name | tr [:upper:] [:lower:] | sed -e 's/connectx-/cx/' -e 's/ //g'`
     fi
 
     status+=" $device_name"
