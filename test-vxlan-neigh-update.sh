@@ -102,7 +102,7 @@ function test_neigh_update_ipv4() {
 function test_neigh_update_ipv6() {
     title "Test neigh update ipv6"
     # ConnectX-4 Lx doesn't support vxlan over ipv6 tunnel
-    if [ "$DEVICE_IS_CX4" = 1 ]; then
+    if [ "$short_device_name" == "cx4lx" ]; then
         echo "Not relevant for ConnectX-4"
         return
     fi

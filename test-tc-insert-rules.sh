@@ -248,7 +248,7 @@ function test_basic_vxlan_ipv4() {
 
 function test_basic_vxlan_ipv6() {
     # ConnectX-4 Lx doesn't support vxlan over ipv6 tunnel
-    if [ "$DEVICE_IS_CX4" = 1 ]; then
+    if [ "$short_device_name" == "cx4lx" ]; then
         echo "Not relevant for ConnectX-4"
         return
     fi
@@ -326,13 +326,7 @@ for vx in `ip -o l show type vxlan | cut -d: -f 2` ; do
     ip l del $vx
 done
 
-if [ "$DEVICE_IS_CX4" = 1 ]; then
-    echo "Device is ConnectX-4. set inline-mode."
-    mode=`get_eswitch_inline_mode`
-    test "$mode" != "transport" && (set_eswitch_inline_mode transport || fail "Failed to set inline mode transport")
-elif [ "$DEVICE_IS_CX5" = 1 ]; then
-    echo "Device is ConnectX-5. no need to set inline-mode."
-fi
+set_eswitch_inline_mode_transport
 
 # Execute all test_* functions
 max_tests=100

@@ -18,11 +18,9 @@ TEST_FAILED=0
 # global var to use for last error msg. like errno and %m.
 ERRMSG=""
 
-
 VENDOR_MELLANOX="0x15b3"
 
 <<EOT
-
 #define PCI_DEVICE_ID_MELLANOX_CONNECTX3        0x1003
 #define PCI_DEVICE_ID_MELLANOX_CONNECTX3_PRO    0x1007
 #define PCI_DEVICE_ID_MELLANOX_CONNECTIB        0x1011
@@ -47,14 +45,6 @@ VENDOR_MELLANOX="0x15b3"
         { PCI_VDEVICE(MELLANOX, 0x101f) },                      /* ConnectX-6 LX */
         { PCI_VDEVICE(MELLANOX, 0x1021) },                      /* ConnectX-7 */
 EOT
-
-DEVICE_CX4_LX="0x1015"
-DEVICE_CX5_PCI_3="0x1017"
-DEVICE_CX5_PCI_4="0x1019"
-DEVICE_CX6="0x101b"
-DEVICE_CX6_DX="0x101d"
-DEVICE_CX6_LX="0x101f"
-DEVICE_CX7="0x1021"
 
 # test in __setup_common()
 devlink_compat=0
@@ -143,37 +133,22 @@ function __setup_common() {
     PCI2=$(basename `readlink /sys/class/net/$NIC2/device`)
     DEVICE=`cat /sys/class/net/$NIC/device/device`
     FW=`get_nic_fw $NIC`
-    status="NIC $NIC FW $FW PCI $PCI DEVICE $DEVICE"
 
-    # mlnx ofed from sources will show the static version from upstream
-    # and not real mlnx ofed version.
-    is_ofed && log "MLNX_OFED `modinfo --field version mlx5_core`"
-    __test_for_devlink_compat
-
-    DEVICE_IS_CX4=0
-    DEVICE_IS_CX4_LX=0
-    DEVICE_IS_CX5=0
-
-    if [ "$DEVICE" == "$DEVICE_CX4_LX" ]; then
-        DEVICE_IS_CX4=1
-        DEVICE_IS_CX4_LX=1
-        device_name="ConnectX-4 Lx"
-    elif [ "$DEVICE" == "$DEVICE_CX5_PCI_3" ]; then
-        DEVICE_IS_CX5=1
-        device_name="ConnectX-5"
-    elif [ "$DEVICE" == "$DEVICE_CX5_PCI_4" ]; then
-        DEVICE_IS_CX5=1
-        device_name="ConnectX-5"
-    fi
-
+    device_name="NA"
+    short_device_name="NA"
     tmp=`lspci -s $PCI | cut -d\[ -f2 | tr -d ]`
     if [ -n "$tmp" ]; then
         device_name=$tmp
         short_device_name=`echo $device_name | tr [:upper:] [:lower:] | sed -e 's/connectx-/cx/' -e 's/ //g'`
     fi
 
-    status+=" $device_name"
+    status="NIC $NIC FW $FW PCI $PCI DEVICE $DEVICE $device_name"
     log $status
+
+    # mlnx ofed from sources will show the static version from upstream
+    # and not real mlnx ofed version.
+    is_ofed && log "MLNX_OFED `modinfo --field version mlx5_core`"
+    __test_for_devlink_compat
 
     setup_expected_steering_mode
     setup_iptables_legacy
@@ -786,7 +761,7 @@ function set_eswitch_inline_mode() {
 }
 
 function set_eswitch_inline_mode_transport() {
-    if [ "$DEVICE_IS_CX4" = 1 ]; then
+    if [ "$short_device_name" == "cx4lx" ]; then
         mode=`get_eswitch_inline_mode`
         test "$mode" != "transport" && (set_eswitch_inline_mode transport || err "Failed to set inline mode transport")
     fi
@@ -1493,34 +1468,34 @@ function not_relevant_for_nic() {
     done
 }
 
+function relevant_for_nic() {
+    local nic
+    for nic in $@ ; do
+        if [ "$short_device_name" == "$nic" ]; then
+            return
+        fi
+    done
+    fail "Test relevant for $nic"
+}
+
 function not_relevant_for_cx5() {
-    if [ "$DEVICE_IS_CX5" = 1 ]; then
-        fail "Test not relevant for ConnectX-5"
-    fi
+    not_relevant_for_nic cx5
 }
 
 function not_relevant_for_cx4() {
-    if [ "$DEVICE_IS_CX4" = 1 ]; then
-        fail "Test not relevant for ConnectX-4"
-    fi
+    not_relevant_for_nic cx4
 }
 
 function not_relevant_for_cx4lx() {
-    if [ "$DEVICE_IS_CX4_LX" = 1 ]; then
-        fail "Test not relevant for ConnectX-4 Lx"
-    fi
+    not_relevant_for_nic cx4lx
 }
 
 function relevant_for_cx4() {
-    if [ "$DEVICE_IS_CX4_LX" != 1 ] && [ "$DEVICE_IS_CX4_LX" != 1 ]; then
-        fail "Test relevant for ConnectX-4"
-    fi
+    relevant_for_nic cx4 cx4lx
 }
 
 function relevant_for_cx5() {
-    if [ "$DEVICE_IS_CX5" != 1 ]; then
-        fail "Test relevant for ConnectX-5"
-    fi
+    relevant_for_nic cx5
 }
 
 function require_fw_opt() {
