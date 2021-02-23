@@ -111,6 +111,12 @@ function require_cmd() {
     done
 }
 
+function print_key_val() {
+    local m=$@
+    local c=$LIGHTBLUE
+    awk "{for (i=1; i<=NF; i+=2) print \"$c\"\$i\"$NOCOLOR\", \$(i+1)}" <<< $m | xargs echo
+}
+
 function __setup_common() {
     [ -f /etc/os-release ] && . /etc/os-release
     ANSI_COLOR0="$COLOR0${ANSI_COLOR}m"
