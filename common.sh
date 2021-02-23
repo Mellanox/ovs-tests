@@ -118,8 +118,7 @@ function __setup_common() {
         kmsg $PRETTY_NAME
         echo -e "${ANSI_COLOR0}$PRETTY_NAME$NOCOLOR"
     fi
-    local tmp=`uname -nsr`
-    log $tmp
+    log `uname -nsrp`
 
     require_interfaces NIC NIC2
     require_cmd lspci ethtool tc bc
@@ -136,7 +135,7 @@ function __setup_common() {
 
     device_name="NA"
     short_device_name="NA"
-    tmp=`lspci -s $PCI | cut -d\[ -f2 | tr -d ]`
+    local tmp=`lspci -s $PCI | cut -d\[ -f2 | tr -d ]`
     if [ -n "$tmp" ]; then
         device_name=$tmp
         short_device_name=`echo $device_name | tr [:upper:] [:lower:] | sed -e 's/connectx-/cx/' -e 's/ //g'`
