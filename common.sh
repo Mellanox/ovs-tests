@@ -1504,7 +1504,7 @@ function relevant_for_cx4() {
 }
 
 function relevant_for_cx5() {
-    relevant_for_nic cx5
+    relevant_for_nic cx5 cx5ex
 }
 
 function require_fw_opt() {
