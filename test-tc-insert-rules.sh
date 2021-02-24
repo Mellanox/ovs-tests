@@ -205,9 +205,8 @@ function __test_basic_vxlan() {
                     action mirred egress redirect dev $vx
         title "    - decap"
         if [ "$skip" = "skip_sw" ]; then
-            # skip_sw on tunnel device is not supported
-            skip=""
-            skip_sw_wa=1
+            log "skip_sw on tunnel device is not supported"
+            continue
         fi
         tc_filter_success add dev $vx protocol 0x806 parent ffff: prio 2 \
                     flower \
@@ -220,9 +219,10 @@ function __test_basic_vxlan() {
                             enc_key_id 100 \
                     action tunnel_key unset \
                     action mirred egress redirect dev $REP
-        if [ $skip_sw_wa -eq 1 ]; then
-            tc_filter_success show dev $vx ingress prio 2 | grep -q -w in_hw || err "Decap rule not in hw"
+        if [ "$skip" = "skip_hw" ]; then
+            continue
         fi
+        tc_filter_success show dev $vx ingress prio 2 | grep -q -w in_hw || err "Decap rule not in hw"
     done
 
     reset_tc $NIC
