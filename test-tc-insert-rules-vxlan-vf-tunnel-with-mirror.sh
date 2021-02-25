@@ -8,6 +8,8 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+not_relevant_for_nic cx4 cx4lx cx5
+
 config_sriov 3
 enable_switchdev
 REP3=`get_rep 2`
@@ -55,6 +57,7 @@ function test_vxlan_mirror_encap() {
     ip link del $vx
 }
 
+start_check_syndrome
 test_vxlan_mirror_encap
 
 check_for_errors_log
