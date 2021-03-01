@@ -7,6 +7,7 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 
+config_sriov 1 $NIC2
 enable_legacy $NIC2
 
 items=`devlink -j port show $NIC2 | jq '.port | to_entries[].key'`
@@ -25,4 +26,5 @@ for item in $items ; do
     done
 done
 
+config_sriov 0 $NIC2
 test_done
