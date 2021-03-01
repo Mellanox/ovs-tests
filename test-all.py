@@ -983,11 +983,10 @@ def main():
 
     ignore_excluded(args.exclude)
 
-    if not args.db or args.randomize:
+    if not args.db_check:
         sort_tests(TESTS, args.randomize)
 
     if args.db_check:
-        # we dont sort db file (we should probably if dict and not list) so do it now.
         sort_tests(TESTS)
         return db_check()
 
