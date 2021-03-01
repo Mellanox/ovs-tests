@@ -12,9 +12,7 @@ REMOTE_SERVER=${REMOTE_SERVER:-$1}
 REMOTE_NIC=${REMOTE_NIC:-$2}
 
 require_remote_server
-not_relevant_for_cx4
-not_relevant_for_cx4lx
-not_relevant_for_cx5
+not_relevant_for_nic cx4 cx4lx cx5
 
 LOCAL_IP="7.7.7.5"
 REMOTE_IP="7.7.7.1"
