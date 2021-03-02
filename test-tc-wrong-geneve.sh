@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#
 # Verify different geneve tunnels with the same properties, but distinct options,
 # get different encap_ids. Also, check that geneve tunnels with the same
 # properties and the same options, get the same encap_id.
@@ -62,7 +62,7 @@ function verify_encap_ids() {
                        -m3 /tmp/port$i |
                   grep packet_reformat_id | cut -d: -f2) )
 
-    echo "encap IDs 1st-2nd: ${encap_ids[@]:0:2}"
+    echo "encap IDs 1st-2nd: ${encap_ids[@]:0:1}"
     echo "encap IDs 2nd-3rd: ${encap_ids[@]:1:2}"
 
     if [[ ${encap_ids[0]} == ${encap_ids[1]} ]]; then
