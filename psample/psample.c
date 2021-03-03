@@ -78,6 +78,7 @@ static int open_psample_netlink(int group)
     return sock;
 }
 
+#ifdef PSAMPLE_TUNNEL_SUPPORT
 static void print_tunnel(struct nlattr *tunnel_nla)
 {
     struct nlattr *nla;
@@ -115,6 +116,7 @@ static void print_tunnel(struct nlattr *tunnel_nla)
         }
     }
 }
+#endif
 
 /* read, parse and print the psample netlink message */
 static void read_psample_netlink(int sock)
@@ -175,8 +177,10 @@ static void read_psample_netlink(int sock)
         } else if (nla->nla_type == PSAMPLE_ATTR_SAMPLE_RATE) {
             rate = mnl_attr_get_u32(nla);
             printf("rate: %d\n", rate);
+#ifdef PSAMPLE_TUNNEL_SUPPORT
         } else if (nla->nla_type == PSAMPLE_ATTR_TUNNEL) {
             print_tunnel(nla);
+#endif
         }
     }
     printf("\n");
