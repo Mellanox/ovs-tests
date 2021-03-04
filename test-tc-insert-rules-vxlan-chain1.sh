@@ -51,7 +51,7 @@ function __test_basic_vxlan() {
                 action mirred egress redirect dev $vx
     title "- decap"
     tc_filter_success add dev $vx protocol 0x800 parent ffff: prio 2 chain $chain \
-                flower verbose \
+                flower \
                         $skip \
                         dst_mac e4:11:22:11:4a:51 \
                         src_mac e4:11:22:11:4a:50 \
