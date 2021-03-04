@@ -537,6 +537,7 @@ function config_vf() {
     local vf=$2
     local rep=$3
     local ip=$4
+    local mac=$5 # optional
     local prefix=24
 
     if [[ "$ip" == *":"* ]]; then
@@ -544,10 +545,11 @@ function config_vf() {
         prefix=64
     fi
 
-    echo "[$ns] $vf ($ip) -> $rep"
+    echo "[$ns] $vf (${mac:+$mac/}$ip) -> $rep"
     ip address flush dev $rep
     ip link set dev $rep up
     ip netns add $ns
+    ${mac:+ip link set $vf address $mac}
     ip link set $vf netns $ns
     ip -netns $ns address replace dev $vf $ip/$prefix
     ip -netns $ns link set $vf up
