@@ -33,6 +33,7 @@ function cleanup() {
     ip netns del ns1 2> /dev/null
     reset_tc $REP
     reset_tc $REP2
+    devlink_ct_action_on_nat disable
 }
 trap cleanup EXIT
 
@@ -66,6 +67,18 @@ function config() {
     ip -netns ns0 route add default via $router_local_ip dev $VF
     ip -netns ns0 neigh replace $router_local_ip dev $VF lladdr $router_mac
     ip -netns ns1 neigh replace $router_external_ip dev $VF2 lladdr $router_mac
+}
+
+function devlink_ct_action_on_nat() {
+    local val=$1
+
+    if `devlink dev param show pci/$PCI name ct_action_on_nat_conns &>/dev/null`; then
+        echo "set ct_action_on_nat_conns=${val} (devlink)"
+        devlink dev param set pci/$PCI name ct_action_on_nat_conns value ${val} cmode runtime || fail "Failed to set devlink ct_action_on_nat_conns=${val}"
+    elif [ -e /sys/class/net/$NIC/compat/devlink/ct_action_on_nat_conns ]; then
+        echo "set ct_action_on_nat_conns=${val} (compat)"
+        echo ${val} > /sys/class/net/$NIC/compat/devlink/ct_action_on_nat_conns || fail "Failed to set devlink ct_action_on_nat_conns=${val} via compat"
+    fi
 }
 
 function run() {
@@ -136,6 +149,8 @@ config
 title "Test OVS CT tcp nat and mark"
 hops=1
 run
+
+devlink_ct_action_on_nat enable
 hops=2
 run
 
