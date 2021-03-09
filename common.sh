@@ -863,6 +863,24 @@ function enable_legacy() {
     switch_mode_legacy $nic
 }
 
+function set_vport_match_legacy() {
+    if [ "$devlink_compat" = 1 ]; then
+        echo "legacy" > /sys/class/net/$NIC/compat/devlink/vport_match_mode || err "Failed to set vport match mode legacy"
+    else
+        devlink dev param set pci/$PCI name esw_port_metadata value false \
+            cmode runtime || err "Failed to set esw_port_metadata to false"
+    fi
+}
+
+function set_vport_match_metadata() {
+    if [ "$devlink_compat" = 1 ]; then
+        echo "metadata" > /sys/class/net/$NIC/compat/devlink/vport_match_mode || err "Failed to set vport match mode metadata"
+    else
+        devlink dev param set pci/$PCI name esw_port_metadata value true \
+            cmode runtime || err "Failed to set esw_port_metadata to true"
+    fi
+}
+
 function set_steering_sw() {
     if [ "$devlink_compat" = 1 ]; then
         echo smfs > /sys/class/net/$NIC/compat/devlink/steering_mode || err "Failed to set steering sw"
