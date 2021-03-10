@@ -61,6 +61,17 @@ function cleanup_e2e_cache() {
     ovs-vsctl --no-wait remove Open_vSwitch . other_config e2e-enable
 }
 
+function query_sw_packets() {
+    local pkts1=$(ovs-appctl dpif-netdev/pmd-stats-show | grep 'packets received:' | sed -n '1p' | awk '{print $3}')
+    local pkts2=$(ovs-appctl dpif-netdev/pmd-stats-show | grep 'packets received:' | sed -n '2p' | awk '{print $3}')
+
+    local total_pkts=$(($pkts1+$pkts2))
+    echo -e "Received $total_pkts packets in SW"
+    if [ $total_pkts -gt 50000 ]; then
+        err "$total_pkts reached SW"
+    fi
+}
+
 function check_dpdk_offloads() {
     local IP=$1
 
@@ -75,6 +86,8 @@ function check_dpdk_offloads() {
         echo -e "\n\nOffloaded rules:"
         ovs-appctl dpctl/dump-flows -m type=offloaded | grep -v 'ipv6\|icmpv6\|arp\|flow-dump'
     fi
+
+    query_sw_packets
 }
 
 function del_openflow_rules() {
