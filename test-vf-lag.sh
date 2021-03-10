@@ -94,12 +94,12 @@ function cleanup() {
 
 function config_vxlan() {
     local nic1="bond0"
-    ip link add vxlan1 type vxlan id $id dev $nic1 dstport $dst_port
+    ip link add vxlan1 type vxlan id $id dev $nic1 dstport $dst_port || err "Failed to add vxlan interface"
     ip link set vxlan1 up
     ip addr add ${local_ip}/24 dev $nic1
     tc qdisc add dev vxlan1 ingress
     ip link set $nic1 up
-    ip n add $remote_ip lladdr $dst_mac dev $nic1
+    ip n add $remote_ip lladdr $dst_mac dev $nic1 || err "Failed to add neigh entry"
 }
 
 function clean_vxlan() {
