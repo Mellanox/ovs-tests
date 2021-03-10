@@ -10,13 +10,14 @@ source $my_dir/common.sh
 function cleanup() {
     ip netns del ns0 2>/dev/null
     ip netns del ns1 2>/dev/null
-    reset_tc $REP
+    reset_tc $REP &>/dev/null
 }
 trap cleanup EXIT
 
 cleanup
 
 title "Test tc trap rule"
+config_sriov 2
 log "set switchdev"
 enable_switchdev
 bind_vfs
