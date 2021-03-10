@@ -579,9 +579,9 @@ function count_reps() {
     count=`grep $swid /sys/class/net/*/phys_switch_id 2>/dev/null | wc -l`
 
     if [ $count != $want ]; then
-        err "Found $count reps but expected $want"
+        err "Found $count interfaces but expected $want"
     else
-        success "Got $count reps"
+        success "Found $count interfaces"
     fi
 }
 

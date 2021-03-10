@@ -17,7 +17,13 @@ function test_reps() {
 
     title "Config $want VFs on $NIC"
     config_reps $want $NIC
+
     (( want += 1 ))        # reps will be verified by switch id so add one for pf port.
+    # newer kernels have phys_switch_id readable also when sriov is disabled or in legacy
+    if cat /sys/class/net/$NIC2/phys_switch_id &>/dev/null ; then
+        (( want += 1 ))
+    fi
+
     count_reps $want $NIC
 
     enable_legacy
