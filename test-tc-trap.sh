@@ -10,7 +10,7 @@ source $my_dir/common.sh
 function cleanup() {
     ip netns del ns0 2>/dev/null
     ip netns del ns1 2>/dev/null
-    reset_tc $REP &>/dev/null
+    reset_tc $REP $REP2 &>/dev/null
 }
 trap cleanup EXIT
 
