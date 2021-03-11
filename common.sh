@@ -1220,8 +1220,10 @@ function service_ovs() {
 function stop_openvswitch() {
     service_ovs stop
     sleep 1
-    killall ovs-vswitchd ovsdb-server 2>/dev/null || true
-    sleep 1
+    if pidof ovs-vswitchd &>/dev/null ; then
+        killall ovs-vswitchd ovsdb-server 2>/dev/null || true
+        sleep 1
+    fi
 }
 
 function check_ovs_settings() {
