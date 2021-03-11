@@ -31,10 +31,7 @@ require_module act_sample psample
 test -x $psample_dir/psample || make -C $psample_dir || \
     fail "failed to compile psample in dir $psample_dir"
 
-LOCAL_MAC=$(cat /sys/class/net/$VF/address)
 VXLAN_MAC=24:25:d0:e2:00:00
-
-test "$LOCAL_MAC" || fail "no LOCAL_MAC"
 
 function cleanup() {
     ip netns del ns0 2> /dev/null
@@ -168,6 +165,8 @@ require_interfaces REP
 unbind_vfs
 bind_vfs
 config_vxlan
+LOCAL_MAC=$(cat /sys/class/net/$VF/address)
+test "$LOCAL_MAC" || fail "no LOCAL_MAC"
 config_vf ns0 $VF $REP $IP
 reset_tc $NIC $REP vxlan1
 config_remote
