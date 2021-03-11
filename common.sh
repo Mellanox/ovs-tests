@@ -415,6 +415,18 @@ function ssh2() {
     ssh -tt -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=3 "$@"
 }
 
+function on_remote_dt() {
+    # We assume that the scripts are accessible at the same location on remote host ${DIR}
+    ssh2 $REMOTE_SERVER "cat > /tmp/dt_cmd.$$.sh <<EOF
+export CONFIG=${CONFIG}
+export NO_TITLE=1
+. ${DIR}/common.sh
+
+$@
+EOF
+bash /tmp/dt_cmd.$$.sh && /bin/rm -f /tmp/dt_cmd.$$.sh"
+}
+
 function on_remote() {
     ssh2 $REMOTE_SERVER "$@"
 }
@@ -1678,7 +1690,9 @@ function indir_table_used() {
 }
 
 ### main
-title2 `basename $0`
+if [ "X${NO_TITLE}" == "X" ]; then
+    title2 `basename $0`
+fi
 __load_config
 warn_if_redmine_bug_is_open
 start_test_timestamp
