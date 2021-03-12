@@ -17,7 +17,7 @@ function test_basic_header_rewrite() {
     tc_filter_success add dev $REP protocol ip parent ffff: prio 1 \
         flower skip_sw ip_proto icmp \
         action pedit ex munge eth dst set 20:22:33:44:55:66 \
-        pipe action mirred egress redirect dev $REP
+        pipe action mirred egress redirect dev $NIC
 }
 
 function test_basic_header_rewrite_ip_icmp() {
@@ -28,7 +28,7 @@ function test_basic_header_rewrite_ip_icmp() {
     tc_filter_success add dev $REP protocol ip parent ffff: prio 1 \
         flower skip_sw ip_proto icmp \
         action pedit ex munge ip dst set 7.7.7.2 \
-        pipe action mirred egress redirect dev $REP
+        pipe action mirred egress redirect dev $NIC
     dmesg | tail -n10 | grep "can't offload re-write"
 }
 
