@@ -295,7 +295,7 @@ function __config_bonding() {
 }
 
 function config_bonding() {
-    __config_bonding
+    __config_bonding $@
     if ! is_bonded ; then
         err "Driver bond failed"
         return
