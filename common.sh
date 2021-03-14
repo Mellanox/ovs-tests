@@ -1442,6 +1442,8 @@ function eval2() {
 function fail_if_err() {
     local m=${@:-TEST FAILED}
     if [ $TEST_FAILED != 0 ]; then
+        kill_all_bgs
+        check_for_errors_log
         fail $m
     fi
 }
