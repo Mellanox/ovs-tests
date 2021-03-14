@@ -8,15 +8,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-function verify_mlxconfig_for_sf() {
-    SF_BAR2_ENABLED="True(1)"
-    bar2_enable=`fw_query_val PF_BAR2_ENABLE`
-    echo "PF_BAR2_ENABLE=$bar2_enable"
-    if [ "$bar2_enable" != "$SF_BAR2_ENABLED" ]; then
-        fail "Cannot support SF with current mlxconfig settings"
-    fi
-}
-
 function sf_port_add_del_test() {
     title "Test sf port add delete commands"
 

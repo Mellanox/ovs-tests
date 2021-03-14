@@ -1631,6 +1631,19 @@ function redmine_info() {
     fi
 }
 
+function verify_mlxconfig_for_sf() {
+    local SF_BAR2_ENABLED="True(1)"
+    local bar2_enable=`fw_query_val PF_BAR2_ENABLE`
+    echo "PF_BAR2_ENABLE=$bar2_enable"
+    if [ "$bar2_enable" != "$SF_BAR2_ENABLED" ]; then
+        fail "Cannot support SF with current mlxconfig settings"
+    fi
+}
+
+function get_free_memory() {
+    echo $(cat /proc/meminfo | grep MemFree | sed 's/[^0-9]*//g')
+}
+
 ### workarounds
 function wa_reset_multipath() {
     # we currently switch to legacy and back because of an issue
