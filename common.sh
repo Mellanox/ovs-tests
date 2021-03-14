@@ -278,12 +278,14 @@ function is_rh72_kernel() {
 function __config_bonding() {
     local nic1=${1:-$NIC}
     local nic2=${2:-$NIC2}
+    local mode=${3:-active-backup}
+    log "Config bonding $nic1 $nic2 mode $mode"
     if is_rh72_kernel ; then
         ip link add name bond0 type bond
         echo 100 > /sys/class/net/bond0/bonding/miimon
-        echo active-backup > /sys/class/net/bond0/bonding/mode
+        echo $mode > /sys/class/net/bond0/bonding/mode
     else
-        ip link add name bond0 type bond mode active-backup miimon 100 || fail "Failed to create bond interface"
+        ip link add name bond0 type bond mode $mode miimon 100 || fail "Failed to create bond interface"
     fi
     ip link set dev $nic1 down
     ip link set dev $nic2 down
