@@ -49,7 +49,7 @@ function add_vxlan_rule() {
         action tunnel_key unset \
         action mirred egress redirect dev $REP
     # some kernels don't support offloading decap skip_sw so dont use it.
-    # this test verify later the decap rule is in hw.
+    verify_in_hw vxlan1 2
 }
 
 function verify_rules_in_hw() {
@@ -89,7 +89,12 @@ function test_add_multipath_rule() {
     is_vf_lag_active || return 1
     ip r show $net
     add_vxlan_rule $local_ip $remote_ip
-    verify_rules_in_hw
+
+    mode=`get_flow_steering_mode $NIC`
+    if [ "$mode" == "dmfs" ]; then
+        verify_rules_in_hw
+    fi
+
     reset_tc $REP
 }
 
