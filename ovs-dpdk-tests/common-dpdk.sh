@@ -62,12 +62,17 @@ function cleanup_e2e_cache() {
 }
 
 function query_sw_packets() {
+    local num_of_pkts=50000
+    if [[ "$short_device_name" == "cx5"* ]]; then
+        num_of_pkts=200000
+    fi
+    echo "Expecting $num_of_pkts to reach SW"
     local pkts1=$(ovs-appctl dpif-netdev/pmd-stats-show | grep 'packets received:' | sed -n '1p' | awk '{print $3}')
     local pkts2=$(ovs-appctl dpif-netdev/pmd-stats-show | grep 'packets received:' | sed -n '2p' | awk '{print $3}')
 
     local total_pkts=$(($pkts1+$pkts2))
     echo -e "Received $total_pkts packets in SW"
-    if [ $total_pkts -gt 50000 ]; then
+    if [ $total_pkts -gt $num_of_pkts ]; then
         err "$total_pkts reached SW"
     fi
 }
