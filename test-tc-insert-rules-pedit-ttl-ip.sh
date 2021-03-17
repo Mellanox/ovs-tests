@@ -44,7 +44,7 @@ function test_tcp_rewrite() {
         flower skip_sw ip_proto tcp \
         action pedit ex \
             munge ip ttl add 0xff \
-        pipe action mirred egress redirect dev $REP
+        pipe action mirred egress redirect dev $REP2
     reset_tc $REP
 
     title "- ttl & addr fields"
@@ -53,7 +53,7 @@ function test_tcp_rewrite() {
         action pedit ex \
             munge ip ttl add 0xff \
             munge ip src set $SRC_ADDR \
-        pipe action mirred egress redirect dev $REP
+        pipe action mirred egress redirect dev $REP2
     reset_tc $REP
 
     title "- addr fields only"
@@ -62,7 +62,7 @@ function test_tcp_rewrite() {
         action pedit ex \
             munge ip src set $SRC_ADDR \
             munge ip dst set $DST_ADDR \
-        pipe action mirred egress redirect dev $REP
+        pipe action mirred egress redirect dev $REP2
     reset_tc $REP
 
 }
@@ -75,7 +75,7 @@ function test_tcp_rewrite_ipv6() {
         flower skip_sw ip_proto tcp \
         action pedit ex \
             munge ip6 hoplimit add 0xff \
-        pipe action mirred egress redirect dev $REP
+        pipe action mirred egress redirect dev $REP2
     reset_tc $REP
 
     title "- hoplimit & addr fields"
@@ -84,7 +84,7 @@ function test_tcp_rewrite_ipv6() {
         action pedit ex \
             munge ip6 hoplimit add 0xff \
             munge ip6 src set $SRC_ADDR6 \
-        pipe action mirred egress redirect dev $REP
+        pipe action mirred egress redirect dev $REP2
     reset_tc $REP
 
     title "- addr field only"
@@ -92,7 +92,7 @@ function test_tcp_rewrite_ipv6() {
         flower skip_sw ip_proto tcp \
         action pedit ex \
             munge ip6 src set $SRC_ADDR6 \
-        pipe action mirred egress redirect dev $REP
+        pipe action mirred egress redirect dev $REP2
     reset_tc $REP
 
 }
@@ -105,7 +105,7 @@ function test_sctp_rewrite() {
         flower skip_sw ip_proto sctp \
         action pedit ex \
             munge ip ttl add 0xff \
-        pipe action mirred egress redirect dev $REP
+        pipe action mirred egress redirect dev $REP2
     reset_tc $REP
 
     title "- ttl & addr fields (must be error message)"
@@ -114,7 +114,7 @@ function test_sctp_rewrite() {
         action pedit ex \
             munge ip ttl add 0xff \
             munge ip src set $SRC_ADDR \
-        pipe action mirred egress redirect dev $REP
+        pipe action mirred egress redirect dev $REP2
     reset_tc $REP
 
     title "- addr fields only (must be error message)"
@@ -123,7 +123,7 @@ function test_sctp_rewrite() {
         action pedit ex \
             munge ip src set $SRC_ADDR \
             munge ip dst set $DST_ADDR \
-        pipe action mirred egress redirect dev $REP
+        pipe action mirred egress redirect dev $REP2
     reset_tc $REP
 
 }
@@ -136,7 +136,7 @@ function test_sctp_rewrite_ipv6() {
         flower skip_sw ip_proto sctp \
         action pedit ex \
             munge ip6 hoplimit add 0xff \
-        pipe action mirred egress redirect dev $REP
+        pipe action mirred egress redirect dev $REP2
     reset_tc $REP
 
     title "- hoplimit & addr fields (must be error message)"
@@ -145,7 +145,7 @@ function test_sctp_rewrite_ipv6() {
         action pedit ex \
             munge ip6 hoplimit add 0xff \
             munge ip6 src set $SRC_ADDR6 \
-        pipe action mirred egress redirect dev $REP
+        pipe action mirred egress redirect dev $REP2
     reset_tc $REP
 
     title "- addr field only (must be error message)"
@@ -153,7 +153,7 @@ function test_sctp_rewrite_ipv6() {
         flower skip_sw ip_proto sctp \
         action pedit ex \
             munge ip6 src set $SRC_ADDR6 \
-        pipe action mirred egress redirect dev $REP
+        pipe action mirred egress redirect dev $REP2
     reset_tc $REP
 
 }

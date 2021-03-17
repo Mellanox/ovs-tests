@@ -8,19 +8,11 @@
 # Expected result: not to crash
 #
 
-NIC=${1:-ens5f0}
-
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 enable_switchdev
-rep=`get_rep 0`
-if [ -z "$rep" ]; then
-    fail "Missing rep $rep"
-    exit 1
-fi
-reset_tc $NIC
-reset_tc $rep
+reset_tc $NIC $REP $REP2
 
 COUNT=5
 
@@ -52,7 +44,7 @@ function add_rules_vlan() {
             dst_mac e2:22:33:44:${num1}:$num2 \
             vlan_ethtype 0x800 \
             vlan_id 100 \
-            action mirred egress redirect dev $REP
+            action mirred egress redirect dev $REP2
     done
 }
 
@@ -79,7 +71,7 @@ function del_rules() {
 }
 
 
-for NIC1 in $NIC $rep ; do
+for NIC1 in $NIC $REP ; do
     title "Test nic $NIC1"
     reset_tc $NIC1
     add_rules

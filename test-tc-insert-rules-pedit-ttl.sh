@@ -5,8 +5,6 @@
 # Bug SW #1366970: FW syndrome adding header rewrite rule of ttl and fwd to internal vport
 #
 
-NIC=${1:-ens5f0}
-
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
@@ -25,14 +23,14 @@ function test_header_rewrite_ttl_uplink() {
 }
 
 function test_header_rewrite_ttl_vport() {
-    title "Add complex (macs, ips, ttl add) pedit rule rep->rep"
+    title "Add complex (macs, ips, ttl add) pedit rule rep->rep2"
     # BAD_PARAM           | 0x3B7492 |  set_flow_table_entry: modify ipv4 ttl action in fdb can not forward to internal vport
     reset_tc $REP
     tc_filter_success add dev $REP protocol ip parent ffff: prio 2 \
         flower skip_sw dst_mac aa:bb:cc:dd:ee:ff ip_proto tcp ip_ttl 40/ff dst_ip 7.7.7.3 \
         action pedit ex \
             munge ip ttl add 0xff pipe \
-        action mirred egress redirect dev $REP
+        action mirred egress redirect dev $REP2
     reset_tc $REP
 }
 
