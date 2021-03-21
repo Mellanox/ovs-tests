@@ -327,11 +327,13 @@ function remote_disable_sriov() {
 function config_remote_bonding() {
     local nic1=$REMOTE_NIC
     local nic2=$REMOTE_NIC2
+    local mode=${3:-active-backup}
+    log "Config remote bonding $nic1 $nic2 mode $mode"
     on_remote modprobe -q bonding || fail "Remote missing module bonding"
     clear_remote_bonding
     on_remote ip link add name bond0 type bond || fail "Failed to create remote bond interface"
     on_remote "echo 100 > /sys/class/net/bond0/bonding/miimon"
-    on_remote "echo active-backup > /sys/class/net/bond0/bonding/mode"
+    on_remote "echo $mode > /sys/class/net/bond0/bonding/mode"
     on_remote "ip link set dev $nic1 down; \
                ip link set dev $nic2 down; \
                ip link set dev $nic1 master bond0; \
