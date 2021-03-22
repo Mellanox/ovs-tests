@@ -123,6 +123,7 @@ function run() {
     config
     config_remote
     add_openflow_rules
+    sleep 1
 
     # icmp
     ip netns exec ns0 ping -q -c 1 -w 1 $REMOTE
