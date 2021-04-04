@@ -911,7 +911,7 @@ def run_tests(iteration):
 
         print("%-62s " % deco(name, 'light-blue'), end=' ')
         if args.loops > 1:
-            print("%-5s" % iteration, end=' ')
+            print("%-5s" % str(iteration+1), end=' ')
         sys.stdout.flush()
 
         test.status = 'UNKNOWN'
