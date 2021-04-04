@@ -131,6 +131,6 @@ function run() {
 
 start_check_syndrome
 run
-start_clean_openvswitch
+ovs-vsctl del-br br-ovs
 check_syndrome
 test_done

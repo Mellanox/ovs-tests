@@ -184,5 +184,5 @@ function run() {
 }
 
 run
-start_clean_openvswitch
+ovs-vsctl del-br br-ovs
 test_done
