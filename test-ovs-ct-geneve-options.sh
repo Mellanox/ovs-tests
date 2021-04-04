@@ -39,9 +39,9 @@ function set_nf_liberal() {
 }
 
 function cleanup_remote() {
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip l del dev geneve1 &>/dev/null
-    on_remote ip link del vm &>/dev/null
+    on_remote "ip a flush dev $REMOTE_NIC; \
+               ip l del dev geneve1 &>/dev/null; \
+               ip link del vm &>/dev/null"
 }
 
 function cleanup() {
@@ -78,24 +78,23 @@ function config() {
 
 function config_remote() {
     local geneve_opts="geneve_opts ffff:80:00001234"
-    on_remote ip link del geneve1 &>/dev/null
-    on_remote ip link add geneve1 type geneve dstport 6081 external
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
-    on_remote ip l set dev geneve1 up
-    on_remote ip l set dev $REMOTE_NIC up
-    on_remote tc qdisc add dev geneve1 ingress
+    on_remote "ip link del geneve1 &>/dev/null; \
+               ip link add geneve1 type geneve dstport 6081 external; \
+               ip a flush dev $REMOTE_NIC; \
+               ip a add $REMOTE_IP/24 dev $REMOTE_NIC; \
+               ip l set dev geneve1 up; \
+               ip l set dev $REMOTE_NIC up; \
+               tc qdisc add dev geneve1 ingress"
 
     title "Setup remote geneve + opts"
-    on_remote ip link add vm type veth peer name vm_rep
-    on_remote ifconfig vm $REMOTE/24 up
-    on_remote ifconfig vm_rep 0 promisc up
-    on_remote tc qdisc add dev vm_rep ingress
-    on_remote tc filter add dev vm_rep ingress proto ip flower skip_hw action tunnel_key set src_ip 0.0.0.0 dst_ip $LOCAL_TUN id $TUN_ID dst_port 6081 $geneve_opts pipe action mirred egress redirect dev geneve1
-    on_remote tc filter add dev vm_rep ingress proto arp flower skip_hw action tunnel_key set src_ip 0.0.0.0 dst_ip $LOCAL_TUN id $TUN_ID dst_port 6081 $geneve_opts pipe action mirred egress redirect dev geneve1
-    on_remote tc filter add dev geneve1 ingress protocol arp flower skip_hw action tunnel_key unset action mirred egress redirect dev vm_rep
-    on_remote tc filter add dev geneve1 ingress protocol ip flower skip_hw action tunnel_key unset action mirred egress redirect dev vm_rep
-
+    on_remote "ip link add vm type veth peer name vm_rep; \
+               ifconfig vm $REMOTE/24 up; \
+               ifconfig vm_rep 0 promisc up; \
+               tc qdisc add dev vm_rep ingress; \
+               tc filter add dev vm_rep ingress proto ip flower skip_hw action tunnel_key set src_ip 0.0.0.0 dst_ip $LOCAL_TUN id $TUN_ID dst_port 6081 $geneve_opts pipe action mirred egress redirect dev geneve1; \
+               tc filter add dev vm_rep ingress proto arp flower skip_hw action tunnel_key set src_ip 0.0.0.0 dst_ip $LOCAL_TUN id $TUN_ID dst_port 6081 $geneve_opts pipe action mirred egress redirect dev geneve1; \
+               tc filter add dev geneve1 ingress protocol arp flower skip_hw action tunnel_key unset action mirred egress redirect dev vm_rep; \
+               tc filter add dev geneve1 ingress protocol ip flower skip_hw action tunnel_key unset action mirred egress redirect dev vm_rep"
 }
 
 function add_openflow_rules() {

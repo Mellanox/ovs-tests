@@ -76,10 +76,10 @@ function config() {
 }
 
 function config_remote() {
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip a add $REMOTE/24 dev $REMOTE_NIC
-    on_remote ip l set dev $REMOTE_NIC up
-    on_remote ip n r $IP dev $REMOTE_NIC lladdr $mac1
+    on_remote "ip a flush dev $REMOTE_NIC; \
+              ip a add $REMOTE/24 dev $REMOTE_NIC; \
+              ip l set dev $REMOTE_NIC up; \
+              ip n r $IP dev $REMOTE_NIC lladdr $mac1"
 }
 
 function add_openflow_rules() {

@@ -332,9 +332,9 @@ function config_remote_bonding() {
     on_remote modprobe -q bonding || fail "Remote missing module bonding"
     clear_remote_bonding
     on_remote ip link add name bond0 type bond || fail "Failed to create remote bond interface"
-    on_remote "echo 100 > /sys/class/net/bond0/bonding/miimon"
-    on_remote "echo $mode > /sys/class/net/bond0/bonding/mode"
-    on_remote "ip link set dev $nic1 down; \
+    on_remote "echo 100 > /sys/class/net/bond0/bonding/miimon; \
+               echo $mode > /sys/class/net/bond0/bonding/mode; \
+               ip link set dev $nic1 down; \
                ip link set dev $nic2 down; \
                ip link set dev $nic1 master bond0; \
                ip link set dev $nic2 master bond0; \
@@ -344,9 +344,9 @@ function config_remote_bonding() {
 }
 
 function clear_remote_bonding() {
-    on_remote ip link set dev $REMOTE_NIC nomaster &>/dev/null
-    on_remote ip link set dev $REMOTE_NIC2 nomaster &>/dev/null
-    on_remote ip link del bond0 &>/dev/null
+    on_remote "ip link set dev $REMOTE_NIC nomaster &>/dev/null; \
+               ip link set dev $REMOTE_NIC2 nomaster &>/dev/null; \
+               ip link del bond0 &>/dev/null"
 }
 
 function require_mlxreg() {
