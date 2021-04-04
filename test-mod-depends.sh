@@ -12,7 +12,7 @@ my_dir="$(dirname "$0")"
 function run() {
     title "Check for unexpected mlx5_core module dependencies"
 
-    local expected="ptp|tls|mlxfw|pci-hyperv-intf"
+    local expected="ptp|tls|mlxfw|pci-hyperv-intf|auxiliary"
 
     if is_ofed ; then
         expected="$expected|devlink|mlx_compat|mdev|memtrack|psample"
