@@ -156,11 +156,10 @@ function run() {
     kill -9 $pid1 $pid2 &>/dev/null
     echo "wait for bgs"
     wait &>/dev/null
-
-    start_clean_openvswitch
-    cleanup
-    trap - EXIT
 }
 
 run
+start_clean_openvswitch
+cleanup
+trap - EXIT
 test_done

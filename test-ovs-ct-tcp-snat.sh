@@ -163,10 +163,10 @@ function run() {
     echo "wait for bgs"
     wait &>/dev/null
 
-    start_clean_openvswitch
-    cleanup
-    trap - EXIT
 }
 
 run
+start_clean_openvswitch
+cleanup
+trap - EXIT
 test_done
