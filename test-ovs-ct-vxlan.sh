@@ -93,15 +93,9 @@ function initial_traffic() {
     # so we start second traffic which will be faster added to hw before
     # conntrack and this will check the miss rule in our driver is ok
     # (i.e. restoring reg_0 correctly)
-    on_remote timeout 4 iperf -s -t 3 &
-    pid1=$!
-    sleep 1
-    ip netns exec ns0 timeout 3 iperf -c $REMOTE -t 2 &
-    pid2=$!
-
-    sleep 4
-    kill -9 $pid1 $pid2 &>/dev/null
-    wait $pid1 $pid2 &>/dev/null
+    ip netns exec ns0 iperf -s -D
+    on_remote timeout -k1 3 iperf -c $IP -t 2
+    killall -9 iperf
 }
 
 function run() {
