@@ -40,16 +40,11 @@ function set_nf_liberal() {
     fi
 }
 
-function cleanup_remote() {
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip l del dev vxlan1 &>/dev/null
-}
-
 function cleanup() {
     ip a flush dev $NIC
     ip netns del ns0 &>/dev/null
     ip netns del ns1 &>/dev/null
-    cleanup_remote
+    cleanup_remote_vxlan
     sleep 0.5
 }
 trap cleanup EXIT
@@ -84,16 +79,6 @@ function config() {
     #ovs-vsctl clear bridge br-ovs mirrors
 }
 
-function config_remote() {
-    on_remote ip link del vxlan1 &>/dev/null
-    on_remote ip link add vxlan1 type vxlan id $VXLAN_ID dev $REMOTE_NIC dstport 4789
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
-    on_remote ip a add $REMOTE/24 dev vxlan1
-    on_remote ip l set dev vxlan1 up
-    on_remote ip l set dev $REMOTE_NIC up
-}
-
 function add_openflow_rules() {
     ovs-ofctl del-flows br-ovs
     ovs-ofctl add-flow br-ovs arp,actions=normal
@@ -106,7 +91,7 @@ function add_openflow_rules() {
 
 function run() {
     config
-    config_remote
+    config_remote_vxlan
     add_openflow_rules
 
     # icmp
@@ -118,7 +103,7 @@ function run() {
 
     t=15
     # traffic
-    ssh2 $REMOTE_SERVER timeout $((t+2)) iperf -s -t $t &
+    on_remote timeout $((t+2)) iperf -s -t $t &
     pid1=$!
     sleep 1
     ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -P3 &

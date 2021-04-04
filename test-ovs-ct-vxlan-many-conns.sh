@@ -39,17 +39,12 @@ function set_nf_liberal() {
     fi
 }
 
-function cleanup_remote() {
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip l del dev vxlan1 &>/dev/null
-}
-
 function cleanup() {
     stop
     ip a flush dev $NIC
     ip netns del ns0 &>/dev/null
     ip netns del ns1 &>/dev/null
-    cleanup_remote
+    cleanup_remote_vxlan
     sleep 0.5
 }
 trap cleanup EXIT
@@ -77,16 +72,6 @@ function config() {
     ovs-vsctl add-port br-ovs vxlan1 -- set interface vxlan1 type=vxlan options:local_ip=$LOCAL_TUN options:remote_ip=$REMOTE_IP options:key=$VXLAN_ID options:dst_port=4789
 }
 
-function config_remote() {
-    on_remote "ip link del vxlan1 &>/dev/null;\
-               ip link add vxlan1 type vxlan id $VXLAN_ID dev $REMOTE_NIC dstport 4789;\
-               ip a flush dev $REMOTE_NIC;\
-               ip a add $REMOTE_IP/24 dev $REMOTE_NIC;\
-               ip a add $REMOTE/24 dev vxlan1;\
-               ip l set dev vxlan1 up;\
-               ip l set dev $REMOTE_NIC up"
-}
-
 function add_openflow_rules() {
     ovs-ofctl del-flows br-ovs
     ovs-ofctl add-flow br-ovs arp,actions=normal
@@ -106,7 +91,7 @@ function stop() {
 
 function run() {
     config
-    config_remote
+    config_remote_vxlan
     add_openflow_rules
 
     # icmp
