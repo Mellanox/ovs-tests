@@ -115,17 +115,16 @@ function run() {
 
     title "Start traffic"
     t=16
-    on_remote timeout $((t+2)) iperf -s -t $t &
-    pid1=$!
-    sleep 2
-    ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -P3 &
+    ip netns exec ns0 iperf -s -D
+    on_remote timeout -k1 $((t+2)) iperf -c $IP -t $t -P3 &
     pid2=$!
 
     # verify pid
-    sleep 2
+    sleep 4
     kill -0 $pid2 &>/dev/null
     if [ $? -ne 0 ]; then
         err "iperf failed"
+        killall -9 iperf
         return
     fi
 
@@ -145,7 +144,8 @@ function run() {
     title "Verify offload on vxlan_sys_4789"
     verify_no_traffic $tpid3
 
-    kill -9 $pid1 $pid2 &>/dev/null
+    killall -9 iperf
+    kill -9 $pid2 &>/dev/null
     echo "wait for bgs"
     wait &>/dev/null
 }
