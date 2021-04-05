@@ -9,6 +9,7 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 pktgen=$my_dir/scapy-traffic-tester.py
 
+not_relevant_for_nic cx5 cx6 cx6lx
 require_module act_ct
 
 IP1="7.7.7.1"

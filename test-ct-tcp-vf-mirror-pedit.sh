@@ -6,6 +6,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+not_relevant_for_nic cx5 cx6 cx6lx
 require_module act_ct
 echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
 

@@ -10,6 +10,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+not_relevant_for_nic cx5 cx6 cx6lx
 require_module act_ct
 
 REMOTE_SERVER=${REMOTE_SERVER:-$1}
