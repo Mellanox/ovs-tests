@@ -67,13 +67,13 @@ function spawn_n_iperf_pairs() {
     done
 
     # wait for iperf servers to start
-    sleep 1
+    sleep 3
 
     for port in $(seq $port_start $port_end); do
         run_iperf_client $IP2 $port $rate $time
     done
 
-    #wait for clients to establish connections and start traffic
+    # wait for clients to establish connections and start traffic
     sleep 1
 }
 
