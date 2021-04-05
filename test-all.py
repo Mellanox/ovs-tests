@@ -169,6 +169,7 @@ class Test(object):
         self._passed = False
         self._failed = False
         self._skip = False
+        self._wont_fix = False
         self._ignore = False
         self._reason = ''
         self.test_log = self._name + '.log'
@@ -210,6 +211,16 @@ class Test(object):
     def set_skip(self, reason):
         self._skip = True
         self._reason = reason
+
+    def unset_skip(self):
+        self._skip = False
+
+    @property
+    def wont_fix(self):
+        return self._wont_fix
+
+    def set_wont_fix(self):
+        self._wont_fix = True
 
     @property
     def ignore(self):
@@ -259,6 +270,8 @@ def parse_args():
                         help='Randomize the order of the tests')
     parser.add_argument('--loops', default=0, type=int,
                         help='Loop the tests. stop if loop fails.')
+    parser.add_argument('--run-skipped', action='store_true',
+                        help='Run tests that are skipped by open issue.')
 
     args = parser.parse_args()
     if args.loops > 1 and args.html:
@@ -597,6 +610,7 @@ def update_skip_according_to_db(data):
                 t.set_skip("Cannot fetch RM #%s" % bug)
                 continue
             if rm.is_issue_wont_fix_or_release_notes(task):
+                t.set_wont_fix()
                 WONT_FIX[name] = "%s RM #%s: %s" % (task['status']['name'], bug, task['subject'])
             if rm.is_issue_open(task):
                 t.set_skip("RM #%s: %s" % (bug, task['subject']))
@@ -805,6 +819,20 @@ def load_tests_from_db(data):
     return tests
 
 
+def revert_skip_if_needed(data):
+    if not args.run_skipped:
+        return
+
+    skipped = []
+    for test in TESTS[:]:
+        if test.wont_fix:
+            continue
+        if test.skip:
+            test.unset_skip()
+        else:
+            TESTS.remove(test)
+
+
 def get_tests():
     global TESTS
     try:
@@ -816,6 +844,7 @@ def get_tests():
                 TESTS = load_tests_from_db(data)
                 ignore_excluded(data.get('ignore', []))
                 update_skip_according_to_db(data)
+                revert_skip_if_needed(data)
         else:
             tmp = glob(MYDIR + '/test-*.sh')
             TESTS = [Test(t) for t in tmp]
