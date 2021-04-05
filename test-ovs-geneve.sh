@@ -83,17 +83,24 @@ function config_remote() {
                ip l set dev $REMOTE_NIC up"
 }
 
-function add_openflow_rules() {
-#    ovs-ofctl del-flows br-ovs
-#    ovs-ofctl add-flow br-ovs arp,actions=normal
-#    ovs-ofctl add-flow br-ovs icmp,actions=normal
-    ovs-ofctl dump-flows br-ovs --color
+function initial_traffic() {
+    title "initial traffic"
+    # this part is important when using multi-table CT.
+    # the initial traffic will cause ovs to create initial tc rules
+    # and also tuple rules. but since ovs adds the rules somewhat late
+    # conntrack will already mark the conn est. and tuple rules will be in hw.
+    # so we start second traffic which will be faster added to hw before
+    # conntrack and this will check the miss rule in our driver is ok
+    # (i.e. restoring reg_0 correctly)
+    ip netns exec ns0 iperf3 -s -D
+    on_remote timeout -k1 3 iperf3 -c $IP -t 2
+    killall -9 iperf3
 }
 
 function run() {
     config
     config_remote
-    add_openflow_rules
+    sleep 1
 
     # icmp
     ip netns exec ns0 ping -q -c 1 -w 1 $REMOTE
@@ -102,23 +109,11 @@ function run() {
         return
     fi
 
-    # initial traffic
-    ssh2 $REMOTE_SERVER timeout 5 iperf3 -s &
-    pid1=$!
-    sleep 2
-    ip netns exec ns0 timeout 3 iperf3 -c $REMOTE -t 2 &
-    pid2=$!
-
-    sleep 3
-    kill -9 $pid1 $pid2 &>/dev/null
-    wait $pid1 $pid2 &>/dev/null
-    sleep 2
+    initial_traffic
 
     # traffic
-    ssh2 $REMOTE_SERVER timeout 15 iperf3 -s &
-    pid1=$!
-    sleep 2
-    ip netns exec ns0 timeout 15 iperf3 -c $REMOTE -t 12 -P3 &
+    ip netns exec ns0 iperf3 -s -D
+    on_remote timeout -k1 15 iperf3 -c $IP -t 12 -P3 &
     pid2=$!
 
     # verify pid
@@ -126,6 +121,7 @@ function run() {
     kill -0 $pid2 &>/dev/null
     if [ $? -ne 0 ]; then
         err "iperf failed"
+        killall -q -9 iperf3
         return
     fi
 
@@ -145,7 +141,8 @@ function run() {
     title "Verify offload on genev_sys_6081"
     verify_no_traffic $tpid3
 
-    kill -9 $pid1 $pid2 &>/dev/null
+    killall -q -9 iperf3
+    kill -9 $pid2 &>/dev/null
     echo "wait for bgs"
     wait &>/dev/null
 }
