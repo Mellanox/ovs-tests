@@ -255,9 +255,8 @@ def parse_args():
                         help='Log dir to save all logs under')
     parser.add_argument('--html', action='store_true',
                         help='Save log files in HTML and a summary')
-    parser.add_argument('--randomize', '-r', default=False,
-                        help='Randomize the order of the tests',
-                        action='store_true')
+    parser.add_argument('--randomize', '-r', action='store_true',
+                        help='Randomize the order of the tests')
     parser.add_argument('--loops', default=0, type=int,
                         help='Loop the tests. stop if loop fails.')
 
