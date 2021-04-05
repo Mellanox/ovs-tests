@@ -37,8 +37,8 @@ function set_nf_liberal() {
 }
 
 function cleanup_remote() {
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip l del dev geneve1 &>/dev/null
+    on_remote "ip a flush dev $REMOTE_NIC; \
+              ip l del dev geneve1 &>/dev/null"
 }
 
 function cleanup() {
@@ -74,13 +74,13 @@ function config() {
 }
 
 function config_remote() {
-    on_remote ip link del geneve1 &>/dev/null
-    on_remote ip link add geneve1 type geneve id $TUN_ID remote $LOCAL_TUN dstport 6081
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
-    on_remote ip a add $REMOTE/24 dev geneve1
-    on_remote ip l set dev geneve1 up
-    on_remote ip l set dev $REMOTE_NIC up
+    on_remote "ip link del geneve1 &>/dev/null; \
+               ip link add geneve1 type geneve id $TUN_ID remote $LOCAL_TUN dstport 6081; \
+               ip a flush dev $REMOTE_NIC; \
+               ip a add $REMOTE_IP/24 dev $REMOTE_NIC; \
+               ip a add $REMOTE/24 dev geneve1; \
+               ip l set dev geneve1 up; \
+               ip l set dev $REMOTE_NIC up"
 }
 
 function add_openflow_rules() {
