@@ -81,7 +81,6 @@ function cleanup_iperf() {
     exec 3>&2
     exec 2> /dev/null
     killall -q -9 iperf3
-    ip netns exec ns0 killall -q -9 iperf3
     sleep 0.1
     exec 2>&3
     exec 3>&-
