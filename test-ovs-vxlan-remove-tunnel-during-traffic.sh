@@ -62,15 +62,15 @@ function get_vxlan_rx_pkt_count() {
 
 function stop_traffic() {
     echo "stop traffic"
-    killall -9 iperf &>/dev/null
-    killall -9 noodle &>/dev/null
+    killall -q -9 iperf &>/dev/null
+#    killall -9 noodle &>/dev/null
     wait &>/dev/null
 }
 
 function start_traffic() {
     # expecting issue to reproduce when we have at least ~90kpps
-    echo "start traffic $VM1_IP -> $VM2_IP"
-    iperf -u -c $VM2_IP -b 1G -P 8 -t $runtime &
+    iperf -u -c $VM2_IP -b 1G -P 8 -t $runtime &>/dev/null &
+    sleep 4
 
     # noodle commands that also help reproduce the issue
     # $my_dir/noodle -c $VM2_IP -b 150 -p 9999 -C 10000 -n 5000 &
@@ -85,8 +85,19 @@ function start_test() {
     config_ovs
 
     runtime=60
-    start_traffic
-    sleep 2
+
+    echo "start traffic $VM1_IP -> $VM2_IP"
+    local i
+    for i in `seq 3`; do
+        start_traffic
+        # we dont use iperf server and sometimes iperf exists. just run it again.
+        if pidof iperf &>/dev/null ; then
+            break
+        fi
+        echo "retry"
+    done
+    let runtime=runtime-4
+
     start1=`get_time`
     while true ; do
         stats=`get_vxlan_rx_pkt_count`
