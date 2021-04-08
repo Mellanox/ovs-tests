@@ -55,7 +55,7 @@ function config() {
 
     ip a add dev $VF $local_ip/$subnet
     ip link set dev $VF up
-    config_vf ns0 $VF2 $REP2 $VF_IP 24
+    config_vf ns0 $VF2 $REP2 $VF_IP
     ip addr flush dev $NIC
     ip link set dev $NIC up
 

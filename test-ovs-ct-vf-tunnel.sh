@@ -102,7 +102,7 @@ function config() {
 
     ip a add dev $VF $local_ip/$subnet
     ip link set dev $VF up
-    config_vf ns0 $VF2 $REP2 $VF_IP 24
+    config_vf ns0 $VF2 $REP2 $VF_IP
     ip -netns ns0 link set $VF2 addr $VF_MAC
     ip -netns ns0 neigh replace $REMOTE_VXLAN_DEV_IP dev $VF2 lladdr $REMOTE_VXLAN_DEV_MAC
     ip addr flush dev $NIC
