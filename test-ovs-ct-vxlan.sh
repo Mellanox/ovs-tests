@@ -93,9 +93,9 @@ function initial_traffic() {
     # so we start second traffic which will be faster added to hw before
     # conntrack and this will check the miss rule in our driver is ok
     # (i.e. restoring reg_0 correctly)
-    ip netns exec ns0 iperf -s -D
-    on_remote timeout -k1 3 iperf -c $IP -t 2
-    killall -9 iperf
+    ip netns exec ns0 iperf3 -s -D
+    on_remote timeout -k1 3 iperf3 -c $IP -t 2
+    killall -9 iperf3
 }
 
 function run() {
@@ -115,8 +115,8 @@ function run() {
 
     title "Start traffic"
     t=16
-    ip netns exec ns0 iperf -s -D
-    on_remote timeout -k1 $((t+2)) iperf -c $IP -t $t -P3 &
+    ip netns exec ns0 iperf3 -s -D
+    on_remote timeout -k1 $((t+2)) iperf3 -c $IP -t $t -P3 &
     pid2=$!
 
     # verify pid
@@ -124,7 +124,7 @@ function run() {
     kill -0 $pid2 &>/dev/null
     if [ $? -ne 0 ]; then
         err "iperf failed"
-        killall -9 iperf
+        killall -9 iperf3
         return
     fi
 
@@ -144,7 +144,7 @@ function run() {
     title "Verify offload on vxlan_sys_4789"
     verify_no_traffic $tpid3
 
-    killall -9 iperf
+    killall -9 iperf3
     kill -9 $pid2 &>/dev/null
     echo "wait for bgs"
     wait &>/dev/null
