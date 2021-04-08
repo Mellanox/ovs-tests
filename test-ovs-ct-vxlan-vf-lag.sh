@@ -115,7 +115,9 @@ function add_openflow_rules() {
 }
 
 function run_server() {
-    ip netns exec ns0 iperf -s -D
+    ip netns exec ns0 iperf -s &
+    pk1=$!
+    sleep 1
 }
 
 function run_client() {
@@ -124,9 +126,9 @@ function run_client() {
 }
 
 function kill_traffic() {
-    killall -q -9 iperf
+    kill -9 $pk1 &>/dev/null
     kill -9 $pk2 &>/dev/null
-    wait $pk2 2>/dev/null
+    wait $pk1 $pk2 2>/dev/null
 }
 
 function run() {
