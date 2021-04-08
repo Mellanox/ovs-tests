@@ -9,7 +9,6 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
-pktgen=$my_dir/scapy-traffic-tester.py
 
 require_module act_ct bonding
 
@@ -116,22 +115,18 @@ function add_openflow_rules() {
 }
 
 function run_server() {
-    ssh2 $REMOTE_SERVER timeout $((t+3)) iperf -s &
-#    ssh2 $REMOTE_SERVER $pktgen -l -i $REMOTE_NIC --src-ip $IP --time $((t+1)) &
-    pk1=$!
-    sleep 2
+    ip netns exec ns0 iperf -s -D
 }
 
 function run_client() {
-    ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -P3 &
-#    ip netns exec ns0 $pktgen -i $VF --src-ip $IP --dst-ip $REMOTE --time $t --pkt-count 2 --inter 1 &
+    on_remote timeout -k1 $((t+2)) iperf -c $IP -t $t -P3 &
     pk2=$!
 }
 
 function kill_traffic() {
-    kill -9 $pk1 &>/dev/null
+    killall -q -9 iperf
     kill -9 $pk2 &>/dev/null
-    wait $pk1 $pk2 2>/dev/null
+    wait $pk2 2>/dev/null
 }
 
 function run() {
@@ -160,11 +155,9 @@ function run() {
 
     # verify pid
     sleep 2
-    kill -0 $pk1 &>/dev/null
-    p1=$?
     kill -0 $pk2 &>/dev/null
     p2=$?
-    if [ $p1 -ne 0 ] || [ $p2 -ne 0 ]; then
+    if [ $p2 -ne 0 ]; then
         err "traffic failed"
         return
     fi
