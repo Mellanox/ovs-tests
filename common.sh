@@ -574,6 +574,27 @@ function config_vf() {
     ip -netns $ns link set $vf up
 }
 
+function add_vf_vlan() {
+    local ns=$1
+    local vf=$2
+    local rep=$3
+    local ip=$4
+    local vlan=$5
+    local mac=$6 # optional
+    local prefix=24
+
+    if [[ "$ip" == *":"* ]]; then
+        # ipv6
+        prefix=64
+    fi
+
+    echo "[$ns] $vf.$vlan (${mac:+$mac/}$ip) -> $rep"
+    ip -netns $ns link add link $vf name $vf.$vlan type vlan id $vlan
+    ${mac:+ip link set $vf.$vlan address $mac}
+    ip -netns $ns address replace dev $vf.$vlan $ip/$prefix
+    ip -netns $ns link set $vf.$vlan up
+}
+
 function config_reps() {
     local want=$1
     local nic=$2
