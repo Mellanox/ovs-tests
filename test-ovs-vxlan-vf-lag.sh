@@ -117,6 +117,7 @@ function run() {
         echo $active_slave > /sys/class/net/bond0/bonding/active_slave
         on_remote "echo $remote_active > /sys/class/net/bond0/bonding/active_slave"
     fi
+    sleep 1
 
     # icmp
     ip netns exec ns0 ping -q -c 1 -w 1 $REMOTE
