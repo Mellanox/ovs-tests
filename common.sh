@@ -1594,7 +1594,7 @@ function __cleanup() {
 
 function __setup_clean() {
     local n
-    for n in $NIC $NIC2 $VF $VF2 ; do
+    for n in $NIC $NIC2 $VF $VF2 $REP $REP2 ; do
         if [ -e /sys/class/net/$n ]; then
             reset_tc $n
             ip address flush dev $n
