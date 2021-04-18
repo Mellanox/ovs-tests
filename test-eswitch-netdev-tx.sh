@@ -24,6 +24,10 @@ count1=`get_tx_pkts $NIC`
 ip n r 1.1.1.101 dev $NIC lladdr e4:11:22:33:44:55
 ping -i 0.01 -c 100 -w 3 -q 1.1.1.101 &>/dev/null
 
+# read sysfs twice. once to make sure driver queued update stats work. second to read the updated
+# stats.
+sysfs_count2=`cat /sys/class/net/$NIC/statistics/tx_packets`
+sleep 0.5
 sysfs_count2=`cat /sys/class/net/$NIC/statistics/tx_packets`
 count2=`get_tx_pkts $NIC`
 
