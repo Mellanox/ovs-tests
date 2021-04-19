@@ -10,17 +10,16 @@ testpmd="$DIR/testpmd/testpmd"
 pktgen="$DIR/network-testing/pktgen/pktgen_sample04_many_flows.sh"
 
 require_module act_ct pktgen
-require_remote_server
-echo 0 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
 
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
 config_sriov 2
 enable_switchdev
+require_interfaces REP REP2
 unbind_vfs
 bind_vfs
-mac2=`on_remote cat /sys/class/net/$REMOTE_NIC/address`
+mac2=`cat /sys/class/net/$VF2/address`
 
 pid_pktgen=""
 function kill_pktgen() {
@@ -46,17 +45,15 @@ function cleanup() {
     conntrack -F
 
     ip netns del ns0 2> /dev/null
+    ip netns del ns1 2> /dev/null
     reset_tc $REP
+    reset_tc $REP2
 }
 trap cleanup EXIT
 
 function run_pktgen() {
     echo "run traffic"
-    # with different number of threads we get different result
-    # -t 10 cpu hogs and getting ~50k flows. reproduced the kfree(ft) and rhashtable rehash race
-    # -t 1 got ~260k flows
-    # -t 2 got ~520k flows
-    ip netns exec ns0 timeout --kill-after=1 $t $pktgen -i $VF -t 1 -d $IP2 -m $mac2 &
+    ip netns exec ns0 timeout --kill-after 1 $t $pktgen -i $VF -t 1 -d $IP2 -m $mac2 &
     pid_pktgen=$!
     sleep 4
     if [ ! -e /proc/$pid_pktgen ]; then
@@ -69,10 +66,9 @@ function run_pktgen() {
 
 function run_testpmd() {
     echo "run fwder"
-    on_remote "ip link set dev $REMOTE_NIC up"
-    on_remote "echo 512 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages"
-    on_remote "timeout --kill-after=10 $t tail -f /dev/null | \
-               $testpmd --no-pci --vdev=eth_af_packet0,iface=$REMOTE_NIC -- --forward-mode=5tswap -a" &
+    ip link set dev $NIC up
+    echo 512 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+    timeout --kill-after=10 $t ip netns exec ns1 sh -c "tail -f /dev/null | $testpmd --no-pci --vdev=eth_af_packet0,iface=$VF2 -- --forward-mode=5tswap -a" &
     pid_testpmd=$!
     sleep 8
     if [ ! -e /proc/$pid_testpmd ]; then
@@ -89,7 +85,7 @@ function config_ovs() {
 
     ovs-vsctl add-br br-ovs
     ovs-vsctl add-port br-ovs $REP
-    ovs-vsctl add-port br-ovs $NIC
+    ovs-vsctl add-port br-ovs $REP2
 }
 
 function reconfig_flows() {
@@ -118,8 +114,8 @@ function verify_counter() {
 function run() {
     title "Test OVS CT TCP"
 
-    ip link set $NIC up
     config_vf ns0 $VF $REP $IP1
+    config_vf ns1 $VF2 $REP2 $IP2
     config_ovs
     reconfig_flows
     ovs-ofctl dump-flows br-ovs --color
@@ -131,7 +127,7 @@ function run() {
     echo "add zone 12 rule for priming offload callbacks"
     tc_filter add dev $REP prio 1337 proto ip chain 1337 ingress flower \
         skip_sw ct_state -trk action ct zone 12 pipe \
-        action mirred egress redirect dev $NIC
+        action mirred egress redirect dev $REP2
 
     echo "sleep 3 sec, fg now"
     sleep 3
