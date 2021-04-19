@@ -33,7 +33,7 @@ function cleanup() {
     ip netns del ns1 2> /dev/null
     reset_tc $REP
     reset_tc $REP2
-    devlink_ct_action_on_nat disable
+    devlink_ct_action_on_nat disable &>/dev/null
 }
 trap cleanup EXIT
 
@@ -153,5 +153,8 @@ run
 devlink_ct_action_on_nat enable
 hops=2
 run
+devlink_ct_action_on_nat disable
+cleanup
+trap - EXIT
 
 test_done
