@@ -86,13 +86,16 @@ function run() {
     local filter="$1"
     local t=5
 
+    # initial traffic to offload
+    ip netns exec ns0 ping -I $VF2 $REMOTE_VF_IP -c 1 -w 2 -q
+
     echo "sniff packets on $VF"
     timeout $t tcpdump -qnnei $VF -c 4 "$filter" &
     tpid=$!
     sleep 0.5
 
     echo "run ping for $t seconds"
-    ip netns exec ns0 ping -I $VF2 $REMOTE_VF_IP -c $t -w $t -q &
+    ip netns exec ns0 ping -I $VF2 $REMOTE_VF_IP -c $t -w $((t+2)) -q &
     ppid=$!
     sleep 0.5
 
