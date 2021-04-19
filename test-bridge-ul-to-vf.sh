@@ -12,7 +12,7 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
-. $my_dir/br_common.sh
+. $my_dir/common-br.sh
 
 br=tst1
 REMOTE_SERVER=${REMOTE_SERVER:-$1}
