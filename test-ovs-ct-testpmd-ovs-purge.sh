@@ -142,6 +142,7 @@ function run() {
 
     title "revalidator/purge"
     ovs-appctl revalidator/purge
+    sleep 1
     if ! pidof ovs-vswitchd &>/dev/null ; then
         err "ovs-vswitchd crashed"
     fi
