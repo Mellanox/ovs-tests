@@ -66,7 +66,7 @@ function test_traffic() {
     shift
     local iperf_extra=$@
 
-    timeout -k1 4 iperf -c $FAKE_VM2_IP $iperf_extra -i 999 -t 1 || fail "Iperf failed"
+    timeout -k1 4 iperf -c $FAKE_VM2_IP $iperf_extra -i 999 -t 3 || fail "Iperf failed"
 
     timeout 2 tcpdump -nnei $dev -c 3 'tcp' &
     tdpid=$!
