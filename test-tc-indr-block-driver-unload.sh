@@ -21,7 +21,7 @@ VM_DST_MAC=e4:11:22:33:44:70
 
 function cleanup() {
     load_modules
-    ip a flush dev $NIC
+    ip a flush dev $NIC &>/dev/null
     ip l del dev $VXLAN
 }
 trap cleanup EXIT
