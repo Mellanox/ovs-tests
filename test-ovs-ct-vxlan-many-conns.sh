@@ -43,7 +43,6 @@ function cleanup() {
     stop
     ip a flush dev $NIC
     ip netns del ns0 &>/dev/null
-    ip netns del ns1 &>/dev/null
     cleanup_remote_vxlan
     sleep 0.5
 }
@@ -63,6 +62,7 @@ function config() {
     ip netns add ns0
     ip link set dev $VF netns ns0
     ip netns exec ns0 ifconfig $VF $IP/24 up
+    ip netns exec ns0 ifconfig lo up
 
     echo "Restarting OVS"
     start_clean_openvswitch
