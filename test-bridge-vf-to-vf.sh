@@ -13,9 +13,6 @@ my_dir="$(dirname "$0")"
 . $my_dir/common-br.sh
 
 br=tst1
-REMOTE_SERVER=${REMOTE_SERVER:-$1}
-REMOTE_NIC=${REMOTE_NIC:-$2}
-
 VF1_IP="7.7.1.7"
 VF1_IP_VLAN2="7.7.2.7"
 VF1_IP_VLAN3="7.7.3.7"
@@ -58,26 +55,26 @@ ip -netns $namespace2 link set $VF2 up
 sleep 1
 
 title "test ping (no VLAN)"
-verify_ping_ns $namespace1 $VF $REP2 $VF2_IP 5
+verify_ping_ns $namespace1 $VF $REP2 $VF2_IP $time
 
 title "test ping (VLAN untagged<->untagged)"
 ip link set tst1 type bridge vlan_filtering 1
 sleep 1
-verify_ping_ns $namespace1 $VF $REP2 $VF2_IP 5
+verify_ping_ns $namespace1 $VF $REP2 $VF2_IP $time
 
 title "test ping (VLAN tagged<->tagged)"
 ip link set tst1 type bridge vlan_filtering 1
 bridge vlan add dev $REP vid 2
 bridge vlan add dev $REP2 vid 2
 sleep 1
-verify_ping_ns $namespace1 $VF.2 $REP2 $VF2_IP_VLAN2 5
+verify_ping_ns $namespace1 $VF.2 $REP2 $VF2_IP_VLAN2 $time
 
 title "test ping (VLAN tagged<->untagged)"
 ip link set tst1 type bridge vlan_filtering 1
 bridge vlan add dev $REP vid 3
 bridge vlan add dev $REP2 vid 3 pvid untagged
 sleep 1
-verify_ping_ns $namespace1 $VF.3 $REP2 $VF2_IP_UNTAGGED 5
+verify_ping_ns $namespace1 $VF.3 $REP2 $VF2_IP_UNTAGGED $time
 
 cleanup
 trap - EXIT
