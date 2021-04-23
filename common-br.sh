@@ -23,9 +23,10 @@ function verify_ping_ns() {
     local dump_dev=$3
     local dst_ip=$4
     local t=$5
+    local npackets=${6:-$t}
 
     echo "sniff packets on $dump_dev"
-    timeout $t tcpdump -qnnei $dump_dev -c $t icmp &
+    timeout $t tcpdump -qnnei $dump_dev -c $npackets icmp &
     local tpid=$!
     sleep 0.5
 
