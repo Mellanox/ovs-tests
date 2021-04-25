@@ -87,8 +87,6 @@ function config() {
     ip -netns ns1 neigh replace $router_external_ip dev $VETH_VF lladdr $router_mac
 }
 
-t=10
-pkts=500
 
 function run() {
     title "Test OVS CT tcp nat - miss and continue in software"
@@ -111,6 +109,8 @@ function run() {
 
     echo "sleep before traffic"
     sleep 2
+    t=10
+    pkts=500
 
     title "start tcpdump to sniff syn and ack packets"
     timeout $t tcpdump -qnnei $REP -c 2 'tcp' &
