@@ -79,7 +79,7 @@ function run_pktgen() {
 function run_testpmd() {
     echo "run fwder"
     on_remote "ip link set dev $REMOTE_NIC up"
-    on_remote "echo 512 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages"
+    on_remote "echo 2048 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages"
     on_remote "timeout --kill-after=10 $t tail -f /dev/null | \
                $testpmd --no-pci --vdev=eth_af_packet0,iface=vxlan1 -- --forward-mode=5tswap -a" &
     pid_testpmd=$!
