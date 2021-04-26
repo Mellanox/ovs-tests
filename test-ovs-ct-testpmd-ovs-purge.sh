@@ -8,7 +8,6 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
-testpmd="$DIR/testpmd/testpmd"
 pktgen="$DIR/network-testing/pktgen/pktgen_sample04_many_flows.sh"
 
 require_module act_ct pktgen

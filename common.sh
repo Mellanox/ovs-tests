@@ -166,6 +166,15 @@ function __setup_common() {
     setup_iptables_legacy
     clear_warn_once
     kmemleak_scan_per_test && kmemleak_clear
+    __set_testpmd
+}
+
+function __set_testpmd() {
+    if [ -x /opt/mellanox/dpdk/bin/dpdk-testpmd ]; then
+        testpmd="LD_LIBRARY_PATH=/opt/mellanox/dpdk/lib64 /opt/mellanox/dpdk/bin/dpdk-testpmd"
+    else
+        testpmd="$DIR/testpmd/testpmd"
+    fi
 }
 
 function kmemleak_scan_per_test() {
