@@ -101,7 +101,7 @@ function setup_topo()
                ip neigh add $vfdest lladdr 00:11:22:33:44:55 dev $vf; \
                tc filter add dev $rep protocol ip prio 1 root flower src_ip $vfip dst_ip $vfdest action tunnel_key set src_ip $tunip dst_ip $tundest id $LABEL dst_port $UDPPORT tos 4 ttl 6 action mpls push protocol mpls_uc label $LABEL tc 3 action mirred egress redirect dev bareudp0; \
                tc qdisc add dev bareudp0 ingress; \
-               tc filter add dev bareudp0 protocol all prio 1 ingress flower enc_dst_port $UDPPORT enc_key_id $LABEL action mpls pop protocol ip pipe action pedit ex munge eth dst set $vethmac pipe action mirred egress redirect dev $rep; "
+               tc filter add dev bareudp0 protocol mpls_uc prio 1 ingress flower enc_dst_port $UDPPORT enc_key_id $LABEL action mpls pop protocol ip pipe action pedit ex munge eth dst set $vethmac pipe action mirred egress redirect dev $rep; "
 
     if [ "X$remote" != "X" ]; then
         title "Setup topo on remote"
