@@ -46,7 +46,7 @@ function __test_qinq_double_push_no_pop() {
 }
 
 function run_tests() {
-    title "Try to add tc rules on nic mode and expect to fail without a syndrome"
+    title "Try to add tc rules on nic mode and expect to fail"
     __test_test_simple_cvlan
     __test_qinq_double_push_no_pop
 }
