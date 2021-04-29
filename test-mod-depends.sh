@@ -15,7 +15,7 @@ function run() {
     local expected="ptp|tls|mlxfw|pci-hyperv-intf|auxiliary"
 
     if is_ofed ; then
-        expected="$expected|devlink|mlx_compat|mdev|memtrack|psample"
+        expected="$expected|devlink|mlx_compat|mdev|memtrack|psample|mlxdevm"
     fi
 
     local dependent=`modinfo -F depends mlx5_core | tr ',' '\n' | grep -vE -w "$expected" | xargs echo`
