@@ -23,6 +23,7 @@ function send_pkt() {
     local D=$1
     local pkt="Ether(dst=\"$FAKE_MAC\")/$D"
 
+    title "sending $pkt"
     python -c "from scapy.all import sendp, Ether, IP, Dot1Q; sendp($pkt, iface=\"$VF\")"
 }
 
@@ -33,7 +34,6 @@ function run_test() {
     sleep 1
     tdpid=$!
 
-    title "sending $pkt"
     send_pkt $D
     wait $tdpid
     rc=$?
