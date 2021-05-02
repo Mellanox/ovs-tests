@@ -2,6 +2,7 @@
 #
 # Test ovs ct restore with tcp traffic
 #
+# Bug SW #2610580: conntrack table full and kernel leaks with MOFED
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
