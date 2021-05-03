@@ -1277,8 +1277,7 @@ function ovs_clear_bridges() {
 function service_ovs() {
     local action=$1
     local ovs="openvswitch"
-    local a=`systemctl show -p LoadError $ovs | grep -o DBus.Error`
-    if [ "$a" = "DBus.Error" ]; then
+    if [ "$ID" == "ubuntu" ]; then
           ovs="openvswitch-switch"
     fi
     systemctl $action $ovs
@@ -1489,7 +1488,7 @@ function getnet() {
     local ip=$1
     local net=$2
     which ipcalc >/dev/null || fail "Need ipcalc"
-    if [ "$ID" = "ubuntu" ]; then
+    if [ "$ID" == "ubuntu" ]; then
         echo `ipcalc -n $ip/$net | grep Network: | awk {'print $2'}`
     else
         echo `ipcalc -n $ip/$net | cut -d= -f2`/$net
