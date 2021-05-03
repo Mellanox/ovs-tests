@@ -12,10 +12,10 @@ my_dir="$(dirname "$0")"
 function run() {
     title "Check for unexpected mlx5_core module dependencies"
 
-    local expected="ptp|tls|mlxfw|pci-hyperv-intf|auxiliary"
+    local expected="ptp|tls|mlxfw|pci-hyperv-intf|auxiliary|psample"
 
     if is_ofed ; then
-        expected="$expected|devlink|mlx_compat|mdev|memtrack|psample|mlxdevm"
+        expected="$expected|devlink|mlx_compat|mdev|memtrack|mlxdevm"
     fi
 
     local dependent=`modinfo -F depends mlx5_core | tr ',' '\n' | grep -vE -w "$expected" | xargs echo`
