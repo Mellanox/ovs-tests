@@ -103,7 +103,7 @@ COLOURS = {
     "blue": 34,
     "magenta": 25,
     "cyan": 36,
-    "light-gray": 37,
+    "gray": 37,
     "dark-gray": 90,
     "light-red": 91,
     "light-green": 92,
@@ -332,10 +332,10 @@ def format_result(res, out='', html=False):
         'TEST PASSED': 'green',
         'SKIP':        'yellow',
         'OK':          'green',
-        'DRY':         'yellow',
+        'DRY':         'gray',
         'FAILED':      'red',
         'TERMINATED':  'red',
-        'IGNORED':     'yellow',
+        'IGNORED':     'gray',
         "DIDN'T RUN":  'darkred',
     }
     color = res_color.get(res, 'yellow')
