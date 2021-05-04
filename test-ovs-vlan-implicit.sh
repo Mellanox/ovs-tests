@@ -89,10 +89,10 @@ function run() {
 
     t=15
     # traffic
-    ssh2 $REMOTE_SERVER timeout $((t+2)) iperf -s -t $t &
+    ip netns exec ns0 timeout $((t+2)) iperf -s -t $t &
     pid1=$!
-    sleep 2
-    ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -P3 &
+    sleep 1
+    on_remote timeout $((t+2)) iperf -c $IP -t $t -P3 &
     pid2=$!
 
     # verify pid
