@@ -70,35 +70,12 @@ function run() {
         return
     fi
 
-    # check offloads
-    x=$(ovs-appctl dpctl/dump-e2e-stats | grep 'add merged flows messages to HW' | awk '{print $8}')
-    echo "Number of offload messages: ";echo $x
-
-    if [ $x -lt 20 ]; then
-        err "offloads failed"
-    fi
-
     kill -9 $pid1 &>/dev/null
     killall iperf3 &>/dev/null
     echo "wait for bgs"
     wait
 
-    sleep 12
-    # check deletion from DB
-    y=$(ovs-appctl dpctl/dump-e2e-stats | grep 'merged flows in e2e cache' | awk '{print $7}')
-    echo "Number of DB entries: ";echo $y
-
-    if [ $y -ge 2 ]; then
-        err "deletion from DB failed"
-    fi
-
-    # check deletion from HW
-    z=$(ovs-appctl dpctl/dump-e2e-stats | grep 'delete merged flows messages to HW' | awk '{print $8}')
-    echo "Number of delete HW messages: ";echo $z
-
-    if [ $z -lt 20 ]; then
-        err "offloads failed"
-    fi
+    check_e2e_stats 20
 }
 
 run

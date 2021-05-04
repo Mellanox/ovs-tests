@@ -142,3 +142,31 @@ function cleanup_mirrors() {
 
     ovs-vsctl clear bridge $bridge mirrors &> /dev/null
 }
+
+function check_e2e_stats() {
+    local expected_add_hw_messages=$1
+
+    local x=$(ovs-appctl dpctl/offload-stats-show -m | grep 'Total       HW add e2e flows:' | awk '{print $6}')
+    echo "Number of offload messages: $x"
+
+    if [ $x -lt $((expected_add_hw_messages)) ]; then
+        err "offloads failed"
+    fi
+
+    echo "Sleeping for 15 seconds to age the flows"
+    sleep 15
+    # check deletion from DB
+    local y=$(ovs-appctl dpctl/offload-stats-show -m | grep 'Total       Merged e2e flows:' | awk '{print $5}')
+    echo "Number of DB entries: $y"
+
+    if [ $y -ge 2 ]; then
+        err "deletion from DB failed"
+    fi
+
+    local z=$(ovs-appctl dpctl/offload-stats-show -m | grep 'Total       HW del e2e flows:' | awk '{print $6}')
+    echo "Number of delete HW messages: $z"
+
+    if [ $z -lt $((expected_add_hw_messages)) ]; then
+        err "offloads failed"
+    fi
+}
