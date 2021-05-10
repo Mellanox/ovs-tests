@@ -3,7 +3,7 @@
 # Test max rules in skip_sw and skip_hw on single port.
 # Test max rules in 2 ports.
 #
-# Bug SW #900706: Adding 42K flows results in a fw error
+#  #900706: Adding 42K flows results in a fw error
 #
 # IGNORE_FROM_TEST_ALL
 
