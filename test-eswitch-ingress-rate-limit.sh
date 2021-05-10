@@ -12,13 +12,10 @@ VFIP=10.0.0.1
 BRIP=10.0.0.2
 OVSBR=mybr
 
-# rates in mbps.
-rates="1 2 3 4"
-
 function cleanup() {
+    stop_iperf
     start_clean_openvswitch &>/dev/null
     ip netns del ns0 &>/dev/null
-    stop_iperf
 }
 trap cleanup EXIT
 
@@ -42,8 +39,6 @@ function config() {
 }
 
 function run_test() {
-    iperf -s -fm &
-
     for rate in $rates; do
         let rate1=rate*1000
 
@@ -51,7 +46,7 @@ function run_test() {
 
         ovs-vsctl set interface $REP ingress_policing_rate=$rate1
 
-        mrate=$(ip netns exec ns0 iperf -t 30 -fm -c $BRIP | grep "Mbits/sec" | sed -e 's/Mbits\/sec//' | gawk '{printf $NF}')
+        mrate=$(ip netns exec ns0 iperf -t 15 -fm -c $BRIP | grep "Mbits/sec" | sed -e 's/Mbits\/sec//' | gawk '{printf $NF}')
         if [ -z "$mrate" ]; then
             err "Couldn't get iperf rate"
             continue
@@ -67,11 +62,21 @@ function run_test() {
             success "Measured rate $mrate is in range [$lower, $upper]"
         fi
     done
-
-    stop_iperf
 }
 
 config
+iperf -s -fm &
+sleep 1
+
+title "Case 1 - pf link down"
+# rates in mbps.
+rates="1 2 3 4"
+ip link set $NIC down
 run_test
+
+title "Case 2 - pf link up"
+ip link set $NIC up
+run_test
+
 cleanup
 test_done
