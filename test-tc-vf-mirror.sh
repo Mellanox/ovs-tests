@@ -25,8 +25,6 @@ bind_vfs
 bind_vfs $NIC2
 VF3=`get_vf 2`
 VF4=`get_vf 0 $NIC2`
-reset_tc $REP
-reset_tc $REP2
 require_interfaces VF VF2 VF3 VF4
 
 mac1=`cat /sys/class/net/$VF/address`
@@ -38,8 +36,7 @@ test "$mac2" || fail "no mac2"
 function cleanup() {
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
-    reset_tc $REP
-    reset_tc $REP2
+    reset_tc $REP $REP2
 }
 trap cleanup EXIT
 
