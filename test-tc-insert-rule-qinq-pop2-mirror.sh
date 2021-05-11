@@ -14,11 +14,15 @@ enable_switchdev
 function test1() {
     title "Add mirror rule"
     reset_tc $NIC
+
     tc_filter_success add dev $NIC ingress protocol 802.1q flower \
         vlan_id 10 vlan_ethtype 802.1q cvlan_id 5 \
         action mirred egress mirror dev $REP2 pipe \
         action vlan pop action vlan pop \
         action mirred egress redirect dev $REP
+
+    tc filter show dev $NIC ingress | grep -q cvlan || err "missing cvlan match"
+
     reset_tc $NIC
 }
 
