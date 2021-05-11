@@ -35,6 +35,8 @@ function __test_qinq_double_pushpop() {
         action vlan pop \
         action mirred egress redirect dev $REP
 
+    tc filter show dev $NIC ingress | grep -q cvlan || err "missing cvlan match"
+
     reset_tc $NIC
     reset_tc $REP
 }
@@ -64,6 +66,8 @@ function __test_qinq_double_push_one_pop() {
         action vlan pop \
         action mirred egress redirect dev $REP
 
+    tc filter show dev $NIC ingress | grep -q cvlan || err "missing cvlan match"
+
     reset_tc $NIC
     reset_tc $REP
 }
@@ -92,6 +96,8 @@ function __test_qinq_double_push_no_pop() {
         vlan_ethtype 802.1q cvlan_id 6 \
         cvlan_ethtype arp \
         action mirred egress redirect dev $REP
+
+    tc filter show dev $NIC ingress | grep -q cvlan || err "missing cvlan match"
 
     reset_tc $NIC
     reset_tc $REP
