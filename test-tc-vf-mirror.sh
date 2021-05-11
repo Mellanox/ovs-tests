@@ -51,14 +51,14 @@ function run() {
     ifconfig $vf_mirror 0 up
     ifconfig $mirror 0 up
 
-    echo "add arp rules"
+    title "add arp rules"
     tc_filter add dev $REP ingress protocol arp prio 1 flower \
         action mirred egress redirect dev $REP2
 
     tc_filter add dev $REP2 ingress protocol arp prio 1 flower \
         action mirred egress redirect dev $REP
 
-    echo "add vf mirror rules"
+    title "add vf mirror rules"
     tc_filter add dev $REP ingress protocol ip prio 2 flower skip_sw \
         dst_mac $mac2 \
         action mirred egress mirror dev $mirror pipe \
@@ -69,35 +69,26 @@ function run() {
         action mirred egress mirror dev $mirror pipe \
         action mirred egress redirect dev $REP
 
-    fail_if_err
-
     echo $REP
     tc filter show dev $REP ingress
 
-    echo "sniff packets on $vf_mirror"
+    title "sniff packets on $vf_mirror"
     timeout 5 tcpdump -qnei $vf_mirror -c 6 'icmp' &
     pid=$!
 
-    echo "run traffic"
+    title "run traffic"
     ip netns exec ns0 ping -q -i 0.2 -w 5 $IP2 || err "Ping failed"
 
-    wait $pid
-    # test sniff timedout
-    rc=$?
-    if [[ $rc -eq 0 ]]; then
-        success
-    elif [[ $rc -eq 124 ]]; then
-        err "No mirrored packets"
-    else
-        err "Tcpdump failed"
-    fi
+    title "verify mirred packets"
+    verify_have_traffic $pid
 }
 
 config_vf ns0 $VF $REP $IP1
 config_vf ns1 $VF2 $REP2 $IP2
 
-run "Test VF mirror, with mirror on same nic." $VF3 $REP3
-run "Test VF mirror, with mirror on different nic." $VF4 $REP4
+run "Test VF mirror, with mirror on same nic" $VF3 $REP3
+fail_if_err
+run "Test VF mirror, with mirror on different nic" $VF4 $REP4
 
 # back to defaults
 trap - EXIT
