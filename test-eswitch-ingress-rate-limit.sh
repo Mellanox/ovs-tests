@@ -45,6 +45,11 @@ function run_test() {
         title "Test eswitch ingress rate $rate1"
 
         ovs-vsctl set interface $REP ingress_policing_rate=$rate1
+        tc filter show dev $REP ingress
+        if ! tc -oneline filter show dev $REP ingress | grep -w in_hw | grep "rate ${rate}Mbit" > /dev/null; then
+                err "Matchall filter not in hardware"
+                continue
+        fi
 
         mrate=$(ip netns exec ns0 iperf -t 15 -fm -c $BRIP | grep "Mbits/sec" | sed -e 's/Mbits\/sec//' | gawk '{printf $NF}')
         if [ -z "$mrate" ]; then
