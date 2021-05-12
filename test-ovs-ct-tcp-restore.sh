@@ -80,10 +80,25 @@ function config() {
     config_vf ns1 $VETH_VF $VETH_REP $ip_remote
 }
 
+function get_nf_conntrack_counter_diff() {
+   conntrack -F &>/dev/null
+   echo $(bc <<< `conntrack -C`-`conntrack -L 2>/dev/null | wc -l`)
+}
+olddiff=`get_nf_conntrack_counter_diff`
+tuple=""
+
 function verify_nf_conntrack_counter() {
-    local diff=$(bc <<< `conntrack -C`-`conntrack -L 2>/dev/null | wc -l`)
-    if [ "$diff" != "0" ]; then
-        err "Expected conntrack dump to match conntrack table count, diff $diff"
+    local diff=`get_nf_conntrack_counter_diff`
+    local newdiff=$((diff-olddiff))
+
+    title "verify nf conntrack counter"
+    if [ "$newdiff" != "0" ]; then
+        err "Expected conntrack dump to match conntrack table count, diff $newdiff, dumping dying table to see if connection is there"
+
+        title "verify conntrack dying table"
+        conntrack -L dying | grep -i "zone=3" | grep -i --color=always "$tuple\|$"
+        sleep 2
+        conntrack -L dying 2>/dev/null | grep -i "zone=3" | grep -i "$tuple" | err "Tuple is stuck in dying phase"
     fi
 }
 
@@ -108,7 +123,7 @@ function run() {
 
     echo "sleep before traffic"
     sleep 2
-    t=10
+    t=6
     pkts=200
 
     title "start tcpdump to sniff syn and ack packets"
@@ -116,12 +131,12 @@ function run() {
     pid=$!
 
     title "run traffic for $t seconds"
-    ip netns exec ns1 timeout $((t+1)) iperf -s -i 1 &
+    ip netns exec ns1 timeout $((t+1)) iperf -s -i 1 -p 21845 &
 #    ip netns exec ns1 timeout $((t+1)) iperf3 -s -i 1 &
 #    ip netns exec ns1 $pktgen -l -i $VETH_VF --src-ip $ip --time $((t+1)) &
 #    ip netns exec ns1 timeout $t ./py-server.py $ip_remote 7000 &
     sleep 1
-    ip netns exec ns0 timeout $((t+1)) iperf -t $t -c $ip_remote &
+    ip netns exec ns0 timeout $((t+1)) iperf -t $t -c $ip_remote -p 21845 &
 #    ip netns exec ns0 timeout $((t+1)) iperf3 -u -t $t -c $ip_remote &
 #    ip netns exec ns0 $pktgen -i $VF1 --src-ip $ip --dst-ip $ip_remote --time $t &
 #    ip netns exec ns0 timeout $t ./py-client.py $ip_remote 7000
@@ -138,13 +153,17 @@ function run() {
     echo "sleep to wait for offload"
     sleep 2
 
-    title "check if offloaded to flow table"
     # we cat twice. statiscally we fail first time but always succeed second time.
     cat /proc/net/nf_conntrack >/dev/null
-    res=`cat /proc/net/nf_conntrack | grep -i "zone=3" | grep "$ip_remote"`
-    echo $res
-    echo $res | grep -q -i offload || err "not offloaded to flow table"
+    res=`cat /proc/net/nf_conntrack`
+    tuple=`echo "$res" | grep -i "zone=3" | grep -o "src=$ip .*dst=$ip_remote .*src" | cut -d "s" -f 1-4`
+    echo "tuple: $tuple"
 
+    title "check if tuple offloaded to hardware"
+    echo "$res" | grep "$tuple" | grep -i --color=always 'hw_offload\|$'
+    echo "$res" | grep "$tuple" | grep -q -i hw_offload || err "tuple not offloaded to flow table"
+
+    title "ovs dump"
     ddumpct
 
     title "sniff $pkts software packets on $REP to /tmp/dump"
@@ -165,8 +184,10 @@ function run() {
         err "Failed to catch $pkts packets in software"
     fi
 
+    echo "wait for dying to be removed from list"
+
+    sleep 1
     ovs-vsctl del-br br-ovs
-    conntrack -F &>/dev/null
     verify_nf_conntrack_counter
 }
 
