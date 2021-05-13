@@ -14,6 +14,8 @@ enable_switchdev
 title "Reload pci $PCI"
 devlink dev reload pci/$PCI 2>&1 | tee /tmp/log
 # if blocked as reload not supported don't fail the test
-grep -q "Operation not supported" /tmp/log || fail "Failed to reload pci device"
+if [[ $? -ne 0 ]]; then
+    grep -q "Operation not supported" /tmp/log || fail "Failed to reload pci device"
+fi
 
 test_done
