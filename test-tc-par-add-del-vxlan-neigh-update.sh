@@ -54,25 +54,24 @@ function neigh_update_test() {
     local remote_ip="$2"
     local max_rules=$total
 
-    tc_batch_vxlan "dev $NIC" $total $rules_per_file " " $id $local_ip $remote_ip $dst_port $vxlan_dev
+    tc_batch_vxlan "dev $REP" $total $rules_per_file " " $id $local_ip $remote_ip $dst_port $vxlan_dev
 
     echo "local_ip $local_ip remote_ip $remote_ip"
     ifconfig $NIC up
-    reset_tc $NIC
-    reset_tc $REP
-    reset_tc $vxlan_dev
+    ifconfig $REP up
+    reset_tc $NIC $REP $vxlan_dev
 
     echo "Insert rules in parallel"
     change_neigh $remote_ip &
     ls ${TC_OUT}/add.* | xargs -n 1 -P 100 tc $force -b &>/dev/null
-    check_num_rules $max_rules $NIC
+    check_num_rules $max_rules $REP
 
     sleep 1
 
     echo "Delete rules in parallel"
     change_neigh $remote_ip &
     ls ${TC_OUT}/del.* | xargs -n 1 -P 100 tc $force -b &>/dev/null
-    check_num_rules 0 $NIC
+    check_num_rules 0 $REP
 
     ip l del $vxlan_dev
 }
