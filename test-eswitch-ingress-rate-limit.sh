@@ -7,10 +7,17 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 enable_switchdev
+require_interfaces REP REP2
+unbind_vfs
+bind_vfs
+reset_tc $REP $REP2
 
-VFIP=10.0.0.1
-BRIP=10.0.0.2
-OVSBR=mybr
+IP1=10.0.0.1
+IP2=10.0.0.2
+OVSBR=br-ovs
+
+# rates in mbps.
+rates="1 2 3 4"
 
 function cleanup() {
     stop_iperf
@@ -26,19 +33,40 @@ function stop_iperf() {
 
 function config() {
     cleanup
-    bind_vfs
     ovs-vsctl add-br $OVSBR
     ovs-vsctl add-port $OVSBR $REP
-    ip link set up dev $REP
-    ip netns add ns0
-    ip link set dev $VF netns ns0
-    ip netns exec ns0 ip link set up dev $VF
-    ip netns exec ns0 ip addr add $VFIP/24 dev $VF
-    ip link set up dev $OVSBR
-    ip addr add $BRIP/24 dev $OVSBR
+    ovs-vsctl add-port $OVSBR $REP2
+    config_vf ns0 $VF $REP $IP1
 }
 
-function run_test() {
+function config_dev() {
+    local dev=$1
+    ip link set up dev $dev
+    ip addr add $IP2/24 dev $dev
+}
+
+function check_mrate() {
+    local rate=$1
+    local mrate=$(ip netns exec ns0 iperf -t 10 -fm -c $IP2 | grep "Mbits/sec" | sed -e 's/Mbits\/sec//' | gawk '{printf $NF}')
+
+    if [ -z "$mrate" ]; then
+        err "Couldn't get iperf rate"
+        return
+    fi
+
+    mrate=$(bc <<< "$mrate * 1000" | sed -e 's/\..*//')
+
+    local upper=$(bc <<< "$rate * 1100")
+    local lower=$(bc <<< "$rate * 900")
+
+    if (( mrate < lower || mrate > upper )); then
+        err "Measured rate $mrate out of range [$lower, $upper]"
+    else
+        success "Measured rate $mrate is in range [$lower, $upper]"
+    fi
+}
+
+function run_rates() {
     for rate in $rates; do
         let rate1=rate*1000
 
@@ -46,41 +74,37 @@ function run_test() {
 
         ovs-vsctl set interface $REP ingress_policing_rate=$rate1
         if ! tc -oneline filter show dev $REP ingress | grep -w in_hw | grep "rate ${rate}Mbit" > /dev/null; then
-                err "Matchall filter not in hardware"
-                continue
-        fi
-
-        mrate=$(ip netns exec ns0 iperf -t 15 -fm -c $BRIP | grep "Mbits/sec" | sed -e 's/Mbits\/sec//' | gawk '{printf $NF}')
-        if [ -z "$mrate" ]; then
-            err "Couldn't get iperf rate"
+            err "Matchall filter not in hardware"
             continue
         fi
-        mrate=$(bc <<< "$mrate * 1000" | sed -e 's/\..*//')
 
-        upper=$(bc <<< "$rate * 1100")
-        lower=$(bc <<< "$rate * 900")
-
-        if (( mrate < lower || mrate > upper )); then
-            err "Measured rate $mrate out of range [$lower, $upper]"
-        else
-            success "Measured rate $mrate is in range [$lower, $upper]"
-        fi
+        check_mrate $rate
     done
 }
 
+function run() {
+    local dev=$1
+
+    config_dev $dev
+    for pf_state in down up; do
+        title "pf link $pf_state"
+        ip link set $NIC $pf_state
+        run_rates
+    done
+    ip addr flush dev $dev
+}
+
+
 config
+
 iperf -s -fm &
 sleep 1
 
-title "Case 1 - pf link down"
-# rates in mbps.
-rates="1 2 3 4"
-ip link set $NIC down
-run_test
+title "Test VF->BR"
+run $OVSBR
 
-title "Case 2 - pf link up"
-ip link set $NIC up
-run_test
+title "Test VF->VF"
+run $VF2
 
 cleanup
 test_done
