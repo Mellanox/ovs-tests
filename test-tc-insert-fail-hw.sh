@@ -36,7 +36,7 @@ function test_tc_filter() {
 
     if [ $fwddrop -ne 0 ]; then
         [ -n "$a" ] && echo $a
-        fail "Expected mlx5-specific error message that requires at least on forward/drop action when offloading rule"
+        fail "Expected mlx5-specific error message that requires at least one forward/drop action when offloading rule"
     fi
 }
 
