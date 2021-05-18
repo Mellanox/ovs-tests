@@ -34,7 +34,6 @@ function __test_basic_vxlan() {
     reset_tc $NIC $REP $vx
 
     skip=""
-    skip_sw_wa=0
     chain=1
 
     title "- encap"
