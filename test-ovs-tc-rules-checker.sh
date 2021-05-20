@@ -193,7 +193,7 @@ function check_alignment() {
 
 
 title "Test ping $VF($IP1) -> $VF2($IP2)"
-ip netns exec ns0 ping -q -c 2 -w 2 $IP2 && success || fail "Ping failed"
+ip netns exec ns0 ping -q -c 2 -w 4 $IP2 && success || fail "Ping failed"
 check_alignment
 
 ovs_clear_bridges

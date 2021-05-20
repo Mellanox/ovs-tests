@@ -73,7 +73,7 @@ function start_sniff() {
 
 
 title "Test ping $VF($IP1) -> $VF2($IP2)"
-ip netns exec ns0 ping -q -c 2 -w 2 $IP2 || err
+ip netns exec ns0 ping -q -c 2 -w 4 $IP2 || err
 echo "start sniff $REP"
 start_sniff $REP icmp
 ip netns exec ns0 ping -q -f -w 4 $IP2 && success || err

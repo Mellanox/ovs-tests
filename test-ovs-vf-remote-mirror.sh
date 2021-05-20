@@ -133,7 +133,7 @@ on_remote_dt "require_interfaces NIC VF REP"
 setup_topo "$NIC" "$VF" "$REP" "$tunip1" "$vfip1" "$vfdest1" "$tundest1"
 setup_topo "$NIC" "$VF" "$REP" "$tunip2" "$vfip2" "$vfdest2" "$tundest2" "remote"
 
-ip netns exec ns0 ping -q -c 2 -w 2 $vfip2 || err
+ip netns exec ns0 ping -q -c 2 -w 4 $vfip2 || err
 
 echo "Try to capture remote packets on $VF2"
 timeout 5 ip netns exec ns1 tcpdump -qnnei $VF2 -c 4 icmp &
