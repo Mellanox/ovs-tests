@@ -39,6 +39,7 @@ function cleanup() {
     ip a flush dev $NIC
     ip netns del ns0 &>/dev/null
     cleanup_e2e_cache
+    cleanup_ct_ct_nat_offload
     cleanup_remote
     sleep 0.5
 }
@@ -47,6 +48,7 @@ trap cleanup EXIT
 function config() {
     cleanup
     set_e2e_cache_enable false
+    enable_ct_ct_nat_offload
     echo "Restarting OVS"
     start_clean_openvswitch
 
