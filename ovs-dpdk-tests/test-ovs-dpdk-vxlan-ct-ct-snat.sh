@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Test OVS with vxlan traffic and SNAT rules
+# Test OVS with vxlan traffic and CT-CT-SNAT rules
 #
 # Require external server
 #
