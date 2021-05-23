@@ -32,11 +32,13 @@ VXLAN_ID1=42
 VXLAN_ID2=52
 
 function cleanup_remote() {
-    on_remote "ip a flush dev $NIC; \
-               ip netns del ns0 &>/dev/null"
+    on_remote_dt "ovs_clear_bridges; \
+                  ip a flush dev $NIC; \
+                  ip netns del ns0 &>/dev/null" &>/dev/null
 }
 
 function cleanup() {
+    ovs_clear_bridges
     ip a flush dev $NIC
     ip netns del ns0 &>/dev/null
     ip netns del ns1 &>/dev/null
