@@ -170,3 +170,11 @@ function check_e2e_stats() {
         err "offloads failed"
     fi
 }
+
+function enable_ct_ct_nat_offload {
+    ovs-vsctl set open_vswitch . other_config:ct-action-on-nat-conns=true
+}
+
+function cleanup_ct_ct_nat_offload {
+    ovs-vsctl remove open_vswitch . other_config ct-action-on-nat-conns
+}
