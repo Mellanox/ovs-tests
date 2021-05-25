@@ -23,7 +23,7 @@ class VersionInfo(object):
         self.patch = tryint(s[2])
         self.build = tryint(s[3])
         # rc tags appear in the patch part
-        self.rc = None
+        self.rc = 0
         if 'rc' in str(self.patch):
             self.rc = int(self.patch.strip('rc'))
             self.patch = 0
