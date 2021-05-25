@@ -10,6 +10,20 @@ def tryint(i):
         return i
 
 
+def lt(a, b):
+    if type(a) is str or type(b) is str:
+        a = str(a)
+        b = str(b)
+    return a < b
+
+
+def gt(a, b):
+    if type(a) is str or type(b) is str:
+        a = str(a)
+        b = str(b)
+    return a > b
+
+
 class VersionInfo(object):
     def __init__(self, version):
         self.version = str(version)
@@ -43,13 +57,13 @@ class VersionInfo(object):
             return True
         if self.minor > other.minor:
             return False
-        if self.patch < other.patch:
+        if lt(self.patch, other.patch):
             return True
-        if self.patch > other.patch:
+        if gt(self.patch, other.patch):
             return False
-        if self.build < other.build:
+        if lt(self.build, other.build):
             return True
-        if self.build > other.build:
+        if gt(self.build, other.build):
             return False
         # without rc consider stable and its a newer version
         if self.rc and not other.rc:
