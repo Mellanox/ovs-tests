@@ -1328,8 +1328,8 @@ function check_dpdk_init() {
     if [ "$init1" != "$want" ] || [ "$force" == 1 ]; then
         warn "OVS reset dpdk-init=$want"
         if [ "$want" == "true" ]; then
-           ovs-vsctl set Open_vSwitch . other_config:dpdk-init=true
            ovs-vsctl set Open_vSwitch . other_config:dpdk-extra="$want_extra"
+           ovs-vsctl set Open_vSwitch . other_config:dpdk-init=true
         else
            ovs-vsctl remove Open_vSwitch . other_config dpdk-init
            ovs-vsctl remove Open_vSwitch . other_config dpdk-extra
