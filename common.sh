@@ -1681,6 +1681,14 @@ function redmine_info() {
 }
 
 function verify_mlxconfig_for_sf() {
+    #First check newer config, if its enabled or not.
+    local PER_PF_NUM_SF="True(1)"
+    local pf_total_sf=`fw_query_val PF_TOTAL_SF`
+    local per_pf_num_sf=`fw_query_val PER_PF_NUM_SF`
+    if [[ $pf_total_sf != "0" && $per_pf_num_sf == $PER_PF_NUM_SF ]]; then
+        return
+    fi
+    #Newer config is not enabled, check older config.
     local SF_BAR2_ENABLED="True(1)"
     local bar2_enable=`fw_query_val PF_BAR2_ENABLE`
     echo "PF_BAR2_ENABLE=$bar2_enable"
