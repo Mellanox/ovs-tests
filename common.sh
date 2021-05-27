@@ -244,8 +244,16 @@ function set_flow_steering_mode() {
     log "Set $mode flow steering mode on $nic"
 }
 
+function show_current_steering_mode() {
+    local mode1=`get_flow_steering_mode $NIC`
+    local mode2=`get_flow_steering_mode $NIC2`
+    log "Flow steering mode for $NIC is $mode1"
+    log "Flow steering mode for $NIC2 is $mode2"
+}
+
 function setup_expected_steering_mode() {
     if [ -z "$STEERING_MODE" ]; then
+        show_current_steering_mode
         return
     fi
     local mode1=`get_flow_steering_mode $NIC`
@@ -260,10 +268,7 @@ function setup_expected_steering_mode() {
         enable_legacy $NIC2
         set_flow_steering_mode $NIC2 $STEERING_MODE
     fi
-    mode1=`get_flow_steering_mode $NIC`
-    mode2=`get_flow_steering_mode $NIC2`
-    log "Flow steering mode for $NIC is $mode1"
-    log "Flow steering mode for $NIC2 is $mode2"
+    show_current_steering_mode
 }
 
 function is_bonded() {
