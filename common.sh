@@ -1763,7 +1763,7 @@ function cleanup_remote_vxlan() {
 
 ### main
 if [ "X${NO_TITLE}" == "X" ]; then
-    title2 `basename $0`
+    title2 $TESTNAME
 fi
 __load_config
 warn_if_redmine_bug_is_open
