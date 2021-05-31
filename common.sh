@@ -1369,9 +1369,11 @@ function wait_for_ifaces() {
     warn "Cannot find nic after $max seconds"
 }
 
+USE_OPENIBD=1
+
 function unload_modules() {
     log "unload modules"
-    if [ -e /etc/init.d/openibd ]; then
+    if [ "$USE_OPENIBD" == "1" -a -e /etc/init.d/openibd ]; then
         service openibd force-stop || fail "Failed to stop openibd service"
     else
         modprobe -r -q mlx5_vdpa || true
@@ -1382,7 +1384,7 @@ function unload_modules() {
 
 function load_modules() {
     log "load modules"
-    if [ -e /etc/init.d/openibd ]; then
+    if [ "$USE_OPENIBD" == "1" -a -e /etc/init.d/openibd ]; then
         service openibd force-start || fail "Failed to start openibd service"
     else
         modprobe mlx5_core || fail "Failed to load modules"
