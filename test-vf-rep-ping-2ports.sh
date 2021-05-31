@@ -46,5 +46,5 @@ ifconfig $REP1_NIC2 $IP1/24 up
 ping -q -c 10 -i 0.2 -w 4 $IP2 && success || err
 
 cleanup
-disable_sriov $NIC2
+disable_sriov_port2
 test_done
