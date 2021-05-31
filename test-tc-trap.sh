@@ -4,7 +4,7 @@
 #
 
 my_dir="$(dirname "$0")"
-source $my_dir/common.sh
+. $my_dir/common.sh
 
 
 function cleanup() {
@@ -14,17 +14,18 @@ function cleanup() {
 }
 trap cleanup EXIT
 
-cleanup
 
 title "Test tc trap rule"
 config_sriov 2
 log "set switchdev"
 enable_switchdev
 bind_vfs
-mac0=`cat /sys/class/net/$VF1/address`
-mac1=`cat /sys/class/net/$VF2/address`
+require_interfaces REP REP2
+cleanup
 
 log "config network"
+mac0=`cat /sys/class/net/$VF1/address`
+mac1=`cat /sys/class/net/$VF2/address`
 ip link set up dev $REP
 ip link set up dev $REP2
 
