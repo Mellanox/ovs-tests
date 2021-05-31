@@ -57,4 +57,5 @@ cleanup
 config
 tc_create_filter
 cleanup
+config_sriov 2 $NIC
 test_done
