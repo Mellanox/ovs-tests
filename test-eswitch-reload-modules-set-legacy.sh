@@ -8,7 +8,7 @@
 # - create SFs
 # - etc
 #
-# Bug SW #2661537: [SF] Call Trace and Syndrome and memory leak with kernel panic when creating SFs and then doing restart driver
+# Bug SW #2673893: Call Trace with kernel panic when changing switchdev mod and unloading the module
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
