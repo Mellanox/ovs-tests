@@ -8,55 +8,87 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
+. $my_dir/common-sf-mlxdevm.sh
+
+verify_mlxconfig_for_sf
 
 if ! is_ofed ; then
     fail "This feature is supported only over OFED"
 fi
 
-require_cmd uuidgen
-verify_mlxconfig_for_sf
-declare -a UUIDS
+declare -a SF_REPS
+declare -a SF_RDMADEVS
 
-function remove_sf() {
+function remove_sfs() {
     title "Delete SFs"
-    for uuid in "${UUIDS[@]}"; do
-        echo 1 > /sys/bus/mdev/devices/$uuid/remove
+    # WA Deleting SFs while they are binded is extremly slow need to unbind first to make it faster
+    local sf_rdmadev
+    for sf_rdmadev in "${SF_RDMADEVS[@]}"; do
+        sf_unbind $sf_rdmadev
     done
-    UUIDS=()
+
+    local rep
+    for rep in "${SF_REPS[@]}"; do
+        sf_inactivate $rep
+        delete_sf $rep
+    done
+
+    SF_REPS=()
+    SF_RDMADEVS=()
 }
 
-function create_sf_without_eq() {
+function create_sfs_without_eq() {
     title "Create $1 SFs without EQ"
+    local i
     for i in $(seq 1 $1); do
-        uuid=$(uuidgen)
-        UUIDS+=($uuid)
-        echo $uuid > /sys/class/infiniband/mlx5_0/device/mdev_supported_types/mlx5_core-local/create
-        echo $uuid > /sys/bus/mdev/drivers/vfio_mdev/unbind
-        echo 1 > /sys/bus/mdev/devices/$uuid/devlink-compat-config/disable_en
-        echo 1 > /sys/bus/mdev/devices/$uuid/devlink-compat-config/roce_disable
-        echo $uuid > /sys/bus/mdev/drivers/mlx5_core/bind
+        create_sf 0 $i
+        sleep 0.5
+
+        local rep=$(get_sf_rep $i)
+        sf_disable_roce $rep
+        sf_activate $rep
+
+        local sf_rdmadev=$(get_sf_rdmadev $i)
+        sf_set_param $sf_rdmadev disable_netdev true
+        sf_cfg_unbind $sf_rdmadev
+        sf_bind $sf_rdmadev
+        sleep 1
+
+        SF_RDMADEVS+=($sf_rdmadev)
+        SF_REPS+=($rep)
     done
 }
 
-function create_sf_with_eq() {
+function create_sfs_with_eq() {
     title "Create $1 SFs with EQ"
+    local i
     for i in $(seq 1 $1); do
-        uuid=$(uuidgen)
-        UUIDS+=($uuid)
-        echo $uuid > /sys/class/infiniband/mlx5_0/device/mdev_supported_types/mlx5_core-local/create
-        echo $uuid > /sys/bus/mdev/drivers/vfio_mdev/unbind
-        echo 1 > /sys/bus/mdev/devices/$uuid/devlink-compat-config/disable_en
-        echo 1 > /sys/bus/mdev/devices/$uuid/devlink-compat-config/roce_disable
-        echo 1 > /sys/bus/mdev/devices/$uuid/devlink-compat-config/max_cmpl_eq_count
-        echo 64 > /sys/bus/mdev/devices/$uuid/devlink-compat-config/cmpl_eq_depth
-        echo 64 > /sys/bus/mdev/devices/$uuid/devlink-compat-config/async_eq_depth
-        echo $uuid > /sys/bus/mdev/drivers/mlx5_core/bind
+        create_sf 0 $i
+        sleep 0.5
+
+        local rep=$(get_sf_rep $i)
+        sf_disable_roce $rep
+        sf_activate $rep
+
+        local sf_rdmadev=$(get_sf_rdmadev $i)
+        sf_set_param $sf_rdmadev max_cmpl_eqs 1
+        sf_set_param $sf_rdmadev cmpl_eq_depth 64
+        sf_set_param $sf_rdmadev async_eq_depth 64
+        sf_set_param $sf_rdmadev disable_netdev true
+        sf_set_param $sf_rdmadev disable_fc true
+
+        sf_cfg_unbind $sf_rdmadev
+        sf_bind $sf_rdmadev
+        sleep 1
+
+        SF_RDMADEVS+=($sf_rdmadev)
+        SF_REPS+=($rep)
     done
 }
 
 function test_without_eq(){
     free_mem_before_no_eq_sf=$(get_free_memory)
-    create_sf_without_eq $max_sfs_allowed
+    create_sfs_without_eq $max_sfs_allowed
     sleep 1
     free_mem_after_no_eq_sf=$(get_free_memory)
     total_mem_consumed_no_eq_sf=$(($free_mem_before_no_eq_sf - $free_mem_after_no_eq_sf))
@@ -66,12 +98,12 @@ function test_without_eq(){
     echo "After creating SFs: $free_mem_after_no_eq_sf"
     echo "Total memory consumed: $total_mem_consumed_no_eq_sf"
 
-    remove_sf
+    remove_sfs
 }
 
 function test_with_eq(){
     free_mem_before_eq_sf=$(get_free_memory)
-    create_sf_with_eq $max_sfs_allowed
+    create_sfs_with_eq $max_sfs_allowed
     sleep 1
     free_mem_after_eq_sf=$(get_free_memory)
     total_mem_consumed_eq_sf=$(($free_mem_before_eq_sf - $free_mem_after_eq_sf))
@@ -81,7 +113,7 @@ function test_with_eq(){
     echo "After creating SFs: $free_mem_after_eq_sf"
     echo "Total memory consumed: $total_mem_consumed_eq_sf"
 
-    remove_sf
+    remove_sfs
 }
 
 function run_test(){
@@ -97,6 +129,6 @@ function run_test(){
     success
 }
 
-max_sfs_allowed=$(cat /sys/class/infiniband/mlx5_0/device/mdev_supported_types/mlx5_core-local/max_mdevs)
+max_sfs_allowed=$(fw_query_val PF_TOTAL_SF)
 run_test
 test_done
