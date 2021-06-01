@@ -19,7 +19,7 @@ function sf_port_add_del_test() {
 
     $cmd port add pci/$PCI flavour pcisf pfnum 0 sfnum 88 || fail "Failed to add SF"
     sleep 1
-    local rep=`devlink port show | grep "pfnum 0 sfnum 88" | grep -E -o "netdev [a-z0-9]+" | awk {'print $2'}`
+    local rep=`$cmd port show | grep "pfnum 0 sfnum 88" | grep -E -o "netdev [a-z0-9]+" | awk {'print $2'}`
     $cmd port show $rep || err "Failed to show SF"
     $cmd port del $rep || err "Failed to del SF"
 }
