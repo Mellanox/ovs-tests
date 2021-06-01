@@ -170,7 +170,7 @@ function perf_test_vxlan_multi() {
     setup_vxlan
     set_neighs $num_encaps $remote_ip_net $remote_ip_host 0
 
-    tc_batch_vxlan_multiple_encap "dev $REP" $total $rules_per_file "$classifier" $id $local_ip $remote_ip_net $remote_ip_host $dst_port $vxlan_dev $num_encaps $pedit
+    tc_batch_vxlan_multiple_encap_multiple_neigh "dev $REP" $total $rules_per_file "$classifier" $id $local_ip $remote_ip_net $remote_ip_host $dst_port $vxlan_dev $num_encaps $pedit
 
     echo "Insert rules"
     run_benchmark_time_mem add $REP $total $ins_rate $used_mem

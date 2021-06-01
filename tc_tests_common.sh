@@ -175,7 +175,7 @@ action mirred egress redirect dev $mirred_dev $act_flags"
     done
 }
 
-function tc_batch_vxlan_multiple_encap() {
+function tc_batch_vxlan_multiple_encap_multiple_neigh() {
     local dev_block=$1
     local total=$2
     local rules_per_file=$3
@@ -243,6 +243,94 @@ action mirred egress redirect dev $mirred_dev $act_flags"
                         remote_ip_host=$remote_ip_start
                     elif ((e==0)); then
                         ((remote_ip_host++))
+                    fi
+
+                    if ((count>=total)); then
+                        break;
+                    fi
+                done
+                if ((count>=total)); then
+                    break;
+                fi
+            done
+            if ((count>=total)); then
+                break;
+            fi
+        done
+        if ((count>=total)); then
+            break;
+        fi
+    done
+}
+
+function tc_batch_vxlan_multiple_encap_single_neigh() {
+    local dev_block=$1
+    local total=$2
+    local rules_per_file=$3
+    local cls=$4
+    local id=$5
+    local local_ip_net=$6
+    local local_ip_host=$7
+    local remote_ip_net=$8
+    local dst_port=$9
+    local mirred_dev=${10}
+    local encaps_per_file=${11}
+    local add_pedit=${12}
+    local pedit_act=""
+    local local_ip_start=$7
+    local n=0
+    local count=0
+    local handle=0
+    local prio=1
+    local once=0
+    local rules_per_encap=$((rules_per_file/encaps_per_file))
+    TC_OUT=/tmp/tc-$$
+    [ "$incr_prio" == 1 ] && prio=0
+    if [ $encaps_per_file -gt $rules_per_file ]; then
+        local rules_per_encap=$rules_per_file
+    fi
+    [ $rules_per_encap == 0 ] && fail "rules_per_encap cannot be 0"
+
+    rm -fr $TC_OUT
+    mkdir -p $TC_OUT
+
+    for ((i = 0; i < 99; i++)); do
+        for ((j = 0; j < 99; j++)); do
+            for ((k = 0; k < 99; k++)); do
+                for ((l = 0; l < 99; l++)); do
+                    SMAC="e4:11:$i:$j:$k:$l"
+                    DMAC="e4:12:$i:$j:$k:$l"
+                    ((handle+=1))
+                    [ "$no_handle" == 1 ] && handle=0
+                    [ "$incr_prio" == 1 ] && ((prio+=1))
+                    [ "$add_pedit" == 1 ] && pedit_act="action pedit ex munge ip src set ${remote_ip}"
+                    rule="$dev_block \
+protocol ip \
+ingress \
+prio $prio \
+handle $handle \
+flower \
+$skip \
+src_mac $SMAC \
+dst_mac $DMAC \
+$cls \
+$pedit_act \
+action tunnel_key set id $id src_ip ${local_ip_net}${local_ip_host} dst_ip ${remote_ip} dst_port ${dst_port} $act_flags \
+action mirred egress redirect dev $mirred_dev $act_flags"
+
+                    [ $once = "0" ] && once=1 && echo "type of rules: $rule"
+                    echo "filter add $rule" >> ${TC_OUT}/add.$n
+                    echo "filter change $rule" >> ${TC_OUT}/ovr.$n
+                    echo "filter del $rule" >> ${TC_OUT}/del.$n
+
+                    ((count+=1))
+                    let p=count%${rules_per_file}
+                    let e=count%${rules_per_encap}
+                    if ((p==0)); then
+                        ((n++))
+                        local_ip_host=$local_ip_start
+                    elif ((e==0)); then
+                        ((local_ip_host++))
                     fi
 
                     if ((count>=total)); then
