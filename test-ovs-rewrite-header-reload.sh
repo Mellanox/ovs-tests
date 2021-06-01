@@ -6,6 +6,31 @@
 #
 # Bug SW #1932655: [Upstream] Rules are not offloaded after rewrite MAC
 #
+#  Root cause is next:
+#
+#Do any traffic, to create arp entries;
+#Restart OVS;
+#Enable VLOG debugging;
+#Start test.
+#
+#In ovs-vswitchd.log there are lines:
+#
+#2020-03-12T09:20:40.629Z|00001|ofproto_dpif_xlate(handler5)|DBG|bridge ovs-sriov2: learned that aa:6f:01:82:04:02 is on port ens1f1 in VLAN 0
+#
+#2020-03-12T09:20:40.646Z|00005|ofproto_dpif_xlate(handler5)|DBG|bridge ovs-sriov2: learned that e4:70:01:82:02:02 is on port ens1f1_0 in VLAN 0
+#
+#2020-03-12T09:20:45.660Z|00010|ofproto_dpif_xlate(handler5)|DBG|bridge ovs-sriov2: learned that e4:6f:01:82:04:02 is on port ens1f1 in VLAN 0
+#
+#
+#OVS learn fake mac first, so replies’ packets pass unoffloaded, until original mac is learned.
+#
+#After changing HeaderRewriteMac test to set ofctl flows in both directions (mac rewrite for pf→vf and simple forward for vf→pf) OVS offload flows and learning of fake mac not happening:
+#
+#
+#2020-03-12T09:30:43.980Z|00003|ofproto_dpif_xlate(handler2)|DBG|bridge ovs-sriov1: learned that e4:6f:01:82:00:03 is on port ens1f0 in VLAN 0
+#
+#2020-03-12T09:30:43.981Z|00006|ofproto_dpif_xlate(handler2)|DBG|bridge ovs-sriov1: learned that e4:70:01:82:00:03 is on port ens1f0_1 in VLAN 0
+#
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
