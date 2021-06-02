@@ -545,7 +545,7 @@ def update_skip_according_to_db(data):
             if t.ignore:
                 continue
 
-        if 'el' in current_kernel:
+        if re.search(r'\.el[0-9]+\.', current_kernel):
             min_kernel = data['tests'][name].get('min_kernel_rhel', None)
         else:
             min_kernel = data['tests'][name].get('min_kernel', None)
