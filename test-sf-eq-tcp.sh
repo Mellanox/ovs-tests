@@ -8,22 +8,24 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
+. $my_dir//common-sf-mlxdevm.sh
+
+verify_mlxconfig_for_sf
 
 if ! is_ofed ; then
     fail "This feature is supported only over OFED"
 fi
 
-require_cmd uuidgen
-verify_mlxconfig_for_sf
+declare -a SF_REPS
+declare -a SF_RDMADEVS
+declare -a SF_NETDEVS
 
 IP1="7.7.7.1"
 IP2="7.7.7.2"
-UUID1=$(uuidgen)
-UUID2=$(uuidgen)
 
 function cleanup() {
     start_clean_openvswitch
-    remove_sf
+    remove_sfs
 }
 
 trap cleanup EXIT
@@ -34,55 +36,81 @@ function remove_ns(){
     ovs_clear_bridges
 }
 
-function create_sf() {
+function create_sfs() {
     title "Create SFs with RoCE Disabled"
-    for uuid in $UUID1 $UUID2; do
-        echo $uuid > /sys/class/infiniband/mlx5_0/device/mdev_supported_types/mlx5_core-local/create
-        echo $uuid > /sys/bus/mdev/drivers/vfio_mdev/unbind
-        echo 1 > /sys/bus/mdev/devices/$uuid/devlink-compat-config/roce_disable
-        echo $uuid > /sys/bus/mdev/drivers/mlx5_core/bind
-        sleep 1
+    local i
+    for i in 1 2; do
+        create_sf 0 $i
+        sleep 0.5
+
+        local rep=$(get_sf_rep $i)
+        sf_disable_roce $rep
+        sf_activate $rep
+
+        local sf_rdmadev=$(get_sf_rdmadev $i)
+        sf_cfg_unbind $sf_rdmadev
+        sf_bind $sf_rdmadev
+
+        local netdev=$(get_sf_netdev $sf_rdmadev)
+        SF_NETDEVS+=($netdev)
+        SF_RDMADEVS+=($sf_rdmadev)
+        SF_REPS+=($rep)
     done
 }
 
 function set_eq_config(){
     title "Configure SFs EQ"
-    echo "max_cmpl_eq_count: $1"
-    echo "cmpl_eq_depth: $2"
-    echo "async_eq_depth: $3"
+    local max_cmpl_eqs=$1
+    local cmpl_eq_depth=$2
+    local async_eq_depth=$3
 
-    for uuid in $UUID1 $UUID2; do
-        echo $uuid > /sys/bus/mdev/drivers/mlx5_core/unbind
-        echo $1 > /sys/bus/mdev/devices/$uuid/devlink-compat-config/max_cmpl_eq_count
-        echo $2 > /sys/bus/mdev/devices/$uuid/devlink-compat-config/cmpl_eq_depth
-        echo $3 > /sys/bus/mdev/devices/$uuid/devlink-compat-config/async_eq_depth
-        echo $uuid > /sys/bus/mdev/drivers/mlx5_core/bind
+    echo "max_cmpl_eqs: $max_cmpl_eqs"
+    echo "cmpl_eq_depth: $cmpl_eq_depth"
+    echo "async_eq_depth: $async_eq_depth"
+
+    local i
+    for i in 0 1; do
+        local sf_rdmadev="${SF_RDMADEVS[$i]}"
+        sf_unbind $sf_rdmadev
+        sf_cfg_bind $sf_rdmadev
+        sleep 1
+
+        sf_set_param $sf_rdmadev max_cmpl_eqs $max_cmpl_eqs
+        sf_set_param $sf_rdmadev cmpl_eq_depth $cmpl_eq_depth
+        sf_set_param $sf_rdmadev async_eq_depth $async_eq_depth
+
+        sf_cfg_unbind $sf_rdmadev
+        sf_bind $sf_rdmadev
         sleep 1
     done
+
 }
 
-function remove_sf() {
+function remove_sfs() {
     title "Delete SFs"
-    for uuid in $UUID1 $UUID2; do
-        echo 1 > /sys/bus/mdev/devices/$uuid/remove
+    local rep
+    for rep in "${SF_REPS[@]}"; do
+        sf_inactivate $rep
+        delete_sf $rep
     done
+
+    SF_REPS=()
+    SF_RDMADEVS=()
+    SF_NETDEVS=()
 }
 
 function config() {
     title "Config"
     start_clean_openvswitch
-    create_sf
-}
+    create_sfs
 
-function get_sf_netdev_rep() {
     title "SFs Netdev Rep Info"
-    SF=$(basename `ls /sys/class/net/$NIC/device/$UUID1/net`)
-    SF_REP=$(cat /sys/bus/mdev/devices/$UUID1/devlink-compat-config/netdev)
+    SF="${SF_NETDEVS[0]}"
+    SF_REP="${SF_REPS[0]}"
     echo "SF: $SF, REP: $SF_REP"
-    SF1=$(basename `ls /sys/class/net/$NIC/device/$UUID2/net`)
-    SF_REP1=$(cat /sys/bus/mdev/devices/$UUID2/devlink-compat-config/netdev)
+    SF1="${SF_NETDEVS[1]}"
+    SF_REP1="${SF_REPS[1]}"
     echo "SF: $SF1, REP: $SF_REP1"
-
 }
 
 function config_ns() {
@@ -116,14 +144,14 @@ function run_traffic() {
 }
 
 function run() {
-    max_cmpl_eq_count=1
+    max_cmpl_eqs=1
     cmpl_eq_depth=256
     async_eq_depth=1024
 
+    local i
     for i in 1 2 3; do
         title "Case $i"
-        set_eq_config $(($max_cmpl_eq_count * $i)) $(($cmpl_eq_depth * $i)) $(($async_eq_depth * $i))
-        get_sf_netdev_rep
+        set_eq_config $(($max_cmpl_eqs * $i)) $(($cmpl_eq_depth * $i)) $(($async_eq_depth * $i))
         config_ns
         run_traffic
         remove_ns
