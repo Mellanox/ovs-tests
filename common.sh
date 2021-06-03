@@ -1370,7 +1370,7 @@ function wait_for_ifaces() {
     warn "Cannot find nic after $max seconds"
 }
 
-USE_OPENIBD=1
+USE_OPENIBD=${USE_OPENIBD:-1}
 
 function unload_modules() {
     log "unload modules"
