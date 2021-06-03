@@ -900,6 +900,14 @@ function disable_multipath() {
     fi
 }
 
+function get_multipath_mode() {
+    if [ "$devlink_compat" = 1 ]; then
+        cat `devlink_compat_dir $NIC`/multipath
+    else
+        devlink dev eswitch show pci/$PCI | grep -o "\bmultipath [a-z]\+" | awk {'print $2'}
+    fi
+}
+
 function enable_switchdev() {
     local nic=${1:-$NIC}
     unbind_vfs $nic
@@ -942,14 +950,6 @@ function set_steering_sw() {
 
 function set_steering_fw() {
     set_flow_steering_mode $NIC dmfs
-}
-
-function get_multipath_mode() {
-    if [ "$devlink_compat" = 1 ]; then
-        cat `devlink_compat_dir $NIC`/multipath
-    else
-        devlink dev eswitch show pci/$PCI | grep -o "\bmultipath [a-z]\+" | awk {'print $2'}
-    fi
 }
 
 function config_sriov() {
