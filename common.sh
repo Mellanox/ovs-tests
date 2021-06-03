@@ -1150,7 +1150,8 @@ function check_kasan() {
     local sec=`get_test_time_elapsed`
     a=`journalctl --since="$sec seconds ago" | grep KASAN || true`
     if [ "$a" != "" ]; then
-        err "$a"
+        err "Detected KASAN errors in the log"
+        echo "$a"
         return 1
     fi
     return 0
@@ -1398,7 +1399,7 @@ function reload_modules() {
     load_modules
     wait_for_ifaces
 
-    check_kasan || err "Detected KASAN in journalctl"
+    check_kasan
     set_macs
     setup_expected_steering_mode
     echo "reload modules done"
