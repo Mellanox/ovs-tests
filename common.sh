@@ -78,8 +78,8 @@ function __test_for_devlink_compat() {
     if devlink dev param show pci/$PCI name flow_steering_mode &>/dev/null ; then
         return
     fi
-    log "Using devlink compat"
     devlink_compat=1
+    log "Using devlink compat $devlink_compat"
 }
 
 function get_nic_fw() {
@@ -223,7 +223,7 @@ function get_flow_steering_mode() {
     local nic=$1
     local pci=$(basename `readlink /sys/class/net/$nic/device`)
 
-    if [ "$devlink_compat" = 1 ]; then
+    if [ "$devlink_compat" -ge 1 ]; then
         cat `devlink_compat_dir $nic`/steering_mode
     else
         devlink dev param show pci/$pci name flow_steering_mode | grep "runtime value" | awk {'print $NF'}
@@ -235,7 +235,7 @@ function set_flow_steering_mode() {
     local mode=$2
     local pci=$(basename `readlink /sys/class/net/$nic/device`)
 
-    if [ "$devlink_compat" = 1 ]; then
+    if [ "$devlink_compat" -ge 1 ]; then
         echo $mode > `devlink_compat_dir $nic`/steering_mode || fail "Failed to set $mode flow steering mode"
     else
         devlink dev param set pci/$pci name flow_steering_mode value $mode cmode runtime || fail "Failed to set $mode flow steering mode"
@@ -919,7 +919,7 @@ function enable_legacy() {
 }
 
 function set_vport_match_legacy() {
-    if [ "$devlink_compat" = 1 ]; then
+    if [ "$devlink_compat" -ge 1 ]; then
         echo "legacy" > /sys/class/net/$NIC/compat/devlink/vport_match_mode || err "Failed to set vport match mode legacy"
     else
         devlink dev param set pci/$PCI name esw_port_metadata value false \
@@ -928,7 +928,7 @@ function set_vport_match_legacy() {
 }
 
 function set_vport_match_metadata() {
-    if [ "$devlink_compat" = 1 ]; then
+    if [ "$devlink_compat" -ge 1 ]; then
         echo "metadata" > /sys/class/net/$NIC/compat/devlink/vport_match_mode || err "Failed to set vport match mode metadata"
     else
         devlink dev param set pci/$PCI name esw_port_metadata value true \
