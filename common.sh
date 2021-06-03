@@ -937,21 +937,11 @@ function set_vport_match_metadata() {
 }
 
 function set_steering_sw() {
-    if [ "$devlink_compat" = 1 ]; then
-        echo smfs > /sys/class/net/$NIC/compat/devlink/steering_mode || err "Failed to set steering sw"
-    else
-        devlink dev param set pci/$PCI name flow_steering_mode value "smfs" \
-            cmode runtime || err "Failed to set steering sw"
-    fi
+    set_flow_steering_mode $NIC smfs
 }
 
 function set_steering_fw() {
-    if [ "$devlink_compat" = 1 ]; then
-         echo dmfs > /sys/class/net/$NIC/compat/devlink/steering_mode || err "Failed to set steering fw"
-    else
-         devlink dev param set pci/$PCI name flow_steering_mode value "dmfs" \
-             cmode runtime || err "Failed to set steering fw"
-    fi
+    set_flow_steering_mode $NIC dmfs
 }
 
 function get_multipath_mode() {
