@@ -1384,7 +1384,6 @@ function load_modules() {
 }
 
 function reload_modules() {
-    log "reload modules"
     unload_modules
     load_modules
     wait_for_ifaces
