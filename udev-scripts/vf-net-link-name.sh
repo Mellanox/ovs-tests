@@ -121,15 +121,27 @@ for cnt in {1..2}; do
             # no uplink rep so no phys port name
             continue
         fi
-        if [ "$_swid" = "$SWID" ] && [ "$_portname" = "$parent_phys_port_name" ]
-        then
-            parent_path=`get_pci_name $pci ID_NET_NAME_SLOT`
-            if [ -z "$parent_path" ]; then
-                parent_path=`get_pci_name $pci ID_NET_NAME_PATH`
+
+        if [ -n "$ID_PATH" ]; then
+            if [ "$ID_PATH" != "pci-$pci" ]; then
+                continue
             fi
-            echo "NAME=${parent_path}_$PORT"
-            exit
+        else
+            if [ "$_swid" != "$SWID" ]; then
+                continue
+            fi
         fi
+
+        if [ "$_portname" != "$parent_phys_port_name" ]; then
+            continue
+        fi
+
+        parent_path=`get_pci_name $pci ID_NET_NAME_SLOT`
+        if [ -z "$parent_path" ]; then
+            parent_path=`get_pci_name $pci ID_NET_NAME_PATH`
+        fi
+        echo "NAME=${parent_path}_$PORT"
+        exit
     done
 
     # swid changes when entering lag mode.
