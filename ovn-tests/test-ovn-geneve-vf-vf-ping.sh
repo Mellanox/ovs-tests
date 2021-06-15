@@ -1,8 +1,6 @@
 #!/bin/bash
 #
-# Test traffic between VFs configured with OVN and OVS
-#
-# Scrum Task #2686101: Implement ovn ping test with VFs
+# Test traffic between VFs configured with OVN and OVS then check traffic is offloaded
 #
 
 my_dir="$(dirname "$0")"
@@ -25,6 +23,8 @@ PORT2="sw0-port2"
 
 OVN_CENTRAL_IP="127.0.0.1"
 OVN_TUNNEL="geneve"
+
+TCPDUMP_FILE=/tmp/$$.pcap
 
 # stop OVN, clean namespaces, ovn network topology, and ovs br-int interfaces
 function cleanup() {
@@ -102,8 +102,33 @@ function run_test() {
     config_vf ns0 $VF $REP $IP1 $MAC1
     config_vf ns1 $VF2 $REP2 $IP2 $MAC2
 
+    # Listen to traffic on representor
+    timeout 15 tcpdump -nnepi $REP icmp -c 8 -w $TCPDUMP_FILE &
+    tdpid=$!
+    sleep 0.5
+
     # Traffic between VFs
+    title "Test traffic between $VF($IP1) -> $VF2($IP2)"
     ip netns exec ns0 ping -w 4 $IP2 && success || err
+    # 2 rules should appear, ICMP request and reply
+
+    title "Check OVS offload rules"
+    ovs_dump_flows type=offloaded
+    check_offloaded_rules 2
+
+    title "Check traffic is offloaded"
+    # Stop tcpdump
+    kill $tdpid 2>/dev/null
+    sleep 1
+
+    # Ensure 2 packets appeared (request and reply)
+    count=$(tcpdump -nnr $TCPDUMP_FILE | wc -l)
+    if [[ $count -gt 2 ]]; then
+        err "No offload"
+        tcpdump -nnr $TCPDUMP_FILE
+    else
+        success
+    fi
 }
 
 cleanup
@@ -112,7 +137,6 @@ pre_test
 # trap for existing script to clean up
 trap cleanup EXIT
 
-title "Test OVN ping $VF($IP1) -> $VF2($IP2)"
 start_check_syndrome
 run_test
 

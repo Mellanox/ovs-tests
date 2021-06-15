@@ -91,3 +91,20 @@ function ovn_bind_ovs_port() {
 
     ovs-vsctl set Interface $ovs_port external_ids:iface-id=$ovn_port
 }
+
+function check_offloaded_rules() {
+    local count=$1
+
+    local result=$(ovs-appctl dpctl/dump-flows type=offloaded 2>/dev/null | grep 0x0800 | grep -v drop)
+
+    if echo "$result" | grep "packets:0, bytes:0"; then
+        err "packets:0, bytes:0"
+    fi
+
+    local rules_count=$(echo "$result" | wc -l)
+    if (("$rules_count" == "$count")); then
+        success
+    else
+        err
+    fi
+}
