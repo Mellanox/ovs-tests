@@ -3,7 +3,7 @@ OVN_SYSTEM_ID=$(hostname)
 OVN_CTL="/usr/share/ovn/scripts/ovn-ctl"
 
 function require_ovn() {
-    [ "${OVN}" != 1 ] && fail "OVN NOT CONFIGURED"
+    [ ! -e "${OVN_CTL}" ] && fail "Missing $OVN_CTL"
 }
 
 function ovn_start_northd_central() {
