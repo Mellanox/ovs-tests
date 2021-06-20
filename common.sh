@@ -46,7 +46,7 @@ VENDOR_MELLANOX="0x15b3"
         { PCI_VDEVICE(MELLANOX, 0x1021) },                      /* ConnectX-7 */
 EOT
 
-# test in __setup_common()
+# set in __test_for_devlink_compat()
 devlink_compat=0
 
 # Special variables
@@ -78,7 +78,7 @@ function __test_for_devlink_compat() {
     if devlink dev param show pci/$PCI name flow_steering_mode &>/dev/null ; then
         return
     fi
-    devlink_compat=1
+    devlink_compat=${DEVLINK_COMPAT:-1}
     log "Using devlink compat $devlink_compat"
 }
 
