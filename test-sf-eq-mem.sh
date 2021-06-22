@@ -130,5 +130,10 @@ function run_test(){
 }
 
 max_sfs_allowed=$(fw_query_val PF_TOTAL_SF)
+
+if [ "$max_sfs_allowed" == 0 ]; then
+    fail "PF_TOTAL_SF is 0"
+fi
+
 run_test
 test_done
