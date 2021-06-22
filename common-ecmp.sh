@@ -47,7 +47,7 @@ function dmesg_chk() {
 }
 
 function is_vf_lag_active() {
-    dmesg_chk "modify lag map port 1:1 port 2:2" "vf lag is not active"
+    dmesg_chk "lag map port 1:1 port 2:2" "vf lag is not active"
 }
 
 out_dev=dummy9
