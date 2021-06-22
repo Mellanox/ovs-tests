@@ -27,52 +27,52 @@ function sf_get_netdev() {
 }
 
 function sf_cfg_unbind() {
-    echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf_cfg/unbind
+    echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf_cfg/unbind || err "$1: Failed to unbind from sf cfg"
 }
 
 function sf_cfg_bind() {
-    echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf_cfg/bind
+    echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf_cfg/bind || err "$1: Failed to bind to sf cfg"
 }
 
 function sf_bind() {
-    echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf/bind
+    echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf/bind || err "$1: Failed to bind to sf core"
 }
 
 function sf_unbind() {
-    echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf/unbind
+    echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf/unbind || err "$1: Failed to unbind from sf core"
 }
 
 function sf_set_param() {
     local dev=$1
     local param_name=$2
     local value=$3
-    mlxdevm dev param set auxiliary/$dev name $param_name value $value cmode runtime
+    mlxdevm dev param set auxiliary/$dev name $param_name value $value cmode runtime || err "Failed to set sf $dev param $param_name=$value"
 }
 
 function sf_disable_netdev() {
-    sf_set_param $1 disable_netdev true
+    sf_set_param $1 disable_netdev true || err "$1: Failed to disable netdev"
 }
 
 function sf_disable_roce() {
-    mlxdevm port function cap set $1 roce false
+    mlxdevm port function cap set $1 roce false || err "$1: Failed to disable roce"
 }
 
 function sf_activate() {
-    mlxdevm port function set $1 state active
+    mlxdevm port function set $1 state active || err "$1: Failed to set active state"
 }
 
 function sf_inactivate() {
-    mlxdevm port function set $1 state inactive
+    mlxdevm port function set $1 state inactive || err "$1: Failed to set inactive state"
 }
 
 function delete_sf() {
-    mlxdevm port del $1
+    mlxdevm port del $1 || err "Failed to delete sf $1"
 }
 
 function create_sf() {
     local pfnum=$1
     local sfnum=$2
-    mlxdevm port add pci/$PCI flavour pcisf pfnum $pfnum sfnum $sfnum &>/dev/null
+    mlxdevm port add pci/$PCI flavour pcisf pfnum $pfnum sfnum $sfnum >/dev/null || err "Failed to create sf on pfnum $pfnum sfnum $sfnum"
 }
 
 function create_sfs() {
