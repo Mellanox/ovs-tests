@@ -158,3 +158,80 @@ function config_sfs_eq() {
         sf_bind $dev
     done
 }
+
+function sf_set_cpu_affinity() {
+    local sf_dev=$1
+    local cpus=$2
+    log "Setting cpu affinity with value $cpus to $sf_dev"
+
+    mlxdevm dev param set auxiliary/$sf_dev name cpu_affinity value $cpus cmode driverinit || err "$sf_dev: Failed to set cpu affinity"
+    start_cpu_irq_check
+    devlink dev reload auxiliary/$sf_dev
+    check_cpu_irq $sf_dev $cpus
+}
+
+function enbale_irq_reguest_debug() {
+    echo "func mlx5_irq_request +p" > /sys/kernel/debug/dynamic_debug/control
+}
+
+function disable_irq_reguest_debug() {
+    echo "func mlx5_irq_request -p" > /sys/kernel/debug/dynamic_debug/control
+}
+
+function start_cpu_irq_check() {
+    sleep 1
+    _start_irq_check=`date +"%s"`
+}
+
+function parse_cpus_value() {
+    # usage example:
+    #        parse_cpus_value 0
+    #        parse_cpus_value 2-10
+    #        parse_cpus_value 3-5,10
+    local cpus=$1
+    local extra_cpu
+
+    if [[ $cpus == ?(-)+([0-9]) ]]; then
+        cpus="$cpus $cpus"
+    else
+        cpus=`echo $cpus | sed -E 's/\-/ /g'`
+
+        if [[ $cpus =~ "," ]]; then
+            extra_cpu=`echo "${cpus#*,}"`
+            cpus=`echo "${cpus%,*}"`
+        fi
+    fi
+
+    cpus=`seq $cpus`
+    cpus+=" $extra_cpu"
+    echo $cpus
+}
+
+function check_cpu_irq() {
+    local sf_dev=$1
+    local cpus=$2
+
+    if [ "$_start_irq_check" == "" ]; then
+        err "Failed checking cpu irq. invalid start."
+        return
+    fi
+
+    local now=`date +"%s"`
+    local sec=`echo $now - $_start_irq_check + 1 | bc`
+    local mlx5_irq_requests=`journalctl --since="$sec seconds ago" | grep $sf_dev | grep mlx5_irq_request || true`
+
+    if [ "$mlx5_irq_requests" == "" ]; then
+        err "Can't find mlx5_irq_requests for $sf_dev"
+    fi
+
+    cpus=`parse_cpus_value $cpus`
+
+    local cpu
+    for cpu in $cpus; do
+        grep --color "cpu $cpu" <<< $mlx5_irq_requests
+        if [ $? -ne 0 ]; then
+            err "did not find matching cpu: $cpu"
+        fi
+    done
+
+}
