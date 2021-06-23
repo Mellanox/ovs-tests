@@ -24,7 +24,6 @@ function sf_port_add_del_test() {
     $cmd port del $rep || err "Failed to del SF"
 }
 
-verify_mlxconfig_for_sf
 enable_norep_switchdev $NIC
 sf_port_add_del_test
 

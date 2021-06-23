@@ -10,8 +10,6 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 . $my_dir/common-sf-mlxdevm.sh
 
-verify_mlxconfig_for_sf
-
 if ! is_ofed ; then
     fail "This feature is supported only over OFED"
 fi

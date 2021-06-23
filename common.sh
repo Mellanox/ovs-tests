@@ -1691,6 +1691,8 @@ function redmine_info() {
 }
 
 function verify_mlxconfig_for_sf() {
+    warn "Using redundant function: verify_mlxconfig_for_sf"
+
     # simx doesn't expose these but assumed to support.
     is_simx && return
 
