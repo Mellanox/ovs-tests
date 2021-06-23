@@ -316,6 +316,7 @@ function test_five_tuple_match() {
     done
 }
 
+config_sriov 2
 enable_switchdev
 unbind_vfs
 require_interfaces NIC REP
