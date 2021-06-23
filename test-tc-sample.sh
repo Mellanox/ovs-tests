@@ -15,8 +15,14 @@ psample_dir=$my_dir/psample
 
 require_module act_sample psample
 
-test -x $psample_dir/psample || make -C $psample_dir || \
-    fail "failed to compile psample in dir $psample_dir"
+function compile_psample() {
+    test -d $psample_dir || fail "Cannot find psample $psample_dir"
+    rm -fr /tmp/psample
+    cp -r $psample_dir /tmp/psample
+    psample_dir=/tmp/psample
+    make -C /tmp/psample || fail "Failed to compile psample in dir $psample_dir"
+}
+compile_psample
 
 IP1="7.7.7.1"
 IP2="7.7.7.2"
