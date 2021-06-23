@@ -470,7 +470,32 @@ def check_simx(nic):
     return True
 
 
-def update_skip_according_to_db(data):
+def get_current_state():
+    global current_nic
+    global current_fw_ver
+    global current_kernel
+    global flow_steering_mode
+    global simx_mode
+
+    nic = get_config_value('NIC')
+    current_fw_ver = get_current_fw(nic)
+    current_nic = DeviceType.get(get_current_nic_type(nic))
+    if args.test_kernel:
+        current_kernel = args.test_kernel
+    else:
+        current_kernel = os.uname()[2]
+    flow_steering_mode = get_flow_steering_mode(nic)
+    simx_mode = check_simx(nic)
+
+    print("nic: %s" % current_nic)
+    print("fw: %s" % current_fw_ver)
+    print("flow steering: %s" % flow_steering_mode)
+    print("kernel: %s" % current_kernel)
+    if simx_mode:
+        print("simx mode")
+
+
+def update_skip_according_to_db(_tests, data):
     if type(data['tests']) is list:
         return
 
@@ -483,26 +508,10 @@ def update_skip_according_to_db(data):
         return False
 
     rm = MlxRedmine()
-    nic = get_config_value('NIC')
-    current_fw_ver = get_current_fw(nic)
-    current_nic = DeviceType.get(get_current_nic_type(nic))
-    if args.test_kernel:
-        current_kernel = args.test_kernel
-    else:
-        current_kernel = os.uname()[2]
-    flow_steering_mode = get_flow_steering_mode(nic)
-    simx_mode = check_simx(nic)
-
     custom_kernels = data.get('custom_kernels', {})
+    print_newline = False
 
-    print("nic: %s" % current_nic)
-    print("fw: %s" % current_fw_ver)
-    print("flow steering: %s" % flow_steering_mode)
-    print("kernel: %s" % current_kernel)
-    if simx_mode:
-        print("simx mode")
-
-    for t in TESTS:
+    for t in _tests:
         name = t.name
 
         if data['tests'][name] is None:
@@ -617,7 +626,10 @@ def update_skip_according_to_db(data):
                 break
             sys.stdout.write('.')
             sys.stdout.flush()
-    print()
+            print_newline = True
+
+    if print_newline:
+        print()
 
 
 def get_test_header(fname):
@@ -722,20 +734,6 @@ def prepare_logdir():
     return logdir
 
 
-def merge_data(data, out):
-    for key in data:
-        if key not in out:
-            out[key] = data[key]
-        else:
-            if type(data[key]) is str:
-                continue
-            elif type(data[key]) is list:
-                out[key] += data[key]
-            else:
-                out[key].update(data[key])
-    return out
-
-
 def get_db_path(db):
     db2 = os.path.join(MYDIR, 'databases', db)
     if not os.path.exists(db):
@@ -771,29 +769,22 @@ def get_dbs():
             continue
         if multi and 'ignore' in db and not args.db_check:
             continue
-        if args.db_check and 'dpdk' in db:
+        if multi and 'dpdk' in db:
+            continue
+        if multi and'ovn' in db:
             continue
         dbs_out.append(db)
 
     return dbs_out
 
 
-def read_db(dbs):
-    multi = len(dbs) > 1
-    out = {}
-
-    for db in dbs:
-        db = get_db_path(db)
-        print("DB: %s" % db)
-        with open(db) as yaml_data:
-            data = yaml.safe_load(yaml_data)
-            print("Description: %s" % data.get("description", "Empty"))
-            # handle special case. if merging multi dbs skip lists like mini reg.
-            if multi and (type(data['tests']) is list):
-                print("Skip db")
-                continue
-            merge_data(data, out)
-    return out
+def read_db(db):
+    db = get_db_path(db)
+    print("DB: %s" % db)
+    with open(db) as yaml_data:
+        data = yaml.safe_load(yaml_data)
+        print("Description: %s" % data.get("description", "Empty"))
+    return data
 
 
 def read_mini_reg_list():
@@ -823,7 +814,7 @@ def load_tests_from_db(data):
     return tests
 
 
-def revert_skip_if_needed(data):
+def revert_skip_if_needed():
     if not args.run_skipped:
         return
 
@@ -841,14 +832,17 @@ def get_tests():
     global TESTS
     try:
         if args.db:
-            dbs = get_dbs()
-            data = read_db(dbs)
+            TESTS = []
+            get_current_state()
+            for db in get_dbs():
+                data = read_db(db)
+                if 'tests' in data:
+                    _tests = load_tests_from_db(data)
+                    ignore_excluded(data.get('ignore', []))
+                    update_skip_according_to_db(_tests, data)
+                    TESTS.extend(_tests)
             read_mini_reg_list()
-            if 'tests' in data:
-                TESTS = load_tests_from_db(data)
-                ignore_excluded(data.get('ignore', []))
-                update_skip_according_to_db(data)
-                revert_skip_if_needed(data)
+            revert_skip_if_needed()
         else:
             tmp = glob(MYDIR + '/test-*.sh')
             TESTS = [Test(t) for t in tmp]
