@@ -116,6 +116,7 @@ COLOURS = {
 
 DB_PATH = None
 MINI_REG_LIST = []
+IGNORE_LIST = []
 
 TIME_DURATION_UNITS = (
     ('h', 60*60),
@@ -767,7 +768,7 @@ def get_dbs():
             DB_PATH = os.path.dirname(db)
         if multi and 'mini_reg' in db:
             continue
-        if multi and 'ignore' in db and not args.db_check:
+        if multi and 'ignore' in db:
             continue
         if multi and 'dpdk' in db:
             continue
@@ -803,6 +804,24 @@ def read_mini_reg_list():
             MINI_REG_LIST = data['tests'].keys()
         elif type(data['tests']) is list:
             MINI_REG_LIST = data['tests']
+
+
+def read_ignore_list():
+    global IGNORE_LIST
+
+    if not DB_PATH:
+        return
+
+    mini = os.path.join(DB_PATH, 'ignore_db.yaml')
+    if not os.path.exists(mini):
+        return
+
+    with open(mini) as f:
+        data = yaml.safe_load(f)
+        if type(data['tests']) is dict:
+            IGNORE_LIST = data['tests'].keys()
+        elif type(data['tests']) is list:
+            IGNORE_LIST = data['tests']
 
 
 def load_tests_from_db(data):
@@ -863,15 +882,20 @@ def print_test_line(name, reason):
 def db_check():
     rm = MlxRedmine()
     all_tests = glob(MYDIR + '/test-*.sh')
+    all_tests = [os.path.basename(t) for t in all_tests]
     sort_tests(all_tests)
+    read_ignore_list()
 
     for test in TESTS:
-        if test.fname in all_tests:
-            all_tests.remove(test.fname)
+        if test.name in all_tests:
+            all_tests.remove(test.name)
+
+    for test in IGNORE_LIST:
+        if test in all_tests:
+            all_tests.remove(test)
 
     for test in all_tests:
-        name = os.path.basename(test)
-        print_test_line(name, "Missing in db")
+        print_test_line(test, "Missing in db")
 
     target_version = ''
     for test in TESTS:
