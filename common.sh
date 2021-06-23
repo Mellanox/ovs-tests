@@ -130,6 +130,17 @@ function __get_device_name() {
     fi
 }
 
+function check_simx() {
+    if lspci -s $PCI -vvv | grep -q SimX ; then
+        IS_SIMX=1
+    fi
+}
+
+function is_simx() {
+    [ "$IS_SIMX" == 1 ] && return 0
+    return 1
+}
+
 function __setup_common() {
     [ -f /etc/os-release ] && . /etc/os-release
     ANSI_COLOR0="$COLOR0${ANSI_COLOR}m"
@@ -170,6 +181,7 @@ function __setup_common() {
     clear_warn_once
     kmemleak_scan_per_test && kmemleak_clear
     __set_testpmd
+    check_simx
 }
 
 function __set_testpmd() {
@@ -1679,6 +1691,9 @@ function redmine_info() {
 }
 
 function verify_mlxconfig_for_sf() {
+    # simx doesn't expose these but assumed to support.
+    is_simx && return
+
     #First check newer config, if its enabled or not.
     local PER_PF_NUM_SF="True(1)"
     local pf_total_sf=`fw_query_val PF_TOTAL_SF`
