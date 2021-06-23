@@ -15,8 +15,6 @@ if is_ofed ; then
 fi
 
 function sf_port_add_del_test() {
-    title "Test sf port add delete commands"
-
     $cmd port add pci/$PCI flavour pcisf pfnum 0 sfnum 88 || fail "Failed to add SF"
     sleep 1
     local rep=`$cmd port show | grep "pfnum 0 sfnum 88" | grep -E -o "netdev [a-z0-9]+" | awk {'print $2'}`
@@ -25,6 +23,10 @@ function sf_port_add_del_test() {
 }
 
 enable_norep_switchdev $NIC
-sf_port_add_del_test
+title "Test sf port add delete commands"
+for iter in 1 2 ; do
+    title "iter $iter"
+    sf_port_add_del_test
+done
 
 test_done
