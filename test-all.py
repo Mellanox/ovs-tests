@@ -906,6 +906,9 @@ def db_check():
             print_test_line(name, WONT_FIX[name])
             continue
         for task in test.issues:
+            if not rm.is_issue_open(task):
+                continue
+
             if rm.is_tracker_bug(task):
                 if 'fixed_version' in task:
                     fixed_version = task['fixed_version']['name']
@@ -916,11 +919,11 @@ def db_check():
                 else:
                     tmp = "RM #%s: %s" % (task['id'], task['subject'])
                     print_test_line(name, "Missing target version: %s" % tmp)
-            if rm.is_issue_open(task):
-                days = rm.created_days_ago(task)
-                if days > 28:
-                    tmp = "RM #%s: %s" % (task['id'], task['subject'])
-                    print_test_line(name, "Over %d days old: %s" % (days, tmp))
+
+            days = rm.created_days_ago(task)
+            if days > 28:
+                tmp = "RM #%s: %s" % (task['id'], task['subject'])
+                print_test_line(name, "Over %d days old: %s" % (days, tmp))
     return 0
 
 
