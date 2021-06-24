@@ -58,3 +58,7 @@ class MlxRedmine(object):
     def created_days_ago(self, task):
         created = parse_redmine_time(task['created_on'])
         return (datetime.now() - created).days
+
+    def updated_days_ago(self, task):
+        updated = parse_redmine_time(task['updated_on'])
+        return (datetime.now() - updated).days
