@@ -263,6 +263,7 @@ def parse_args():
                         help='DB check')
     parser.add_argument('--test-kernel',
                         help='Test specified kernel instead of current kernel. works with db.')
+    parser.add_argument('--test-simx', action='store_true', help="Test SimX.")
     parser.add_argument('--log_dir',
                         help='Log dir to save all logs under')
     parser.add_argument('--html', action='store_true',
@@ -481,12 +482,9 @@ def get_current_state():
     nic = get_config_value('NIC')
     current_fw_ver = get_current_fw(nic)
     current_nic = DeviceType.get(get_current_nic_type(nic))
-    if args.test_kernel:
-        current_kernel = args.test_kernel
-    else:
-        current_kernel = os.uname()[2]
+    current_kernel = args.test_kernel if args.test_kernel else os.uname()[2]
     flow_steering_mode = get_flow_steering_mode(nic)
-    simx_mode = check_simx(nic)
+    simx_mode = True if args.test_simx else check_simx(nic)
 
     print("nic: %s" % current_nic)
     print("fw: %s" % current_fw_ver)
@@ -514,6 +512,7 @@ def update_skip_according_to_db(_tests, data):
 
     for t in _tests:
         name = t.name
+        bugs_list = []
 
         if data['tests'][name] is None:
             data['tests'][name] = {}
@@ -539,8 +538,11 @@ def update_skip_according_to_db(_tests, data):
             continue
 
         if simx_mode and simx_ignore:
-            t.set_ignore("Ignore for SimX mode with reason %s" % simx_ignore)
-            continue
+            if type(simx_ignore) == list:
+                bugs_list.extend(simx_ignore)
+            else:
+                t.set_ignore("Ignore for SimX mode with reason %s" % simx_ignore)
+                continue
 
         ignore_not_supported = data['tests'][name].get('ignore_not_supported', 0)
 
@@ -582,10 +584,10 @@ def update_skip_according_to_db(_tests, data):
             if nic == current_nic:
                 t.set_ignore("Unsupported nic %s" % nic)
                 break
+
         if t.ignore:
             continue
 
-        bugs_list = []
         # issue number key with list of kernels
         issue_keys = [x for x in data['tests'][name].keys() if isinstance(x, int)]
         for issue in issue_keys:
