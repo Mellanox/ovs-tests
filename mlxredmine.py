@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import requests
+from datetime import datetime
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -20,6 +21,13 @@ STATUS_REJECTED = 6
 STATUS_CLOSED = 5
 STATUS_CLOSED_REJECTED = 38
 STATUS_CLOSED_EXTERNAL = 74
+
+REDMINE_TIMESTAMP_FMT = '%Y-%m-%dT%H:%M:%S'
+
+
+def parse_redmine_time(value):
+    parts = value.split('.')
+    return datetime.strptime(parts[0], REDMINE_TIMESTAMP_FMT)
 
 
 class MlxRedmine(object):
@@ -46,3 +54,7 @@ class MlxRedmine(object):
 
     def is_tracker_bug(self, task):
         return task['tracker']['id'] == TRACKER_BUG_SW
+
+    def created_days_ago(self, task):
+        created = parse_redmine_time(task['created_on'])
+        return (datetime.now() - created).days
