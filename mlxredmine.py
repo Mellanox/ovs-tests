@@ -19,6 +19,7 @@ STATUS_WONT_FIX = 11
 STATUS_REJECTED = 6
 STATUS_CLOSED = 5
 STATUS_CLOSED_REJECTED = 38
+STATUS_CLOSED_EXTERNAL = 74
 
 
 class MlxRedmine(object):
@@ -38,7 +39,7 @@ class MlxRedmine(object):
         return task['status']['id'] in (STATUS_WONT_FIX, STATUS_RELEASE_NOTES)
 
     def is_issue_closed(self, task):
-        return task['status']['id'] in (STATUS_FIXED, STATUS_CLOSED, STATUS_CLOSED_REJECTED)
+        return task['status']['id'] in (STATUS_FIXED, STATUS_CLOSED, STATUS_CLOSED_REJECTED, STATUS_CLOSED_EXTERNAL)
 
     def is_issue_open(self, task):
         return not self.is_issue_closed(task)
