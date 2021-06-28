@@ -46,7 +46,7 @@ function cleanup() {
     reset_tc $REP
     reset_tc $REP2
     pkill -9 iperf3
-    set_ct_aging 30 30
+    set_ct_aging 30 30 &>/dev/null
 }
 trap cleanup EXIT
 
