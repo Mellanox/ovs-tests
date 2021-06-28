@@ -450,6 +450,11 @@ function ssh2() {
     ssh -tt -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=3 "$@"
 }
 
+# Run given code on remote server which provide all function and env vars
+function on_remote_exec() {
+    ssh2 $REMOTE_SERVER "$(typeset -g);" "$@"
+}
+
 function on_remote_dt() {
     # We assume that the scripts are accessible at the same location on remote host ${DIR}
     ssh2 $REMOTE_SERVER "cat > /tmp/dt_cmd.$$.sh <<EOF
