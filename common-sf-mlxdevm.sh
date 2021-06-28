@@ -4,7 +4,7 @@ declare -a SF_DEVS
 declare -a SF_REPS
 declare -a SF_NETDEVS
 
-function get_sf_rep() {
+function sf_get_rep() {
     # takes sfnum as parameter
     echo $(mlxdevm port show | grep "pfnum 0 sfnum $1" | grep -E -o "netdev [a-z0-9]+" | awk {'print $2'})
 }
@@ -22,7 +22,7 @@ function sf_get_dev() {
     echo $sf_dev
 }
 
-function get_sf_netdev() {
+function sf_get_netdev() {
     echo $(basename `ls /sys/bus/auxiliary/devices/$1/net`)
 }
 
@@ -77,24 +77,26 @@ function create_sf() {
 
 function create_sfs() {
     local count=$1
-
-    title "Create $count SFs with RoCE Disabled"
     local i
+
+    title "Create $count SFs"
+
     for i in `seq $count`; do
         create_sf 0 $i
         sleep 0.5
 
-        local rep=$(get_sf_rep $i)
+        local rep=$(sf_get_rep $i)
         [ "$sf_disable_roce" == 1 ] && sf_disable_roce $rep
+
         sf_activate $rep
 
         local sf_dev=$(sf_get_dev $i)
-
         [ "$sf_disable_netdev" == 1 ] && sf_disable_netdev $sf_dev
+
         sf_cfg_unbind $sf_dev
         sf_bind $sf_dev
 
-        local netdev=$(get_sf_netdev $sf_dev 2>/dev/null)
+        local netdev=$(sf_get_netdev $sf_dev 2>/dev/null)
         SF_DEVS+=($sf_dev)
         SF_REPS+=($rep)
         SF_NETDEVS+=($netdev)
@@ -123,4 +125,30 @@ function remove_sfs() {
     SF_DEVS=()
     SF_REPS=()
     SF_NETDEVS=()
+}
+
+function config_sfs_eq() {
+    local max_cmpl_eqs=$1
+    local cmpl_eq_depth=$2
+    local async_eq_depth=$3
+
+    title "Configure SFs EQ"
+
+    echo "max_cmpl_eqs: $max_cmpl_eqs"
+    echo "cmpl_eq_depth: $cmpl_eq_depth"
+    echo "async_eq_depth: $async_eq_depth"
+
+    local dev
+    for dev in "${SF_DEVS[@]}"; do
+        sf_unbind $dev
+        sf_cfg_bind $dev
+
+        sf_set_param $dev max_cmpl_eqs $max_cmpl_eqs
+        sf_set_param $dev cmpl_eq_depth $cmpl_eq_depth
+        sf_set_param $dev async_eq_depth $async_eq_depth
+
+        sf_cfg_unbind $dev
+        sf_bind $dev
+    done
+
 }

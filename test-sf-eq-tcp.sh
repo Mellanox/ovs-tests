@@ -2,13 +2,13 @@
 #
 # Test SF EQ memory optimizations while changing the eq configuration and running tcp connection.
 #
-# required mlxconfig is PF_BAR2_SIZE=3 PF_BAR2_ENABLE=1
+# required OFED is built using --with-sf-cfg-drv
 # [MKT. BlueField-SW] Feature Request #2482519: EQ memory optimizations - OFED first
 # [MLNX OFED] Bug SW #2248656: [MLNX OFED SF] Creating SF is causing a kfree for unknown address
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
-. $my_dir//common-sf-mlxdevm.sh
+. $my_dir/common-sf-mlxdevm.sh
 
 if ! is_ofed ; then
     fail "This feature is supported only over OFED"
@@ -30,38 +30,9 @@ function remove_ns() {
     ovs_clear_bridges
 }
 
-function set_eq_config() {
-    title "Configure SFs EQ"
-    local max_cmpl_eqs=$1
-    local cmpl_eq_depth=$2
-    local async_eq_depth=$3
-
-    echo "max_cmpl_eqs: $max_cmpl_eqs"
-    echo "cmpl_eq_depth: $cmpl_eq_depth"
-    echo "async_eq_depth: $async_eq_depth"
-
-    local i
-    for i in 0 1; do
-        local sf_dev="${SF_DEVS[$i]}"
-        sf_unbind $sf_dev
-        sf_cfg_bind $sf_dev
-        sleep 1
-
-        sf_set_param $sf_dev max_cmpl_eqs $max_cmpl_eqs
-        sf_set_param $sf_dev cmpl_eq_depth $cmpl_eq_depth
-        sf_set_param $sf_dev async_eq_depth $async_eq_depth
-
-        sf_cfg_unbind $sf_dev
-        sf_bind $sf_dev
-        sleep 1
-    done
-
-}
-
 function config() {
     title "Config"
     start_clean_openvswitch
-    sf_disable_roce=1
     create_sfs 2
 
     title "SFs Netdev Rep Info"
@@ -111,7 +82,7 @@ function run() {
     local i
     for i in 1 2 3; do
         title "Case $i"
-        set_eq_config $(($max_cmpl_eqs * $i)) $(($cmpl_eq_depth * $i)) $(($async_eq_depth * $i))
+        config_sfs_eq $(($max_cmpl_eqs * $i)) $(($cmpl_eq_depth * $i)) $(($async_eq_depth * $i))
         config_ns
         run_traffic
         remove_ns
