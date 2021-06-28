@@ -3,6 +3,7 @@
 import requests
 from datetime import datetime
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
+from requests.exceptions import ConnectionError
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -37,8 +38,18 @@ class MlxRedmine(object):
         }
         return requests.get(url, headers=headers, params=params, verify=False)
 
-    def get_issue(self, issue_id):
-        r = self.get_url(REDMINE_URL + '/issues/%s.json' % issue_id)
+    def get_issue(self, issue_id, retry=0):
+        loops = max(1, retry + 1)
+
+        for i in range(loops):
+            try:
+                r = self.get_url(REDMINE_URL + '/issues/%s.json' % issue_id)
+                break
+            except ConnectionError:
+                if i+1 == loops:
+                    raise
+                continue
+
         j = r.json()
         task = j['issue']
         return task
