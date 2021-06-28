@@ -14,49 +14,6 @@ if ! is_ofed ; then
     fail "This feature is supported only over OFED"
 fi
 
-declare -a SF_REPS
-declare -a SF_RDMADEVS
-
-function remove_sfs() {
-    title "Delete SFs"
-    # WA Deleting SFs while they are binded is extremly slow need to unbind first to make it faster
-    local sf_rdmadev
-    for sf_rdmadev in "${SF_RDMADEVS[@]}"; do
-        sf_unbind $sf_rdmadev
-    done
-
-    local rep
-    for rep in "${SF_REPS[@]}"; do
-        sf_inactivate $rep
-        delete_sf $rep
-    done
-
-    SF_REPS=()
-    SF_RDMADEVS=()
-}
-
-function create_sfs_without_eq() {
-    title "Create $1 SFs without EQ"
-    local i
-    for i in $(seq 1 $1); do
-        create_sf 0 $i
-        sleep 0.5
-
-        local rep=$(get_sf_rep $i)
-        sf_disable_roce $rep
-        sf_activate $rep
-
-        local sf_rdmadev=$(get_sf_rdmadev $i)
-        sf_set_param $sf_rdmadev disable_netdev true
-        sf_cfg_unbind $sf_rdmadev
-        sf_bind $sf_rdmadev
-        sleep 1
-
-        SF_RDMADEVS+=($sf_rdmadev)
-        SF_REPS+=($rep)
-    done
-}
-
 function create_sfs_with_eq() {
     title "Create $1 SFs with EQ"
     local i
@@ -68,25 +25,26 @@ function create_sfs_with_eq() {
         sf_disable_roce $rep
         sf_activate $rep
 
-        local sf_rdmadev=$(get_sf_rdmadev $i)
-        sf_set_param $sf_rdmadev max_cmpl_eqs 1
-        sf_set_param $sf_rdmadev cmpl_eq_depth 64
-        sf_set_param $sf_rdmadev async_eq_depth 64
-        sf_set_param $sf_rdmadev disable_netdev true
-        sf_set_param $sf_rdmadev disable_fc true
+        local sf_dev=$(sf_get_dev $i)
+        sf_set_param $sf_dev max_cmpl_eqs 1
+        sf_set_param $sf_dev cmpl_eq_depth 64
+        sf_set_param $sf_dev async_eq_depth 64
+        sf_set_param $sf_dev disable_netdev true
+        sf_set_param $sf_dev disable_fc true
 
-        sf_cfg_unbind $sf_rdmadev
-        sf_bind $sf_rdmadev
+        sf_cfg_unbind $sf_dev
+        sf_bind $sf_dev
         sleep 1
 
-        SF_RDMADEVS+=($sf_rdmadev)
+        SF_DEVS+=($sf_dev)
         SF_REPS+=($rep)
     done
 }
 
-function test_without_eq(){
+function test_without_eq() {
     free_mem_before_no_eq_sf=$(get_free_memory)
-    create_sfs_without_eq $max_sfs_allowed
+    sf_disable_netdev=1
+    create_sfs $max_sfs_allowed
     sleep 1
     free_mem_after_no_eq_sf=$(get_free_memory)
     total_mem_consumed_no_eq_sf=$(($free_mem_before_no_eq_sf - $free_mem_after_no_eq_sf))

@@ -14,10 +14,6 @@ if ! is_ofed ; then
     fail "This feature is supported only over OFED"
 fi
 
-declare -a SF_REPS
-declare -a SF_RDMADEVS
-declare -a SF_NETDEVS
-
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
@@ -28,35 +24,13 @@ function cleanup() {
 
 trap cleanup EXIT
 
-function remove_ns(){
+function remove_ns() {
     ip netns del ns0 &> /dev/null
     ip netns del ns1 &> /dev/null
     ovs_clear_bridges
 }
 
-function create_sfs() {
-    title "Create SFs with RoCE Disabled"
-    local i
-    for i in 1 2; do
-        create_sf 0 $i
-        sleep 0.5
-
-        local rep=$(get_sf_rep $i)
-        sf_disable_roce $rep
-        sf_activate $rep
-
-        local sf_rdmadev=$(get_sf_rdmadev $i)
-        sf_cfg_unbind $sf_rdmadev
-        sf_bind $sf_rdmadev
-
-        local netdev=$(get_sf_netdev $sf_rdmadev)
-        SF_NETDEVS+=($netdev)
-        SF_RDMADEVS+=($sf_rdmadev)
-        SF_REPS+=($rep)
-    done
-}
-
-function set_eq_config(){
+function set_eq_config() {
     title "Configure SFs EQ"
     local max_cmpl_eqs=$1
     local cmpl_eq_depth=$2
@@ -68,39 +42,27 @@ function set_eq_config(){
 
     local i
     for i in 0 1; do
-        local sf_rdmadev="${SF_RDMADEVS[$i]}"
-        sf_unbind $sf_rdmadev
-        sf_cfg_bind $sf_rdmadev
+        local sf_dev="${SF_DEVS[$i]}"
+        sf_unbind $sf_dev
+        sf_cfg_bind $sf_dev
         sleep 1
 
-        sf_set_param $sf_rdmadev max_cmpl_eqs $max_cmpl_eqs
-        sf_set_param $sf_rdmadev cmpl_eq_depth $cmpl_eq_depth
-        sf_set_param $sf_rdmadev async_eq_depth $async_eq_depth
+        sf_set_param $sf_dev max_cmpl_eqs $max_cmpl_eqs
+        sf_set_param $sf_dev cmpl_eq_depth $cmpl_eq_depth
+        sf_set_param $sf_dev async_eq_depth $async_eq_depth
 
-        sf_cfg_unbind $sf_rdmadev
-        sf_bind $sf_rdmadev
+        sf_cfg_unbind $sf_dev
+        sf_bind $sf_dev
         sleep 1
     done
 
-}
-
-function remove_sfs() {
-    title "Delete SFs"
-    local rep
-    for rep in "${SF_REPS[@]}"; do
-        sf_inactivate $rep
-        delete_sf $rep
-    done
-
-    SF_REPS=()
-    SF_RDMADEVS=()
-    SF_NETDEVS=()
 }
 
 function config() {
     title "Config"
     start_clean_openvswitch
-    create_sfs
+    sf_disable_roce=1
+    create_sfs 2
 
     title "SFs Netdev Rep Info"
     SF="${SF_NETDEVS[0]}"
