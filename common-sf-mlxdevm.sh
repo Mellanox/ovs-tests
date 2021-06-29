@@ -1,29 +1,37 @@
 #!/bin/bash
 
-declare -a SF_DEVS
-declare -a SF_REPS
-declare -a SF_NETDEVS
-
 function sf_get_rep() {
-    # takes sfnum as parameter
-    echo $(mlxdevm port show | grep "pfnum 0 sfnum $1" | grep -E -o "netdev [a-z0-9]+" | awk {'print $2'})
+    local sfnum=$1
+    local pfnum=${2:-0}
+    [ -z "$sfnum" ] && err "sf_get_rep: Expected sfnum" && return
+    mlxdevm port show | grep "pfnum $pfnum sfnum $sfnum" | grep -E -o "netdev [a-z0-9]+" | awk {'print $2'}
+}
+
+function sf_get_all_reps() {
+    mlxdevm port show | grep sfnum | grep -E -o "netdev [a-z0-9]+" | awk {'print $2'}
+}
+
+function get_aux_sf_devices() {
+    ls -1d /sys/bus/auxiliary/devices/mlx5_core.sf.*
 }
 
 function sf_get_dev() {
     local sfnum=$1
     local sf_dev
     local sfnum2
-    for sf_dev in `ls /sys/bus/auxiliary/devices/ | grep mlx5_core.sf`; do
-        sfnum2=`cat /sys/bus/auxiliary/devices/$sf_dev/sfnum`
+    for sf_dev in `get_aux_sf_devices`; do
+        sfnum2=`cat $sf_dev/sfnum`
         if [[ "$sfnum2" == "$sfnum" ]]; then
-            break
+            basename $sf_dev
+            return
         fi
     done
-    echo $sf_dev
 }
 
 function sf_get_netdev() {
-    echo $(basename `ls /sys/bus/auxiliary/devices/$1/net`)
+    local sfnum=$1
+    local dev=`sf_get_dev $sfnum`
+    basename `ls -1 /sys/bus/auxiliary/devices/$dev/net`
 }
 
 function sf_cfg_unbind() {
@@ -96,17 +104,13 @@ function create_sfs() {
 
         [ "$sf_disable_netdev" != 1 ] && sleep 0.5
         local netdev=$(sf_get_netdev $sf_dev 2>/dev/null)
-
-        SF_DEVS+=($sf_dev)
-        SF_REPS+=($rep)
-        SF_NETDEVS+=($netdev)
     done
 }
 
 function unbind_sfs() {
-    local dev
-    for dev in "${SF_DEVS[@]}"; do
-        sf_unbind $dev
+    local sf_dev
+    for sf_dev in `get_aux_sf_devices`; do
+        sf_unbind `basename $sf_dev`
     done
 }
 
@@ -117,14 +121,10 @@ function remove_sfs() {
     unbind_sfs
 
     local rep
-    for rep in "${SF_REPS[@]}"; do
+    for rep in `sf_get_all_reps`; do
         sf_inactivate $rep
         delete_sf $rep
     done
-
-    SF_DEVS=()
-    SF_REPS=()
-    SF_NETDEVS=()
 }
 
 function config_sfs_eq() {
@@ -138,8 +138,10 @@ function config_sfs_eq() {
     echo "cmpl_eq_depth: $cmpl_eq_depth"
     echo "async_eq_depth: $async_eq_depth"
 
+    local sf_dev
     local dev
-    for dev in "${SF_DEVS[@]}"; do
+    for sf_dev in `get_aux_sf_devices`; do
+        dev=`basename $sf_dev`
         sf_unbind $dev
         sf_cfg_bind $dev
 

@@ -18,17 +18,11 @@ IP1="7.7.7.1"
 IP2="7.7.7.2"
 
 function cleanup() {
-    start_clean_openvswitch
+    deconfig_iter
     remove_sfs
 }
 
 trap cleanup EXIT
-
-function remove_ns() {
-    ip netns del ns0 &> /dev/null
-    ip netns del ns1 &> /dev/null
-    ovs_clear_bridges
-}
 
 function config() {
     title "Config"
@@ -39,20 +33,27 @@ function config() {
     start_clean_openvswitch
 
     title "SFs Netdev Rep Info"
-    SF="${SF_NETDEVS[0]}"
-    SF_REP="${SF_REPS[0]}"
-    echo "SF: $SF, REP: $SF_REP"
-    SF1="${SF_NETDEVS[1]}"
-    SF_REP1="${SF_REPS[1]}"
+    SF1=`sf_get_netdev 1`
+    SF_REP1=`sf_get_rep 1`
     echo "SF: $SF1, REP: $SF_REP1"
+
+    SF2=`sf_get_netdev 2`
+    SF_REP2=`sf_get_rep 2`
+    echo "SF: $SF2, REP: $SF_REP2"
 }
 
-function config_ns() {
-    config_vf ns0 $SF $SF_REP $IP1
-    config_vf ns1 $SF1 $SF_REP1 $IP2
+function config_iter() {
+    config_vf ns0 $SF1 $SF_REP1 $IP1
+    config_vf ns1 $SF2 $SF_REP2 $IP2
     ovs-vsctl add-br br-ovs
-    ovs-vsctl add-port br-ovs $SF_REP
     ovs-vsctl add-port br-ovs $SF_REP1
+    ovs-vsctl add-port br-ovs $SF_REP2
+}
+
+function deconfig_iter() {
+    ip netns del ns0 &> /dev/null
+    ip netns del ns1 &> /dev/null
+    ovs_clear_bridges
 }
 
 function run_traffic() {
@@ -65,8 +66,8 @@ function run_traffic() {
     sleep 2
     pidof iperf &>/dev/null || err "iperf failed"
 
-    echo "sniff packets on $SF_REP"
-    timeout $((t-4)) tcpdump -qnnei $SF_REP -c 10 'tcp' &
+    echo "sniff packets on $SF_REP1"
+    timeout $((t-4)) tcpdump -qnnei $SF_REP1 -c 10 'tcp' &
     pid1=$!
 
     sleep $t
@@ -86,9 +87,9 @@ function run() {
     for i in 1 2 3; do
         title "Case $i"
         config_sfs_eq $(($max_cmpl_eqs * $i)) $(($cmpl_eq_depth * $i)) $(($async_eq_depth * $i))
-        config_ns
+        config_iter
         run_traffic
-        remove_ns
+        deconfig_iter
     done
 }
 
