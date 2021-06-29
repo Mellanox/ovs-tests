@@ -89,14 +89,14 @@ function create_sfs() {
         [ "$sf_disable_roce" == 1 ] && sf_disable_roce $rep
 
         sf_activate $rep
-
         local sf_dev=$(sf_get_dev $i)
+
         [ "$sf_disable_netdev" == 1 ] && sf_disable_netdev $sf_dev
+        [ "$sf_with_cfg" == 1 ] && sf_cfg_unbind $sf_dev && sf_bind $sf_dev
 
-        sf_cfg_unbind $sf_dev
-        sf_bind $sf_dev
-
+        [ "$sf_disable_netdev" != 1 ] && sleep 0.5
         local netdev=$(sf_get_netdev $sf_dev 2>/dev/null)
+
         SF_DEVS+=($sf_dev)
         SF_REPS+=($rep)
         SF_NETDEVS+=($netdev)

@@ -33,6 +33,7 @@ function remove_ns() {
 function config() {
     title "Config"
     start_clean_openvswitch
+    sf_with_cfg=1
     create_sfs 2
 
     title "SFs Netdev Rep Info"

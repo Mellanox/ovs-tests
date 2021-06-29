@@ -14,6 +14,7 @@ if ! is_ofed ; then
     fail "This feature is supported only over OFED"
 fi
 
+sf_with_cfg=1
 sf_disable_roce=1
 sf_disable_netdev=1
 
