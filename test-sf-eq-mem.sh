@@ -23,6 +23,7 @@ function test_without_eq() {
     free_mem_before_no_eq_sf=$(get_free_memory)
 
     create_sfs $max_sfs_allowed
+    fail_if_err "Failed to create sfs"
 
     free_mem_after_no_eq_sf=$(get_free_memory)
     total_mem_consumed_no_eq_sf=$(($free_mem_before_no_eq_sf - $free_mem_after_no_eq_sf))
@@ -37,9 +38,10 @@ function test_without_eq() {
 
 function test_with_eq() {
     title "Case with eq"
-
     free_mem_before_eq_sf=$(get_free_memory)
+
     create_sfs $max_sfs_allowed
+    fail_if_err "Failed to create sfs"
 
     config_sfs_eq 1 64 64
 
