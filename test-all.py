@@ -627,8 +627,10 @@ def update_skip_according_to_db(_tests, data):
                 continue
             if rm.is_issue_wont_fix_or_release_notes(task):
                 t.set_wont_fix()
-                WONT_FIX[name] = "%s RM #%s: %s" % (task['status']['name'], bug, task['subject'])
-            if rm.is_issue_open(task):
+                tmp = "%s RM #%s: %s" % (task['status']['name'], bug, task['subject'])
+                WONT_FIX[name] = tmp
+                t.set_skip(tmp)
+            elif rm.is_issue_open(task):
                 days = rm.updated_days_ago(task)
                 tmp = "RM #%s: %s" % (bug, task['subject'])
                 if days > 60:
