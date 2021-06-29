@@ -150,5 +150,4 @@ function config_sfs_eq() {
         sf_cfg_unbind $dev
         sf_bind $dev
     done
-
 }
