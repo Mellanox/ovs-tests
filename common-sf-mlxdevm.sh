@@ -85,12 +85,13 @@ function create_sf() {
 
 function create_sfs() {
     local count=$1
+    local pfnum=0
     local i
 
     title "Create $count SFs"
 
     for i in `seq $count`; do
-        create_sf 0 $i
+        create_sf $pfnum $i
         sleep 0.5
 
         local rep=$(sf_get_rep $i)
@@ -98,6 +99,10 @@ function create_sfs() {
 
         sf_activate $rep
         local sf_dev=$(sf_get_dev $i)
+        if [ -z "$sf_dev" ]; then
+            err "Failed to get sf dev for pfnum $pfnum sfnum $i"
+            continue
+        fi
 
         [ "$sf_disable_netdev" == 1 ] && sf_disable_netdev $sf_dev
         [ "$sf_with_cfg" == 1 ] && sf_cfg_unbind $sf_dev && sf_bind $sf_dev
