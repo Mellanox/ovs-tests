@@ -18,6 +18,11 @@ sf_with_cfg=1
 sf_disable_roce=1
 sf_disable_netdev=1
 
+function cleanup() {
+    remove_sfs >/dev/null
+}
+trap cleanup EXIT
+
 function test_without_eq() {
     title "Case without eq"
     free_mem_before_no_eq_sf=$(get_free_memory)
