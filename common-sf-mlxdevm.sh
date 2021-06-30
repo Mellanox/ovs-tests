@@ -12,7 +12,7 @@ function sf_get_all_reps() {
 }
 
 function get_aux_sf_devices() {
-    ls -1d /sys/bus/auxiliary/devices/mlx5_core.sf.*
+    ls -1d /sys/bus/auxiliary/devices/mlx5_core.sf.* 2>/dev/null
 }
 
 function sf_get_dev() {
