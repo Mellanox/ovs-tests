@@ -1,7 +1,8 @@
 #!/bin/bash
 
 TESTNAME=`basename $0`
-DIR=$(cd `dirname $0` ; pwd)
+TESTDIR=$(cd `dirname $0` ; pwd)
+DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" &>/dev/null && pwd)
 SET_MACS="$DIR/set-macs.sh"
 
 COLOR0="\033["
@@ -1648,7 +1649,7 @@ function __setup_clean() {
 
 function warn_if_redmine_bug_is_open() {
     local i
-    local issues=`head -n50 $DIR/$TESTNAME | grep "^#" | grep -o "Bug SW #[0-9]\+" | cut -d"#" -f2`
+    local issues=`head -n50 $TESTDIR/$TESTNAME | grep "^#" | grep -o "Bug SW #[0-9]\+" | cut -d"#" -f2`
     local p=0
     for i in $issues ; do
         redmine_info $i
