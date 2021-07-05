@@ -75,7 +75,8 @@ function check_bw() {
 }
 
 function test_tcp() {
-    let min_expected=40*1024*1024*1024
+    # on inbox kernels we get 40+ but on custom kernels with min-config we compile we get 20+
+    let min_expected=20*1024*1024*1024
     title "Test iperf tcp $VF($IP1) -> $VF2($IP2)"
     TMPFILE=/tmp/iperf.log
     ip netns exec ns0 timeout 11 iperf -s &
