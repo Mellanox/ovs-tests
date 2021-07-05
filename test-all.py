@@ -528,7 +528,12 @@ def update_skip_according_to_db(_tests, data):
 
         ignore_for_linust = data['tests'][name].get('ignore_for_linust', 0)
         ignore_for_upstream = data['tests'][name].get('ignore_for_upstream', 0)
+        ignore_for_debug_kernel = data['tests'][name].get('ignore_for_debug_kernel', 0)
         simx_ignore = data['tests'][name].get('simx_ignore', 0)
+        is_debug_kernel = '_debug_' in current_kernel and '_min_debug_' not in current_kernel
+
+        if ignore_for_debug_kernel and is_debug_kernel:
+            t.set_ignore("Ignore on debug kernel")
 
         if ignore_for_linust and ignore_for_upstream:
             raise RuntimeError("%s: Do not ignore on both for_linust and for_upstream." % name)
