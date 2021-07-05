@@ -63,9 +63,12 @@ function check_bw() {
         return
     fi
 
-    log "Min expected BW $min_expected"
+    min_expected1=`numfmt --to=iec $min_expected`
+    bw1=`numfmt --to=iec $BW`
+    log "Min expected BW $min_expected1"
+
     if (( $BW < $min_expected )); then
-        err "Expected minimum BW of $min_expected and got $BW"
+        err "Expected minimum BW of $min_expected1 and got $bw1"
     else
         success
     fi
