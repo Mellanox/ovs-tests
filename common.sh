@@ -548,8 +548,11 @@ function fail() {
     fi
     TEST_FAILED=1
     kill_all_bgs
-    echo -e "${RED}ERROR: $m$NOCOLOR" >>/dev/stderr
-    kmsg "ERROR: $m"
+    if [ "$m" != "TEST FAILED" ]; then
+        m="ERROR: $m"
+    fi
+    echo -e "${RED}$m$NOCOLOR" >>/dev/stderr
+    kmsg "$m"
     exit 1
 }
 
@@ -560,8 +563,9 @@ function err() {
         return
     fi
     TEST_FAILED=1
-    echo -e "${RED}ERROR: $m$NOCOLOR"
-    kmsg "ERROR: $m"
+    m="ERROR: $m"
+    echo -e "${RED}$m$NOCOLOR"
+    kmsg "$m"
 }
 
 function success() {
