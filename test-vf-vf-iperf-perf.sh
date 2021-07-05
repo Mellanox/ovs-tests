@@ -88,7 +88,8 @@ function test_tcp() {
 }
 
 function test_udp() {
-    let min_expected=8*1024*1024*1024
+    # we usually get ~9 but with min-config we use we get sometimes 7+
+    let min_expected=7*1024*1024*1024
     title "Test iperf udp $VF($IP1) -> $VF2($IP2)"
     TMPFILE=/tmp/iperf.log
     ip netns exec ns0 timeout 11 iperf -u -s &
