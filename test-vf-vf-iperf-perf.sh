@@ -63,16 +63,16 @@ function check_bw() {
         return
     fi
 
-    let MIN_EXPECTED=9*1024*1024*1024
-
-    if (( $BW < $MIN_EXPECTED )); then
-        err "Expected minimum BW of $MIN_EXPECTED and got $BW"
+    log "Min expected BW $min_expected"
+    if (( $BW < $min_expected )); then
+        err "Expected minimum BW of $min_expected and got $BW"
     else
         success
     fi
 }
 
 function test_tcp() {
+    let min_expected=40*1024*1024*1024
     title "Test iperf tcp $VF($IP1) -> $VF2($IP2)"
     TMPFILE=/tmp/iperf.log
     ip netns exec ns0 timeout 11 iperf -s &
@@ -84,6 +84,7 @@ function test_tcp() {
 }
 
 function test_udp() {
+    let min_expected=8*1024*1024*1024
     title "Test iperf udp $VF($IP1) -> $VF2($IP2)"
     TMPFILE=/tmp/iperf.log
     ip netns exec ns0 timeout 11 iperf -u -s &
