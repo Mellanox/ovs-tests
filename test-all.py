@@ -1029,7 +1029,7 @@ def run_tests(iteration):
         print("%s " % total_seconds, end=' ')
 
         if (test.name in MINI_REG_LIST) and (test.skip or test.ignore or test.failed):
-            res = "SHOW STOPPER - %s" % res
+            res = "%s SHOW STOPPER" % res
         test.status = format_result(res, reason, html=True)
         print("%s %s" % (format_result(res, reason), logname))
 
