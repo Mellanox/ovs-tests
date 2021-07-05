@@ -879,6 +879,7 @@ def get_tests():
             TESTS = [Test(t) for t in tmp]
             glob_tests(args.glob)
             update_skip_according_to_rm()
+            revert_skip_if_needed()
 
         return True
     except RuntimeError as e:
