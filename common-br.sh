@@ -17,6 +17,12 @@ function create_bridge_with_interfaces() {
     ip link set name $bridge_name type bridge ageing_time 3000
 }
 
+function flush_bridge() {
+    local bridge_name=$1
+
+    ip link set $bridge_name type bridge fdb_flush
+}
+
 function verify_ping_ns() {
     local ns=$1
     local from_dev=$2
