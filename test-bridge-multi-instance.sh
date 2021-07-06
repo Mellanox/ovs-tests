@@ -25,7 +25,7 @@ namespace3=ns3
 namespace4=ns4
 time=5
 
-not_relevant_for_nic cx4 cx4lx cx5
+not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
 
 function cleanup() {
     ip link del name $br1 type bridge 2>/dev/null

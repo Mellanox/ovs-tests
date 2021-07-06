@@ -33,7 +33,7 @@ namespace1=ns1
 time=5
 
 require_remote_server
-not_relevant_for_nic cx4 cx4lx cx5
+not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
 
 function cleanup() {
 
