@@ -629,7 +629,7 @@ function add_vf_vlan() {
 
     echo "[$ns] $vf.$vlan (${mac:+$mac/}$ip) -> $rep"
     ip -netns $ns link add link $vf name $vf.$vlan type vlan id $vlan
-    ${mac:+ip link set $vf.$vlan address $mac}
+    ${mac:+ip -netns $ns link set $vf.$vlan address $mac}
     ip -netns $ns address replace dev $vf.$vlan $ip/$prefix
     ip -netns $ns link set $vf.$vlan up
 }
