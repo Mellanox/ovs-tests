@@ -304,10 +304,11 @@ def run_test(test, html=False):
 
     status = log.splitlines()[-1].strip()
     status = strip_color(status)
+    lookback = 7
 
     if 'TEST FAILED' in status:
         # look for better status
-        for line in log.splitlines()[-5:]:
+        for line in log.splitlines()[-lookback:]:
             line = strip_color(line.strip())
             if line.startswith('ERROR: '):
                 status = line
@@ -315,6 +316,14 @@ def run_test(test, html=False):
 
     if subp.returncode:
         raise ExecCmdFailed(status)
+
+    if 'TEST PASSED' not in status:
+        # maybe some cleanup prints so look a bit back but not too much
+        for line in log.splitlines()[-lookback:]:
+            line = strip_color(line.strip())
+            if line == 'TEST PASSED':
+                status = line
+                break
 
     return status
 
