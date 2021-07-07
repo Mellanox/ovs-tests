@@ -715,6 +715,9 @@ def ignore_excluded(exclude):
 
 
 def save_summary_html():
+    if not LOGDIR:
+        return
+
     number_of_tests = len(TESTS)
     passed_tests = sum(map(lambda test: test.passed, TESTS))
     failed_tests = sum(map(lambda test: test.failed, TESTS))
@@ -758,6 +761,8 @@ def save_summary_html():
 
 
 def prepare_logdir():
+    global LOGDIR
+
     if args.dry:
         return
     if args.log_dir:
@@ -765,7 +770,9 @@ def prepare_logdir():
         os.mkdir(logdir)
     else:
         logdir = mkdtemp(prefix='log')
+
     print("Log dir: " + logdir)
+    LOGDIR = logdir
     return logdir
 
 
@@ -1074,6 +1081,8 @@ def main():
         print "ERROR: %s" % e
         return 1
 
+    prepare_logdir()
+
     ignore_excluded(args.exclude)
 
     if not args.db_check:
@@ -1103,7 +1112,8 @@ def cleanup():
         print("runtime: %s" % human_time_duration(runtime))
     if args.html and not args.dry:
         summary_file = save_summary_html()
-        print("Summary: %s" % summary_file)
+        if summary_file:
+            print("Summary: %s" % summary_file)
 
 
 def signal_handler(signum, frame):
@@ -1119,7 +1129,6 @@ def get_total_runtime():
 if __name__ == "__main__":
     test_all_start_time = datetime.now()
     args = parse_args()
-    LOGDIR = prepare_logdir()
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
     rc = main()
