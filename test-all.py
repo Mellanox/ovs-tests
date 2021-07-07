@@ -294,6 +294,8 @@ def run_test(test, html=False):
                             stderr=subprocess.STDOUT, close_fds=True)
     out = subp.communicate()
     log = out[0].decode('ascii', 'ignore')
+    if not log:
+        raise ExecCmdFailed("Empty output")
 
     with open(logname, 'w') as f1:
         f1.write(log)
