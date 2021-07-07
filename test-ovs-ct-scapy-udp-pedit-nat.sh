@@ -3,6 +3,8 @@
 # Test OVS CT NAT udp traffic
 # This is a fake nat using registers.
 #
+# This test is relevant for ST CT and not MT CT. traffic won't be offloaded in MT CT.
+# Bug SW #2115017: [Upstream][CT] CT label with more than 32 bit is not supported
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
