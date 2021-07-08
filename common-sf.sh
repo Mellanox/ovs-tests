@@ -1,14 +1,24 @@
 #!/bin/bash
 
+sfcmd='devlink'
+
+function __set_sf_cmd() {
+    if which mlxdevm &>/dev/null ; then
+        sfcmd='mlxdevm'
+    fi
+}
+
+__set_sf_cmd
+
 function sf_get_rep() {
     local sfnum=$1
     local pfnum=${2:-0}
     [ -z "$sfnum" ] && err "sf_get_rep: Expected sfnum" && return
-    mlxdevm port show | grep "pfnum $pfnum sfnum $sfnum" | grep -E -o "netdev [a-z0-9]+" | awk {'print $2'}
+    $sfcmd port show | grep "pfnum $pfnum sfnum $sfnum" | grep -E -o "netdev [a-z0-9]+" | awk {'print $2'}
 }
 
 function sf_get_all_reps() {
-    mlxdevm port show | grep sfnum | grep -E -o "netdev [a-z0-9]+" | awk {'print $2'}
+    $sfcmd port show | grep sfnum | grep -E -o "netdev [a-z0-9]+" | awk {'print $2'}
 }
 
 function get_aux_sf_devices() {
@@ -54,7 +64,7 @@ function sf_set_param() {
     local dev=$1
     local param_name=$2
     local value=$3
-    mlxdevm dev param set auxiliary/$dev name $param_name value $value cmode runtime || err "Failed to set sf $dev param $param_name=$value"
+    $sfcmd dev param set auxiliary/$dev name $param_name value $value cmode runtime || err "Failed to set sf $dev param $param_name=$value"
 }
 
 function sf_disable_netdev() {
@@ -62,25 +72,25 @@ function sf_disable_netdev() {
 }
 
 function sf_disable_roce() {
-    mlxdevm port function cap set $1 roce false || err "$1: Failed to disable roce"
+    $sfcmd port function cap set $1 roce false || err "$1: Failed to disable roce"
 }
 
 function sf_activate() {
-    mlxdevm port function set $1 state active || err "$1: Failed to set active state"
+    $sfcmd port function set $1 state active || err "$1: Failed to set active state"
 }
 
 function sf_inactivate() {
-    mlxdevm port function set $1 state inactive || err "$1: Failed to set inactive state"
+    $sfcmd port function set $1 state inactive || err "$1: Failed to set inactive state"
 }
 
 function delete_sf() {
-    mlxdevm port del $1 || err "Failed to delete sf $1"
+    $sfcmd port del $1 || err "Failed to delete sf $1"
 }
 
 function create_sf() {
     local pfnum=$1
     local sfnum=$2
-    mlxdevm port add pci/$PCI flavour pcisf pfnum $pfnum sfnum $sfnum >/dev/null || err "Failed to create sf on pfnum $pfnum sfnum $sfnum"
+    $sfcmd port add pci/$PCI flavour pcisf pfnum $pfnum sfnum $sfnum >/dev/null || err "Failed to create sf on pfnum $pfnum sfnum $sfnum"
 }
 
 function create_sfs() {
@@ -164,7 +174,7 @@ function sf_set_cpu_affinity() {
     local cpus=$2
     log "Setting cpu affinity with value $cpus to $sf_dev"
 
-    mlxdevm dev param set auxiliary/$sf_dev name cpu_affinity value $cpus cmode driverinit || err "$sf_dev: Failed to set cpu affinity"
+    $sfcmd dev param set auxiliary/$sf_dev name cpu_affinity value $cpus cmode driverinit || err "$sf_dev: Failed to set cpu affinity"
     start_cpu_irq_check
     devlink dev reload auxiliary/$sf_dev
     check_cpu_irq $sf_dev $cpus
@@ -234,4 +244,8 @@ function check_cpu_irq() {
         fi
     done
 
+}
+
+function sf_show_port() {
+    $sfcmd port show $1 || err "Failed to show sf $1"
 }

@@ -7,19 +7,15 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
-
-cmd="devlink"
-
-if is_ofed ; then
-   cmd="mlxdevm"
-fi
+. $my_dir/common-sf.sh
 
 function sf_port_add_del_test() {
-    $cmd port add pci/$PCI flavour pcisf pfnum 0 sfnum 88 || fail "Failed to add SF"
+    create_sf 0 88
     sleep 1
-    local rep=`$cmd port show | grep "pfnum 0 sfnum 88" | grep -E -o "netdev [a-z0-9]+" | awk {'print $2'}`
-    $cmd port show $rep || err "Failed to show SF"
-    $cmd port del $rep || err "Failed to del SF"
+    rep=`sf_get_rep 88`
+    sf_show_port $rep
+    delete_sf $rep
+    fail_if_err
 }
 
 enable_norep_switchdev $NIC
