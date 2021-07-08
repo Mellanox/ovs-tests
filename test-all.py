@@ -9,6 +9,7 @@ import random
 import signal
 import argparse
 import subprocess
+from copy import copy
 from glob import glob
 from fnmatch import fnmatch
 from tempfile import mkdtemp
@@ -178,6 +179,7 @@ class Test(object):
         self.status = "DIDN'T RUN"
         self.issues = []
         self.set_logs()
+        self.iteration = 0
 
     def set_logs(self, post=0):
         post_log = '.log' if not post else '.%s.log' % post
@@ -281,12 +283,7 @@ def parse_args():
     parser.add_argument('--run-skipped', action='store_true',
                         help='Run tests that are skipped by open issue.')
 
-    args = parser.parse_args()
-    if args.loops > 1 and args.html:
-        print("WARNING: Cannot use html and loops. disabling html")
-        args.html = False
-
-    return args
+    return parser.parse_args()
 
 
 def run_test(test, html=False):
@@ -1009,14 +1006,25 @@ def run_tests(iteration):
         else:
             print("%-54s %-8s %s" % ("Test", "Time", "Status"))
 
+    iter_tests = []
+
     for test in TESTS:
+        # skip copied tests
+        if test.iteration > 0:
+            continue
+
         name = test.name
         if ignore:
             if args.from_test != name:
                 continue
             ignore = False
 
-        test.set_logs(iteration)
+        if iteration > 0:
+            # save as a copy for the summary
+            test = copy(test)
+            test.iteration = iteration
+            test.set_logs(iteration)
+            iter_tests.append(test)
 
         print("%-62s " % deco(name, 'light-blue'), end=' ')
         if args.loops > 1:
@@ -1075,6 +1083,8 @@ def run_tests(iteration):
         if args.stop and failed:
             return 1
     # end test loop
+
+    TESTS.extend(iter_tests)
 
     return failed
 
