@@ -174,11 +174,16 @@ class Test(object):
         self._wont_fix = False
         self._ignore = False
         self._reason = ''
-        self.test_log = self._name + '.log'
-        self.test_log_html = self._name + '.html'
         self.run_time = 0.0
         self.status = "DIDN'T RUN"
         self.issues = []
+        self.set_logs()
+
+    def set_logs(self, post=0):
+        post_log = '.log' if not post else '.%s.log' % post
+        post_html = '.html' if not post else '.%s.html' % post
+        self.test_log = self._name + post_log
+        self.test_log_html = self._name + post_html
 
     def run(self, html=False):
         return run_test(self, html)
@@ -1010,6 +1015,8 @@ def run_tests(iteration):
             if args.from_test != name:
                 continue
             ignore = False
+
+        test.set_logs(iteration)
 
         print("%-62s " % deco(name, 'light-blue'), end=' ')
         if args.loops > 1:
