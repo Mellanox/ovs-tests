@@ -1495,6 +1495,22 @@ function verify_no_traffic() {
     fi
 }
 
+function verify_rate() {
+    local rate=$1
+    local expected_rate=$2
+
+    [ -n "$rate" ] && [ "$rate" -eq "$rate" ] 2>/dev/null
+    if [ $? -ne 0 ]; then
+        err "rate is not numeric"
+        return
+    fi
+
+    delta=$((100 * ($expected_rate - $rate)/$expected_rate ))
+    if [ ${delta#-} -gt 10 ]; then
+        err "rate $rate is over the limit $expected_rate"
+    fi
+}
+
 function wait_for_linkup() {
     local i
     local net=$1
@@ -1610,6 +1626,20 @@ function require_fw_opt() {
     mlxconfig -d $PCI q | grep -q -w $1
     if [ "$?" != 0 ]; then
         fail "fw option $1 is not supported"
+    fi
+}
+
+function require_fw_ver() {
+    local minor=$1
+    local subminor=$2
+
+    FWV=( ${FW//./ } )
+    if [ ${FWV[1]} -lt $minor ]; then
+        fail "FW ($FW) must be >= xx.$minor.$subminor, please upgrade"
+    elif [ ${FWV[1]} -eq $minor ]; then
+        if [ ${FWV[2]} -lt $subminor ]; then
+            fail "FW ($FW) must be >= xx.$minor.$subminor, please upgrade"
+        fi
     fi
 }
 
