@@ -122,7 +122,11 @@ function __get_device_name() {
     device_name="NA"
     short_device_name="NA"
     local tmp=`lspci -s $PCI | cut -d\[ -f2 | tr -d ]`
-    if [ -n "$tmp" ]; then
+
+    if [[ "$tmp" == *"BlueField-2"* ]]; then
+        device_name="BlueField-2"
+        short_device_name="bf2"
+    elif [ -n "$tmp" ]; then
         device_name=$tmp
         short_device_name=`echo $device_name | tr [:upper:] [:lower:] | sed -e 's/connectx-/cx/' -e 's/ //g'`
         if [ "$short_device_name" == "cx5ex" ]; then
