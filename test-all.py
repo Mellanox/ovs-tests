@@ -146,6 +146,7 @@ class DeviceType(object):
     CX6_DX = "0x101d"
     CX6_LX = "0x101f"
     CX7 = "0x1021"
+    BF2 = "0xa2d6"
 
     @staticmethod
     def get(device_id):
@@ -157,6 +158,7 @@ class DeviceType(object):
             DeviceType.CX6_DX: "cx6dx",
             DeviceType.CX6_LX: "cx6lx",
             DeviceType.CX7: "cx7",
+            DeviceType.BF2: "bf2",
         }
         return tmp.get(device_id, '')
 
