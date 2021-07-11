@@ -586,6 +586,8 @@ def update_skip_according_to_db(_tests, data):
 
         if re.search(r'\.el[0-9]+\.', current_kernel):
             min_kernel = data['tests'][name].get('min_kernel_rhel', None)
+        elif 'bluefield' in current_kernel:
+            min_kernel = data['tests'][name].get('min_kernel_bf', None)
         else:
             min_kernel = data['tests'][name].get('min_kernel', None)
 
