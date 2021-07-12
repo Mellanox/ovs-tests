@@ -106,6 +106,16 @@ function test_ecmp_load_balance() {
     fi
 
     cores=`cat /proc/cpuinfo |grep core\ id | awk {'print $4'}|sort -g|uniq`
+    if is_cloud ; then
+        cores=`cat /proc/cpuinfo |grep physical\ id | awk {'print $4'}|sort -g|uniq`
+    fi
+
+    echo "cores $cores"
+
+    if [ "$cores" == "0" ]; then
+        err "Cannot test with single core"
+        return
+    fi
 
     ping_ip="1.1.1.2"
     ifconfig $VF 1.1.1.1/24 up
