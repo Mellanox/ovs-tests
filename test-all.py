@@ -896,6 +896,10 @@ def revert_skip_if_needed():
             TESTS.remove(test)
 
 
+def get_all_tests():
+    return glob(os.path.join(MYDIR, 'test-*.sh'))
+
+
 def get_tests():
     global TESTS
     try:
@@ -912,7 +916,7 @@ def get_tests():
             read_mini_reg_list()
             revert_skip_if_needed()
         else:
-            tmp = glob(MYDIR + '/test-*.sh')
+            tmp = get_all_tests()
             TESTS = [Test(t) for t in tmp]
             glob_tests(args.glob)
             update_skip_according_to_rm()
@@ -931,7 +935,7 @@ def print_test_line(name, reason):
 
 def db_check():
     rm = MlxRedmine()
-    all_tests = glob(MYDIR + '/test-*.sh')
+    all_tests = get_all_tests()
     all_tests = [os.path.basename(t) for t in all_tests]
     sort_tests(all_tests)
     read_ignore_list()
