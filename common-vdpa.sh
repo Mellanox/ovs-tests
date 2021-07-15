@@ -22,7 +22,7 @@ function vdpa_wait_mgtdev
     local i
 
     for (( i = 0 ; i < 5 ; i++ )); do
-        if vdpa mgmtdev show | grep $mgtdev > /dev/null 2>&1 ; then
+        if vdpa mgmtdev show | grep auxiliary/$mgtdev > /dev/null 2>&1 ; then
             return
         fi
         sleep 1

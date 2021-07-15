@@ -42,9 +42,9 @@ function create_vdpa_netdev
     ip link set up dev $rep
     devlink port function set $rep hw_addr 00:00:00:00:00:$sfnum
     devlink port function set $rep state active
-    auxdev="auxiliary/$(sf_get_dev $sfnum)"
+    auxdev=$(sf_get_dev $sfnum)
     vdpa_wait_mgtdev $auxdev
-    vdpa dev add name $vdpadevname mgmtdev $auxdev
+    vdpa dev add name $vdpadevname mgmtdev auxiliary/$auxdev
     sleep 4
     virtio_net=$(vdpa_find_netdev $vdpadevname)
     echo found virtio dev $virtio_net for SF $sfnum
