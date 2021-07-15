@@ -241,7 +241,7 @@ function get_flow_steering_mode() {
     local pci=$(basename `readlink /sys/class/net/$nic/device`)
 
     if [ "$devlink_compat" -ge 1 ]; then
-        cat `devlink_compat_dir $nic`/steering_mode
+        cat `devlink_compat_dir $nic`/steering_mode 2>/dev/null
     else
         devlink dev param show pci/$pci name flow_steering_mode | grep "runtime value" | awk {'print $NF'}
     fi
@@ -264,8 +264,11 @@ function set_flow_steering_mode() {
 function show_current_steering_mode() {
     local mode1=`get_flow_steering_mode $NIC`
     local mode2=`get_flow_steering_mode $NIC2`
-    log "Flow steering mode for $NIC is $mode1"
-    log "Flow steering mode for $NIC2 is $mode2"
+    # if mode is empty assume old ofed 4.6 which doesn't support steering mode.
+    if [ -n "$mode1" ]; then
+        log "Flow steering mode for $NIC is $mode1"
+        log "Flow steering mode for $NIC2 is $mode2"
+    fi
 }
 
 function setup_expected_steering_mode() {
