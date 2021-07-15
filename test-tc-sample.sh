@@ -48,15 +48,15 @@ function cleanup() {
 trap cleanup EXIT
 
 function run() {
-    skip=$2
+    skip=$1
     reset_tc $REP $REP2
-    title $1
+    title "Test act_sample action with skip=$skip"
     local n=10
     local file=/tmp/psample.txt
 
     local group=5
     local rate=1
-    local trunc=96
+    local trunc=60
     local iifindex=$(cat /sys/class/net/$REP/ifindex)
 
     echo "add arp rules"
@@ -131,6 +131,8 @@ function run() {
 config_vf ns0 $VF $REP $IP1
 config_vf ns1 $VF2 $REP2 $IP2
 
-run "Test act_sample action with skip_hw" skip_hw
+run skip_sw
+run skip_hw
+run
 
 test_done
