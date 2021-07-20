@@ -10,12 +10,14 @@ not_relevant_for_nic cx4 cx4lx cx5
 
 require_module act_ct act_police
 
-function reset_tc_and_flush_police_action() {
+POLICE_INDEX=999
+
+function reset_tc_and_delete_police_action() {
     local dev=$1
 
     reset_tc $dev
     sleep 0.1
-    tc action flush action police
+    tc action delete action police index $POLICE_INDEX
 }
 
 function test_basic_meter() {
@@ -111,37 +113,37 @@ function test_basic_meter() {
     reset_tc $dev
 
     title "  - one rule uses one police index"
-    tc action add police rate 100mbit burst 12m conform-exceed drop/pipe
+    tc action add police rate 100mbit burst 12m conform-exceed drop/pipe index $POLICE_INDEX
     tc_filter add dev $dev ingress protocol ip prio 2 flower \
-        action police index 1 \
+        action police index $POLICE_INDEX \
         action mirred egress redirect dev $out_dev
 
     verify_in_hw $dev 2
-    reset_tc_and_flush_police_action $dev
+    reset_tc_and_delete_police_action $dev
 
     title "  - two rules use one police index"
-    tc action add police rate 100mbit burst 12m conform-exceed drop/pipe
+    tc action add police rate 100mbit burst 12m conform-exceed drop/pipe index $POLICE_INDEX
     tc_filter add dev $dev ingress protocol ip prio 2 flower \
-        action police index 1 \
+        action police index $POLICE_INDEX \
         action mirred egress redirect dev $out_dev
 
     tc_filter add dev $dev ingress protocol ip prio 3 flower \
-        action police index 1 \
+        action police index $POLICE_INDEX \
         action mirred egress redirect dev $out_dev
 
     verify_in_hw $dev 2
     verify_in_hw $dev 3
-    reset_tc_and_flush_police_action $dev
+    reset_tc_and_delete_police_action $dev
 
     title "  - one rule uses one police action and one police index"
-    tc action add police rate 100mbit burst 12m conform-exceed drop/pipe
+    tc action add police rate 100mbit burst 12m conform-exceed drop/pipe index $POLICE_INDEX
     tc_filter add dev $dev ingress protocol ip prio 2 flower \
         action police rate 200mbit burst 12m conform-exceed drop/pipe \
-        action police index 1 \
+        action police index $POLICE_INDEX \
         action mirred egress redirect dev $out_dev
 
     verify_in_hw $dev 2
-    reset_tc_and_flush_police_action $dev
+    reset_tc_and_delete_police_action $dev
 }
 
 function test_multiple_meters() {
