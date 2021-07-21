@@ -91,30 +91,35 @@ function run() {
     fail_if_err
     wait $pid
 
+    filesize=`wc -c $file | awk {'print $1'}`
+    if [ "$filesize" == "0" ]; then
+        fail "psample output is empty"
+    fi
+
     title "verify sample"
     psample_iifindex=$(awk '/iifindex/{print $2}' $file | head -1)
-    if (( $iifindex == $psample_iifindex )); then
+    if [ $iifindex == "$psample_iifindex" ]; then
         success2 "get correct sample iifindex $psample_iifindex"
     else
         err "get wrong sample iifindex $psample_iifindex"
     fi
 
     psample_rate=$(awk '/rate/{print $2}' $file | head -1)
-    if (( $rate == $psample_rate )); then
+    if [ $rate == "$psample_rate" ]; then
         success2 "get correct sample rate $psample_rate"
     else
         err "get wrong sample rate $psample_rate"
     fi
 
     psample_group=$(awk '/group/{print $2}' $file | head -1)
-    if (( $group == $psample_group )); then
+    if [ $group == "$psample_group" ]; then
         success2 "get correct sample group $psample_group"
     else
         err "get wrong sample group $psample_group"
     fi
 
     psample_trunc=$(awk '/trunc/{print $2}' $file | head -1)
-    if (( $trunc == $psample_trunc )); then
+    if [ $trunc == "$psample_trunc" ]; then
         success2 "get correct sample trunc $psample_trunc"
     else
         err "get wrong sample trunc $psample_trunc"
