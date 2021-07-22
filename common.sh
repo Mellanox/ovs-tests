@@ -1333,15 +1333,23 @@ function stop_openvswitch() {
 
 function check_ovs_settings() {
     local a
+
     a=`ovs-vsctl get Open_vSwitch . other_config:hw-offload 2>/dev/null | tr -d '"'`
     if [ "$a" != "true" ]; then
         warn "OVS hw-offload is disabled"
     fi
+
+    a=`ovs-vsctl get Open_vSwitch . other_config:tc-policy 2>/dev/null | tr -d '"'`
+    if [ "$a" != "" ]; then
+        warn "OVS tc-policy is $a"
+    fi
+
     a=`ovs-vsctl get Open_vSwitch . other_config:max-idle 2>/dev/null`
     if [ -n "$a" ]; then
         warn "OVS cleaning max-idle"
         ovs-vsctl remove Open_vSwitch . other_config max-idle
     fi
+
     check_dpdk_init
 }
 
