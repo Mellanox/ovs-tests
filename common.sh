@@ -1294,11 +1294,6 @@ function ovs_dump_tc_flows() {
     [[ $? -ne 0 ]] && ovs-appctl dpctl/dump-flows $args type=offloaded
 }
 
-function ovs_dump_tc_flows_only() {
-    local args=$@
-    ovs-appctl dpctl/dump-flows $args type=tc 2>/dev/null
-}
-
 function ovs_dump_offloaded_flows() {
     local args=$@
     ovs-appctl dpctl/dump-flows $args type=offloaded 2>/dev/null
