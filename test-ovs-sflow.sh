@@ -48,6 +48,7 @@ reset_tc $REP
 reset_tc $REP2
 
 function cleanup() {
+    ovs_conf_remove tc-policy &>/dev/null
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
     reset_tc $REP
@@ -59,6 +60,7 @@ function config_ovs() {
     title "setup ovs"
 
     SFLOW_SAMPLING=$1
+    SFLOW_POLLING=10
 
     start_clean_openvswitch
     ovs-vsctl add-br br-ovs
@@ -68,14 +70,37 @@ function config_ovs() {
     title "create sFlow"
     ovs-vsctl -- --id=@sflow create sflow agent=\"$SFLOW_AGENT\" \
               target=\"$SFLOW_TARGET:$SFLOW_PORT\" header=$SFLOW_HEADER \
-              sampling=$SFLOW_SAMPLING polling=10 \
+              sampling=$SFLOW_SAMPLING polling=$SFLOW_POLLING \
               -- set bridge br-ovs sflow=@sflow
 
     ovs-vsctl list sflow
 }
 
+function verify_ovs() {
+    count=$(ovs_dump_ovs_flows | grep 0x0800 | grep sFlow | wc -l)
+    if (( count != 2 )); then
+        ovs_dump_ovs_flows --names
+        err "No ovs sample offloaded rules"
+    fi
+}
+
+function verify_tc_policy_skip_hw() {
+    count=$(ovs_dump_tc_flows | grep 0x0800 | grep sFlow | wc -l)
+    if (( count != 2 )); then
+        ovs_dump_tc_flows --names
+        err "No tc sample offloaded rules"
+    fi
+}
+
+function verify_tc_policy_none() {
+    count=$(ovs_dump_offloaded_flows | grep 0x0800 | grep sFlow | wc -l)
+    if (( count != 2 )); then
+        ovs_dump_offloaded_flows --names
+        err "No offloaded sample offloaded rules"
+    fi
+}
+
 function run() {
-    title "Test OVS sFlow"
     local file=/tmp/sflow.txt
     local t=10
     interval=$1
@@ -96,34 +121,49 @@ function run() {
     fi
 
     #
-    # If packet interval is 0.1, send 10 seconds, the total packet
-    # number is 10 / 0.1 * 2 = 200, (REP and REP2)
-    # The sampling rate is 1/10, so we expect to receive 20 sFlow packets.
+    # If packet interval is 0.001, send 10 seconds, the total packet number
+    # is 10 / 0.001 * 2 = 20000, (REP and REP2). If the sampling rate is 1/2,
+    # we expect to receive 10000 sFlow packets.
     #
     n=$(awk 'END {print NR}' $file)
     expected=$(echo $t/$interval*2/$SFLOW_SAMPLING | bc)
-    if (( n >= expected - 5 && n <= expected + 15 )); then
-        success2 "get $n packets, expected $expected"
-    else
-        err "get $n packets, expected $expected"
-    fi
+    deviation=$((expected/10)) # 10% deviation
 
-    count=$(ovs_dump_tc_flows | grep 0x0800 | grep sFlow | wc -l)
-    if (( count != 2 )); then
-        ovs_dump_tc_flows --names
-        err "No sample offloaded rules"
-    fi
-
-    ovs-vsctl del-br br-ovs
+    str="get $n packets, expected $expected"
+    (( n >= expected - deviation && n <= expected + deviation )) && \
+        success2 $str || err $str
 }
 
 config_vf ns0 $VF $REP $IP1
 config_vf ns1 $VF2 $REP2 $IP2
+start_clean_openvswitch
 
-config_ovs 10
-run 0.1
+title "Test OVS sFlow without offload"
+ovs_conf_remove hw-offload
+ovs_conf_remove tc-policy
+config_ovs 2
+run 0.001
+verify_ovs
 
+title "Test OVS sFlow with tc-policy=skip_hw"
+ovs_conf_set hw-offload true
+ovs_conf_set tc-policy skip_hw
+config_ovs 2
+run 0.001
+verify_tc_policy_skip_hw
+
+title "Test OVS sFlow with tc-policy=none sampling=2"
+ovs_conf_set hw-offload true
+ovs_conf_set tc-policy none
+config_ovs 2
+run 0.001
+verify_tc_policy_none
+
+title "Test OVS sFlow with tc-policy=none sampling=1"
 config_ovs 1
 run 1
+verify_tc_policy_none
 
+ovs_conf_remove tc-policy
+start_clean_openvswitch
 test_done
