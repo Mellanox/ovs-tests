@@ -84,8 +84,8 @@ function run_traffic() {
     t=15
     echo "run traffic for $t seconds"
     on_remote timeout $((t+1)) iperf -s &
-    sleep 0.5
-    ip netns exec ns0 timeout $((t+1)) iperf -t $t -c $REMOTE -P 3 &
+    sleep 1
+    ip netns exec ns0 timeout $((t-1)) iperf -t $t -c $REMOTE -P 3 &
 
     sleep 2
     pidof iperf &>/dev/null || err "iperf failed"
