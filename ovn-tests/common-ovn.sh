@@ -1,6 +1,7 @@
 OVN_BRIDGE_INT="br-int"
 OVN_SYSTEM_ID=$(hostname)
 OVN_CTL="/usr/share/ovn/scripts/ovn-ctl"
+OVN_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" &>/dev/null && pwd)
 
 function require_ovn() {
     [ ! -e "${OVN_CTL}" ] && fail "Missing $OVN_CTL"
@@ -107,4 +108,17 @@ function check_offloaded_rules() {
     else
         err
     fi
+}
+
+function ovn_create_topology() {
+    local topology_file=$1
+
+    $OVN_DIR/ovn-topology-creator.py -f "$topology_file" -c
+    ovn-nbctl show
+}
+
+function ovn_destroy_topology() {
+    local topology_file=$1
+
+    $OVN_DIR/ovn-topology-creator.py -f "$topology_file" -d
 }
