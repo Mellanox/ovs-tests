@@ -17,7 +17,7 @@ IP2=10.0.0.2
 OVSBR=br-ovs
 
 # rates in mbps.
-rates="1 2 3 4"
+rates="2 4"
 
 function cleanup() {
     stop_iperf
@@ -47,7 +47,7 @@ function config_dev() {
 
 function check_mrate() {
     local rate=$1
-    local mrate=$(ip netns exec ns0 iperf -t 10 -fm -c $IP2 | grep "Mbits/sec" | sed -e 's/Mbits\/sec//' | gawk '{printf $NF}')
+    local mrate=$(ip netns exec ns0 iperf -t 15 -fm -c $IP2 | grep "Mbits/sec" | sed -e 's/Mbits\/sec//' | gawk '{printf $NF}')
 
     if [ -z "$mrate" ]; then
         err "Couldn't get iperf rate"
@@ -97,7 +97,7 @@ function run() {
 
 config
 
-iperf -s -fm &
+iperf -s -fm &>/dev/null &
 sleep 1
 
 title "Test VF->BR"
