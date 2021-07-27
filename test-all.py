@@ -578,6 +578,9 @@ def update_skip_according_to_db(_tests, data):
         if ignore_not_supported is True:
             t.set_ignore("Not supported")
             continue
+        elif type(ignore_not_supported) == str:
+            t.set_ignore("Not supported: %s" % ignore_not_supported)
+            continue
         elif type(ignore_not_supported) == list:
             for kernel in ignore_not_supported:
                 if kernel_match(kernel, current_kernel):
