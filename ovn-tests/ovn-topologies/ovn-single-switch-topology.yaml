@@ -1,0 +1,13 @@
+name: single-switch
+topology:
+  - name: sw0
+    type: switch
+    ports:
+      - name: sw0-port1
+        mac: "50:54:00:00:00:01"
+        ipv4:
+          - "7.7.7.1"
+      - name: sw0-port2
+        mac: "50:54:00:00:00:02"
+        ipv4:
+          - "7.7.7.2"

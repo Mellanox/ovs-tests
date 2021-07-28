@@ -16,22 +16,16 @@ IP2="7.7.7.2"
 MAC1="50:54:00:00:00:01"
 MAC2="50:54:00:00:00:02"
 
-# switch and ports
-SWITCH="sw0"
+# Ports
 PORT1="sw0-port1"
 PORT2="sw0-port2"
-
-OVN_CENTRAL_IP="127.0.0.1"
-OVN_TUNNEL="geneve"
 
 TCPDUMP_FILE=/tmp/$$.pcap
 
 # stop OVN, clean namespaces, ovn network topology, and ovs br-int interfaces
 function cleanup() {
     # Remove OVN topology
-    ovn_delete_switch_port $PORT1
-    ovn_delete_switch_port $PORT2
-    ovn_delete_switch $SWITCH
+    ovn_destroy_topology $TOPOLOGY_SINGLE_SWITCH
 
     # Stop ovn
     ovn_remove_ovs_config
@@ -52,18 +46,10 @@ function cleanup() {
 }
 
 function pre_test() {
-    # Verify required ENV vars
-    test -z "$NIC" && fail "Missing NIC"
-    test -z "$VF" && fail "Missing VF"
-    test -z "$REP" && fail "Missing REP"
-    test -z "$VF2" && fail "Missing VF2"
-    test -z "$REP2" && fail "Missing REP2"
-
-    # Verfiy NIC
+    # Verify NIC
     require_interfaces NIC
 
     # switchdev mode for NIC
-    unbind_vfs
     enable_switchdev
     bind_vfs
 
@@ -71,20 +57,14 @@ function pre_test() {
     require_interfaces VF VF2 REP REP2
 
     # Start OVN
-    ovn_start_northd_central $OVN_CENTRAL_IP
+    ovn_start_northd_central $OVN_LOCAL_CENTRAL_IP
     ovn_start_ovn_controller
-    ovn_set_ovs_config $OVN_SYSTEM_ID $OVN_CENTRAL_IP $OVN_CENTRAL_IP $OVN_TUNNEL
+    ovn_set_ovs_config $OVN_SYSTEM_ID $OVN_LOCAL_CENTRAL_IP $OVN_LOCAL_CENTRAL_IP $TUNNEL_GENEVE
 }
 
 function run_test() {
     # Add network topology to OVN
-    ovn_add_switch $SWITCH
-    ovn_add_port_to_switch $SWITCH $PORT1
-    ovn_add_port_to_switch $SWITCH $PORT2
-    ovn_set_switch_port_addresses $PORT1 $MAC1 $IP1
-    ovn_set_switch_port_addresses $PORT2 $MAC2 $IP2
-
-    ovn-nbctl show
+    ovn_create_topology $TOPOLOGY_SINGLE_SWITCH
 
     # Add REP to OVS
     ovs_add_port_to_switch $OVN_BRIDGE_INT $REP

@@ -3,6 +3,15 @@ OVN_SYSTEM_ID=$(hostname)
 OVN_CTL="/usr/share/ovn/scripts/ovn-ctl"
 OVN_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" &>/dev/null && pwd)
 
+# Topologies
+TOPOLOGY_SINGLE_SWITCH="$OVN_DIR/ovn-topologies/ovn-single-switch-topology.yaml"
+
+# Tunnels
+TUNNEL_GENEVE="geneve"
+
+# OVN IPs
+OVN_LOCAL_CENTRAL_IP="127.0.0.1"
+
 function require_ovn() {
     [ ! -e "${OVN_CTL}" ] && fail "Missing $OVN_CTL"
 }
