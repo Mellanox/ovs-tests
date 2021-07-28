@@ -17,24 +17,18 @@ IP2="7.7.7.2"
 MAC1="50:54:00:00:00:01"
 MAC2="50:54:00:00:00:02"
 
-# switch and ports
-SWITCH="sw0"
+# Ports
 PORT1="sw0-port1"
 PORT2="sw0-port2"
 
-OVN_CENTRAL_IP="192.168.100.100"
-OVN_REMOTE_CONTROLLER_IP="192.168.100.101"
 OVN_REMOTE_SYSTEM_ID=$(on_remote "hostname")
-OVN_TUNNEL="geneve"
 
 TCPDUMP_FILE=/tmp/$$.pcap
 
 # stop OVN, clean namespaces, ovn network topology, and ovs br-int interfaces
 function cleanup() {
     # Remove OVN topology
-    ovn_delete_switch_port $PORT1
-    ovn_delete_switch_port $PORT2
-    ovn_delete_switch $SWITCH
+    ovn_destroy_topology $TOPOLOGY_SINGLE_SWITCH
 
     # Stop ovn on master
     ovn_remove_ovs_config
@@ -79,7 +73,7 @@ function config() {
     ifconfig $NIC $OVN_CENTRAL_IP &>/dev/null
     ovn_start_northd_central $OVN_CENTRAL_IP
     ovn_start_ovn_controller
-    ovn_set_ovs_config $OVN_SYSTEM_ID $OVN_CENTRAL_IP $OVN_CENTRAL_IP $OVN_TUNNEL
+    ovn_set_ovs_config $OVN_SYSTEM_ID $OVN_CENTRAL_IP $OVN_CENTRAL_IP $TUNNEL_GENEVE
 }
 
 function config_remote() {
@@ -96,7 +90,7 @@ function config_remote() {
 
     # Start OVN
     ifconfig $NIC $OVN_REMOTE_CONTROLLER_IP &>/dev/null
-    ovn_set_ovs_config $OVN_REMOTE_SYSTEM_ID $OVN_CENTRAL_IP $OVN_REMOTE_CONTROLLER_IP $OVN_TUNNEL
+    ovn_set_ovs_config $OVN_REMOTE_SYSTEM_ID $OVN_CENTRAL_IP $OVN_REMOTE_CONTROLLER_IP $TUNNEL_GENEVE
     ovn_start_ovn_controller
     "
 }
@@ -108,13 +102,8 @@ function pre_test() {
 
 function run_test() {
     # Add network topology to OVN
-    ovn_add_switch $SWITCH
-    ovn_add_port_to_switch $SWITCH $PORT1
-    ovn_add_port_to_switch $SWITCH $PORT2
-    ovn_set_switch_port_addresses $PORT1 $MAC1 $IP1
-    ovn_set_switch_port_addresses $PORT2 $MAC2 $IP2
+    ovn_create_topology $TOPOLOGY_SINGLE_SWITCH
 
-    ovn-nbctl show
     # Add REP to OVS
     ovs_add_port_to_switch $OVN_BRIDGE_INT $REP
     on_remote_exec "ovs_add_port_to_switch $OVN_BRIDGE_INT $REP"
