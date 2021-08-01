@@ -90,7 +90,11 @@ function delete_sf() {
 function create_sf() {
     local pfnum=$1
     local sfnum=$2
-    $sfcmd port add pci/$PCI flavour pcisf pfnum $pfnum sfnum $sfnum >/dev/null || err "Failed to create sf on pfnum $pfnum sfnum $sfnum"
+    $sfcmd port add pci/$PCI flavour pcisf pfnum $pfnum sfnum $sfnum >/dev/null
+    if [ $? -ne 0 ] ; then
+        err "Failed to create sf on pfnum $pfnum sfnum $sfnum"
+        return 1
+    fi
 }
 
 function create_sfs() {
@@ -101,7 +105,7 @@ function create_sfs() {
     title "Create $count SFs"
 
     for i in `seq $count`; do
-        create_sf $pfnum $i
+        create_sf $pfnum $i || return 1
         sleep 0.5
 
         local rep=$(sf_get_rep $i)
