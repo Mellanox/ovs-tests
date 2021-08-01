@@ -1706,7 +1706,7 @@ function warn_if_redmine_bug_is_open() {
     for i in $issues ; do
         redmine_info $i
         if redmine_bug_is_open ; then
-            warn "Redmine issue open: $i $RM_SUBJ"
+            warn "RM $RM_STATUS: $i $RM_SUBJ"
             p=1
         fi
     done
@@ -1723,9 +1723,9 @@ RM_STATUS_LIST="$RM_STATUS_CLOSED $RM_STATUS_REJECTED $RM_STATUS_FIXED $RM_STATU
 
 function redmine_bug_is_open() {
     local i
-    [ "$RM_STATUS" = "" ] && return 1
-    for i in $RM_STATUS_LIST ; do
-        if [ $RM_STATUS = $i ]; then
+    [ "$RM_STATUS_ID" = "" ] && return 1
+    for i in $RM_STATUS_ID_LIST ; do
+        if [ $RM_STATUS_ID = $i ]; then
             return 1
         fi
     done
@@ -1736,10 +1736,11 @@ function redmine_info() {
     local id=$1
     local key="1c438dfd8cf008a527ad72f01bd5e1bac24deca5"
     local url="https://redmine.mellanox.com/issues/${id}.json?key=$key"
+    RM_STATUS_ID=""
     RM_STATUS=""
     RM_SUBJ=""
-    eval `curl -m 1 -s "$url" | python -c "from __future__ import print_function; import sys, json; i=json.load(sys.stdin)['issue']; print(\"RM_STATUS=%s\nRM_SUBJ=%s\" % (json.dumps(i['status']['id']), json.dumps(i['subject'])))" 2>/dev/null`
-    if [ -z "$RM_STATUS" ]; then
+    eval `curl -m 1 -s "$url" | python -c "from __future__ import print_function; import sys, json; i=json.load(sys.stdin)['issue']; print(\"RM_STATUS_ID=%s\nRM_STATUS=%s\nRM_SUBJ=%s\" % (json.dumps(i['status']['id']), json.dumps(i['status']['name']), json.dumps(i['subject'])))" 2>/dev/null`
+    if [ -z "$RM_STATUS_ID" ]; then
         warn "Failed to fetch redmine info"
     fi
 }
