@@ -1724,7 +1724,7 @@ RM_STATUS_LIST="$RM_STATUS_CLOSED $RM_STATUS_REJECTED $RM_STATUS_FIXED $RM_STATU
 function redmine_bug_is_open() {
     local i
     [ "$RM_STATUS_ID" = "" ] && return 1
-    for i in $RM_STATUS_ID_LIST ; do
+    for i in $RM_STATUS_LIST ; do
         if [ $RM_STATUS_ID = $i ]; then
             return 1
         fi
