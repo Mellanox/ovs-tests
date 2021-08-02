@@ -82,12 +82,17 @@ class OVNLogicalSwitch(OVNEntity):
             port_name = port["name"]
             cmd_args.append(f"--may-exist lsp-add {self.name} {port_name}")
             mac = port.get("mac")
+            ips_v4 = port.get("ipv4", [])
+            ips_v6 = port.get("ipv6", [])
+
+            # Fail if IP provided with no mac
+            if not mac and (ips_v4 or ips_v6):
+                raise ValueError(f'Invalid: "{self.name}" switch has port "{port_name}" IP provided with no mac')
+
             if mac:
                 addresses = '"' + mac
-                ips_v4 = port.get("ipv4", [])
                 if ips_v4:
                     addresses += f" {' '.join(ips_v4)}"
-                ips_v6 = port.get("ipv6", [])
                 if ips_v6:
                     addresses += f" {' '.join(ips_v6)}"
                 addresses += '"'
@@ -142,16 +147,16 @@ def main():
         args = parse_args()
         topology = OVNTopologyReader.from_file(args.file)
         print(f"Topology: {topology.name}")
+
+        ret_code = 0
+        if args.create:
+            ret_code = topology.add_to_ovn()
+        elif args.destroy:
+            ret_code = topology.remove_from_ovn()
+        else:
+            return 1
     except Exception as ex:
         print(ex)
-        return 1
-
-    ret_code = 0
-    if args.create:
-        ret_code = topology.add_to_ovn()
-    elif args.destroy:
-        ret_code = topology.remove_from_ovn()
-    else:
         return 1
 
     return ret_code
