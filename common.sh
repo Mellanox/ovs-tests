@@ -469,6 +469,9 @@ export CONFIG=${CONFIG}
 export NO_TITLE=1
 . ${DIR}/common.sh
 
+if [ "${DPDK}" == 1 ]; then
+    . ${DIR}/ovs-dpdk-tests/common-dpdk.sh
+fi
 $@
 EOF
 bash /tmp/dt_cmd.$$.sh && /bin/rm -f /tmp/dt_cmd.$$.sh"
