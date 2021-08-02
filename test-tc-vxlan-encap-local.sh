@@ -2,7 +2,7 @@
 #
 # Verify adding vxlan encap rule does not use local route which results in dst/src mac 0.
 #
-# Bug SW #2619265: [Alibaba-RoCE] local and remote VTEPs are in the same host for vxlan
+# Feature #2619265: [Alibaba-RoCE] local and remote VTEPs are in the same host for vxlan
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
