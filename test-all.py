@@ -899,8 +899,11 @@ def revert_skip_if_needed():
             TESTS.remove(test)
 
 
-def get_all_tests():
-    return glob(os.path.join(MYDIR, 'test-*.sh'))
+def get_all_tests(include_subfolders=False):
+    lst = glob(os.path.join(MYDIR, 'test-*.sh'))
+    if include_subfolders:
+        lst.extend(glob(os.path.join(MYDIR, '*', 'test-*.sh')))
+    return lst
 
 
 def get_tests():
@@ -938,7 +941,7 @@ def print_test_line(name, reason):
 
 def db_check():
     rm = MlxRedmine()
-    all_tests = get_all_tests()
+    all_tests = get_all_tests(include_subfolders=True)
     all_tests = [os.path.basename(t) for t in all_tests]
     sort_tests(all_tests)
     read_ignore_list()
@@ -950,6 +953,10 @@ def db_check():
     for test in IGNORE_LIST:
         if test in all_tests:
             all_tests.remove(test)
+        elif '*' in test:
+            for t in all_tests[:]:
+                if fnmatch(t, test):
+                    all_tests.remove(t)
 
     for test in all_tests:
         print_test_line(test, "Missing in db")
