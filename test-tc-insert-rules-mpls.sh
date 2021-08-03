@@ -57,6 +57,7 @@ if [ "$mode" == "dmfs" ]; then
     fi
 fi
 
+title "Test encap mpls over udp rule and forward bareudp"
 # set tunnel addressing
 ip addr add 8.8.8.21/24 dev $NIC
 ip link set up dev $NIC
