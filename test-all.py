@@ -919,6 +919,7 @@ def get_tests():
                     ignore_excluded(data.get('ignore', []))
                     update_skip_according_to_db(_tests, data)
                     TESTS.extend(_tests)
+            glob_tests(args.glob)
             read_mini_reg_list()
             revert_skip_if_needed()
         else:
