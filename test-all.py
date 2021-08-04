@@ -697,7 +697,10 @@ def update_skip_according_to_rm():
         name = t.name
         bugs = re.findall(r"#\s*Bug SW #([0-9]+):", data)
         for b in bugs:
-            task = rm.get_issue(b)
+            try:
+                task = rm.get_issue(b)
+            except ConnectionError as e:
+                continue
             sys.stdout.write('.')
             sys.stdout.flush()
             if rm.is_issue_open(task):
