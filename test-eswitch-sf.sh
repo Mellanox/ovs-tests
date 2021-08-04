@@ -11,6 +11,7 @@ my_dir="$(dirname "$0")"
 
 function sf_port_add_del_test() {
     create_sf 0 88
+    fail_if_err
     sleep 1
     rep=`sf_get_rep 88`
     sf_show_port $rep
