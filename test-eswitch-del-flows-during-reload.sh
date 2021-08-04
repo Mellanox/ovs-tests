@@ -22,8 +22,7 @@ if [ -z "$rep" ]; then
     fail "Missing rep $rep"
     exit 1
 fi
-reset_tc $NIC
-reset_tc $rep
+reset_tc $NIC $rep
 
 
 title "add $COUNT rules"
@@ -34,7 +33,11 @@ for i in `seq $COUNT`; do
         flower skip_sw \
         src_mac e1:22:33:44:${num1}:$num2 \
         dst_mac e2:22:33:44:${num1}:$num2 \
-        action drop || fail "Failed to add rule"
+        action drop
+    if [ $? != 0 ]; then
+        reset_tc $rep
+        fail "Failed to add rule"
+    fi
 done
 
 function del_rules() {
@@ -45,7 +48,7 @@ function del_rules() {
         tc filter del dev $rep protocol ip parent ffff: prio 1 handle $i flower
         if [ "$?" != 0 ]; then
             if [ $first = true ]; then
-                fail "Failed to del first rule"
+                err "Failed to del first rule"
             fi
             break
         fi
