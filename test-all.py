@@ -312,7 +312,7 @@ def run_test(test, html=False):
     status = strip_color(status)
     lookback = 7
 
-    if 'TEST FAILED' in status:
+    if subp.returncode:
         # look for better status
         for line in log.splitlines()[-lookback:]:
             line = strip_color(line.strip())
@@ -320,7 +320,6 @@ def run_test(test, html=False):
                 status = line
                 break
 
-    if subp.returncode:
         raise ExecCmdFailed(status)
 
     if 'TEST PASSED' not in status:
