@@ -32,13 +32,19 @@ def parse_redmine_time(value):
 
 
 class MlxRedmine(object):
+    def __init__(self):
+        self.fail_all_calls = False
+
     def get_url(self, url, params=None):
         headers = {
             'X-Redmine-API-Key': API_KEY
         }
-        return requests.get(url, headers=headers, params=params, verify=False)
+        return requests.get(url, headers=headers, params=params, verify=False, timeout=1)
 
     def get_issue(self, issue_id, retry=0):
+        if self.fail_all_calls:
+            raise ConnectionError("Redmine connection issue")
+
         loops = max(1, retry + 1)
 
         for i in range(loops):
@@ -47,6 +53,7 @@ class MlxRedmine(object):
                 break
             except ConnectionError:
                 if i+1 == loops:
+                    self.fail_all_calls = True
                     raise
                 continue
 

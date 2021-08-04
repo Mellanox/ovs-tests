@@ -518,7 +518,7 @@ def get_current_state():
         print("simx mode")
 
 
-def update_skip_according_to_db(_tests, data):
+def update_skip_according_to_db(rm, _tests, data):
     if type(data['tests']) is list:
         return
 
@@ -530,7 +530,6 @@ def update_skip_according_to_db(_tests, data):
             return True
         return False
 
-    rm = MlxRedmine()
     custom_kernels = data.get('custom_kernels', {})
     print_newline = False
 
@@ -912,12 +911,13 @@ def get_tests():
         if args.db:
             TESTS = []
             get_current_state()
+            rm = MlxRedmine()
             for db in get_dbs():
                 data = read_db(db)
                 if 'tests' in data:
                     _tests = load_tests_from_db(data)
                     ignore_excluded(data.get('ignore', []))
-                    update_skip_according_to_db(_tests, data)
+                    update_skip_according_to_db(rm, _tests, data)
                     TESTS.extend(_tests)
             glob_tests(args.glob)
             read_mini_reg_list()
