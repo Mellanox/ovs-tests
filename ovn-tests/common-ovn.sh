@@ -48,6 +48,7 @@ function ovn_set_ovs_config() {
     ovs-vsctl set open . external-ids:ovn-remote=tcp:$ovn_remote_ip:6642
     ovs-vsctl set open . external-ids:ovn-encap-ip=$encap_ip
     ovs-vsctl set open . external-ids:ovn-encap-type=$encap_type
+    ovs-vsctl set O . other_config:max-idle=2000
 }
 
 function ovn_remove_ovs_config() {
@@ -55,6 +56,7 @@ function ovn_remove_ovs_config() {
     ovs-vsctl remove open . external-ids ovn-remote
     ovs-vsctl remove open . external-ids ovn-encap-ip
     ovs-vsctl remove open . external-ids ovn-encap-type
+    ovs-vsctl remove O . other_config max-idle
 }
 
 function ovn_add_switch() {
@@ -111,6 +113,7 @@ function check_offloaded_rules() {
 
     if echo "$result" | grep "packets:0, bytes:0"; then
         err "packets:0, bytes:0"
+        return
     fi
 
     local rules_count=$(echo "$result" | wc -l)
@@ -119,6 +122,70 @@ function check_offloaded_rules() {
     else
         err
     fi
+}
+
+function check_traffic_offload() {
+    local rep=$1
+    local ns=$2
+    local dst_ip=$3
+    local traffic_type=$4
+    local tcpdump_file=/tmp/$$.pcap
+
+    # Listen to traffic on representor
+    timeout 15 tcpdump -nnepi $rep $traffic_type -c 8 -w $tcpdump_file &
+    local tdpid=$!
+    sleep 0.5
+
+    # Traffic between VFs
+    title "Check sending ${traffic_type^^} traffic"
+    if [[ $traffic_type == "icmp" ]]; then
+        ip netns exec $ns ping -w 4 $dst_ip && success || err
+    elif [[ $traffic_type == "tcp" ]]; then
+        ip netns exec $ns timeout 15 iperf3 -t 5 -c $dst_ip && success || err
+    else
+        fail "Unknown traffic $traffic_type"
+    fi
+
+    title "Check ${traffic_type^^} OVS offload rules"
+    ovs_dump_flows type=offloaded
+    check_offloaded_rules 2
+
+    # Rules should appear, request and reply
+    title "Check ${traffic_type^^} traffic is offloaded"
+    # Stop tcpdump
+    kill $tdpid 2>/dev/null
+    sleep 1
+
+    # Ensure first packets appeared
+    local count=$(tcpdump -nnr $tcpdump_file | wc -l)
+    if [[ $count != "2" ]]; then
+        err "No offload"
+        tcpdump -nnr $tcpdump_file
+    else
+        success
+    fi
+
+    rm -f $tcpdump_file
+}
+
+function check_icmp_traffic_offload() {
+    local rep=$1
+    local ns=$2
+    local dst_ip=$3
+
+    check_traffic_offload $rep $ns $dst_ip icmp
+}
+
+function check_local_tcp_traffic_offload() {
+    local rep=$1
+    local client_ns=$2
+    local server_ns=$3
+    local server_ip=$4
+
+    ip netns exec $server_ns timeout 10 iperf3 -s >/dev/null 2>&1 &
+
+    check_traffic_offload $rep $client_ns $server_ip tcp
+    killall iperf3 2>/dev/null
 }
 
 function ovn_create_topology() {

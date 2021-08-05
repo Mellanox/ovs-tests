@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Test traffic between VFs configured with OVN and OVS then check traffic is offloaded
+# Test ICMP and TCP traffics between VFs configured with OVN and OVS then check traffic is offloaded
 #
 
 my_dir="$(dirname "$0")"
@@ -82,33 +82,13 @@ function run_test() {
     config_vf ns0 $VF $REP $IP1 $MAC1
     config_vf ns1 $VF2 $REP2 $IP2 $MAC2
 
-    # Listen to traffic on representor
-    timeout 15 tcpdump -nnepi $REP icmp -c 8 -w $TCPDUMP_FILE &
-    tdpid=$!
-    sleep 0.5
+    title "Test ICMP traffic between $VF($IP1) -> $VF2($IP2) offloaded"
+    check_icmp_traffic_offload $REP ns0 $IP2
 
-    # Traffic between VFs
-    title "Test traffic between $VF($IP1) -> $VF2($IP2)"
-    ip netns exec ns0 ping -w 4 $IP2 && success || err
-    # 2 rules should appear, ICMP request and reply
+    sleep 2
 
-    title "Check OVS offload rules"
-    ovs_dump_flows type=offloaded
-    check_offloaded_rules 2
-
-    title "Check traffic is offloaded"
-    # Stop tcpdump
-    kill $tdpid 2>/dev/null
-    sleep 1
-
-    # Ensure 2 packets appeared (request and reply)
-    count=$(tcpdump -nnr $TCPDUMP_FILE | wc -l)
-    if [[ $count -gt 2 ]]; then
-        err "No offload"
-        tcpdump -nnr $TCPDUMP_FILE
-    else
-        success
-    fi
+    title "Test TCP traffic between $VF($IP1) -> $VF2($IP2) offloaded"
+    check_local_tcp_traffic_offload $REP ns0 ns1 $IP2
 }
 
 cleanup
