@@ -18,17 +18,11 @@ function test_ct_aging() {
     if ! sysctl -a |grep net.netfilter.nf_flowtable_udp_timeout >/dev/null 2>&1 ; then
         fail "Cannot set conntrack offload aging - missing net.netfilter.nf_flowtable_udp_timeout"
     fi
-
-    if ! sysctl -a |grep net.netfilter.nf_flowtable_udp_pickup >/dev/null 2>&1 ; then
-        fail "Cannot set conntrack offload aging - missing net.netfilter.nf_flowtable_udp_pickup"
-    fi
 }
 
 function set_ct_aging() {
     local timeout=$1
-    local pickup=$2
     sysctl -w net.netfilter.nf_flowtable_udp_timeout=$timeout || err "Failed setting udp timeout"
-    sysctl -w net.netfilter.nf_flowtable_udp_pickup=$pickup || err "Failed setting udp pickup"
 }
 
 
