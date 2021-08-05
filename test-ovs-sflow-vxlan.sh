@@ -97,7 +97,7 @@ function verify_ovs() {
     count=$(ovs_dump_ovs_flows | grep 0x0800 | grep sFlow | wc -l)
     if (( count != 2 )); then
         ovs_dump_ovs_flows --names
-        err "No ovs sample offloaded rules"
+        err "No ovs sample rules"
     fi
 }
 
@@ -105,7 +105,7 @@ function verify_tc_policy_skip_hw() {
     count=$(ovs_dump_tc_flows | grep 0x0800 | grep sFlow | wc -l)
     if (( count != 2 )); then
         ovs_dump_tc_flows --names
-        err "No tc sample offloaded rules"
+        err "No tc sample rules"
     fi
 }
 
@@ -113,7 +113,7 @@ function verify_tc_policy_none() {
     count=$(ovs_dump_offloaded_flows | grep 0x0800 | grep sFlow | wc -l)
     if (( count != 2 )); then
         ovs_dump_offloaded_flows --names
-        err "No offloaded sample offloaded rules"
+        err "No offloaded sample rules"
     fi
 }
 
