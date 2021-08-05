@@ -188,6 +188,19 @@ function check_local_tcp_traffic_offload() {
     killall iperf3 2>/dev/null
 }
 
+function check_remote_tcp_traffic_offload() {
+    local rep=$1
+    local client_ns=$2
+    local server_ns=$3
+    local server_ip=$4
+
+    on_remote "ip netns exec $server_ns timeout 15 iperf3 -s >/dev/null 2>&1" &
+    sleep 2
+
+    check_traffic_offload $rep $client_ns $server_ip tcp
+    on_remote "killall iperf3"
+}
+
 function ovn_create_topology() {
     local topology_file=$1
 
