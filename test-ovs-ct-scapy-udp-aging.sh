@@ -99,13 +99,7 @@ function run() {
         return
     fi
 
-    echo waiting for software aging
-    sleep 10
-
-    if cat /proc/net/nf_conntrack |grep 7.7.7 >/dev/null 2>&1 ; then
-        err "Connection was not aged - still exists"
-        return
-    fi
+    conntrack -F
 }
 
 
