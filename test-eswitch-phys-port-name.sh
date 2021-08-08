@@ -2,6 +2,7 @@
 #
 # Test pfs, vfs, reps phys_port_name and phys_switch_id are readable
 #
+# Bug SW #2751082: [Upstream] Fail to read phys_port_name and phys_switch_id for VFs
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
