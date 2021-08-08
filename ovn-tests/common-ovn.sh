@@ -108,8 +108,9 @@ function ovn_bind_ovs_port() {
 
 function check_offloaded_rules() {
     local count=$1
+    local traffic_filter=$2
 
-    local result=$(ovs-appctl dpctl/dump-flows type=offloaded 2>/dev/null | grep 0x0800 | grep -v drop)
+    local result=$(ovs-appctl dpctl/dump-flows type=offloaded 2>/dev/null | grep $traffic_filter | grep -v drop)
 
     if echo "$result" | grep "packets:0, bytes:0"; then
         err "packets:0, bytes:0"
@@ -131,8 +132,17 @@ function check_traffic_offload() {
     local traffic_type=$4
     local tcpdump_file=/tmp/$$.pcap
 
+    local traffic_filter="0x0800"
+    local tcpdump_filter="$traffic_type"
+
+    if [[ "$traffic_type" == "icmp6" ]]; then
+        # Ignore IPv6 Neighbor-Advertisement and Neighbor Solicitation packets
+        tcpdump_filter="icmp6 and ip6[40] != 136 and ip6[40] != 135"
+        traffic_filter="0x86dd"
+    fi
+
     # Listen to traffic on representor
-    timeout 15 tcpdump -nnepi $rep $traffic_type -c 8 -w $tcpdump_file &
+    timeout 15 tcpdump -nnepi $rep $tcpdump_filter -c 8 -w $tcpdump_file &
     local tdpid=$!
     sleep 0.5
 
@@ -140,6 +150,8 @@ function check_traffic_offload() {
     title "Check sending ${traffic_type^^} traffic"
     if [[ $traffic_type == "icmp" ]]; then
         ip netns exec $ns ping -w 4 $dst_ip && success || err
+    elif [[ $traffic_type == "icmp6" ]]; then
+        ip netns exec $ns ping -6 -w 4 $dst_ip && success || err
     elif [[ $traffic_type == "tcp" ]]; then
         ip netns exec $ns timeout 15 iperf3 -t 5 -c $dst_ip && success || err
     else
@@ -148,7 +160,7 @@ function check_traffic_offload() {
 
     title "Check ${traffic_type^^} OVS offload rules"
     ovs_dump_flows type=offloaded
-    check_offloaded_rules 2
+    check_offloaded_rules 2 $traffic_filter
 
     # Rules should appear, request and reply
     title "Check ${traffic_type^^} traffic is offloaded"
@@ -174,6 +186,14 @@ function check_icmp_traffic_offload() {
     local dst_ip=$3
 
     check_traffic_offload $rep $ns $dst_ip icmp
+}
+
+function check_icmp6_traffic_offload() {
+    local rep=$1
+    local ns=$2
+    local dst_ip=$3
+
+    check_traffic_offload $rep $ns $dst_ip icmp6
 }
 
 function check_local_tcp_traffic_offload() {
