@@ -1194,7 +1194,7 @@ function check_for_ofed_memtrack_errors() {
 function check_for_errors_log() {
     journalctl --sync &>/dev/null || sleep 0.5
     local rc=0
-    local sec=`get_test_time_elapsed`
+    local sec=${1:-`get_test_time_elapsed`}
     local look="DEADLOCK|possible circular locking|possible recursive locking|\
 WARNING:|RIP:|BUG:|refcount > 1|refcount_t|segfault|in_atomic|hw csum failure|\
 list_del corruption|which is not allocated|Objects remaining|assertion failed|\
