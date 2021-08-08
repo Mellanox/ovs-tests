@@ -40,7 +40,7 @@ function cleanup() {
     ip netns del ns1 2> /dev/null
     reset_tc $REP
     reset_tc $REP2
-    set_ct_aging 30 30 &>/dev/null
+    set_ct_aging 30 &>/dev/null
 }
 trap cleanup EXIT
 
@@ -71,7 +71,7 @@ function run() {
 
     proto="udp"
     config_ovs $proto
-    set_ct_aging 10 10
+    set_ct_aging 10
     fail_if_err
 
     t=5
