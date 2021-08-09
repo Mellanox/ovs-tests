@@ -4,6 +4,7 @@
 #
 # Bug SW #2292924: WARNING: possible circular locking dependency detected
 #
+# IGNORE_FROM_TEST_ALL
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
