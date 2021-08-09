@@ -13,7 +13,7 @@ enable_switchdev
 bind_vfs
 
 # enough to check once of each
-require_interfaces NIC VF REP
+require_interfaces NIC REP
 
 function verify_phys_port_name() {
     local nic=$1
@@ -28,7 +28,6 @@ function verify_phys_port_name() {
 }
 
 verify_phys_port_name $NIC
-verify_phys_port_name $VF
 verify_phys_port_name $REP
 
 test_done
