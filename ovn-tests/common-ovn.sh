@@ -139,6 +139,9 @@ function check_traffic_offload() {
         # Ignore IPv6 Neighbor-Advertisement and Neighbor Solicitation packets
         tcpdump_filter="icmp6 and ip6[40] != 136 and ip6[40] != 135"
         traffic_filter="0x86dd"
+    elif [[ "$traffic_type" == "tcp6" ]]; then
+        tcpdump_filter="ip6 proto 6"
+        traffic_filter="0x86dd"
     fi
 
     # Listen to traffic on representor
@@ -154,6 +157,9 @@ function check_traffic_offload() {
         ip netns exec $ns ping -6 -w 4 $dst_ip && success || err
     elif [[ $traffic_type == "tcp" ]]; then
         ip netns exec $ns timeout 15 iperf3 -t 5 -c $dst_ip && success || err
+    elif [[ $traffic_type == "tcp6" ]]; then
+        ip netns exec $ns timeout 15 iperf3 -6 -t 5 -c $dst_ip && success || err
+        traffic_filter="0x86dd"
     else
         fail "Unknown traffic $traffic_type"
     fi
@@ -205,6 +211,18 @@ function check_local_tcp_traffic_offload() {
     ip netns exec $server_ns timeout 10 iperf3 -s >/dev/null 2>&1 &
 
     check_traffic_offload $rep $client_ns $server_ip tcp
+    killall iperf3 2>/dev/null
+}
+
+function check_local_tcp6_traffic_offload() {
+    local rep=$1
+    local client_ns=$2
+    local server_ns=$3
+    local server_ip=$4
+
+    ip netns exec $server_ns timeout 10 iperf3 -6 -s >/dev/null 2>&1 &
+
+    check_traffic_offload $rep $client_ns $server_ip tcp6
     killall iperf3 2>/dev/null
 }
 
