@@ -3,7 +3,6 @@
 # Test 'dangling' act_police action.
 # Use TCP traffic to test per flow rate limit. TC filters will refer to
 # the 'dangling' police action
-#
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -20,10 +19,16 @@ require_interfaces REP REP2
 unbind_vfs
 bind_vfs
 
+if [ "$short_device_name" == "cx6dx" ]; then
+    #Bug SW #2707092, metering doesn't work before version xx.32.0114
+    require_fw_ver 32 114
+fi
+
 function cleanup() {
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
     reset_tc $REP $REP2
+    tc action flush action police 2> /dev/null
 }
 trap cleanup EXIT
 
@@ -33,7 +38,7 @@ function config_police() {
     reset_tc $REP $REP2
 
     tc action flush action police
-    tc action add police rate 500mbit burst 100k conform-exceed drop/pipe
+    tc action add police rate 500mbit burst 40m conform-exceed drop/pipe
 
     echo "add arp rules"
     tc_filter add dev $REP protocol arp parent ffff: prio 1 flower \
@@ -75,14 +80,14 @@ function check_bw() {
         fail "Missing bw"
     fi
 
-    MIN_EXPECTED=$RATE*1024*1024*95/100
-    MAX_EXPECTED=$RATE*1024*1024*105/100
+    MIN_EXPECTED=$(($RATE*1024*1024*95/100))
+    MAX_EXPECTED=$(($RATE*1024*1024*105/100))
 
-    if (( $BW < ${MIN_EXPECTED} )); then
+    if (( $BW < $MIN_EXPECTED )); then
         fail "Expected minimum BW of $MIN_EXPECTED and got $BW"
     fi
 
-    if (( $BW > ${MAX_EXPECTED} )); then
+    if (( $BW > $MAX_EXPECTED )); then
         fail "Expected maximum BW of $MAX_EXPECTED and got $BW"
     fi
 
