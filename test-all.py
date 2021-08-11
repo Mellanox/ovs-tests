@@ -617,6 +617,15 @@ def update_skip_according_to_db(rm, _tests, data):
                 t.set_ignore("Unsupported nic %s" % nic)
                 break
 
+        min_fw = data['tests'][name].get('min_fw', None)
+        if min_fw:
+            cx_type = min_fw.split('.')[0]
+            cx_ver = min_fw[min_fw.index('.')+1:]
+            current_cx_type = current_fw_ver.split('.')[0]
+            current_cx_ver = current_fw_ver[current_fw_ver.index('.')+1:]
+            if cx_type == current_cx_type and VersionInfo(current_cx_ver) < VersionInfo(cx_ver):
+                t.set_ignore("Unsupported fw version. Minimum %s" % min_fw)
+
         if t.ignore:
             continue
 
