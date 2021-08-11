@@ -87,7 +87,7 @@ function run() {
     local t=5
 
     # initial traffic to offload
-    ip netns exec ns0 ping -I $VF2 $REMOTE_VF_IP -c 1 -w 2 -q
+    ip netns exec ns0 ping -I $VF2 $REMOTE_VF_IP -c 1 -w 5 -q
 
     echo "sniff packets on $VF"
     timeout $t tcpdump -qnnei $VF -c 4 "$filter" &
