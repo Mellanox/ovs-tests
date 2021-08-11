@@ -49,23 +49,23 @@ function add_ct_rules() {
 
     fail_if_err
 
-    tc_filter add dev $PF0 ingress prio 1 chain 0 proto ip flower ip_flags nofrag ip_proto tcp ct_state -trk \
+    tc_filter add dev $PF0 ingress prio 1 chain 0 proto ip flower $tc_verbose ip_flags nofrag ip_proto tcp ct_state -trk \
         action ct zone 3 nat pipe action goto chain 2
-    tc_filter add dev $PF0 ingress prio 1 chain 2 proto ip flower ip_flags nofrag ip_proto tcp ct_state +trk+new \
+    tc_filter add dev $PF0 ingress prio 1 chain 2 proto ip flower $tc_verbose ip_flags nofrag ip_proto tcp ct_state +trk+new \
         action ct commit zone 3 nat src addr $NAT_SRC port 3000 pipe \
         action pedit ex munge ip ttl add 255 pipe \
         action pedit ex munge eth src set $PF1_MAC munge eth dst set $PF1_DEST_MAC pipe \
         action csum iph and tcp pipe \
         action mirred egress redirect dev $PF1
-    tc_filter add dev $PF0 ingress prio 1 chain 2 proto ip flower ip_flags nofrag ip_proto tcp ct_state +trk+est \
+    tc_filter add dev $PF0 ingress prio 1 chain 2 proto ip flower $tc_verbose ip_flags nofrag ip_proto tcp ct_state +trk+est \
         action pedit ex munge ip ttl add 255 pipe \
         action pedit ex munge eth src set $PF1_MAC munge eth dst set $PF1_DEST_MAC pipe \
         action csum iph and tcp pipe \
         action mirred egress redirect dev $PF1
 
-    tc_filter add dev $PF1 ingress prio 1 chain 0 proto ip flower ip_flags nofrag ip_proto tcp ct_state -trk \
+    tc_filter add dev $PF1 ingress prio 1 chain 0 proto ip flower $tc_verbose ip_flags nofrag ip_proto tcp ct_state -trk \
         action ct zone 3 nat pipe action goto chain 4
-    tc_filter add dev $PF1 ingress prio 1 chain 4 proto ip flower ip_flags nofrag ip_proto tcp ct_state +trk+est \
+    tc_filter add dev $PF1 ingress prio 1 chain 4 proto ip flower $tc_verbose ip_flags nofrag ip_proto tcp ct_state +trk+est \
         action pedit ex munge ip ttl add 255 pipe pedit ex munge eth src set $PF0_MAC munge eth dst set $PF0_DEST_MAC pipe \
         action csum iph and tcp pipe \
         action mirred egress redirect dev $PF0
