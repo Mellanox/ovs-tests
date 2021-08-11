@@ -142,6 +142,9 @@ function check_traffic_offload() {
     elif [[ "$traffic_type" == "tcp6" ]]; then
         tcpdump_filter="ip6 proto 6"
         traffic_filter="0x86dd"
+    elif [[ "$traffic_type" == "udp6" ]]; then
+        tcpdump_filter="ip6 proto 17"
+        traffic_filter="0x86dd"
     fi
 
     # Listen to traffic on representor
@@ -162,6 +165,8 @@ function check_traffic_offload() {
         traffic_filter="0x86dd"
     elif [[ $traffic_type == "udp" ]]; then
         ip netns exec $ns timeout 10 $OVN_DIR/udp-perf.py -c $dst_ip --pass-rate 0.7 && success || err
+    elif [[ $traffic_type == "udp6" ]]; then
+        ip netns exec $ns timeout 10 $OVN_DIR/udp-perf.py -6 -c $dst_ip --pass-rate 0.7 && success || err
     else
         fail "Unknown traffic $traffic_type"
     fi
@@ -250,6 +255,18 @@ function check_local_udp_traffic_offload() {
     ip netns exec $server_ns timeout 10 $OVN_DIR/udp-perf.py -s &
 
     check_traffic_offload $rep $client_ns $server_ip udp
+    killall udp-perf.py
+}
+
+function check_local_udp6_traffic_offload() {
+    local rep=$1
+    local client_ns=$2
+    local server_ns=$3
+    local server_ip=$4
+
+    ip netns exec $server_ns timeout 10 $OVN_DIR/udp-perf.py -6 -s &
+
+    check_traffic_offload $rep $client_ns $server_ip udp6
     killall udp-perf.py
 }
 
