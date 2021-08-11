@@ -160,6 +160,8 @@ function check_traffic_offload() {
     elif [[ $traffic_type == "tcp6" ]]; then
         ip netns exec $ns timeout 15 iperf3 -6 -t 5 -c $dst_ip && success || err
         traffic_filter="0x86dd"
+    elif [[ $traffic_type == "udp" ]]; then
+        ip netns exec $ns timeout 10 $OVN_DIR/udp-perf.py -c $dst_ip --pass-rate 0.7 && success || err
     else
         fail "Unknown traffic $traffic_type"
     fi
@@ -237,6 +239,18 @@ function check_remote_tcp_traffic_offload() {
 
     check_traffic_offload $rep $client_ns $server_ip tcp
     on_remote "killall iperf3"
+}
+
+function check_local_udp_traffic_offload() {
+    local rep=$1
+    local client_ns=$2
+    local server_ns=$3
+    local server_ip=$4
+
+    ip netns exec $server_ns timeout 10 $OVN_DIR/udp-perf.py -s &
+
+    check_traffic_offload $rep $client_ns $server_ip udp
+    killall udp-perf.py
 }
 
 function ovn_create_topology() {
