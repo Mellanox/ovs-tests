@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Test ICMP and TCP traffic between VFs on different nodes configured with OVN and OVS then check traffic is offloaded
+# Test traffic between VFs on different nodes configured with OVN and OVS then check traffic is offloaded
 #
 
 my_dir="$(dirname "$0")"
@@ -128,6 +128,11 @@ function run_test() {
 
     title "Test TCP traffic between $VF($IP1) -> $VF2($IP2) offloaded"
     check_remote_tcp_traffic_offload $REP ns0 ns0 $IP2
+
+    sleep 2
+
+    title "Test UDP traffic between $VF($IP1) -> $VF2($IP2) offloaded"
+    check_remote_udp_traffic_offload $REP ns0 ns0 $IP2
 }
 
 cleanup
