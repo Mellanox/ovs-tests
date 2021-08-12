@@ -18,6 +18,10 @@ OVN_REMOTE_CONTROLLER_IP="192.168.100.101"
 ETH_IP="0x0800"
 ETH_IP6="0x86dd"
 
+# Traffic Filters
+# Ignore IPv6 Neighbor-Advertisement, Neighbor Solicitation and Router Solicitation packets
+TCPDUMP_IGNORE_IPV6_NEIGH="icmp6 and ip6[40] != 133 and ip6[40] != 135 and ip6[40] != 136"
+
 function require_ovn() {
     [ ! -e "${OVN_CTL}" ] && fail "Missing $OVN_CTL"
 }
@@ -164,8 +168,7 @@ function check_traffic_offload() {
     local tcpdump_filter="$traffic_type"
 
     if [[ "$traffic_type" == "icmp6" ]]; then
-        # Ignore IPv6 Neighbor-Advertisement and Neighbor Solicitation packets
-        tcpdump_filter="icmp6 and ip6[40] != 136 and ip6[40] != 135"
+        tcpdump_filter=$TCPDUMP_IGNORE_IPV6_NEIGH
         traffic_filter=$ETH_IP6
     elif [[ "$traffic_type" == "tcp6" ]]; then
         tcpdump_filter="ip6 proto 6"
@@ -314,25 +317,39 @@ function check_fragmented_traffic() {
     local ns=$2
     local dst_ip=$3
     local size=$4
+    local is_ipv6=$5
 
     local tcpdump_file=/tmp/$$.pcap
+    local traffic_filter=$ETH_IP
+    local rules_filter=ip
+    local tcpdump_filter=icmp
+
+    if [[ -n "$is_ipv6" ]]; then
+        traffic_filter=$ETH_IP6
+        rules_filter=ipv6
+        tcpdump_filter=$TCPDUMP_IGNORE_IPV6_NEIGH
+    fi
 
     # Listen to traffic on representor
-    timeout 15 tcpdump -nnepi $rep icmp -w $tcpdump_file &
+    timeout 15 tcpdump -nnepi $rep $tcpdump_filter -w $tcpdump_file &
     sleep 0.5
 
     title "Check sending traffic"
-    ip netns exec $ns ping -s $size -w 4 $dst_ip && success || err
+    if [[ -z "$is_ipv6" ]]; then
+        ip netns exec $ns ping -s $size -w 4 $dst_ip && success || err
+    else
+        ip netns exec $ns ping -6 -s $size -w 4 $dst_ip && success || err
+    fi
 
     title "Check OVS Rules"
     # Fragmented traffic should not be offloaded
     echo "OVS offloaded flow rules"
     ovs_dump_flows type=offloaded
-    check_offloaded_rules 0 $ETH_IP
+    check_offloaded_rules 0 $traffic_filter
 
     echo "All OVS flow rules"
-    ovs_dump_flows type=all filter="ip"
-    check_fragmented_rules $ETH_IP
+    ovs_dump_flows type=all filter="$rules_filter"
+    check_fragmented_rules $traffic_filter
 
     title "Check captured packets count"
     # Stop tcpdump
@@ -360,6 +377,15 @@ function check_fragmented_ipv4_traffic() {
     local size=$4
 
     check_fragmented_traffic $rep $ns $dst_ip $size
+}
+
+function check_fragmented_ipv6_traffic() {
+    local rep=$1
+    local ns=$2
+    local dst_ip=$3
+    local size=$4
+
+    check_fragmented_traffic $rep $ns $dst_ip $size true
 }
 
 function ovn_create_topology() {

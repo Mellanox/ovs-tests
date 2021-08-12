@@ -13,6 +13,9 @@ require_ovn
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
+IP_V6_1="7:7:7::1"
+IP_V6_2="7:7:7::2"
+
 MAC1="50:54:00:00:00:01"
 MAC2="50:54:00:00:00:02"
 
@@ -85,6 +88,11 @@ function run_test() {
 
     title "Test ICMP traffic between $VF($IP1) -> $VF2($IP2)"
     check_fragmented_ipv4_traffic $REP ns0 $IP2 1500
+
+    sleep 2
+
+    title "Test ICMP6 traffic between $VF($IP_V6_1) -> $VF2($IP_V6_2)"
+    check_fragmented_ipv6_traffic $REP ns0 $IP_V6_2 1500
 }
 
 cleanup
