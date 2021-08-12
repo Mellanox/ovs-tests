@@ -16,6 +16,15 @@ function test_basic_L2() {
             action drop
 }
 
+function test_basic_L2_redirect() {
+    tc_filter_success add dev $NIC protocol ip parent ffff: \
+            flower \
+                    skip_sw \
+                    dst_mac e4:11:22:11:4a:51 \
+                    src_mac e4:11:22:11:4a:50 \
+            action mirred egress redirect dev $VF
+}
+
 function test_basic_L3() {
     tc_filter_success add dev $NIC protocol ip parent ffff: \
             flower \
@@ -53,6 +62,7 @@ function test_basic_L4() {
 
 config_sriov
 enable_legacy
+bind_vfs
 reset_tc $NIC
 
 # Execute all test_* functions
