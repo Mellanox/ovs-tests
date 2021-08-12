@@ -14,6 +14,10 @@ OVN_LOCAL_CENTRAL_IP="127.0.0.1"
 OVN_CENTRAL_IP="192.168.100.100"
 OVN_REMOTE_CONTROLLER_IP="192.168.100.101"
 
+# Traffic type
+ETH_IP="0x0800"
+ETH_IP6="0x86dd"
+
 function require_ovn() {
     [ ! -e "${OVN_CTL}" ] && fail "Missing $OVN_CTL"
 }
@@ -106,23 +110,47 @@ function ovn_bind_ovs_port() {
     ovs-vsctl set Interface $ovs_port external_ids:iface-id=$ovn_port
 }
 
-function check_offloaded_rules() {
+function check_rules() {
     local count=$1
     local traffic_filter=$2
+    local rules_type=$3
+    local frag_filter=$4 #optional
 
-    local result=$(ovs-appctl dpctl/dump-flows type=offloaded 2>/dev/null | grep $traffic_filter | grep -v drop)
+    local result=$(ovs-appctl dpctl/dump-flows type=$rules_type 2>/dev/null | grep $traffic_filter | grep -E "$frag_filter" | grep -v drop)
+    local rules_count=$(echo "$result" | wc -l)
+
+    if [[ $count == "0" ]]; then
+        if [[ -z "$result" ]]; then
+            success "Found 0 rules as expected"
+        else
+            err "Expected 0 rules, found $rules_count"
+        fi
+        return
+    fi
 
     if echo "$result" | grep "packets:0, bytes:0"; then
         err "packets:0, bytes:0"
         return
     fi
 
-    local rules_count=$(echo "$result" | wc -l)
     if (("$rules_count" == "$count")); then
-        success
+        success "Found $count rules as expected"
     else
-        err
+        err "Expected $count rules, found $rules_count"
     fi
+}
+
+function check_offloaded_rules() {
+    local count=$1
+    local traffic_filter=$2
+
+    check_rules $count $traffic_filter "offloaded"
+}
+
+function check_fragmented_rules() {
+    local traffic_filter=$1
+
+    check_rules 4 $traffic_filter "all" "frag=(first|later)"
 }
 
 function check_traffic_offload() {
@@ -132,19 +160,19 @@ function check_traffic_offload() {
     local traffic_type=$4
     local tcpdump_file=/tmp/$$.pcap
 
-    local traffic_filter="0x0800"
+    local traffic_filter=$ETH_IP
     local tcpdump_filter="$traffic_type"
 
     if [[ "$traffic_type" == "icmp6" ]]; then
         # Ignore IPv6 Neighbor-Advertisement and Neighbor Solicitation packets
         tcpdump_filter="icmp6 and ip6[40] != 136 and ip6[40] != 135"
-        traffic_filter="0x86dd"
+        traffic_filter=$ETH_IP6
     elif [[ "$traffic_type" == "tcp6" ]]; then
         tcpdump_filter="ip6 proto 6"
-        traffic_filter="0x86dd"
+        traffic_filter=$ETH_IP6
     elif [[ "$traffic_type" == "udp6" ]]; then
         tcpdump_filter="ip6 proto 17"
-        traffic_filter="0x86dd"
+        traffic_filter=$ETH_IP6
     fi
 
     # Listen to traffic on representor
@@ -162,7 +190,6 @@ function check_traffic_offload() {
         ip netns exec $ns timeout 15 iperf3 -t 5 -c $dst_ip && success || err
     elif [[ $traffic_type == "tcp6" ]]; then
         ip netns exec $ns timeout 15 iperf3 -6 -t 5 -c $dst_ip && success || err
-        traffic_filter="0x86dd"
     elif [[ $traffic_type == "udp" ]]; then
         ip netns exec $ns timeout 10 $OVN_DIR/udp-perf.py -c $dst_ip --pass-rate 0.7 && success || err
     elif [[ $traffic_type == "udp6" ]]; then
@@ -280,6 +307,59 @@ function check_remote_udp_traffic_offload() {
 
     check_traffic_offload $rep $client_ns $server_ip udp
     on_remote "killall udp-perf.py"
+}
+
+function check_fragmented_traffic() {
+    local rep=$1
+    local ns=$2
+    local dst_ip=$3
+    local size=$4
+
+    local tcpdump_file=/tmp/$$.pcap
+
+    # Listen to traffic on representor
+    timeout 15 tcpdump -nnepi $rep icmp -w $tcpdump_file &
+    sleep 0.5
+
+    title "Check sending traffic"
+    ip netns exec $ns ping -s $size -w 4 $dst_ip && success || err
+
+    title "Check OVS Rules"
+    # Fragmented traffic should not be offloaded
+    echo "OVS offloaded flow rules"
+    ovs_dump_flows type=offloaded
+    check_offloaded_rules 0 $ETH_IP
+
+    echo "All OVS flow rules"
+    ovs_dump_flows type=all filter="ip"
+    check_fragmented_rules $ETH_IP
+
+    title "Check captured packets count"
+    # Stop tcpdump
+    killall tcpdump
+    sleep 1
+
+    # Ensure 16 packets appeared
+    # 4 request packets and 4 reply packets
+    # Each packet is fragmented into 2 packets
+    local count=$(tcpdump -nnr $tcpdump_file | wc -l)
+    if [[ $count != "16" ]]; then
+        err "Fragmented packets count is not as expected, expected '16', found '$count'"
+        tcpdump -nnr $tcpdump_file
+    else
+        success
+    fi
+
+    rm -f $tcpdump_file
+}
+
+function check_fragmented_ipv4_traffic() {
+    local rep=$1
+    local ns=$2
+    local dst_ip=$3
+    local size=$4
+
+    check_fragmented_traffic $rep $ns $dst_ip $size
 }
 
 function ovn_create_topology() {
