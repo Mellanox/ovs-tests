@@ -6,8 +6,11 @@
 # 2. Both VF and UL are pvid/untagged ports of default VLAN 1.
 # 3. Both VF and UL are tagged with VLAN 2.
 # 4. VF is tagged with VLAN 3, UL is pvid/untagged with VLAN 3.
+# 5. VF is pvid/untagged with VLAN 2, UL is tagged with VLAN 2.
 #
 # Require external server
+#
+# Bug SW #2753854: [mlx5, ETH, x86] Traffic lose between 2 VFs with vlans on bridge
 #
 
 my_dir="$(dirname "$0")"
@@ -57,51 +60,129 @@ bind_vfs
 sleep 1
 
 ovs_clear_bridges
-create_bridge_with_interfaces $br $NIC $REP
-config_vf $namespace1 $VF $REP $LOCAL_IP $LOCAL_MAC
-add_vf_vlan $namespace1 $VF $REP $LOCAL_IP_VLAN2 2 $LOCAL_MAC_VLAN2
-add_vf_vlan $namespace1 $VF $REP $LOCAL_IP_VLAN3 3 $LOCAL_MAC_VLAN3
-
-ip addr flush dev $NIC
-ip link set dev $NIC up
-
-title "Config remote host"
 remote_disable_sriov
-on_remote "\
-        ip link set $REMOTE_NIC address $REMOTE_MAC;\
+sleep 1
+
+function test_no_vlan() {
+    create_bridge_with_interfaces $br $NIC $REP
+    config_vf $namespace1 $VF $REP $LOCAL_IP $LOCAL_MAC
+    ip addr flush dev $NIC
+    ip link set dev $NIC up
+    ${1:+ip link set $br type bridge vlan_filtering 1}
+
+    on_remote "\
         ip a add dev $REMOTE_NIC $REMOTE_IP/24;\
+        ip link set $REMOTE_NIC up;"
+    sleep 1
+    flush_bridge $br
+
+    verify_ping_ns $namespace1 $VF $NIC $REMOTE_IP $time
+
+    on_remote "ip a flush dev $REMOTE_NIC &>/dev/null;"
+    ip link del name $br type bridge
+    ip netns del $namespace1
+    ip addr flush dev $NIC
+    sleep 1
+}
+
+function test_trunk_to_trunk_vlan() {
+    create_bridge_with_interfaces $br $NIC $REP
+    config_vf $namespace1 $VF $REP
+    add_vf_vlan $namespace1 $VF $REP $LOCAL_IP_VLAN2 2 $LOCAL_MAC_VLAN2
+    ip addr flush dev $NIC
+    ip link set dev $NIC up
+
+    bridge vlan add dev $REP vid 2
+    bridge vlan add dev $NIC vid 2
+
+    on_remote "\
         ip link add link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2;\
         ip link set ${REMOTE_NIC}.2 address $REMOTE_MAC_VLAN2;\
         ip address replace dev ${REMOTE_NIC}.2 $REMOTE_IP_VLAN2/24;\
-        ip a add dev $REMOTE_NIC $REMOTE_IP_UNTAGGED/24;\
         ip link set $REMOTE_NIC up;\
         ip link set ${REMOTE_NIC}.2 up"
+    ip link set $br type bridge vlan_filtering 1
+    sleep 1
+    flush_bridge $br
 
-sleep 1
+    verify_ping_ns $namespace1 $VF.2 $NIC $REMOTE_IP_VLAN2 $time
+
+    on_remote "ip link del link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2 &>/dev/null;"
+    ip link del name $br type bridge
+    ip netns del $namespace1
+    ip addr flush dev $NIC
+    sleep 1
+}
+
+function test_trunk_to_access_vlan() {
+    create_bridge_with_interfaces $br $NIC $REP
+    config_vf $namespace1 $VF $REP
+    add_vf_vlan $namespace1 $VF $REP $LOCAL_IP_VLAN3 3 $LOCAL_MAC_VLAN3
+    ip addr flush dev $NIC
+    ip link set dev $NIC up
+
+    bridge vlan add dev $REP vid 3
+    bridge vlan add dev $NIC vid 3 pvid untagged
+
+    on_remote "\
+        ip link set $REMOTE_NIC address $REMOTE_MAC;\
+        ip a add dev $REMOTE_NIC $REMOTE_IP_UNTAGGED/24;\
+        ip link set $REMOTE_NIC up;"
+    ip link set $br type bridge vlan_filtering 1
+    sleep 1
+    flush_bridge $br
+
+    verify_ping_ns $namespace1 $VF.3 $NIC $REMOTE_IP_UNTAGGED $time
+
+    on_remote "ip link del link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2 &>/dev/null;"
+    ip link del name $br type bridge
+    ip netns del $namespace1
+    ip addr flush dev $NIC
+    sleep 1
+}
+
+function test_access_to_trunk_vlan() {
+    create_bridge_with_interfaces $br $NIC $REP
+    config_vf $namespace1 $VF $REP $LOCAL_IP_VLAN2 $LOCAL_MAC_VLAN2
+    ip addr flush dev $NIC
+    ip link set dev $NIC up
+
+    bridge vlan add dev $REP vid 2 pvid untagged
+    bridge vlan add dev $NIC vid 2
+
+    on_remote "\
+        ip link add link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2;\
+        ip link set ${REMOTE_NIC}.2 address $REMOTE_MAC_VLAN2;\
+        ip address replace dev ${REMOTE_NIC}.2 $REMOTE_IP_VLAN2/24;\
+        ip link set $REMOTE_NIC up;\
+        ip link set ${REMOTE_NIC}.2 up"
+    ip link set $br type bridge vlan_filtering 1
+    sleep 1
+    flush_bridge $br
+
+    verify_ping_ns $namespace1 $VF $NIC $REMOTE_IP_VLAN2 $time
+
+    on_remote "ip link del link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2 &>/dev/null;"
+    ip link del name $br type bridge
+    ip netns del $namespace1
+    ip addr flush dev $NIC
+    sleep 1
+}
 
 title "test ping (no VLAN)"
-verify_ping_ns $namespace1 $VF $NIC $REMOTE_IP $time
-
-ip link set tst1 type bridge vlan_filtering 1
+test_no_vlan
 
 title "test ping (VLAN untagged<->untagged)"
-flush_bridge $br
-sleep 1
-verify_ping_ns $namespace1 $VF $NIC $REMOTE_IP $time
+test_no_vlan filtering
 
 title "test ping (VLAN tagged<->tagged)"
-flush_bridge $br
-bridge vlan add dev $REP vid 2
-bridge vlan add dev $NIC vid 2
-sleep 1
-verify_ping_ns $namespace1 $VF.2 $NIC $REMOTE_IP_VLAN2 $time
+test_trunk_to_trunk_vlan
 
 title "test ping (VLAN tagged<->untagged)"
-flush_bridge $br
-bridge vlan add dev $REP vid 3
-bridge vlan add dev $NIC vid 3 pvid untagged
-sleep 1
-verify_ping_ns $namespace1 $VF.3 $NIC $REMOTE_IP_UNTAGGED $time
+test_trunk_to_access_vlan
+
+title "test ping (VLAN untagged<->tagged)"
+test_access_to_trunk_vlan
 
 cleanup
 trap - EXIT

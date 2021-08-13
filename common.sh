@@ -604,7 +604,7 @@ function config_vf() {
     local ns=$1
     local vf=$2
     local rep=$3
-    local ip=$4
+    local ip=$4 # optional
     local mac=$5 # optional
     local prefix=24
 
@@ -619,7 +619,7 @@ function config_vf() {
     ip netns add $ns
     ${mac:+ip link set $vf address $mac}
     ip link set $vf netns $ns
-    ip -netns $ns address replace dev $vf $ip/$prefix
+    ${ip:+ip -netns $ns address replace dev $vf $ip/$prefix}
     ip -netns $ns link set $vf up
 }
 
