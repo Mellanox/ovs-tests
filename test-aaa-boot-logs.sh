@@ -11,9 +11,10 @@ my_dir="$(dirname "$0")"
 
 __uptime_seconds=`awk '{print $1}' /proc/uptime | cut -d. -f1`
 
-title "Check if uptime is more than 30 minute"
-if [ $__uptime_seconds -gt 1800 ]; then
-    echo "Yes. Aborting."
+max_uptime=1800
+title "Check if uptime is less than $max_uptime"
+if [ $__uptime_seconds -gt $max_uptime ]; then
+    echo "Aborting"
 else
     title "Check if a test ran before this one"
 
