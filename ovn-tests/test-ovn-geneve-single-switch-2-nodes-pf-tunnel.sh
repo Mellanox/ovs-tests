@@ -36,9 +36,11 @@ function cleanup() {
     # Clean namespaces
     ip netns del ns0 2>/dev/null
 
+    unbind_vfs
+    bind_vfs
+
     # Remove IPs and reset MTU
     ifconfig $NIC 0 &>/dev/null
-    ifconfig $VF 0 mtu 1500 &>/dev/null
 
     # Clean ovs br-int
     ovs_clear_bridges
@@ -49,7 +51,10 @@ function cleanup() {
     ovn_stop_ovn_controller
 
     ip netns del ns0 2>/dev/null
-    ifconfig $VF 0 &>/dev/null
+
+    unbind_vfs
+    bind_vfs
+
     ifconfig $NIC 0 &>/dev/null
 
     ovs_clear_bridges

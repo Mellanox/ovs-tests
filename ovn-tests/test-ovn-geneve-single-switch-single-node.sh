@@ -39,11 +39,8 @@ function cleanup() {
     ip netns del ns0 2>/dev/null
     ip netns del ns1 2>/dev/null
 
-    # Remove IPs from VFs
-    for i in $VF $VF2; do
-        ip addr flush dev $i
-        ip -6 addr flush dev $i
-    done
+    unbind_vfs
+    bind_vfs
 
     # Clean ovs br-int
     ovs_clear_bridges
