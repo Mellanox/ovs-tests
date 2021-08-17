@@ -23,8 +23,6 @@ MAC2="50:54:00:00:00:02"
 PORT1="sw0-port1"
 PORT2="sw0-port2"
 
-TCPDUMP_FILE=/tmp/$$.pcap
-
 # stop OVN, clean namespaces, ovn network topology, and ovs br-int interfaces
 function cleanup() {
     # Remove OVN topology
