@@ -324,6 +324,18 @@ function check_remote_udp_traffic_offload() {
     on_remote "killall -q udp-perf.py"
 }
 
+function check_remote_udp6_traffic_offload() {
+    local rep=$1
+    local client_ns=$2
+    local server_ns=$3
+    local server_ip=$4
+
+    on_remote_exec "ip netns exec $server_ns timeout 15 $OVN_DIR/udp-perf.py -6 -s" &
+
+    check_traffic_offload $rep $client_ns $server_ip udp6
+    on_remote "killall -q udp-perf.py"
+}
+
 function check_fragmented_traffic() {
     local rep=$1
     local ns=$2
