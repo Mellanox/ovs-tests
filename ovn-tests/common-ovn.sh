@@ -276,6 +276,18 @@ function check_remote_tcp_traffic_offload() {
     on_remote "killall -q iperf3"
 }
 
+function check_remote_tcp6_traffic_offload() {
+    local rep=$1
+    local client_ns=$2
+    local server_ns=$3
+    local server_ip=$4
+
+    on_remote "ip netns exec $server_ns timeout 15 iperf3 -6 -s >/dev/null 2>&1" &
+
+    check_traffic_offload $rep $client_ns $server_ip tcp6
+    on_remote "killall -q iperf3"
+}
+
 function check_local_udp_traffic_offload() {
     local rep=$1
     local client_ns=$2
