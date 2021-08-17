@@ -17,7 +17,7 @@ IP2=10.0.0.2
 OVSBR=br-ovs
 
 # rates in mbps.
-rates="2 4"
+rates="20 40"
 
 function cleanup() {
     stop_iperf
