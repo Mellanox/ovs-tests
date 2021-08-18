@@ -62,7 +62,7 @@ def listen(port, is_ipv6):
     return 0
 
 
-def hand_shake(sock, server_address, port, packets):
+def handshake(sock, server_address, port, packets):
     # Send handshake packet to server
     sock.sendto(bytes([packets]), (server_address, port))
 
@@ -76,7 +76,7 @@ def send(server_address, port, packets, pass_rate, is_ipv6):
         socket_family = socket.AF_INET if not is_ipv6 else socket.AF_INET6
         udp_socket = socket.socket(socket_family, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         udp_socket.settimeout(2)
-        hand_shake(udp_socket, server_address, port, packets)
+        handshake(udp_socket, server_address, port, packets)
     except Exception as ex:
         print(f'Client: Failed to communicate server {server_address}:{port}, {ex}')
         return 1
