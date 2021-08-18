@@ -105,6 +105,9 @@ def main():
 
         print(f'Connecting {args.client}:{args.port}, IPv{6 if is_pv6 else 4}')
         return send(args.client, args.port, args.packets, args.pass_rate, is_pv6)
+    except KeyboardInterrupt:
+        print ("Terminated")
+        return 1
     except Exception as ex:
         print(ex)
         return 1
