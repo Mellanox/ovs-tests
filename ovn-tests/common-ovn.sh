@@ -248,7 +248,7 @@ function check_local_tcp_traffic_offload() {
     ip netns exec $server_ns timeout 10 iperf3 -s >/dev/null 2>&1 &
 
     check_traffic_offload $rep $client_ns $server_ip tcp
-    killall iperf3 2>/dev/null
+    killall -q iperf3
 }
 
 function check_local_tcp6_traffic_offload() {
@@ -260,7 +260,7 @@ function check_local_tcp6_traffic_offload() {
     ip netns exec $server_ns timeout 10 iperf3 -6 -s >/dev/null 2>&1 &
 
     check_traffic_offload $rep $client_ns $server_ip tcp6
-    killall iperf3 2>/dev/null
+    killall -q iperf3
 }
 
 function check_remote_tcp_traffic_offload() {
@@ -273,7 +273,7 @@ function check_remote_tcp_traffic_offload() {
     sleep 2
 
     check_traffic_offload $rep $client_ns $server_ip tcp
-    on_remote "killall iperf3"
+    on_remote "killall -q iperf3"
 }
 
 function check_local_udp_traffic_offload() {
@@ -353,7 +353,7 @@ function check_fragmented_traffic() {
 
     title "Check captured packets count"
     # Stop tcpdump
-    killall tcpdump
+    killall -q tcpdump
     sleep 1
 
     # Ensure 16 packets appeared
