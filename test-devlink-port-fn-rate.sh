@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/bin/bash
 #
 # Test VF group rate limit user API with mlx5_core
 
