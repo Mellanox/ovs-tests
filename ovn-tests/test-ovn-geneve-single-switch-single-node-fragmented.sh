@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Test traffic between VFs configured with OVN and OVS then check traffic is offloaded
+# Test fragmented traffic between VFs configured with OVN and OVS then check traffic is not offloaded
 #
 
 my_dir="$(dirname "$0")"
