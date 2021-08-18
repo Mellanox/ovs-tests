@@ -8,13 +8,13 @@ import time
 
 
 def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-s', '--server', help='Run in server mode', action='store_true')
-    parser.add_argument('-c', '--client', help='Run in client mode, connecting to <server-address>')
-    parser.add_argument('-p', '--port', help='Port (default: %default)', type=int, default=5555)
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-s', '--server', help='Run in server', action='store_true')
+    parser.add_argument('-c', '--client', help='Run in client')
+    parser.add_argument('-p', '--port', help='Port', type=int, default=5555)
     parser.add_argument('-6', help='Run over IPv6', action='store_true')
-    parser.add_argument('--packets', help='Number of packets to send (default: %default)', type=int, default=50)
-    parser.add_argument('--pass-rate', help='Accepted packet pass rate (default: %default)', type=float, default=0.7)
+    parser.add_argument('--packets', help='Number of packets to send', type=int, default=50)
+    parser.add_argument('--pass-rate', help='Accepted packet pass rate', type=float, default=0.7)
 
     args = parser.parse_args()
     if (args.server and args.client) or (not args.server and not args.client):
