@@ -56,25 +56,10 @@ function run() {
     sleep 2
     pgrep iperf3 &>/dev/null || err "iperf3 failed"
 
-    echo "sniff packets on $REP"
-    timeout $((t-4)) tcpdump -qnnei $REP -c 10 'udp' &
-    pid=$!
-
     sleep $t
     pkill iperf3 &>/dev/null
     pkill iperf3 &>/dev/null
     wait $! 2>/dev/null
-
-    # test sniff timedout
-    wait $pid
-    rc=$?
-    if [[ $rc -eq 124 ]]; then
-        :
-    elif [[ $rc -eq 0 ]]; then
-        err "Didn't expect to see packets"
-    else
-        err "Tcpdump failed"
-    fi
 
     ovs-vsctl del-br br-ovs
 }
