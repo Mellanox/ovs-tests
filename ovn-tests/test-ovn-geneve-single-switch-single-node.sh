@@ -115,14 +115,18 @@ function run_test() {
 }
 
 cleanup
-pre_test
 
 # trap for existing script to clean up
 trap cleanup EXIT
 
+pre_test
 start_check_syndrome
 run_test
 
 check_syndrome
+
+# Clean up and clear trap
+cleanup
+trap - EXIT
 
 test_done
