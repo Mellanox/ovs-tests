@@ -15,7 +15,7 @@ function cleanup() {
 trap cleanup EXIT
 cleanup
 
-config_sriov 2 
+config_sriov 2
 config_sriov 2 $NIC2
 enable_switchdev $NIC
 enable_switchdev $NIC2

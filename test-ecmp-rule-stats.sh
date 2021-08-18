@@ -138,7 +138,7 @@ function test_ecmp_rule_stats() {
     title "-- port0 down"
     ifconfig $dev1 down
     sleep 2 # wait for neigh update
-    
+
     exp=$((pkts*2))
     title "-- ping and expect $exp packets"
     do_traffic
@@ -158,7 +158,7 @@ function test_ecmp_rule_stats() {
     title "-- port1 down"
     ifconfig $dev2 down
     sleep 2 # wait for neigh update
-    
+
     exp=$((pkts*3))
     title "-- ping and expect $exp packets"
     do_traffic

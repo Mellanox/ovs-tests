@@ -9,7 +9,7 @@
 # Expected result: not to crash
 #
 # Expected to work on upstream from kernel 5 or with ofed 5.1.
-# 
+#
 # Bug RN #1013092: Kernel trace between flower configure/delete and mlx5 eswitch disable sriov
 # Bug SW #1293937: Kernel trace between flower configure/delete and mlx5 eswitch disable sriov
 

@@ -29,7 +29,7 @@ function do_test() {
 
     # second part of the bug we cannot add ingress qdisc again.
     # first remove in case it exists.
-    tc qdisc del dev $NIC ingress &>/dev/null 
+    tc qdisc del dev $NIC ingress &>/dev/null
     # now try to add
     tc qdisc add dev $NIC ingress || err "Failed to add ingress qdisc to $NIC"
 }

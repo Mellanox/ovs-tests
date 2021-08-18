@@ -114,13 +114,13 @@ function test_tunnel() {
 
 # Example for the bug. last rule created encap 0x4 instead of using encap 0x0
 # domain 0x7cdc02, table 0xffff930cb6498300, matcher 0xffff930e60622000, rule 0xffff930f4f686a20
-#   match: metadata_reg_c_0: 0x00010000 dmac: e4:11:22:11:77:67, ethertype: 0x0800 
+#   match: metadata_reg_c_0: 0x00010000 dmac: e4:11:22:11:77:67, ethertype: 0x0800
 #   action: CTR, index 0x801001 & ENCAP_L2, devx obj id 0x0 & VPORT, num 0xffff
 #domain 0x7cdc02, table 0xffff930cb6498300, matcher 0xffff930e60622000, rule 0xffff930f4f686e40
-#   match: metadata_reg_c_0: 0x00010000 dmac: e4:11:22:11:77:68, ethertype: 0x0800 
+#   match: metadata_reg_c_0: 0x00010000 dmac: e4:11:22:11:77:68, ethertype: 0x0800
 #   action: CTR, index 0x801002 & ENCAP_L2, devx obj id 0x2 & VPORT, num 0xffff
 #domain 0x7cdc02, table 0xffff930cb6498300, matcher 0xffff930e60622000, rule 0xffff930f2d7868a0
-#   match: metadata_reg_c_0: 0x00010000 dmac: e4:11:22:11:77:69, ethertype: 0x0800 
+#   match: metadata_reg_c_0: 0x00010000 dmac: e4:11:22:11:77:69, ethertype: 0x0800
 #   action: CTR, index 0x801000 & ENCAP_L2, devx obj id 0x4 & VPORT, num 0xffff
 
     reset_tc $REP

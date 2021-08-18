@@ -66,7 +66,7 @@ DT=${3:-1}
 echo DT=$DT
 
 clear
-echo 
+echo
 echo
 printf "%10s %-30s %-30s\n" " " "TX" "RX"
 

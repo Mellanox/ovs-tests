@@ -33,7 +33,7 @@ function is_offloaded_rules() {
     tc -s filter show dev $rep ingress
     local rules=`tc -s filter show dev $rep ingress | awk '$0 != "" {printf "%s, ",$0} $0 == "" {printf "\n"}' | tr -d ","`
     local rule_offloaded=`echo "$rules" | grep "src_mac $src_mac" | grep "dst_mac $dst_mac" | grep "eth_type ipv4" | grep -w in_hw`
-    if [ -z "$rule_offloaded" ]; then 
+    if [ -z "$rule_offloaded" ]; then
         err "Rules are not offloaded"
         return
     fi

@@ -35,11 +35,11 @@ title "Test iperf REP($IP1) -> VF($IP2)"
 timeout 7 ip netns exec ns0 iperf -s &
 sleep 0.5
 iperf -c $IP2 -P4 -t 5
-sleep 0.5 
+sleep 0.5
 kill_iperf
 
 title "Test ping VF($IP2) -> REP($IP1)"
-timeout 7 iperf -s & 
+timeout 7 iperf -s &
 sleep 0.5
 ip netns exec ns0 iperf -c $IP1 -P4 -t 5
 sleep 0.5

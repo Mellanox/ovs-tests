@@ -1,14 +1,14 @@
 #!/bin/bash
- 
+
 DEV=$1
- 
+
 if [ "$1" = "" ] || [ "$1" = "-h" ] ; then
     echo "Usage: `basename $0` dev [dt]"
     echo " dev - uplink device"
     echo " dt  - delta time"
     exit 1
 fi
- 
+
 DT=${2:-3}
 echo DT=$DT
 
@@ -33,7 +33,7 @@ TX1=`get_tx_pkts $DEV`
 sleep $DT
 RX2=`get_rx_pkts $DEV`
 TX2=`get_tx_pkts $DEV`
- 
+
 DRX=$(((RX2-RX1)/DT))
 DTX=$(((TX2-TX1)/DT))
 echo DRX=$DRX

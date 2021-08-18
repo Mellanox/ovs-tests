@@ -97,7 +97,7 @@ function run() {
     # first 4 packets not offloaded until conn is in established state.
     timeout 13 tcpdump -qnnei $REP2 -c 10 'tcp' &
     pid=$!
-    
+
     echo "sniff packets on $VF3"
     timeout 13 tcpdump -qnnei $VF3 -c 10 'tcp' &
     pid2=$!

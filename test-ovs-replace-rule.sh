@@ -48,7 +48,7 @@ ovs-vsctl add-port br3 veth0
 ovs-vsctl add-port br3 veth2
 
 # generate rule
-ip netns exec red ping $REMOTE_IP -i 0.25 -c 8 
+ip netns exec red ping $REMOTE_IP -i 0.25 -c 8
 
 function check_offloaded_rules() {
     title " - check for $1 offloaded rules"

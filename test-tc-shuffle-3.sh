@@ -16,7 +16,7 @@ TMPFILE=/tmp/rules-$$
 
 #
 # No prios on purpose.
-# 
+#
 cat >$TMPFILE <<EOF
 tc filter add dev $NIC parent ffff: protocol arp flower dst_mac e4:1d:2d:5d:25:35 src_mac e4:1d:2d:5d:25:34 action mirred egress redirect dev $NIC
 tc filter add dev $NIC parent ffff: protocol ip flower dst_mac e4:1d:2d:5d:25:35 src_mac e4:1d:2d:5d:25:34 action mirred egress redirect dev $NIC

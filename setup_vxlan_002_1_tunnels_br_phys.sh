@@ -31,7 +31,7 @@ create_br_pys
 
 function create_br_int42() {
     ovs-vsctl add-br br-int42
-    ovs-vsctl add-port br-int42 ${DEV}_0 
+    ovs-vsctl add-port br-int42 ${DEV}_0
 
     ovs-vsctl add-br br-tun42
     ovs-vsctl add-port br-tun42 vxlan42 -- set interface vxlan42 type=vxlan options:remote_ip=$REMOTE_IP options:key=42 options:dst_port=4789
@@ -42,7 +42,7 @@ function create_br_int42() {
 
 function create_single_br() {
     ovs-vsctl add-br br-tun42
-    ovs-vsctl add-port br-tun42 ${DEV}_0 
+    ovs-vsctl add-port br-tun42 ${DEV}_0
     ovs-vsctl add-port br-tun42 vxlan42 -- set interface vxlan42 type=vxlan options:remote_ip=$REMOTE_IP options:key=42 options:dst_port=4789
 }
 
