@@ -8,7 +8,6 @@
 # Expected result: not to crash
 #
 
-NIC=${1:-ens5f0}
 COUNT=2500
 ADD_DEL_SLEEP=10
 

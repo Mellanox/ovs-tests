@@ -7,7 +7,6 @@
 # Bug SW #1435023: [OFED 4.4] Call trace with up/down events on bridge device
 #
 
-NIC=${1:-ens5f0}
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh

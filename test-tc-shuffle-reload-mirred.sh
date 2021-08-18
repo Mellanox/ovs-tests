@@ -3,7 +3,6 @@
 # Bug SW #1241076: Hit WARN_ON when adding many rules with different mask
 #
 
-NIC=${1:-ens5f0}
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh

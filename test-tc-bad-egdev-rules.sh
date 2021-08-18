@@ -3,7 +3,6 @@
 # Bug SW #1341628: Bad rules added when offloading rules to HW
 #
 
-NIC=${1:-ens5f0}
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh

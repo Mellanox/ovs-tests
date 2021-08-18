@@ -3,7 +3,6 @@
 # Test inserting a lot of mirred rules and deleting them in parallel.
 #
 #
-NIC=${1:-ens2f0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 

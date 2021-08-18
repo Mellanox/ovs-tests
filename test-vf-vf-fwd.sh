@@ -8,9 +8,6 @@
 # Bug SW #1506941: [upstream] null deref in validate_xmit_skb_list()
 #
 
-NIC=${1:-ens2f0}
-VF=${2:-ens2f2}
-REP=${3:-eth0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 

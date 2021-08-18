@@ -3,7 +3,6 @@
 # Bug SW #1170023: deleting a flow rule with multiple vport destinations triggers FW error
 #
 
-NIC=${1:-ens5f0}
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh

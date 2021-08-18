@@ -3,7 +3,6 @@
 # Bug SW #984397: OVS reports failed to put[modify] (No such file or directory)
 #
 
-NIC=${1:-ens5f0}
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh

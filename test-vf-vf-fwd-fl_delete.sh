@@ -6,9 +6,6 @@
 # Bug SW #1428435: [OFED 4.4] [rhel7.2] test-vf-vf-fwd-fl_delete.sh cause a cpu lockup
 #
 
-NIC=${1:-ens2f0}
-VF=${2:-ens2f2}
-REP=${3:-eth0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 

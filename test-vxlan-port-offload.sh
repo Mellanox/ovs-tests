@@ -8,7 +8,6 @@
 # Bug SW #1335481: vxlan not offloaded after reloading mlx5_core
 #
 
-NIC=${1:-ens5f0}
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh

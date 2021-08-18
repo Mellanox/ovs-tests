@@ -4,7 +4,6 @@
 # 2. Test add rule with unmatched bits
 #
 
-NIC=${1:-ens5f0}
 FILTER=${FILTER}
 
 my_dir="$(dirname "$0")"

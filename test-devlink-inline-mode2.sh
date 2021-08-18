@@ -13,9 +13,6 @@
 #    - check inline_mode is the same.
 #
 
-NIC=${1:-ens5f0}
-REP=${NIC}_0
-
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 

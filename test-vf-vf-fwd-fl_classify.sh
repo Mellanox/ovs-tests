@@ -4,9 +4,6 @@
 # Bug SW #1297803: [ASAP MLNX OFED] fl_classify might access invalid memory on err flow in fl_change
 #
 
-NIC=${1:-ens2f0}
-VF=${2:-ens2f2}
-REP=${3:-eth0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 

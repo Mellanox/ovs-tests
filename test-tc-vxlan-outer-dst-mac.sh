@@ -5,7 +5,6 @@
 # Bug SW #1429502: [mlnx ofed 4.3] vxlan is not offloaded - rule added with wrong mac
 #
 
-NIC=${1:-ens5f0}
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh

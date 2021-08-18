@@ -4,7 +4,6 @@
 # Bug SW #1164801: e-switch vxlan decap flows are not properly offloaded
 #
 
-NIC=${1:-ens5f0}
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh

@@ -6,7 +6,6 @@
 # BugSW #1294281: [ASAP MLNX OFED] kernel crash adding drop rules when act_gact is not loaded
 #
 
-NIC=${1:-ens5f0}
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh

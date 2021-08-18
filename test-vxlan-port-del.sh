@@ -7,7 +7,6 @@
 #
 # Bug SW #1008211: Call trace from vxlan_dellink() when deleting the interface after down
 
-NIC=${1:-ens5f0}
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh

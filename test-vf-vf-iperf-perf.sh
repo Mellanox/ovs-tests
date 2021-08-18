@@ -5,9 +5,6 @@
 # Bug SW #1251244: Poor performance with UDP traffic in HV using namespaces
 #
 
-NIC=${1:-ens5f0}
-VF=${2:-ens5f2}
-REP=${4:-ens5f0_0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 

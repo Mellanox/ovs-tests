@@ -10,7 +10,6 @@
 # Bug SW #895956: Segmentation fault after changing e-switch mode from switchdev
 #
 
-NIC=${1:-ens5f0}
 BRIDGE="ovs-vx"
 
 my_dir="$(dirname "$0")"

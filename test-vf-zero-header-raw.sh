@@ -3,9 +3,6 @@
 # #1333837: In inline-mode transport UDP fragments from VF are dropped
 #
 
-NIC=${1:-ens5f0}
-VF=${2:-ens5f2}
-REP=${3:-ens5f0_0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 

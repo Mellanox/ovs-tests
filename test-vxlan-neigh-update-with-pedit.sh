@@ -9,7 +9,6 @@
 # Bug SW #1162546: tc esw modify header logic is broken in the presence of encap / neigh update
 #
 
-NIC=${1:-ens5f0}
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh

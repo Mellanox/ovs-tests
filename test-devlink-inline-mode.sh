@@ -5,8 +5,6 @@
 # 2. while vfs are unbound
 #
 
-NIC=${1:-ens5f0}
-REP=${2:-ens5f0_0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 

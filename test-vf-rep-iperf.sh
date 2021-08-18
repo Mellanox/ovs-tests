@@ -5,9 +5,6 @@
 # with tcpdump we could see traffic VF->rep works but rep->VF doesn't.
 #
 
-NIC=${1:-ens5f0}
-VF=${2:-ens5f2}
-REP=${3:-ens5f0_0}
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 

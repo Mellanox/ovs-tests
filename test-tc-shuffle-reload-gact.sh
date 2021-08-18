@@ -3,7 +3,6 @@
 # reload module act_gact before adding rules to get into the request_module flow.
 #
 
-NIC=${1:-ens5f0}
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh

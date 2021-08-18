@@ -9,7 +9,6 @@
 # Bug SW #932484: FW error of groups overlapping when scaling up ovs
 #
 
-NIC=${1:-ens5f0}
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh

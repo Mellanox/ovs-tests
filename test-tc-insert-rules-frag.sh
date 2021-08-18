@@ -5,7 +5,6 @@
 # Currently we do not support offloading of frag first/later so verify this.
 #
 
-NIC=${1:-ens5f0}
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh

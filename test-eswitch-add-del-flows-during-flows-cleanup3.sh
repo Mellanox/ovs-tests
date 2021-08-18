@@ -13,8 +13,6 @@
 # Bug RN #1013092: Kernel trace between flower configure/delete and mlx5 eswitch disable sriov
 # Bug SW #1293937: Kernel trace between flower configure/delete and mlx5 eswitch disable sriov
 
-NIC=${1:-ens5f0}
-VF=${2:-ens5f2}
 COUNT=500
 
 my_dir="$(dirname "$0")"
