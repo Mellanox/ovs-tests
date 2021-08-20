@@ -27,7 +27,7 @@ function cleanup() {
 trap cleanup EXIT
 
 function stop_iperf() {
-    killall -q -9 iperf &>/dev/null
+    killall -q -9 iperf3 &>/dev/null
     wait &>/dev/null
 }
 
@@ -47,7 +47,7 @@ function config_dev() {
 
 function check_mrate() {
     local rate=$1
-    local mrate=$(ip netns exec ns0 iperf -t 15 -fm -c $IP2 | grep "Mbits/sec" | sed -e 's/Mbits\/sec//' | gawk '{printf $NF}')
+    local mrate=$(ip netns exec ns0 iperf3 -t 15 -fm -c $IP2 -O 1 | grep 'sender' | grep "\d*.\d* Mbits/sec" | cut -d ' ' -f 1)
 
     if [ -z "$mrate" ]; then
         err "Couldn't get iperf rate"
@@ -92,12 +92,13 @@ function run() {
         run_rates
     done
     ip addr flush dev $dev
+    ip netns exec ns0 arp -d $IP2
 }
 
 
 config
 
-iperf -s -fm &>/dev/null &
+iperf3 -s -fm -D
 sleep 1
 
 title "Test VF->BR"
