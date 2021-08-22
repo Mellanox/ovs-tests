@@ -80,7 +80,7 @@ function neigh_update_test() {
         action mirred egress redirect dev $REP
 
     # add change evets
-    for i in `seq 7`; do
+    for i in `seq 4`; do
         title "-- forcing addr change 1"
         sleep 1
         ip n replace ${remote_ip} dev $NIC lladdr 11:22:33:44:55:66
