@@ -9,6 +9,7 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 require_module bonding
+not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
 
 function config() {
     config_sriov 2
@@ -28,6 +29,11 @@ function check_bond_xmit_hash_policy() {
             title "Checking bond mode $mode xmit hash policy $policy"
             config_bonding $NIC $NIC2 $mode $policy
             clear_bonding
+            dmesg | tail -n20 | grep -q "mode:hash"
+            if [ $? -ne 0 ]; then
+                err "Expected vf lag mode hash"
+                return
+            fi
         done
     done
 }
