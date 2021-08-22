@@ -172,10 +172,10 @@ function check_traffic_offload() {
         traffic_filter=$ETH_IP6
     elif [[ "$traffic_type" == "tcp6" ]]; then
         tcpdump_filter="ip6 proto 6"
-        traffic_filter=$ETH_IP6
+        traffic_filter="$ETH_IP6.*proto=6"
     elif [[ "$traffic_type" == "udp6" ]]; then
         tcpdump_filter="ip6 proto 17"
-        traffic_filter=$ETH_IP6
+        traffic_filter="$ETH_IP6.*proto=17"
     fi
 
     # Listen to traffic on representor
