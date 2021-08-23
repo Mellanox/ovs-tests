@@ -34,9 +34,8 @@ function create_vdpa_netdev
     local rep
     local auxdev
     local vdpadevname=$2
-    local virtio_net
 
-    create_sf 0 $sfnum
+    create_sf 0 $sfnum || return 1
     rep=$(sf_get_rep $sfnum)
     ovs-vsctl add-port $OVSBR $rep
     ip link set up dev $rep
@@ -46,8 +45,6 @@ function create_vdpa_netdev
     vdpa_wait_mgtdev $auxdev
     vdpa dev add name $vdpadevname mgmtdev auxiliary/$auxdev
     sleep 4
-    virtio_net=$(vdpa_find_netdev $vdpadevname)
-    echo found virtio dev $virtio_net for SF $sfnum
 }
 
 enable_norep_switchdev $NIC $VDPADEV1
@@ -63,9 +60,12 @@ create_vdpa_netdev $SFNUM1 $VDPADEV1
 rep1=$(sf_get_rep $SFNUM1)
 create_vdpa_netdev $SFNUM2 $VDPADEV2
 rep2=$(sf_get_rep $SFNUM2)
+fail_if_err
 
-virtio_net1=$(vdpa_find_netdev $VDPADEV1)
-virtio_net2=$(vdpa_find_netdev $VDPADEV2)
+virtio_net1=$(vdpa_find_netdev $VDPADEV1) || err "Cannot find vdpa dev for $VDPADEV1"
+virtio_net2=$(vdpa_find_netdev $VDPADEV2) || err "Cannot find vdpa dev for $VDPADEV2"
+fail_if_err
+
 pf=$(devlink port show | grep "flavour physical port $port" | sed -e 's/.*netdev\ //' | sed -e 's/\ .*//')
 ip link set up dev $pf
 

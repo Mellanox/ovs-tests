@@ -36,6 +36,7 @@ function sf_get_dev() {
             return
         fi
     done
+    return 1
 }
 
 function sf_get_netdev() {
