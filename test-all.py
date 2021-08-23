@@ -502,6 +502,7 @@ def get_current_state():
     global flow_steering_mode
     global simx_mode
 
+    distro = get_distro()
     nic = get_config_value('NIC')
     current_fw_ver = get_current_fw(nic)
     current_nic = DeviceType.get(get_current_nic_type(nic))
@@ -509,6 +510,8 @@ def get_current_state():
     flow_steering_mode = get_flow_steering_mode(nic)
     simx_mode = True if args.test_simx else check_simx(nic)
 
+    if 'PRETTY_NAME' in distro:
+        print(distro['PRETTY_NAME'])
     print("nic: %s" % current_nic)
     print("fw: %s" % current_fw_ver)
     print("flow steering: %s" % flow_steering_mode)
@@ -1173,6 +1176,18 @@ def signal_handler(signum, frame):
 
 def get_total_runtime():
     return float("%.2f" % (datetime.now() - test_all_start_time).total_seconds())
+
+
+def get_distro():
+    distro = {}
+    try:
+        with open("/etc/os-release", 'r') as f:
+            for line in f.readlines():
+                line = line.strip().split('=')
+                distro[line[0]] = line[1].strip('"')
+    except:
+        pass
+    return distro
 
 
 if __name__ == "__main__":
