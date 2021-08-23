@@ -387,12 +387,10 @@ function check_fragmented_traffic() {
     killall -q tcpdump
     sleep 1
 
-    # Ensure 16 packets appeared
-    # 4 request packets and 4 reply packets
-    # Each packet is fragmented into 2 packets
+    # Ensure more than 2 packets appear
     local count=$(tcpdump -nnr $tcpdump_file | wc -l)
-    if [[ $count != "16" ]]; then
-        err "Fragmented packets count is not as expected, expected '16', found '$count'"
+    if [[ $count -le "2" ]]; then
+        err "Fragmented packets count is not as expected, expected > '2', found '$count'"
         tcpdump -nnr $tcpdump_file
     else
         success
