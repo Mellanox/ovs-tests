@@ -11,15 +11,29 @@ my_dir="$(dirname "$0")"
 require_module bonding
 not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
 
+function set_lag_port_select_mode() {
+    if ! is_ofed ; then
+        return
+    fi
+    local mode=$1
+    enable_legacy &>/dev/null
+    enable_legacy $NIC2 &>/dev/null
+    echo $mode > /sys/class/net/$NIC/compat/devlink/lag_port_select_mode || fail "failed to set lag_port_select_mode to $mode"
+    echo $mode > /sys/class/net/$NIC2/compat/devlink/lag_port_select_mode || fail "failed to set lag_port_select_mode to $mode"
+}
+
 function config() {
     config_sriov 2
     config_sriov 2 $NIC2
+    set_lag_port_select_mode "hash"
     enable_switchdev
     enable_switchdev $NIC2
 }
 
 function cleanup() {
     clear_bonding
+    set_lag_port_select_mode "queue_affinity"
+    enable_switchdev &>/dev/null
     config_sriov 0 $NIC2
 }
 
@@ -39,7 +53,7 @@ function check_bond_xmit_hash_policy() {
 }
 
 trap cleanup EXIT
-cleanup
+clear_bonding
 config
 check_bond_xmit_hash_policy
 test_done
