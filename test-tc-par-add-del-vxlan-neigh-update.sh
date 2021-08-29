@@ -33,7 +33,7 @@ neigh_change_times=5
 
 
 function cleanup() {
-    ip l del $vxlan_dev
+    ip l del $vxlan_dev 2> /dev/null
     ip n del ${remote_ip_net}${remote_ip_host} dev $NIC 2>/dev/null
     ip link set $NIC down
     ip addr flush dev $NIC
