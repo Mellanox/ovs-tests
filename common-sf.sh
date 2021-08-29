@@ -96,6 +96,7 @@ function create_sf() {
         err "Failed to create sf on pfnum $pfnum sfnum $sfnum"
         return 1
     fi
+    sleep 1
 }
 
 function create_sfs() {
@@ -107,7 +108,6 @@ function create_sfs() {
 
     for i in `seq $count`; do
         create_sf $pfnum $i || return 1
-        sleep 0.5
 
         local rep=$(sf_get_rep $i)
         [ "$sf_disable_roce" == 1 ] && sf_disable_roce $rep
