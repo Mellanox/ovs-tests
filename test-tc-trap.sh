@@ -48,7 +48,7 @@ tc_filter add dev $REP2 protocol all prio 4 root flower dst_mac $mac0 action mir
 
 rm -f /tmp/_xx
 
-tcpdump -i $REP src 7.7.7.7 > /tmp/_xx &
+tcpdump -ni $REP src 7.7.7.7 > /tmp/_xx &
 pid=$!
 sleep 1
 ip netns exec ns1 ping -c 3 7.7.7.7 || err "Ping failed"
@@ -65,7 +65,7 @@ fi
 title "add trap action"
 tc_filter add dev $REP protocol ip prio 1 root flower skip_sw src_ip 7.7.7.7 action trap
 
-tcpdump -i $REP src 7.7.7.7 > /tmp/_xx &
+tcpdump -ni $REP src 7.7.7.7 > /tmp/_xx &
 pid=$!
 sleep 1
 ip netns exec ns1 ping -c 3 7.7.7.7
