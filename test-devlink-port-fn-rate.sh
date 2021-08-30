@@ -5,8 +5,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-relevant_for_cx5
-
 pci_dev="pci/$PCI"
 num_vfs=3
 
