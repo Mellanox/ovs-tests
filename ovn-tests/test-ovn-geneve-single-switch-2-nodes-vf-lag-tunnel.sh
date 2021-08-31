@@ -14,6 +14,9 @@ require_ovn
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
+IP_V6_1="7:7:7::1"
+IP_V6_2="7:7:7::2"
+
 MAC1="50:54:00:00:00:01"
 MAC2="50:54:00:00:00:02"
 
@@ -141,8 +144,10 @@ function run_test() {
 
     # Move VFs to namespaces and set MACs and IPS
     config_vf ns0 $VF $REP $IP1 $MAC1
+    ip netns exec ns0 ip -6 addr add $IP_V6_1/124 dev $VF
     on_remote_exec "
     config_vf ns0 $VF $REP $IP2 $MAC2
+    ip netns exec ns0 ip -6 addr add $IP_V6_2/124 dev $VF
     "
 
     title "Test ICMP traffic between $VF($IP1) -> $VF2($IP2) offloaded"
@@ -157,6 +162,11 @@ function run_test() {
 
     title "Test UDP traffic between $VF($IP1) -> $VF2($IP2) offloaded"
     check_remote_udp_traffic_offload $REP ns0 ns0 $IP2
+
+    sleep 2
+
+    title "Test ICMP6 traffic between $VF($IP_V6_1) -> $VF2($IP_V6_2) offloaded"
+    check_icmp6_traffic_offload $REP ns0 $IP_V6_2
 }
 
 cleanup
