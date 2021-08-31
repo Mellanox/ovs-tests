@@ -18,6 +18,8 @@ OVN_REMOTE_CONTROLLER_IP="192.168.100.101"
 ETH_IP="0x0800"
 ETH_IP6="0x86dd"
 
+OVN_BOND="bond0"
+
 # Traffic Filters
 # Ignore IPv6 Neighbor-Advertisement, Neighbor Solicitation and Router Solicitation packets
 TCPDUMP_IGNORE_IPV6_NEIGH="icmp6 and ip6[40] != 133 and ip6[40] != 135 and ip6[40] != 136"
