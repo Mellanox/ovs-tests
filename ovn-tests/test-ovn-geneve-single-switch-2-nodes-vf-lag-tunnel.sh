@@ -167,6 +167,16 @@ function run_test() {
 
     title "Test ICMP6 traffic between $VF($IP_V6_1) -> $VF2($IP_V6_2) offloaded"
     check_icmp6_traffic_offload $REP ns0 $IP_V6_2
+
+    sleep 2
+
+    title "Test TCP6 traffic between $VF($IP_V6_1) -> $VF2($IP_V6_2) offloaded"
+    check_remote_tcp6_traffic_offload $REP ns0 ns0 $IP_V6_2
+
+    sleep 2
+
+    title "Test UDP6 traffic between $VF($IP_V6_1) -> $VF2($IP_V6_2) offloaded"
+    check_remote_udp6_traffic_offload $REP ns0 ns0 $IP_V6_2
 }
 
 cleanup
