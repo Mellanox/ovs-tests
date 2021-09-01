@@ -2,6 +2,8 @@
 #
 # Test eswitch ingress rate limit
 #
+# BUG SW #2790606: [upstream] test-eswitch-ingress-rate-limit.sh: ERROR: Got 0 stats for ip filter
+#
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -48,6 +50,13 @@ function config_dev() {
 function check_mrate() {
     local rate=$1
     local mrate=$(ip netns exec ns0 iperf3 -t 15 -fm -c $IP2 -O 1 | grep 'sender' | gawk '{printf $7}')
+
+    tc -s filter show dev $REP ingress protocol ip | grep -q "Sent 0"
+    if [ $? -eq 0 ]; then
+        tc -s filter show dev $REP ingress protocol ip
+        err "Got 0 stats"
+        return
+    fi
 
     if [ -z "$mrate" ]; then
         err "Couldn't get iperf rate"
