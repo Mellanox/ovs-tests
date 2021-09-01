@@ -78,6 +78,7 @@ function sf_disable_roce() {
 
 function sf_activate() {
     $sfcmd port function set $1 state active || err "$1: Failed to set active state"
+    sleep 1
 }
 
 function sf_inactivate() {
