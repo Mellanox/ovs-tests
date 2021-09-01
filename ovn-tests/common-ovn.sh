@@ -179,7 +179,7 @@ function check_traffic_offload() {
     fi
 
     # Listen to traffic on representor
-    timeout 15 tcpdump -nnepi $rep $tcpdump_filter -c 8 -w $tcpdump_file &
+    timeout 15 tcpdump -Unnepi $rep $tcpdump_filter -c 8 -w $tcpdump_file &
     local tdpid=$!
     sleep 0.5
 
@@ -362,7 +362,7 @@ function check_fragmented_traffic() {
     fi
 
     # Listen to traffic on representor
-    timeout 15 tcpdump -nnepi $rep $tcpdump_filter -w $tcpdump_file &
+    timeout 15 tcpdump -Unnepi $rep $tcpdump_filter -w $tcpdump_file &
     sleep 0.5
 
     title "Check sending traffic"
