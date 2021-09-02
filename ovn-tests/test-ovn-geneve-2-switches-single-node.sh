@@ -13,6 +13,9 @@ require_ovn
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
+IP_V6_1="7:7:7::1"
+IP_V6_2="7:7:7::2"
+
 MAC1="50:54:00:00:00:01"
 MAC2="50:54:00:00:00:02"
 
@@ -76,10 +79,17 @@ function run_test() {
 
     # Move VFs to namespaces and set MACs and IPS
     config_vf ns0 $VF $REP $IP1 $MAC1
+    ip netns exec ns0 ip -6 addr add $IP_V6_1/124 dev $VF
     config_vf ns1 $VF2 $REP2 $IP2 $MAC2
+    ip netns exec ns1 ip -6 addr add $IP_V6_2/124 dev $VF2
 
     title "Test no traffic between $VF($IP1) -> $VF2($IP2)"
     ip netns exec ns0 ping -w 4 $IP2 && err || success "No Connection"
+
+    sleep 2
+
+    title "Test no traffic between $VF($IP_V6_1) -> $VF2($IP_V6_2)"
+    ip netns exec ns0 ping -6 -w 4 $IP_V6_2 && err || success "No Connection"
 }
 
 cleanup
