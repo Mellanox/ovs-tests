@@ -158,7 +158,7 @@ function case3() {
 
     ovs-ofctl del-flows brv-1
     add_flow "ip,nw_src=$VM1_IP,nw_dst=$FAKE_VM2_IP,dl_src=$VF_MAC,dl_dst=$FAKE_MAC,tcp,tcp_dst=5020,actions=mod_nw_src=$FAKE_VM1_IP,mod_nw_dst=$VM2_IP,mod_dl_src=$FAKE_MAC_SRC,mod_dl_dst=$VF2_MAC,mod_tp_dst=5001,output:2"
-    add_flow "ip,nw_src=$VM2_IP,nw_dst=$FAKE_VM1_IP,dl_src=$VF2_MAC,dl_dst=$FAKE_MAC_SRC,tcp,tcp_src=5001actions=mod_nw_src=$FAKE_VM2_IP,mod_nw_dst=$VM1_IP,mod_dl_src=$FAKE_MAC_SRC,mod_dl_dst=$VF_MAC,mod_tp_src=5020,output:1"
+    add_flow "ip,nw_src=$VM2_IP,nw_dst=$FAKE_VM1_IP,dl_src=$VF2_MAC,dl_dst=$FAKE_MAC_SRC,tcp,tcp_src=5001,actions=mod_nw_src=$FAKE_VM2_IP,mod_nw_dst=$VM1_IP,mod_dl_src=$FAKE_MAC_SRC,mod_dl_dst=$VF_MAC,mod_tp_src=5020,output:1"
     add_flow "arp,actions=normal"
 
     ip n replace $FAKE_VM2_IP dev $VF lladdr $FAKE_MAC
