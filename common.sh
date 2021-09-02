@@ -488,7 +488,11 @@ bash /tmp/dt_cmd.$$.sh && /bin/rm -f /tmp/dt_cmd.$$.sh"
 }
 
 function on_remote() {
+    set -o pipefail
     ssh2 $REMOTE_SERVER "$@" | tr -d '\r'
+    local rc=$?
+    set +o pipefail
+    return $rc
 }
 
 function require_remote_server() {
