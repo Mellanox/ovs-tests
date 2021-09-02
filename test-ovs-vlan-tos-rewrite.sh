@@ -55,7 +55,6 @@ function config() {
 
     echo "Restarting OVS"
     start_clean_openvswitch
-    sudo ovs-vsctl set Open_vSwitch . other_config:tc-policy=none
 
     ovs-vsctl add-br br-ovs
     ovs-vsctl add-port br-ovs $REP tag=$vlan
