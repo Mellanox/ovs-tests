@@ -24,7 +24,7 @@ MAC2="50:54:00:00:00:02"
 PORT1="sw0-port1"
 PORT2="sw0-port2"
 
-OVN_REMOTE_SYSTEM_ID=$(on_remote "hostname")
+OVN_REMOTE_SYSTEM_ID=$(get_remote_hostname)
 
 # stop OVN, clean namespaces, ovn network topology, and ovs br-int interfaces
 function cleanup() {
