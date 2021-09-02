@@ -590,6 +590,10 @@ def update_skip_according_to_db(rm, _tests, data):
             if t.ignore:
                 continue
 
+        ignore_failed = data['tests'][name].get('ignore_failed', 0)
+        if ignore_failed:
+            t.set_skip("Test failed and first ignored - check manually")
+
         if re.search(r'\.el[0-9]+\.', current_kernel):
             min_kernel = data['tests'][name].get('min_kernel_rhel', None)
         elif 'bluefield' in current_kernel:
