@@ -488,7 +488,7 @@ bash /tmp/dt_cmd.$$.sh && /bin/rm -f /tmp/dt_cmd.$$.sh"
 }
 
 function on_remote() {
-    ssh2 $REMOTE_SERVER "$@" | tr -d '\r'
+    ssh2 $REMOTE_SERVER "$@"
 }
 
 function require_remote_server() {
