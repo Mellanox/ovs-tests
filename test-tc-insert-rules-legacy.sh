@@ -59,6 +59,13 @@ function test_basic_L4() {
             action drop
 }
 
+function test_action_pass() {
+    tc_filter_success add dev $NIC protocol ip parent ffff: \
+            flower \
+                    skip_sw \
+            action pass
+}
+
 
 config_sriov
 enable_legacy
