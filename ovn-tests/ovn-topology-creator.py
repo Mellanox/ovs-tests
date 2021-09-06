@@ -53,6 +53,8 @@ class OVNTopologyReader:
 
         if entity_type == "switch":
             return OVNLogicalSwitch(name, ports)
+        if entity_type == "router":
+            return OVNLogicalRouter(name, ports)
 
         raise RuntimeError(f'Unknown entity of type "{entity_type}"')
 
@@ -106,6 +108,43 @@ class OVNLogicalSwitch(OVNEntity):
             cmd_args.append(f"--if-exists lsp-del {port['name']}")
 
         cmd_args.append(f"--if-exists ls-del {self.name}")
+        return run_ovn_nbctl(cmd_args)
+
+
+class OVNLogicalRouter(OVNEntity):
+    def __init__(self, name, ports):
+        super().__init__(name)
+
+        self._ports = ports
+
+    def add_to_ovn(self):
+        cmd_args = [f"--may-exist lr-add {self.name}"]
+        for port in self._ports:
+            port_name = port["name"]
+            mac = port["mac"]
+            ips_v4 = port.get("ipv4", [])
+            ips_v6 = port.get("ipv6", [])
+
+            # Fail if no IP/Network provided
+            if not ips_v4 and not ips_v6:
+                raise ValueError(f'Invalid: "{self.name}" router has port "{port_name}" with no IP/Network provided')
+
+            addresses = mac
+            if ips_v4:
+                addresses += f" {' '.join(ips_v4)}"
+            if ips_v6:
+                addresses += f" {' '.join(ips_v6)}"
+
+            cmd_args.append(f"--may-exist lrp-add {self.name} {port_name} {addresses}")
+
+        return run_ovn_nbctl(cmd_args)
+
+    def remove_from_ovn(self):
+        cmd_args = []
+        for port in self._ports:
+            cmd_args.append(f"--if-exists lrp-del {port['name']}")
+
+        cmd_args.append(f"--if-exists lr-del {self.name}")
         return run_ovn_nbctl(cmd_args)
 
 
