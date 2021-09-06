@@ -4,8 +4,8 @@ OVN_CTL="/usr/share/ovn/scripts/ovn-ctl"
 OVN_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" &>/dev/null && pwd)
 
 # Topologies
-TOPOLOGY_SINGLE_SWITCH="$OVN_DIR/ovn-topologies/ovn-single-switch-topology.yaml"
-TOPOLOGY_2_SWITCHES="$OVN_DIR/ovn-topologies/ovn-2-switches-topology.yaml"
+TOPOLOGY_SINGLE_SWITCH="$OVN_DIR/ovn-topologies/single-switch.yaml"
+TOPOLOGY_2_SWITCHES="$OVN_DIR/ovn-topologies/two-switches.yaml"
 
 # Tunnels
 TUNNEL_GENEVE="geneve"
