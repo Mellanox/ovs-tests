@@ -84,6 +84,16 @@ function run_test() {
 
     title "Test ICMP traffic between $VF($IP1) -> $VF2($IP2) offloaded"
     check_icmp_traffic_offload $REP ns0 $IP2
+
+    sleep 2
+
+    title "Test TCP traffic between $VF($IP1) -> $VF2($IP2) offloaded"
+    check_local_tcp_traffic_offload $REP ns0 ns1 $IP2
+
+    sleep 2
+
+    title "Test UDP traffic between $VF($IP1) -> $VF2($IP2) offloaded"
+    check_local_udp_traffic_offload $REP ns0 ns1 $IP2
 }
 
 cleanup
