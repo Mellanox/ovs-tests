@@ -72,6 +72,8 @@ function config() {
     # Verify VFs and REPs
     require_interfaces VF REP
 
+    ifconfig $VF 0 mtu 1300
+
     # Start OVN
     ifconfig $NIC $OVN_CENTRAL_IP
     ovn_start_northd_central $OVN_CENTRAL_IP
@@ -130,6 +132,12 @@ function run_test() {
 
     title "Test ICMP traffic between $VF($IP1) -> $VF2($IP2) offloaded"
     check_icmp_traffic_offload $REP ns0 $IP2
+
+    title "Test TCP traffic between $VF($IP1) -> $VF2($IP2) offloaded"
+    check_remote_tcp_traffic_offload $REP ns0 ns0 $IP2
+
+    title "Test UDP traffic between $VF($IP1) -> $VF2($IP2) offloaded"
+    check_remote_udp_traffic_offload $REP ns0 ns0 $IP2
 }
 
 cleanup
