@@ -56,9 +56,9 @@ function pre_test() {
     require_interfaces VF VF2 REP REP2
 
     # Start OVN
-    ovn_start_northd_central $OVN_LOCAL_CENTRAL_IP
+    ovn_start_northd_central
     ovn_start_ovn_controller
-    ovn_set_ovs_config $OVN_SYSTEM_ID $OVN_LOCAL_CENTRAL_IP $OVN_LOCAL_CENTRAL_IP $TUNNEL_GENEVE
+    ovn_set_ovs_config
 }
 
 function run_test() {
