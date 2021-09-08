@@ -34,8 +34,7 @@ function cleanup() {
     ovn_stop_northd_central
 
     # Clean namespaces
-    ip netns del ns0 2>/dev/null
-    ip netns del ns1 2>/dev/null
+    ip -all netns del
 
     unbind_vfs
     bind_vfs

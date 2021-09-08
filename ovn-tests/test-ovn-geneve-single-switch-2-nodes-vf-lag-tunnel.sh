@@ -32,7 +32,7 @@ function cleanup() {
     ovn_stop_ovn_controller
     ovn_stop_northd_central
 
-    ip netns del ns0 2>/dev/null
+    ip -all netns del
 
     unbind_vfs
     unbind_vfs $NIC2
@@ -47,7 +47,7 @@ function cleanup() {
     ovn_remove_ovs_config
     ovn_stop_ovn_controller
 
-    ip netns del ns0 2>/dev/null
+    ip -all netns del
 
     unbind_vfs
     unbind_vfs $NIC2
