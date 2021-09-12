@@ -1608,7 +1608,7 @@ function test_done() {
     reload_driver_per_test && reload_modules
     kmemleak_scan_per_test && kmemleak_scan
     check_for_errors_log
-    echo "runtime: `get_test_time_elapsed`"
+    log "runtime: `get_test_time_elapsed`"
     if [ $TEST_FAILED == 0 ]; then
         success "TEST PASSED"
     else
