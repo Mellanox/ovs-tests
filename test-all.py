@@ -119,6 +119,7 @@ COLOURS = {
 DB_PATH = None
 MINI_REG_LIST = []
 IGNORE_LIST = []
+TEST_TIMEOUT_MAX = 1200
 
 TIME_DURATION_UNITS = (
     ('h', 60*60),
@@ -294,9 +295,16 @@ def run_test(test, html=False):
     logname_html = os.path.join(LOGDIR, test.test_log_html)
     # piping stdout to file seems to miss stderr msgs to we use pipe
     # and write to file at the end.
+    timedout = False
     subp = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT, close_fds=True)
-    out = subp.communicate()
+    try:
+        out = subp.communicate(timeout=TEST_TIMEOUT_MAX)
+    except subprocess.TimeoutExpired:
+        subp.kill()
+        out = subp.communicate()
+        timedout = True
+
     log = out[0].decode('ascii', 'ignore')
     if not log:
         raise ExecCmdFailed("Empty output")
@@ -307,6 +315,9 @@ def run_test(test, html=False):
     if html:
         with open(logname_html, 'w') as f2:
             f2.write(Ansi2HTMLConverter().convert(log))
+
+    if timedout:
+        raise ExecCmdFailed("Test timed out and got killed")
 
     status = log.splitlines()[-1].strip()
     status = strip_color(status)
