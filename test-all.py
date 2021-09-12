@@ -299,11 +299,15 @@ def run_test(test, html=False):
     subp = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT, close_fds=True)
     try:
-        out = subp.communicate(timeout=TEST_TIMEOUT_MAX)
-    except subprocess.TimeoutExpired:
-        subp.kill()
+        try:
+            out = subp.communicate(timeout=TEST_TIMEOUT_MAX)
+        except subprocess.TimeoutExpired:
+            subp.kill()
+            out = subp.communicate()
+            timedout = True
+    except AttributeError:
+        # timeout introduced in python3.3
         out = subp.communicate()
-        timedout = True
 
     log = out[0].decode('ascii', 'ignore')
     if not log:
