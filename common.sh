@@ -1614,6 +1614,7 @@ function test_done() {
     else
         fail "TEST FAILED"
     fi
+    exit $TEST_FAILED
 }
 
 function not_relevant_for_nic() {
