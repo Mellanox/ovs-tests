@@ -148,6 +148,11 @@ function run_test() {
     title "Test UDP traffic between $VF($IP1) -> $VF2($IP2) offloaded"
     check_remote_udp_traffic_offload $REP ns0 ns0 $IP2
 
+    # ICMP6 offloading is not supported because IPv6 packet header doesn't contain checksum header
+    # which cause offloading to fail
+    title "Test ICMP6 traffic between $VF($IP_V6_1) -> $VF2($IP_V6_2)"
+    ip netns exec ns0 ping -6 -w 4 $IP_V6_2 && success || err
+
     title "Test TCP6 traffic between $VF($IP_V6_1) -> $VF2($IP_V6_2) offloaded"
     check_remote_tcp6_traffic_offload $REP ns0 ns0 $IP_V6_2
 
