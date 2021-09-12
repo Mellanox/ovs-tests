@@ -105,6 +105,9 @@ function run_test() {
     title "Test UDP traffic between $VF($IP1) -> $VF2($IP2) offloaded"
     check_local_udp_traffic_offload $REP ns0 ns1 $IP2
 
+    title "Test ICMP6 traffic between $VF($IP_V6_1) -> $VF2($IP_V6_2)"
+    ip netns exec ns0 ping -6 -w 4 $IP_V6_2 && success || err
+
     title "Test TCP6 traffic between $VF($IP_V6_1) -> $VF2($IP_V6_2) offloaded"
     check_local_tcp6_traffic_offload $REP ns0 ns1 $IP_V6_2
 
