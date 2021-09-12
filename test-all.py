@@ -309,6 +309,10 @@ def run_test(test, html=False):
     if not log:
         raise ExecCmdFailed("Empty output")
 
+    if timedout:
+        status = "Test timed out and got killed"
+        log += "\n%s\n" % deco("ERROR: %s" % status, 'red')
+
     with open(logname, 'w') as f1:
         f1.write(log)
 
@@ -317,7 +321,7 @@ def run_test(test, html=False):
             f2.write(Ansi2HTMLConverter().convert(log))
 
     if timedout:
-        raise ExecCmdFailed("Test timed out and got killed")
+        raise ExecCmdFailed(status)
 
     status = log.splitlines()[-1].strip()
     status = strip_color(status)
