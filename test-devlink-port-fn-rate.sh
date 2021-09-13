@@ -72,8 +72,12 @@ function test_leafs_set_rates() {
                                         .[] | select(.value.type == "leaf") |
                                         .key | select(startswith("'$pci_dev'"))')
 
+    [ -z "$leafs" ] && err "No leafs" && return 1
+
     dl_check_rate "$leafs"
+    local rc=$?
     dl_cmd show | grep "${pci_dev}.*type leaf"
+    return $rc
 }
 
 function dl_set_parent() {
@@ -109,15 +113,15 @@ function test_leafs_set_parent() {
         set -o errexit
 
         echo " - parent set"
-        dl_set_parent 1 1st_grp
-        dl_set_parent 2 2nd_grp
+        dl_set_parent 1 1st_grp || return 1
+        dl_set_parent 2 2nd_grp || return 1
 
         dl_cmd show | grep "${pci_dev}.*type leaf.*parent"
         success
 
         echo " - parent unset"
-        dl_unset_parent 1
-        dl_unset_parent 2
+        dl_unset_parent 1 || return 1
+        dl_unset_parent 2 || return 1
 
         dl_cmd show
         success
@@ -140,10 +144,12 @@ function test_groups_set_rates() {
                                         .[] | select(.value.type == "node") |
                                         .key | select(startswith("'$pci_dev'"))')
 
-    [ -z "$groups" ] && warn "No groups to set rates to. Skipping." && return
+    [ -z "$groups" ] && err "No groups" && return 1
 
     dl_check_rate "$groups"
+    local rc=$?
     dl_cmd show | grep "${pci_dev}.*type node"
+    return $rc
 }
 
 function test_groups_creation_with_rates() {
