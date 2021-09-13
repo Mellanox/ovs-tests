@@ -491,10 +491,6 @@ function on_remote() {
     ssh2 $REMOTE_SERVER "$@"
 }
 
-function get_remote_hostname() {
-    on_remote hostname | tr -d '\r'
-}
-
 function require_remote_server() {
     if [ -z "$REMOTE_SERVER" ]; then
         fail "Remote server is not configured"

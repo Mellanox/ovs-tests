@@ -1,5 +1,4 @@
 OVN_BRIDGE_INT="br-int"
-OVN_SYSTEM_ID=$(hostname)
 OVN_CTL="/usr/share/ovn/scripts/ovn-ctl"
 OVN_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" &>/dev/null && pwd)
 
@@ -50,12 +49,10 @@ function ovn_stop_ovn_controller() {
 }
 
 function ovn_set_ovs_config() {
-    local system_id=${1:-$OVN_SYSTEM_ID}
-    local ovn_remote_ip=${2:-$OVN_LOCAL_CENTRAL_IP}
-    local encap_ip=${3:-$OVN_LOCAL_CENTRAL_IP}
-    local encap_type=${4:-$TUNNEL_GENEVE}
+    local ovn_remote_ip=${1:-$OVN_LOCAL_CENTRAL_IP}
+    local encap_ip=${2:-$OVN_LOCAL_CENTRAL_IP}
+    local encap_type=${3:-$TUNNEL_GENEVE}
 
-    ovs-vsctl set open . external-ids:system-id=$system_id
     ovs-vsctl set open . external-ids:ovn-remote=tcp:$ovn_remote_ip:6642
     ovs-vsctl set open . external-ids:ovn-encap-ip=$encap_ip
     ovs-vsctl set open . external-ids:ovn-encap-type=$encap_type
@@ -63,7 +60,6 @@ function ovn_set_ovs_config() {
 }
 
 function ovn_remove_ovs_config() {
-    ovs-vsctl remove open . external-ids system-id
     ovs-vsctl remove open . external-ids ovn-remote
     ovs-vsctl remove open . external-ids ovn-encap-ip
     ovs-vsctl remove open . external-ids ovn-encap-type

@@ -24,8 +24,6 @@ MAC2="50:54:00:00:00:02"
 PORT1="sw0-port1"
 PORT2="sw0-port2"
 
-OVN_REMOTE_SYSTEM_ID=$(get_remote_hostname)
-
 # stop OVN, clean namespaces, ovn network topology, and ovs br-int interfaces
 function cleanup() {
     # Remove OVN topology
@@ -82,7 +80,7 @@ function config() {
     ifconfig $NIC $OVN_CENTRAL_IP &>/dev/null
     ovn_start_northd_central $OVN_CENTRAL_IP
     ovn_start_ovn_controller
-    ovn_set_ovs_config $OVN_SYSTEM_ID $OVN_CENTRAL_IP $OVN_CENTRAL_IP $TUNNEL_GENEVE
+    ovn_set_ovs_config $OVN_CENTRAL_IP $OVN_CENTRAL_IP $TUNNEL_GENEVE
 }
 
 function config_remote() {
@@ -102,7 +100,7 @@ function config_remote() {
 
     # Start OVN
     ifconfig $NIC $OVN_REMOTE_CONTROLLER_IP
-    ovn_set_ovs_config $OVN_REMOTE_SYSTEM_ID $OVN_CENTRAL_IP $OVN_REMOTE_CONTROLLER_IP $TUNNEL_GENEVE
+    ovn_set_ovs_config $OVN_CENTRAL_IP $OVN_REMOTE_CONTROLLER_IP $TUNNEL_GENEVE
     ovn_start_ovn_controller
     "
 }
