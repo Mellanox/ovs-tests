@@ -56,14 +56,12 @@ function ovn_set_ovs_config() {
     ovs-vsctl set open . external-ids:ovn-remote=tcp:$ovn_remote_ip:6642
     ovs-vsctl set open . external-ids:ovn-encap-ip=$encap_ip
     ovs-vsctl set open . external-ids:ovn-encap-type=$encap_type
-    ovs-vsctl set O . other_config:max-idle=2000
 }
 
 function ovn_remove_ovs_config() {
     ovs-vsctl remove open . external-ids ovn-remote
     ovs-vsctl remove open . external-ids ovn-encap-ip
     ovs-vsctl remove open . external-ids ovn-encap-type
-    ovs-vsctl remove O . other_config max-idle
 }
 
 function ovn_add_switch() {
@@ -220,6 +218,7 @@ function check_traffic_offload() {
     fi
 
     rm -f $tcpdump_file
+    ovs_flush_rules
 }
 
 function check_icmp_traffic_offload() {
@@ -396,6 +395,7 @@ function check_fragmented_traffic() {
     fi
 
     rm -f $tcpdump_file
+    ovs_flush_rules
 }
 
 function check_fragmented_ipv4_traffic() {
@@ -427,4 +427,10 @@ function ovn_destroy_topology() {
     local topology_file=$1
 
     $OVN_DIR/ovn-topology-creator.py -f "$topology_file" -d
+}
+
+function ovs_flush_rules() {
+    ovs-vsctl set O . other_config:max-idle=1
+    sleep 0.5
+    ovs-vsctl remove O . other_config max-idle
 }

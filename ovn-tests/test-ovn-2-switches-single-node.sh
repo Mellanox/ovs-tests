@@ -86,8 +86,6 @@ function run_test() {
     title "Test no traffic between $VF($IP1) -> $VF2($IP2)"
     ip netns exec ns0 ping -w 4 $IP2 && err || success "No Connection"
 
-    sleep 2
-
     title "Test no traffic between $VF($IP_V6_1) -> $VF2($IP_V6_2)"
     ip netns exec ns0 ping -6 -w 4 $IP_V6_2 && err || success "No Connection"
 }

@@ -138,8 +138,6 @@ function run_test() {
     title "Test ICMP traffic between $VF($IP1) -> $VF2($IP2)"
     check_fragmented_ipv4_traffic $REP ns0 $IP2 1500
 
-    sleep 2
-
     title "Test ICMP traffic between $VF($IP_V6_1) -> $VF2($IP_V6_2)"
     check_fragmented_ipv6_traffic $REP ns0 $IP_V6_2 1500
 }
