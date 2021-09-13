@@ -12,7 +12,7 @@ function test_macvlan() {
 
     tc_test_verbose
 
-    ip link add mymacvlan1 link $NIC type macvlan mode bridge
+    ip link add mymacvlan1 link $NIC type macvlan mode passthru
     reset_tc $REP mymacvlan1
 
     title "Add rule from mymacvlan1 to $REP"
