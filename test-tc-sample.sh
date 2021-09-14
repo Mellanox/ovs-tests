@@ -11,17 +11,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-psample_dir=$my_dir/psample
-
 require_module act_sample psample
-
-function compile_psample() {
-    test -d $psample_dir || fail "Cannot find psample $psample_dir"
-    rm -fr /tmp/psample
-    cp -r $psample_dir /tmp/psample
-    psample_dir=/tmp/psample
-    make -C /tmp/psample || fail "Failed to compile psample in dir $psample_dir"
-}
 compile_psample
 
 IP1="7.7.7.1"

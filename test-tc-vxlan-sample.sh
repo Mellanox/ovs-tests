@@ -11,10 +11,9 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-REMOTE_SERVER=${REMOTE_SERVER:-$1}
-REMOTE_NIC=${REMOTE_NIC:-$2}
-
 require_remote_server
+require_module act_sample psample
+compile_psample
 
 IP=1.1.1.7
 REMOTE=1.1.1.8
@@ -23,15 +22,8 @@ LOCAL_TUN=7.7.7.7
 REMOTE_IP=7.7.7.8
 VXLAN_ID=42
 DSTPORT=4789
-
-psample_dir=$my_dir/psample
-
-require_module act_sample psample
-
-test -x $psample_dir/psample || make -C $psample_dir || \
-    fail "failed to compile psample in dir $psample_dir"
-
 VXLAN_MAC=24:25:d0:e2:00:00
+
 
 function cleanup() {
     ip netns del ns0 2> /dev/null

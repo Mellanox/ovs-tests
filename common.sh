@@ -1837,6 +1837,15 @@ function cleanup_remote_vxlan() {
                ip l del dev vxlan1 &>/dev/null"
 }
 
+function compile_psample() {
+    psample_dir="$DIR/psample"
+    test -d $psample_dir || fail "Cannot find psample $psample_dir"
+    rm -fr /tmp/psample
+    cp -r $psample_dir /tmp/psample
+    psample_dir="/tmp/psample"
+    make -C /tmp/psample || fail "Failed to compile psample in dir $psample_dir"
+}
+
 ### main
 if [ "X${NO_TITLE}" == "X" ]; then
     title2 $TESTNAME
