@@ -2,11 +2,7 @@ OVN_BRIDGE_INT="br-int"
 OVN_CTL="/usr/share/ovn/scripts/ovn-ctl"
 OVN_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" &>/dev/null && pwd)
 
-# Topologies
-OVN_TOPO_DIR="$OVN_DIR/ovn-topologies"
-TOPOLOGY_SINGLE_SWITCH="$OVN_TOPO_DIR/single-switch.yaml"
-TOPOLOGY_2_SWITCHES="$OVN_TOPO_DIR/two-switches.yaml"
-TOPOLOGY_SINGLE_ROUTER_2_SWITCHES="$OVN_TOPO_DIR/single-router-2-switches.yaml"
+. $OVN_DIR/common-ovn-topology.sh
 
 # Tunnels
 TUNNEL_GENEVE="geneve"
@@ -416,19 +412,6 @@ function check_fragmented_ipv6_traffic() {
     local size=$4
 
     check_fragmented_traffic $rep $ns $dst_ip $size true
-}
-
-function ovn_create_topology() {
-    local topology_file=$1
-
-    $OVN_DIR/ovn-topology-creator.py -f "$topology_file" -c
-    ovn-nbctl show
-}
-
-function ovn_destroy_topology() {
-    local topology_file=$1
-
-    $OVN_DIR/ovn-topology-creator.py -f "$topology_file" -d
 }
 
 function ovs_flush_rules() {
