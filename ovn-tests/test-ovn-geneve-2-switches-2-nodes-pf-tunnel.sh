@@ -10,24 +10,24 @@ my_dir="$(dirname "$0")"
 require_remote_server
 require_ovn
 
-# IPs and MACs
-IP1="7.7.7.1"
-IP2="7.7.7.2"
+TOPOLOGY=$TOPOLOGY_2_SWITCHES
+SWITCH1=$(ovn_get_switch_name_with_vif_port $TOPOLOGY 0)
+SWITCH2=$(ovn_get_switch_name_with_vif_port $TOPOLOGY 1)
 
-IP_V6_1="7:7:7::1"
-IP_V6_2="7:7:7::2"
+PORT1=$(ovn_get_switch_vif_port_name $TOPOLOGY $SWITCH1)
+MAC1=$(ovn_get_switch_port_mac $TOPOLOGY $SWITCH1 $PORT1)
+IP1=$(ovn_get_switch_port_ip $TOPOLOGY $SWITCH1 $PORT1)
+IP_V6_1=$(ovn_get_switch_port_ipv6 $TOPOLOGY $SWITCH1 $PORT1)
 
-MAC1="50:54:00:00:00:01"
-MAC2="50:54:00:00:00:02"
-
-# Ports
-PORT1="sw0-port1"
-PORT2="sw1-port1"
+PORT2=$(ovn_get_switch_vif_port_name $TOPOLOGY $SWITCH2)
+MAC2=$(ovn_get_switch_port_mac $TOPOLOGY $SWITCH2 $PORT2)
+IP2=$(ovn_get_switch_port_ip $TOPOLOGY $SWITCH2 $PORT2)
+IP_V6_2=$(ovn_get_switch_port_ipv6 $TOPOLOGY $SWITCH2 $PORT2)
 
 # stop OVN, clean namespaces, ovn network topology, and ovs br-int interfaces
 function cleanup() {
     # Remove OVN topology
-    ovn_destroy_topology $TOPOLOGY_2_SWITCHES
+    ovn_destroy_topology $TOPOLOGY
 
     # Stop ovn
     ovn_remove_ovs_config
@@ -104,7 +104,7 @@ function pre_test() {
 
 function run_test() {
     # Add network topology to OVN
-    ovn_create_topology $TOPOLOGY_2_SWITCHES
+    ovn_create_topology $TOPOLOGY
 
     # Add REP to OVS
     ovs_add_port_to_switch $OVN_BRIDGE_INT $REP
