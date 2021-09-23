@@ -21,23 +21,11 @@ REMOTE_IPV6="2001:0db8:0:f101::2"
 VF_IP="5.5.5.5"
 REMOTE_VF_IP="5.5.5.1"
 
-function __cleanup() {
-    local local_ip=$1
-    local remote_ip=$2
-    local subnet=$3
-
-    ip addr del $local_ip/$subnet dev $VF &>/dev/null
+function cleanup() {
+    ip addr flush dev $VF &>/dev/null
     ip netns del ns0 &>/dev/null
     start_clean_openvswitch
-
-    on_remote "\
-        ip link del vxlan0 type vxlan &>/dev/null;\
-        ip addr del $remote_ip/$subnet dev $REMOTE_NIC &>/dev/null"
-}
-
-function cleanup() {
-    __cleanup $LOCAL_IP $REMOTE_IP 24
-    __cleanup $LOCAL_IPV6 $REMOTE_IPV6 64
+    cleanup_remote_vxlan
 }
 trap cleanup EXIT
 
@@ -64,8 +52,8 @@ function config() {
     ovs-vsctl add-port ovs-br $NIC
     ovs-vsctl add-port ovs-br $REP
     ovs-vsctl add-port ovs-br $REP2
-    ovs-vsctl add-port ovs-br vxlan0 \
-        -- set interface vxlan0 type=vxlan \
+    ovs-vsctl add-port ovs-br vxlan1 \
+        -- set interface vxlan1 type=vxlan \
             options:remote_ip=$remote_ip \
             options:local_ip=$local_ip \
             options:key=98 options:dst_port=4789;
@@ -73,9 +61,9 @@ function config() {
     title "Config remote host"
     remote_disable_sriov
     on_remote "\
-        ip link add vxlan0 type vxlan id 98 dev $REMOTE_NIC local $remote_ip dstport 4789 udp6zerocsumrx;\
-        ifconfig vxlan0 $REMOTE_VF_IP/24 up;\
-        ip link set vxlan0 addr 0a:40:bd:30:89:99;\
+        ip link add vxlan1 type vxlan id 98 dev $REMOTE_NIC local $remote_ip dstport 4789 udp6zerocsumrx;\
+        ifconfig vxlan1 $REMOTE_VF_IP/24 up;\
+        ip link set vxlan1 addr 0a:40:bd:30:89:99;\
         ip addr add $remote_ip/$subnet dev $REMOTE_NIC;\
         ip link set $REMOTE_NIC up"
 
