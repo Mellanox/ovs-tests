@@ -34,7 +34,7 @@ function cleanup() {
 trap cleanup EXIT
 
 function run() {
-    skip=$2
+    local skip=$2
     title $1
     reset_tc $NIC $REP vxlan1
     local n=10
@@ -71,6 +71,8 @@ function run() {
         id $VXLAN_ID                            \
         action mirred egress redirect dev vxlan1
 
+    [ -z "$skip" ] && verify_in_hw $REP 2
+
     tc_filter add dev vxlan1 protocol ip parent ffff: prio 3 flower $skip \
         src_mac $VXLAN_MAC                      \
         dst_mac $LOCAL_MAC                      \
@@ -81,6 +83,8 @@ function run() {
         action sample rate $rate group 6        \
         action tunnel_key unset                 \
         action mirred egress redirect dev $REP
+
+    [ -z "$skip" ] && verify_in_hw vxlan1 3
 
     fail_if_err
 

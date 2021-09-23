@@ -62,9 +62,13 @@ function run() {
         action sample rate $rate group $group trunc $trunc \
         action mirred egress redirect dev $REP2
 
+    [ -z "$skip" ] && verify_in_hw $REP 2
+
     tc_filter add dev $REP2 ingress protocol ip prio 2 flower $skip \
         dst_mac $mac1 \
         action mirred egress redirect dev $REP
+
+    [ -z "$skip" ] && verify_in_hw $REP2 2
 
     fail_if_err
 
