@@ -22,7 +22,6 @@ LOCAL_TUN=7.7.7.7
 REMOTE_IP=7.7.7.8
 VXLAN_ID=42
 DSTPORT=4789
-VXLAN_MAC=24:25:d0:e2:00:00
 
 
 function cleanup() {
@@ -43,7 +42,6 @@ function run() {
 
     echo "add arp rules"
     tc_filter add dev $REP protocol arp parent ffff: prio 1 flower skip_hw    \
-        src_mac $LOCAL_MAC      \
         action tunnel_key set   \
         src_ip $LOCAL_TUN       \
         dst_ip $REMOTE_IP       \
@@ -51,7 +49,6 @@ function run() {
         id $VXLAN_ID            \
         action mirred egress redirect dev vxlan1
     tc_filter add dev vxlan1 protocol arp parent ffff: prio 1 flower skip_hw  \
-        src_mac $VXLAN_MAC              \
         enc_src_ip $REMOTE_IP           \
         enc_dst_ip $LOCAL_TUN           \
         enc_dst_port $DSTPORT           \
@@ -61,8 +58,6 @@ function run() {
 
     echo "add vxlan sample rules"
     tc_filter add dev $REP protocol ip parent ffff: prio 2 flower $skip \
-        src_mac $LOCAL_MAC                      \
-        dst_mac $VXLAN_MAC                      \
         action sample rate $rate group 5        \
         action tunnel_key set                   \
         src_ip $LOCAL_TUN                       \
@@ -76,8 +71,6 @@ function run() {
     [ -z "$skip" ] && verify_in_hw $REP 2
 
     tc_filter add dev vxlan1 protocol ip parent ffff: prio 3 flower $skip \
-        src_mac $VXLAN_MAC                      \
-        dst_mac $LOCAL_MAC                      \
         enc_src_ip $REMOTE_IP                   \
         enc_dst_ip $LOCAL_TUN                   \
         enc_dst_port $DSTPORT                   \
@@ -147,7 +140,6 @@ function config_remote() {
     on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
     on_remote ip a add $REMOTE/24 dev vxlan1
     on_remote ip l set dev vxlan1 up
-    on_remote ip l set vxlan1 address $VXLAN_MAC
     on_remote ip l set dev $REMOTE_NIC up
 }
 
@@ -162,8 +154,6 @@ require_interfaces REP
 unbind_vfs
 bind_vfs
 config_vxlan
-LOCAL_MAC=$(cat /sys/class/net/$VF/address)
-test "$LOCAL_MAC" || fail "no LOCAL_MAC"
 config_vf ns0 $VF $REP $IP
 reset_tc $NIC $REP vxlan1
 config_remote
