@@ -1823,8 +1823,11 @@ function config_remote_vxlan() {
         err "Cannot config remote vxlan"
         return
     fi
+    if [ -z "$DSTPORT" ]; then
+        DSTPORT=4789
+    fi
     on_remote "ip link del vxlan1 &>/dev/null;
-               ip link add vxlan1 type vxlan id $VXLAN_ID dev $REMOTE_NIC dstport 4789;
+               ip link add vxlan1 type vxlan id $VXLAN_ID dev $REMOTE_NIC dstport $DSTPORT;
                ip a flush dev $REMOTE_NIC;
                ip a add $REMOTE_IP/24 dev $REMOTE_NIC;
                ip a add $REMOTE/24 dev vxlan1;

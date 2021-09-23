@@ -28,7 +28,7 @@ function cleanup() {
     ip netns del ns0 2> /dev/null
     reset_tc $REP
     ip link del dev vxlan1 2> /dev/null
-    cleanup_remote
+    cleanup_remote_vxlan
 }
 trap cleanup EXIT
 
@@ -133,20 +133,6 @@ function config_vxlan() {
     ifconfig $NIC $LOCAL_TUN/24 up
 }
 
-function config_remote() {
-    on_remote ip link del vxlan1 &>/dev/null
-    on_remote ip link add vxlan1 type vxlan id $VXLAN_ID dev $REMOTE_NIC dstport $DSTPORT
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
-    on_remote ip a add $REMOTE/24 dev vxlan1
-    on_remote ip l set dev vxlan1 up
-    on_remote ip l set dev $REMOTE_NIC up
-}
-
-function cleanup_remote() {
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip l del dev vxlan1 &>/dev/null
-}
 
 config_sriov 1
 enable_switchdev
@@ -156,7 +142,7 @@ bind_vfs
 config_vxlan
 config_vf ns0 $VF $REP $IP
 reset_tc $NIC $REP vxlan1
-config_remote
+config_remote_vxlan
 
 run "Test act_sample action with skip_hw" skip_hw
 run "Test act_sample action" ""
