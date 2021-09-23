@@ -157,7 +157,6 @@ function check_traffic_offload() {
     local ns=$2
     local dst_ip=$3
     local traffic_type=$4
-    local tcpdump_file=/tmp/$$.pcap
 
     local traffic_filter=$ETH_IP
     local tcpdump_filter="$traffic_type"
@@ -174,7 +173,7 @@ function check_traffic_offload() {
     fi
 
     # Listen to traffic on representor
-    timeout 15 tcpdump -Unnepi $rep $tcpdump_filter -c 8 -w $tcpdump_file &
+    timeout 10 tcpdump -Unnepi $rep $tcpdump_filter -c 3 &
     local tdpid=$!
     sleep 0.5
 
@@ -202,20 +201,9 @@ function check_traffic_offload() {
 
     # Rules should appear, request and reply
     title "Check ${traffic_type^^} traffic is offloaded"
-    # Stop tcpdump
-    kill $tdpid 2>/dev/null
-    sleep 1
+    # Wait tcpdump to finish and verify traffic is offloaded
+    verify_no_traffic $tdpid
 
-    # Ensure first packets appeared
-    local count=$(tcpdump -nnr $tcpdump_file | wc -l)
-    if [[ $count != "2" ]]; then
-        err "No offload"
-        tcpdump -nnr $tcpdump_file
-    else
-        success
-    fi
-
-    rm -f $tcpdump_file
     ovs_flush_rules
 }
 
@@ -346,7 +334,6 @@ function check_fragmented_traffic() {
     local size=$4
     local is_ipv6=$5
 
-    local tcpdump_file=/tmp/$$.pcap
     local traffic_filter=$ETH_IP
     local rules_filter=ip
     local tcpdump_filter=icmp
@@ -358,7 +345,7 @@ function check_fragmented_traffic() {
     fi
 
     # Listen to traffic on representor
-    timeout 15 tcpdump -Unnepi $rep $tcpdump_filter -w $tcpdump_file &
+    timeout 10 tcpdump -Unnepi $rep $tcpdump_filter -c 8 &
     sleep 0.5
 
     title "Check sending traffic"
@@ -379,20 +366,9 @@ function check_fragmented_traffic() {
     check_fragmented_rules $traffic_filter
 
     title "Check captured packets count"
-    # Stop tcpdump
-    killall -q tcpdump
-    sleep 1
+    # Wait tcpdump to finish and verify traffic is not offloaded
+    verify_have_traffic $tdpid
 
-    # Ensure more than 2 packets appear
-    local count=$(tcpdump -nnr $tcpdump_file | wc -l)
-    if [[ $count -le "2" ]]; then
-        err "Fragmented packets count is not as expected, expected > '2', found '$count'"
-        tcpdump -nnr $tcpdump_file
-    else
-        success
-    fi
-
-    rm -f $tcpdump_file
     ovs_flush_rules
 }
 
