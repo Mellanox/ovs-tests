@@ -71,6 +71,8 @@ function run() {
         id $VXLAN_ID                            \
         action mirred egress redirect dev vxlan1
 
+    echo $REP
+    tc filter show dev $REP ingress
     [ -z "$skip" ] && verify_in_hw $REP 2
 
     tc_filter add dev vxlan1 protocol ip parent ffff: prio 3 flower $skip \
@@ -84,12 +86,11 @@ function run() {
         action tunnel_key unset                 \
         action mirred egress redirect dev $REP
 
+    echo vxlan1
+    tc filter show dev vxlan1 ingress
     [ -z "$skip" ] && verify_in_hw vxlan1 3
 
     fail_if_err
-
-    tc filter show dev $REP ingress
-    tc filter show dev vxlan1 ingress
 
     pkill psample
     timeout 2 $psample_dir/psample -n $n > $file &

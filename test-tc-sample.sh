@@ -62,18 +62,21 @@ function run() {
         action sample rate $rate group $group trunc $trunc \
         action mirred egress redirect dev $REP2
 
+    echo $REP
+    tc filter show dev $REP ingress
     [ -z "$skip" ] && verify_in_hw $REP 2
 
     tc_filter add dev $REP2 ingress protocol ip prio 2 flower $skip \
         dst_mac $mac1 \
         action mirred egress redirect dev $REP
 
+    echo $REP2
+    tc filter show dev $REP2 ingress
     [ -z "$skip" ] && verify_in_hw $REP2 2
 
     fail_if_err
 
     ip link show dev $REP
-    tc filter show dev $REP ingress
 
     pkill psample
     timeout 2 $psample_dir/psample -n $n > $file &
