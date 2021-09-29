@@ -3,6 +3,7 @@
 # Test 'dangling' act_police action.
 # Use TCP traffic to test per flow rate limit. TC filters will refer to
 # the 'dangling' police action
+# Bug SW #2707092, metering doesn't work before version xx.30.1602 xx.31.0354 xx.32.0114
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -18,11 +19,6 @@ enable_switchdev
 require_interfaces REP REP2
 unbind_vfs
 bind_vfs
-
-if [ "$short_device_name" == "cx6dx" ]; then
-    #Bug SW #2707092, metering doesn't work before version xx.32.0114
-    require_fw_ver 32 114
-fi
 
 function cleanup() {
     ip netns del ns0 2> /dev/null

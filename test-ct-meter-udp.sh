@@ -1,15 +1,12 @@
 #!/bin/bash
 #
 # Test CT and meter with udp traffic
-#
+# Bug SW #2707092, metering doesn't work before version xx.31.0354 xx.32.0114
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 not_relevant_for_nic cx4 cx4lx cx5
-
-#Bug SW #2707092, metering doesn't work before version xx.32.0114
-require_fw_ver 32 114
 
 require_module act_ct act_police
 
