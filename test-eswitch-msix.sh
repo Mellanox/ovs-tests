@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Test if dynamic MSI-X VF queue is supported
-#
+# Require DYNAMIC_VF_MSIX_TABLE
 #
 
 my_dir="$(dirname "$0")"
