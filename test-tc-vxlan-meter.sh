@@ -88,10 +88,6 @@ function ping_remote() {
 }
 
 function run() {
-    local pid1
-    local pid2
-    local tpid
-
     add_arp_rules
 
     echo "add vxlan police rules"
@@ -121,13 +117,17 @@ function run() {
 
     t=10
     # traffic
-    ip netns exec ns0 timeout $((t+4)) iperf -s -u > $TMPFILE &
-    pid1=$!
-    sleep 2
-    ssh2 $REMOTE_SERVER iperf -c $IP -t $t -u -l 1400 -b 2G -P2 &
+    ip netns exec ns0 timeout -k 1 $((t+4)) iperf -f Bytes -s -u > $TMPFILE &
     pid2=$!
+    sleep 2
+    on_remote timeout -k 1 $t iperf -c $IP -t $t -u -l 1400 -b 2G -P2 &
+    pid1=$!
 
-    # verify pid
+    verify
+}
+
+function verify() {
+    # verify client pid
     sleep 2
     kill -0 $pid1 &>/dev/null
     if [ $? -ne 0 ]; then
@@ -136,24 +136,25 @@ function run() {
     fi
 
     timeout $((t-2)) tcpdump -qnnei $REP -c 10 'udp' &
-    tpid=$!
+    local tpid=$!
     sleep $t
     verify_no_traffic $tpid
 
-    kill -9 $pid1 &>/dev/null
-    killall iperf &>/dev/null
+    killall -9 iperf &>/dev/null
     echo "wait for bgs"
     wait
 
-    rate=`cat $TMPFILE | grep "\[SUM\]  0\.0-10.* Mbits/sec" | sed  "s/\[.*Bytes//" | sed "s/ Mbits.*//"`
+    rate=`cat $TMPFILE | grep "\[SUM\]  0\.0-10.* Bytes/sec" | awk {'print $6'}`
+    if [ -z "$rate" ]; then
+	    err "Cannot find rate"
+	    return 1
+    fi
+    rate=`bc <<< $rate/1000/1000*8`
+
     verify_rate $rate $RATE
 }
 
 function run2() {
-    local pid1
-    local pid2
-    local tpid
-
     let RATE=$RATE+100
     add_arp_rules
 
@@ -184,32 +185,13 @@ function run2() {
 
     t=10
     # traffic
-    ssh2 $REMOTE_SERVER timeout $((t+5)) iperf -s -u > $TMPFILE &
-    pid1=$!
-    sleep 2
-    ip netns exec ns0 timeout $((t+2)) iperf -u -c $REMOTE -t $t -l 1400 -b 2G -P2 &
+    on_remote timeout -k 1 $((t+5)) iperf -f Bytes -s -u > $TMPFILE &
     pid2=$!
-
-    # verify pid
     sleep 2
-    kill -0 $pid1 &>/dev/null
-    if [ $? -ne 0 ]; then
-        err "iperf failed"
-        return
-    fi
+    ip netns exec ns0 timeout -k 1 $((t+2)) iperf -u -c $REMOTE -t $t -l 1400 -b 2G -P2 &
+    pid1=$!
 
-    timeout $((t-2)) tcpdump -qnnei $REP -c 10 'udp' &
-    tpid=$!
-    sleep $t
-    verify_no_traffic $tpid
-
-    kill -9 $pid2 &>/dev/null
-    killall iperf &>/dev/null
-    echo "wait for bgs"
-    wait
-
-    rate=`cat $TMPFILE | grep "\[SUM\]  0\.0-10.* Mbits/sec" | sed  "s/\[.*Bytes//" | sed "s/ Mbits.*//"`
-    verify_rate $rate $RATE
+    verify
 }
 
 config_sriov
