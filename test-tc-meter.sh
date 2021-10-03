@@ -34,7 +34,7 @@ function config_police() {
     reset_tc $REP $REP2
 
     tc action flush action police
-    tc action add police rate 500mbit burst 40m conform-exceed drop/pipe
+    tc action add police rate ${RATE}mbit burst 40m conform-exceed drop/pipe
 
     echo "add arp rules"
     tc_filter add dev $REP protocol arp parent ffff: prio 1 flower \
