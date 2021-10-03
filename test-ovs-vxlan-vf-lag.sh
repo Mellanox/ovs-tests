@@ -92,13 +92,13 @@ function config_remote() {
 }
 
 function run_server() {
-    ssh2 $REMOTE_SERVER timeout $((t+3)) iperf -s &
+    on_remote timeout -k 1 $((t+3)) iperf -s &
     pk1=$!
     sleep 2
 }
 
 function run_client() {
-    ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -P3 &
+    ip netns exec ns0 timeout -k 1 $((t+2)) iperf -c $REMOTE -t $t -P3 &
     pk2=$!
 }
 
