@@ -1,3 +1,14 @@
+. ${DIR}/ovs-dpdk-tests/common-tunnel.sh
+. ${DIR}/ovs-dpdk-tests/common-testing.sh
+
+function require_dpdk() {
+    if [ "${DPDK}" != "1" ]; then
+        fail "Missing DPDK=1"
+    fi
+}
+
+require_dpdk
+
 function config_remote_bridge_tunnel() {
     local vni=$1
     local remote_ip=$2
@@ -63,17 +74,30 @@ function cleanup_e2e_cache() {
 
 function query_sw_packets() {
     local num_of_pkts=50000
+
     if [[ "$short_device_name" == "cx5"* ]]; then
         num_of_pkts=200000
     fi
+
     echo "Expecting $num_of_pkts to reach SW"
     local pkts1=$(ovs-appctl dpif-netdev/pmd-stats-show | grep 'packets received:' | sed -n '1p' | awk '{print $3}')
     local pkts2=$(ovs-appctl dpif-netdev/pmd-stats-show | grep 'packets received:' | sed -n '2p' | awk '{print $3}')
+
+    if [ -z "$pkts1" ]; then
+        err "Cannot get pkts1"
+        return 1
+    fi
+
+    if [ -z "$pkts2" ]; then
+        err "Cannot get pkts2"
+        return 1
+    fi
 
     local total_pkts=$(($pkts1+$pkts2))
     echo -e "Received $total_pkts packets in SW"
     if [ $total_pkts -gt $num_of_pkts ]; then
         err "$total_pkts reached SW"
+        return 1
     fi
 }
 
@@ -81,15 +105,21 @@ function check_dpdk_offloads() {
     local IP=$1
 
     local x=$(ovs-appctl dpctl/dump-flows -m | grep -v 'ipv6\|icmpv6\|arp\|drop\|ct_state(0x21/0x21)\|flow-dump' | grep -- $IP'\|tnl_pop' | wc -l)
-    echo -e "Number of filtered rules:\n$x"
+    echo "Number of filtered rules: $x"
+
     local y=$(ovs-appctl dpctl/dump-flows -m type=offloaded | grep -v 'ipv6\|icmpv6\|arp\|drop\|flow-dump' | wc -l)
-    echo -e "Number of offloaded rules:\n$y"
+    echo "Number of offloaded rules: $y"
+
     if [ $x -ne $y ]; then
         err "offloads failed"
         echo "Filtered rules:"
         ovs-appctl dpctl/dump-flows -m | grep -v 'ipv6\|icmpv6\|arp\|drop\|ct_state(0x21/0x21)\|flow-dump' | grep -- $IP'\|tnl_pop'
         echo -e "\n\nOffloaded rules:"
         ovs-appctl dpctl/dump-flows -m type=offloaded | grep -v 'ipv6\|icmpv6\|arp\|flow-dump'
+        return 1
+    elif [ $x -eq 0 ]; then
+        err "offloads failed. no rules."
+        return 1
     fi
 
     query_sw_packets
