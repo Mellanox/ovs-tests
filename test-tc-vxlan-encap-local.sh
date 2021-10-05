@@ -1,6 +1,8 @@
 #!/bin/bash
 #
 # Verify adding vxlan encap rule does not use local route which results in dst/src mac 0.
+# In newer kernel the driver has a fix to use vxlan device hint if available.
+# 79372f06556a net/mlx5e: Specify out ifindex when looking up encap route
 #
 # Feature #2619265: [Alibaba-RoCE] local and remote VTEPs are in the same host for vxlan
 
@@ -28,14 +30,16 @@ function cleanup() {
 }
 
 function config_vxlan() {
-    echo "config vxlan dev"
-    ip link add vxlan1 type vxlan id $id dev $NIC dstport $dst_port
+    local extra=$1
+    echo "config vxlan $extra"
+    ip link add vxlan1 type vxlan id $id $extra dstport $dst_port
     ip link set vxlan1 up
     ifconfig $NIC $local_ip/24 up
 }
 
 function tc_filter_fail() {
-    eval tc -s filter $@ && err "Expected to fail adding rule"
+    eval tc -s filter $@ && err "Expected to fail adding rule" && return 1
+    return 0
 }
 
 function add_vxlan_rule() {
@@ -48,11 +52,17 @@ function add_vxlan_rule() {
     reset_tc $NIC $REP vxlan1
 
     # tunnel key set
-    tc_filter_fail add dev $REP protocol arp parent ffff: prio 1 \
+    local filter="add dev $REP protocol arp parent ffff: prio 1 \
         flower dst_mac $dst_mac skip_sw \
         action tunnel_key set \
         id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
-        action mirred egress redirect dev vxlan1
+        action mirred egress redirect dev vxlan1"
+
+    if [ "$use_hint" == "true" ]; then
+        tc_filter $filter && success
+    else
+        tc_filter_fail $filter && success
+    fi
 }
 
 function test_add_encap_rule_neigh_local() {
@@ -67,12 +77,18 @@ function test_add_encap_rule_neigh_local() {
 }
 
 function do_test() {
-    title $1
+    title "$1 hint $use_hint"
     eval $1
 }
 
 cleanup
+use_hint="false"
 config_vxlan
+do_test test_add_encap_rule_neigh_local
+
+cleanup
+use_hint="true"
+config_vxlan "dev $NIC"
 do_test test_add_encap_rule_neigh_local
 
 cleanup
