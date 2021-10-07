@@ -464,7 +464,7 @@ function fw_query_val() {
 }
 
 function ssh2() {
-    ssh -tt -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=3 "$@"
+    ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=3 "$@"
 }
 
 # Run given code on remote server which provide all function and env vars
