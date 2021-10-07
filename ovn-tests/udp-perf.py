@@ -42,26 +42,25 @@ def wait_for_handshake(sock):
 
 
 def listen(port, is_ipv6):
-    try:
-        socket_family = socket.AF_INET if not is_ipv6 else socket.AF_INET6
-        udp_socket = socket.socket(socket_family, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
-        udp_socket.bind(('', port))
-
-        client, packets = wait_for_handshake(udp_socket)
-    except Exception as ex:
-        print(ex)
-        return 1
-
-    udp_socket.settimeout(0.2)
-    for _ in range(packets):
+    while True:
         try:
-            time.sleep(0.1)
-            udp_socket.sendto(bytes([0]), client)
-            udp_socket.recvfrom(10)
+            socket_family = socket.AF_INET if not is_ipv6 else socket.AF_INET6
+            udp_socket = socket.socket(socket_family, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+            udp_socket.bind(('', port))
+
+            client, packets = wait_for_handshake(udp_socket)
         except Exception as ex:
             print(ex)
+            return 1
 
-    return 0
+        udp_socket.settimeout(0.2)
+        for _ in range(packets):
+            try:
+                time.sleep(0.1)
+                udp_socket.sendto(bytes([0]), client)
+                udp_socket.recvfrom(10)
+            except Exception as ex:
+                print(ex)
 
 
 def handshake(sock, server_address, port, packets, retries):
@@ -111,12 +110,12 @@ def main():
         is_pv6 = args.__getattribute__('6')
         if args.server:
             print(f'Server listening on {args.port}, IPv{6 if is_pv6 else 4}')
-            return listen(args.port, is_pv6)
+            listen(args.port, is_pv6)
 
         print(f'Connecting {args.client}:{args.port}, IPv{6 if is_pv6 else 4}')
         return send(args.client, args.port, args.packets, args.retries, args.pass_rate, is_pv6)
     except KeyboardInterrupt:
-        print ("Terminated")
+        print("Terminated")
         return 1
     except Exception as ex:
         print(ex)
