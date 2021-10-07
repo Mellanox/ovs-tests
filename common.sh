@@ -469,7 +469,7 @@ function ssh2() {
 
 # Run given code on remote server which provide all function and env vars
 function on_remote_exec() {
-    ssh2 $REMOTE_SERVER "$(typeset -g);" "$@"
+    ssh2 $REMOTE_SERVER "$(set | grep -Ev "^(BASH|SHELLOPTS|UID|EUID|PPID)"); $@"
 }
 
 function on_remote_dt() {
