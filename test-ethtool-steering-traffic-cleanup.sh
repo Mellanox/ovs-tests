@@ -10,9 +10,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-REMOTE_SERVER=${REMOTE_SERVER:-$1}
-REMOTE_NIC=${REMOTE_NIC:-$2}
-
 require_remote_server
 
 IP=1.1.1.7
@@ -25,8 +22,8 @@ require_interfaces NIC
 
 function cleanup_remote() {
     sleep 1
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip l del dev vxlan1 &>/dev/null
+    on_remote "ip a flush dev $REMOTE_NIC
+               ip l del dev vxlan1 &>/dev/null"
 }
 
 function cleanup() {
@@ -52,9 +49,9 @@ function config_ethtool_steering() {
 }
 
 function config_remote() {
-    on_remote ip a flush dev $REMOTE_NIC || fail "Cannot config remote nic $REMOTE_NIC"
-    on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
-    on_remote ip l set dev $REMOTE_NIC up
+    on_remote "ip a flush dev $REMOTE_NIC
+               ip a add $REMOTE_IP/24 dev $REMOTE_NIC
+               ip l set dev $REMOTE_NIC up"
 }
 
 function run() {
