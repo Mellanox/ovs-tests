@@ -3,12 +3,8 @@
 # Test geneve with tc rules
 #
 
-
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
-
-REMOTE_SERVER=${REMOTE_SERVER:-$1}
-REMOTE_NIC=${REMOTE_NIC:-$2}
 
 require_remote_server
 
@@ -46,17 +42,13 @@ cleanup
 trap cleanup EXIT
 
 function config_remote() {
-    on_remote ip link del geneve1 &>/dev/null
-    on_remote ip link add geneve1 type geneve dstport $geneve_port external
-    if [ $? != 0 ]; then
-        err "Failed to create remote geneve interface"
-        return
-    fi
-    on_remote ip a flush dev $REMOTE_NIC || err "Failed to config remote $REMOTE_NIC"
-    on_remote ip a add $tun_rem/24 dev $REMOTE_NIC
-    on_remote ip l set dev geneve1 up
-    on_remote ip l set dev $REMOTE_NIC up
-    on_remote tc qdisc add dev geneve1 ingress
+    on_remote "ip link del geneve1 &>/dev/null
+               ip a flush dev $REMOTE_NIC
+               ip link add geneve1 type geneve dstport $geneve_port external
+               ip a add $tun_rem/24 dev $REMOTE_NIC
+               ip l set dev geneve1 up
+               ip l set dev $REMOTE_NIC up
+               tc qdisc add dev geneve1 ingress"
 }
 
 function config_geneve() {
@@ -107,14 +99,14 @@ function run() {
     tc_test_verbose
 
     title "Setup remote geneve + opts"
-    on_remote ip link add vm type veth peer name vm_rep
-    on_remote ifconfig vm $ip2/24 up
-    on_remote ifconfig vm_rep 0 promisc up
-    on_remote tc qdisc add dev vm_rep ingress
-    on_remote tc filter add dev vm_rep ingress proto ip flower skip_hw action tunnel_key set src_ip 0.0.0.0 dst_ip $tun_loc id 48 dst_port $geneve_port $geneve_opts pipe action mirred egress redirect dev geneve1
-    on_remote tc filter add dev vm_rep ingress proto arp flower skip_hw action tunnel_key set src_ip 0.0.0.0 dst_ip $tun_loc id 48 dst_port $geneve_port $geneve_opts pipe action mirred egress redirect dev geneve1
-    on_remote tc filter add dev geneve1 ingress protocol arp flower skip_hw action mirred egress redirect dev vm_rep
-    on_remote tc filter add dev geneve1 ingress protocol ip flower skip_hw action mirred egress redirect dev vm_rep
+    on_remote "ip link add vm type veth peer name vm_rep
+               ifconfig vm $ip2/24 up
+               ifconfig vm_rep 0 promisc up
+               tc qdisc add dev vm_rep ingress
+               tc filter add dev vm_rep ingress proto ip flower skip_hw action tunnel_key set src_ip 0.0.0.0 dst_ip $tun_loc id 48 dst_port $geneve_port $geneve_opts pipe action mirred egress redirect dev geneve1
+               tc filter add dev vm_rep ingress proto arp flower skip_hw action tunnel_key set src_ip 0.0.0.0 dst_ip $tun_loc id 48 dst_port $geneve_port $geneve_opts pipe action mirred egress redirect dev geneve1
+               tc filter add dev geneve1 ingress protocol arp flower skip_hw action mirred egress redirect dev vm_rep
+               tc filter add dev geneve1 ingress protocol ip flower skip_hw action mirred egress redirect dev vm_rep"
 
     title "Add arp rules"
     tc_filter add dev $REP ingress protocol arp chain 0 prio 2 flower skip_hw \
