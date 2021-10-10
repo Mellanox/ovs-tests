@@ -33,10 +33,9 @@ SFLOW_HEADER=96
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
-log "Remote server $REMOTE_SERVER"
-on_remote true || fail "Remote command failed"
-on_remote which sflowtool || \
-    fail "sflowtool missing on remote host $REMOTE_SERVER"
+require_remote_server
+
+on_remote which sflowtool || fail "sflowtool missing on remote host $REMOTE_SERVER"
 on_remote pkill sflowtool
 
 config_sriov 2
