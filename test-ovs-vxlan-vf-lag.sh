@@ -9,13 +9,10 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
+
 require_module bonding
-
-REMOTE_SERVER=${REMOTE_SERVER:-$1}
-REMOTE_NIC=${REMOTE_NIC:-$2}
-REMOTE_NIC2=${REMOTE_NIC2:-$3}
-
 require_remote_server
+
 if [ -z "$REMOTE_NIC2" ]; then
     fail "Remote nic2 is not configured"
 fi
@@ -82,13 +79,13 @@ function config() {
 
 function config_remote() {
     remote_disable_sriov
-    on_remote ip link del vxlan1 &>/dev/null
     config_remote_bonding
-    on_remote ip link add vxlan1 type vxlan id $VXLAN_ID dev bond0 dstport 4789
-    on_remote ip a add $REMOTE_IP/24 dev bond0
-    on_remote ip a add $REMOTE/24 dev vxlan1
-    on_remote ip l set dev vxlan1 up
-    on_remote ip l set dev bond0 up
+    on_remote "ip link del vxlan1 &>/dev/null
+               ip link add vxlan1 type vxlan id $VXLAN_ID dev bond0 dstport 4789
+               ip a add $REMOTE_IP/24 dev bond0
+               ip a add $REMOTE/24 dev vxlan1
+               ip l set dev vxlan1 up
+               ip l set dev bond0 up"
 }
 
 function run_server() {
