@@ -15,8 +15,6 @@ require_module bonding
 
 br=tst1
 bond=bond0
-REMOTE_SERVER=${REMOTE_SERVER:-$1}
-REMOTE_NIC=${REMOTE_NIC:-$2}
 
 VF1_IP="7.7.1.7"
 VF1_MAC="e4:0a:05:08:00:03"

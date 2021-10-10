@@ -11,12 +11,8 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 require_module act_ct bonding
-
-REMOTE_SERVER=${REMOTE_SERVER:-$1}
-REMOTE_NIC=${REMOTE_NIC:-$2}
-REMOTE_NIC2=${REMOTE_NIC2:-$3}
-
 require_remote_server
+
 if [ -z "$REMOTE_NIC2" ]; then
     fail "Remote nic2 is not configured"
 fi

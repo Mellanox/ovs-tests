@@ -11,6 +11,7 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
+
 require_mlxconfig
 require_remote_server
 
@@ -24,7 +25,6 @@ tundest1=8.8.8.22
 vfdest1=2.2.2.22
 
 # remote
-REMOTE_NIC=${REMOTE_NIC:-$2}
 tunip2=8.8.8.22
 vfip2=2.2.2.22
 tundest2=8.8.8.21

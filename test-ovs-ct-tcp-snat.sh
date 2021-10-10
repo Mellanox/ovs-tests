@@ -9,10 +9,6 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 require_module act_ct
-
-REMOTE_SERVER=${REMOTE_SERVER:-$1}
-REMOTE_NIC=${REMOTE_NIC:-$2}
-
 require_remote_server
 
 IP="7.7.7.1"

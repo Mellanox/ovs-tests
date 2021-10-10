@@ -18,8 +18,6 @@ my_dir="$(dirname "$0")"
 . $my_dir/common-br.sh
 
 br=tst1
-REMOTE_SERVER=${REMOTE_SERVER:-$1}
-REMOTE_NIC=${REMOTE_NIC:-$2}
 
 LOCAL_IP="7.7.1.7"
 LOCAL_MAC="e4:0a:05:08:00:02"

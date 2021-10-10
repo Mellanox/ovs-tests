@@ -8,9 +8,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-REMOTE_SERVER=${REMOTE_SERVER:-$1}
-REMOTE_NIC=${REMOTE_NIC:-$2}
-
 require_remote_server
 not_relevant_for_nic cx4 cx4lx cx5
 
