@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import argparse
-import math
+import daemon
 import socket
 import sys
 import time
@@ -12,6 +12,7 @@ def parse_args():
     parser.add_argument('-s', '--server', help='Run in server', action='store_true')
     parser.add_argument('-c', '--client', help='Run in client')
     parser.add_argument('-p', '--port', help='Port', type=int, default=5555)
+    parser.add_argument('-D', '--daemon', help='run the server as a daemon', action='store_true')
     parser.add_argument('-6', help='Run over IPv6', action='store_true')
     parser.add_argument('--packets', help='Number of packets to send', type=int, default=50)
     parser.add_argument('--pass-rate', help='Accepted packet pass rate', type=float, default=0.7)
@@ -20,6 +21,9 @@ def parse_args():
     args = parser.parse_args()
     if (args.server and args.client) or (not args.server and not args.client):
         raise AttributeError("Invalid args: Either use --server or --client")
+
+    if args.daemon and not args.server:
+        raise AttributeError("Invalid args: -D/--daemon is allowed for server only")
 
     if args.pass_rate <= 0 or args.pass_rate > 1:
         raise AttributeError("Invalid args: --pass-rate should be > 0 and <= 1")
@@ -110,10 +114,15 @@ def main():
         is_pv6 = args.__getattribute__('6')
         if args.server:
             print(f'Server listening on {args.port}, IPv{6 if is_pv6 else 4}')
-            listen(args.port, is_pv6)
-
-        print(f'Connecting {args.client}:{args.port}, IPv{6 if is_pv6 else 4}')
-        return send(args.client, args.port, args.packets, args.retries, args.pass_rate, is_pv6)
+            if args.daemon:
+                print("Running server in daemon mode")
+                with daemon.DaemonContext():
+                    listen(args.port, is_pv6)
+            else:
+                listen(args.port, is_pv6)
+        else:
+            print(f'Connecting {args.client}:{args.port}, IPv{6 if is_pv6 else 4}')
+            return send(args.client, args.port, args.packets, args.retries, args.pass_rate, is_pv6)
     except KeyboardInterrupt:
         print("Terminated")
         return 1
