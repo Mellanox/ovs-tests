@@ -37,10 +37,9 @@ LOCAL_TUN=7.7.7.7
 REMOTE_IP=7.7.7.8
 VXLAN_ID=42
 
-log "Remote server $REMOTE_SERVER"
-on_remote true || fail "Remote command failed"
-on_remote which sflowtool || \
-    fail "sflowtool missing on remote host $REMOTE_SERVER"
+require_remote_server
+
+on_remote which sflowtool || fail "sflowtool missing on remote host $REMOTE_SERVER"
 on_remote pkill sflowtool
 
 config_sriov 2
@@ -51,8 +50,8 @@ bind_vfs
 reset_tc $REP
 
 function cleanup_remote() {
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip l del dev vxlan1 &>/dev/null
+    on_remote "ip a flush dev $REMOTE_NIC
+               ip l del dev vxlan1 &>/dev/null"
 }
 
 function cleanup() {
@@ -84,13 +83,13 @@ function config_ovs() {
 }
 
 function config_remote() {
-    on_remote ip link del vxlan1 &>/dev/null
-    on_remote ip link add vxlan1 type vxlan id $VXLAN_ID dev $REMOTE_NIC dstport 4789
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
-    on_remote ip a add $IP2/24 dev vxlan1
-    on_remote ip l set dev vxlan1 up
-    on_remote ip l set dev $REMOTE_NIC up
+    on_remote "ip link del vxlan1 &>/dev/null
+               ip link add vxlan1 type vxlan id $VXLAN_ID dev $REMOTE_NIC dstport 4789
+               ip a flush dev $REMOTE_NIC
+               ip a add $REMOTE_IP/24 dev $REMOTE_NIC
+               ip a add $IP2/24 dev vxlan1
+               ip l set dev vxlan1 up
+               ip l set dev $REMOTE_NIC up"
 }
 
 function verify_ovs() {
