@@ -49,16 +49,11 @@ unbind_vfs
 bind_vfs
 reset_tc $REP
 
-function cleanup_remote() {
-    on_remote "ip a flush dev $REMOTE_NIC
-               ip l del dev vxlan1 &>/dev/null"
-}
-
 function cleanup() {
     ovs_conf_remove tc-policy &>/dev/null
     ip netns del ns0 2> /dev/null
     reset_tc $REP
-    cleanup_remote
+    cleanup_remote_vxlan
 }
 trap cleanup EXIT
 
@@ -80,16 +75,6 @@ function config_ovs() {
               -- set bridge br-ovs sflow=@sflow
 
     ovs-vsctl list sflow
-}
-
-function config_remote() {
-    on_remote "ip link del vxlan1 &>/dev/null
-               ip link add vxlan1 type vxlan id $VXLAN_ID dev $REMOTE_NIC dstport 4789
-               ip a flush dev $REMOTE_NIC
-               ip a add $REMOTE_IP/24 dev $REMOTE_NIC
-               ip a add $IP2/24 dev vxlan1
-               ip l set dev vxlan1 up
-               ip l set dev $REMOTE_NIC up"
 }
 
 function verify_ovs() {
@@ -151,7 +136,8 @@ function run() {
 }
 
 config_vf ns0 $VF $REP $IP1
-config_remote
+REMOTE=$IP2
+config_remote_vxlan
 start_clean_openvswitch
 
 title "Test OVS sFlow without offload"
