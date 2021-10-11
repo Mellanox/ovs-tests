@@ -1836,6 +1836,31 @@ function config_remote_vxlan() {
                tc qdisc add dev vxlan1 ingress" || err "Failed to config remote vxlan"
 }
 
+function config_remote_geneve() {
+    if [ -z "$REMOTE_IP" ]; then
+        err "Cannot config remote geneve"
+        return
+    fi
+
+    if [ -z "$geneve_port" ]; then
+        local geneve_port=6081
+    fi
+
+    local tun="external"
+    if [ -n "$TUN_ID" ]; then
+        tun="id $TUN_ID remote $LOCAL_TUN"
+    fi
+
+    on_remote "ip link del geneve1 &>/dev/null
+               ip a flush dev $REMOTE_NIC
+               ip link add geneve1 type geneve $tun dstport $geneve_port
+               ip a add $REMOTE_IP/24 dev $REMOTE_NIC
+               ip a add $REMOTE/24 dev geneve1
+               ip l set dev geneve1 up
+               ip l set dev $REMOTE_NIC up
+               tc qdisc add dev geneve1 ingress" || err "Failed to config remote geneve"
+}
+
 function cleanup_remote_vxlan() {
     on_remote "ip a flush dev $REMOTE_NIC;
                ip l del dev vxlan1 &>/dev/null"

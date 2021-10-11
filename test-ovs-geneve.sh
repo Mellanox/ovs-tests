@@ -16,6 +16,7 @@ REMOTE=1.1.1.8
 LOCAL_TUN=7.7.7.7
 REMOTE_IP=7.7.7.8
 TUN_ID=42
+geneve_port=6081
 
 enable_switchdev
 require_interfaces REP NIC
@@ -34,8 +35,8 @@ function set_nf_liberal() {
 }
 
 function cleanup_remote() {
-    on_remote "ip a flush dev $REMOTE_NIC; \
-              ip l del dev geneve1 &>/dev/null"
+    on_remote "ip a flush dev $REMOTE_NIC
+               ip l del dev geneve1 &>/dev/null"
 }
 
 function cleanup() {
@@ -67,17 +68,7 @@ function config() {
 
     ovs-vsctl add-br br-ovs
     ovs-vsctl add-port br-ovs $REP
-    ovs-vsctl add-port br-ovs geneve1 -- set interface geneve1 type=geneve options:local_ip=$LOCAL_TUN options:remote_ip=$REMOTE_IP options:key=$TUN_ID options:dst_port=6081
-}
-
-function config_remote() {
-    on_remote "ip link del geneve1 &>/dev/null; \
-               ip link add geneve1 type geneve id $TUN_ID remote $LOCAL_TUN dstport 6081; \
-               ip a flush dev $REMOTE_NIC; \
-               ip a add $REMOTE_IP/24 dev $REMOTE_NIC; \
-               ip a add $REMOTE/24 dev geneve1; \
-               ip l set dev geneve1 up; \
-               ip l set dev $REMOTE_NIC up"
+    ovs-vsctl add-port br-ovs geneve1 -- set interface geneve1 type=geneve options:local_ip=$LOCAL_TUN options:remote_ip=$REMOTE_IP options:key=$TUN_ID options:dst_port=$geneve_port
 }
 
 function initial_traffic() {
@@ -96,7 +87,7 @@ function initial_traffic() {
 
 function run() {
     config
-    config_remote
+    config_remote_geneve
     sleep 1
 
     # icmp
