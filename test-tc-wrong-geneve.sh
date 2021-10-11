@@ -19,8 +19,6 @@ id=98
 
 function cleanup() {
     ip link del dev geneve1 2> /dev/null
-    ip link del dev geneve2 2> /dev/null
-    ip link del dev geneve3 2> /dev/null
     ip n del $remote_ip dev $NIC 2>/dev/null
     ip link set $NIC down
     ip addr flush dev $NIC
