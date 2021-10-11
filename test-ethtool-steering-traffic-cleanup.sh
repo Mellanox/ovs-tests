@@ -20,17 +20,11 @@ enable_switchdev
 require_interfaces NIC
 
 
-function cleanup_remote() {
-    sleep 1
-    on_remote "ip a flush dev $REMOTE_NIC
-               ip l del dev vxlan1 &>/dev/null"
-}
-
 function cleanup() {
     ip a flush dev $NIC
     ethtool -U $NIC delete 1 &>/dev/null
     ethtool -X $NIC equal 1
-    cleanup_remote
+    cleanup_remote_vxlan
     sleep 0.5
 }
 trap cleanup EXIT
