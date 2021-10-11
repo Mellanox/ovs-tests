@@ -82,12 +82,19 @@ class OVNLogicalSwitch(OVNEntity):
             port_name = port["name"]
             cmd_args.append(f"--may-exist lsp-add {self.name} {port_name}")
 
+            port_options = port.get("options")
+            if port_options:
+                cmd_args.append(f"lsp-set-options {port_name} {' '.join(port_options)}")
+
             port_type = port.get("type")
             if port_type == "router":
                 router_port = port["routerPort"]
                 cmd_args.append(f"lsp-set-type {port_name} router")
                 cmd_args.append(f"lsp-set-addresses {port_name} router")
                 cmd_args.append(f"lsp-set-options {port_name} router-port={router_port}")
+            elif port_type == "localnet":
+                cmd_args.append(f"lsp-set-type {port_name} localnet")
+                cmd_args.append(f"lsp-set-addresses {port_name} unknown")
             elif not port_type:
                 mac = port.get("mac")
                 ips_v4 = port.get("ipv4", [])
