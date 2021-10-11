@@ -1837,6 +1837,7 @@ function config_remote_vxlan() {
 }
 
 function config_remote_geneve() {
+    local ext=$1
     if [ -z "$REMOTE_IP" ]; then
         err "Cannot config remote geneve"
         return
@@ -1847,15 +1848,18 @@ function config_remote_geneve() {
     fi
 
     local tun="external"
-    if [ -n "$TUN_ID" ]; then
+    local set_ip=""
+
+    if [ "$ext" != "external" ] && [ -n "$TUN_ID" ]; then
         tun="id $TUN_ID remote $LOCAL_TUN"
+        set_ip="ip a add $REMOTE/24 dev geneve1"
     fi
 
     on_remote "ip link del geneve1 &>/dev/null
                ip a flush dev $REMOTE_NIC
                ip link add geneve1 type geneve $tun dstport $geneve_port
                ip a add $REMOTE_IP/24 dev $REMOTE_NIC
-               ip a add $REMOTE/24 dev geneve1
+               $set_ip
                ip l set dev geneve1 up
                ip l set dev $REMOTE_NIC up
                tc qdisc add dev geneve1 ingress" || err "Failed to config remote geneve"

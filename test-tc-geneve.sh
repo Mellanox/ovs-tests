@@ -41,16 +41,6 @@ bind_vfs
 cleanup
 trap cleanup EXIT
 
-function config_remote() {
-    on_remote "ip link del geneve1 &>/dev/null
-               ip a flush dev $REMOTE_NIC
-               ip link add geneve1 type geneve dstport $geneve_port external
-               ip a add $tun_rem/24 dev $REMOTE_NIC
-               ip l set dev geneve1 up
-               ip l set dev $REMOTE_NIC up
-               tc qdisc add dev geneve1 ingress"
-}
-
 function config_geneve() {
     local dev=$1
     local tun=$2
@@ -90,7 +80,8 @@ function run() {
 
     title "Test geneve"
 
-    config_remote
+    REMOTE_IP=$tun_rem
+    config_remote_geneve
     config_geneve $NIC $tun_loc
     fail_if_err
 
