@@ -9,8 +9,8 @@ import time
 
 def parse_args():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-s', '--server', help='Run in server', action='store_true')
-    parser.add_argument('-c', '--client', help='Run in client')
+    parser.add_argument('-s', '--server', help='Run as server', action='store_true')
+    parser.add_argument('-c', '--client', help='Run as client', metavar='REMOTE')
     parser.add_argument('-p', '--port', help='Port', type=int, default=5555)
     parser.add_argument('-D', '--daemon', help='run the server as a daemon', action='store_true')
     parser.add_argument('-6', help='Run over IPv6', action='store_true')
