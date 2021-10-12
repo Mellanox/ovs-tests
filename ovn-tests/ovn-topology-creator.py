@@ -47,21 +47,21 @@ class OVNTopologyReader:
 
     @staticmethod
     def _parse_topology_entity(entity_data):
-        name = entity_data["name"]
         entity_type = entity_data.get("type", "")
-        ports = entity_data.get("ports")
 
         if entity_type == "switch":
-            return OVNLogicalSwitch(name, ports)
-        if entity_type == "router":
-            return OVNLogicalRouter(name, ports)
+            return OVNLogicalSwitch(entity_data)
+        elif entity_type == "router":
+            return OVNLogicalRouter(entity_data)
 
         raise RuntimeError(f'Unknown entity of type "{entity_type}"')
 
 
 class OVNEntity:
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, data):
+        self.name = data["name"]
+        self._data = data
+        self._ports = data["ports"]
 
     def add_to_ovn(self):
         """Add ovn entity to OVN"""
@@ -73,10 +73,8 @@ class OVNEntity:
 
 
 class OVNLogicalSwitch(OVNEntity):
-    def __init__(self, name, ports):
-        super().__init__(name)
-
-        self._ports = ports
+    def __init__(self, data):
+        super().__init__(data)
 
     def add_to_ovn(self):
         cmd_args = [f"--may-exist ls-add {self.name}"]
@@ -123,10 +121,8 @@ class OVNLogicalSwitch(OVNEntity):
 
 
 class OVNLogicalRouter(OVNEntity):
-    def __init__(self, name, ports):
-        super().__init__(name)
-
-        self._ports = ports
+    def __init__(self, data):
+        super().__init__(data)
 
     def add_to_ovn(self):
         cmd_args = [f"--may-exist lr-add {self.name}"]
