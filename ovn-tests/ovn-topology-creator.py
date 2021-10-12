@@ -131,8 +131,21 @@ class OVNLogicalRouter(OVNEntity):
     def __init__(self, data):
         super().__init__(data)
 
+    def __bind_to_chassis(self, chassis, cmd_args):
+        """Bind OVN Gateway Router to chassis"""
+        chassis_name = chassis
+        if chassis.lower() == "local":
+            with open('/etc/openvswitch/system-id.conf') as ovs_system_id_file:
+                chassis_name = ovs_system_id_file.read().strip()
+        cmd_args.append(f"set Logical_Router {self.name} options:chassis={chassis_name}")
+
     def add_to_ovn(self):
         cmd_args = [f"--may-exist lr-add {self.name}"]
+
+        chassis = self._data.get("chassis")
+        if chassis:
+            self.__bind_to_chassis(chassis, cmd_args)
+
         for port in self._ports:
             port_name = port["name"]
             mac = port["mac"]
