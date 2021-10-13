@@ -9,11 +9,13 @@ my_dir="$(dirname "$0")"
 
 function run() {
     title "Test unbind PF in switchdev mode"
-    config_sriov 2 $NIC
+    config_sriov
     enable_switchdev
-    echo "unbind pf"
+    log "unbind pf"
     echo $PCI > /sys/bus/pci/drivers/mlx5_core/unbind
-    reload_modules
+    log "bind pf"
+    echo $PCI > /sys/bus/pci/drivers/mlx5_core/bind
+    config_sriov
 }
 
 
