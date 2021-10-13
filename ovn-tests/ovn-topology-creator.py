@@ -146,6 +146,11 @@ class OVNLogicalRouter(OVNEntity):
         if chassis:
             self.__bind_to_chassis(chassis, cmd_args)
 
+        routes = self._data.get("routes")
+        if routes:
+            for route in routes:
+                cmd_args.append(f"lr-route-add {self.name} {route}")
+
         for port in self._ports:
             port_name = port["name"]
             mac = port["mac"]
