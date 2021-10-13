@@ -479,7 +479,7 @@ export CONFIG=${CONFIG}
 export NO_TITLE=1
 . ${DIR}/common.sh
 
-if [ "${DPDK}" == 1 ]; then
+if [ "x${DPDK}" == "x1" ]; then
     . ${DIR}/ovs-dpdk-tests/common-dpdk.sh
 fi
 $@
