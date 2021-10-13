@@ -44,4 +44,5 @@ config
 fail_if_err
 reload_modules
 cleanup
+config_sriov
 test_done

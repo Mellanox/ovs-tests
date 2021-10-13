@@ -219,7 +219,10 @@ check_kasan
 if [ $TEST_FAILED != 0 ]; then
     __ignore_errors=1
     reload_modules
+    __ignore_errors=0
 else
     disable_sriov
 fi
+
+config_sriov
 test_done

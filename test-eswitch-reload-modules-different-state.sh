@@ -46,6 +46,7 @@ function add_tc_rule_to_pf() {
 
 function testA() {
     title "TEST A - switchdev mode without tc rules"
+    config_sriov
     unbind_vfs
     switch_mode_switchdev
     title "test reload modules"
@@ -63,6 +64,7 @@ function testB() {
        return
     fi
 
+    config_sriov
     unbind_vfs
     switch_mode_switchdev
     echo "look for $REP"
@@ -88,6 +90,7 @@ function testC() {
        return
     fi
 
+    config_sriov
     unbind_vfs
     switch_mode_legacy
     add_tc_rule_to_pf
@@ -95,9 +98,9 @@ function testC() {
     reload_modules
 }
 
-config_sriov
 testA
 testB
 testC
 
+config_sriov
 test_done

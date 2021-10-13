@@ -13,6 +13,7 @@ enable_switchdev
 enable_switchdev $NIC2
 reload_modules
 disable_sriov_port2
+config_sriov
 enable_switchdev
 
 check_kasan

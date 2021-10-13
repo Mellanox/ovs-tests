@@ -56,4 +56,6 @@ check_syndrome
 if [ $reload_modules_result != 0 ]; then
   load_modules
 fi
+
+config_sriov
 test_done

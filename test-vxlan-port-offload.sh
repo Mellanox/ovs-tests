@@ -37,6 +37,7 @@ function __test_vxlan() {
     title " - reload modules"
     clean_ingress
     reload_modules
+    config_sriov
     enable_switchdev
     bind_vfs
     ifconfig $NIC up

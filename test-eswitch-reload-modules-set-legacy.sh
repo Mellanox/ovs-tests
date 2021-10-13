@@ -18,6 +18,7 @@ function reload2() {
     __ignore_errors=1
     reload_modules
     __ignore_errors=0
+    config_sriov
     check_kasan
 }
 

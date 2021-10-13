@@ -24,6 +24,7 @@ fi
 
 if is_ofed ; then
     reload_modules
+    config_sriov
 fi
 
 test_done

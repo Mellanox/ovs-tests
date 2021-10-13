@@ -70,4 +70,6 @@ if [ $? != 0 ]; then
   load_modules
 fi
 [ -e /sys/class/net/$rep ] && reset_tc $rep
+
+config_sriov
 test_done
