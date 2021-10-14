@@ -1012,6 +1012,7 @@ function config_sriov() {
         return
     fi
 
+    log "Config $num VFs for $nic"
     echo 0 > $numvfs
     echo $num > $numvfs || fail "Failed to config $num VFs on $nic"
     sleep 0.5
