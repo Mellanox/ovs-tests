@@ -1010,9 +1010,9 @@ function config_sriov() {
     local cur=`cat $numvfs`
     if [ $cur -eq $num ]; then
         return
-    else
-        echo 0 > $numvfs
     fi
+
+    echo 0 > $numvfs
     echo $num > $numvfs || fail "Failed to config $num VFs on $nic"
     sleep 0.5
     udevadm trigger -c add -s net &>/dev/null
