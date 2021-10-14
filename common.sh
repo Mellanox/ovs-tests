@@ -1798,17 +1798,24 @@ function wa_reset_multipath() {
     enable_switchdev $NIC2
 }
 
+function dmfs_dump() {
+    local i
+    i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
+}
+
 function smfs_dump() {
     local dump=${1:-dump}
-    cat /proc/driver/mlx5_core/smfs_dump/fdb/$PCI > /tmp/$dump
+    cat /proc/driver/mlx5_core/smfs_dump/fdb/$PCI > /tmp/$dump || err "smfs dump failed"
 }
 
 function fw_dump() {
     local dump=$1
-# if smfs
-    smfs_dump $dump
-# else if dmfs
-#    i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
+    local mode=`get_flow_steering_mode $NIC`
+    if [ "$mode" == "smfs" ]; then
+        smfs_dump $dump
+    elif [ "$mode" == "dmfs" ]; then
+        dmfs_dump
+    fi
 }
 
 function indir_table_used() {
