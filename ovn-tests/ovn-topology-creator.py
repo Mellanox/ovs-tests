@@ -47,14 +47,14 @@ class OVNTopologyReader:
 
     @staticmethod
     def _parse_topology_entity(entity_data):
-        entity_type = entity_data.get("type", "")
+        entity_type = entity_data.get("type")
 
         if entity_type == "switch":
             return OVNLogicalSwitch(entity_data)
         elif entity_type == "router":
             return OVNLogicalRouter(entity_data)
 
-        raise RuntimeError(f'Unknown entity of type "{entity_type}"')
+        raise RuntimeError(f'Unknown entity of type {entity_type}')
 
 
 class OVNEntity:
