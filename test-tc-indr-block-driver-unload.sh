@@ -59,5 +59,6 @@ title "Try to access filter again"
 tc -s filter show dev $VXLAN ingress && success || err "Failed to print filters"
 
 cleanup
+config_sriov
 trap - EXIT
 test_done
