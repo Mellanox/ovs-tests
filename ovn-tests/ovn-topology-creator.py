@@ -76,6 +76,35 @@ class OVNLogicalSwitch(OVNEntity):
     def __init__(self, data):
         super().__init__(data)
 
+    def __add_router_port(self, port, cmd_args):
+        port_name = port["name"]
+        router_port = port["routerPort"]
+        cmd_args.append(f"lsp-set-type {port_name} router")
+        cmd_args.append(f"lsp-set-addresses {port_name} router")
+        cmd_args.append(f"lsp-set-options {port_name} router-port={router_port}")
+
+    def __add_localnet_port(self, port, cmd_args):
+        port_name = port["name"]
+        cmd_args.append(f"lsp-set-type {port_name} localnet")
+        cmd_args.append(f"lsp-set-addresses {port_name} unknown")
+
+    def __add_port(self, port, cmd_args):
+        port_name = port["name"]
+        mac = port.get("mac")
+        ips_v4 = port.get("ipv4")
+        ips_v6 = port.get("ipv6")
+
+        # Fail if IP provided with no mac
+        if not mac and (ips_v4 or ips_v6):
+            raise ValueError(f'Invalid: "{self.name}" switch has port "{port_name}" IP provided with no mac')
+
+        addresses = mac
+        if ips_v4:
+            addresses += f" {' '.join(ips_v4)}"
+        if ips_v6:
+            addresses += f" {' '.join(ips_v6)}"
+        cmd_args.append(f"lsp-set-addresses {port_name} \"{addresses}\"")
+
     def add_to_ovn(self):
         cmd_args = [f"--may-exist ls-add {self.name}"]
         for port in self._ports:
@@ -88,30 +117,11 @@ class OVNLogicalSwitch(OVNEntity):
 
             port_type = port.get("type")
             if port_type == "router":
-                router_port = port["routerPort"]
-                cmd_args.append(f"lsp-set-type {port_name} router")
-                cmd_args.append(f"lsp-set-addresses {port_name} router")
-                cmd_args.append(f"lsp-set-options {port_name} router-port={router_port}")
+                self.__add_router_port(port, cmd_args)
             elif port_type == "localnet":
-                cmd_args.append(f"lsp-set-type {port_name} localnet")
-                cmd_args.append(f"lsp-set-addresses {port_name} unknown")
+                self.__add_localnet_port(port, cmd_args)
             elif not port_type:
-                mac = port.get("mac")
-                ips_v4 = port.get("ipv4", [])
-                ips_v6 = port.get("ipv6", [])
-
-                # Fail if IP provided with no mac
-                if not mac and (ips_v4 or ips_v6):
-                    raise ValueError(f'Invalid: "{self.name}" switch has port "{port_name}" IP provided with no mac')
-
-                if mac:
-                    addresses = '"' + mac
-                    if ips_v4:
-                        addresses += f" {' '.join(ips_v4)}"
-                    if ips_v6:
-                        addresses += f" {' '.join(ips_v6)}"
-                    addresses += '"'
-                    cmd_args.append(f"lsp-set-addresses {port_name} {addresses}")
+                self.__add_port(port, cmd_args)
             else:
                 raise ValueError(
                     f'Invalid: "{self.name}" switch has port "{port_name}" with unknown type "{port_type}"')
