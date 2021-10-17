@@ -105,6 +105,17 @@ class OVNLogicalSwitch(OVNEntity):
             addresses += f" {' '.join(ips_v6)}"
         cmd_args.append(f"lsp-set-addresses {port_name} \"{addresses}\"")
 
+    def __add_port_type(self, port, cmd_args):
+        port_type = port.get("type")
+        if port_type == "router":
+            self.__add_router_port(port, cmd_args)
+        elif port_type == "localnet":
+            self.__add_localnet_port(port, cmd_args)
+        elif not port_type:
+            self.__add_port(port, cmd_args)
+        else:
+            raise ValueError(f"Invalid: {self.name} switch has port {port['name']} with unknown type {port_type}")
+
     def __set_port_options(self, port, cmd_args):
         port_options = port.get("options")
         if port_options:
@@ -113,21 +124,10 @@ class OVNLogicalSwitch(OVNEntity):
     def add_to_ovn(self):
         cmd_args = [f"--may-exist ls-add {self.name}"]
         for port in self._ports:
-            port_name = port["name"]
-            cmd_args.append(f"--may-exist lsp-add {self.name} {port_name}")
+            cmd_args.append(f"--may-exist lsp-add {self.name} {port['name']}")
 
             self.__set_port_options(port, cmd_args)
-
-            port_type = port.get("type")
-            if port_type == "router":
-                self.__add_router_port(port, cmd_args)
-            elif port_type == "localnet":
-                self.__add_localnet_port(port, cmd_args)
-            elif not port_type:
-                self.__add_port(port, cmd_args)
-            else:
-                raise ValueError(
-                    f'Invalid: "{self.name}" switch has port "{port_name}" with unknown type "{port_type}"')
+            self.__add_port_type(port, cmd_args)
 
         return run_ovn_nbctl(cmd_args)
 
