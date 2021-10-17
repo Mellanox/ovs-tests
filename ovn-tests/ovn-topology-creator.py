@@ -131,31 +131,30 @@ class OVNLogicalRouter(OVNEntity):
     def __init__(self, data):
         super().__init__(data)
 
-    def __bind_to_chassis(self, chassis, cmd_args):
+    def __bind_to_chassis(self, cmd_args):
         """Bind OVN Gateway Router to chassis"""
-        chassis_name = chassis
+        chassis = self._data.get("chassis")
+
+        if not chassis:
+            return
+
         if chassis.lower() == "local":
             with open('/etc/openvswitch/system-id.conf') as ovs_system_id_file:
-                chassis_name = ovs_system_id_file.read().strip()
-        cmd_args.append(f"set Logical_Router {self.name} options:chassis={chassis_name}")
+                chassis = ovs_system_id_file.read().strip()
 
-    def add_to_ovn(self):
-        cmd_args = [f"--may-exist lr-add {self.name}"]
+        cmd_args.append(f"set Logical_Router {self.name} options:chassis={chassis}")
 
-        chassis = self._data.get("chassis")
-        if chassis:
-            self.__bind_to_chassis(chassis, cmd_args)
+    def __add_routes(self, cmd_args):
+        routes = self._data.get("routes", [])
+        for route in routes:
+            cmd_args.append(f"lr-route-add {self.name} {route}")
 
-        routes = self._data.get("routes")
-        if routes:
-            for route in routes:
-                cmd_args.append(f"lr-route-add {self.name} {route}")
-
+    def __add_ports(self, cmd_args):
         for port in self._ports:
             port_name = port["name"]
             mac = port["mac"]
-            ips_v4 = port.get("ipv4", [])
-            ips_v6 = port.get("ipv6", [])
+            ips_v4 = port.get("ipv4")
+            ips_v6 = port.get("ipv6")
 
             # Fail if no IP/Network provided
             if not ips_v4 and not ips_v6:
@@ -168,6 +167,13 @@ class OVNLogicalRouter(OVNEntity):
                 addresses += f" {' '.join(ips_v6)}"
 
             cmd_args.append(f"--may-exist lrp-add {self.name} {port_name} {addresses}")
+
+    def add_to_ovn(self):
+        cmd_args = [f"--may-exist lr-add {self.name}"]
+
+        self.__bind_to_chassis(cmd_args)
+        self.__add_routes(cmd_args)
+        self.__add_ports(cmd_args)
 
         return run_ovn_nbctl(cmd_args)
 
