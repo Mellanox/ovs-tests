@@ -105,15 +105,18 @@ class OVNLogicalSwitch(OVNEntity):
             addresses += f" {' '.join(ips_v6)}"
         cmd_args.append(f"lsp-set-addresses {port_name} \"{addresses}\"")
 
+    def __set_port_options(self, port, cmd_args):
+        port_options = port.get("options")
+        if port_options:
+            cmd_args.append(f"lsp-set-options {port['name']} {' '.join(port_options)}")
+
     def add_to_ovn(self):
         cmd_args = [f"--may-exist ls-add {self.name}"]
         for port in self._ports:
             port_name = port["name"]
             cmd_args.append(f"--may-exist lsp-add {self.name} {port_name}")
 
-            port_options = port.get("options")
-            if port_options:
-                cmd_args.append(f"lsp-set-options {port_name} {' '.join(port_options)}")
+            self.__set_port_options(port, cmd_args)
 
             port_type = port.get("type")
             if port_type == "router":
