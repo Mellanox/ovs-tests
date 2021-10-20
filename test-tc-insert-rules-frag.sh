@@ -25,7 +25,7 @@ function test_tc_filter() {
     err=$?
     [ -n "$a" ] && echo $a
 
-    echo "$a" | grep -q "Operation not supported" && true || false
+    echo "$a" | grep -q "Operation not supported\|Match on frag first/later is not supported" && true || false
     opnotsupp=$?
 
     if [ $err != 0 ] && [ $opnotsupp == 0 ]; then
