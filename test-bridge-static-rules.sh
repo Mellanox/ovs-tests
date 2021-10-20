@@ -40,14 +40,10 @@ sleep 1
 
 ovs_clear_bridges
 create_bridge_with_interfaces $br $NIC $REP $REP2
-# Set ageing time to 10ms to prevent dynamic entries from interfering (created
-# as a result of ARP resolution and not caught by tcpdump that expects ICMP
-# packets, for example).
-ip link set name $br type bridge ageing_time 10
 config_vf $namespace1 $VF $REP $VF1_IP $VF1_MAC
-bridge fdb add $VF1_MAC dev $REP master static
+bridge fdb replace $VF1_MAC dev $REP master static
 config_vf $namespace2 $VF2 $REP2 $VF2_IP $VF2_MAC
-bridge fdb add $VF2_MAC dev $REP2 master static
+bridge fdb replace $VF2_MAC dev $REP2 master static
 sleep 1
 
 title "test ping with static MAC addresses"
