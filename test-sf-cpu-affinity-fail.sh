@@ -39,9 +39,12 @@ function config() {
 
 function test_cpu_affinity_fail() {
     title "Trying to set SF CPU affinity to CPU #1"
+    __ignore_errors=1
     sf_set_cpu_affinity $SF_DEV 1
+    local rc=$?
+    __ignore_errors=0
 
-    if [ "$?" != "0" ]; then
+    if [ "$rc" != "0" ]; then
         success
     else
         err "Expected to fail"
