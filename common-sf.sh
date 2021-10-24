@@ -175,15 +175,33 @@ function config_sfs_eq() {
     done
 }
 
+function sf_reload_aux() {
+    local sf_dev=$1
+    local cpus=$2
+
+    start_cpu_irq_check
+    devlink dev reload auxiliary/$sf_dev
+    if [ $? -ne 0 ]; then
+        err "$sf_dev: Devlink reload auxiliary failed"
+        return 1
+    fi
+    check_cpu_irq $sf_dev $cpus
+    return $?
+}
+
 function sf_set_cpu_affinity() {
     local sf_dev=$1
     local cpus=$2
     log "Setting cpu affinity with value $cpus to $sf_dev"
 
-    $sfcmd dev param set auxiliary/$sf_dev name cpu_affinity value $cpus cmode driverinit || err "$sf_dev: Failed to set cpu affinity"
-    start_cpu_irq_check
-    devlink dev reload auxiliary/$sf_dev
-    check_cpu_irq $sf_dev $cpus
+    $sfcmd dev param set auxiliary/$sf_dev name cpu_affinity value $cpus cmode driverinit
+    if [ $? -ne 0 ]; then
+        err "$sf_dev: Failed to set cpu affinity"
+        return 1
+    fi
+
+    sf_reload_aux $sf_dev $cpus
+    return $?
 }
 
 function enbale_irq_reguest_debug() {
@@ -229,7 +247,7 @@ function check_cpu_irq() {
 
     if [ "$_start_irq_check" == "" ]; then
         err "Failed checking cpu irq. invalid start."
-        return
+        return 1
     fi
 
     local now=`date +"%s"`
@@ -238,6 +256,7 @@ function check_cpu_irq() {
 
     if [ "$mlx5_irq_requests" == "" ]; then
         err "Can't find mlx5_irq_requests for $sf_dev"
+        return 1
     fi
 
     cpus=`parse_cpus_value $cpus`
@@ -247,9 +266,11 @@ function check_cpu_irq() {
         grep --color "cpu $cpu" <<< $mlx5_irq_requests
         if [ $? -ne 0 ]; then
             err "did not find matching cpu: $cpu"
+            return 1
         fi
     done
 
+    return 0
 }
 
 function sf_show_port() {
