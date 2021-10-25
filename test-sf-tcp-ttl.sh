@@ -65,8 +65,8 @@ function config() {
 }
 
 function config_remote() {
-    on_remote "ip a flush dev $REMOTE_NIC; \
-               ip a add $REMOTE/24 dev $REMOTE_NIC; \
+    on_remote "ip a flush dev $REMOTE_NIC
+               ip a add $REMOTE/24 dev $REMOTE_NIC
                ip l set dev $REMOTE_NIC up"
 }
 

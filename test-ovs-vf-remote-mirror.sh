@@ -32,8 +32,8 @@ VXLAN_ID1=42
 VXLAN_ID2=52
 
 function cleanup_remote() {
-    on_remote_dt "ovs_clear_bridges; \
-                  ip a flush dev $NIC; \
+    on_remote_dt "ovs_clear_bridges
+                  ip a flush dev $NIC
                   ip netns del ns0 &>/dev/null" &>/dev/null
 }
 
@@ -51,13 +51,13 @@ function prep_setup()
 {
     local remote=$1
 
-    local cmd="config_sriov 2; \
-               enable_switchdev; \
-               unbind_vfs; \
-               bind_vfs; \
-               start_clean_openvswitch; \
-               start_check_syndrome; \
-               reset_tc $NIC $REP $REP2; "
+    local cmd="config_sriov 2
+               enable_switchdev
+               unbind_vfs
+               bind_vfs
+               start_clean_openvswitch
+               start_check_syndrome
+               reset_tc $NIC $REP $REP2"
 
     if [ "X$remote" != "X" ]; then
         title "Prep remote"
@@ -86,36 +86,38 @@ function setup_topo()
         mac="00:00:00:00:03:01"
     fi
 
-    local cmd="config_vf ns0 $vf $rep $vfip $mac; \
-               ip link set dev $tundev up; \
-               ip addr add $tunip/24 dev $tundev; \
-               ovs-vsctl add-br br-ovs; \
-               ovs-vsctl add-port br-ovs $rep; \
+    local cmd="config_vf ns0 $vf $rep $vfip $mac
+               ip link set dev $tundev up
+               ip addr add $tunip/24 dev $tundev
+               ovs-vsctl add-br br-ovs
+               ovs-vsctl add-port br-ovs $rep
                ovs-vsctl add-port br-ovs vxlan1 -- set interface vxlan1 type=vxlan \
                    options:local_ip=$tunip options:remote_ip=$tundest \
-                   options:key=$VXLAN_ID1 options:dst_port=4789; "
+                   options:key=$VXLAN_ID1 options:dst_port=4789"
 
     if [ "X$remote" != "X" ]; then
         extra_cmd="ovs-vsctl add-port br-ovs vxlan2 -- set interface vxlan2 type=vxlan \
                        options:local_ip=$tunip options:remote_ip=$tundest \
-                       options:key=$VXLAN_ID2 options:dst_port=4789; \
+                       options:key=$VXLAN_ID2 options:dst_port=4789
                    ovs-vsctl -- --id=@p1 get port $rep -- --id=@p2 get port vxlan2 -- \
                        --id=@m create mirror name=m1 select_src_port=@p1 select_dst_port=@p1 \
-                       output-port=@p2 -- set bridge br-ovs mirrors=@m; "
+                       output-port=@p2 -- set bridge br-ovs mirrors=@m"
 
         title "Setup topo on remote"
-        on_remote_dt "$cmd$extra_cmd"
+        on_remote_dt "$cmd
+                      $extra_cmd"
     else
-        extra_cmd="ovs-vsctl add-br br-ovs-m; \
-                   config_vf ns1 $VF2 $REP2 3.3.3.3 00:00:00:00:03:03; \
-                   ovs-vsctl add-port br-ovs-m $REP2; \
+        extra_cmd="ovs-vsctl add-br br-ovs-m
+                   config_vf ns1 $VF2 $REP2 3.3.3.3 00:00:00:00:03:03
+                   ovs-vsctl add-port br-ovs-m $REP2
                    ovs-vsctl add-port br-ovs-m vxlan2 -- set interface vxlan2 type=vxlan \
                        options:local_ip=$tunip options:remote_ip=$tundest \
-                       options:key=$VXLAN_ID2 options:dst_port=4789; \
-                   ovs-ofctl add-flow br-ovs-m \"in_port=vxlan2,action=$REP2\"; "
+                       options:key=$VXLAN_ID2 options:dst_port=4789
+                   ovs-ofctl add-flow br-ovs-m \"in_port=vxlan2,action=$REP2\""
 
         title "Setup topo on local"
-        eval "$cmd$extra_cmd"
+        eval "$cmd
+              $extra_cmd"
     fi
 
     [ $? -eq 0 ] || fail "Preparing test topo failed!"

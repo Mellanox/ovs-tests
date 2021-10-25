@@ -45,7 +45,8 @@ function set_nf_liberal() {
 
 function cleanup_remote() {
     clear_remote_bonding
-    on_remote "ip a flush dev $REMOTE_NIC ; ip a flush dev $REMOTE_NIC2" &>/dev/null
+    on_remote "ip a flush dev $REMOTE_NIC
+               ip a flush dev $REMOTE_NIC2" &>/dev/null
 }
 
 function cleanup() {

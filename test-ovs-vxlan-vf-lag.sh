@@ -39,7 +39,9 @@ function config_ports() {
 
 function cleanup_remote() {
     clear_remote_bonding
-    on_remote "ip a flush dev $REMOTE_NIC ; ip a flush dev $REMOTE_NIC2 ; ip l del dev vxlan1" &>/dev/null
+    on_remote "ip a flush dev $REMOTE_NIC
+               ip a flush dev $REMOTE_NIC2
+               ip l del dev vxlan1" &>/dev/null
 }
 
 function cleanup() {

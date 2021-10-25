@@ -76,7 +76,7 @@ function test_no_vlan() {
 
     verify_ping_ns $namespace1 $VF $NIC $REMOTE_IP $time
 
-    on_remote "ip a flush dev $REMOTE_NIC &>/dev/null;"
+    on_remote "ip a flush dev $REMOTE_NIC &>/dev/null"
     ip link del name $br type bridge
     ip netns del $namespace1
     ip addr flush dev $NIC
@@ -93,11 +93,11 @@ function test_trunk_to_trunk_vlan() {
     bridge vlan add dev $REP vid 2
     bridge vlan add dev $NIC vid 2
 
-    on_remote "\
-        ip link add link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2;\
-        ip link set ${REMOTE_NIC}.2 address $REMOTE_MAC_VLAN2;\
-        ip address replace dev ${REMOTE_NIC}.2 $REMOTE_IP_VLAN2/24;\
-        ip link set $REMOTE_NIC up;\
+    on_remote "
+        ip link add link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2
+        ip link set ${REMOTE_NIC}.2 address $REMOTE_MAC_VLAN2
+        ip address replace dev ${REMOTE_NIC}.2 $REMOTE_IP_VLAN2/24
+        ip link set $REMOTE_NIC up
         ip link set ${REMOTE_NIC}.2 up"
     ip link set $br type bridge vlan_filtering 1
     sleep 1
@@ -105,7 +105,7 @@ function test_trunk_to_trunk_vlan() {
 
     verify_ping_ns $namespace1 $VF.2 $NIC $REMOTE_IP_VLAN2 $time
 
-    on_remote "ip link del link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2 &>/dev/null;"
+    on_remote "ip link del link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2 &>/dev/null"
     ip link del name $br type bridge
     ip netns del $namespace1
     ip addr flush dev $NIC
@@ -122,17 +122,17 @@ function test_trunk_to_access_vlan() {
     bridge vlan add dev $REP vid 3
     bridge vlan add dev $NIC vid 3 pvid untagged
 
-    on_remote "\
-        ip link set $REMOTE_NIC address $REMOTE_MAC;\
-        ip a add dev $REMOTE_NIC $REMOTE_IP_UNTAGGED/24;\
-        ip link set $REMOTE_NIC up;"
+    on_remote "
+        ip link set $REMOTE_NIC address $REMOTE_MAC
+        ip a add dev $REMOTE_NIC $REMOTE_IP_UNTAGGED/24
+        ip link set $REMOTE_NIC up"
     ip link set $br type bridge vlan_filtering 1
     sleep 1
     flush_bridge $br
 
     verify_ping_ns $namespace1 $VF.3 $NIC $REMOTE_IP_UNTAGGED $time
 
-    on_remote "ip link del link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2 &>/dev/null;"
+    on_remote "ip link del link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2 &>/dev/null"
     ip link del name $br type bridge
     ip netns del $namespace1
     ip addr flush dev $NIC
@@ -148,11 +148,11 @@ function test_access_to_trunk_vlan() {
     bridge vlan add dev $REP vid 2 pvid untagged
     bridge vlan add dev $NIC vid 2
 
-    on_remote "\
-        ip link add link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2;\
-        ip link set ${REMOTE_NIC}.2 address $REMOTE_MAC_VLAN2;\
-        ip address replace dev ${REMOTE_NIC}.2 $REMOTE_IP_VLAN2/24;\
-        ip link set $REMOTE_NIC up;\
+    on_remote "
+        ip link add link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2
+        ip link set ${REMOTE_NIC}.2 address $REMOTE_MAC_VLAN2
+        ip address replace dev ${REMOTE_NIC}.2 $REMOTE_IP_VLAN2/24
+        ip link set $REMOTE_NIC up
         ip link set ${REMOTE_NIC}.2 up"
     ip link set $br type bridge vlan_filtering 1
     sleep 1
@@ -160,7 +160,7 @@ function test_access_to_trunk_vlan() {
 
     verify_ping_ns $namespace1 $VF $NIC $REMOTE_IP_VLAN2 $time
 
-    on_remote "ip link del link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2 &>/dev/null;"
+    on_remote "ip link del link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2 &>/dev/null"
     ip link del name $br type bridge
     ip netns del $namespace1
     ip addr flush dev $NIC

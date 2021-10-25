@@ -29,8 +29,8 @@ bind_vfs
 
 
 function cleanup_remote() {
-    on_remote "ip a flush dev $REMOTE_NIC; \
-               ip l del dev vxlan1 &>/dev/null; \
+    on_remote "ip a flush dev $REMOTE_NIC
+               ip l del dev vxlan1 &>/dev/null
                ip l del dev $vlandev &>/dev/null"
 }
 
@@ -76,14 +76,14 @@ function config_ovs() {
 }
 
 function config_remote() {
-    on_remote "ip link add link $REMOTE_NIC name $vlandev type vlan id 20; \
-               ip link del vxlan1 &>/dev/null; \
-               ip link add vxlan1 type vxlan id $VXLAN_ID dev $vlandev dstport 4789; \
-               ip a flush dev $vlandev; \
-               ip a add $REMOTE_IP/24 dev $vlandev; \
-               ip a add $REMOTE/24 dev vxlan1; \
-               ip l set dev vxlan1 up; \
-               ip l set dev $REMOTE_NIC up; \
+    on_remote "ip link add link $REMOTE_NIC name $vlandev type vlan id 20
+               ip link del vxlan1 &>/dev/null
+               ip link add vxlan1 type vxlan id $VXLAN_ID dev $vlandev dstport 4789
+               ip a flush dev $vlandev
+               ip a add $REMOTE_IP/24 dev $vlandev
+               ip a add $REMOTE/24 dev vxlan1
+               ip l set dev vxlan1 up
+               ip l set dev $REMOTE_NIC up
                ip l set dev $vlandev up"
 }
 

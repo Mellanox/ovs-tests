@@ -31,7 +31,8 @@ not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
 
 function cleanup() {
     clear_remote_bonding
-    on_remote "ip a flush dev $REMOTE_NIC; ip a flush dev $REMOTE_NIC2"
+    on_remote "ip a flush dev $REMOTE_NIC
+               ip a flush dev $REMOTE_NIC2"
 
     ip link del name $br type bridge 2>/dev/null
     ip netns del $namespace1 &>/dev/null

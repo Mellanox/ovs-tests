@@ -53,17 +53,17 @@ function prep_setup()
     local profile=$1; shift
     local remote=$1; shift
 
-    local cmd="fw_config FLEX_PARSER_PROFILE_ENABLE=$profile || fail \"Cannot set flex parser profile\" ; \
-               fw_reset; \
-               config_sriov 2; \
-               enable_switchdev; \
-               unbind_vfs; \
-               bind_vfs; \
-               start_clean_openvswitch; \
-               start_check_syndrome; \
-               reset_tc $NIC $REP; \
-               ip link set dev $VF mtu 1468; \
-               modprobe -av bareudp || fail \"Can't load bareudp module\"; "
+    local cmd="fw_config FLEX_PARSER_PROFILE_ENABLE=$profile || fail \"Cannot set flex parser profile\"
+               fw_reset
+               config_sriov 2
+               enable_switchdev
+               unbind_vfs
+               bind_vfs
+               start_clean_openvswitch
+               start_check_syndrome
+               reset_tc $NIC $REP
+               ip link set dev $VF mtu 1468
+               modprobe -av bareudp || fail \"Can't load bareudp module\""
 
     if [ "X$remote" != "X" ]; then
         title "Prep remote"
@@ -91,17 +91,17 @@ function setup_topo()
         remote="on_remote"
     fi
     local vethmac=$(eval $remote ip link show dev $vf | grep ether | gawk '{print $2}')
-    local cmd="ip link add dev bareudp0 type bareudp dstport 6635 ethertype mpls_uc; \
-               ip link set up dev bareudp0; \
-               ip link set up dev $vf; \
-               ip link set up dev $rep; \
-               ip addr add $tunip/24 dev $tundev; \
-               ip link set up dev $tundev; \
-               ip addr add $vfip/24 dev $vf; \
-               ip neigh add $vfdest lladdr 00:11:22:33:44:55 dev $vf; \
-               tc filter add dev $rep protocol ip prio 1 root flower src_ip $vfip dst_ip $vfdest action tunnel_key set src_ip $tunip dst_ip $tundest id $LABEL dst_port $UDPPORT tos 4 ttl 6 action mpls push protocol mpls_uc label $LABEL tc 3 action mirred egress redirect dev bareudp0; \
-               tc qdisc add dev bareudp0 ingress; \
-               tc filter add dev bareudp0 protocol mpls_uc prio 1 ingress flower enc_dst_port $UDPPORT enc_key_id $LABEL action mpls pop protocol ip pipe action pedit ex munge eth dst set $vethmac pipe action mirred egress redirect dev $rep; "
+    local cmd="ip link add dev bareudp0 type bareudp dstport 6635 ethertype mpls_uc
+               ip link set up dev bareudp0
+               ip link set up dev $vf
+               ip link set up dev $rep
+               ip addr add $tunip/24 dev $tundev
+               ip link set up dev $tundev
+               ip addr add $vfip/24 dev $vf
+               ip neigh add $vfdest lladdr 00:11:22:33:44:55 dev $vf
+               tc filter add dev $rep protocol ip prio 1 root flower src_ip $vfip dst_ip $vfdest action tunnel_key set src_ip $tunip dst_ip $tundest id $LABEL dst_port $UDPPORT tos 4 ttl 6 action mpls push protocol mpls_uc label $LABEL tc 3 action mirred egress redirect dev bareudp0
+               tc qdisc add dev bareudp0 ingress
+               tc filter add dev bareudp0 protocol mpls_uc prio 1 ingress flower enc_dst_port $UDPPORT enc_key_id $LABEL action mpls pop protocol ip pipe action pedit ex munge eth dst set $vethmac pipe action mirred egress redirect dev $rep"
 
     if [ "X$remote" != "X" ]; then
         title "Setup topo on remote"

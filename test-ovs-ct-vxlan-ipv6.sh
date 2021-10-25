@@ -39,9 +39,9 @@ function set_nf_liberal() {
 ovs_ctl="/usr/share/openvswitch/scripts/ovs-ctl"
 
 function cleanup_remote() {
-    on_remote "ip a flush dev $REMOTE_NIC; \
-               ovs-vsctl del-br br-ovs &>/dev/null; \
-               ip link del veth0 &>/dev/null; \
+    on_remote "ip a flush dev $REMOTE_NIC
+               ovs-vsctl del-br br-ovs &>/dev/null
+               ip link del veth0 &>/dev/null
                $ovs_ctl stop &>/dev/null"
 }
 
@@ -82,16 +82,16 @@ function config() {
 
 function config_remote() {
     # native ipv6 vxlan tunnel doesn't work for me against ovs vxlan ipv6 so using remote ovs
-    on_remote "ip a flush dev $REMOTE_NIC; \
-               ip a add $REMOTE_TUN/64 dev $REMOTE_NIC; \
-               ip l set dev $REMOTE_NIC up; \
-               $ovs_ctl --delete-bridges start; \
-               ovs-vsctl add-br br-ovs; \
-               ovs-vsctl add-port br-ovs vxlan1 -- set interface vxlan1 type=vxlan options:local_ip=$REMOTE_TUN options:remote_ip=$LOCAL_TUN options:key=$VXLAN_ID options:dst_port=4789; \
-               ip link add veth0 type veth peer name veth1; \
-               ip link set veth0 up; \
-               ip link set veth1 up; \
-               ovs-vsctl add-port br-ovs veth0; \
+    on_remote "ip a flush dev $REMOTE_NIC
+               ip a add $REMOTE_TUN/64 dev $REMOTE_NIC
+               ip l set dev $REMOTE_NIC up
+               $ovs_ctl --delete-bridges start
+               ovs-vsctl add-br br-ovs
+               ovs-vsctl add-port br-ovs vxlan1 -- set interface vxlan1 type=vxlan options:local_ip=$REMOTE_TUN options:remote_ip=$LOCAL_TUN options:key=$VXLAN_ID options:dst_port=4789
+               ip link add veth0 type veth peer name veth1
+               ip link set veth0 up
+               ip link set veth1 up
+               ovs-vsctl add-port br-ovs veth0
                ip a add $REMOTE/24 dev veth1"
 }
 

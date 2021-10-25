@@ -36,8 +36,10 @@ function cleanup_exit() {
  }
 
 function cleanup() {
-    on_remote "ip netns exec ns0 ip l s $REMOTE_NIC2 netns 1; ip netns del ns0; \
-               ip addr flush $REMOTE_NIC; ip addr flush $REMOTE_NIC2" &>/dev/null
+    on_remote "ip netns exec ns0 ip l s $REMOTE_NIC2 netns 1
+               ip netns del ns0
+               ip addr flush $REMOTE_NIC
+               ip addr flush $REMOTE_NIC2" &>/dev/null
 
     ip addr flush $NIC
     ip addr flush $NIC2
@@ -114,12 +116,12 @@ function run() {
     tc filter show dev $VF1_NIC2 ingress
 
     title "config remote"
-    on_remote "ip addr add dev $REMOTE_NIC $REMOTE_IP/24; \
-               ip link set dev $REMOTE_NIC up; \
-               ip netns add ns0; \
-               ip link set dev $REMOTE_NIC2 netns ns0; \
-               ip -n ns0 addr add dev $REMOTE_NIC2 $REMOTE_IP2/24; \
-               ip -n ns0 link set dev $REMOTE_NIC2 up; \
+    on_remote "ip addr add dev $REMOTE_NIC $REMOTE_IP/24
+               ip link set dev $REMOTE_NIC up
+               ip netns add ns0
+               ip link set dev $REMOTE_NIC2 netns ns0
+               ip -n ns0 addr add dev $REMOTE_NIC2 $REMOTE_IP2/24
+               ip -n ns0 link set dev $REMOTE_NIC2 up
                ip route r $net via $SRC_IP"
 
     t=10

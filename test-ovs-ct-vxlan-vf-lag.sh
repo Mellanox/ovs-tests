@@ -49,7 +49,9 @@ function set_nf_liberal() {
 
 function cleanup_remote() {
     clear_remote_bonding
-    on_remote "ip a flush dev $REMOTE_NIC ; ip a flush dev $REMOTE_NIC2 ; ip l del dev vxlan1" &>/dev/null
+    on_remote "ip a flush dev $REMOTE_NIC
+               ip a flush dev $REMOTE_NIC2
+               ip l del dev vxlan1" &>/dev/null
 }
 
 function cleanup() {
@@ -93,10 +95,10 @@ function config_remote() {
     remote_disable_sriov
     on_remote "ip link del vxlan1 &>/dev/null"
     config_remote_bonding
-    on_remote "ip link add vxlan1 type vxlan id $VXLAN_ID dev bond0 dstport 4789; \
-               ip a add $REMOTE_IP/24 dev bond0; \
-               ip a add $REMOTE/24 dev vxlan1; \
-               ip l set dev vxlan1 up; \
+    on_remote "ip link add vxlan1 type vxlan id $VXLAN_ID dev bond0 dstport 4789
+               ip a add $REMOTE_IP/24 dev bond0
+               ip a add $REMOTE/24 dev vxlan1
+               ip l set dev vxlan1 up
                ip l set dev bond0 up"
 }
 

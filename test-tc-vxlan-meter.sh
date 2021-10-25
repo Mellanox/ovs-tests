@@ -26,7 +26,7 @@ BURST=65536
 TMPFILE=/tmp/meter.log
 
 function cleanup_remote() {
-    on_remote "ip a flush dev $REMOTE_NIC;
+    on_remote "ip a flush dev $REMOTE_NIC
                ip l del dev vxlan1 &>/dev/null"
 }
 
@@ -47,13 +47,13 @@ function config_vxlan() {
 }
 
 function config_remote() {
-    on_remote "ip link del vxlan1 &>/dev/null;
-               ip link add vxlan1 type vxlan id $VXLAN_ID dev $REMOTE_NIC dstport $DSTPORT;
-               ip a flush dev $REMOTE_NIC;
-               ip a add $REMOTE_IP/24 dev $REMOTE_NIC;
-               ip a add $REMOTE/24 dev vxlan1;
-               ip l set dev vxlan1 up;
-               ip l set vxlan1 address $VXLAN_MAC;
+    on_remote "ip link del vxlan1 &>/dev/null
+               ip link add vxlan1 type vxlan id $VXLAN_ID dev $REMOTE_NIC dstport $DSTPORT
+               ip a flush dev $REMOTE_NIC
+               ip a add $REMOTE_IP/24 dev $REMOTE_NIC
+               ip a add $REMOTE/24 dev vxlan1
+               ip l set dev vxlan1 up
+               ip l set vxlan1 address $VXLAN_MAC
                ip l set dev $REMOTE_NIC up"
 }
 
