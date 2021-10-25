@@ -40,7 +40,7 @@ function cleanup() {
     bind_vfs
 
     # Remove IPs and reset MTU
-    ifconfig $NIC 0 &>/dev/null
+    ifconfig $NIC 0
 
     # Clean ovs br-int
     ovs_clear_bridges
@@ -55,7 +55,7 @@ function cleanup() {
     unbind_vfs
     bind_vfs
 
-    ifconfig $NIC 0 &>/dev/null
+    ifconfig $NIC 0
 
     ovs_clear_bridges
     "
@@ -73,7 +73,7 @@ function config() {
     require_interfaces VF REP
 
     # Decrease MTU size at sender to append tunnel header
-    ifconfig $VF 0 mtu 1300 &>/dev/null
+    ifconfig $VF 0 mtu 1300
 
     # Start OVN
     ifconfig $NIC $OVN_CENTRAL_IP
