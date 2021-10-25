@@ -63,12 +63,11 @@ function config() {
 
     title "Config remote host"
     remote_disable_sriov
-    on_remote "\
-        ip link add vxlan1 type vxlan id 98 dev $REMOTE_NIC local $remote_ip dstport 4789 udp6zerocsumrx;\
-        ifconfig vxlan1 $REMOTE_VF_IP/24 up;\
-        ip link set vxlan1 addr 0a:40:bd:30:89:99;\
-        ip addr add $remote_ip/$subnet dev $REMOTE_NIC;\
-        ip link set $REMOTE_NIC up"
+    on_remote "ip link add vxlan1 type vxlan id 98 dev $REMOTE_NIC local $remote_ip dstport 4789 udp6zerocsumrx
+               ifconfig vxlan1 $REMOTE_VF_IP/24 up
+               ip link set vxlan1 addr 0a:40:bd:30:89:99
+               ip addr add $remote_ip/$subnet dev $REMOTE_NIC
+               ip link set $REMOTE_NIC up"
 
     sleep 1
 }

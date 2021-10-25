@@ -41,10 +41,9 @@ function cleanup() {
     ip link del name $br type bridge 2>/dev/null
     ip netns del $namespace1 &>/dev/null
 
-    on_remote "\
-        ip link del link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2 &>/dev/null;\
-        ip a del $REMOTE_IP/24 dev $REMOTE_NIC &>/dev/null;\
-        ip a del $REMOTE_IP_UNTAGGED/24 dev $REMOTE_NIC &>/dev/null"
+    on_remote "ip link del link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2 &>/dev/null
+               ip a del $REMOTE_IP/24 dev $REMOTE_NIC &>/dev/null
+               ip a del $REMOTE_IP_UNTAGGED/24 dev $REMOTE_NIC &>/dev/null"
 }
 trap cleanup EXIT
 cleanup
@@ -68,9 +67,8 @@ function test_no_vlan() {
     ip link set dev $NIC up
     ${1:+ip link set $br type bridge vlan_filtering 1}
 
-    on_remote "\
-        ip a add dev $REMOTE_NIC $REMOTE_IP/24;\
-        ip link set $REMOTE_NIC up;"
+    on_remote "ip a add dev $REMOTE_NIC $REMOTE_IP/24
+               ip link set $REMOTE_NIC up"
     sleep 1
     flush_bridge $br
 

@@ -30,9 +30,8 @@ function __cleanup() {
     ip netns del ns0 &>/dev/null
     start_clean_openvswitch
 
-    on_remote "\
-        ip link del vxlan0 type vxlan &>/dev/null;\
-        ip addr del $remote_ip/$subnet dev $REMOTE_NIC &>/dev/null"
+    on_remote "ip link del vxlan0 type vxlan &>/dev/null
+               ip addr del $remote_ip/$subnet dev $REMOTE_NIC &>/dev/null"
 }
 
 function cleanup() {
@@ -109,13 +108,12 @@ function config() {
 
     title "Config remote host"
     remote_disable_sriov
-    on_remote "\
-        ip link add vxlan0 type vxlan id 98 dev $REMOTE_NIC local $remote_ip dstport 4789 udp6zerocsumrx;\
-        ifconfig vxlan0 $REMOTE_VXLAN_DEV_IP/24 up;\
-        ip link set vxlan0 addr $REMOTE_VXLAN_DEV_MAC;\
-        ip neigh replace $VF_IP dev vxlan0 lladdr $VF_MAC;\
-        ip addr add $remote_ip/$subnet dev $REMOTE_NIC;\
-        ip link set $REMOTE_NIC up"
+    on_remote "ip link add vxlan0 type vxlan id 98 dev $REMOTE_NIC local $remote_ip dstport 4789 udp6zerocsumrx
+               ifconfig vxlan0 $REMOTE_VXLAN_DEV_IP/24 up
+               ip link set vxlan0 addr $REMOTE_VXLAN_DEV_MAC
+               ip neigh replace $VF_IP dev vxlan0 lladdr $VF_MAC
+               ip addr add $remote_ip/$subnet dev $REMOTE_NIC
+               ip link set $REMOTE_NIC up"
 
     sleep 1
 }

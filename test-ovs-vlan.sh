@@ -57,11 +57,10 @@ function config() {
 }
 
 function config_remote() {
-    on_remote "\
-        ip a flush dev $REMOTE_NIC;\
-        ip link add link $REMOTE_NIC name $vlan_dev type vlan id $vlan;\
-        ip a add $REMOTE/24 dev $vlan_dev;\
-        ip l set dev $vlan_dev up"
+    on_remote "ip a flush dev $REMOTE_NIC
+               ip link add link $REMOTE_NIC name $vlan_dev type vlan id $vlan
+               ip a add $REMOTE/24 dev $vlan_dev
+               ip l set dev $vlan_dev up"
 }
 
 function add_openflow_rules() {
