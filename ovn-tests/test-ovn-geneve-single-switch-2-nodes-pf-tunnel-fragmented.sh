@@ -76,10 +76,11 @@ function config() {
     ifconfig $NIC 0 mtu 2000
 
     # Start OVN
-    ifconfig $NIC $OVN_CENTRAL_IP &>/dev/null
+    ifconfig $NIC $OVN_CENTRAL_IP
+    start_clean_openvswitch
+    ovn_set_ovs_config $OVN_CENTRAL_IP $OVN_CENTRAL_IP $TUNNEL_GENEVE
     ovn_start_northd_central $OVN_CENTRAL_IP
     ovn_start_ovn_controller
-    ovn_set_ovs_config $OVN_CENTRAL_IP $OVN_CENTRAL_IP $TUNNEL_GENEVE
 }
 
 function config_remote() {
@@ -99,6 +100,7 @@ function config_remote() {
 
     # Start OVN
     ifconfig $NIC $OVN_REMOTE_CONTROLLER_IP
+    start_clean_openvswitch
     ovn_set_ovs_config $OVN_CENTRAL_IP $OVN_REMOTE_CONTROLLER_IP $TUNNEL_GENEVE
     ovn_start_ovn_controller
     "
