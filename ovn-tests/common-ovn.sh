@@ -406,3 +406,18 @@ function ovn_start_clean() {
     ovn_clear_routers
     ovn_clear_chassis
 }
+
+function ovn_add_network() {
+    local br=${1:-$OVN_PF_BRIDGE}
+    local network_iface=${2:-$NIC}
+    local network=${3:-$OVN_EXTERNAL_NETWORK}
+
+    ovs-vsctl --may-exist add-br $br -- --may-exist add-port $br $network_iface -- set Open_vSwitch . external_ids:ovn-bridge-mappings=$network:$br
+}
+
+function ovn_remove_network() {
+    local br=${1:-$OVN_PF_BRIDGE}
+    local network_iface=${2:-$NIC}
+
+    ovs-vsctl --if-exists del-port $br $network_iface -- --if-exists del-br $br -- remove Open_vSwitch . external_ids ovn-bridge-mappings
+}

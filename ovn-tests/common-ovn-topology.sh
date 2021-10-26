@@ -3,6 +3,7 @@ OVN_TOPO_DIR="$OVN_DIR/ovn-topologies"
 TOPOLOGY_SINGLE_SWITCH="$OVN_TOPO_DIR/single-switch.yaml"
 TOPOLOGY_2_SWITCHES="$OVN_TOPO_DIR/two-switches.yaml"
 TOPOLOGY_SINGLE_ROUTER_2_SWITCHES="$OVN_TOPO_DIR/single-router-2-switches.yaml"
+TOPOLOGY_GATEWAY_ROUTER="$OVN_TOPO_DIR/gateway-router.yaml"
 
 function ovn_create_topology() {
     local topology_file=${1:-$TOPOLOGY}
@@ -119,6 +120,49 @@ function ovn_get_routers() {
     local attr=${2:-"."}
 
     ovn_get_topology $topology ".[] | select(.type == \"router\") | collect | $attr"
+}
+
+function ovn_get_router() {
+    local topology=$1
+    local router=$2
+    local attr=${3:-"."}
+
+    ovn_get_topology $topology ".[] | select(.name == \"$router\") | $attr"
+}
+
+function ovn_get_router_ports() {
+    local topology=$1
+    local router=$2
+    local attr=${3:-"."}
+
+    ovn_get_router $topology $router ".ports | $attr"
+}
+
+function ovn_get_router_port() {
+    local topology=$1
+    local router=$2
+    local port=$3
+    local attr=${4:-"."}
+
+    ovn_get_router_ports $topology $router ".[] | select(.name == \"$port\") | $attr"
+}
+
+function ovn_get_router_port_ip() {
+    local topology=$1
+    local router=$2
+    local port=$3
+    local index=${4:-0}
+
+    ovn_get_router_port $topology $router $port ".ipv4[$index]" | cut -d / -f1
+}
+
+function ovn_get_router_port_ipv6() {
+    local topology=$1
+    local router=$2
+    local port=$3
+    local index=${4:-0}
+
+    ovn_get_router_port $topology $router $port ".ipv6[$index]" | cut -d / -f1
 }
 
 function ovn_get_router_port_for_switch() {
