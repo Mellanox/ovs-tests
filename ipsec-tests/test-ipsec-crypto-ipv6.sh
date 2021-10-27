@@ -135,20 +135,21 @@ function test_tx_off_rx_off() {
 }
 
 function run_test() {
-    title "test transport ipv4 with key length 128"
-    test_tx_off_rx transport 128 ipv4
+    title "transport ipv6 with key length 128"
     clean_up
-    test_tx_rx_off transport 128 ipv4
+    test_tx_off_rx transport 128 ipv6
     clean_up
-    test_tx_off_rx_off transport 128 ipv4
+    test_tx_rx_off transport 128 ipv6
+    clean_up
+    test_tx_off_rx_off transport 128 ipv6
     clean_up
 
-    title "transport ipv4 with key length 256"
-    test_tx_off_rx transport 256 ipv4
+    title "transport ipv6 with key length 256"
+    test_tx_off_rx transport 256 ipv6
     clean_up
-    test_tx_rx_off transport 256 ipv4
+    test_tx_rx_off transport 256 ipv6
     clean_up
-    test_tx_off_rx_off transport 256 ipv4
+    test_tx_off_rx_off transport 256 ipv6
     clean_up
 }
 
