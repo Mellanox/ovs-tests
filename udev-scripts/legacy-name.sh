@@ -16,8 +16,9 @@ fi
 NAME=`echo $NAME | tr -cd '[:alnum:]._-'`
 
 NAME=${NAME%%np[[:digit:]]}
-# strip npX even from middle of the name.
-# e.g. new kernels have vf name as ens0f0np1vf0
+NAME=`echo $NAME | sed 's/npf.vf/_/'`
+NAME=`echo $NAME | sed 's/np.v/v/'`
+# e.g. ens0f0np1vf0
 NAME=`echo $NAME | sed 's/np[0-9]\+vf/vf/'`
 echo NAME=$NAME
 exit 0

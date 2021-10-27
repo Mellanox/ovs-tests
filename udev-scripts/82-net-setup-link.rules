@@ -1,10 +1,7 @@
+SUBSYSTEM=="net", ACTION=="add", \
+	IMPORT{program}="/etc/udev/legacy-name.sh" \
+	NAME="$env{NAME}"
+
 SUBSYSTEM=="net", ACTION=="add", ATTR{phys_switch_id}!="", ATTR{phys_port_name}!="", \
-        IMPORT{program}="/etc/udev/vf-net-link-name.sh $attr{phys_port_name} $attr{phys_switch_id}" \
-        NAME="$env{NAME}", GOTO="net_setup_skip_link_name"
-
-
-SUBSYSTEM=="net", ACTION=="add", ATTR{phys_port_name}!="", \
-        IMPORT{program}="/etc/udev/vf-net-link-name.sh $attr{phys_port_name}" \
-        NAME="$env{NAME}"
-
-LABEL="net_setup_skip_link_name"
+	IMPORT{program}="/etc/udev/vf-net-link-name.sh $attr{phys_port_name} $attr{phys_switch_id}" \
+	NAME="$env{NAME}"
