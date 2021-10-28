@@ -42,7 +42,7 @@ function run_test() {
     title "Send corrupted packets"
     on_remote timeout $((t+2)) tcpdump -qnnei $REMOTE_NIC -c 5 &
     local pid=$!
-    python corrupt-auth.py $NIC
+    python $my_dir/corrupt-auth.py $NIC
     local curr_pkts=`on_remote ethtool -S $REMOTE_NIC | grep -E 'rx_packets_phy|vport_rx_packets' | awk {'print $2'} | tail -1`
 
     title "Verify no traffic on $REMOTE_NIC"
