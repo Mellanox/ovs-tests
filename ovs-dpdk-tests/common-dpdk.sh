@@ -76,7 +76,7 @@ function query_sw_packets() {
     local num_of_pkts=50000
 
     if [[ "$short_device_name" == "cx5"* ]]; then
-        num_of_pkts=200000
+        num_of_pkts=350000
     fi
 
     echo "Expecting $num_of_pkts to reach SW"
