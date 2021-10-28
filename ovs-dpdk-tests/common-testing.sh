@@ -1,11 +1,12 @@
 function ovs_add_ct_rules() {
-    ovs-ofctl del-flows br-int
-    ovs-ofctl add-flow br-int "arp,actions=NORMAL"
-    ovs-ofctl add-flow br-int "table=0,ip,ct_state=-trk,actions=ct(zone=5, table=1)"
-    ovs-ofctl add-flow br-int "table=1,ip,ct_state=+trk+new,actions=ct(zone=5, commit),NORMAL"
-    ovs-ofctl add-flow br-int "table=1,ip,ct_state=+trk+est,ct_zone=5,actions=normal"
+    local bridge=${1:-"br-int"}
+    ovs-ofctl del-flows $bridge
+    ovs-ofctl add-flow $bridge "arp,actions=NORMAL"
+    ovs-ofctl add-flow $bridge "table=0,ip,ct_state=-trk,actions=ct(zone=5, table=1)"
+    ovs-ofctl add-flow $bridge "table=1,ip,ct_state=+trk+new,actions=ct(zone=5, commit),NORMAL"
+    ovs-ofctl add-flow $bridge "table=1,ip,ct_state=+trk+est,ct_zone=5,actions=normal"
     echo "OVS flow rules:"
-    ovs-ofctl dump-flows br-int --color
+    ovs-ofctl dump-flows $bridge --color
 }
 
 function verify_ping() {
@@ -28,9 +29,11 @@ function generate_traffic() {
     echo -e "\nTesting TCP traffic remote = $remote , ip = $my_ip , namespace = $namespace"
 
     # server
+    rm -rf /tmp/perf_server
     ip netns exec ns0 timeout $((t+2)) iperf3 -f Mbits -s -D --logfile /tmp/perf_server
     sleep 2
     # client
+    rm -rf /tmp/perf_client
     local cmd="iperf3 -f Mbits -c $my_ip -t $t -P 5 &> /tmp/perf_client"
     if [ -n "$namespace" ]; then
         cmd="ip netns exec $namespace $cmd"
@@ -84,9 +87,19 @@ function remote_ovs_cleanup() {
 }
 
 function cleanup_test() {
+    local tunnel_device_name=$1
     ip a flush dev $NIC
     ip -all netns delete &>/dev/null
     cleanup_e2e_cache
-    cleanup_remote_tunnel
+    cleanup_remote_tunnel $tunnel_device_name
     sleep 0.5
+}
+
+function config_remote_vlan() {
+    local vlan=$1
+    local vlan_dev=$2
+    on_remote "ip a flush dev $REMOTE_NIC
+           ip link add link $REMOTE_NIC name $vlan_dev type vlan id $vlan
+           ip a add $REMOTE_IP/24 dev $vlan_dev
+           ip l set dev $vlan_dev up"
 }
