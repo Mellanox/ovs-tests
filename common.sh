@@ -479,9 +479,6 @@ export CONFIG=${CONFIG}
 export NO_TITLE=1
 . ${DIR}/common.sh
 
-if [ "x${DPDK}" == "x1" ]; then
-    . ${DIR}/ovs-dpdk-tests/common-dpdk.sh
-fi
 $@
 EOF
 bash /tmp/dt_cmd.$$.sh && /bin/rm -f /tmp/dt_cmd.$$.sh"
@@ -1674,6 +1671,10 @@ function require_fw_ver() {
     fi
 }
 
+function __include_common_dpdk() {
+    . ${DIR}/ovs-dpdk-tests/common-dpdk.sh
+}
+
 function __load_config() {
     local conf
 
@@ -1692,6 +1693,10 @@ function __load_config() {
 
     echo "Loading config $conf"
     . $conf
+
+    if [ "x${DPDK}" == "x1" ]; then
+        __include_common_dpdk
+    fi
 
     test -n "$FORCE_VF2" && VF2=$FORCE_VF2
     test -n "$FORCE_REP2" && REP2=$FORCE_REP2
