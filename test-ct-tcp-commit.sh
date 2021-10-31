@@ -111,7 +111,7 @@ function run() {
         err "TC stats are not updated"
     fi
 
-    title "verify traffic offloaded"
+    title "Verify no traffic on $REP"
     verify_no_traffic $pid
 
     reset_tc $REP $REP2

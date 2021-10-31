@@ -97,16 +97,8 @@ function run() {
     killall -9 iperf &>/dev/null
     wait $! 2>/dev/null
 
-    # test sniff timedout
-    wait $pid
-    rc=$?
-    if [[ $rc -eq 124 ]]; then
-        :
-    elif [[ $rc -eq 0 ]]; then
-        err "Didn't expect to see packets"
-    else
-        err "Tcpdump failed"
-    fi
+    title "Verify no traffic on $REP"
+    verify_no_traffic $pid
 
     sleep 1
     reload_modules

@@ -107,29 +107,14 @@ function run() {
     wait $! 2>/dev/null
 
     # test offloaded
-    wait $pid
-    rc=$?
-    if [[ $rc -eq 124 ]]; then
-        :
-    elif [[ $rc -eq 0 ]]; then
-        err "Didn't expect to see packets"
-    else
-        err "Tcpdump failed"
-    fi
+    title "Verify no traffic on $REP2"
+    verify_no_traffic $pid
 
     # test mirror port
-    wait $pid2
-    rc=$?
-    if [[ $rc -eq 0 ]]; then
-        :
-    elif [[ $rc -eq 124 ]]; then
-        err "Expected mirror packets"
-    else
-        err "Tcpdump mirror failed"
-    fi
+    title "Verify traffic on $VF3"
+    verify_have_traffic $pid2
 
-    reset_tc $REP
-    reset_tc $REP2
+    reset_tc $REP $REP2
     # wait for traces as merging & offloading is done in workqueue.
     sleep 3
 }

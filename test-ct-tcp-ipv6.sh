@@ -113,19 +113,10 @@ function run() {
         err "TC stats are not updated"
     fi
 
-    title "verify traffic offloaded"
-    wait $pid
-    rc=$?
-    if [[ $rc -eq 124 ]]; then
-        :
-    elif [[ $rc -eq 0 ]]; then
-        err "Didn't expect to see packets"
-    else
-        err "Tcpdump failed"
-    fi
+    title "Verify no traffic on $REP"
+    verify_no_traffic $pid
 
-    reset_tc $REP
-    reset_tc $REP2
+    reset_tc $REP $REP2
     # wait for traces as merging & offloading is done in workqueue.
     sleep 3
 }
