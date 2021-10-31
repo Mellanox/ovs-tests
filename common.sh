@@ -1892,6 +1892,16 @@ function compile_psample() {
     make -C /tmp/psample || fail "Failed to compile psample in dir $psample_dir"
 }
 
+function ns_wrap() {
+    local cmd=$1
+    local ns=$2
+
+    if [[ -n $ns ]]; then
+        cmd="ip netns exec $ns $cmd"
+    fi
+    echo $cmd
+}
+
 ### main
 if [ "X${NO_TITLE}" == "X" ]; then
     title2 $TESTNAME
