@@ -1902,6 +1902,26 @@ function ns_wrap() {
     echo $cmd
 }
 
+function set_lag_resource_allocation() {
+    local value=$1
+    title "lag_resource_allocation value to $value"
+    fw_config LAG_RESOURCE_ALLOCATION=$value || fail "Cannot set lag resource allocation to $value"
+    fw_reset
+}
+
+function set_lag_port_select_mode() {
+    if ! is_ofed ; then
+        fail "Cannot set lag port select mode"
+        return
+    fi
+    local mode=$1
+    log "Changing lag port select mode to $mode"
+    enable_legacy &>/dev/null
+    enable_legacy $NIC2 &>/dev/null
+    echo $mode > /sys/class/net/$NIC/compat/devlink/lag_port_select_mode || fail "failed to set lag_port_select_mode to $mode"
+    echo $mode > /sys/class/net/$NIC2/compat/devlink/lag_port_select_mode || fail "failed to set lag_port_select_mode to $mode"
+}
+
 ### main
 if [ "X${NO_TITLE}" == "X" ]; then
     title2 $TESTNAME

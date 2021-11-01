@@ -12,24 +12,6 @@ my_dir="$(dirname "$0")"
 require_module bonding
 not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
 
-function set_lag_resource_allocation() {
-    local mode=$1
-    title "lag_resource_allocation value to $mode"
-    fw_config LAG_RESOURCE_ALLOCATION=$mode || fail "Cannot set lag resource allocation to $mode"
-    fw_reset
-}
-
-function set_lag_port_select_mode() {
-    if ! is_ofed ; then
-        return
-    fi
-    local mode=$1
-    enable_legacy &>/dev/null
-    enable_legacy $NIC2 &>/dev/null
-    echo $mode > /sys/class/net/$NIC/compat/devlink/lag_port_select_mode || fail "failed to set lag_port_select_mode to $mode"
-    echo $mode > /sys/class/net/$NIC2/compat/devlink/lag_port_select_mode || fail "failed to set lag_port_select_mode to $mode"
-}
-
 function config() {
     config_sriov 2
     config_sriov 2 $NIC2
@@ -40,7 +22,7 @@ function config() {
 
 function cleanup() {
     clear_bonding
-    set_lag_port_select_mode "queue_affinity"
+    set_lag_port_select_mode "queue_affinity" &>/dev/null
     config_sriov 2 &>/dev/null
     config_sriov 0 $NIC2 &>/dev/null
     enable_switchdev &>/dev/null
@@ -62,6 +44,7 @@ function check_bond_xmit_hash_policy() {
 }
 
 trap cleanup EXIT
+
 start_check_syndrome
 clear_bonding
 set_lag_resource_allocation 1
