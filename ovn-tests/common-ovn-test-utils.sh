@@ -8,3 +8,5 @@ OVN_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" &>/dev/null && pwd)
 OVN_LOCAL_CENTRAL_IP="127.0.0.1"
 OVN_CENTRAL_IP="192.168.100.100"
 OVN_REMOTE_CONTROLLER_IP="192.168.100.101"
+
+require_ovn

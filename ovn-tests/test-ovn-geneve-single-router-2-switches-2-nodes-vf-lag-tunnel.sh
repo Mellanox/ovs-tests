@@ -7,7 +7,6 @@ my_dir="$(dirname "$0")"
 . $my_dir/common-ovn-test-utils.sh
 
 require_remote_server
-require_ovn
 
 TOPOLOGY=$TOPOLOGY_SINGLE_ROUTER_2_SWITCHES
 SWITCH1=$(ovn_get_switch_name_with_vif_port $TOPOLOGY 0)

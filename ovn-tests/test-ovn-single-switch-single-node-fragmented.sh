@@ -6,8 +6,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common-ovn-test-utils.sh
 
-require_ovn
-
 TOPOLOGY=$TOPOLOGY_SINGLE_SWITCH
 SWITCH=$(ovn_get_switch_name_with_vif_port $TOPOLOGY)
 
