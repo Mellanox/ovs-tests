@@ -91,20 +91,18 @@ function config_remote() {
 }
 
 function run_server() {
-    on_remote timeout -k 1 $((t+3)) iperf -s &
-    pk1=$!
+    on_remote timeout -k 1 $((t+3)) iperf3 -s -D
     sleep 2
 }
 
 function run_client() {
-    ip netns exec ns0 timeout -k 1 $((t+2)) iperf -c $REMOTE -t $t -P3 &
-    pk2=$!
+    ip netns exec ns0 timeout -k 1 $((t+2)) iperf3 -c $REMOTE -t $t -P3 --logfile /tmp/iperf_client &
+    pk1=$!
 }
 
 function kill_traffic() {
-    kill -9 $pk1 &>/dev/null
-    kill -9 $pk2 &>/dev/null
-    wait $pk1 $pk2 2>/dev/null
+    killall -9 -q iperf3
+    on_remote killall -9 -q iperf3
 }
 
 function run() {
@@ -134,15 +132,15 @@ function run() {
     sleep 2
     kill -0 $pk1 &>/dev/null
     p1=$?
-    kill -0 $pk2 &>/dev/null
-    p2=$?
-    if [ $p1 -ne 0 ] || [ $p2 -ne 0 ]; then
-        err "traffic failed"
+    if [ $p1 -ne 0 ]; then
+        err "cannot find iperf pid"
         return
     fi
 
     timeout $((t-4)) tcpdump -qnnei $REP -c 10 'tcp' &
     tpid=$!
+
+    grep SUM /tmp/iperf_client | tail -1
 
     sleep $t
     title "Verify traffic is offloaded"
@@ -169,6 +167,7 @@ function iterate_bond_slaves() {
         sleep $t
         kill_traffic
         wait
+        grep SUM /tmp/iperf_client | tail -1
         count2=`get_rx_pkts $slave1`
         ((count1+=100))
         if [ "$count2" -lt "$count1" ]; then
