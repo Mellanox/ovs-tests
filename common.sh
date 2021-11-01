@@ -350,7 +350,7 @@ function config_bonding() {
     __config_bonding $@
     if ! is_vf_lag_activated ; then
         err "VF LAG not activated in the driver?"
-        return
+        return 1
     fi
     reset_tc bond0
 }
