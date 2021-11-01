@@ -10,6 +10,12 @@ RIP6="2001:192:168:211::65"
 
 require_cmd xxd
 
+function require_ip_xfrm() {
+    ip xfrm state &>/dev/null || fail "ipsec is not supported"
+}
+
+require_ip_xfrm
+
 #KEYMAT 20 octets = KEY 16ocets, SALT 4octets
 #128 refers to the KEY without the SALT.
 KEY_IN_128=0x`dd if=/dev/urandom count=20 bs=1 2> /dev/null| xxd -p -c 40`
