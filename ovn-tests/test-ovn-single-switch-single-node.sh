@@ -4,8 +4,7 @@
 #
 
 my_dir="$(dirname "$0")"
-. $my_dir/../common.sh
-. $my_dir/common-ovn.sh
+. $my_dir/common-ovn-test-utils.sh
 
 require_ovn
 

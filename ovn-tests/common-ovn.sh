@@ -1,16 +1,8 @@
 OVN_BRIDGE_INT="br-int"
 OVN_CTL="/usr/share/ovn/scripts/ovn-ctl"
-OVN_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" &>/dev/null && pwd)
-
-. $OVN_DIR/common-ovn-topology.sh
 
 # Tunnels
 TUNNEL_GENEVE="geneve"
-
-# OVN IPs
-OVN_LOCAL_CENTRAL_IP="127.0.0.1"
-OVN_CENTRAL_IP="192.168.100.100"
-OVN_REMOTE_CONTROLLER_IP="192.168.100.101"
 
 # Traffic type
 ETH_IP="0x0800"
