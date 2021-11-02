@@ -31,7 +31,7 @@ function generate_traffic() {
     ip netns exec ns0 timeout $((t+2)) iperf3 -f Mbits -s -D --logfile /tmp/perf_server
     sleep 2
     # client
-    local cmd="iperf3 -f Mbits -c $my_ip -t $t -P 5 --logfile /tmp/perf_client"
+    local cmd="iperf3 -f Mbits -c $my_ip -t $t -P 5 &> /tmp/perf_client"
     if [ -n "$namespace" ]; then
         cmd="ip netns exec $namespace $cmd"
     fi
