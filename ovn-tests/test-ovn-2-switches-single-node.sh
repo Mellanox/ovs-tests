@@ -20,26 +20,6 @@ MAC2=$(ovn_get_switch_port_mac $TOPOLOGY $SWITCH2 $PORT2)
 IP2=$(ovn_get_switch_port_ip $TOPOLOGY $SWITCH2 $PORT2)
 IP_V6_2=$(ovn_get_switch_port_ipv6 $TOPOLOGY $SWITCH2 $PORT2)
 
-# stop OVN, clean namespaces, ovn network topology, and ovs br-int interfaces
-function cleanup() {
-    # Remove OVN topology
-    ovn_destroy_topology $TOPOLOGY
-
-    # Stop ovn
-    ovn_remove_ovs_config
-    ovn_stop_ovn_controller
-    ovn_stop_northd_central
-
-    # Clean namespaces
-    ip -all netns del
-
-    unbind_vfs
-    bind_vfs
-
-    # Clean ovs br-int
-    ovs_clear_bridges
-}
-
 function pre_test() {
     # Verify NIC
     require_interfaces NIC
@@ -87,9 +67,9 @@ function run_test() {
     ip netns exec ns0 ping -6 -w 4 $IP_V6_2 && err || success "No Connection"
 }
 
-cleanup
+ovn_clean_up
 
-trap cleanup EXIT
+trap ovn_clean_up EXIT
 
 pre_test
 start_check_syndrome
@@ -97,7 +77,7 @@ run_test
 
 check_syndrome
 
-cleanup
+ovn_clean_up
 trap - EXIT
 
 test_done

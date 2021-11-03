@@ -28,44 +28,6 @@ MAC2=$(ovn_get_switch_port_mac $TOPOLOGY $SWITCH2 $PORT2)
 IP2=$(ovn_get_switch_port_ip $TOPOLOGY $SWITCH2 $PORT2)
 IP_V6_2=$(ovn_get_switch_port_ipv6 $TOPOLOGY $SWITCH2 $PORT2)
 
-# stop OVN, clean namespaces, ovn network topology, and ovs br-int interfaces
-function cleanup() {
-    # Remove OVN topology
-    ovn_destroy_topology $TOPOLOGY
-
-    # Stop ovn
-    ovn_remove_ovs_config
-    ovn_stop_ovn_controller
-    ovn_stop_northd_central
-
-    # Clean namespaces
-    ip -all netns del
-
-    unbind_vfs
-    unbind_vfs $NIC2
-    clear_bonding $NIC $NIC2
-    bind_vfs
-    config_sriov 0 $NIC2
-
-    ovs_clear_bridges
-
-    # Clean up on remote
-    on_remote_exec "
-    ovn_remove_ovs_config
-    ovn_stop_ovn_controller
-
-    ip -all netns del
-
-    unbind_vfs
-    unbind_vfs $NIC2
-    clear_bonding $NIC $NIC2
-    bind_vfs
-    config_sriov 0 $NIC2
-
-    ovs_clear_bridges
-    "
-}
-
 function config() {
     # Verify NIC
     require_interfaces NIC NIC2
@@ -183,9 +145,12 @@ function run_test() {
     check_remote_udp6_traffic_offload $REP ns0 ns0 $IP_V6_2
 }
 
-cleanup
+HAS_REMOTE=1
+HAS_BOND=1
 
-trap cleanup EXIT
+ovn_clean_up
+
+trap ovn_clean_up EXIT
 
 pre_test
 start_check_syndrome
@@ -193,7 +158,7 @@ run_test
 
 check_syndrome
 
-cleanup
+ovn_clean_up
 trap - EXIT
 
 test_done
