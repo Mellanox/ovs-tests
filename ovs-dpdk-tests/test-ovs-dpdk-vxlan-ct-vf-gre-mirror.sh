@@ -38,7 +38,7 @@ config_local_tunnel_ip $LOCAL_TUN_IP br-phy
 config_remote_tunnel vxlan
 on_remote ip a add $DUMMY_IP/24 dev $REMOTE_NIC
 
-add_ovs_ct_rules
+ovs_add_ct_rules
 
 verify_ping
 
