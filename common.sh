@@ -339,11 +339,18 @@ function __config_bonding() {
 
     ip link set dev $nic1 down
     ip link set dev $nic2 down
-    ip link set dev $nic1 master bond0 || fail "Failed to attach $nic1 to bond0"
-    ip link set dev $nic2 master bond0 || fail "Failed to attach $nic2 to bond0"
+    ip link set dev $nic1 master bond0
+    local rc1=$?
+    ip link set dev $nic2 master bond0
+    local rc2=$?
+    if [ $rc1 -ne 0 ] || [ $rc2 -ne 0 ]; then
+        fail "Failed to attach devices to bond0"
+        return $rc1
+    fi
     ip link set dev bond0 up
     ip link set dev $nic1 up
     ip link set dev $nic2 up
+    return 0
 }
 
 function config_bonding() {
