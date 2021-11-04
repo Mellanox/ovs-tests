@@ -1,0 +1,11 @@
+extends: default
+
+rules:
+    line-length:
+        max: 100
+        level: warning
+    document-start: false
+    document-end: false
+    indentation:
+        spaces: consistent
+        indent-sequences: true
