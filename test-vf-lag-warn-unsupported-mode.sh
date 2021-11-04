@@ -25,7 +25,7 @@ function cleanup() {
 function test_bond_mode() {
     local ret1
     local ret2
-    local bonded
+    local vf_lag
     local mode=$1
 
     title "Test $1 mode"
@@ -46,16 +46,16 @@ function test_bond_mode() {
     ip link set dev $NIC2 nomaster &>/dev/null
     ip link del name bond1 &>/dev/null
 
-    bonded=$(is_bonded)
+    vf_lag=$(is_vf_lag_activated)
     if [[ $ret1 != "" || $ret2 != $warning ]]; then
         echo $ret1
         echo $ret2
         err "unexpected warning returned."
-    elif [[ ! $bonded && $warning == "" ]] ; then
+    elif [[ ! $vf_lag && $warning == "" ]] ; then
         echo $ret1
         echo $ret2
         err "VF LAG is not activated."
-    elif [[ $bonded && $warning != "" ]] ; then
+    elif [[ $vf_lag && $warning != "" ]] ; then
         echo $ret1
         echo $ret2
         err "VF LAG is activated."

@@ -50,7 +50,7 @@ function test_bond_mode() {
 
     if [[ $ret1 != "" || $ret2 != $warning ]]; then
         err "unexpected warning returned."
-    elif is_bonded ; then
+    elif is_vf_lag_activated ; then
         err "VF LAG is activated."
     else
         success

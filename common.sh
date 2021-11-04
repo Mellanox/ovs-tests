@@ -291,7 +291,7 @@ function setup_expected_steering_mode() {
     show_current_steering_mode
 }
 
-function is_bonded() {
+function is_vf_lag_activated() {
     local rc
     for _ in `seq 5`; do
         sleep 1 # wait a second. saw up to 5 sec on nic mode.
@@ -348,8 +348,8 @@ function __config_bonding() {
 
 function config_bonding() {
     __config_bonding $@
-    if ! is_bonded ; then
-        err "Driver bond failed"
+    if ! is_vf_lag_activated ; then
+        err "VF LAG not activated in the driver?"
         return
     fi
     reset_tc bond0
