@@ -339,8 +339,8 @@ function __config_bonding() {
 
     ip link set dev $nic1 down
     ip link set dev $nic2 down
-    ip link set dev $nic1 master bond0
-    ip link set dev $nic2 master bond0
+    ip link set dev $nic1 master bond0 || fail "Failed to attach $nic1 to bond0"
+    ip link set dev $nic2 master bond0 || fail "Failed to attach $nic2 to bond0"
     ip link set dev bond0 up
     ip link set dev $nic1 up
     ip link set dev $nic2 up
