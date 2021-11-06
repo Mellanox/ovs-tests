@@ -18,8 +18,7 @@ require_interfaces REP NIC
 unbind_vfs
 bind_vfs
 
-
-trap cleanup_test EXIT
+trap 'cleanup_test $vlan_dev' EXIT
 
 function config() {
     ip netns add ns0
