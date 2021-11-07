@@ -144,6 +144,7 @@ class SetupConfigure(object):
             f.write('fi\n')
 
     def LoadPFInfo(self):
+        pnics = []
         for net in sorted(glob('/sys/class/net/*')):
             device = os.path.join(net, 'device')
 
@@ -177,10 +178,13 @@ class SetupConfigure(object):
                      }
 
             self.Logger.info("Found PF %s", PFName)
-            self.host.PNics = sorted(getattr(self.host, 'PNics', []) + [PFInfo], key=lambda k: k['bus'])
+            pnics.append(PFInfo)
+
+        self.host.PNics = sorted(pnics, key=lambda k: k['bus'])
 
     def LoadVFInfo(self):
         for PFInfo in self.host.PNics:
+            vfs = []
             for vfID in sorted(glob('/sys/class/net/%s/device/virtfn*/net/*' % PFInfo['name'])):
                 nameOutput = os.path.basename(vfID)
                 device = os.path.join(vfID, 'device')
@@ -193,16 +197,13 @@ class SetupConfigure(object):
                         }
 
                 self.Logger.info('PF %s VF %s', PFInfo['name'], nameOutput)
-                PFInfo['vfs'].append(VFInfo)
+                vfs.append(VFInfo)
 
-            PFInfo['vfs'] = sorted(PFInfo['vfs'], key=lambda k: k['bus'])
+            PFInfo['vfs'] = sorted(vfs, key=lambda k: k['bus'])
             if len(PFInfo['vfs']) == 0:
                 raise RuntimeError("Cannot find VFs for PF %s" % PFInfo['name'])
 
     def UpdateVFInfo(self):
-        for PFInfo in self.host.PNics:
-            PFInfo['vfs'] = []
-
         self.LoadVFInfo()
         self.LoadRepInfo()
 
