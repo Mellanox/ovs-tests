@@ -379,23 +379,7 @@ class SetupConfigure(object):
         # might need a second to let udev rename
         sleep(1)
 
-    def CreateConfFile(self):
-        conf = 'PATH="%s:$PATH"' % self.MLNXToolsPath
-        conf += '\nNIC=%s' % self.host.PNics[0]['name']
-
-        if len(self.host.PNics) > 1:
-            conf += '\nNIC2=%s' % self.host.PNics[1]['name']
-
-        conf += '\nVF=%s' % self.host.PNics[0]['vfs'][0]['name']
-        conf += '\nVF1=%s' % self.host.PNics[0]['vfs'][0]['name']
-        conf += '\nVF2=%s' % self.host.PNics[0]['vfs'][1]['name']
-        rep = self.host.PNics[0]['vfs'][0]['rep']
-        rep2 = self.host.PNics[0]['vfs'][1]['rep']
-        if not rep or not rep2:
-            raise RuntimeError('Cannot find representors')
-        conf += '\nREP=%s' % rep
-        conf += '\nREP2=%s' % rep2
-
+    def get_cloud_player_ip(self):
         cloud_player_1_ip = ''
         cloud_player_2_ip = ''
         try:
@@ -409,16 +393,38 @@ class SetupConfigure(object):
             self.Logger.error('Failed to read cloud_tools/.setup_info')
 
         if cloud_player_2_ip == self.host.name:
-            conf += '\nREMOTE_SERVER=%s' % cloud_player_1_ip
+            cloud_player_ip = cloud_player_1_ip
         else:
-            conf += '\nREMOTE_SERVER=%s' % cloud_player_2_ip
+            cloud_player_ip = cloud_player_2_ip
 
-        conf += '\nREMOTE_NIC=%s' % self.host.PNics[0]['name']
+        return cloud_player_ip
 
-        if len(self.host.PNics) > 1:
-            conf += '\nREMOTE_NIC2=%s' % self.host.PNics[1]['name']
+    def CreateConfFile(self):
+        conf = 'PATH="%s:$PATH"' % self.MLNXToolsPath
 
+        nic1 = self.host.PNics[0]
+        rep = nic1['vfs'][0]['rep']
+        rep2 = nic1['vfs'][1]['rep']
+        if not rep or not rep2:
+            raise RuntimeError('Cannot find representors')
+
+        conf += '\nNIC=%s' % nic1['name']
+        conf += '\nVF=%s' % nic1['vfs'][0]['name']
+        conf += '\nVF1=%s' % nic1['vfs'][0]['name']
+        conf += '\nVF2=%s' % nic1['vfs'][1]['name']
+        conf += '\nREP=%s' % rep
+        conf += '\nREP2=%s' % rep2
+        conf += '\nREMOTE_NIC=%s' % nic1['name']
         conf += '\nB2B=1'
+
+        # rest of the nics
+        i = 2
+        for nic in self.host.PNics[1:]:
+            conf += '\nNIC%d=%s' % (i, nic['name'])
+            conf += '\nREMOTE_NIC%d=%s' % (i, nic['name'])
+            i += 1
+
+        conf += '\nREMOTE_SERVER=%s' % self.get_cloud_player_ip()
 
         if self.flow_steering_mode_supp:
             conf += '\nSTEERING_MODE=%s' % self.flow_steering_mode
@@ -426,8 +432,12 @@ class SetupConfigure(object):
         if self.dpdk:
             conf += '\nDPDK=1'
 
-        with open('/workspace/dev_reg_conf.sh', 'w+') as f:
+        config_file = "/workspace/dev_reg_conf.sh"
+        self.Logger.info("Create config file %s" % config_file)
+        with open(config_file, 'w+') as f:
             f.write(conf)
+        # just for easy copy paste
+        self.Logger.info("export CONFIG=%s" % config_file)
 
     def configure_hugepages(self):
         self.Logger.info("Allocating 2GB in the RAM for DPDK")
