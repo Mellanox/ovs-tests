@@ -4,7 +4,7 @@
 #
 # Require external server
 #
-my_dir="$(dirname '$0')"
+my_dir="$(dirname "$0")"
 . $my_dir/../common.sh
 
 require_remote_server
