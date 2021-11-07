@@ -430,7 +430,7 @@ class SetupConfigure(object):
             f.write(conf)
 
     def configure_hugepages(self):
-        self.Logger.info("Allocating 2MB in the RAM for DPDK")
+        self.Logger.info("Allocating 2GB in the RAM for DPDK")
         runcmd2('echo 2048 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages')
 
     @property
