@@ -53,10 +53,7 @@ class SetupConfigure(object):
         parser.add_argument('--dpdk', help='Add DPDK=1 to configuration file', action='store_true')
         parser.add_argument('--sw-steering-mode', help='Configure software steering mode', action='store_true')
 
-        args = parser.parse_args()
-
-        for key, value in vars(args).items():
-            setattr(self, key, value)
+        self.args = parser.parse_args()
 
     def set_ovs_service(self):
         self.ID = ''
@@ -112,7 +109,7 @@ class SetupConfigure(object):
 
             self.EnableDevOffload()
 
-            if self.dpdk:
+            if self.args.dpdk:
                 self.configure_hugepages()
 
             self.ConfigureOVS()
@@ -122,7 +119,7 @@ class SetupConfigure(object):
 
             self.BringUpDevices()
 
-            if self.second_server:
+            if self.args.second_server:
                 return
 
             self.CreateConfFile()
@@ -310,14 +307,14 @@ class SetupConfigure(object):
 
     @property
     def flow_steering_mode(self):
-        return 'smfs' if self.sw_steering_mode else 'dmfs'
+        return 'smfs' if self.args.sw_steering_mode else 'dmfs'
 
     def ConfigureSteeringMode(self):
         mode = self.flow_steering_mode
-        mode2 = 'software' if self.sw_steering_mode else 'firmware'
+        mode2 = 'software' if self.args.sw_steering_mode else 'firmware'
 
         for PFInfo in self.host.PNics:
-            self.Logger.info("Setting %s steering mode to %s steering" % (PFInfo['name'], 'software' if self.sw_steering_mode else 'firmware'))
+            self.Logger.info("Setting %s steering mode to %s steering" % (PFInfo['name'], mode2))
 
             if os.path.exists('/sys/class/net/%s/compat/devlink/steering_mode' % PFInfo['name']):
                 cmd = "echo %s > /sys/class/net/%s/compat/devlink/steering_mode" % (mode, PFInfo['name'])
@@ -438,7 +435,7 @@ class SetupConfigure(object):
         if self.flow_steering_mode_supp:
             conf += '\nSTEERING_MODE=%s' % self.flow_steering_mode
 
-        if self.dpdk:
+        if self.args.dpdk:
             conf += '\nDPDK=1'
 
         config_file = "/workspace/dev_reg_conf.sh"
