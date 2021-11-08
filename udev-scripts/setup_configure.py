@@ -52,6 +52,7 @@ class SetupConfigure(object):
         parser.add_argument('--second-server', '-s', help='Second server config', action='store_true')
         parser.add_argument('--dpdk', help='Add DPDK=1 to configuration file', action='store_true')
         parser.add_argument('--sw-steering-mode', help='Configure software steering mode', action='store_true')
+        parser.add_argument('--steering-mode', choices=['sw', 'fw'], help='Configure steering mode')
 
         self.args = parser.parse_args()
 
@@ -307,11 +308,22 @@ class SetupConfigure(object):
 
     @property
     def flow_steering_mode(self):
-        return 'smfs' if self.args.sw_steering_mode else 'dmfs'
+        mode = 'smfs' if self.args.sw_steering_mode else 'dmfs'
+        if not self.args.steering_mode:
+            return mode
+
+        if self.args.steering_mode == 'sw':
+            mode = 'smfs'
+        elif self.args.steering_mode == 'fw':
+            mode = 'dmfs'
+        else:
+            raise RuntimeError('Invalid steering mode %s' % self.args.steering_mode)
+
+        return mode
 
     def ConfigureSteeringMode(self):
         mode = self.flow_steering_mode
-        mode2 = 'software' if self.args.sw_steering_mode else 'firmware'
+        mode2 = 'software' if mode == 'smfs' else 'firmware'
 
         for PFInfo in self.host.PNics:
             self.Logger.info("Setting %s steering mode to %s steering" % (PFInfo['name'], mode2))
