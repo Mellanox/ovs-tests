@@ -6,7 +6,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-not_relevant_for_cx4
+not_relevant_for_nic cx4
 
 VF1_IP="2001:0db8:0:f101::1"
 VF2_IP="2001:0db8:0:f101::2"

@@ -5,8 +5,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-not_relevant_for_cx4
-not_relevant_for_cx4lx
+not_relevant_for_nic cx4 cx4lx
 
 echo "setup"
 config_sriov

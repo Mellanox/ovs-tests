@@ -16,7 +16,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-relevant_for_cx4
+relevant_for_nic cx4
 
 reset_tc $NIC
 if [ -e /sys/class/net/$REP ]; then

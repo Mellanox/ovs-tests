@@ -6,7 +6,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-not_relevant_for_cx4
+not_relevant_for_nic cx4
 
 config_sriov 3
 enable_switchdev

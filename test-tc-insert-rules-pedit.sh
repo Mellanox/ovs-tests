@@ -7,7 +7,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-not_relevant_for_cx4
+not_relevant_for_nic cx4
 
 
 function test_basic_header_rewrite() {

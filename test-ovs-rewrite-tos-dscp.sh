@@ -8,7 +8,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-not_relevant_for_cx4
+not_relevant_for_nic cx4
 
 VF1_IP="7.7.7.1"
 VF2_IP="7.7.7.2"
