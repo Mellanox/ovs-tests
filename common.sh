@@ -1223,7 +1223,7 @@ Command completion arrived after timeout|Error cqe|failed reclaiming pages"
     local look_ahead_count=12
     local filter="networkd-dispatcher|nm-dispatcher|uses legacy ethtool link settings|\
 EAL: WARNING: cpu flags constant_tsc=yes nonstop_tsc=no|mlnx_interface_mgr.sh|sssd.*segfault|\
-Getting vhca_id for vport failed"
+Getting vhca_id for vport failed|Skipping post send: QP err"
 
     look="$look|$mlx5_errs|$fw_errs"
     local a=`journalctl --since="$sec seconds ago" | grep -E -i "$look" | grep -v -E -i "$filter" || true`
