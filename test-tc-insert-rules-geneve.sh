@@ -138,6 +138,8 @@ function test_geneve_ipv4() {
     __test_geneve 20.1.11.1 20.1.12.1
 }
 
+add_expected_error_msg "Failed to parse tunnel attributes"
+
 title "Test adding geneve rules"
 test_geneve_ipv4
 
