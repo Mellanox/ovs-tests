@@ -22,54 +22,7 @@ MAC2=$(ovn_get_switch_port_mac $TOPOLOGY $SWITCH2 $PORT2)
 IP2=$(ovn_get_switch_port_ip $TOPOLOGY $SWITCH2 $PORT2)
 IP_V6_2=$(ovn_get_switch_port_ipv6 $TOPOLOGY $SWITCH2 $PORT2)
 
-function config() {
-    # Verify NIC
-    require_interfaces NIC
-
-    # switchdev mode for NIC
-    enable_switchdev
-    bind_vfs
-
-    # Verify VFs and REPs
-    require_interfaces VF REP
-
-    # Start OVN
-    ifconfig $NIC $OVN_CENTRAL_IP
-    start_clean_openvswitch
-    ovn_set_ovs_config $OVN_CENTRAL_IP $OVN_CENTRAL_IP $TUNNEL_GENEVE
-    ovn_start_northd_central $OVN_CENTRAL_IP
-    ovn_start_ovn_controller
-}
-
-function config_remote() {
-    on_remote_exec "
-    # Verify NIC
-    require_interfaces NIC
-
-    # switchdev mode for NIC
-    enable_switchdev
-    bind_vfs
-
-    # Verify VFs and REPs
-    require_interfaces VF REP
-
-    # Start OVN
-    ifconfig $NIC $OVN_REMOTE_CONTROLLER_IP
-    start_clean_openvswitch
-    ovn_set_ovs_config $OVN_CENTRAL_IP $OVN_REMOTE_CONTROLLER_IP $TUNNEL_GENEVE
-    ovn_start_ovn_controller
-    "
-}
-
-function pre_test() {
-    config
-    config_remote
-}
-
 function run_test() {
-    # Add network topology to OVN
-    ovn_create_topology $TOPOLOGY
-
     # Add REP to OVS
     ovs_add_port_to_switch $OVN_BRIDGE_INT $REP
     on_remote_exec "ovs_add_port_to_switch $OVN_BRIDGE_INT $REP"
@@ -103,7 +56,7 @@ ovn_clean_up
 
 trap ovn_clean_up EXIT
 
-pre_test
+ovn_config
 run_test
 
 

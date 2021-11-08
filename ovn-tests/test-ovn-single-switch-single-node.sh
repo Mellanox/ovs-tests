@@ -19,28 +19,7 @@ MAC2=$(ovn_get_switch_port_mac $TOPOLOGY $SWITCH $PORT2)
 IP2=$(ovn_get_switch_port_ip $TOPOLOGY $SWITCH $PORT2)
 IP_V6_2=$(ovn_get_switch_port_ipv6 $TOPOLOGY $SWITCH $PORT2)
 
-function pre_test() {
-    # Verify NIC
-    require_interfaces NIC
-
-    # switchdev mode for NIC
-    enable_switchdev
-    bind_vfs
-
-    # Verify VFs and REPs
-    require_interfaces VF VF2 REP REP2
-
-    # Start OVN
-    start_clean_openvswitch
-    ovn_set_ovs_config
-    ovn_start_northd_central
-    ovn_start_ovn_controller
-}
-
 function run_test() {
-    # Add network topology to OVN
-    ovn_create_topology $TOPOLOGY
-
     # Add REP to OVS
     ovs_add_port_to_switch $OVN_BRIDGE_INT $REP
     ovs_add_port_to_switch $OVN_BRIDGE_INT $REP2
@@ -83,7 +62,7 @@ ovn_clean_up
 # trap for existing script to clean up
 trap ovn_clean_up EXIT
 
-pre_test
+ovn_config
 run_test
 
 

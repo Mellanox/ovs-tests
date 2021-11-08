@@ -28,77 +28,7 @@ MAC2=$(ovn_get_switch_port_mac $TOPOLOGY $SWITCH2 $PORT2)
 IP2=$(ovn_get_switch_port_ip $TOPOLOGY $SWITCH2 $PORT2)
 IP_V6_2=$(ovn_get_switch_port_ipv6 $TOPOLOGY $SWITCH2 $PORT2)
 
-function config() {
-    # Verify NIC
-    require_interfaces NIC NIC2
-    config_sriov 0
-    config_sriov 0 $NIC2
-
-    config_sriov 2
-    config_sriov 2 $NIC2
-
-    enable_switchdev
-    enable_switchdev $NIC2
-    unbind_vfs
-    unbind_vfs $NIC2
-    config_bonding $NIC $NIC2 802.3ad
-    bind_vfs
-    bind_vfs $NIC2
-
-    require_interfaces VF REP
-
-    ifconfig $VF mtu 1300
-
-    # Start OVN
-    ifconfig $OVN_BOND $OVN_CENTRAL_IP
-    start_clean_openvswitch
-    ovn_set_ovs_config $OVN_CENTRAL_IP $OVN_CENTRAL_IP $TUNNEL_GENEVE
-    ovn_start_northd_central $OVN_CENTRAL_IP
-    ovn_start_ovn_controller
-}
-
-function config_remote() {
-    on_remote_exec "
-    # Verify NIC
-    require_interfaces NIC NIC2
-
-    config_sriov 0
-    config_sriov 0 $NIC2
-
-    config_sriov 2
-    config_sriov 2 $NIC2
-
-    enable_switchdev
-    enable_switchdev $NIC2
-    unbind_vfs
-    unbind_vfs $NIC2
-    "
-
-    config_remote_bonding $NIC $NIC2 802.3ad
-
-    on_remote_exec "
-    bind_vfs
-    bind_vfs $NIC2
-
-    require_interfaces VF REP
-
-    # Start OVN
-    ifconfig $OVN_BOND $OVN_REMOTE_CONTROLLER_IP
-    start_clean_openvswitch
-    ovn_set_ovs_config $OVN_CENTRAL_IP $OVN_REMOTE_CONTROLLER_IP $TUNNEL_GENEVE
-    ovn_start_ovn_controller
-    "
-}
-
-function pre_test() {
-    config
-    config_remote
-}
-
 function run_test() {
-    # Add network topology to OVN
-    ovn_create_topology $TOPOLOGY
-
     # Add REP to OVS
     ovs_add_port_to_switch $OVN_BRIDGE_INT $REP
     on_remote_exec "ovs_add_port_to_switch $OVN_BRIDGE_INT $REP"
@@ -152,7 +82,7 @@ ovn_clean_up
 
 trap ovn_clean_up EXIT
 
-pre_test
+ovn_config
 run_test
 
 
