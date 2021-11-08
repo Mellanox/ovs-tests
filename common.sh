@@ -1047,8 +1047,10 @@ function set_macs() {
 }
 
 function unbind_vfs() {
-    local i
     local nic=${1:-$NIC}
+    local vfpci
+    local i
+
     log "Unbind vfs of $nic"
     for i in `ls -1d /sys/class/net/$nic/device/virt* 2>/dev/null`; do
         vfpci=$(basename `readlink $i`)
@@ -1067,10 +1069,10 @@ function get_bound_vfs_count() {
 }
 
 function wait_for_vfs() {
-    local i
     local nic=$1
     local count=$2
     local vfs=0
+    local i
 
     for i in `seq 10`; do
         vfs=`get_bound_vfs_count $nic`
@@ -1082,15 +1084,16 @@ function wait_for_vfs() {
 }
 
 function bind_vfs() {
-    local i
     local nic=${1:-$NIC}
     local vf_count=`get_vfs_count $nic`
+    local vfpci
+    local i
 
     log "Bind vfs of $nic"
     for i in `ls -1d /sys/class/net/$nic/device/virt*`; do
         vfpci=$(basename `readlink $i`)
         if [ ! -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
-            echo $vfpci > /sys/bus/pci/drivers/mlx5_core/bind
+            echo $vfpci > /sys/bus/pci/drivers/mlx5_core/bind || log "Cannot bind VF $vfpci"
         fi
     done
 
