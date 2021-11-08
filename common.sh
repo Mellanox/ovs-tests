@@ -1931,6 +1931,12 @@ function set_lag_port_select_mode() {
 }
 
 ### main
+if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+    echo "To run a test export a config and run the test script as so:"
+    echo "export CONFIG=/path/to/config.sh"
+    echo "$TESTDIR/$TESTNAME"
+    exit 0
+fi
 if [ "X${NO_TITLE}" == "X" ]; then
     title2 $TESTNAME
 fi
