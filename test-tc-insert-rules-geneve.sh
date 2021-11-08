@@ -135,9 +135,7 @@ function __test_geneve() {
 }
 
 function test_geneve_ipv4() {
-    __test_geneve \
-                        20.1.11.1 \
-                        20.1.12.1
+    __test_geneve 20.1.11.1 20.1.12.1
 }
 
 title "Test adding geneve rules"
