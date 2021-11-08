@@ -32,6 +32,7 @@ counters=( ["tso"]="tx_tso_"
 function test_stats()
 {
     title "Test uplink representor extended stats groups"
+    ip link set $NIC up
     for counter_group in "${!counters[@]}"
     do
         ethtool -S $NIC | grep -q "${counters[$counter_group]}" || err "No $counter_group counters"
