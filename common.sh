@@ -1640,26 +1640,6 @@ function relevant_for_nic() {
     fail "Test relevant for $nic"
 }
 
-function not_relevant_for_cx5() {
-    not_relevant_for_nic cx5
-}
-
-function not_relevant_for_cx4() {
-    not_relevant_for_nic cx4
-}
-
-function not_relevant_for_cx4lx() {
-    not_relevant_for_nic cx4lx
-}
-
-function relevant_for_cx4() {
-    relevant_for_nic cx4 cx4lx
-}
-
-function relevant_for_cx5() {
-    relevant_for_nic cx5 cx5ex
-}
-
 function require_fw_opt() {
     mlxconfig -d $PCI q | grep -q -w $1
     if [ "$?" != 0 ]; then
