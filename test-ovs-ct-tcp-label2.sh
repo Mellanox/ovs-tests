@@ -83,6 +83,7 @@ function run() {
     ovs-vsctl del-br br-ovs
 }
 
+add_expected_error_msg "Failed to offload ct entry"
 
 run
 test_done
