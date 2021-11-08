@@ -45,7 +45,6 @@ function tc_filter_fail() {
 function add_vxlan_rule() {
     local local_ip="$1"
     local remote_ip="$2"
-    local fail="$3"
 
     echo "local_ip $local_ip remote_ip $remote_ip"
 
@@ -71,7 +70,7 @@ function test_add_encap_rule_neigh_local() {
     ifconfig $NIC2 $remote_ip/24 up
     ip r show dev $NIC
     ip n show $remote_ip
-    add_vxlan_rule $local_ip $remote_ip fail
+    add_vxlan_rule $local_ip $remote_ip
     ifconfig $NIC2 0
     reset_tc $REP
 }
