@@ -15,7 +15,6 @@ function clean_up() {
 }
 
 function run_test() {
-    local pci=$(basename `readlink /sys/class/net/$NIC/device`)
     enable_legacy
     title "changing to ipsec full offload mode"
     ipsec_set_mode full
