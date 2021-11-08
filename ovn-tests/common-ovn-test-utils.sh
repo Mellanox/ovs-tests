@@ -16,8 +16,6 @@ HAS_BOND=
 
 function __ovn_clean_up() {
     ovn_stop_ovn_controller
-    ovn_destroy_topology
-    ovn_stop_northd_central
     ovn_remove_ovs_config
     ovs_clear_bridges
 
@@ -36,6 +34,8 @@ function __ovn_clean_up() {
 }
 
 function ovn_clean_up() {
+    ovn_destroy_topology
+    ovn_stop_northd_central
     __ovn_clean_up
 
     if [[ -n "$HAS_REMOTE" ]]; then
