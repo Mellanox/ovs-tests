@@ -1920,7 +1920,8 @@ function set_lag_resource_allocation() {
 
 function set_lag_port_select_mode() {
     if ! is_ofed ; then
-        fail "Cannot set lag port select mode"
+        # This is MLNX OFED only. It is expected upstream to have correct mode
+        # according to driver state.
         return
     fi
     local mode=$1
