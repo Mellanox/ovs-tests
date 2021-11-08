@@ -30,6 +30,14 @@ def runcmd_output(cmd):
     return check_output(cmd, shell=True).decode()
 
 
+def start_kmemleak():
+    """Make sure kmemleak thread is running if supported. ignore errors."""
+    if os.path.exists('/sys/kernel/debug/kmemleak'):
+        runcmd("echo scan=300 > /sys/kernel/debug/kmemleak")
+    else:
+        print("kmemleak not supported")
+
+
 class Host(object):
     def __init__(self, name):
         self.name = name
@@ -76,6 +84,7 @@ class SetupConfigure(object):
         try:
             self.flow_steering_mode_supp = True
 
+            start_kmemleak()
             self.set_ovs_service()
             self.StopOVS()
             self.ReloadModules()
