@@ -696,7 +696,7 @@ function get_reps() {
     local sid2
 
     if [ -z "$sid1" ]; then
-        echo "get_rep: Failed to get sw id for $nic"
+        echo "get_reps: Failed to get sw id for $nic"
         return
     fi
 
@@ -727,14 +727,14 @@ function bring_up_reps() {
     ifs=`__get_reps $nic`
 
     if [ -z "$ifs" ]; then
-        warn "bring_up_reps: didn't find reps for $nic"
+        warn "bring_up_reps: cannot find reps for $nic"
         return
     fi
 
     local cmd="echo -n '$ifs' | xargs -I {} ip link set dev {} up"
     local c=`echo $ifs | wc -w`
     local x=`echo $c*0.6 | bc`
-    echo "bring up $c reps with timeout $x seconds"
+    echo "Bring up $c reps with timeout $x seconds"
 
     timeout $x sh -c "$cmd"
     if [ $? -eq 124 ]; then
@@ -1049,7 +1049,7 @@ function set_macs() {
 function unbind_vfs() {
     local i
     local nic=${1:-$NIC}
-    log "unbind vfs of $nic"
+    log "Unbind vfs of $nic"
     for i in `ls -1d /sys/class/net/$nic/device/virt* 2>/dev/null`; do
         vfpci=$(basename `readlink $i`)
         if [ -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
@@ -1086,7 +1086,7 @@ function bind_vfs() {
     local nic=${1:-$NIC}
     local vf_count=`get_vfs_count $nic`
 
-    log "bind vfs of $nic"
+    log "Bind vfs of $nic"
     for i in `ls -1d /sys/class/net/$nic/device/virt*`; do
         vfpci=$(basename `readlink $i`)
         if [ ! -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
@@ -1425,7 +1425,7 @@ function wait_for_ifaces() {
 USE_OPENIBD=${USE_OPENIBD:-1}
 
 function unload_modules() {
-    log "unload modules"
+    log "Unload modules"
     if [ "$USE_OPENIBD" == "1" -a -e /etc/init.d/openibd ]; then
         service openibd force-stop || fail "Failed to stop openibd service"
     else
@@ -1436,7 +1436,7 @@ function unload_modules() {
 }
 
 function load_modules() {
-    log "load modules"
+    log "Load modules"
     if [ "$USE_OPENIBD" == "1" -a -e /etc/init.d/openibd ]; then
         service openibd force-start || fail "Failed to start openibd service"
     else
@@ -1452,7 +1452,7 @@ function reload_modules() {
     check_kasan
     set_macs
     setup_expected_steering_mode
-    echo "reload modules done"
+    echo "Reload modules done"
 }
 
 __probe_fs=""
