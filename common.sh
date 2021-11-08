@@ -797,7 +797,7 @@ function wait_switch_mode_compat() {
     done
 
     if [ "$mode" != "$tmp" ]; then
-        fail "compat: Failed to set mode $mode"
+        fail "Failed to set mode $mode"
     fi
 }
 
@@ -1001,24 +1001,24 @@ function set_steering_fw() {
 function config_sriov() {
     local num=${1:-2}
     local nic=${2:-$NIC}
-    local numvfs
+    local numvfs_sysfs=""
 
     if [ "$nic" == "$NIC" ]; then
-        numvfs=$SRIOV_NUMVFS_NIC
+        numvfs_sysfs=$SRIOV_NUMVFS_NIC
     elif [ "$nic" == "$NIC2" ]; then
-        numvfs=$SRIOV_NUMVFS_NIC2
+        numvfs_sysfs=$SRIOV_NUMVFS_NIC2
     fi
 
-    [ -z "$numvfs" ] && fail "numvfs for $nic is NULL"
+    [ -z "$numvfs_sysfs" ] && fail "Cannot config sriov for $nic"
 
-    local cur=`cat $numvfs`
+    local cur=`cat $numvfs_sysfs`
     if [ $cur -eq $num ]; then
         return
     fi
 
     log "Config $num VFs for $nic"
-    echo 0 > $numvfs
-    echo $num > $numvfs || fail "Failed to config $num VFs on $nic"
+    echo 0 > $numvfs_sysfs
+    echo $num > $numvfs_sysfs || fail "Failed to config $num VFs on $nic"
     sleep 0.5
     udevadm trigger -c add -s net &>/dev/null
 }
@@ -1661,7 +1661,7 @@ function relevant_for_cx5() {
 function require_fw_opt() {
     mlxconfig -d $PCI q | grep -q -w $1
     if [ "$?" != 0 ]; then
-        fail "fw option $1 is not supported"
+        fail "FW option $1 is not supported"
     fi
 }
 
@@ -1926,8 +1926,8 @@ function set_lag_port_select_mode() {
     log "Changing lag port select mode to $mode"
     enable_legacy &>/dev/null
     enable_legacy $NIC2 &>/dev/null
-    echo $mode > /sys/class/net/$NIC/compat/devlink/lag_port_select_mode || fail "failed to set lag_port_select_mode to $mode"
-    echo $mode > /sys/class/net/$NIC2/compat/devlink/lag_port_select_mode || fail "failed to set lag_port_select_mode to $mode"
+    echo $mode > /sys/class/net/$NIC/compat/devlink/lag_port_select_mode || fail "Failed to set lag_port_select_mode to $mode"
+    echo $mode > /sys/class/net/$NIC2/compat/devlink/lag_port_select_mode || fail "Failed to set lag_port_select_mode to $mode"
 }
 
 ### main
