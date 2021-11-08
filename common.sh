@@ -1216,6 +1216,7 @@ list_del corruption|which is not allocated|Objects remaining|assertion failed|\
 Slab cache still has objects|new suspected memory leaks|Unknown object at|\
 warning: consoletype is now deprecated|warning: use tty|\
 kfree for unknown address|UBSAN"
+    local mlx5_errs="mlx5_core .* err |mlx5_core .* failed "
     local fw_errs="health compromised|firmware internal error|assert_var|\
 Command completion arrived after timeout|Error cqe|failed reclaiming pages"
     local look_ahead="Call Trace:|Allocated by task|Freed by task"
@@ -1223,7 +1224,7 @@ Command completion arrived after timeout|Error cqe|failed reclaiming pages"
     local filter="networkd-dispatcher|nm-dispatcher|uses legacy ethtool link settings|\
 EAL: WARNING: cpu flags constant_tsc=yes nonstop_tsc=no|mlnx_interface_mgr.sh|sssd.*segfault"
 
-    look="$look|$fw_errs"
+    look="$look|$mlx5_errs|$fw_errs"
     local a=`journalctl --since="$sec seconds ago" | grep -E -i "$look" | grep -v -E -i "$filter" || true`
     local b=`journalctl --since="$sec seconds ago" | grep -E -A $look_ahead_count -i "$look_ahead" || true`
     if [ "$a" != "" ] || [ "$b" != "" ]; then
