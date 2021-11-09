@@ -105,20 +105,15 @@ class SetupConfigure(object):
             self.ConfigureSteeringMode()
             self.ConfigurePF()
             self.SetVFMACs()
-
             self.LoadRepInfo()
-
-            self.EnableDevOffload()
+            self.BringUpDevices()
 
             if self.args.dpdk:
                 self.configure_hugepages()
 
             self.ConfigureOVS()
-
             self.AttachVFs()
             self.UpdateVFInfo()
-
-            self.BringUpDevices()
 
             if self.args.second_server:
                 return
@@ -375,16 +370,11 @@ class SetupConfigure(object):
                     reps.append(VFInfo['rep'])
         return reps
 
-    def EnableDevOffload(self):
-        reps = self.get_reps()
-        for devName in reps:
-            self.Logger.info("Enabling hw-tc-offload for %s" % (devName))
-            runcmd2('ethtool -K %s hw-tc-offload on' % devName)
-
     def BringUpDevices(self):
+        self.Logger.info("Bring up devices")
         reps = self.get_reps()
         for devName in reps:
-            self.Logger.info("Bringing up %s" % devName)
+            runcmd2('ethtool -K %s hw-tc-offload on' % devName)
             runcmd2('ip link set dev %s up' % devName)
 
     def AttachVFs(self):
