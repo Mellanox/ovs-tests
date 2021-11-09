@@ -55,8 +55,8 @@ function run_performance_test() {
     fail_if_err
 
     title "Check performance"
-    no_off_res=`cat /tmp/results.txt | grep "10.0*-15.0*" | awk '{print $7}'`
-    off_res=`cat /tmp/offload_results.txt | grep "10.0*-15.0*" | awk '{print $7}'`
+    no_off_res=`cat /tmp/results.txt | grep "10.*-15.*" | awk '{print $7}'`
+    off_res=`cat /tmp/offload_results.txt | grep "10.*-15.*" | awk '{print $7}'`
     #convert to Mbits
     no_off_res=$(bc <<< "$no_off_res * 1000" | sed -e 's/\..*//')
     off_res=$(bc <<< "$off_res * 1000" | sed -e 's/\..*//')
