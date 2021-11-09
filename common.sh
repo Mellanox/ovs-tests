@@ -1,7 +1,8 @@
 #!/bin/bash
 
-TESTNAME=`basename $0`
-TESTDIR=$(cd `dirname $0` ; pwd)
+__argv0=$0
+TESTNAME=`basename $__argv0`
+TESTDIR=$(cd `dirname $__argv0` ; pwd)
 DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" &>/dev/null && pwd)
 SET_MACS="$DIR/set-macs.sh"
 
@@ -514,7 +515,7 @@ function kmsg() {
 }
 
 function title2() {
-    local title=${1:-`basename $0`}
+    local title=${1:-$TESTNAME}
     local tmp="## TEST $title ##"
     local count=${#tmp}
     local sep=$(printf '%*s' $count | tr ' ' '#')
