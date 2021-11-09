@@ -112,7 +112,7 @@ class SetupConfigure(object):
                 self.configure_hugepages()
 
             self.ConfigureOVS()
-            self.AttachVFs()
+            self.BindVFs()
             self.UpdateVFInfo()
 
             if self.args.second_server:
@@ -377,7 +377,7 @@ class SetupConfigure(object):
             runcmd2('ethtool -K %s hw-tc-offload on' % devName)
             runcmd2('ip link set dev %s up' % devName)
 
-    def AttachVFs(self):
+    def BindVFs(self):
         for VFInfo in chain.from_iterable(map(lambda PFInfo: PFInfo['vfs'], self.host.PNics)):
             self.Logger.info("Binding %s" % VFInfo['bus'])
             runcmd2('echo %s > /sys/bus/pci/drivers/mlx5_core/bind' % VFInfo['bus'])
