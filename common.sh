@@ -1706,7 +1706,7 @@ function __load_config() {
     test -n "$FORCE_REP2" && REP2=$FORCE_REP2
 }
 
-function __cleanup() {
+function __trapped_int_cleanup() {
     err "Terminate requested"
     exit 1
 }
@@ -1942,6 +1942,6 @@ fi
 __load_config
 warn_if_redmine_bug_is_open
 start_test_timestamp
-trap __cleanup INT
+trap __trapped_int_cleanup INT
 __setup_common
 __setup_clean
