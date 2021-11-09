@@ -96,37 +96,37 @@ function run() {
     title "verify sample"
     psample_iifindex=$(awk '/iifindex/{print $2}' $file | head -1)
     if [ $iifindex == "$psample_iifindex" ]; then
-        success2 "get correct sample iifindex $psample_iifindex"
+        success2 "Correct sample iifindex $psample_iifindex"
     else
-        err "get wrong sample iifindex $psample_iifindex"
+        err "Wrong sample iifindex $psample_iifindex"
     fi
 
     psample_rate=$(awk '/rate/{print $2}' $file | head -1)
     if [ $rate == "$psample_rate" ]; then
-        success2 "get correct sample rate $psample_rate"
+        success2 "Correct sample rate $psample_rate"
     else
-        err "get wrong sample rate $psample_rate"
+        err "Wrong sample rate $psample_rate"
     fi
 
     psample_group=$(awk '/group/{print $2}' $file | head -1)
     if [ $group == "$psample_group" ]; then
-        success2 "get correct sample group $psample_group"
+        success2 "Correct sample group $psample_group"
     else
-        err "get wrong sample group $psample_group"
+        err "Wrong sample group $psample_group"
     fi
 
     psample_trunc=$(awk '/trunc/{print $2}' $file | head -1)
     if [ $trunc == "$psample_trunc" ]; then
-        success2 "get correct sample trunc $psample_trunc"
+        success2 "Correct sample trunc $psample_trunc"
     else
-        err "get wrong sample trunc $psample_trunc"
+        err "Wrong sample trunc $psample_trunc"
     fi
 
     psample_seq=$(grep -c seq $file)
     if (( $n == $psample_seq )); then
-        success2 "get correct sample seq $psample_seq"
+        success2 "Correct sample seq $psample_seq"
     else
-        err "get wrong sample seq $psample_seq"
+        err "Wrong sample seq $psample_seq"
     fi
 }
 

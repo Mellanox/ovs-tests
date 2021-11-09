@@ -99,30 +99,30 @@ function run() {
 
     grep "src ipv4: $REMOTE_IP" $file > /dev/null
     if (( $? == 0 )); then
-        success2 "get correct tunnel src IP $REMOTE_IP"
+        success2 "Correct tunnel src IP $REMOTE_IP"
     else
-        err "get wrong tunnel src IP"
+        err "Wrong tunnel src IP"
     fi
 
     grep "dst ipv4: $LOCAL_TUN" $file > /dev/null
     if (( $? == 0 )); then
-        success2 "get correct tunnel dst IP $LOCAL_TUN"
+        success2 "Correct tunnel dst IP $LOCAL_TUN"
     else
-        err "get wrong tunnel dst IP"
+        err "Wrong tunnel dst IP"
     fi
 
     grep "tunnel id: $VXLAN_ID" $file > /dev/null
     if (( $? == 0 )); then
-        success2 "get correct tunnel id $VXLAN_ID"
+        success2 "Correct tunnel id $VXLAN_ID"
     else
-        err "get wrong tunnel id"
+        err "Wrong tunnel id"
     fi
 
     grep "dst port: $DSTPORT" $file > /dev/null
     if (( $? == 0 )); then
-        success2 "get correct tunnel dst port $DSTPORT"
+        success2 "Correct tunnel dst port $DSTPORT"
     else
-        err "get wrong tunnel dst port"
+        err "Wrong tunnel dst port"
     fi
 }
 
