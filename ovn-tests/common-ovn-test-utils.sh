@@ -20,19 +20,20 @@ function __ovn_clean_up() {
     ovn_stop_ovn_controller
     ovn_remove_ovs_config
     ovs_clear_bridges
+    ovs_disable_hw_offload
 
     ip addr flush dev $NIC
     ip link set $NIC mtu 1500
     ip -all netns del
-    unbind_vfs
 
     if [[ -n "$HAS_BOND" ]]; then
+        unbind_vfs
         unbind_vfs $NIC2
         clear_bonding
         disable_sriov_port2
     fi
 
-    bind_vfs
+    config_sriov 0
 }
 
 function ovn_clean_up() {
@@ -47,6 +48,7 @@ function ovn_clean_up() {
 
 function ovn_config_interfaces() {
     require_interfaces NIC
+    config_sriov
     enable_switchdev
     bind_vfs
     require_interfaces VF REP
@@ -74,6 +76,7 @@ function __ovn_config() {
 
     ovn_config_interfaces
     start_clean_openvswitch
+    ovs_enable_hw_offload
 
     # Config VLAN
     if [[ -n "$HAS_VLAN" ]]; then
