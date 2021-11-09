@@ -329,18 +329,15 @@ class SetupConfigure(object):
             self.Logger.info("Setting %s steering mode to %s steering" % (PFInfo['name'], mode2))
 
             if os.path.exists('/sys/class/net/%s/compat/devlink/steering_mode' % PFInfo['name']):
-                cmd = "echo %s > /sys/class/net/%s/compat/devlink/steering_mode" % (mode, PFInfo['name'])
-            else:
-                # try to set the mode only if kernel supports flow_steering_mode parameter
-                try:
-                    runcmd_output('devlink dev param show pci/%s name flow_steering_mode' % (PFInfo['bus']))
-                except CalledProcessError:
-                    self.flow_steering_mode_supp = False
-                    self.Logger.info("The kernel does not support devlink flow_steering_mode param! Skipping.")
-                    return
-                cmd = 'devlink dev param set pci/%s name flow_steering_mode value "%s" cmode runtime' % (PFInfo['bus'], mode)
+                runcmd_output("echo %s > /sys/class/net/%s/compat/devlink/steering_mode" % (mode, PFInfo['name']))
+                return
 
-            runcmd_output(cmd)
+            # try to set the mode only if kernel supports flow_steering_mode parameter
+            try:
+                runcmd_output('devlink dev param set pci/%s name flow_steering_mode value "%s" cmode runtime' % (PFInfo['bus'], mode))
+            except CalledProcessError:
+                self.flow_steering_mode_supp = False
+                self.Logger.warning("The kernel does not support devlink flow_steering_mode param. Skipping.")
 
     def ConfigurePF(self):
         for PFInfo in self.host.PNics:
