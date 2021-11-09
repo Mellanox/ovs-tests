@@ -103,7 +103,7 @@ class SetupConfigure(object):
             self.UnbindVFs()
 
             self.ConfigureSteeringMode()
-            self.ConfigurePF()
+            self.ConfigureSwitchdev()
             self.SetVFMACs()
             self.LoadRepInfo()
             self.BringUpDevices()
@@ -334,7 +334,7 @@ class SetupConfigure(object):
                 self.flow_steering_mode_supp = False
                 self.Logger.warning("The kernel does not support devlink flow_steering_mode param. Skipping.")
 
-    def ConfigurePF(self):
+    def ConfigureSwitchdev(self):
         for PFInfo in self.host.PNics:
             self.Logger.info("Changing %s to switchdev mode" % (PFInfo['name']))
 
