@@ -1,6 +1,9 @@
 #!/bin/bash
 
 __argv0=$0
+if [ "$__argv0" == "-bash" ] ; then
+    __argv0='.'
+fi
 TESTNAME=`basename $__argv0`
 TESTDIR=$(cd `dirname $__argv0` ; pwd)
 DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" &>/dev/null && pwd)
@@ -1928,21 +1931,45 @@ function set_lag_port_select_mode() {
     echo $mode > /sys/class/net/$NIC2/compat/devlink/lag_port_select_mode || fail "Failed to set lag_port_select_mode to $mode"
 }
 
-### main
-if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
-    echo "To run a test export a config and run the test script as so:"
-    echo "export CONFIG=/path/to/config.sh"
-    echo "$TESTDIR/$TESTNAME"
-    echo
-    echo "To do kmemleak scan per test export KMEMLEAK_SCAN_PER_TEST=1"
-    exit 0
+function __common_main() {
+    if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+        echo "To run a test export a config and run the test script as so:"
+        echo "export CONFIG=/path/to/config.sh"
+        echo "$TESTDIR/$TESTNAME"
+        echo
+        echo "To do kmemleak scan per test export KMEMLEAK_SCAN_PER_TEST=1"
+        exit 0
+    fi
+    if [ "X${NO_TITLE}" == "X" ]; then
+        title2 $TESTNAME
+    fi
+    __load_config
+    warn_if_redmine_bug_is_open
+    start_test_timestamp
+    trap __trapped_int_cleanup INT
+    __setup_common
+    __setup_clean
+}
+
+# script executed directly. evaluate user input.
+if [ "$TESTNAME" == "common.sh" ]; then
+    if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+        echo "To evaluate a function run as so:"
+        echo "bash common.sh [function] [args]"
+        exit 0
+    fi
+    __load_config
+    trap __trapped_int_cleanup INT
+    __setup_common
+    echo "Evaluate: $@"
+    eval $@
+    exit $?
 fi
-if [ "X${NO_TITLE}" == "X" ]; then
-    title2 $TESTNAME
+
+# script included from bash console. do nothing
+if [ "$TESTNAME" == "." ]; then
+    return
 fi
-__load_config
-warn_if_redmine_bug_is_open
-start_test_timestamp
-trap __trapped_int_cleanup INT
-__setup_common
-__setup_clean
+
+# execute normally
+__common_main $@
