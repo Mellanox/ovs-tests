@@ -26,24 +26,22 @@ function clean_up() {
 
 function run_traffic() {
     local PROTO="$1"
-
-    title "Run TCP traffic"
     local t=10
+
+    title "Run UDP traffic"
     start_iperf_server
 
-    timeout $((t+2)) tcpdump -qnnei $NIC -c 15 -w $TCPDUMP_FILE &
-    local pid=$!
+    timeout $t tcpdump -qnnei $NIC -c 5 -w $TCPDUMP_FILE &
+    local upid=$!
     if [[ "$PROTO" == "ipv4" ]]; then
-        (on_remote timeout $((t+2)) iperf3 -c $LIP -t $t -i 5 > $IPERF_FILE) || err "iperf3 failed"
+        (on_remote timeout $((t+2)) iperf3 -c $LIP -u -b 2G > $IPERF_FILE) || err "iperf3 failed"
     else
-        (on_remote timeout $((t+2)) iperf3 -c $LIP6 -t $t -i 5 > $IPERF_FILE) || err "iperf3 failed"
+        (on_remote timeout $((t+2)) iperf3 -c $LIP6 -u -b 2G > $IPERF_FILE) || err "iperf3 failed"
     fi
     fail_if_err
 
-    sleep 2
-
-    title "Verify tcp traffic on $NIC"
-    verify_have_traffic $pid
+    title "Verify udp traffic on $NIC"
+    verify_have_traffic $upid
     sleep 2
 }
 
