@@ -34,9 +34,9 @@ function run_performance_test() {
     start_iperf_server_on_remote
 
     if [[ "$ip_proto" == "ipv4" ]]; then
-        (timeout $((t+10)) iperf3 -c $RIP -t $t -i 5 --logfile /tmp/results.txt ) || err "iperf3 failed"
+        (timeout $((t+10)) iperf3 -c $RIP -t $t -i 5 -f m --logfile /tmp/results.txt ) || err "iperf3 failed"
     else
-        (timeout $((t+10)) iperf3 -c $RIP6 -t $t -i 5 --logfile /tmp/results.txt ) || err "iperf3 failed"
+        (timeout $((t+10)) iperf3 -c $RIP6 -t $t -i 5 -f m --logfile /tmp/results.txt ) || err "iperf3 failed"
     fi
     fail_if_err
 
@@ -48,9 +48,9 @@ function run_performance_test() {
 
     title "run traffic"
     if [[ "$ip_proto" == "ipv4" ]]; then
-        (timeout $((t+10)) iperf3 -c $RIP -t $t -i 5 --logfile /tmp/offload_results.txt ) || err "iperf3 failed"
+        (timeout $((t+10)) iperf3 -c $RIP -t $t -i 5 -f m --logfile /tmp/offload_results.txt ) || err "iperf3 failed"
     else
-        (timeout $((t+10)) iperf3 -c $RIP6 -t $t -i 5 --logfile /tmp/offload_results.txt ) || err "iperf3 failed"
+        (timeout $((t+10)) iperf3 -c $RIP6 -t $t -i 5 -f m --logfile /tmp/offload_results.txt ) || err "iperf3 failed"
     fi
     fail_if_err
 
