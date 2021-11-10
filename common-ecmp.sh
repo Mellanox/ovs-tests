@@ -98,7 +98,7 @@ function no_encap_rules() {
     a=`cat /tmp/port$i | tr -d ' ' | grep "action:0x1c"`
 
     if [ -z "$a" ]; then
-        success2 "no encap rule on port$i"
+        success2 "No encap rule on port$i"
     else
         err "Didn't expect an encap rule on port$i"
     fi
@@ -116,7 +116,7 @@ function look_for_encap_rules() {
         if [ -z "$a" ]; then
             err "Cannot find encap rule in port$i"
         else
-            success2 "found encap rule on port$i"
+            success2 "Found encap rule on port$i"
         fi
     done
 }

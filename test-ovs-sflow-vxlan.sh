@@ -110,15 +110,15 @@ function run() {
         -L localtime,srcIP,dstIP > $file&
     sleep 1
 
-    title "run ping for $t seconds"
+    title "Ping for $t seconds"
     ip netns exec ns0 ping $IP2 -q -i $interval -w $t
 
     wait
 
     if grep $IP1 $file | grep $IP2 > /dev/null; then
-        success2 "get the expected IP addresses: $IP1, $IP2"
+        success2 "Found the expected IP addresses: $IP1, $IP2"
     else
-        err "fail to get the expected IP addresses"
+        err "Cannot find the expected IP addresses"
     fi
 
     #
@@ -130,7 +130,7 @@ function run() {
     expected=$(echo $t/$interval*2/$SFLOW_SAMPLING | bc)
     deviation=$((expected/10)) # 10% deviation
 
-    str="get $n packets, expected $expected"
+    str="Got $n packets, expected $expected"
     (( n >= expected - deviation && n <= expected + deviation )) && \
         success2 $str || err $str
 }
