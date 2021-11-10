@@ -192,7 +192,7 @@ function check_traffic_offload() {
     fi
 
     title "Check ${traffic_type^^} OVS offload rules"
-    ovs_dump_flows type=offloaded
+    ovs_dump_flows type=offloaded | grep "$traffic_filter"
     check_offloaded_rules 2 $traffic_filter
 
     # Rules should appear, request and reply
