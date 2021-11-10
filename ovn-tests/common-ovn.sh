@@ -113,14 +113,8 @@ function check_rules() {
 
     local result=$(ovs-appctl dpctl/dump-flows type=$rules_type 2>/dev/null | grep $traffic_filter | grep -E "$frag_filter" | grep -v drop)
     local rules_count=$(echo "$result" | wc -l)
-
-    if [[ $count == "0" ]]; then
-        if [[ -z "$result" ]]; then
-            success "Found 0 rules as expected"
-        else
-            err "Expected 0 rules, found $rules_count"
-        fi
-        return
+    if [[ -z "$result" ]]; then
+        rules_count="0"
     fi
 
     if echo "$result" | grep "packets:0, bytes:0"; then
