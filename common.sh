@@ -1238,7 +1238,7 @@ Command completion arrived after timeout|Error cqe|failed reclaiming pages"
     local look_ahead_count=12
     local filter="networkd-dispatcher|nm-dispatcher|uses legacy ethtool link settings|\
 EAL: WARNING: cpu flags constant_tsc=yes nonstop_tsc=no|mlnx_interface_mgr.sh|sssd.*segfault|\
-Getting vhca_id for vport failed|Skipping post send: QP err"
+Skipping post send: QP err"
 
     if [ -n "$__expected_error_msgs" ]; then
         filter+="$__expected_error_msgs"
