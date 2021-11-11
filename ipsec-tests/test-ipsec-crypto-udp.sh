@@ -8,6 +8,7 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common-ipsec.sh
+. $my_dir/common-ipsec-crypto.sh
 
 require_remote_server
 
@@ -24,115 +25,27 @@ function clean_up() {
     rm -f $IPERF_FILE $TCPDUMP_FILE
 }
 
-function run_traffic() {
-    local PROTO="$1"
-    local t=10
-
-    title "Run UDP traffic"
-    start_iperf_server
-
-    timeout $t tcpdump -qnnei $NIC -c 5 -w $TCPDUMP_FILE &
-    local upid=$!
-    if [[ "$PROTO" == "ipv4" ]]; then
-        (on_remote timeout $((t+2)) iperf3 -c $LIP -u -b 2G > $IPERF_FILE) || err "iperf3 failed"
-    else
-        (on_remote timeout $((t+2)) iperf3 -c $LIP6 -u -b 2G > $IPERF_FILE) || err "iperf3 failed"
-    fi
-    fail_if_err
-
-    title "Verify udp traffic on $NIC"
-    verify_have_traffic $upid
-    sleep 2
-}
-
-#tx offloaded rx not
-function test_tx_off_rx() {
-    local IPSEC_MODE="$1"
-    local KEY_LEN="$2"
-    local PROTO="$3"
-    title "test ipsec in $IPSEC_MODE mode with $KEY_LEN key length using $PROTO with offloaded TX"
-
-    ipsec_config_local $IPSEC_MODE $KEY_LEN $PROTO #in this test local is used as RX
-    ipsec_config_remote $IPSEC_MODE $KEY_LEN $PROTO offload
-
-    sleep 2
-
-    run_traffic $PROTO
-
-    title "Verify offload"
-    local tx_off=`on_remote ip x s s | grep offload |wc -l`
-    local rx_off=`ip x s s | grep offload |wc -l`
-    if [[ "$tx_off" != 2 || "$rx_off" != 0 ]]; then
-        fail "offload rules are not added as expected!"
-    fi
-}
-
-#rx offloaded tx not
-function test_tx_rx_off() {
-    local IPSEC_MODE="$1"
-    local KEY_LEN="$2"
-    local PROTO="$3"
-    title "test ipsec in $IPSEC_MODE mode with $KEY_LEN key length using $PROTO with offloaded RX"
-
-    title "Config ipsec - both sides offloaded"
-    ipsec_config_local $IPSEC_MODE $KEY_LEN $PROTO offload #in this test local is used as RX
-    ipsec_config_remote $IPSEC_MODE $KEY_LEN $PROTO
-
-    sleep 2
-
-    run_traffic $PROTO
-
-    title "Verify offload"
-    local tx_off=`on_remote ip x s s | grep offload |wc -l`
-    local rx_off=`ip x s s | grep offload |wc -l`
-    if [[ "$tx_off" != 0 || "$rx_off" != 2 ]]; then
-        fail "offload rules are not added as expected!"
-    fi
-}
-
-#tx & rx are offloaded
-function test_tx_off_rx_off() {
-    local IPSEC_MODE="$1"
-    local KEY_LEN="$2"
-    local PROTO="$3"
-    title "test ipsec in $IPSEC_MODE mode with $KEY_LEN key length using $PROTO with offloaded TX & RX"
-
-    ipsec_config_local $IPSEC_MODE $KEY_LEN $PROTO offload #in this test local is used as RX
-    ipsec_config_remote $IPSEC_MODE $KEY_LEN $PROTO offload
-
-    sleep 2
-
-    run_traffic $PROTO
-
-    title "verify offload"
-    local tx_off=`on_remote ip x s s | grep offload |wc -l`
-    local rx_off=`ip x s s | grep offload |wc -l`
-    if [[ "$tx_off" != 2 || "$rx_off" != 2 ]]; then
-        fail "offload rules are not added as expected!"
-    fi
-}
-
 function run_test() {
     local mtu=$1
 
     title "test transport ipv4 with key length 128 MTU $mtu"
 
     clean_up $mtu
-    test_tx_off_rx transport 128 ipv4
+    test_tx_off_rx transport 128 ipv4 udp
     clean_up $mtu
-    test_tx_rx_off transport 128 ipv4
+    test_tx_rx_off transport 128 ipv4 udp
     clean_up $mtu
-    test_tx_off_rx_off transport 128 ipv4
+    test_tx_off_rx_off transport 128 ipv4 udp
     clean_up $mtu
 
     title "transport ipv4 with key length 256 MTU $mtu"
 
     clean_up $mtu
-    test_tx_off_rx transport 256 ipv4
+    test_tx_off_rx transport 256 ipv4 udp
     clean_up $mtu
-    test_tx_rx_off transport 256 ipv4
+    test_tx_rx_off transport 256 ipv4 udp
     clean_up $mtu
-    test_tx_off_rx_off transport 256 ipv4
+    test_tx_off_rx_off transport 256 ipv4 udp
 }
 
 trap clean_up EXIT
