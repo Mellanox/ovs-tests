@@ -12,6 +12,8 @@ my_dir="$(dirname "$0")"
 enable_legacy
 bind_vfs
 __ignore_errors=1
+add_expected_error_msg "Failed to create slow path FDB Table"
+add_expected_error_msg "0x98afbb"
 switch_mode_switchdev
 __ignore_errors=0
 
