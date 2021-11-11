@@ -1219,8 +1219,7 @@ Slab cache still has objects|new suspected memory leaks|Unknown object at|\
 warning: consoletype is now deprecated|warning: use tty|\
 kfree for unknown address|UBSAN|KASAN"
     local memtrack="memtrack_report: Summary: .* leak(s) detected"
-#    local mlx5_errs="mlx5_core .* err |mlx5_core .* failed "
-    local mlx5_errs="xxxxxxxxxxxxxxxxxxxxxxx"
+    local mlx5_errs="mlx5_core .* err |mlx5_core .* failed "
     local fw_errs="health compromised|firmware internal error|assert_var|\
 Command completion arrived after timeout|Error cqe|failed reclaiming pages"
     local look_ahead="Call Trace:|Allocated by task|Freed by task"
