@@ -51,7 +51,7 @@ function run_traffic() {
     rm -f $TCPDUMP_FILE $IPERF_FILE
     start_iperf_server
 
-    timeout $t tcpdump -qnnei $NIC -c 5 'udp' -w $TCPDUMP_FILE &
+    timeout $t tcpdump -qnnei $NIC -c 5 -w $TCPDUMP_FILE &
     local upid=$!
     if [[ "$PROTO" == "ipv4" ]]; then
         (on_remote timeout $((t+2)) iperf3 -c $LIP -u -b 2G > $IPERF_FILE) || err "iperf3 failed"
