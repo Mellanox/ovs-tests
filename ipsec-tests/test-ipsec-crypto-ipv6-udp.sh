@@ -31,21 +31,21 @@ function run_test() {
     title "test transport ipv6 with key length 128 MTU $mtu"
 
     clean_up $mtu
-    test_tx_off_rx transport 128 ipv6
+    test_tx_off_rx transport 128 ipv6 udp
     clean_up $mtu
-    test_tx_rx_off transport 128 ipv6
+    test_tx_rx_off transport 128 ipv6 udp
     clean_up $mtu
-    test_tx_off_rx_off transport 128 ipv6
+    test_tx_off_rx_off transport 128 ipv6 udp
     clean_up $mtu
 
     title "transport ipv6 with key length 256 MTU $mtu"
 
     clean_up $mtu
-    test_tx_off_rx transport 256 ipv6
+    test_tx_off_rx transport 256 ipv6 udp
     clean_up $mtu
-    test_tx_rx_off transport 256 ipv6
+    test_tx_rx_off transport 256 ipv6 udp
     clean_up $mtu
-    test_tx_off_rx_off transport 256 ipv6
+    test_tx_off_rx_off transport 256 ipv6 udp
 }
 
 trap clean_up EXIT
