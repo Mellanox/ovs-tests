@@ -1219,7 +1219,7 @@ Slab cache still has objects|new suspected memory leaks|Unknown object at|\
 warning: consoletype is now deprecated|warning: use tty|\
 kfree for unknown address|UBSAN|KASAN"
     local memtrack="memtrack_report: Summary: .* leak(s) detected"
-    local mlx5_errs="mlx5_core .* err |mlx5_core .* failed "
+    local mlx5_errs="mlx5_core .* err |mlx5_core .* failed |syndrome"
     local fw_errs="health compromised|firmware internal error|assert_var|\
 Command completion arrived after timeout|Error cqe|failed reclaiming pages"
     local look_ahead="Call Trace:|Allocated by task|Freed by task"
@@ -1260,42 +1260,15 @@ function check_for_err() {
 }
 
 function start_check_syndrome() {
-    # sleep to avoid check_syndrome catch old syndrome
-    sleep 1
-    _check_syndrome_start=`date +"%s"`
+    return
 }
 
 function check_syndrome() {
-    if [ "$_check_syndrome_start" == "" ]; then
-        fail "Failed checking for syndrome. invalid start."
-        return 1
-    fi
-    # avoid same time as start_check_syndrome
-    sleep 1
-    local now=`date +"%s"`
-    local sec=`echo $now - $_check_syndrome_start + 1 | bc`
-    local a=`journalctl --since="$sec seconds ago" | grep syndrome || true`
-    if [ "$a" != "" ]; then
-        a=`echo -e "$a" | uniq`
-        err "$a"
-        return 1
-    fi
     return 0
 }
 
 function expect_syndrome() {
-    local expected="$1"
-    # avoid same time as start_check_syndrome
-    sleep 1
-    local now=`date +"%s"`
-    local sec=`echo $now - $_check_syndrome_start + 1 | bc`
-    local a=`journalctl --since="$sec seconds ago" | grep syndrome | grep -v $expected || true`
-    if [ "$a" != "" ]; then
-        a=`echo -e "$a" | uniq`
-        err "$a"
-        return 1
-    fi
-    return 0
+    add_expected_error_msg $1
 }
 
 function ovs_conf_set() {
