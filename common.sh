@@ -1217,7 +1217,7 @@ WARNING:|RIP:|BUG:|refcount > 1|refcount_t|segfault|in_atomic|hw csum failure|\
 list_del corruption|which is not allocated|Objects remaining|assertion failed|\
 Slab cache still has objects|new suspected memory leaks|Unknown object at|\
 warning: consoletype is now deprecated|warning: use tty|\
-kfree for unknown address|UBSAN"
+kfree for unknown address|UBSAN|KASAN"
     local memtrack="memtrack_report: Summary: .* leak(s) detected"
 #    local mlx5_errs="mlx5_core .* err |mlx5_core .* failed "
     local mlx5_errs="xxxxxxxxxxxxxxxxxxxxxxx"
