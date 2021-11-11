@@ -86,14 +86,14 @@ function run() {
     fail_if_err
 
     pkill psample
-    timeout 2 $psample_dir/psample -n $n > $file &
+    timeout -k 1 2 $psample_dir/psample -n $n > $file &
     pid=$!
 
     title "run traffic"
     ip netns exec ns0 ping -q -c $n -i 0.1 -w 2 $REMOTE || err "Ping failed"
 
-    fail_if_err
     wait $pid
+    fail_if_err
 
     title "verify sample"
 
