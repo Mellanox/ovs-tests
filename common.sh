@@ -1201,18 +1201,6 @@ function check_kasan() {
     return 0
 }
 
-function check_for_ofed_memtrack_errors() {
-    local sec=$1
-    local look="memtrack_report: Summary: .* leak(s) detected"
-    local filter="memtrack_report: Summary: 0 leak(s) detected"
-    local a=`journalctl --since="$sec seconds ago" | grep -i "$look" |grep -v -i "$filter" || true`
-
-    if [ "$a" != "" ]; then
-        err "Detected memtrack errors in the log"
-        echo "$a"
-    fi
-}
-
 __expected_error_msgs=""
 
 function add_expected_error_msg() {
@@ -1230,6 +1218,7 @@ list_del corruption|which is not allocated|Objects remaining|assertion failed|\
 Slab cache still has objects|new suspected memory leaks|Unknown object at|\
 warning: consoletype is now deprecated|warning: use tty|\
 kfree for unknown address|UBSAN"
+    local memtrack="memtrack_report: Summary: .* leak(s) detected"
 #    local mlx5_errs="mlx5_core .* err |mlx5_core .* failed "
     local mlx5_errs="xxxxxxxxxxxxxxxxxxxxxxx"
     local fw_errs="health compromised|firmware internal error|assert_var|\
@@ -1238,13 +1227,13 @@ Command completion arrived after timeout|Error cqe|failed reclaiming pages"
     local look_ahead_count=12
     local filter="networkd-dispatcher|nm-dispatcher|uses legacy ethtool link settings|\
 EAL: WARNING: cpu flags constant_tsc=yes nonstop_tsc=no|mlnx_interface_mgr.sh|sssd.*segfault|\
-Skipping post send: QP err"
+Skipping post send: QP err|memtrack_report: Summary: 0 leak(s) detected"
 
     if [ -n "$__expected_error_msgs" ]; then
         filter+="$__expected_error_msgs"
     fi
 
-    look="$look|$mlx5_errs|$fw_errs"
+    look="$look|$memtrack|$mlx5_errs|$fw_errs"
     local a=`journalctl --since="$sec seconds ago" | grep -E -i "$look" | grep -v -E -i "$filter" || true`
     local b=`journalctl --since="$sec seconds ago" | grep -E -A $look_ahead_count -i "$look_ahead" || true`
     if [ "$a" != "" ] || [ "$b" != "" ]; then
@@ -1253,8 +1242,6 @@ Skipping post send: QP err"
     fi
     [ "$a" != "" ] && echo "$a"
     [ "$b" != "" ] && echo "$b"
-
-    check_for_ofed_memtrack_errors $sec
 
     return $rc
 }
