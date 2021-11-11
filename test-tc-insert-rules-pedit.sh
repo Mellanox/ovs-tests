@@ -79,6 +79,7 @@ function test_complex_header_rewrite_set() {
 
 
 start_check_syndrome
+config_sriov 2
 enable_switchdev
 
 test_basic_header_rewrite
