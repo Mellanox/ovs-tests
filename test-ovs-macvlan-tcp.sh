@@ -13,9 +13,9 @@ REMOTE="7.7.7.2"
 
 config_sriov 2
 enable_switchdev
-require_interfaces REP NIC
 unbind_vfs
 bind_vfs
+require_interfaces REP NIC VF
 
 function cleanup() {
     remove_ns

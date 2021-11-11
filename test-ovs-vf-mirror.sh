@@ -12,10 +12,10 @@ IP2="7.7.7.2"
 config_sriov 3
 enable_switchdev
 REP3=`get_rep 2`
-require_interfaces REP REP2 REP3
 unbind_vfs
 bind_vfs
 VF3=`get_vf 2`
+require_interfaces REP REP2 REP3 VF VF2 VF3
 reset_tc $REP
 reset_tc $REP2
 

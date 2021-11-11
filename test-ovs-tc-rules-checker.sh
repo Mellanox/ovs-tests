@@ -25,6 +25,7 @@ function cleanup() {
 enable_switchdev
 unbind_vfs
 bind_vfs
+require_interfaces VF REP VF2 REP2
 
 trap cleanup EXIT
 cleanup

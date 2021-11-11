@@ -19,9 +19,9 @@ TUN_ID=42
 geneve_port=6081
 
 enable_switchdev
-require_interfaces REP NIC
 unbind_vfs
 bind_vfs
+require_interfaces REP NIC VF
 
 
 function set_nf_liberal() {

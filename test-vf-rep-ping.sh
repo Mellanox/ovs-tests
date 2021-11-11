@@ -15,6 +15,7 @@ IP2="7.7.7.2"
 
 enable_switchdev
 bind_vfs
+require_interfaces NIC VF REP
 
 function cleanup() {
     ip netns del ns0 2> /dev/null

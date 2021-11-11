@@ -52,6 +52,7 @@ function setup
     config_sriov
     enable_switchdev
     bind_vfs
+    require_interfaces REP REP2 VF1 VF2
 
     ip link set $REP up
     ip link set $REP2 up

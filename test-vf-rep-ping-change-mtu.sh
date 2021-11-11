@@ -12,6 +12,7 @@ IP2="7.7.7.2"
 
 enable_switchdev
 bind_vfs
+require_interfaces VF REP
 
 function cleanup() {
     ip netns exec ns0 ip link set $VF mtu 1500 &>/dev/null
