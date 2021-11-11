@@ -15,7 +15,7 @@ function run() {
     enable_legacy $NIC
     vf_pci=$(basename `readlink /sys/class/net/$NIC/device/virtfn0`)
     if [ -z "$vf_pci" ]; then
-        fail "No VF found!"
+        fail "Cannot find VF"
     fi
 
     echo "Check default MSI-X of $vf_pci config"
@@ -28,7 +28,7 @@ function run() {
     echo "Change MSI-X of $vf_pci from $orig_cnt to $new_cnt"
     echo $new_cnt > /sys/bus/pci/devices/${vf_pci}/sriov_vf_msix_count
     if [ $? -ne 0 ]; then
-        fail "Error to set MSI-X queue count for VF"
+        fail "Failed to set MSI-X queue count for VF"
     fi
     echo $orig_cnt > /sys/bus/pci/devices/${vf_pci}/sriov_vf_msix_count
 }
