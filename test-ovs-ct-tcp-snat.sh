@@ -114,10 +114,10 @@ function run() {
     # so we start second traffic which will be faster added to hw before
     # conntrack and this will check the miss rule in our driver is ok
     # (i.e. restoring reg_0 correctly)
-    on_remote timeout 5 iperf -s -t 4 &
+    on_remote timeout 5 iperf3 -s -D
     pid1=$!
-    sleep 2
-    ip netns exec ns0 timeout 3 iperf -c $REMOTE -t 2 &
+    sleep 1
+    ip netns exec ns0 timeout 3 iperf3 -c $REMOTE -t 2 &
     pid2=$!
 
     sleep 4
@@ -125,10 +125,10 @@ function run() {
     wait $pid1 $pid2 &>/dev/null
 
     # traffic
-    on_remote timeout $((t+3)) iperf -s -t $t &
+    on_remote timeout $((t+3)) iperf3 -s -D
     pid1=$!
-    sleep 2
-    ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -P3 &
+    sleep 1
+    ip netns exec ns0 timeout $((t+2)) iperf3 -c $REMOTE -t $t -P3 &
     pid2=$!
 
     # verify pid
