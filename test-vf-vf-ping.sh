@@ -6,9 +6,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-test -z "$VF2" && fail "Missing VF2"
-test -z "$REP2" && fail "Missing REP2"
-
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
@@ -41,9 +38,10 @@ else
     bind_vfs
 fi
 
+require_interfaces VF VF2 REP REP2
+
 trap cleanup EXIT
 cleanup
-require_interfaces VF VF2 REP REP2
 start_clean_openvswitch
 start_check_syndrome
 config_vf ns0 $VF $REP $IP1

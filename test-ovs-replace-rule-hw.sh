@@ -12,6 +12,7 @@ my_dir="$(dirname "$0")"
 
 enable_switchdev
 bind_vfs
+require_interfaces VF1 REP VF2 REP2
 
 LOCAL_IP=99.99.99.5
 REMOTE_IP=99.99.99.6
@@ -21,14 +22,6 @@ port2=$REP
 port3=$VF2
 port4=$REP2
 
-if [ -z "$port2" ]; then
-    fail "Missing rep $port2"
-    exit 1
-fi
-if [ -z "$port4" ]; then
-    fail "Missing rep $port4"
-    exit 1
-fi
 
 function cleanup() {
     echo "cleanup"

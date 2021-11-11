@@ -8,9 +8,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-test -z "$VF2" && fail "Missing VF2"
-test -z "$REP2" && fail "Missing REP2"
-
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
@@ -33,7 +30,6 @@ function cleanup_vport_match_mode() {
 }
 
 trap cleanup_vport_match_mode EXIT
-cleanup
 
 disable_sriov
 set_vport_match_legacy
@@ -41,8 +37,9 @@ enable_sriov
 enable_switchdev
 unbind_vfs
 bind_vfs
-
 require_interfaces VF VF2 REP REP2
+
+cleanup
 start_clean_openvswitch
 start_check_syndrome
 config_vf ns0 $VF $REP $IP1

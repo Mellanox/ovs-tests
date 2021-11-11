@@ -9,10 +9,8 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
-require_mlxconfig
 
-test -z "$VF2" && fail "Missing VF2"
-test -z "$REP2" && fail "Missing REP2"
+require_mlxconfig
 
 IP1="7.7.7.1"
 IP2="7.7.7.2"
@@ -32,9 +30,6 @@ function set_prio_tag_mode() {
     fw_config PRIO_TAG_REQUIRED_EN=$mode
 }
 
-trap cleanup EXIT
-
-cleanup
 config_sriov 2
 enable_switchdev
 unbind_vfs
@@ -42,6 +37,8 @@ bind_vfs
 
 require_interfaces VF VF2 REP REP2
 
+trap cleanup EXIT
+cleanup
 set_prio_tag_mode 1 || fail "Cannot set prio tag mode"
 fw_reset
 

@@ -12,9 +12,7 @@ my_dir="$(dirname "$0")"
 config_sriov
 enable_switchdev
 REP=`get_rep 0`
-if [ -z "$REP" ]; then
-    fail "Missing rep $rep"
-fi
+require_interfaces REP
 
 function test_tc_filter() {
     local a

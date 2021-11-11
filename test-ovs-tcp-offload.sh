@@ -9,11 +9,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-test -z "$VF" && fail "Missing VF"
-test -z "$VF2" && fail "Missing VF2"
-test -z "$REP" && fail "Missing REP"
-test -z "$REP2" && fail "Missing REP2"
-
 VM1_IP="7.7.7.1"
 VM2_IP="7.7.7.2"
 
@@ -25,16 +20,14 @@ function cleanup() {
     ifconfig $VF 0
 }
 
-cleanup
 enable_switchdev
 unbind_vfs
 set_eswitch_inline_mode_transport
 bind_vfs
+require_interfaces VF VF2 REP REP2
+cleanup
 
 echo "setup ns"
-
-require_interfaces VF VF2 REP REP2
-
 ifconfig $VF $VM1_IP/24 up
 ip netns add ns0
 ip link set $VF2 netns ns0

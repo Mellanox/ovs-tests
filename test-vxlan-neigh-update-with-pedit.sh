@@ -17,9 +17,7 @@ not_relevant_for_nic cx4
 
 enable_switchdev
 REP=`get_rep 0`
-if [ -z "$REP" ]; then
-    fail "Missing rep $REP"
-fi
+require_interfaces REP
 
 local_ip="2.2.2.2"
 remote_ip="2.2.2.3"

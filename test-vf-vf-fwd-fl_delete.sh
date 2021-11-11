@@ -9,9 +9,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-test -z "$VF2" && fail "Missing VF2"
-test -z "$REP2" && fail "Missing REP2"
-
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 

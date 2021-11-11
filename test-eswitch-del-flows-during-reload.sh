@@ -17,10 +17,7 @@ my_dir="$(dirname "$0")"
 
 enable_switchdev
 rep=`get_rep 0`
-if [ -z "$rep" ]; then
-    fail "Missing rep $rep"
-    exit 1
-fi
+require_interfaces rep
 reset_tc $NIC $rep
 
 
