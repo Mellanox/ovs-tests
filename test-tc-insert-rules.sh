@@ -367,5 +367,4 @@ if [ $count -eq 0 ]; then
 fi
 
 reset_tc $NIC $REP
-check_kasan
 test_done

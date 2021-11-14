@@ -89,6 +89,5 @@ test_complex_header_rewrite_add2
 test_complex_header_rewrite_set
 
 title "Check log"
-check_kasan
 check_syndrome
 test_done

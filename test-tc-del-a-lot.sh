@@ -95,5 +95,4 @@ ip link add veth0 type veth peer name veth1
 
 do_test1
 cleanup
-check_kasan
 test_done

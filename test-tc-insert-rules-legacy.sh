@@ -79,5 +79,4 @@ for i in `declare -F | awk {'print $3'} | grep ^test_ | grep -v test_done` ; do
     reset_tc $NIC
 done
 
-check_kasan
 test_done

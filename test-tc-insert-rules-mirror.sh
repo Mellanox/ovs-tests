@@ -35,6 +35,5 @@ start_check_syndrome
 enable_switchdev
 test1
 test2
-check_kasan
 check_syndrome
 test_done

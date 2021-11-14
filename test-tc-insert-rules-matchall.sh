@@ -30,5 +30,4 @@ function test_basic_matchall_uplink_rep() {
 enable_switchdev
 test_basic_matchall_rep
 test_basic_matchall_uplink_rep
-check_kasan
 test_done

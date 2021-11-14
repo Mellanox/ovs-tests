@@ -177,5 +177,4 @@ test_multiple_meters $REP $NIC 200
 test_multiple_meters $REP $REP2 200
 
 check_syndrome
-check_kasan
 test_done

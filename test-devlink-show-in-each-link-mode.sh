@@ -55,5 +55,4 @@ success
 
 set_macs 2
 check_syndrome
-check_kasan
 test_done

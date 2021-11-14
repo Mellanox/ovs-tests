@@ -131,5 +131,4 @@ for i in `declare -F | awk {'print $3'} | grep ^test_ | grep -v test_done` ; do
     reset_tc $REP
 done
 
-check_kasan
 test_done

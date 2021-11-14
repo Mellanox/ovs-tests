@@ -41,6 +41,5 @@ test_header_rewrite_ttl_uplink
 test_header_rewrite_ttl_vport
 
 title "Check log"
-check_kasan
 check_syndrome
 test_done

@@ -20,5 +20,4 @@ function run() {
 
 
 run
-check_kasan
 test_done

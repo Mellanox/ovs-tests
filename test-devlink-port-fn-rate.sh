@@ -213,7 +213,6 @@ done
 
 
 check_syndrome
-check_kasan
 
 # if some tests failed they can affect next ones
 if [ $TEST_FAILED != 0 ]; then

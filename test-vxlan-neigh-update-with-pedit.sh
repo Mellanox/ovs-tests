@@ -150,6 +150,5 @@ if [ "$tmp" != "" ]; then
     err "$tmp"
 fi
 
-check_kasan
 check_syndrome
 test_done

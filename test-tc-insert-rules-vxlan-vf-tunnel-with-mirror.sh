@@ -62,5 +62,4 @@ test_vxlan_mirror_encap
 
 check_for_errors_log
 check_syndrome
-check_kasan
 test_done

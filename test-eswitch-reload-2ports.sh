@@ -16,5 +16,4 @@ disable_sriov_port2
 config_sriov
 enable_switchdev
 
-check_kasan
 test_done

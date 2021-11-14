@@ -218,5 +218,4 @@ run2
 cleanup
 
 check_syndrome
-check_kasan
 test_done

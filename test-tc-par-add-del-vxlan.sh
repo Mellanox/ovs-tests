@@ -92,6 +92,5 @@ start_check_syndrome
 
 test_par_vxlan_ipv4
 
-check_kasan
 check_syndrome
 test_done

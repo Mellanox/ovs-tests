@@ -26,5 +26,4 @@ config_sriov
 enable_switchdev
 test_goto_fwd
 test_goto_back
-check_kasan
 test_done

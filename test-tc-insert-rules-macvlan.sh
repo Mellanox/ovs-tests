@@ -34,5 +34,4 @@ function test_macvlan() {
 config_sriov
 enable_switchdev
 test_macvlan
-check_kasan
 test_done

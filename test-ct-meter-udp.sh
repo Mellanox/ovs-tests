@@ -111,5 +111,4 @@ function run() {
 start_check_syndrome
 run
 check_syndrome
-check_kasan
 test_done
