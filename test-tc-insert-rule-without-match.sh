@@ -35,7 +35,7 @@ function do_test() {
     local err=$?
     if [ "$short_device_name" == "cx4lx" ]; then
         echo "In ConnectX-4 we expect to fail with syndrome of missing dst mac."
-        expect_syndrome "0x29cdba" && success
+        add_expected_error_msg "0x29cdba"
     else
         # ConnectX-5
         if [ $err == 0 ]; then
