@@ -32,7 +32,7 @@ function do_test() {
     reset_tc $NIC
     start_check_syndrome
     tc_filter add dev $NIC parent ffff: prio 1 flower skip_sw action drop
-    err=$?
+    local err=$?
     if [ "$short_device_name" == "cx4lx" ]; then
         echo "In ConnectX-4 we expect to fail with syndrome of missing dst mac."
         expect_syndrome "0x29cdba" && success
