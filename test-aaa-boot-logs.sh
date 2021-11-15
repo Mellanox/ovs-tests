@@ -14,7 +14,7 @@ __uptime_seconds=`awk '{print $1}' /proc/uptime | cut -d. -f1`
 max_uptime=1800
 title "Check if uptime is less than $max_uptime"
 if [ $__uptime_seconds -gt $max_uptime ]; then
-    echo "Aborting"
+    log "Nothing to do"
 else
     title "Check if a test ran before this one"
 
