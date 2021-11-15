@@ -75,7 +75,6 @@ function test_reps() {
 
 
 trap cleanup EXIT
-start_check_syndrome
 disable_sriov_autoprobe
 
 test_reps 8
@@ -83,5 +82,4 @@ test_reps 16
 
 echo "Cleanup"
 cleanup
-check_syndrome
 test_done

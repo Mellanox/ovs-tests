@@ -114,7 +114,6 @@ function change_slaves() {
     ifconfig $tmpslave up
 }
 
-start_check_syndrome
 
 title "test ping esw0->esw1"
 change_slaves
@@ -137,6 +136,5 @@ flush_bridge $br
 verify_ping_ns $namespace2 $VF2.2 $bond $REMOTE_IP $time
 
 cleanup
-check_syndrome
 trap - EXIT
 test_done

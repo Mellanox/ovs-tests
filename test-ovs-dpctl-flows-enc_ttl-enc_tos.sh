@@ -161,7 +161,6 @@ function test_enc_tos_mask_ff() {
 }
 
 
-start_check_syndrome
 
 test_enc_ttl_mask_0
 test_enc_ttl_mask_1
@@ -171,6 +170,5 @@ test_enc_tos_mask_0
 test_enc_tos_mask_1
 test_enc_tos_mask_ff
 
-check_syndrome
 cleanup
 test_done

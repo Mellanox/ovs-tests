@@ -63,7 +63,6 @@ function test_case_dscp() {
     title "Test ToS(DSCP) rewrite"
 
     ovs-ofctl del-flows ovs-sriov1 ip
-    start_check_syndrome
 
     ovs-ofctl add-flow ovs-sriov1 "ip,in_port=$REP,action=mod_nw_tos:68,output:$REP2"
 
@@ -81,7 +80,6 @@ function test_case_dscp() {
     title "Verify offload"
     wait $pid && err || success
 
-    check_syndrome
 }
 
 cleanup

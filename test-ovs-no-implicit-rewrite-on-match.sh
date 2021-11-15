@@ -94,7 +94,6 @@ function test_case() {
     cleanup
 
     title "Test case $cs"
-    start_check_syndrome
 
     if [[ "$cs" == "veth" ]]; then
         echo "setup veth and ns"
@@ -146,7 +145,6 @@ function test_case() {
 
     start_clean_openvswitch
 
-    check_syndrome
 }
 
 for cs in $CASES; do

@@ -32,7 +32,6 @@ function __test_basic_gre() {
 
     reset_tc $REP $NIC $tun_if
 
-    start_check_syndrome
 
     title "    - encap"
     tc_filter add dev $REP protocol ip ingress prio 1 \
@@ -60,7 +59,6 @@ function __test_basic_gre() {
                 action mirred egress redirect dev $REP
     tc_filter show dev $tun_if ingress prio 2 | grep -q -w in_hw || err "Decap rule not in hw"
 
-    check_syndrome
 
     reset_tc $REP $NIC $tun_if
     ip neigh del $ip_dst lladdr e4:11:22:11:55:55 dev $NIC

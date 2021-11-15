@@ -134,13 +134,11 @@ function run() {
     fi
 }
 
-start_check_syndrome
 run
 start_clean_openvswitch
 cleanup
 set_prio_tag_mode 0
 fw_reset
 config_sriov 2
-check_syndrome
 trap - EXIT
 test_done

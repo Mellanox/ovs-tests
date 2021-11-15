@@ -43,7 +43,5 @@ function do_test() {
     verify_in_hw $VXLAN 1
 }
 
-start_check_syndrome
 do_test
-check_syndrome
 test_done

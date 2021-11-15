@@ -12,7 +12,6 @@ my_dir="$(dirname "$0")"
 function test_mac() {
     title "Test mac reset"
 
-    start_check_syndrome
 
     enable_legacy
     title "- set mac on vf 0"
@@ -29,7 +28,6 @@ function test_mac() {
         success
     fi
 
-    check_syndrome
 }
 
 

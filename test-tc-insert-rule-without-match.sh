@@ -30,7 +30,6 @@ function test_in_legacy() {
 
 function do_test() {
     reset_tc $NIC
-    start_check_syndrome
     tc_filter add dev $NIC parent ffff: prio 1 flower skip_sw action drop
     local err=$?
     if [ "$short_device_name" == "cx4lx" ]; then
@@ -43,7 +42,6 @@ function do_test() {
         else
             err "Failed to add rule"
         fi
-        check_syndrome
     fi
 
     reset_tc $NIC

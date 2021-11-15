@@ -228,10 +228,8 @@ function change_slaves() {
     ifconfig $tmpslave up
 }
 
-start_check_syndrome
 run
 ovs-vsctl del-br br-ovs
 cleanup
-check_syndrome
 trap - EXIT
 test_done

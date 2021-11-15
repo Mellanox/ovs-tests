@@ -139,10 +139,8 @@ ovn_clean_up
 trap ovn_clean_up EXIT
 
 pre_test
-start_check_syndrome
 run_test
 
-check_syndrome
 
 ovn_clean_up
 trap - EXIT

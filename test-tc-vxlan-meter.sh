@@ -205,7 +205,6 @@ config_vxlan
 config_vf ns0 $VF $REP $IP
 config_remote
 
-start_check_syndrome
 
 title "limit the speed on vxlan"
 reset_tc $REP vxlan1
@@ -217,5 +216,4 @@ run2
 
 cleanup
 
-check_syndrome
 test_done

@@ -32,7 +32,6 @@ function test_reps() {
 
 
 trap cleanup EXIT
-start_check_syndrome
 disable_sriov_autoprobe
 config_sriov 0 $NIC2
 
@@ -45,5 +44,4 @@ fi
 
 echo "Cleanup"
 cleanup
-check_syndrome
 test_done

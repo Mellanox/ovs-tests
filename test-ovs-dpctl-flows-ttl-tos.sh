@@ -135,7 +135,6 @@ function test_tos_mask_ff() {
 }
 
 
-start_check_syndrome
 
 test_ttl_mask_0
 test_ttl_mask_1
@@ -146,6 +145,5 @@ test_tos_mask_1
 test_tos_mask_ff
 
 ifconfig $VF 0
-check_syndrome
 cleanup
 test_done

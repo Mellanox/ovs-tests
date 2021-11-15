@@ -66,8 +66,6 @@ function test_rss()
     ethtool -X $NIC hkey $backup_hkey || err "Failed to reset hkey"
 }
 
-start_check_syndrome
 test_stats
 test_rss
-check_syndrome
 test_done

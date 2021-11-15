@@ -33,7 +33,6 @@ function test_hairpin_unbind_vf() {
     reset_tc $nic
 }
 
-start_check_syndrome
 
 title "Test hairpin rules in legacy mode"
 disable_sriov
@@ -41,5 +40,4 @@ enable_sriov
 
 test_hairpin_unbind_vf $NIC $VF
 
-check_syndrome
 test_done

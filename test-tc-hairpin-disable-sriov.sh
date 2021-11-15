@@ -22,7 +22,6 @@ function test_hairpin() {
     reset_tc $nic
 }
 
-start_check_syndrome
 disable_sriov
 enable_sriov
 
@@ -34,5 +33,4 @@ config_sriov 0 $NIC2
 # wait for syndrome. noticed it after 6 seconds.
 echo "Wait for syndrome"
 sleep 10
-check_syndrome
 test_done

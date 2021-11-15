@@ -44,13 +44,11 @@ function add_tc_rules() {
 
 trap cleanup EXIT
 
-start_check_syndrome
 set_lag_resource_allocation 1
 config
 add_tc_rules
 reset_tc $NIC $NIC2 $REP $REP2
 set_lag_resource_allocation 0
-check_syndrome
 trap - EXIT
 cleanup
 test_done

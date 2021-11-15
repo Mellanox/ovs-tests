@@ -157,7 +157,6 @@ function test_sctp_rewrite_ipv6() {
 
 }
 
-start_check_syndrome
 enable_switchdev
 reset_tc $REP
 
@@ -167,5 +166,4 @@ test_sctp_rewrite
 test_sctp_rewrite_ipv6
 
 title "Check log"
-check_syndrome
 test_done

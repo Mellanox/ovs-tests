@@ -43,13 +43,11 @@ function check_bond_fail() {
 
 trap cleanup EXIT
 
-start_check_syndrome
 clear_bonding
 set_lag_resource_allocation 1
 config
 check_bond_fail
 set_lag_resource_allocation 0
-check_syndrome
 trap - EXIT
 cleanup
 test_done

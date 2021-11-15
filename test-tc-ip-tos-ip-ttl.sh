@@ -13,10 +13,8 @@ not_relevant_for_nic cx4
 function test_ip_tos_and_ip_ttl() {
     local nic=$1
 
-    start_check_syndrome
     reset_tc $nic
     tc_filter add dev $nic protocol ip ingress prio 1 flower skip_sw dst_mac 7c:fe:90:7b:76:5c ip_proto icmp ip_tos 0x30 ip_ttl 63 action drop
-    check_syndrome
 }
 
 function __test_basic_vxlan() {
@@ -42,7 +40,6 @@ function __test_basic_vxlan() {
     reset_tc $REP
     reset_tc $vx
 
-    start_check_syndrome
 
     tc_filter add dev $vx protocol 0x806 parent ffff: prio 1 \
                 flower \
@@ -61,7 +58,6 @@ function __test_basic_vxlan() {
     # Bug SW #1360599: [upstream] decap rule offload attempt with skip_sw fails
     tc filter show dev $vx ingress prio 1 | grep -q -w in_hw || err "Decap rule not in hw"
 
-    check_syndrome
 
     reset_tc $NIC
     reset_tc $REP

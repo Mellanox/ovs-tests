@@ -59,7 +59,6 @@ ovs-ofctl add-flow brv-1 "in_port($REP),ip,icmp,actions=$REP2" || err
 ovs-ofctl add-flow brv-1 "in_port($REP2),ip,dl_dst=e4:11:11:11:11:11,actions=drop" || err
 ovs-ofctl add-flow brv-1 "in_port($REP2),ip,icmp,actions=$REP" || err
 
-start_check_syndrome
 
 # quick ping to make ovs add rules
 ping -q -c 1 -w 1 $VM2_IP -s 2000 && success || err
@@ -94,7 +93,6 @@ if [ "$TEST_OFFLOAD" = 1 ]; then
 fi
 
 rm -fr $tdtmpfile
-check_syndrome || err
 
 cleanup
 test_done

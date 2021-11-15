@@ -116,9 +116,7 @@ function test_neigh_update_ipv4() {
 }
 
 
-start_check_syndrome
 
 test_neigh_update_ipv4
 
-check_syndrome
 test_done

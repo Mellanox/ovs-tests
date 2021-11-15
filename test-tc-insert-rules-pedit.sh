@@ -78,7 +78,6 @@ function test_complex_header_rewrite_set() {
 }
 
 
-start_check_syndrome
 config_sriov 2
 enable_switchdev
 
@@ -89,5 +88,4 @@ test_complex_header_rewrite_add2
 test_complex_header_rewrite_set
 
 title "Check log"
-check_syndrome
 test_done

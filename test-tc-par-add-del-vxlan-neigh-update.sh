@@ -126,10 +126,8 @@ function test_neigh_update_single_neigh_ipv4() {
     done
 }
 
-start_check_syndrome
 
 test_neigh_update_single_neigh_ipv4
 test_neigh_update_multi_neigh_ipv4
 
-check_syndrome
 test_done

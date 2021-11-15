@@ -23,13 +23,11 @@ function config_ports() {
 
 function deconfig_ports() {
     # need to unbind vfs to create/destroy vf lag
-    start_check_syndrome
     unbind_vfs
     unbind_vfs $NIC2
     # disabling sriov will cause a syndrome when destroying vf lag that we need
     # to be lag master. instead just move to legacy.
     enable_legacy $NIC2
-    check_syndrome
 }
 
 function dmesg_chk() {

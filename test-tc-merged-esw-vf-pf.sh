@@ -10,7 +10,6 @@ my_dir="$(dirname "$0")"
 
 
 title "Test redirect rule from VF on esw0 to uplink on esw1"
-start_check_syndrome
 enable_switchdev
 disable_sriov_port2
 enable_sriov_port2
@@ -27,6 +26,5 @@ tc filter add dev $NIC2 protocol ip ingress prio 1 flower skip_sw action \
 
 reset_tc $REP
 disable_sriov_port2
-check_syndrome
 
 test_done

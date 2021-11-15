@@ -8,7 +8,6 @@ my_dir="$(dirname "$0")"
 
 
 title "Test redirect rule from vf on esw0 to vf on esw1"
-start_check_syndrome
 enable_switchdev
 disable_sriov_port2
 enable_sriov_port2
@@ -26,6 +25,5 @@ tc_filter add dev $REP2 protocol ip ingress prio 1 flower skip_sw dst_mac e4:11:
 reset_tc $REP2
 
 disable_sriov_port2
-check_syndrome
 
 test_done

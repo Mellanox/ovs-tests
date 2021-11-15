@@ -64,7 +64,6 @@ reset_tc $port4
 
 dst_mac=`ip netns exec blue ip link show $VF2 | grep ether | awk '{print $2}'`
 
-start_check_syndrome
 
 echo "adding hw only rules"
 #pass '* -> 7-8' or '1-2 -> *'
@@ -128,5 +127,4 @@ echo "got stats: $stats (expected: $expected)"
 [[ "$stats" == "$expected" ]] && success || err "expected different packet stats, expected ($expected) but got ($stats)"
 
 cleanup
-check_syndrome || err
 test_done

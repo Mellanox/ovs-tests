@@ -19,25 +19,21 @@ ip link del $IFACE >/dev/null 2>&1
 
 function test_up_del() {
     title "-- up/del"
-    start_check_syndrome
     ip link add $IFACE type vxlan dstport $NON_STANDARD_PORT external
     [ $? -ne 0 ] && err "Failed to create vxlan interface" && return 1
     ip link set $IFACE up
     ip link del $IFACE
-    check_syndrome || err
     check_kasan && success || err
 }
 
 function test_up_down_del() {
     title "-- up/down/del"
-    start_check_syndrome
     ip link add $IFACE type vxlan dstport $NON_STANDARD_PORT external
     [ $? -ne 0 ] && err "Failed to create vxlan interface" && return 1
     ip link set $IFACE up
     ip link set $IFACE down
     sleep 1
     ip link del $IFACE
-    check_syndrome || err
     check_kasan && success || err
 }
 

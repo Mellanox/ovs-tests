@@ -58,7 +58,6 @@ function test_bond_mode() {
 }
 
 trap cleanup EXIT
-start_check_syndrome
 
 num_vfs=`fw_query_val NUM_OF_VFS`
 
@@ -78,6 +77,5 @@ fw_reset
 wait_for_ifaces
 config
 
-check_syndrome
 fail_if_err
 test_done

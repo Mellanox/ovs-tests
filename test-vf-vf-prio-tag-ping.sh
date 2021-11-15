@@ -54,7 +54,6 @@ wait_for_linkup $VF
 wait_for_linkup $VF2
 
 start_clean_openvswitch
-start_check_syndrome
 config_vf ns0 $VF $REP $IP1
 config_vf ns1 $VF2 $REP2 $IP2
 BR=ov1
@@ -75,7 +74,6 @@ fi
 
 ovs_clear_bridges
 cleanup
-check_syndrome
 set_prio_tag_mode 0
 fw_reset
 config_sriov 2

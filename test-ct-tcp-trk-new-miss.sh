@@ -117,7 +117,5 @@ function run() {
 }
 
 
-start_check_syndrome
 run
-check_syndrome
 test_done

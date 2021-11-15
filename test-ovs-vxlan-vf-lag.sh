@@ -200,10 +200,8 @@ function change_slaves() {
     ifconfig $tmpslave up
 }
 
-start_check_syndrome
 run
 start_clean_openvswitch
 cleanup
-check_syndrome
 trap - EXIT
 test_done

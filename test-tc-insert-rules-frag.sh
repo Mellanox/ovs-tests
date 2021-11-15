@@ -34,7 +34,6 @@ function test_tc_filter() {
 }
 
 
-start_check_syndrome
 reason="Expected to fail with reason EOPNOTSUPP"
 
 title "Test fragfirst rule"
@@ -48,5 +47,4 @@ test_tc_filter add dev $NIC protocol ip parent ffff: flower skip_sw ip_flags nof
     dst_mac e4:11:22:11:4a:51 src_mac e4:11:22:11:4a:50 action drop
 
 reset_tc $NIC
-check_syndrome
 test_done

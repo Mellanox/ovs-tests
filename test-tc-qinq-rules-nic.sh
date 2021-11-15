@@ -51,9 +51,7 @@ function run_tests() {
     __test_qinq_double_push_no_pop
 }
 
-start_check_syndrome
 run_tests
 title "Check for errors"
-check_syndrome
 
 test_done

@@ -12,7 +12,6 @@ my_dir="$(dirname "$0")"
 function change_hfunc() {
     title "Test change hashfunc for $NIC"
 
-    start_check_syndrome
     # make sure in sriov and switchdev
     config_sriov 2 $NIC
     enable_switchdev
@@ -21,7 +20,6 @@ function change_hfunc() {
     ethtool -X $NIC hfunc toeplitz || err "Failed to set hfunc toeplitz"
     log "set hfunc xor"
     ethtool -X $NIC hfunc xor || err "Failed to set hfunc xor"
-    check_syndrome
 }
 
 

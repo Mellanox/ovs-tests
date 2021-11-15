@@ -168,7 +168,6 @@ config_sriov 2
 enable_switchdev
 bind_vfs
 
-start_check_syndrome
 test_basic_meter $NIC $REP
 test_basic_meter $REP $NIC
 test_basic_meter $REP $REP2
@@ -176,5 +175,4 @@ test_multiple_meters $NIC $REP 200
 test_multiple_meters $REP $NIC 200
 test_multiple_meters $REP $REP2 200
 
-check_syndrome
 test_done

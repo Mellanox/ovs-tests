@@ -25,7 +25,6 @@ ifconfig $VXLAN up
 reset_tc $VXLAN
 reset_tc $NIC
 
-start_check_syndrome
 # decap rule set on the vxlan device
 echo "-- add vxlan decap rule"
 tc_filter add dev $VXLAN protocol all parent ffff: prio 2 \
@@ -38,7 +37,6 @@ if [ $? -eq 0 ]; then
     tc_filter show dev $VXLAN ingress prio 2 | grep -q -w in_hw || err "Decap rule not in hw"
 fi
 
-check_syndrome
 reset_tc $VXLAN
 reset_tc $NIC
 ip addr flush dev $NIC

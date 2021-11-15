@@ -26,8 +26,6 @@ function test1() {
     reset_tc $NIC
 }
 
-start_check_syndrome
 enable_switchdev
 test1
-check_syndrome
 test_done

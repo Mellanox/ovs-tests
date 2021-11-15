@@ -40,7 +40,6 @@ function add_rules() {
 
 
 title "test reload modules"
-start_check_syndrome
 
 title "add $COUNT rules"
 add_rules &
@@ -50,7 +49,6 @@ reload_modules_pid=$!
 wait $reload_modules_pid
 reload_modules_result=$?
 
-check_syndrome
 [ -e /sys/class/net/$REP ] && reset_tc $REP
 
 if [ $reload_modules_result != 0 ]; then

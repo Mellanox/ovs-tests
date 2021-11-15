@@ -158,12 +158,10 @@ function run_traffic() {
 
 trap cleanup EXIT
 
-start_check_syndrome
 config_fw 1
 config
 run_traffic
 config_fw 0
-check_syndrome
 trap - EXIT
 cleanup
 test_done

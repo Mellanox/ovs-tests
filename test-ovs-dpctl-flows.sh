@@ -116,13 +116,11 @@ function test_appctl_rule_udp_ipv6() {
     verify_keys_in_flow 19:19 eth eth_type ipv6 udp
 }
 
-start_check_syndrome
 
 test_appctl_rule_tcp
 test_appctl_rule_udp
 test_appctl_rule_tcp_ipv6
 test_appctl_rule_udp_ipv6
 
-check_syndrome
 cleanup
 test_done

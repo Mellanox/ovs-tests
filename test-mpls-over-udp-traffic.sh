@@ -60,7 +60,6 @@ function prep_setup()
                unbind_vfs
                bind_vfs
                start_clean_openvswitch
-               start_check_syndrome
                reset_tc $NIC $REP
                ip link set dev $VF mtu 1468
                modprobe -av bareudp || fail \"Can't load bareudp module\""
@@ -156,7 +155,6 @@ echo
 echo
 title "=============           Cleanup             =================="
 cleanup
-check_syndrome
 prep_setup 0
 prep_setup 0 "remote"
 

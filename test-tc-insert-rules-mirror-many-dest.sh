@@ -94,10 +94,8 @@ function test3() {
     reset_tc $REP
 }
 
-start_check_syndrome
 test1
 test2
 test3
-check_syndrome
 config_sriov 2
 test_done

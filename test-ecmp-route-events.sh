@@ -78,7 +78,6 @@ echo ; ip r ; echo
 ## no log
 
 title "Test route add"
-start_check_syndrome
 # ENTRY_DEL event
 # not going out from multipath unless going to legacy again so need to do that.
 ip r d $net
@@ -86,7 +85,6 @@ ip r d $net
 # ENTRY_ADD event
 ip r add $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
 # no log
-check_syndrome
 
 function tst_netdev() {
     local p0=$1
@@ -138,7 +136,6 @@ tst_netdev $NIC2 $route2 $NIC $route1
 echo
 
 title "multiple routes"
-start_check_syndrome
 ip r d $net
 ip r r $net2 nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
 ip r r $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
@@ -146,7 +143,6 @@ tst_netdev $NIC $route1 $NIC2 $route2
 tst_netdev $NIC2 $route2 $NIC $route1
 ip r d $net
 ip r d $net2
-check_syndrome
 echo
 
 title "multipath 1 hca port and 1 dummy port"

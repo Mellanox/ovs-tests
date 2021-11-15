@@ -56,7 +56,6 @@ function prep_setup()
                unbind_vfs
                bind_vfs
                start_clean_openvswitch
-               start_check_syndrome
                reset_tc $NIC $REP $REP2"
 
     if [ "X$remote" != "X" ]; then
@@ -157,6 +156,5 @@ echo "verify tcpdump on $REP"
 verify_no_traffic $tpid_2
 
 cleanup
-check_syndrome
 
 test_done

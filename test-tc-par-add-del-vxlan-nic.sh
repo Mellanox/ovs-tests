@@ -87,9 +87,7 @@ function test_par_vxlan_ipv4() {
     run_test $local_ip $remote_ip_net $remote_ip_host
 }
 
-start_check_syndrome
 
 test_par_vxlan_ipv4
 
-check_syndrome
 test_done

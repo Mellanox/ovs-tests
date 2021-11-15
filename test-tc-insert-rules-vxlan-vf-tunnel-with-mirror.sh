@@ -57,9 +57,7 @@ function test_vxlan_mirror_encap() {
     ip link del $vx
 }
 
-start_check_syndrome
 test_vxlan_mirror_encap
 
 check_for_errors_log
-check_syndrome
 test_done

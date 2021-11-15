@@ -49,13 +49,11 @@ if [ "$devlink_compat" = 1 ]; then
 fi
 
 title "Switch mode with encap"
-start_check_syndrome
 set_encap disable
 test_encap none
 switch_mode_legacy
 extra_mode="encap enable"
 switch_mode_switchdev
 test_encap basic
-check_syndrome
 
 test_done

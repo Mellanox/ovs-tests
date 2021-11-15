@@ -22,7 +22,6 @@ function test_hairpin() {
     reset_tc $nic
 }
 
-start_check_syndrome
 
 title "Test hairpin rules in legacy mode"
 disable_sriov
@@ -32,5 +31,4 @@ test_hairpin $NIC $NIC2
 test_hairpin $NIC2 $NIC
 
 config_sriov 0 $NIC2
-check_syndrome
 test_done

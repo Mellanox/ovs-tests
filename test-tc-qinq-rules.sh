@@ -124,7 +124,6 @@ function test_qinq_double_push_no_pop() {
     done
 }
 
-start_check_syndrome
 
 # Execute all test* functions
 
@@ -132,6 +131,5 @@ test_qinq_double_push_no_pop
 test_qinq_double_push_one_pop
 test_qinq_double_pushpop
 
-check_syndrome
 
 test_done

@@ -41,7 +41,6 @@ require_interfaces VF VF2 REP REP2
 
 cleanup
 start_clean_openvswitch
-start_check_syndrome
 config_vf ns0 $VF $REP $IP1
 config_vf ns1 $VF2 $REP2 $IP2
 BR=ov1
@@ -80,5 +79,4 @@ verify_timedout $tpid
 ovs_clear_bridges
 cleanup
 trap - EXIT
-check_syndrome
 test_done

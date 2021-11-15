@@ -81,7 +81,6 @@ function config() {
     cleanup
 
     title "Test case $cs"
-    start_check_syndrome
 
     if [[ "$cs" == "veth" ]]; then
         echo "setup veth and ns"
@@ -174,7 +173,6 @@ for cs in $CASES; do
     case1
     case2
     case3
-    check_syndrome
     kill_iperf_server
 done
 

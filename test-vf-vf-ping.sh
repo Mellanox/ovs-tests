@@ -43,7 +43,6 @@ require_interfaces VF VF2 REP REP2
 trap cleanup EXIT
 cleanup
 start_clean_openvswitch
-start_check_syndrome
 config_vf ns0 $VF $REP $IP1
 config_vf ns1 $VF2 $REP2 $IP2
 BR=ov1
@@ -95,5 +94,4 @@ if [ $MULTIPATH == 1 ]; then
     disable_multipath
     enable_sriov
 fi
-check_syndrome
 test_done

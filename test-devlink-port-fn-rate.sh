@@ -8,7 +8,6 @@ my_dir="$(dirname "$0")"
 pci_dev="pci/$PCI"
 num_vfs=3
 
-start_check_syndrome
 config_reps $num_vfs
 
 function dl_cmd() {
@@ -212,7 +211,6 @@ for test_case in $test_cases;do
 done
 
 
-check_syndrome
 
 # if some tests failed they can affect next ones
 if [ $TEST_FAILED != 0 ]; then

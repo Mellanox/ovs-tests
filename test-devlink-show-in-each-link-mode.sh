@@ -33,7 +33,6 @@ function devlink_eswitch_show() {
 }
 
 
-start_check_syndrome
 
 # setting steering mode is not working with IB mode as we use eth NIC mode
 # and also its not needed for this test so lets skip it.
@@ -54,5 +53,4 @@ devlink_eswitch_show
 success
 
 set_macs 2
-check_syndrome
 test_done

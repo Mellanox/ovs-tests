@@ -27,7 +27,6 @@ reset_tc $vlan_dev
 
 title "Add tc vlan rule veth->rep"
 
-start_check_syndrome
 tc_filter add dev $vlan_dev protocol 802.1q parent ffff: prio 1 flower \
             verbose \
             vlan_ethtype 0x800 \
@@ -37,6 +36,5 @@ tc_filter add dev $vlan_dev protocol 802.1q parent ffff: prio 1 flower \
             action mirred egress redirect dev $REP
 
 tc filter show dev $vlan_dev ingress prio 1 | grep -q -w in_hw && err "Found in_hw rule for veth->rep"
-check_syndrome
 
 test_done

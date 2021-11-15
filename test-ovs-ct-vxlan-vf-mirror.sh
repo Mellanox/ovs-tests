@@ -126,8 +126,6 @@ function run() {
     wait 2>/dev/null
 }
 
-start_check_syndrome
 run
 ovs-vsctl del-br br-ovs
-check_syndrome
 test_done

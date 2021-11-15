@@ -65,7 +65,6 @@ function test_bond_mode() {
 }
 
 trap cleanup EXIT
-start_check_syndrome
 
 config
 
@@ -75,6 +74,5 @@ test_bond_mode active-backup
 warning="Warning: mlx5_core: Can't activate LAG offload, TX type isn't supported."
 test_bond_mode broadcast
 
-check_syndrome
 fail_if_err
 test_done

@@ -126,7 +126,6 @@ function neigh_update_test() {
 }
 
 
-start_check_syndrome
 
 title "Test neigh update ipv4"
 cleanup
@@ -150,5 +149,4 @@ if [ "$tmp" != "" ]; then
     err "$tmp"
 fi
 
-check_syndrome
 test_done

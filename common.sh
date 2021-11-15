@@ -1259,18 +1259,6 @@ function check_for_err() {
     return 0
 }
 
-function start_check_syndrome() {
-    return
-}
-
-function check_syndrome() {
-    return 0
-}
-
-function expect_syndrome() {
-    add_expected_error_msg $1
-}
-
 function ovs_conf_set() {
     local key=$1
     local val=$2

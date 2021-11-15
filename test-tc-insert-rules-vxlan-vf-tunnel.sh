@@ -83,10 +83,8 @@ enable_switchdev
 unbind_vfs
 bind_vfs
 require_interfaces NIC REP VF1
-start_check_syndrome
 
 test_vxlan
 
 check_for_errors_log
-check_syndrome
 test_done

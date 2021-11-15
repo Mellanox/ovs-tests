@@ -26,7 +26,6 @@ require_interfaces VF REP VF2 REP2
 
 trap cleanup EXIT
 cleanup
-start_check_syndrome
 config_vf ns0 $VF $REP $IP1
 config_vf ns1 $VF2 $REP2 $IP2
 
@@ -196,5 +195,4 @@ check_alignment
 
 ovs_clear_bridges
 cleanup
-check_syndrome
 test_done

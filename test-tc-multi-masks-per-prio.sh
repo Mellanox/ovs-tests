@@ -56,7 +56,6 @@ reset_tc $port4
 
 dst_mac=`ip netns exec blue ip link show $VF2 | grep ether | awk '{print $2}'`
 
-start_check_syndrome
 
 skip=skip_sw
 #pass '* -> 7-8' or '1-2 -> *'
@@ -99,5 +98,4 @@ ip netns exec red timeout 0.25 ping -q -I 1.1.1.5 -i 0.25 -W 0.25 -c 1 1.1.1.9 &
 reset_tc $port2
 reset_tc $port4
 
-check_syndrome
 test_done

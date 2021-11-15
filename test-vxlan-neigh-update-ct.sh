@@ -115,10 +115,8 @@ function test_neigh_update_ipv6() {
 }
 
 
-start_check_syndrome
 
 test_neigh_update_ipv4
 test_neigh_update_ipv6
 
-check_syndrome
 test_done

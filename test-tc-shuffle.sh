@@ -37,12 +37,10 @@ EOF
 enable_switchdev
 
 title "Test for groups overlapping"
-start_check_syndrome
 reset_tc $NIC
 for i in `seq 100`; do
     `shuf -n1 $TMPFILE` >/dev/null 2>&1
 done
 reset_tc $NIC
-check_syndrome && success || err "Failed"
 
 test_done

@@ -26,7 +26,6 @@ function cleanup() {
 
 title "Test set switchdev dev when eswitch ipv5 ttl modify enabled"
 trap cleanup EXIT
-start_check_syndrome
 
 title "- enable ipv4 ttl modify"
 set_eswitch_ipv4_ttl_modify_enable true || fail "Cannot set eswitch ipv4 ttl modify enable"
@@ -38,5 +37,4 @@ enable_switchdev
 
 trap - EXIT
 cleanup
-check_syndrome
 test_done

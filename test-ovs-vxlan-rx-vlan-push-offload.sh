@@ -81,7 +81,6 @@ function kill_traffic() {
 function run() {
     cleanup
     config
-    start_check_syndrome
     sleep 1
 
     ip netns exec ns0 ping -q -c 1 -i 0.1 -w 2 $REMOTE
@@ -116,5 +115,4 @@ function run() {
 title "Test OVS RX with vxlan pop + vlan push"
 run
 
-check_syndrome
 test_done

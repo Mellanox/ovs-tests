@@ -66,7 +66,5 @@ function run_test() {
 }
 
 
-start_check_syndrome
 run_test
-check_syndrome
 test_done

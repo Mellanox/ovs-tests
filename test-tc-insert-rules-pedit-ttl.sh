@@ -34,12 +34,10 @@ function test_header_rewrite_ttl_vport() {
     reset_tc $REP
 }
 
-start_check_syndrome
 enable_switchdev
 
 test_header_rewrite_ttl_uplink
 test_header_rewrite_ttl_vport
 
 title "Check log"
-check_syndrome
 test_done
