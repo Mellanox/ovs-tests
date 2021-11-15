@@ -169,5 +169,7 @@ function run() {
 start_check_syndrome
 cleanup
 run
+trap - EXIT
+cleanup
 check_syndrome
 test_done
