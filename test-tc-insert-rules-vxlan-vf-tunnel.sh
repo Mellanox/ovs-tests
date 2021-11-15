@@ -82,7 +82,7 @@ function test_vxlan() {
 enable_switchdev
 unbind_vfs
 bind_vfs
-require_interfaces NIC REP
+require_interfaces NIC REP VF1
 start_check_syndrome
 
 test_vxlan
