@@ -19,9 +19,9 @@ IP2="7.7.7.2"
 
 config_sriov 2
 enable_switchdev
-require_interfaces REP REP2
 unbind_vfs
 bind_vfs
+require_interfaces REP REP2 VF VF2
 reset_tc $REP $REP2
 
 mac1=$(cat /sys/class/net/$VF/address)

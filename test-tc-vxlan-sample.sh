@@ -136,9 +136,9 @@ function config_vxlan() {
 
 config_sriov 1
 enable_switchdev
-require_interfaces REP
 unbind_vfs
 bind_vfs
+require_interfaces REP VF NIC
 config_vxlan
 config_vf ns0 $VF $REP $IP
 reset_tc $NIC $REP vxlan1
