@@ -34,9 +34,9 @@ function cleanup() {
 }
 
 enable_switchdev
-require_interfaces REP
 unbind_vfs
 bind_vfs
+require_interfaces REP NIC VF
 cleanup
 
 trap cleanup EXIT
