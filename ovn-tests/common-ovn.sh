@@ -115,14 +115,14 @@ function check_rules() {
 
     if echo "$result" | grep "packets:0, bytes:0"; then
         err "packets:0, bytes:0"
-        return
+        return 1
+    elif (("$rules_count" == "$count")); then
+        success "Found $count rules as expected"
+        return 0
     fi
 
-    if (("$rules_count" == "$count")); then
-        success "Found $count rules as expected"
-    else
-        err "Expected $count rules, found $rules_count"
-    fi
+    err "Expected $count rules, found $rules_count"
+    return 1
 }
 
 function check_offloaded_rules() {
@@ -136,6 +136,13 @@ function check_fragmented_rules() {
     local traffic_filter=$1
 
     check_rules 4 $traffic_filter "all" "frag=(first|later)"
+}
+
+function check_and_print_ovs_offloaded_rules() {
+    local traffic_filter=$1
+
+    ovs_dump_offloaded_flows | grep "$traffic_filter"
+    check_offloaded_rules 2 $traffic_filter
 }
 
 function check_traffic_offload() {
@@ -181,9 +188,13 @@ function check_traffic_offload() {
         fail "Unknown traffic $traffic_type"
     fi
 
-    title "Check ${traffic_type^^} OVS offload rules"
-    ovs_dump_flows type=offloaded | grep "$traffic_filter"
-    check_offloaded_rules 2 $traffic_filter
+    title "Check ${traffic_type^^} OVS offload rules on the sender"
+    check_and_print_ovs_offloaded_rules $traffic_filter
+
+    if [[ -n "$HAS_REMOTE" ]]; then
+        title "Check ${traffic_type^^} OVS offload rules on the receiver"
+        on_remote_exec "check_and_print_ovs_offloaded_rules $traffic_filter" && success || err
+    fi
 
     # Rules should appear, request and reply
     title "Check ${traffic_type^^} traffic is offloaded"
@@ -191,6 +202,9 @@ function check_traffic_offload() {
     verify_no_traffic $tdpid
 
     ovs_flush_rules
+    if [[ -n "$HAS_REMOTE" ]]; then
+        on_remote_exec "ovs_flush_rules"
+    fi
 }
 
 function check_icmp_traffic_offload() {
