@@ -31,15 +31,22 @@ require_interfaces rep
 
 function add_rules() {
     local nic=$1
+    local ignore=$2
+    local cmd="tc_filter"
+
+    if [ "$ignore" == "ignore" ]; then
+        cmd="tc filter"
+    fi
+
     title "add $COUNT rules to $nic"
     for i in `seq $COUNT`; do
         num1=`printf "%02x" $((i / 100))`
         num2=`printf "%02x" $((i % 100))`
-        tc filter add dev $nic protocol ip parent ffff: prio $i \
+        $cmd add dev $nic protocol ip parent ffff: prio $i \
             flower skip_sw \
             src_mac e1:22:33:44:${num1}:$num2 \
             dst_mac e2:22:33:44:${num1}:$num2 \
-            action drop &>/dev/null
+            action drop
     done
 }
 
@@ -108,7 +115,7 @@ function test_case_add_in_switchdev() {
     [ $case == $VF ] && bind_vfs
     test -e /sys/class/net/$case || fail "Cannot find $case"
     reset_tc $case
-    add_rules $case &
+    add_rules $case ignore &
     sleep .2
     test_switch_mode_to legacy &
     wait
@@ -123,7 +130,7 @@ function test_case_add_in_legacy() {
     test -e /sys/class/net/$case || fail "Cannot find $case"
     switch_mode_legacy
     reset_tc $case
-    add_rules $case &
+    add_rules $case ignore &
     sleep .2
     test_switch_mode_to switchdev &
     wait
@@ -141,8 +148,5 @@ test_case_del_in_switchdev $NIC
 
 test_case_add_in_legacy $NIC
 test_case_del_in_legacy $NIC
-
-test_case_add_in_switchdev $VF
-test_case_del_in_switchdev $VF
 
 test_done
