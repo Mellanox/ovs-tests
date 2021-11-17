@@ -15,24 +15,6 @@ unbind_vfs
 reset_tc $NIC
 reset_tc $REP
 
-old=`date +"%s"`
-
-for i in `ls -1d /sys/class/net/$NIC/device/virt*`; do
-    vfpci=$(basename `readlink $i`)
-    if [ -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
-        echo "unbind $vfpci"
-        echo $vfpci > /sys/bus/pci/drivers/mlx5_core/unbind
-    fi
-done
-
-now=`date +"%s"`
-sec=`echo $now - $old + 1 | bc`
-a=`journalctl -n20 --since="$sec seconds ago" | grep -m1 syndrome || true`
-if [ "$a" != "" ]; then
-    echo $a
-    fail "Detected syndrome error in journalctl"
-fi
-
 title "test show"
 set_eswitch_inline_mode link || fail "Failed to set mode link"
 mode=`get_eswitch_inline_mode`
