@@ -1173,6 +1173,9 @@ function get_rep() {
 function get_time() {
     date +"%s"
 }
+function get_time_short() {
+    date +"%Y-%m-%d %H:%M:%S"
+}
 
 function get_ms_time() {
     echo $(($(date +%s%N)/1000000))
@@ -1182,6 +1185,7 @@ function start_test_timestamp() {
     # sleep to get a unique timestamp
     sleep 1
     _check_start_ts=`date +"%s"`
+    _check_start_ts_full=`get_time_short`
 }
 
 function get_test_time_elapsed() {
@@ -1190,9 +1194,12 @@ function get_test_time_elapsed() {
     echo $sec
 }
 
+function journalctl_for_test() {
+    journalctl --since="$_check_start_ts_full"
+}
+
 function check_kasan() {
-    local sec=`get_test_time_elapsed`
-    a=`journalctl --since="$sec seconds ago" | grep KASAN || true`
+    local a=`journalctl_for_test | grep KASAN || true`
     if [ "$a" != "" ]; then
         err "Detected KASAN errors in the log"
         echo "$a"
@@ -1211,7 +1218,6 @@ function add_expected_error_msg() {
 function check_for_errors_log() {
     journalctl --sync &>/dev/null || sleep 0.5
     local rc=0
-    local sec=${1:-`get_test_time_elapsed`}
     local look="DEADLOCK|possible circular locking|possible recursive locking|\
 WARNING:|RIP:|BUG:|refcount > 1|refcount_t|segfault|in_atomic|hw csum failure|\
 list_del corruption|which is not allocated|Objects remaining|assertion failed|\
@@ -1234,8 +1240,8 @@ systemd.* Requested transaction contradicts existing jobs: Resource deadlock avo
     fi
 
     look="$look|$memtrack|$mlx5_errs|$fw_errs"
-    local a=`journalctl --since="$sec seconds ago" | grep -E -i "$look" | grep -v -E -i "$filter" || true`
-    local b=`journalctl --since="$sec seconds ago" | grep -E -A $look_ahead_count -i "$look_ahead" || true`
+    local a=`journalctl_for_test | grep -E -i "$look" | grep -v -E -i "$filter" || true`
+    local b=`journalctl_for_test | grep -E -A $look_ahead_count -i "$look_ahead" || true`
     if [ "$a" != "" ] || [ "$b" != "" ]; then
         err "Detected errors in the log"
         rc=1
@@ -1248,8 +1254,7 @@ systemd.* Requested transaction contradicts existing jobs: Resource deadlock avo
 
 function check_for_err() {
     local look="$1"
-    local sec=`get_test_time_elapsed`
-    local a=`journalctl --since="$sec seconds ago" | grep -E -i "$look" || true`
+    local a=`journalctl_for_test | grep -E -i "$look" || true`
 
     if [ "$a" != "" ]; then
         err "Detected errors in the log"

@@ -97,8 +97,7 @@ function neigh_update_test() {
         wait_for_linkup $NIC
 
         local m="The neighbour already freed"
-        local sec=`get_test_time_elapsed`
-        local a=`journalctl --since="$sec seconds ago" | grep -i "$m"`
+        local a=`journalctl_for_test" | grep -i "$m"`
         if [ "$a" != "" ] ; then
             err $a
             break

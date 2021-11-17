@@ -214,7 +214,7 @@ function disable_irq_reguest_debug() {
 
 function start_cpu_irq_check() {
     sleep 1
-    _start_irq_check=`date +"%s"`
+    _start_irq_check=`get_time_short`
 }
 
 function parse_cpus_value() {
@@ -250,9 +250,7 @@ function check_cpu_irq() {
         return 1
     fi
 
-    local now=`date +"%s"`
-    local sec=`echo $now - $_start_irq_check + 1 | bc`
-    local mlx5_irq_requests=`journalctl --since="$sec seconds ago" | grep $sf_dev | grep mlx5_irq_request || true`
+    local mlx5_irq_requests=`journalctl --since="$_start_irq_check" | grep $sf_dev | grep mlx5_irq_request || true`
 
     if [ "$mlx5_irq_requests" == "" ]; then
         err "Can't find mlx5_irq_requests for $sf_dev"
