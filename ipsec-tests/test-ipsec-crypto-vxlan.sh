@@ -18,7 +18,7 @@ function config_vxlan_local() {
 }
 
 function config_vxlan_remote() {
-    on_remote "ip link add vx0 type vxlan id 100 local 172.16.0.2 remote 172.16.0.1 dev $REMOTE_NIC dstport 4789
+    on_remote "ip link add vx0 type vxlan id 100 local $RIP remote $LIP dev $REMOTE_NIC dstport 4789
                ifconfig vx0 $vxlan_rip/24 up"
 }
 
@@ -48,11 +48,10 @@ function run_test() {
 
     fail_if_err
 
-    sleep 3
+    sleep 2
 
     title "Verify traffic on $NIC"
     verify_have_traffic $pid
-    sleep 3
 }
 
 trap clean_up EXIT
