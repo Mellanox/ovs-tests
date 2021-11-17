@@ -773,8 +773,12 @@ function wait_for_reps() {
 
 function devlink_compat_dir() {
     local nic=$1
-    local pci=$(basename `readlink /sys/class/net/$nic/device`)
-    eval echo "$__devlink_compat_dir"
+    local pci=$(basename `readlink /sys/class/net/$nic/device` 2>/dev/null)
+    local compat=`eval echo "$__devlink_compat_dir"`
+    if [ -z "$compat" ] || [ ! -d $compat ]; then
+        fail "Cannot get devlink compat dir"
+    fi
+    echo $compat
 }
 
 function wait_switch_mode_compat() {

@@ -13,8 +13,7 @@ if ! is_ofed ; then
     fail "Skipping MLNX OFED with devlink compat test."
 fi
 
-tmp=`devlink_compat_dir`
-if [ -z "$tmp" ]; then
+if [ -z "`devlink_compat_dir $NIC`" ]; then
     fail "Missing devlink compat dir"
 fi
 
