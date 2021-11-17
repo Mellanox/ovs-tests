@@ -1180,7 +1180,7 @@ function get_ms_time() {
 
 function start_test_timestamp() {
     # sleep to get a unique timestamp
-    sleep 1.5
+    sleep 1
     _check_start_ts=`date +"%s"`
 }
 
