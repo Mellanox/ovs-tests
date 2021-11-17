@@ -181,12 +181,25 @@ class OVNLogicalRouter(OVNEntity):
 
             cmd_args.append(f"--may-exist lrp-add {self.name} {port_name} {addresses}")
 
+    def __add_nats(self, cmd_args):
+        nats = self._data.get("nats", [])
+        for nat in nats:
+            nat_type = nat["type"]
+            external_ip = nat["external_ip"]
+            logical_ip = nat["logical_ip"]
+
+            if nat_type not in ("snat", "dnat", "dnat_and_snat"):
+                raise ValueError(f'Invalid: "{self.name}" router has NAT with invalid type "{nat_type}"')
+
+            cmd_args.append(f"lr-nat-add {self.name} {nat_type} {external_ip} {logical_ip}")
+
     def add_to_ovn(self):
         cmd_args = [f"--may-exist lr-add {self.name}"]
 
         self.__bind_to_chassis(cmd_args)
         self.__add_routes(cmd_args)
         self.__add_ports(cmd_args)
+        self.__add_nats(cmd_args)
 
         return run_ovn_nbctl(cmd_args)
 
