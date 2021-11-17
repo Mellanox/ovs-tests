@@ -9,6 +9,11 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+# 2860496 - [ASAP, OFED 5.5, SW steering 5.14] mlx5_esw_offloads_devcom_event:3123:(pid 370963): esw offloads devcom event failure, event 0 err -22
+if [ `uname -r` == "5.14.0_mlnx" ]; then
+    add_expected_error_msg "esw offloads devcom event failure, event 0 err -22"
+fi
+
 __uptime_seconds=`awk '{print $1}' /proc/uptime | cut -d. -f1`
 
 max_uptime=1800

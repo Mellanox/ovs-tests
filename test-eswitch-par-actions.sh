@@ -8,6 +8,11 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+# #2860553 - [ASAP, OFED 5.5, korg 5.14, cx6dx] error message appears mlx5_core 0000:08:00.0 enp8s0f0: failed to kill vid 0081/0
+if [ `uname -r` == "5.14.0_mlnx" ]; then
+    add_expected_error_msg "mlx5_core 0000:08:00.0 enp8s0f0: failed to kill vid 0081/0"
+fi
+
 function config() {
     config_sriov 0
     config_sriov 0 $NIC2
