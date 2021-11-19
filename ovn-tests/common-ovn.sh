@@ -9,10 +9,6 @@ ETH_IP="0x0800"
 ETH_IP6="0x86dd"
 
 OVN_BOND="bond0"
-OVN_PF_BRIDGE="br-pf"
-OVN_VLAN_INTERFACE="vlan-int"
-
-OVN_TUNNEL_VLAN=100
 
 # Traffic Filters
 # Ignore IPv6 Neighbor-Advertisement, Neighbor Solicitation and Router Solicitation packets
@@ -397,7 +393,7 @@ function ovs_flush_rules() {
 function ovs_create_bridge_vlan_interface() {
     local br=${1:-$OVN_PF_BRIDGE}
     local interface=${2:-$OVN_VLAN_INTERFACE}
-    local vlan=${3:-$OVN_TUNNEL_VLAN}
+    local vlan=${3:-$OVN_VLAN_TAG}
 
     ovs-vsctl --may-exist add-br $br -- --may-exist add-port $br $interface tag=$vlan -- set Interface $interface type=internal
 }
