@@ -63,7 +63,7 @@ function ovn_config_interfaces() {
         enable_switchdev $NIC2
         unbind_vfs
         config_bonding $NIC $NIC2 802.3ad
-        is_vf_lag_active || fail
+        is_vf_lag_activated || fail
         bind_vfs
         bind_vfs $NIC2
     fi
