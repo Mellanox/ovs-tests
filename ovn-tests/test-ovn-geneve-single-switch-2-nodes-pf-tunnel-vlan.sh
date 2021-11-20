@@ -6,6 +6,8 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common-ovn-test-utils.sh
 
+not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
+
 require_remote_server
 require_ovn
 
@@ -72,7 +74,6 @@ trap ovn_clean_up EXIT
 
 ovn_config
 run_test
-
 
 # Clean up and clear trap
 ovn_clean_up
