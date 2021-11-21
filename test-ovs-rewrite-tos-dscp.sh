@@ -34,7 +34,7 @@ function create_namespace() {
 }
 
 function setup() {
-    title "- setup"
+    title "setup"
     config_sriov
     enable_switchdev
     unbind_vfs
@@ -48,7 +48,7 @@ function setup() {
 }
 
 function check_offloaded_rules() {
-    title " - check for offloaded rule"
+    title "Verify offloaded rule"
     RES="ovs_dump_tc_flows | grep 0x0800 | grep -v drop"
     eval $RES
     RES=$(eval $RES | wc -l)
@@ -66,20 +66,26 @@ function test_case_dscp() {
 
     ovs-ofctl add-flow ovs-sriov1 "ip,in_port=$REP,action=mod_nw_tos:68,output:$REP2"
 
-    timeout 3 tcpdump -nnei $REP -c 3 'icmp' 2>/dev/null >/dev/null &
-    pid=$!
+    timeout 3 tcpdump -nnei $REP -c 3 'icmp' &>/dev/null &
+    local pid=$!
 
-    title "Verify rewrite value"
-    timeout 2 ip netns exec ns1 tcpdump -vvi $VF2 -c 1 'icmp' | \
-        grep 0x44 >/dev/null && success || err &
+    rm -f /tmp/dump
+    timeout 2 ip netns exec ns1 tcpdump -vvi $VF2 -c 1 'icmp' -w /tmp/dump &
+    local pid2=$!
+
+    sleep 0.5
 
     echo traffic
     ip netns exec  ns0 ping -I $VF $VF2_IP -c 5 -i 0.2 -q
 
     check_offloaded_rules
-    title "Verify offload"
+
+    title "Verify offload traffic"
     wait $pid && err || success
 
+    title "Verify tos value"
+    wait $pid2
+    tcpdump -vvr /tmp/dump | grep "tos 0x44" && success || err "Wrong tos value"
 }
 
 cleanup

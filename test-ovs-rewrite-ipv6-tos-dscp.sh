@@ -39,7 +39,7 @@ function setup() {
 }
 
 function check_offloaded_rules() {
-    title "check for offloaded rule"
+    title "Verify for offloaded rule"
     RES="ovs_dump_tc_flows | grep -i 0x86DD | grep 'proto=6' | grep -v drop"
     eval $RES
     RES=$(eval $RES | wc -l)
@@ -70,15 +70,20 @@ function test_case_dscp() {
 
     echo "sniff packets on $REP"
     timeout $t tcpdump -qnnei $REP -c 10 'tcp' &
-    pid=$!
+    local pid=$!
 
     title "Verify rewrite value"
-    timeout 2 ip netns exec ns1 tcpdump -vvi $VF2 -c 1 'tcp' -Q in | \
-        grep 0x44 && success || err "wrong TOS value"
+    rm -f /tmp/dump
+    timeout 2 ip netns exec ns1 tcpdump -vvi $VF2 -c 1 'tcp' -Q in -w /tmp/dump
+    local pid2=$!
 
     check_offloaded_rules
+
     title "Verify no traffic on $REP"
     verify_no_traffic $pid
+
+    title "Verify tos value"
+    tcpdump -vvr /tmp/dump | grep "class 0x44" && success || err "Wrong tos value"
 
     pkill -9 iperf &>/dev/null
     wait &>/dev/null
