@@ -43,22 +43,22 @@ function run_test() {
     ip netns exec ns0 ip -6 addr add $IP_V6_2/124 dev $VF
     "
 
-    title "Test ICMP traffic between $VF($IP1) -> $VF2($IP2) offloaded"
+    title "Test ICMP traffic between $VF($IP1) -> $VF($IP2) offloaded"
     check_icmp_traffic_offload $REP ns0 $IP2
 
-    title "Test TCP traffic between $VF($IP1) -> $VF2($IP2) offloaded"
+    title "Test TCP traffic between $VF($IP1) -> $VF($IP2) offloaded"
     check_remote_tcp_traffic_offload $REP ns0 ns0 $IP2
 
-    title "Test UDP traffic between $VF($IP1) -> $VF2($IP2) offloaded"
+    title "Test UDP traffic between $VF($IP1) -> $VF($IP2) offloaded"
     check_remote_udp_traffic_offload $REP ns0 ns0 $IP2
 
-    title "Test ICMP6 traffic between $VF($IP_V6_1) -> $VF2($IP_V6_2) offloaded"
+    title "Test ICMP6 traffic between $VF($IP_V6_1) -> $VF($IP_V6_2) offloaded"
     check_icmp6_traffic_offload $REP ns0 $IP_V6_2
 
-    title "Test TCP6 traffic between $VF($IP_V6_1) -> $VF2($IP_V6_2) offloaded"
+    title "Test TCP6 traffic between $VF($IP_V6_1) -> $VF($IP_V6_2) offloaded"
     check_remote_tcp6_traffic_offload $REP ns0 ns0 $IP_V6_2
 
-    title "Test UDP6 traffic between $VF($IP_V6_1) -> $VF2($IP_V6_2) offloaded"
+    title "Test UDP6 traffic between $VF($IP_V6_1) -> $VF($IP_V6_2) offloaded"
     check_remote_udp6_traffic_offload $REP ns0 ns0 $IP_V6_2
 }
 
