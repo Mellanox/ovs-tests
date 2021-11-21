@@ -13,10 +13,10 @@ not_relevant_for_nic cx4 cx4lx cx5
 config_sriov 3
 enable_switchdev
 REP3=`get_rep 2`
-require_interfaces REP REP2 REP3 NIC
 unbind_vfs
 bind_vfs
 VF3=`get_vf 2`
+require_interfaces REP REP2 REP3 NIC VF1 VF3
 
 function test_vxlan_mirror_encap() {
     local ip_src="20.1.11.1"
