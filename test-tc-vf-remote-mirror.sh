@@ -13,9 +13,9 @@ vxlan_port=4789
 
 config_sriov 2
 enable_switchdev
-require_interfaces REP
 unbind_vfs
 bind_vfs
+require_interfaces REP VF
 reset_tc $REP
 
 mac2="e4:11:22:11:77:77"

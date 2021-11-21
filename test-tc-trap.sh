@@ -20,7 +20,7 @@ config_sriov 2
 log "set switchdev"
 enable_switchdev
 bind_vfs
-require_interfaces REP REP2
+require_interfaces REP REP2 VF1 VF2
 cleanup
 
 log "config network"
