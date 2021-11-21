@@ -83,6 +83,7 @@ function test_case_dscp() {
     verify_no_traffic $pid
 
     title "Verify tos value"
+    wait $pid2
     tcpdump -vvr /tmp/dump | grep "class 0x44" && success || err "Wrong tos value"
 
     pkill -9 iperf &>/dev/null
