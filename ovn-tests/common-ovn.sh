@@ -140,9 +140,10 @@ function check_fragmented_rules() {
 
 function check_and_print_ovs_offloaded_rules() {
     local traffic_filter=$1
+    local rules_num=$2
 
     ovs_dump_offloaded_flows | grep "$traffic_filter"
-    check_offloaded_rules 2 $traffic_filter
+    check_offloaded_rules $rules_num $traffic_filter
 }
 
 function check_traffic_offload() {
@@ -153,6 +154,14 @@ function check_traffic_offload() {
 
     local traffic_filter=$ETH_IP
     local tcpdump_filter="$traffic_type"
+    local rules_num=2
+
+    # VLAN traffic is chain rules
+    # Sender side: vlan pop > redirect to port
+    # Receiver side: redirect to port > push vlan
+    if [[ -n "$HAS_VLAN" ]] && [[ "$traffic_type" == "icmp" || "$traffic_type" == "tcp" || "$traffic_type" == "udp" ]]; then
+        rules_num=4
+    fi
 
     if [[ "$traffic_type" == "icmp6" ]]; then
         tcpdump_filter=$TCPDUMP_IGNORE_IPV6_NEIGH
@@ -189,11 +198,11 @@ function check_traffic_offload() {
     fi
 
     title "Check ${traffic_type^^} OVS offload rules on the sender"
-    check_and_print_ovs_offloaded_rules $traffic_filter
+    check_and_print_ovs_offloaded_rules $traffic_filter $rules_num
 
     if [[ -n "$HAS_REMOTE" ]]; then
         title "Check ${traffic_type^^} OVS offload rules on the receiver"
-        on_remote_exec "check_and_print_ovs_offloaded_rules $traffic_filter" && success || err
+        on_remote_exec "check_and_print_ovs_offloaded_rules $traffic_filter $rules_num" && success || err
     fi
 
     # Rules should appear, request and reply
