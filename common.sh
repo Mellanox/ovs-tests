@@ -1094,19 +1094,26 @@ function wait_for_vfs() {
 function bind_vfs() {
     local nic=${1:-$NIC}
     local vf_count=`get_vfs_count $nic`
-    local vfpci
-    local i
+    local i vfpci
+    local err=0
 
     log "Bind vfs of $nic"
     for i in `ls -1d /sys/class/net/$nic/device/virt*`; do
         vfpci=$(basename `readlink $i`)
         if [ ! -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
-            echo $vfpci > /sys/bus/pci/drivers/mlx5_core/bind || log "Cannot bind VF $vfpci"
+            echo $vfpci > /sys/bus/pci/drivers/mlx5_core/bind
+            if [ $? -ne 0 ]; then
+                log "Cannot bind VF $vfpci"
+                err=1
+            fi
         fi
     done
 
-    wait_for_vfs $nic $vf_count
-    udevadm settle # wait for udev renaming after bind
+    if [ $err -eq 0 ]; then
+        wait_for_vfs $nic $vf_count
+        udevadm settle # wait for udev renaming after bind
+    fi
+    return $err
 }
 
 function get_sw_id() {
@@ -1440,6 +1447,15 @@ function disable_sriov_autoprobe() {
         __autoprobe=`cat $__probe_fs`
         echo 0 > $__probe_fs
     fi
+}
+
+function enable_sriov_autoprobe() {
+    if [ -z $__probe_fs ]; then
+        err "Cannot enable sriov autoprobe"
+        return
+    fi
+
+    echo 1 > $__probe_fs
 }
 
 function restore_sriov_autoprobe() {
