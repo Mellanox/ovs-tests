@@ -1,0 +1,159 @@
+name: ovn-kubernetes
+topology:
+  - name: ovn_cluster_router
+    type: router
+    ports:
+      - name: rtos-node-1
+        mac: "00:00:00:00:ff:01"
+        ipv4:
+          - "7.7.7.1/24"
+        ipv6:
+          - "7:7:7::1/112"
+      - name: rtos-node-2
+        mac: "00:00:00:00:ff:02"
+        ipv4:
+          - "7.7.8.1/24"
+        ipv6:
+          - "7:7:8::1/112"
+      - name: rtoj-ovn_cluster_router
+        mac: "00:00:00:00:ff:03"
+        ipv4:
+          - "100.64.0.1/16"
+        ipv6:
+          - "100:64:0::1/64"
+  - name: GR_node-1
+    type: router
+    chassis: local
+    ports:
+      - name: rtoe-GR_node-1
+        mac: "00:00:00:01:ff:01"
+        ipv4:
+          - "172.16.0.2/24"
+        ipv6:
+          - "172:16:0::2/112"
+      - name: rtoj-GR_node-1
+        mac: "00:00:00:01:ff:02"
+        ipv4:
+          - "100.64.0.2/16"
+        ipv6:
+          - "100:64:0::2/64"
+    routes:
+      - "7.7.0.0/16 100.64.0.1"
+      - "0.0.0.0/0 172.16.0.1"
+      - "7:7::/16 100:64:0::1"
+      - "::/0 172:16:0::1"
+    nats:
+      - type: snat
+        external_ip: 172.16.0.2
+        logical_ip: 7.7.0.0/16
+      - type: snat
+        external_ip: 172:16:0::2
+        logical_ip: 7:7::/16
+  - name: GR_node-2
+    type: router
+    ports:
+      - name: rtoe-GR_node-2
+        mac: "00:00:00:02:ff:01"
+        ipv4:
+          - "172.16.0.3/24"
+        ipv6:
+          - "172:16:0::3/112"
+      - name: rtoj-GR_node-2
+        mac: "00:00:00:02:ff:02"
+        ipv4:
+          - "100.64.0.3/16"
+        ipv6:
+          - "100:64:0::3/64"
+    routes:
+      - "7.7.0.0/16 100.64.0.1"
+      - "0.0.0.0/0 172.16.0.1"
+      - "7:7::/16 100:64:0::1"
+      - "::/0 172:16:0::1"
+
+    nats:
+      - type: snat
+        external_ip: 172.16.0.3
+        logical_ip: 7.7.0.0/16
+      - type: snat
+        external_ip: 172:16:0::3
+        logical_ip: 7:7::/16
+  - name: join
+    type: switch
+    ports:
+      - name: jtor-ovn_cluster_router
+        type: router
+        routerPort: rtoj-ovn_cluster_router
+      - name: jtor-GR_node-1
+        type: router
+        routerPort: rtoj-GR_node-1
+      - name: jtor-GR_node-2
+        type: router
+        routerPort: rtoj-GR_node-2
+  - name: ext_node-1
+    type: switch
+    ports:
+      - name: etor-GR_node-1
+        type: router
+        routerPort: rtoe-GR_node-1
+      - name: br-pf_node-1
+        type: localnet
+        options:
+          - "network_name=physnet"
+  - name: ext_node-2
+    type: switch
+    ports:
+      - name: etor-GR_node-2
+        type: router
+        routerPort: rtoe-GR_node-2
+      - name: br-pf_node-2
+        type: localnet
+        options:
+          - "network_name=physnet"
+  - name: node-1
+    type: switch
+    ports:
+      - name: stor-node-1
+        type: router
+        routerPort: rtos-node-1
+      - name: k8s-node-1
+        mac: "50:54:00:00:01:00"
+        ipv4:
+          - "7.7.7.2"
+        ipv6:
+          - "7:7:7::2"
+      - name: node-1-port1
+        mac: "50:54:00:00:01:01"
+        ipv4:
+          - "7.7.7.3"
+        ipv6:
+          - "7:7:7::3"
+      - name: node-1-port2
+        mac: "50:54:00:00:01:02"
+        ipv4:
+          - "7.7.7.4"
+        ipv6:
+          - "7:7:7::4"
+  - name: node-2
+    type: switch
+    ports:
+      - name: stor-node-2
+        type: router
+        routerPort: rtos-node-2
+      - name: k8s-node-2
+        mac: "50:54:00:00:02:00"
+        ipv4:
+          - "7.7.8.2"
+        ipv6:
+          - "7:7:8::2"
+      - name: node-2-port1
+        mac: "50:54:00:00:02:01"
+        ipv4:
+          - "7.7.8.3"
+        ipv6:
+          - "7:7:8::3"
+      - name: node-2-port2
+        mac: "50:54:00:00:02:02"
+        ipv4:
+          - "7.7.8.4"
+        ipv6:
+          - "7:7:8::4"
