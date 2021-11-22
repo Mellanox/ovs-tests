@@ -1908,16 +1908,6 @@ function __common_main() {
     __setup_clean
 }
 
-function ovs_enable_hw_offload() {
-    ovs_conf_set hw-offload true
-    restart_openvswitch
-}
-
-function ovs_disable_hw_offload() {
-    ovs_conf_set hw-offload false
-    restart_openvswitch
-}
-
 # script executed directly. evaluate user input.
 if [ "$TESTNAME" == "common.sh" ]; then
     if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then

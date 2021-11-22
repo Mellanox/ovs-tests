@@ -24,7 +24,6 @@ function __ovn_clean_up() {
     ovn_stop_ovn_controller
     ovn_remove_ovs_config
     ovs_clear_bridges
-    ovs_disable_hw_offload
 
     ip addr flush dev $NIC
     ip link set $NIC mtu 1500
@@ -80,7 +79,6 @@ function __ovn_config() {
 
     ovn_config_interfaces
     start_clean_openvswitch
-    ovs_enable_hw_offload
 
     # Config VLAN
     if [[ -n "$HAS_VLAN" ]]; then
