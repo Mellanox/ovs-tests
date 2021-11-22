@@ -2,6 +2,7 @@
 #
 # Test sriov autoprobe
 #
+# Bug SW #2864113: [Upstream] Disable sriov_drivers_autoprobe blocks manual VFs binding
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
