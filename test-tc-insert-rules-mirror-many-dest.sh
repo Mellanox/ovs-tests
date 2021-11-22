@@ -6,17 +6,18 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+function cleanup() {
+    restore_sriov_autoprobe
+}
+
+trap cleanup EXIT
+
 disable_sriov_autoprobe
 config_sriov 16
 enable_switchdev
 vx=vxlan1
 vxlan_port=4789
 
-function cleanup() {
-    restore_sriov_autoprobe
-}
-
-trap cleanup EXIT
 
 function test1() {
     title "Add local mirror rule with 16 dst"
