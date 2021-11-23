@@ -27,7 +27,7 @@ function config_ovs() {
     ovs-vsctl add-port $BR $REP2
 
     ovs-ofctl del-flows $BR
-    ovs-ofctl -O OpenFlow13 add-meter $BR meter=1,kbps,band=type=drop,rate=$((RATE*1000))
+    ovs-ofctl -O OpenFlow13 add-meter $BR meter=1,kbps,burst,band=type=drop,rate=$((RATE*1000)),burst_size=64
     ovs-ofctl -O OpenFlow13 add-flow $BR "ip,nw_src=${IP2},actions=meter:1,output:${REP}"
     ovs-ofctl -O OpenFlow13 add-flow $BR "ip,nw_src=${IP1},actions=output:${REP2}"
     ovs-ofctl -O OpenFlow13 add-flow $BR "arp,actions=normal"
