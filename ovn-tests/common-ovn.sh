@@ -420,3 +420,22 @@ function ovs_create_bridge_vlan_interface() {
 
     ovs-vsctl --may-exist add-br $br -- --may-exist add-port $br $interface tag=$vlan -- set Interface $interface type=internal
 }
+
+function ovn_clear_switches() {
+    ovn-nbctl -f csv --columns=name list LOGICAL_SWITCH | xargs -L 1 ovn-nbctl ls-del &>/dev/null
+}
+
+function ovn_clear_routers() {
+    ovn-nbctl -f csv --columns=name list LOGICAL_ROUTER | xargs -L 1 ovn-nbctl lr-del &>/dev/null
+}
+
+function ovn_clear_chassis() {
+    ovn-sbctl -f csv --columns=name list CHASSIS | xargs -L 1 ovn-sbctl chassis-del &>/dev/null
+}
+
+function ovn_start_clean() {
+    $OVN_CTL restart_northd >/dev/null
+    ovn_clear_switches
+    ovn_clear_routers
+    ovn_clear_chassis
+}

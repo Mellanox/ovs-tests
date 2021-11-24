@@ -40,13 +40,13 @@ function __ovn_clean_up() {
 }
 
 function ovn_clean_up() {
-    ovn_destroy_topology
-    ovn_stop_northd_central
     __ovn_clean_up
-
     if [[ -n "$HAS_REMOTE" ]]; then
         on_remote_exec "__ovn_clean_up"
     fi
+
+    ovn_start_clean
+    ovn_stop_northd_central
 }
 
 function ovn_config_interfaces() {
