@@ -54,39 +54,6 @@ function ovn_remove_ovs_config() {
     ovs-vsctl remove open . external-ids ovn-encap-type
 }
 
-function ovn_add_switch() {
-    local switch=$1
-
-    ovn-nbctl ls-add $switch
-}
-
-function ovn_add_port_to_switch() {
-    local switch=$1
-    local port=$2
-
-    ovn-nbctl lsp-add $switch $port
-}
-
-function ovn_set_switch_port_addresses() {
-    local port=$1
-    local mac=$2
-    # IP is optional
-    local ip=$3
-
-    ovn-nbctl lsp-set-addresses $port "$mac $ip"
-}
-
-function ovn_delete_switch_port() {
-    local port=$1
-
-    ovn-nbctl lsp-del $port
-}
-
-function ovn_delete_switch() {
-    local switch=$1
-    ovn-nbctl ls-del $switch
-}
-
 function ovs_add_port_to_switch() {
     local br=$1
     local port=$2

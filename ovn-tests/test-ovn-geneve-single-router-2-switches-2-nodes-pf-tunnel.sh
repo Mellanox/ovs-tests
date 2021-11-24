@@ -28,11 +28,6 @@ MAC2=$(ovn_get_switch_port_mac $TOPOLOGY $SWITCH2 $PORT2)
 IP2=$(ovn_get_switch_port_ip $TOPOLOGY $SWITCH2 $PORT2)
 IP_V6_2=$(ovn_get_switch_port_ipv6 $TOPOLOGY $SWITCH2 $PORT2)
 
-function pre_test() {
-    config
-    config_remote
-}
-
 function run_test() {
     # Add REP to OVS
     ovs_add_port_to_switch $OVN_BRIDGE_INT $REP
@@ -88,7 +83,6 @@ trap ovn_clean_up EXIT
 
 ovn_config
 run_test
-
 
 ovn_clean_up
 trap - EXIT
