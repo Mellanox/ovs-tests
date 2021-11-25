@@ -67,7 +67,7 @@ function run_testpmd() {
     echo "run fwder"
     ip link set dev $NIC up
     echo 2048 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
-    timeout --kill-after=10 $t ip netns exec ns1 sh -c "tail -f /dev/null | $testpmd --no-pci --vdev=eth_af_packet0,iface=$VF2 -- --forward-mode=5tswap -a" &
+    timeout --kill-after=10 $t ip netns exec ns1 sh -c "tail -f /dev/null | $testpmd --no-pci --vdev=eth_af_packet0,iface=$VF2 -- --forward-mode=5tswap -a --total-num-mbufs=4096" &
     pid_testpmd=$!
     sleep 8
     if [ ! -e /proc/$pid_testpmd ]; then

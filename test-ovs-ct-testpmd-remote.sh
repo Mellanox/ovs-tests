@@ -70,7 +70,7 @@ function run_testpmd() {
     on_remote "ip link set dev $REMOTE_NIC up"
     on_remote "echo 2048 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages"
     on_remote "timeout --kill-after=10 $t tail -f /dev/null | \
-               $testpmd --no-pci --vdev=eth_af_packet0,iface=$REMOTE_NIC -- --forward-mode=5tswap -a" &
+               $testpmd --no-pci --vdev=eth_af_packet0,iface=$REMOTE_NIC -- --forward-mode=5tswap -a --total-num-mbufs=4096" &
     pid_testpmd=$!
     sleep 8
     if [ ! -e /proc/$pid_testpmd ]; then
