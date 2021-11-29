@@ -123,10 +123,14 @@ function run_client() {
     pk2=$!
 }
 
-function kill_traffic() {
-    kill -9 $pk1 &>/dev/null
+function kill_client() {
     kill -9 $pk2 &>/dev/null
-    wait $pk1 $pk2 2>/dev/null
+    wait $pk2 2>/dev/null
+}
+
+function kill_server() {
+    kill -9 $pk1 &>/dev/null
+    wait $pk1 2>/dev/null
 }
 
 function run() {
@@ -175,11 +179,10 @@ function run() {
 
     conntrack -L | grep $IP
 
-    kill_traffic
-    echo "wait for bgs"
-    wait
+    kill_client
 
     iterate_bond_slaves
+    kill_server
 }
 
 function iterate_bond_slaves() {
@@ -189,13 +192,11 @@ function iterate_bond_slaves() {
         change_slaves
         count1=`get_rx_pkts $slave1`
         t=10
-        run_server
         run_client
         sleep 2
         echo "wait"
         sleep $t
-        kill_traffic
-        wait
+        kill_client
         count2=`get_rx_pkts $slave1`
         ((count1+=100))
         if [ "$count2" -lt "$count1" ]; then
