@@ -151,6 +151,8 @@ function is_simx() {
 }
 
 function __setup_common() {
+    start_test_timestamp
+
     [ -f /etc/os-release ] && . /etc/os-release
     ANSI_COLOR0="$COLOR0${ANSI_COLOR}m"
     if [ -n "$PRETTY_NAME" ]; then
@@ -1917,7 +1919,6 @@ function __common_main() {
     fi
     __load_config
     warn_if_redmine_bug_is_open
-    start_test_timestamp
     trap __trapped_int_cleanup INT
     __setup_common
     __setup_clean
