@@ -296,25 +296,34 @@ def run_test(test, html=False):
     # piping stdout to file seems to miss stderr msgs to we use pipe
     # and write to file at the end.
     timedout = False
+    terminated = False
     subp = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT, close_fds=True)
     try:
         try:
-            out = subp.communicate(timeout=TEST_TIMEOUT_MAX)
+            out, _ = subp.communicate(timeout=TEST_TIMEOUT_MAX)
         except subprocess.TimeoutExpired:
             subp.kill()
-            out = subp.communicate()
+            try:
+                out, _ = subp.communicate(timeout=1)
+            except subprocess.TimeoutExpired:
+                subp.terminate()
+                out = b"Terminated"
+                terminated = True
             timedout = True
     except AttributeError:
         # timeout introduced in python3.3
-        out = subp.communicate()
+        out, _ = subp.communicate()
 
-    log = out[0].decode('ascii', 'ignore')
+    log = out.decode('ascii', 'ignore')
     if not log:
         raise ExecCmdFailed("Empty output")
 
     if timedout:
-        status = "Test timed out and got killed"
+        if terminated:
+            status = "Test timed out and got terminated"
+        else:
+            status = "Test timed out and got killed"
         log += "\n%s\n" % deco("ERROR: %s" % status, 'red')
 
     with open(logname, 'w') as f1:
