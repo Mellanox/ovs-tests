@@ -116,7 +116,7 @@ function run() {
     fi
 
     # initial traffic
-    on_remote timeout 4 iperf3 -s &
+    on_remote timeout 4 iperf3 -s -D
     pid1=$!
     sleep 1
     ip netns exec ns0 timeout 3 iperf3 -c $REMOTE -t 2 &
@@ -127,7 +127,7 @@ function run() {
     wait $pid1 $pid2 &>/dev/null
 
     # traffic
-    on_remote timeout 15 iperf3 -s &
+    on_remote timeout 15 iperf3 -s -D
     pid1=$!
     sleep 1
     ip netns exec ns0 timeout 15 iperf3 -c $REMOTE -t 14 -P3 &

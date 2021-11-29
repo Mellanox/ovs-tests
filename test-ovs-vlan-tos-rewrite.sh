@@ -86,7 +86,7 @@ function run() {
 
     t=15
     # traffic
-    ip netns exec ns0 timeout $((t+2)) iperf3 -s &
+    ip netns exec ns0 timeout $((t+2)) iperf3 -s -D
     pid1=$!
     sleep 1
     on_remote timeout $((t+2)) iperf3 -c $IP -t $t -P3 &

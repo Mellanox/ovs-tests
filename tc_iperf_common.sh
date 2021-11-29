@@ -41,7 +41,7 @@ trap cleanup_exit EXIT
 function run_iperf_server() {
     local port=$1
 
-    ip netns exec ns0 iperf3 -s -p $port &>/dev/null &
+    ip netns exec ns0 iperf3 -s -p $port -D &>/dev/null
 }
 
 function run_iperf_client() {

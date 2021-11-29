@@ -48,7 +48,7 @@ function run() {
     echo "run traffic"
     t=15
     echo "run traffic for $t seconds"
-    ip netns exec ns1 timeout $((t+1)) iperf3 -s &
+    ip netns exec ns1 timeout $((t+1)) iperf3 -s -D
     sleep 0.5
     # by default iperf3 udp packet is 8K but specify it explictly
     ip netns exec ns0 timeout $((t+1)) iperf3 -u -t $t -c $IP2 -l 8192 -b 10G &

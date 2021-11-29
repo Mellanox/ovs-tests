@@ -49,7 +49,7 @@ function run() {
     echo "run traffic"
     t=15
     echo "run traffic for $t seconds"
-    ip netns exec ns1 timeout $((t+1)) iperf3 -s &
+    ip netns exec ns1 timeout $((t+1)) iperf3 -s -D
     sleep 0.5
     ip netns exec ns0 timeout $((t+1)) iperf3 -t $t -c $IP2 -P 3 &
 

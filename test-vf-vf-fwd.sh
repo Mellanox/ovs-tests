@@ -80,7 +80,7 @@ ip netns exec ns0 ping -q -c 10 -i 0.2 -w 4 $IP2 && success || err "ping failed"
 
 title "Test iperf $VF($IP1) -> $VF2($IP2)"
 killall -9 iperf3 &>/dev/null
-timeout $TIMEOUT ip netns exec ns1 iperf3 -s --one-off -i 0 >/dev/null &
+timeout $TIMEOUT ip netns exec ns1 iperf3 -s --one-off -i 0 -D >/dev/null
 sleep 1
 timeout $TIMEOUT ip netns exec ns0 iperf3 -c $IP2 -t $((TIMEOUT-10)) -B $IP1 -P 100 --cport 6000 -i 0 >/dev/null &
 sleep 1
