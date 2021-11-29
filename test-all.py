@@ -302,13 +302,14 @@ def run_test(test, html=False):
     try:
         try:
             out, _ = subp.communicate(timeout=TEST_TIMEOUT_MAX)
-        except subprocess.TimeoutExpired:
+        except subprocess.TimeoutExpired as e:
             subp.kill()
+            out = e.output
             try:
                 out, _ = subp.communicate(timeout=1)
-            except subprocess.TimeoutExpired:
+            except subprocess.TimeoutExpired as e:
                 subp.terminate()
-                out = b"Terminated"
+                out = e.output
                 terminated = True
             timedout = True
     except AttributeError:
