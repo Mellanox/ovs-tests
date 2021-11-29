@@ -142,7 +142,7 @@ function check_and_print_ovs_offloaded_rules() {
     local traffic_filter=$1
     local rules_num=$2
 
-    ovs_dump_offloaded_flows | grep "$traffic_filter"
+    ovs_dump_offloaded_flows --names | grep "$traffic_filter"
     check_offloaded_rules $rules_num $traffic_filter
 }
 
@@ -375,11 +375,11 @@ function check_fragmented_traffic() {
     title "Check OVS Rules"
     # Fragmented traffic should not be offloaded
     echo "OVS offloaded flow rules"
-    ovs_dump_flows type=offloaded
+    ovs_dump_offloaded_flows --names
     check_offloaded_rules 0 $traffic_filter
 
     echo "All OVS flow rules"
-    ovs_dump_flows type=all filter="$rules_filter"
+    ovs_dump_flows --names type=all filter="$rules_filter"
     check_fragmented_rules $traffic_filter
 
     title "Check captured packets count"
