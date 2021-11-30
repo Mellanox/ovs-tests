@@ -20,7 +20,6 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
-pktgen=$my_dir/scapy-traffic-tester.py
 
 require_module act_ct
 require_remote_server
@@ -65,7 +64,7 @@ function cleanup() {
     ip netns del ns0 &>/dev/null
     ip netns del ns1 &>/dev/null
     ovs_clear_bridges
-    reset_tc $REP
+    reset_tc $REP &>/dev/null
     cleanup_remote_vxlan
     sleep 0.5
 }
@@ -105,25 +104,6 @@ function add_openflow_rules() {
     ovs-ofctl dump-flows br-ovs --color
 }
 
-function run_server() {
-    on_remote timeout $((t+2)) iperf -s -t $t &
-#    on_remote $pktgen -l -i $REMOTE_NIC --src-ip $IP --time $((t+1)) &
-    pk1=$!
-    sleep 2
-}
-
-function run_client() {
-    ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -P3 &
-#    ip netns exec ns0 $pktgen -i $VF --src-ip $IP --dst-ip $REMOTE --time $t --pkt-count 2 --inter 1 &
-    pk2=$!
-}
-
-function kill_traffic() {
-    kill -9 $pk1 &>/dev/null
-    kill -9 $pk2 &>/dev/null
-    wait $pk1 $pk2 2>/dev/null
-}
-
 function initial_traffic() {
     title "initial traffic"
     # this part is important when using multi-table CT.
@@ -155,32 +135,39 @@ function run() {
 
     title "Start traffic"
     t=16
-    run_server
-    run_client
+    ip netns exec ns0 iperf3 -s -D
+    on_remote timeout -k1 $((t+2)) iperf3 -c $IP -t $t -P3 &
+    pid2=$!
 
     # verify pid
     sleep 4
-    kill -0 $pk1 &>/dev/null
-    p1=$?
-    kill -0 $pk2 &>/dev/null
-    p2=$?
-    if [ $p1 -ne 0 ] || [ $p2 -ne 0 ]; then
-        err "traffic failed"
+    kill -0 $pid2 &>/dev/null
+    if [ $? -ne 0 ]; then
+        err "iperf failed"
         return
     fi
 
+    ip netns exec ns0 timeout $((t-4)) tcpdump -qnnei $VF -c 30 ip &
+    tpid1=$!
     timeout $((t-6)) tcpdump -qnnei $REP -c 10 'tcp' &
-    tpid=$!
+    tpid2=$!
+
     sleep $t
-    verify_no_traffic $tpid
+    title "Verify traffic on $VF"
+    verify_have_traffic $tpid1
+    title "Verify offload on $REP"
+    verify_no_traffic $tpid2
 
     conntrack -L | grep $IP
 
-    kill_traffic
+    kill -9 $pid2 &>/dev/null
+    killall -9 iperf3 &>/dev/null
     echo "wait for bgs"
     wait
 }
 
 run
 ovs-vsctl del-br br-ovs
+trap - EXIT
+cleanup
 test_done

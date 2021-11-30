@@ -59,7 +59,7 @@ function cleanup() {
     ip netns del ns0 &>/dev/null
     ip netns del ns1 &>/dev/null
     ovs_clear_bridges
-    reset_tc $REP
+    reset_tc $REP &>/dev/null
     cleanup_remote_vxlan
     sleep 0.5
 }
@@ -130,10 +130,8 @@ function run() {
 
     title "Start traffic"
     t=16
-    on_remote timeout $((t+2)) iperf -s -t $t &
-    pid1=$!
-    sleep 2
-    ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -P3 &
+    ip netns exec ns0 iperf3 -s -D
+    on_remote timeout -k1 $((t+2)) iperf3 -c $IP -t $t -P3 &
     pid2=$!
 
     # verify pid
@@ -144,19 +142,27 @@ function run() {
         return
     fi
 
+    ip netns exec ns0 timeout $((t-4)) tcpdump -qnnei $VF -c 30 ip &
+    tpid1=$!
     timeout $((t-6)) tcpdump -qnnei $REP -c 10 'tcp' &
-    tpid=$!
+    tpid2=$!
+
     sleep $t
-    verify_no_traffic $tpid
+    title "Verify traffic on $VF"
+    verify_have_traffic $tpid1
+    title "Verify offload on $REP"
+    verify_no_traffic $tpid2
 
     conntrack -L | grep $IP
 
-    kill -9 $pid1 &>/dev/null
-    killall -9 iperf &>/dev/null
+    kill -9 $pid2 &>/dev/null
+    killall -9 iperf3 &>/dev/null
     echo "wait for bgs"
     wait 2>/dev/null
 }
 
 run
 ovs-vsctl del-br br-ovs
+trap - EXIT
+cleanup
 test_done

@@ -113,14 +113,12 @@ function run() {
 
     title "Start traffic"
     t=16
-    on_remote timeout $((t+2)) iperf -s --ipv6_domain -t $t &
-    pid1=$!
-    sleep 2
-    ip netns exec ns0 timeout $((t+2)) iperf --ipv6_domain -c $REMOTE -t $t -P3 &
+    ip netns exec ns0 iperf3 -s -D
+    on_remote timeout -k1 $((t+2)) iperf3 -c $IP -t $t -P3 &
     pid2=$!
 
     # verify pid
-    sleep 2
+    sleep 4
     kill -0 $pid2 &>/dev/null
     if [ $? -ne 0 ]; then
         err "iperf failed"
@@ -144,11 +142,14 @@ function run() {
     title "Verify offload on vxlan_sys_4789"
     verify_no_traffic $tpid3
 
-    kill -9 $pid1 $pid2 &>/dev/null
+    kill -9 $pid2 &>/dev/null
+    killall -9 iperf3 &>/dev/null
     echo "wait for bgs"
     wait &>/dev/null
 }
 
 run
 ovs-vsctl del-br br-ovs
+trap - EXIT
+cleanup
 test_done
