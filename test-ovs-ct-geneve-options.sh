@@ -116,18 +116,17 @@ function run() {
 
     # initial traffic
     on_remote timeout 4 iperf3 -s -D
-    pid1=$!
     sleep 1
     ip netns exec ns0 timeout 3 iperf3 -c $REMOTE -t 2 &
     pid2=$!
 
     sleep 4
-    kill -9 $pid1 $pid2 &>/dev/null
-    wait $pid1 $pid2 &>/dev/null
+    kill -9 $pid2 &>/dev/null
+    wait $pid2 &>/dev/null
+    on_remote killall -9 -q iperf3
 
     # traffic
     on_remote timeout 16 iperf3 -s -D
-    pid1=$!
     sleep 1
     ip netns exec ns0 timeout 16 iperf3 -c $REMOTE -t 14 -P3 &
     pid2=$!
@@ -136,6 +135,7 @@ function run() {
     sleep 2
     kill -0 $pid2 &>/dev/null
     if [ $? -ne 0 ]; then
+        on_remote killall -9 -q iperf3
         err "iperf failed"
         return
     fi
@@ -156,7 +156,8 @@ function run() {
     title "Verify offload on genev_sys_6081"
     verify_no_traffic $tpid3
 
-    kill -9 $pid1 $pid2 &>/dev/null
+    kill -9 $pid2 &>/dev/null
+    on_remote killall -9 -q iperf3
     echo "wait for bgs"
     wait &>/dev/null
 }
