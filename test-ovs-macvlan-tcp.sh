@@ -65,12 +65,12 @@ function run_traffic() {
 
     t=15
     echo "run traffic for $t seconds"
-    on_remote timeout $((t+1)) iperf -s &
+    on_remote timeout $((t+2)) iperf3 -s -D
     sleep 1
-    ip netns exec ns0 timeout $((t-1)) iperf -t $t -c $REMOTE -P 3 &
+    ip netns exec ns0 timeout $((t+2)) iperf3 -t $t -c $REMOTE -P 3 &
 
     sleep 2
-    pidof iperf &>/dev/null || err "iperf failed"
+    pidof iperf3 &>/dev/null || err "iperf failed"
 
     ip netns exec ns0 timeout $((t-4)) tcpdump -qnnei $VF -c 30 'tcp' &
     pid1=$!
@@ -80,7 +80,8 @@ function run_traffic() {
     pid2=$!
 
     sleep $t
-    killall -9 iperf &>/dev/null
+    killall -9 iperf3 &>/dev/null
+    on_remote killall -9 iperf3 &>/dev/null
     wait $! 2>/dev/null
 
     title "Verify traffic on $VF"
