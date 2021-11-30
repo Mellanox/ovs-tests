@@ -83,19 +83,21 @@ function config_ovs() {
 function run_traffic() {
     t=15
     echo "run traffic for $t seconds"
-    on_remote timeout $((t+1)) iperf -s &
+    on_remote timeout $((t+2)) iperf3 -D -s
     sleep 1
-    ip netns exec ns0 timeout $((t-1)) iperf -t $t -c $REMOTE -P 3 &
+    ip netns exec ns0 timeout $((t+2)) iperf3 -t $t -c $REMOTE -P 3 &
+    pid0=$!
 
     sleep 2
-    pidof iperf &>/dev/null || err "iperf failed"
+    pidof iperf3 &>/dev/null || err "iperf failed"
 
     echo "sniff packets on $SF_REP"
     timeout $((t-4)) tcpdump -qnnei $SF_REP -c 10 'tcp' &
     pid1=$!
 
     sleep $t
-    killall -9 iperf &>/dev/null
+    kill -9 $pid0 &>/dev/null
+    on_remote killall -9 -q iperf3 &>/dev/null
     wait $! 2>/dev/null
 
     title "test traffic offload"
