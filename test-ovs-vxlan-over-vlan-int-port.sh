@@ -100,10 +100,9 @@ function run() {
 
     title "test traffic"
     t=15
-    on_remote timeout $((t+2)) iperf -s -t $t &
-    pid1=$!
+    on_remote timeout $((t+2)) iperf3 -s -D
     sleep 1
-    ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -P3 &
+    ip netns exec ns0 timeout $((t+2)) iperf3 -c $REMOTE -t $t -P3 &
     pid2=$!
 
     # verify pid
@@ -126,7 +125,7 @@ function run() {
     verify_no_traffic $tpid2
 
     kill -9 $pid1 &>/dev/null
-    killall iperf &>/dev/null
+    on_remote killall -9 -q iperf3 &>/dev/null
     echo "wait for bgs"
     wait
 }
