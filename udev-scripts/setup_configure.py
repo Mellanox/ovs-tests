@@ -303,9 +303,11 @@ class SetupConfigure(object):
 
     @property
     def flow_steering_mode(self):
-        mode = 'smfs' if self.args.sw_steering_mode else 'dmfs'
+        if self.args.sw_steering_mode:
+            return 'smfs'
+
         if not self.args.steering_mode:
-            return mode
+            return None
 
         if self.args.steering_mode == 'sw':
             mode = 'smfs'
@@ -318,6 +320,9 @@ class SetupConfigure(object):
 
     def ConfigureSteeringMode(self):
         mode = self.flow_steering_mode
+        if not mode:
+            return
+
         mode2 = 'software' if mode == 'smfs' else 'firmware'
 
         for PFInfo in self.host.PNics:
@@ -331,7 +336,6 @@ class SetupConfigure(object):
             try:
                 runcmd_output('devlink dev param set pci/%s name flow_steering_mode value "%s" cmode runtime' % (PFInfo['bus'], mode))
             except CalledProcessError:
-                self.flow_steering_mode_supp = False
                 self.Logger.warning("The kernel does not support devlink flow_steering_mode param. Skipping.")
 
     def ConfigureSwitchdev(self):
@@ -431,7 +435,7 @@ class SetupConfigure(object):
 
         conf += '\nREMOTE_SERVER=%s' % self.get_cloud_player_ip()
 
-        if self.flow_steering_mode_supp:
+        if self.flow_steering_mode:
             conf += '\nSTEERING_MODE=%s' % self.flow_steering_mode
 
         if self.args.dpdk:
