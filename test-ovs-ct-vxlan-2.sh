@@ -17,6 +17,7 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
+. $my_dir/common-ovs-ct.sh
 
 require_module act_ct
 require_remote_server
@@ -99,66 +100,28 @@ function add_openflow_rules() {
     ovs-ofctl dump-flows br-ovs --color
 }
 
-function initial_traffic() {
-    title "initial traffic"
-    # this part is important when using multi-table CT.
-    # the initial traffic will cause ovs to create initial tc rules
-    # and also tuple rules. but since ovs adds the rules somewhat late
-    # conntrack will already mark the conn est. and tuple rules will be in hw.
-    # so we start second traffic which will be faster added to hw before
-    # conntrack and this will check the miss rule in our driver is ok
-    # (i.e. restoring reg_0 correctly)
-    ip netns exec ns0 iperf3 -s -D
-    on_remote timeout -k1 3 iperf3 -c $IP -t 2
-    killall -9 iperf3
-}
-
 function run() {
     config
     config_remote_vxlan
     add_openflow_rules
     sleep 2
 
-    # icmp
-    ip netns exec ns0 ping -q -c 1 -w 2 $REMOTE
+    ping_remote
     if [ $? -ne 0 ]; then
-        err "ping failed"
         return
     fi
 
     initial_traffic
 
-    title "Start traffic"
-    t=16
-    ip netns exec ns0 iperf3 -s -D
-    on_remote timeout -k1 $((t+2)) iperf3 -c $IP -t $t -P3 &
-    pid2=$!
-
-    # verify pid
-    sleep 4
-    kill -0 $pid2 &>/dev/null
+    start_traffic
     if [ $? -ne 0 ]; then
-        err "iperf failed"
         return
     fi
 
-    ip netns exec ns0 timeout $((t-4)) tcpdump -qnnei $VF -c 30 ip &
-    tpid1=$!
-    timeout $((t-6)) tcpdump -qnnei $REP -c 10 'tcp' &
-    tpid2=$!
+    vxlan_dev="vxlan_sys_4789"
+    verify_traffic
 
-    sleep $t
-    title "Verify traffic on $VF"
-    verify_have_traffic $tpid1
-    title "Verify offload on $REP"
-    verify_no_traffic $tpid2
-
-    conntrack -L | grep $IP
-
-    kill -9 $pid2 &>/dev/null
-    killall -9 iperf3 &>/dev/null
-    echo "wait for bgs"
-    wait 2>/dev/null
+    kill_traffic
 }
 
 run

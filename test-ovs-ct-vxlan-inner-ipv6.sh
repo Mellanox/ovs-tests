@@ -7,6 +7,7 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
+. $my_dir/common-ovs-ct.sh
 
 require_module act_ct
 require_remote_server
@@ -100,52 +101,24 @@ function run() {
     config
     config_remote_vxlan
     add_openflow_rules
-
-    # icmp
     sleep 2
-    ip netns exec ns0 ping -q -c 1 -w 2 $REMOTE
+
+    ping_remote
     if [ $? -ne 0 ]; then
-        err "ping failed"
         return
     fi
 
     initial_traffic
 
-    title "Start traffic"
-    t=16
-    ip netns exec ns0 iperf3 -s -D
-    on_remote timeout -k1 $((t+2)) iperf3 -c $IP -t $t -P3 &
-    pid2=$!
-
-    # verify pid
-    sleep 4
-    kill -0 $pid2 &>/dev/null
+    start_traffic
     if [ $? -ne 0 ]; then
-        err "iperf failed"
         return
     fi
 
-    # verify traffic
-    proto=ip6
-    ip netns exec ns0 timeout $((t-4)) tcpdump -qnnei $VF -c 30 $proto &
-    tpid1=$!
-    timeout $((t-4)) tcpdump -qnnei $REP -c 10 $proto &
-    tpid2=$!
-    timeout $((t-4)) tcpdump -qnnei vxlan_sys_4789 -c 10 $proto &
-    tpid3=$!
+    vxlan_dev="vxlan_sys_4789"
+    verify_traffic
 
-    sleep $t
-    title "Verify traffic on $VF"
-    verify_have_traffic $tpid1
-    title "Verify offload on $REP"
-    verify_no_traffic $tpid2
-    title "Verify offload on vxlan_sys_4789"
-    verify_no_traffic $tpid3
-
-    kill -9 $pid2 &>/dev/null
-    killall -9 iperf3 &>/dev/null
-    echo "wait for bgs"
-    wait &>/dev/null
+    kill_traffic
 }
 
 run

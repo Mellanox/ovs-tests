@@ -9,6 +9,7 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
+. $my_dir/common-ovs-ct.sh
 
 not_relevant_for_nic cx5 cx6 cx6lx
 require_module act_ct
@@ -92,42 +93,28 @@ function run() {
     add_openflow_rules
     sleep 2
 
-    # icmp
-    ip netns exec ns0 ping -q -c 1 -w 2 $REMOTE
+    ping_remote
     if [ $? -ne 0 ]; then
-        err "ping failed"
         return
     fi
 
-    title "Start traffic"
-    t=15
-    ip netns exec ns0 iperf3 -s -D
-    on_remote timeout -k1 $((t+2)) iperf3 -c $IP -t $t -P3 &
-    pid2=$!
+    initial_traffic
 
-    # verify pid
-    sleep 4
-    kill -0 $pid2 &>/dev/null
+    start_traffic
     if [ $? -ne 0 ]; then
-        err "iperf failed"
         return
     fi
 
-    ip netns exec ns0 timeout $((t-4)) tcpdump -qnnei $VF -c 30 ip &
-    tpid1=$!
-    timeout $((t-2)) tcpdump -qnnei $REP -c 10 'tcp' &
-    tpid2=$!
+    timeout $((t-4)) tcpdump -qnnei $VF2 -c 30 tcp &
+    tpid_mirror=$!
 
-    sleep $t
-    title "Verify traffic on $VF"
-    verify_have_traffic $tpid1
-    title "Verify offload on $REP"
-    verify_no_traffic $tpid2
+    vxlan_dev="vxlan_sys_4789"
+    verify_traffic
 
-    kill -9 $pid1 &>/dev/null
-    killall -9 iperf3 &>/dev/null
-    echo "wait for bgs"
-    wait 2>/dev/null
+    title "Verify mirror traffic on $VF2"
+    verify_have_traffic $tpid_mirror
+
+    kill_traffic
 }
 
 run
