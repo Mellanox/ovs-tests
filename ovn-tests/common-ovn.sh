@@ -392,9 +392,16 @@ function check_fragmented_ipv6_traffic() {
 }
 
 function ovs_flush_rules() {
-    ovs-vsctl set O . other_config:max-idle=1
+    local max_idle=$(ovs-vsctl get Open_vSwitch . other_config:max-idle 2>/dev/null)
+
+    ovs_conf_set max-idle 1
     sleep 0.5
-    ovs-vsctl remove O . other_config max-idle
+
+    if [[ -n $max_idle ]]; then
+        ovs_conf_set max-idle $max_idle
+    else
+        ovs_conf_remove max-idle
+    fi
 }
 
 function ovs_create_bridge_vlan_interface() {

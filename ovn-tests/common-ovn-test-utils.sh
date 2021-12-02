@@ -28,6 +28,7 @@ HAS_VLAN=
 IS_FRAGMENTED=
 
 function __ovn_clean_up() {
+    ovs_conf_remove max-idle
     ovn_stop_ovn_controller
     ovn_remove_ovs_config
     ovs_clear_bridges
@@ -124,6 +125,7 @@ function __ovn_config() {
 
     ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
     ovn_start_ovn_controller
+    ovs_conf_set max-idle 20000
 
     __ovn_config_mtu
 }
