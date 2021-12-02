@@ -16,6 +16,7 @@ from tempfile import mkdtemp
 from datetime import datetime
 from semver import VersionInfo
 from requests.exceptions import ConnectionError
+from requests.exceptions import ReadTimeout
 
 import yaml
 from mlxredmine import MlxRedmine
@@ -695,11 +696,8 @@ def update_skip_according_to_db(rm, _tests, data):
             try:
                 task = rm.get_issue(bug)
                 t.issues.append(task)
-            except ConnectionError as e:
+            except Exception as e:
                 t.set_skip("Cannot fetch RM #%s (%s)" % (bug, e))
-                continue
-            except ValueError:
-                t.set_skip("Cannot fetch RM #%s" % bug)
                 continue
             if rm.is_issue_wont_fix_or_release_notes(task):
                 t.set_wont_fix()

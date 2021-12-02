@@ -4,6 +4,7 @@ import requests
 from datetime import datetime
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from requests.exceptions import ConnectionError
+from requests.exceptions import ReadTimeout
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -51,7 +52,7 @@ class MlxRedmine(object):
             try:
                 r = self.get_url(REDMINE_URL + '/issues/%s.json' % issue_id)
                 break
-            except ConnectionError:
+            except (ConnectionError, ReadTimeout):
                 if i+1 == loops:
                     self.fail_all_calls = True
                     raise
