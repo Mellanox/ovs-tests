@@ -93,8 +93,8 @@ function run() {
     ip netns exec ns0 $pktgen -i $VF1 --src-ip $IP1 --dst-ip $IP2 --time $t &
     pk2=$!
 
-    # first 4 packets not offloaded until conn is in established state.
-    sleep 2
+    # udp connections are offloaded 2 seconds later after connections are established
+    sleep 3
     echo "sniff packets on $REP"
     timeout $t tcpdump -qnnei $REP -c 1 $proto &
     pid2=$!
