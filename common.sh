@@ -1415,7 +1415,7 @@ function unload_modules() {
     if [ "$USE_OPENIBD" == "1" -a -e /etc/init.d/openibd ]; then
         service openibd force-stop || fail "Failed to stop openibd service"
     else
-        local holders=`ls -1 /sys/module/mlx5_core/holders`
+        local holders=`ls -1r /sys/module/mlx5_core/holders`
         modprobe -r $holders mlx5_core || fail "Failed to unload modules"
     fi
 }
