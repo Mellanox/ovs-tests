@@ -769,10 +769,7 @@ def ignore_excluded(exclude):
                 t.set_ignore('excluded')
 
 
-def save_summary_html():
-    if not LOGDIR:
-        return
-
+def get_results():
     number_of_tests = len(TESTS)
     passed_tests = sum(map(lambda test: test.passed, TESTS))
     failed_tests = sum(map(lambda test: test.failed, TESTS))
@@ -786,14 +783,25 @@ def save_summary_html():
     runtime = get_total_runtime()
     runtime = human_time_duration(runtime)
 
-    summary = SUMMARY_ROW.format(number_of_tests=number_of_tests,
-                                 passed_tests=passed_tests,
-                                 failed_tests=failed_tests,
-                                 skip_tests=skip_tests,
-                                 ignored_tests=ignored_tests,
-                                 pass_rate=pass_rate,
-                                 runtime=runtime)
-    results = ''
+    return {'number_of_tests': number_of_tests,
+            'passed_tests': passed_tests,
+            'failed_tests': failed_tests,
+            'skip_tests': skip_tests,
+            'ignored_tests': ignored_tests,
+            'running': running,
+            'pass_rate': pass_rate,
+            'runtime': runtime,
+            }
+
+
+def save_summary_html():
+    if not LOGDIR:
+        return
+
+    results = get_results()
+    summary = SUMMARY_ROW.format(**results)
+
+    test_results = ''
     for t in TESTS:
         status = t.status
         if status in ('UNKNOWN', "DIDN'T RUN"):
@@ -805,13 +813,11 @@ def save_summary_html():
                 test_log=t.test_log_html,
                 status=status)
 
-        results += RESULT_ROW.format(test=t.name,
-                                     run_time=t.run_time,
-                                     status=status)
+        test_results += RESULT_ROW.format(test=t.name, run_time=t.run_time, status=status)
 
     summary_file = "%s/summary.html" % LOGDIR
     with open(summary_file, 'w') as f:
-        f.write(HTML.format(style=HTML_CSS, summary=summary, results=results))
+        f.write(HTML.format(style=HTML_CSS, summary=summary, results=test_results))
     return summary_file
 
 
