@@ -20,23 +20,11 @@ IP2=$(ovn_get_switch_port_ip $TOPOLOGY $SWITCH $PORT2)
 IP_V6_2=$(ovn_get_switch_port_ipv6 $TOPOLOGY $SWITCH $PORT2)
 
 function run_test() {
-    # Add REP to OVS
-    ovs_add_port_to_switch $OVN_BRIDGE_INT $REP
-    ovs_add_port_to_switch $OVN_BRIDGE_INT $REP2
+    ovn_config_interface_namespace $VF $REP ns0 $PORT1 $MAC1 $IP1 $IP_V6_1
+    ovn_config_interface_namespace $VF2 $REP2 ns1 $PORT2 $MAC2 $IP2 $IP_V6_2
 
     ovs-vsctl show
-
-    # Bind OVS ports to OVN
-    ovn_bind_ovs_port $REP $PORT1
-    ovn_bind_ovs_port $REP2 $PORT2
-
     ovn-sbctl show
-
-    # Move VFs to namespaces and set MACs and IPS
-    config_vf ns0 $VF $REP $IP1 $MAC1
-    ip netns exec ns0 ip -6 addr add $IP_V6_1/124 dev $VF
-    config_vf ns1 $VF2 $REP2 $IP2 $MAC2
-    ip netns exec ns1 ip -6 addr add $IP_V6_2/124 dev $VF2
 
     title "Test ICMP traffic between $VF($IP1) -> $VF2($IP2) offloaded"
     check_icmp_traffic_offload $REP ns0 $IP2
@@ -64,7 +52,6 @@ trap ovn_clean_up EXIT
 
 ovn_config
 run_test
-
 
 # Clean up and clear trap
 ovn_clean_up

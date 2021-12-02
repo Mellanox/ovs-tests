@@ -61,11 +61,11 @@ function ovs_add_port_to_switch() {
     ovs-vsctl add-port $br $port
 }
 
-function ovn_bind_ovs_port() {
-    local ovs_port=$1
+function ovn_bind_port() {
+    local port=$1
     local ovn_port=$2
 
-    ovs-vsctl set Interface $ovs_port external_ids:iface-id=$ovn_port
+    ovs-vsctl --may-exist add-port $OVN_BRIDGE_INT $port -- set Interface $port external_ids:iface-id=$ovn_port
 }
 
 function check_rules() {

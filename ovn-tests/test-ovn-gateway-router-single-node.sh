@@ -90,21 +90,10 @@ function run_test() {
     # Add network topology to OVN
     ovn_create_topology $TOPOLOGY
 
-    # Add REP to OVS
-    ovs_add_port_to_switch $OVN_BRIDGE_INT $REP
+    ovn_config_interface_namespace $VF $REP ns0 $PORT $MAC $IP $IP_V6_1 $IP_GW $IP_V6_GW
 
     ovs-vsctl show
-
-    # Bind OVS ports to OVN
-    ovn_bind_ovs_port $REP $PORT
-
     ovn-sbctl show
-
-    # Move VFs to namespaces and set MACs and IPS
-    config_vf ns0 $VF $REP $IP $MAC
-    ip netns exec ns0 ip route add default via $IP_GW dev $VF
-    ip netns exec ns0 ip -6 addr add $IP_V6_1/124 dev $VF
-    ip netns exec ns0 ip -6 route add default via $IP_V6_GW dev $VF
 
     title "Test ICMP traffic between $VF($IP) -> $NIC($IP2) offloaded"
     check_icmp_traffic_offload $REP ns0 $IP2

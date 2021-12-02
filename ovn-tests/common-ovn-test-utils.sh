@@ -137,4 +137,28 @@ function ovn_config() {
     fi
 }
 
+function ovn_config_interface_namespace() {
+    local vf=$1
+    local rep=$2
+    local ns=$3
+    local ovn_port=$4
+    local mac=$5
+    local ip=$6
+    local ipv6=$7
+    local ip_gw=$8   # optional
+    local ipv6_gw=$9 # optional
+
+    ovn_bind_port $rep $ovn_port
+    config_vf $ns $vf $rep $ip $mac
+    ip netns exec $ns ip -6 addr add $ipv6/120 dev $vf
+
+    if [[ -n "$ip_gw" ]]; then
+        ip netns exec $ns ip route add default via $ip_gw dev $vf
+    fi
+
+    if [[ -n "$ipv6_gw" ]]; then
+        ip netns exec $ns ip -6 route add default via $ipv6_gw dev $vf
+    fi
+}
+
 require_ovn

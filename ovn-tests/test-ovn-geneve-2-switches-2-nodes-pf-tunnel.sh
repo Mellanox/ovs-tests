@@ -23,25 +23,11 @@ IP2=$(ovn_get_switch_port_ip $TOPOLOGY $SWITCH2 $PORT2)
 IP_V6_2=$(ovn_get_switch_port_ipv6 $TOPOLOGY $SWITCH2 $PORT2)
 
 function run_test() {
-    # Add REP to OVS
-    ovs_add_port_to_switch $OVN_BRIDGE_INT $REP
-    on_remote_exec "ovs_add_port_to_switch $OVN_BRIDGE_INT $REP"
+    ovn_config_interface_namespace $VF $REP ns0 $PORT1 $MAC1 $IP1 $IP_V6_1
+    on_remote_exec "ovn_config_interface_namespace $VF $REP ns0 $PORT2 $MAC2 $IP2 $IP_V6_2"
 
     ovs-vsctl show
-
-    # Bind OVS ports to OVN
-    ovn_bind_ovs_port $REP $PORT1
-    on_remote_exec "ovn_bind_ovs_port $REP $PORT2"
-
     ovn-sbctl show
-
-    # Move VFs to namespaces and set MACs and IPS
-    config_vf ns0 $VF $REP $IP1 $MAC1
-    ip netns exec ns0 ip -6 addr add $IP_V6_1/124 dev $VF
-    on_remote_exec "
-    config_vf ns0 $VF $REP $IP2 $MAC2
-    ip netns exec ns0 ip -6 addr add $IP_V6_2/124 dev $VF
-    "
 
     title "Test no traffic between $VF($IP1) -> $VF($IP2)"
     ip netns exec ns0 ping -w 4 $IP2 && err || success "No Connection"
@@ -58,7 +44,6 @@ trap ovn_clean_up EXIT
 
 ovn_config
 run_test
-
 
 ovn_clean_up
 trap - EXIT
