@@ -102,3 +102,33 @@ function test_tx_off_rx_off() {
         fail "offload rules are not added as expected!"
     fi
 }
+
+function clean_up_crypto() {
+    local mtu=${1:-1500}
+    ip address flush $NIC
+    on_remote ip address flush $REMOTE_NIC
+    ipsec_clean_up_on_both_sides
+    kill_iperf
+    change_mtu_on_both_sides $mtu
+    rm -f $IPERF_FILE $TCPDUMP_FILE
+}
+
+function run_test_ipsec_crypto() {
+    local mtu=$1
+    local ip_proto=$2
+    local ipsec_mode=${3:-"transport"}
+    local net_proto=${4:-"tcp"}
+    local len
+
+    for len in 128 256; do
+        title "test $ipsec_mode $ip_proto over $net_proto with key length $len MTU $mtu"
+
+        clean_up_crypto $mtu
+        test_tx_off_rx $ipsec_mode $len $ip_proto $net_proto
+        clean_up_crypto $mtu
+        test_tx_rx_off $ipsec_mode $len $ip_proto $net_proto
+        clean_up_crypto $mtu
+        test_tx_off_rx_off $ipsec_mode $len $ip_proto $net_proto
+        clean_up_crypto $mtu
+    done
+}
