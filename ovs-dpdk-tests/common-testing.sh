@@ -1,3 +1,6 @@
+p_server=/tmp/perf_server
+p_client=/tmp/perf_client
+
 function ovs_add_ct_rules() {
     local bridge=${1:-"br-int"}
     ovs-ofctl del-flows $bridge
@@ -29,12 +32,12 @@ function generate_traffic() {
     echo -e "\nTesting TCP traffic remote = $remote , ip = $my_ip , namespace = $namespace"
 
     # server
-    rm -rf /tmp/perf_server
-    ip netns exec ns0 timeout $((t+2)) iperf3 -f Mbits -s -D --logfile /tmp/perf_server
+    rm -rf $p_server
+    ip netns exec ns0 timeout $((t+2)) iperf3 -f Mbits -s -D --logfile $p_server
     sleep 2
     # client
-    rm -rf /tmp/perf_client
-    local cmd="iperf3 -f Mbits -c $my_ip -t $t -P 5 &> /tmp/perf_client"
+    rm -rf $p_client
+    local cmd="iperf3 -f Mbits -c $my_ip -t $t -P 5 &> $p_client"
     if [ -n "$namespace" ]; then
         cmd="ip netns exec $namespace $cmd"
     fi
@@ -55,14 +58,30 @@ function generate_traffic() {
     fi
 
     sleep $t
+
+    if [ -f $p_server ]; then
+        echo "Server traffic"
+        cat $p_server
+    else
+        err "no $p_server , probably problem with iperf"
+    fi
+
+    if [ -f $p_client ]; then
+        echo "Client traffic"
+        cat $p_client
+    else
+        err "no $p_client , probably problem with iperf or ssh problem"
+    fi
+
     validate_traffic 1
     kill_iperf
 }
 
 function validate_traffic() {
     local min_traffic=$1
-    local server_traffic=$(cat /tmp/perf_server | grep "SUM" | grep "MBytes/sec" | awk '{print $6}' | head -1)
-    local client_traffic=$(cat /tmp/perf_client | grep "SUM" | grep "MBytes/sec" | awk '{print $6}' | head -1)
+
+    local server_traffic=$(cat $p_server | grep "SUM" | grep "MBytes/sec" | awk '{print $6}' | head -1)
+    local client_traffic=$(cat $p_client | grep "SUM" | grep "MBytes/sec" | awk '{print $6}' | head -1)
 
     echo "validate traffic server: $server_traffic , client: $client_traffic"
     if [[ -z $server_traffic || $server_traffic < $1 ]]; then
