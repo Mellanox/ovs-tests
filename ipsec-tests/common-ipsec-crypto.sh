@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#run_traffic ipv4/ipv6 [udp]
+#run_traffic ipv4/ipv6 [udp|tcp|icmp]
 function run_traffic() {
     local IP_PROTO="$1"
     local NET_PROTO=${2}
@@ -9,9 +9,12 @@ function run_traffic() {
         :
     elif [[ "$NET_PROTO" == "udp" ]]; then
         IPERF_EXTRA="-u"
+    elif [[ "$NET_PROTO" == "icmp" ]]; then
+        :
     else
         err "Wrong arg for function run_traffic"
     fi
+
     local t=10
 
     title "Run $NET_PROTO traffic"
@@ -22,13 +25,20 @@ function run_traffic() {
     # represent the use case.
     timeout $t tcpdump -qnnei $NIC -c 5 -w $TCPDUMP_FILE &
     local upid=$!
-    if [[ "$IP_PROTO" == "ipv4" ]]; then
-        (on_remote timeout $((t+2)) iperf3 -c $LIP $IPERF_EXTRA -b 2G > $IPERF_FILE) || err "iperf3 failed"
+    if [[ "$NET_PROTO" == "icmp" ]]; then
+        if [[ "$IP_PROTO" == "ipv4" ]]; then
+            (on_remote timeout $((t+2)) ping $LIP -c 7 > /dev/null) || err "ping failed"
+        else
+            (on_remote timeout $((t+2)) ping $LIP6 -c 7 > /dev/null) || err "ping failed"
+        fi
     else
-        (on_remote timeout $((t+2)) iperf3 -c $LIP6 $IPERF_EXTRA -b 2G > $IPERF_FILE) || err "iperf3 failed"
+        if [[ "$IP_PROTO" == "ipv4" ]]; then
+            (on_remote timeout $((t+2)) iperf3 -c $LIP $IPERF_EXTRA -b 2G > $IPERF_FILE) || err "iperf3 failed"
+        else
+            (on_remote timeout $((t+2)) iperf3 -c $LIP6 $IPERF_EXTRA -b 2G > $IPERF_FILE) || err "iperf3 failed"
+        fi
     fi
     fail_if_err
-
     title "Verify $NET_PROTO traffic on $NIC"
     verify_have_traffic $upid
 }
