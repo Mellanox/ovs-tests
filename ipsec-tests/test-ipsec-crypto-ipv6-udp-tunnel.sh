@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# This is a series of basic tests to check traffic with
+# different ipsec - configurations.In addition it tests if the rules
+# which are added are using offload when expected.
+# NOTE: in this test local machine is used as Rx.
+
+my_dir="$(dirname "$0")"
+. $my_dir/common-ipsec.sh
+. $my_dir/common-ipsec-crypto.sh
+
+require_remote_server
+
+IPERF_FILE="/tmp/temp1.txt"
+TCPDUMP_FILE="/tmp/temp2.txt"
+
+function clean_up() {
+    clean_up_crypto
+}
+
+function run_test() {
+    run_test_ipsec_crypto 1500 ipv6 tunnel udp
+    run_test_ipsec_crypto 9000 ipv6 tunnel udp
+}
+
+trap clean_up EXIT
+run_test
+trap - EXIT
+clean_up
+test_done
