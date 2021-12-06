@@ -16,43 +16,16 @@ IPERF_FILE="/tmp/temp1.txt"
 TCPDUMP_FILE="/tmp/temp2.txt"
 
 function clean_up() {
-    local mtu=${1:-1500}
-    ip address flush $NIC
-    on_remote ip address flush $REMOTE_NIC
-    ipsec_clean_up_on_both_sides
-    kill_iperf
-    change_mtu_on_both_sides $mtu
-    rm -f $IPERF_FILE $TCPDUMP_FILE
+    clean_up_crypto
 }
 
 function run_test() {
-    local mtu=$1
-
-    title "test transport ipv6 with key length 128 MTU $mtu"
-
-    clean_up $mtu
-    test_tx_off_rx transport 128 ipv6 udp
-    clean_up $mtu
-    test_tx_rx_off transport 128 ipv6 udp
-    clean_up $mtu
-    test_tx_off_rx_off transport 128 ipv6 udp
-    clean_up $mtu
-
-    title "transport ipv6 with key length 256 MTU $mtu"
-
-    clean_up $mtu
-    test_tx_off_rx transport 256 ipv6 udp
-    clean_up $mtu
-    test_tx_rx_off transport 256 ipv6 udp
-    clean_up $mtu
-    test_tx_off_rx_off transport 256 ipv6 udp
+    run_test_ipsec_crypto 1500 ipv6 transport udp
+    run_test_ipsec_crypto 9000 ipv6 transport udp
 }
 
 trap clean_up EXIT
-
-run_test 1500
-run_test 9000
-
+run_test
 trap - EXIT
 clean_up
 test_done
