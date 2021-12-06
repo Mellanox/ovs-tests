@@ -132,3 +132,55 @@ function run_test_ipsec_crypto() {
         clean_up_crypto $mtu
     done
 }
+
+function performance_config() {
+    local ip_proto="$1"
+    local ipsec_mode="$2"
+    local should_offload="$3"
+    ipsec_clean_up_on_both_sides $ipsec_mode $ip_proto
+    ipsec_config_on_both_sides $ipsec_mode 128 $ip_proto $should_offload
+}
+
+function run_performance_test() {
+    local ipsec_mode=${1:-"transport"}
+    local ip_proto=${2:-"ipv4"}
+
+    title "Config ipsec in $ipsec_mode $ip_proto without offload"
+    performance_config $ip_proto $ipsec_mode
+
+    title "run traffic"
+    local t=15
+    start_iperf_server_on_remote
+
+    if [[ "$ip_proto" == "ipv4" ]]; then
+        (timeout $((t+10)) iperf3 -c $RIP -t $t -i 5 -f m --logfile /tmp/results.txt ) || err "iperf3 failed"
+    else
+        (timeout $((t+10)) iperf3 -c $RIP6 -t $t -i 5 -f m --logfile /tmp/results.txt ) || err "iperf3 failed"
+    fi
+    fail_if_err
+
+    title "Config ipsec in $ipsec_mode $ip_proto with offload"
+    performance_config $ip_proto $ipsec_mode offload
+
+    kill_iperf
+    start_iperf_server_on_remote
+
+    title "run traffic"
+    if [[ "$ip_proto" == "ipv4" ]]; then
+        (timeout $((t+10)) iperf3 -c $RIP -t $t -i 5 -f m --logfile /tmp/offload_results.txt ) || err "iperf3 failed"
+    else
+        (timeout $((t+10)) iperf3 -c $RIP6 -t $t -i 5 -f m --logfile /tmp/offload_results.txt ) || err "iperf3 failed"
+    fi
+    fail_if_err
+
+    title "Check performance"
+    no_off_res=`cat /tmp/results.txt | grep "10.*-15.*" | awk '{print $7}'`
+    off_res=`cat /tmp/offload_results.txt | grep "10.*-15.*" | awk '{print $7}'`
+    #convert to Mbits
+    no_off_res=$(bc <<< "$no_off_res * 1000" | sed -e 's/\..*//')
+    off_res=$(bc <<< "$off_res * 1000" | sed -e 's/\..*//')
+
+    if [[ $off_res -le $no_off_res ]]; then
+        fail "low offload performance"
+    fi
+}
