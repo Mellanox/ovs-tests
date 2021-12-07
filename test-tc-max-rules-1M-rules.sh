@@ -10,10 +10,11 @@ my_dir="$(dirname "$0")"
 
 not_relevant_for_nic cx4
 
-TIMEOUT=15m \
-CASE_NIC=$NIC \
-CASE_TWO_PORTS=0 \
-CASE_SKIP=skip_sw \
-CASE_COUNT=1000000 \
-CASE_INDEX=0 \
-    $my_dir/test-tc-max-rules.sh
+TIMEOUT=15m
+CASE_NIC=$NIC
+CASE_TWO_PORTS=0
+CASE_SKIP=skip_sw
+CASE_COUNT=1000000
+CASE_INDEX=0
+
+. $my_dir/test-tc-max-rules.sh
