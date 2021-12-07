@@ -82,8 +82,6 @@ function run() {
     wait $pid1
     ovs_dump_tc_flows --names
 
-    # udp connections are offloaded 2 seconds later after connections are established
-    sleep 3
     title "check for offloaded - no traffic on rep"
     timeout $((t-4)) tcpdump -qnnei $REP -c 1 $proto &
     pid1=$!

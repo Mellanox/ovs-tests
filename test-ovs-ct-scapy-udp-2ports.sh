@@ -107,8 +107,8 @@ function run() {
     ip netns exec ns0 $pktgen -i $VF3 --src-ip $IP3 --dst-ip $IP4 --time $t &
     pk4=$!
 
-    # udp connections are offloaded 2 seconds later after connections are established
-    sleep 3
+    # first 4 packets not offloaded until conn is in established state.
+    sleep 2
     title "test for traffic on $REP"
     verify_have_traffic $pid1
     title "test for traffic on $REP3"
