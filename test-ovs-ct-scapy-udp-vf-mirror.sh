@@ -7,6 +7,7 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
+. $my_dir/common-ovs-ct.sh
 pktgen=$my_dir/scapy-traffic-tester.py
 
 not_relevant_for_nic cx5 cx6 cx6lx
@@ -93,9 +94,8 @@ function run() {
     ip netns exec ns0 $pktgen -i $VF1 --src-ip $IP1 --dst-ip $IP2 --time $t &
     pk2=$!
 
-    # first 4 packets not offloaded until conn is in established state.
-    sleep 2
-    echo "sniff packets on $REP"
+    verify_ct_udp_have_traffic $pid1
+
     timeout $t tcpdump -qnnei $REP -c 1 $proto &
     pid2=$!
 
@@ -107,10 +107,9 @@ function run() {
     kill $pk1 &>/dev/null
     wait $pk1 $pk2 2>/dev/null
 
-    echo "test traffic on $REP"
-    verify_have_traffic $pid1
+    title "Verify offload on $REP"
     verify_no_traffic $pid2
-    echo "test mirror traffic on $VF3"
+    title "Verify mirror traffic on $VF3"
     verify_have_traffic $pid3
 
     ovs-vsctl del-br br-ovs

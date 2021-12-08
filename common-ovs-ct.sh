@@ -66,3 +66,16 @@ function kill_traffic() {
     echo "wait for bgs"
     wait &>/dev/null
 }
+
+function verify_ct_udp_have_traffic() {
+    local pid1=$1
+    local pid2=$2
+
+    title "Verify traffic"
+    verify_have_traffic $pid1
+    if [[ -n $pid2 ]]; then
+        verify_have_traffic $pid2
+    fi
+    # short-lived udp connections are not offloaded so wait a bit for offload.
+    sleep 3
+}

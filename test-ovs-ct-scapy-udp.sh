@@ -5,6 +5,7 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
+. $my_dir/common-ovs-ct.sh
 pktgen=$my_dir/scapy-traffic-tester.py
 
 require_module act_ct
@@ -66,9 +67,7 @@ function run() {
     ip netns exec ns0 $pktgen -i $VF1 --src-ip $IP1 --dst-ip $IP2 --time $t &
     pk2=$!
 
-    # first 4 packets not offloaded until conn is in established state.
-    sleep 2
-    verify_have_traffic $pid1
+    verify_ct_udp_have_traffic $pid1
 
     echo "sniff packets on $REP"
     timeout $t tcpdump -qnnei $REP -c 10 $proto &
