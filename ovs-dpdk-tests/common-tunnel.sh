@@ -24,6 +24,7 @@ function gre_set_entropy_on_remote() {
 function cleanup_remote_tunnel() {
     local tunnel=${1:-$TUNNEL_DEV}
     on_remote "ip a flush dev $REMOTE_NIC
+               ip l del dev $TUNNEL_DEV &> /dev/null
                ip l del dev $tunnel &>/dev/null"
 }
 
