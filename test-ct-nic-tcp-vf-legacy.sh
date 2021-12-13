@@ -33,6 +33,7 @@ net=`getnet $REMOTE_IP2 24`
 function cleanup_exit() {
     cleanup
     config_sriov 0 $NIC2
+    reload_modules
  }
 
 function cleanup() {
@@ -170,4 +171,5 @@ cleanup
 run
 trap - EXIT
 cleanup
+reload_modules
 test_done
