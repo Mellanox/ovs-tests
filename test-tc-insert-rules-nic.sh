@@ -77,7 +77,11 @@ function test_prio1_to_prio16() {
 }
 
 
+require_mlxreg
 config_sriov
+enable_legacy
+unbind_vfs
+set_trusted_vf_mode $NIC
 bind_vfs
 reset_tc $VF
 
@@ -88,4 +92,5 @@ for i in `declare -F | awk {'print $3'} | grep ^test_ | grep -v test_done` ; do
     reset_tc $VF
 done
 
+reload_modules
 test_done
