@@ -80,7 +80,7 @@ class SetupConfigure(object):
 
     def Run(self):
         try:
-            self.flow_steering_mode_supp = True
+            self.flow_steering_mode = None
 
             start_kmemleak()
             self.set_ovs_service()
@@ -302,7 +302,7 @@ class SetupConfigure(object):
                 runcmd2('echo %s > /sys/bus/pci/drivers/mlx5_core/unbind' % VFBus)
 
     @property
-    def flow_steering_mode(self):
+    def req_flow_steering_mode(self):
         if self.args.sw_steering_mode:
             return 'smfs'
 
@@ -318,25 +318,50 @@ class SetupConfigure(object):
 
         return mode
 
+    def get_steering_mode(self, PFInfo=None):
+        if not PFInfo:
+            PFInfo = self.host.PNics[0]
+
+        sysfs = '/sys/class/net/%s/compat/devlink/steering_mode' % PFInfo['name']
+        if os.path.exists(sysfs):
+            with open(sysfs) as f:
+                return f.read().strip()
+
+        try:
+            out = runcmd_output('devlink -j dev param show pci/%s name flow_steering_mode | jq -r ".[][][].values[].value"' % PFInfo['bus']).strip()
+        except CalledProcessError:
+            return None
+
+        return out
+
+    def set_steering_mode(self, PFInfo, mode):
+        if os.path.exists('/sys/class/net/%s/compat/devlink/steering_mode' % PFInfo['name']):
+            runcmd_output("echo %s > /sys/class/net/%s/compat/devlink/steering_mode" % (mode, PFInfo['name']))
+            return
+
+        # try to set the mode only if kernel supports flow_steering_mode parameter
+        try:
+            runcmd_output('devlink dev param set pci/%s name flow_steering_mode value "%s" cmode runtime' % (PFInfo['bus'], mode))
+        except CalledProcessError:
+            self.Logger.warning("The kernel does not support devlink flow_steering_mode param. Skipping.")
+
     def ConfigureSteeringMode(self):
-        mode = self.flow_steering_mode
+        self.flow_steering_mode = self.get_steering_mode()
+        if not self.flow_steering_mode:
+            self.Logger.warning("Failed to get flow steering mode.")
+            return
+
+        self.Logger.info("Current steering mode is %s" % self.flow_steering_mode)
+
+        mode = self.req_flow_steering_mode
         if not mode:
             return
 
-        mode2 = 'software' if mode == 'smfs' else 'firmware'
-
         for PFInfo in self.host.PNics:
-            self.Logger.info("Setting %s steering mode to %s steering" % (PFInfo['name'], mode2))
+            self.Logger.info("Setting %s steering mode to %s" % (PFInfo['name'], mode))
+            self.set_steering_mode(PFInfo, mode)
 
-            if os.path.exists('/sys/class/net/%s/compat/devlink/steering_mode' % PFInfo['name']):
-                runcmd_output("echo %s > /sys/class/net/%s/compat/devlink/steering_mode" % (mode, PFInfo['name']))
-                return
-
-            # try to set the mode only if kernel supports flow_steering_mode parameter
-            try:
-                runcmd_output('devlink dev param set pci/%s name flow_steering_mode value "%s" cmode runtime' % (PFInfo['bus'], mode))
-            except CalledProcessError:
-                self.Logger.warning("The kernel does not support devlink flow_steering_mode param. Skipping.")
+        self.flow_steering_mode = self.get_steering_mode()
 
     def ConfigureSwitchdev(self):
         for PFInfo in self.host.PNics:
