@@ -16,6 +16,8 @@ def parse_args():
                         help='Listener')
     parser.add_argument('--dev', '-i',
                         help='Device to use')
+    parser.add_argument('--syn-flood', action='store_true',
+                        help='TCP syn flood')
     parser.add_argument('--src-ip',
                         help='Source ip')
     parser.add_argument('--dst-ip',
@@ -129,9 +131,14 @@ def run_client(args):
 
     for sport1 in range(args.src_port, args.src_port + args.src_port_count):
         for dport1 in range(args.dst_port, args.dst_port + args.dst_port_count):
-            pkt = (IP(src=args.src_ip, dst=args.dst_ip)/
-                    UDP(sport=sport1, dport=dport1)/
-                    payload)
+            if args.syn_flood:
+                pkt = (IP(src=args.src_ip, dst=args.dst_ip)/
+                        TCP(sport=sport1, dport=dport1, flags="S"))
+            else:
+                pkt = (IP(src=args.src_ip, dst=args.dst_ip)/
+                        UDP(sport=sport1, dport=dport1)/
+                        payload)
+
             pkt_list.append(pkt)
 
     print("Prepared %d packets" % len(pkt_list))
@@ -149,7 +156,6 @@ def run_client(args):
         s.close()
     print()
     print("sent %d packets" % sent)
-
 
 def run():
     args = parse_args()
