@@ -91,6 +91,12 @@ function scpyudp() {
     echo "packet, reply"
     run_python_ns ns1 "from scapy.all import *; send(IP(src=\"$IP2\",dst=\"$IP1\")/UDP(sport=$dport,dport=$sport)/\"B2\")"
 
+    # For custom OFED version which supports unidirectional CT offload, traffic in 'new' state
+    # will be offloaded to hw. It will be aged out once the flow becomes 'est', which will take
+    # 1 seconds at most because of the aging mechanism of miniflow.
+    # This will not change the test methodology of the test for other ofed version or upstream.
+    sleep 2
+
     #------------------ DATA --->  --------------------
 
     echo "packet, orig"
