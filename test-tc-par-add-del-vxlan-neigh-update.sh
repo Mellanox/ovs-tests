@@ -131,7 +131,7 @@ function test_neigh_update_single_neigh_ipv4() {
     for ((i=$local_ip_host; i<$encaps_per_file+$local_ip_host; i++)); do
         ip addr add ${local_ip_net}${i}/16 dev $NIC
     done
-    for i in {1..10}; do
+    for i in {1..2}; do
         neigh_update_test $remote_ip_net $remote_ip_host $ip_host_end
     done
 }
