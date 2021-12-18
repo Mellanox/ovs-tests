@@ -51,27 +51,7 @@ function run() {
     config
     add_openflow_rules1
 
-    echo -e "\nTesting TCP traffic"
-    t=2
-    # traffic
-    ip netns exec ns0 iperf3 -s &
-    pid1=$!
-    sleep 2
-    ip netns exec ns1 iperf3 -c $IP -t $((t+2)) -P 10 &
-    pid2=$!
-
-    # verify pid
-    sleep 2
-    kill -0 $pid2 &>/dev/null
-    if [ $? -ne 0 ]; then
-        err "iperf3 failed"
-        return
-    fi
-
-    kill -9 $pid1 &>/dev/null
-    killall iperf3 &>/dev/null
-    echo "wait for bgs"
-    wait
+    generate_traffic "local" $IP ns1
 
     # check number of flows
     x=$(ovs-appctl dpctl/dump-e2e-flows |wc -l)
