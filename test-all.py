@@ -686,9 +686,9 @@ def update_skip_according_to_db(rm, _tests, data):
 
         ignore_smfs = data['tests'][name].get('ignore_smfs', [])
         if ignore_smfs and (not flow_steering_mode or flow_steering_mode == 'smfs'):
-            for kernel in ignore_smfs:
-                if kernel_match(kernel, current_kernel):
-                    bugs_list.extend(ignore_smfs[kernel])
+            for key in ignore_smfs:
+                if key == current_nic or kernel_match(key, current_kernel):
+                    bugs_list.extend(ignore_smfs[key])
 
         if simx_mode:
             simx_ignore_issues = data['tests'][name].get('simx_ignore_issue', [])
