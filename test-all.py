@@ -275,6 +275,8 @@ def parse_args():
                         help='DB check')
     parser.add_argument('--test-kernel',
                         help='Test specified kernel instead of current kernel. works with db.')
+    parser.add_argument('--test-nic',
+                        help='Test specified nic instead of current nic. works with db.')
     parser.add_argument('--test-simx', action='store_true', help="Test SimX.")
     parser.add_argument('--log_dir',
                         help='Log dir to save all logs under')
@@ -535,7 +537,7 @@ def get_current_state():
     distro = get_distro()
     nic = get_config_value('NIC')
     current_fw_ver = get_current_fw(nic)
-    current_nic = DeviceType.get(get_current_nic_type(nic))
+    current_nic = args.test_nic if args.test_nic else DeviceType.get(get_current_nic_type(nic))
     current_kernel = args.test_kernel if args.test_kernel else os.uname()[2]
     flow_steering_mode = get_flow_steering_mode(nic)
     simx_mode = True if args.test_simx else check_simx(nic)
