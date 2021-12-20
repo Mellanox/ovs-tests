@@ -12,6 +12,8 @@ OVN_REMOTE_CONTROLLER_IP="192.168.100.101"
 OVN_EXTERNAL_NETWORK_HOST_IP="172.16.1.10"
 OVN_EXTERNAL_NETWORK_HOST_IP_V6="172:16:1::A"
 
+OVN_TUNNEL_MTU=1700
+
 OVN_PF_BRIDGE="br-pf"
 OVN_VLAN_INTERFACE="vlan-int"
 OVN_VLAN_TAG=100
@@ -77,6 +79,25 @@ function ovn_config_interfaces() {
     fi
 }
 
+function __ovn_config_mtu() {
+    # Increase MTU NIC for non single node
+    # Geneve packet contains additional data
+    if [[ -n "$HAS_REMOTE" ]]; then
+        ip link set $NIC mtu $OVN_TUNNEL_MTU
+        ip link set $NIC up
+
+        if [[ -n "$HAS_BOND" ]]; then
+            ip link set $OVN_BOND mtu $OVN_TUNNEL_MTU
+            ip link set $OVN_BOND up
+        fi
+
+        if [[ -n "$HAS_VLAN" ]]; then
+            ip link set $OVN_VLAN_INTERFACE mtu $OVN_TUNNEL_MTU
+            ip link set $OVN_VLAN_INTERFACE up
+        fi
+    fi
+}
+
 function __ovn_config() {
     local nic=${1:-$NIC}
     local ovn_central_ip=${2:-$OVN_LOCAL_CENTRAL_IP}
@@ -104,10 +125,7 @@ function __ovn_config() {
     ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
     ovn_start_ovn_controller
 
-    # Increase MTU for PF NIC for fragmented non single node
-    if [[ -n "$HAS_REMOTE" && -n "$IS_FRAGMENTED" ]]; then
-        ip link set $nic mtu 2000
-    fi
+    __ovn_config_mtu
 }
 
 function ovn_config() {
@@ -128,11 +146,6 @@ function ovn_config() {
     ovn_create_topology
 
     if [[ -n "$HAS_REMOTE" ]]; then
-        # Decrease MTU for sender VF for non fragmented 2 nodes
-        if [[ -z "$IS_FRAGMENTED" ]]; then
-            ip link set $VF mtu 1300
-        fi
-
         on_remote_exec "__ovn_config $nic $ovn_ip $OVN_REMOTE_CONTROLLER_IP"
     fi
 }
