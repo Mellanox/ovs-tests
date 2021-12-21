@@ -34,14 +34,4 @@ function run_test() {
     ip netns exec ns0 ping -6 -w 4 $IP_V6_2 && err || success "No Connection"
 }
 
-ovn_clean_up
-
-trap ovn_clean_up EXIT
-
-ovn_config
-run_test
-
-ovn_clean_up
-trap - EXIT
-
-test_done
+ovn_execute_test

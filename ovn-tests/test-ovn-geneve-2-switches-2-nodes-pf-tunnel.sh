@@ -38,14 +38,4 @@ function run_test() {
 
 HAS_REMOTE=1
 
-ovn_clean_up
-
-trap ovn_clean_up EXIT
-
-ovn_config
-run_test
-
-ovn_clean_up
-trap - EXIT
-
-test_done
+ovn_execute_test

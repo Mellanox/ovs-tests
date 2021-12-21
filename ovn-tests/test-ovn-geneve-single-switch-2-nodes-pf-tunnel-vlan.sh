@@ -53,16 +53,4 @@ function run_test() {
 HAS_REMOTE=1
 HAS_VLAN=1
 
-ovn_clean_up
-
-# trap for existing script to clean up
-trap ovn_clean_up EXIT
-
-ovn_config
-run_test
-
-# Clean up and clear trap
-ovn_clean_up
-trap - EXIT
-
-test_done
+ovn_execute_test

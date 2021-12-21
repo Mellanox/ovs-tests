@@ -174,4 +174,22 @@ function ovn_config_interface_namespace() {
     fi
 }
 
+# Fail if test not implementing run_test
+function run_test() {
+    fail "run_test() is not implemented"
+}
+
+function ovn_execute_test() {
+    ovn_clean_up
+    trap ovn_clean_up EXIT
+
+    ovn_config
+    run_test
+
+    trap - EXIT
+    ovn_clean_up
+
+    test_done
+}
+
 require_ovn

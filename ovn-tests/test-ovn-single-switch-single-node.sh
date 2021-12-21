@@ -45,16 +45,4 @@ function run_test() {
     check_local_udp6_traffic_offload $REP ns0 ns1 $IP_V6_2
 }
 
-ovn_clean_up
-
-# trap for existing script to clean up
-trap ovn_clean_up EXIT
-
-ovn_config
-run_test
-
-# Clean up and clear trap
-ovn_clean_up
-trap - EXIT
-
-test_done
+ovn_execute_test
