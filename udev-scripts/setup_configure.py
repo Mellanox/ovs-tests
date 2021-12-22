@@ -33,7 +33,9 @@ def runcmd_output(cmd):
 def start_kmemleak():
     """Make sure kmemleak thread is running if supported. ignore errors."""
     if os.path.exists('/sys/kernel/debug/kmemleak'):
-        runcmd("echo scan=300 > /sys/kernel/debug/kmemleak")
+        scan=180
+        print("Set kmemleak scan thread to %s seconds" % scan)
+        runcmd("echo scan=%s > /sys/kernel/debug/kmemleak" % scan)
     else:
         print("kmemleak not supported")
 
