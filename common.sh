@@ -1580,6 +1580,7 @@ function fail_if_err() {
     if [ $TEST_FAILED != 0 ]; then
         kill_all_bgs
         check_for_errors_log
+        log "runtime: `get_test_time_elapsed`"
         fail $m
     fi
 }
