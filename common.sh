@@ -1246,7 +1246,8 @@ Command completion arrived after timeout|Error cqe|failed reclaiming pages"
     local filter="networkd-dispatcher|nm-dispatcher|uses legacy ethtool link settings|\
 EAL: WARNING: cpu flags constant_tsc=yes nonstop_tsc=no|mlnx_interface_mgr.sh|sssd.*segfault|\
 Skipping post send: QP err|memtrack_report: Summary: 0 leak(s) detected|\
-systemd.* Requested transaction contradicts existing jobs: Resource deadlock avoided"
+systemd.* Requested transaction contradicts existing jobs: Resource deadlock avoided|\
+failed to kill vid 0081/0"
 
     if [ -n "$__expected_error_msgs" ]; then
         filter+="$__expected_error_msgs"
