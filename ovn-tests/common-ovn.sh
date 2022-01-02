@@ -146,7 +146,7 @@ function check_traffic_offload() {
     local tdpid=$!
 
     local tdpid_receiver=
-    if [[ -z "$HAS_REMOTE" ]]; then
+    if [[ -z "$CONFIG_REMOTE" ]]; then
         tcpdump -Unnepi $REP2 $tcpdump_filter -c 5 >/dev/null 2>&1 &
         tdpid_receiver=$!
     else
@@ -175,7 +175,7 @@ function check_traffic_offload() {
     title "Check ${traffic_type^^} OVS offload rules on the sender"
     check_and_print_ovs_offloaded_rules $traffic_filter $rules_num
 
-    if [[ -n "$HAS_REMOTE" ]]; then
+    if [[ -n "$CONFIG_REMOTE" ]]; then
         title "Check ${traffic_type^^} OVS offload rules on the receiver"
         on_remote_exec "check_and_print_ovs_offloaded_rules $traffic_filter $rules_num" && success || err
     fi
@@ -185,7 +185,7 @@ function check_traffic_offload() {
     [[ -d /proc/$tdpid ]] && success || err
 
     title "Check ${traffic_type^^} traffic is offloaded on the receiver"
-    if [[ -z "$HAS_REMOTE" ]]; then
+    if [[ -z "$CONFIG_REMOTE" ]]; then
         [[ -d /proc/$tdpid_receiver ]] && success || err
     else
         on_remote "[[ -d /proc/$tdpid_receiver ]]" && success || err
@@ -194,7 +194,7 @@ function check_traffic_offload() {
     ovs_flush_rules
     killall -q tcpdump
 
-    if [[ -n "$HAS_REMOTE" ]]; then
+    if [[ -n "$CONFIG_REMOTE" ]]; then
         on_remote_exec "ovs_flush_rules
                         killall -q tcpdump"
     fi

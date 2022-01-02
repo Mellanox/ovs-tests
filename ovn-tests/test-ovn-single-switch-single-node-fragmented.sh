@@ -3,6 +3,8 @@
 # Test fragmented traffic between VFs configured with OVN and OVS then check traffic is not offloaded
 #
 
+IS_FRAGMENTED=1
+
 my_dir="$(dirname "$0")"
 . $my_dir/common-ovn-test-utils.sh
 
@@ -32,7 +34,5 @@ function run_test() {
     title "Test ICMP6 traffic between $VF($IP_V6_1) -> $VF2($IP_V6_2)"
     check_fragmented_ipv6_traffic $REP ns0 $IP_V6_2 1500
 }
-
-IS_FRAGMENTED=1
 
 ovn_execute_test

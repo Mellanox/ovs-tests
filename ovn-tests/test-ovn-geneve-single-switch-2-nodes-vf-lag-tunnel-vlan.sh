@@ -3,13 +3,14 @@
 # Test traffic between VFs on different nodes configured with OVN and OVS with VF LAG and VLAN then check traffic is offloaded
 #
 
+CONFIG_REMOTE=1
+HAS_BOND=1
+HAS_VLAN=1
+
 my_dir="$(dirname "$0")"
 . $my_dir/common-ovn-test-utils.sh
 
 not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
-
-require_remote_server
-require_ovn
 
 TOPOLOGY=$TOPOLOGY_SINGLE_SWITCH
 SWITCH=$(ovn_get_switch_name_with_vif_port $TOPOLOGY)
@@ -49,9 +50,5 @@ function run_test() {
     title "Test UDP6 traffic between $VF($IP_V6_1) -> $VF($IP_V6_2) offloaded"
     check_remote_udp6_traffic_offload $REP ns0 ns0 $IP_V6_2
 }
-
-HAS_REMOTE=1
-HAS_BOND=1
-HAS_VLAN=1
 
 ovn_execute_test

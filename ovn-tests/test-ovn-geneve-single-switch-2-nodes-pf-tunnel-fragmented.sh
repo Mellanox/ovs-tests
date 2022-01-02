@@ -3,10 +3,11 @@
 # Test fragmented traffic between VFs on different nodes configured with OVN and OVS then check traffic is not offloaded
 #
 
+CONFIG_REMOTE=1
+IS_FRAGMENTED=1
+
 my_dir="$(dirname "$0")"
 . $my_dir/common-ovn-test-utils.sh
-
-require_remote_server
 
 TOPOLOGY=$TOPOLOGY_SINGLE_SWITCH
 SWITCH=$(ovn_get_switch_name_with_vif_port $TOPOLOGY)
@@ -34,8 +35,5 @@ function run_test() {
     title "Test ICMP traffic between $VF($IP_V6_1) -> $VF($IP_V6_2)"
     check_fragmented_ipv6_traffic $REP ns0 $IP_V6_2 1500
 }
-
-HAS_REMOTE=1
-IS_FRAGMENTED=1
 
 ovn_execute_test

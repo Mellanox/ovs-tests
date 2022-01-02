@@ -3,10 +3,10 @@
 # Verify traffic between VF and underlay configured with OVN gateway router is offloaded
 #
 
+HAS_REMOTE=1
+
 my_dir="$(dirname "$0")"
 . $my_dir/common-ovn-test-utils.sh
-
-require_remote_server
 
 TOPOLOGY=$TOPOLOGY_GATEWAY_ROUTER
 EXT_GW_ROUTER="gw0"

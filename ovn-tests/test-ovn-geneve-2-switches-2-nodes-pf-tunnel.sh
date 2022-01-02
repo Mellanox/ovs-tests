@@ -3,10 +3,10 @@
 # Verify no between VFs on different nodes configured with OVN 2 isolated switches
 #
 
+CONFIG_REMOTE=1
+
 my_dir="$(dirname "$0")"
 . $my_dir/common-ovn-test-utils.sh
-
-require_remote_server
 
 TOPOLOGY=$TOPOLOGY_2_SWITCHES
 SWITCH1=$(ovn_get_switch_name_with_vif_port $TOPOLOGY 0)
@@ -35,7 +35,5 @@ function run_test() {
     title "Test no traffic between $VF($IP_V6_1) -> $VF($IP_V6_2)"
     ip netns exec ns0 ping -6 -w 4 $IP_V6_2 && err || success "No Connection"
 }
-
-HAS_REMOTE=1
 
 ovn_execute_test

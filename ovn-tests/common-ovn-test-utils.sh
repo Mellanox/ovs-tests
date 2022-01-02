@@ -21,11 +21,18 @@ OVN_VLAN_TAG=100
 OVN_EXTERNAL_NETWORK="PhyNet"
 
 # Test Config
-TOPOLOGY=
-HAS_REMOTE=
-HAS_BOND=
-HAS_VLAN=
-IS_FRAGMENTED=
+TOPOLOGY=${TOPOLOGY:-}
+# Config OVN on remote host
+CONFIG_REMOTE=${CONFIG_REMOTE:-}
+# Check if remote host exist
+HAS_REMOTE=${HAS_REMOTE:-}
+HAS_BOND=${HAS_BOND:-}
+HAS_VLAN=${HAS_VLAN:-}
+IS_FRAGMENTED=${IS_FRAGMENTED:-}
+
+if [[ -n "$CONFIG_REMOTE" ]]; then
+    HAS_REMOTE=1
+fi
 
 function __ovn_clean_up() {
     ovs_conf_remove max-idle
@@ -49,7 +56,7 @@ function __ovn_clean_up() {
 
 function ovn_clean_up() {
     __ovn_clean_up
-    if [[ -n "$HAS_REMOTE" ]]; then
+    if [[ -n "$CONFIG_REMOTE" ]]; then
         on_remote_exec "__ovn_clean_up"
     fi
 
@@ -75,7 +82,7 @@ function ovn_config_interfaces() {
         bind_vfs $NIC2
     fi
 
-    if [[ -z "$HAS_REMOTE" ]]; then
+    if [[ -z "$CONFIG_REMOTE" ]]; then
         require_interfaces VF2 REP2
     fi
 }
@@ -83,7 +90,7 @@ function ovn_config_interfaces() {
 function __ovn_config_mtu() {
     # Increase MTU NIC for non single node
     # Geneve packet contains additional data
-    if [[ -n "$HAS_REMOTE" ]]; then
+    if [[ -n "$CONFIG_REMOTE" ]]; then
         ip link set $NIC mtu $OVN_TUNNEL_MTU
         ip link set $NIC up
 
@@ -118,7 +125,7 @@ function __ovn_config() {
     fi
 
     # Config IP on nic if not single node
-    if [[ -n "$HAS_REMOTE" ]]; then
+    if [[ -n "$CONFIG_REMOTE" ]]; then
         ip link set $nic up
         ip addr add $ovn_controller_ip/24 dev $nic
     fi
@@ -139,7 +146,7 @@ function ovn_config() {
     fi
 
     local ovn_ip=$OVN_LOCAL_CENTRAL_IP
-    if [[ -n "$HAS_REMOTE" ]]; then
+    if [[ -n "$CONFIG_REMOTE" ]]; then
         ovn_ip=$OVN_CENTRAL_IP
     fi
 
@@ -147,7 +154,7 @@ function ovn_config() {
     ovn_start_northd_central $ovn_ip
     ovn_create_topology
 
-    if [[ -n "$HAS_REMOTE" ]]; then
+    if [[ -n "$CONFIG_REMOTE" ]]; then
         on_remote_exec "__ovn_config $nic $ovn_ip $OVN_REMOTE_CONTROLLER_IP"
     fi
 }
@@ -195,3 +202,6 @@ function ovn_execute_test() {
 }
 
 require_ovn
+if [[ -n "$HAS_REMOTE" ]]; then
+    require_remote_server
+fi
