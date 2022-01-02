@@ -42,10 +42,19 @@ HAS_REMOTE=${HAS_REMOTE:-}
 HAS_BOND=${HAS_BOND:-}
 HAS_VLAN=${HAS_VLAN:-}
 IS_FRAGMENTED=${IS_FRAGMENTED:-}
+HAS_EXTERNAL_NETWORK=${HAS_EXTERNAL_NETWORK:-}
 
 if [[ -n "$CONFIG_REMOTE" ]]; then
     HAS_REMOTE=1
 fi
+
+function __reset_nic() {
+    local nic=${NIC:-}
+
+    ip link set $nic down
+    ip addr flush dev $nic
+    ip link set $nic mtu 1500
+}
 
 function __ovn_clean_up() {
     ovs_conf_remove max-idle
@@ -53,8 +62,11 @@ function __ovn_clean_up() {
     ovn_remove_ovs_config
     ovs_clear_bridges
 
-    ip addr flush dev $NIC
-    ip link set $NIC mtu 1500
+    if [[ -n "$HAS_EXTERNAL_NETWORK" ]]; then
+        ovn_remove_network
+    fi
+
+    __reset_nic
     ip -all netns del
 
     if [[ -n "$HAS_BOND" ]]; then
@@ -148,6 +160,10 @@ function __ovn_config() {
     ovs_conf_set max-idle 20000
 
     __ovn_config_mtu
+
+    if [[ -n "$HAS_EXTERNAL_NETWORK" ]]; then
+        ovn_add_network
+    fi
 }
 
 function ovn_config() {
