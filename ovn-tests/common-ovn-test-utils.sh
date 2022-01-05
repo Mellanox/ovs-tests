@@ -20,6 +20,19 @@ OVN_VLAN_TAG=100
 
 OVN_EXTERNAL_NETWORK="PhyNet"
 
+# OVN Gateway Router
+GATEWAY_ROUTER=gw0
+GATEWAY_ROUTER_PORT=gw0-outside
+
+# OVN Switches
+SWITCH1=sw0
+SWITCH2=sw1
+
+# OVN Switch Ports
+SWITCH1_PORT1=sw0-port1
+SWITCH1_PORT2=sw0-port2
+SWITCH2_PORT1=sw1-port1
+
 # Test Config
 TOPOLOGY=${TOPOLOGY:-}
 # Config OVN on remote host

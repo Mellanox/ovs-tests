@@ -9,23 +9,25 @@ my_dir="$(dirname "$0")"
 . $my_dir/common-ovn-test-utils.sh
 
 TOPOLOGY=$TOPOLOGY_GATEWAY_ROUTER
-EXT_GW_ROUTER="gw0"
-EXT_GW_PORT="gw0-outside"
-SWITCH="sw0"
 
-IP_EXT_GW=$(ovn_get_router_port_ip $TOPOLOGY $EXT_GW_ROUTER $EXT_GW_PORT)
-IP_GW=$(ovn_get_switch_gateway_ip $TOPOLOGY $SWITCH)
+CLIENT_SWITCH=$SWITCH1
+CLIENT_PORT=$SWITCH1_PORT1
+CLIENT_MAC=$(ovn_get_switch_port_mac $TOPOLOGY $CLIENT_SWITCH $CLIENT_PORT)
+CLIENT_IPV4=$(ovn_get_switch_port_ip $TOPOLOGY $CLIENT_SWITCH $CLIENT_PORT)
+CLIENT_IPV6=$(ovn_get_switch_port_ipv6 $TOPOLOGY $CLIENT_SWITCH $CLIENT_PORT)
+CLIENT_GATEWAY_IPV4=$(ovn_get_switch_gateway_ip $TOPOLOGY $CLIENT_SWITCH)
+CLIENT_GATEWAY_IPV6=$(ovn_get_switch_gateway_ipv6 $TOPOLOGY $CLIENT_SWITCH)
+CLIENT_NS=ns0
+CLIENT_VF=$VF
+CLIENT_REP=$REP
 
-IP_V6_EXT_GW=$(ovn_get_router_port_ipv6 $TOPOLOGY $EXT_GW_ROUTER $EXT_GW_PORT)
-IP_V6_GW=$(ovn_get_switch_gateway_ipv6 $TOPOLOGY $SWITCH)
-
-PORT=$(ovn_get_switch_vif_port_name $TOPOLOGY $SWITCH)
-MAC=$(ovn_get_switch_port_mac $TOPOLOGY $SWITCH $PORT)
-IP=$(ovn_get_switch_port_ip $TOPOLOGY $SWITCH $PORT)
-IP_V6_1=$(ovn_get_switch_port_ipv6 $TOPOLOGY $SWITCH $PORT)
-
-IP2=$OVN_EXTERNAL_NETWORK_HOST_IP
-IP_V6_2=$OVN_EXTERNAL_NETWORK_HOST_IP_V6
+SERVER_ROUTER=$GATEWAY_ROUTER
+SERVER_ROUTER_PORT=$GATEWAY_ROUTER_PORT
+SERVER_IPV4=$OVN_EXTERNAL_NETWORK_HOST_IP
+SERVER_IPV6=$OVN_EXTERNAL_NETWORK_HOST_IP_V6
+SERVER_GATEWAY_IPV4=$(ovn_get_router_port_ip $TOPOLOGY $SERVER_ROUTER $SERVER_ROUTER_PORT)
+SERVER_GATEWAY_IPV6=$(ovn_get_router_port_ipv6 $TOPOLOGY $SERVER_ROUTER $SERVER_ROUTER_PORT)
+SERVER_PORT=$NIC
 
 # stop OVN, clean namespaces, ovn network topology, and ovs br-int interfaces
 function cleanup() {
@@ -47,8 +49,8 @@ function cleanup() {
     ovs_clear_bridges
 
     on_remote_exec "
-    ip addr flush dev $NIC
-    ip -6 route del $IP_V6_1 via $IP_V6_EXT_GW dev $NIC
+    ip addr flush dev $SERVER_PORT
+    ip -6 route del $CLIENT_IPV6 via $SERVER_GATEWAY_IPV6 dev $SERVER_PORT
     ip -all netns del
     "
 }
@@ -76,11 +78,11 @@ function pre_test() {
     on_remote_exec "
     # Verify NIC
     require_interfaces NIC
-    ifconfig $NIC $IP2/24
-    ip -6 addr add $IP_V6_2/124 dev $NIC
+    ifconfig $SERVER_PORT $SERVER_IPV4/24
+    ip -6 addr add $SERVER_IPV6/124 dev $SERVER_PORT
 
-    ip route add $IP via $IP_EXT_GW dev $NIC
-    ip -6 route add $IP_V6_1 via $IP_V6_EXT_GW dev $NIC
+    ip route add $CLIENT_IPV4 via $SERVER_GATEWAY_IPV4 dev $SERVER_PORT
+    ip -6 route add $CLIENT_IPV6 via $SERVER_GATEWAY_IPV6 dev $SERVER_PORT
 
     add_name_for_default_network_namespace
     "
@@ -90,30 +92,30 @@ function run_test() {
     # Add network topology to OVN
     ovn_create_topology $TOPOLOGY
 
-    ovn_config_interface_namespace $VF $REP ns0 $PORT $MAC $IP $IP_V6_1 $IP_GW $IP_V6_GW
+    ovn_config_interface_namespace $CLIENT_VF $CLIENT_REP $CLIENT_NS $CLIENT_PORT $CLIENT_MAC $CLIENT_IPV4 $CLIENT_IPV6 $CLIENT_GATEWAY_IPV4 $CLIENT_GATEWAY_IPV6
 
     ovs-vsctl show
     ovn-sbctl show
 
-    title "Test ICMP traffic between $VF($IP) -> $NIC($IP2) offloaded"
-    check_icmp_traffic_offload $REP ns0 $IP2
+    title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_PORT($SERVER_IPV4) offloaded"
+    check_icmp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_IPV4
 
-    title "Test TCP traffic between $VF($IP) -> $NIC($IP2) offloaded"
-    check_remote_tcp_traffic_offload $REP ns0 "" $IP2
+    title "Test TCP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_PORT($SERVER_IPV4) offloaded"
+    check_remote_tcp_traffic_offload $CLIENT_REP $CLIENT_NS "" $SERVER_IPV4
 
-    title "Test UDP traffic between $VF($IP) -> $NIC($IP2) offloaded"
-    check_remote_udp_traffic_offload $REP ns0 "" $IP2
+    title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_PORT($SERVER_IPV4) offloaded"
+    check_remote_udp_traffic_offload $CLIENT_REP $CLIENT_NS "" $SERVER_IPV4
 
     # ICMP6 offloading is not supported because IPv6 packet header doesn't contain checksum header
     # which cause offloading to fail
-    title "Test ICMP6 traffic between $VF($IP_V6_1) -> $NIC($IP_V6_2)"
-    ip netns exec ns0 ping -6 -w 4 $IP_V6_2 && success || err
+    title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_PORT($SERVER_IPV6)"
+    ip netns exec $CLIENT_NS ping -6 -w 4 $SERVER_IPV6 && success || err
 
-    title "Test TCP6 traffic between $VF($IP_V6_1) -> $NIC($IP_V6_2) offloaded"
-    check_remote_tcp6_traffic_offload $REP ns0 "" $IP_V6_2
+    title "Test TCP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_PORT($SERVER_IPV6) offloaded"
+    check_remote_tcp6_traffic_offload $CLIENT_REP $CLIENT_NS "" $SERVER_IPV6
 
-    title "Test UDP6 traffic between $VF($IP_V6_1) -> $NIC($IP_V6_2) offloaded"
-    check_remote_udp6_traffic_offload $REP ns0 "" $IP_V6_2
+    title "Test UDP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_PORT($SERVER_IPV6) offloaded"
+    check_remote_udp6_traffic_offload $CLIENT_REP $CLIENT_NS "" $SERVER_IPV6
 }
 
 cleanup

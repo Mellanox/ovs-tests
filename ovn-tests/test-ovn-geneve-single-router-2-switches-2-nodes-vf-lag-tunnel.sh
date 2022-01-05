@@ -10,51 +10,55 @@ my_dir="$(dirname "$0")"
 . $my_dir/common-ovn-test-utils.sh
 
 TOPOLOGY=$TOPOLOGY_SINGLE_ROUTER_2_SWITCHES
-SWITCH1=$(ovn_get_switch_name_with_vif_port $TOPOLOGY 0)
-SWITCH2=$(ovn_get_switch_name_with_vif_port $TOPOLOGY 1)
 
-IP_GW1=$(ovn_get_switch_gateway_ip $TOPOLOGY $SWITCH1)
-IP_GW2=$(ovn_get_switch_gateway_ip $TOPOLOGY $SWITCH2)
+CLIENT_SWITCH=$SWITCH1
+CLIENT_PORT=$SWITCH1_PORT1
+CLIENT_MAC=$(ovn_get_switch_port_mac $TOPOLOGY $CLIENT_SWITCH $CLIENT_PORT)
+CLIENT_IPV4=$(ovn_get_switch_port_ip $TOPOLOGY $CLIENT_SWITCH $CLIENT_PORT)
+CLIENT_IPV6=$(ovn_get_switch_port_ipv6 $TOPOLOGY $CLIENT_SWITCH $CLIENT_PORT)
+CLIENT_GATEWAY_IPV4=$(ovn_get_switch_gateway_ip $TOPOLOGY $CLIENT_SWITCH)
+CLIENT_GATEWAY_IPV6=$(ovn_get_switch_gateway_ipv6 $TOPOLOGY $CLIENT_SWITCH)
+CLIENT_NS=ns0
+CLIENT_VF=$VF
+CLIENT_REP=$REP
 
-IP_V6_GW1=$(ovn_get_switch_gateway_ipv6 $TOPOLOGY $SWITCH1)
-IP_V6_GW2=$(ovn_get_switch_gateway_ipv6 $TOPOLOGY $SWITCH2)
-
-PORT1=$(ovn_get_switch_vif_port_name $TOPOLOGY $SWITCH1)
-MAC1=$(ovn_get_switch_port_mac $TOPOLOGY $SWITCH1 $PORT1)
-IP1=$(ovn_get_switch_port_ip $TOPOLOGY $SWITCH1 $PORT1)
-IP_V6_1=$(ovn_get_switch_port_ipv6 $TOPOLOGY $SWITCH1 $PORT1)
-
-PORT2=$(ovn_get_switch_vif_port_name $TOPOLOGY $SWITCH2)
-MAC2=$(ovn_get_switch_port_mac $TOPOLOGY $SWITCH2 $PORT2)
-IP2=$(ovn_get_switch_port_ip $TOPOLOGY $SWITCH2 $PORT2)
-IP_V6_2=$(ovn_get_switch_port_ipv6 $TOPOLOGY $SWITCH2 $PORT2)
+SERVER_SWITCH=$SWITCH2
+SERVER_PORT=$SWITCH2_PORT1
+SERVER_MAC=$(ovn_get_switch_port_mac $TOPOLOGY $SERVER_SWITCH $SERVER_PORT)
+SERVER_IPV4=$(ovn_get_switch_port_ip $TOPOLOGY $SERVER_SWITCH $SERVER_PORT)
+SERVER_IPV6=$(ovn_get_switch_port_ipv6 $TOPOLOGY $SERVER_SWITCH $SERVER_PORT)
+SERVER_GATEWAY_IPV4=$(ovn_get_switch_gateway_ip $TOPOLOGY $SERVER_SWITCH)
+SERVER_GATEWAY_IPV6=$(ovn_get_switch_gateway_ipv6 $TOPOLOGY $SERVER_SWITCH)
+SERVER_NS=ns0
+SERVER_VF=$VF
+SERVER_REP=$REP
 
 function run_test() {
-    ovn_config_interface_namespace $VF $REP ns0 $PORT1 $MAC1 $IP1 $IP_V6_1 $IP_GW1 $IP_V6_GW1
-    on_remote_exec "ovn_config_interface_namespace $VF $REP ns0 $PORT2 $MAC2 $IP2 $IP_V6_2 $IP_GW2 $IP_V6_GW2"
+    ovn_config_interface_namespace $CLIENT_VF $CLIENT_REP $CLIENT_NS $CLIENT_PORT $CLIENT_MAC $CLIENT_IPV4 $CLIENT_IPV6 $CLIENT_GATEWAY_IPV4 $CLIENT_GATEWAY_IPV6
+    on_remote_exec "ovn_config_interface_namespace $SERVER_VF $SERVER_REP $SERVER_NS $SERVER_PORT $SERVER_MAC $SERVER_IPV4 $SERVER_IPV6 $SERVER_GATEWAY_IPV4 $SERVER_GATEWAY_IPV6"
 
     ovs-vsctl show
     ovn-sbctl show
 
-    title "Test ICMP traffic between $VF($IP1) -> $VF($IP2) offloaded"
-    check_icmp_traffic_offload $REP ns0 $IP2
+    title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
+    check_icmp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_IPV4
 
-    title "Test TCP traffic between $VF($IP1) -> $VF($IP2) offloaded"
-    check_remote_tcp_traffic_offload $REP ns0 ns0 $IP2
+    title "Test TCP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
+    check_remote_tcp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV4
 
-    title "Test UDP traffic between $VF($IP1) -> $VF($IP2) offloaded"
-    check_remote_udp_traffic_offload $REP ns0 ns0 $IP2
+    title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
+    check_remote_udp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV4
 
     # ICMP6 offloading is not supported because IPv6 packet header doesn't contain checksum header
     # which cause offloading to fail
-    title "Test ICMP6 traffic between $VF($IP_V6_1) -> $VF($IP_V6_2)"
-    ip netns exec ns0 ping -6 -w 4 $IP_V6_2 && success || err
+    title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6)"
+    ip netns exec $CLIENT_NS ping -6 -w 4 $SERVER_IPV6 && success || err
 
-    title "Test TCP6 traffic between $VF($IP_V6_1) -> $VF($IP_V6_2) offloaded"
-    check_remote_tcp6_traffic_offload $REP ns0 ns0 $IP_V6_2
+    title "Test TCP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
+    check_remote_tcp6_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV6
 
-    title "Test UDP6 traffic between $VF($IP_V6_1) -> $VF($IP_V6_2) offloaded"
-    check_remote_udp6_traffic_offload $REP ns0 ns0 $IP_V6_2
+    title "Test UDP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
+    check_remote_udp6_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV6
 }
 
 ovn_execute_test
