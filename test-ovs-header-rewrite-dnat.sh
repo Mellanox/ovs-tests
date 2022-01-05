@@ -118,6 +118,9 @@ function run_ovs_offload() {
 config
 run_ovs
 run_ovs_offload
+ovs_conf_remove tc-policy
+start_clean_openvswitch
+fail_if_err
 
 if [[ "$ovs_actions" == "$tc_actions" ]]; then
     success "tc actions are same as ovs actions"
@@ -125,6 +128,4 @@ else
     err "tc actions are not same as ovs actions"
 fi
 
-ovs_conf_remove tc-policy
-start_clean_openvswitch
 test_done
