@@ -28,5 +28,6 @@ reload_modules
 # wait for syndrome. noticed it after 6 seconds.
 echo "Wait for syndrome"
 sleep 10
+config_sriov 2
 reset_tc $NIC $NIC2
 test_done
