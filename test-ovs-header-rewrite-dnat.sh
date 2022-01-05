@@ -71,9 +71,10 @@ function config() {
 
 function run_ovs() {
     title "Test OVS without offload"
-    config_ovs
+    start_clean_openvswitch
     ovs_conf_remove hw-offload
     ovs_conf_remove tc-policy
+    config_ovs
 
     ip netns exec ns0 pkill iperf
     ip netns exec ns0 iperf -s &
@@ -93,9 +94,10 @@ function run_ovs() {
 
 function run_ovs_offload() {
     title "Test OVS with tc-policy=skip_hw"
-    config_ovs
+    start_clean_openvswitch
     ovs_conf_set hw-offload true
     ovs_conf_set tc-policy skip_hw
+    config_ovs
 
     ip netns exec ns0 pkill iperf
     ip netns exec ns0 iperf -s &
