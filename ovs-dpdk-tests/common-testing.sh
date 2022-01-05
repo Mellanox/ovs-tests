@@ -16,7 +16,7 @@ function verify_ping() {
     local remote_ip=${1:-$REMOTE_IP}
     local namespace=${2:-ns0}
     echo "Testing ping $remote_ip in namespace $namespace"
-    ip netns exec $namespace ping -q -c 10 -w 1 -i 0.01 $remote_ip
+    ip netns exec $namespace ping -q -c 10 -W 2 -i 0.01 $remote_ip
     if [ $? -ne 0 ]; then
         err "ping failed"
         return 1
