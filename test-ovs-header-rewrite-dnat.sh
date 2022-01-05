@@ -18,6 +18,8 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+require_module act_ct
+
 require_remote_server
 
 config_sriov 2
