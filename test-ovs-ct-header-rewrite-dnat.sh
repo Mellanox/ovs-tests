@@ -71,6 +71,21 @@ function config() {
     on_remote "ifconfig $REMOTE_NIC $REMOTE_IP/24"
 }
 
+function verify_dump() {
+    local actions=$@
+
+    if [ -z $actions ]; then
+        err "dnat doesn't work for ovs"
+        return
+    fi
+
+    # expected set_ttl/dec_ttl after ct. e.g.  set(tcp(dst=5001)),ct(commit),set(ipv4(ttl=63))
+    echo $actions | grep -q "set(tcp(dst=5001)),ct(commit),.*ttl"
+    if [ $? -ne 0 ]; then
+        err "Expected set_ttl after ct action"
+    fi
+}
+
 function run_ovs() {
     title "Test OVS without offload"
     start_clean_openvswitch
@@ -86,12 +101,11 @@ function run_ovs() {
 
     sleep 2
     ovs_actions=$(ovs_dump_flows --names | grep commit | sed "s/.*actions:/actions:/")
-    echo $ovs_actions
-    if [ -z $ovs_actions ]; then
-        err "dnat doesn't work for ovs"
-    fi
-
     wait $pid
+
+    title "Verify actions"
+    echo $ovs_actions
+    verify_dump $ovs_actions
 }
 
 function run_ovs_offload() {
@@ -109,12 +123,11 @@ function run_ovs_offload() {
 
     sleep 2
     tc_actions=$(ovs_dump_tc_flows --names | grep commit | sed "s/.*actions:/actions:/")
-    echo $tc_actions
-    if [ -z "$tc_actions" ]; then
-        err "dnat doesn't work for ovs offload"
-    fi
-
     wait $pid
+
+    title "Verify actions"
+    echo $tc_actions
+    verify_dump $tc_actions
 }
 
 config
@@ -122,12 +135,13 @@ run_ovs
 run_ovs_offload
 ovs_conf_remove tc-policy
 start_clean_openvswitch
-fail_if_err
 
-if [[ "$ovs_actions" == "$tc_actions" ]]; then
-    success "tc actions are same as ovs actions"
-else
-    err "tc actions are not same as ovs actions"
+if [ -n "$ovs_actions" ] && [ -n "$tc_actions" ]; then
+    if [[ "$ovs_actions" == "$tc_actions" ]]; then
+        success "tc actions are same as ovs actions"
+    else
+        err "tc actions are not same as ovs actions"
+    fi
 fi
 
 test_done
