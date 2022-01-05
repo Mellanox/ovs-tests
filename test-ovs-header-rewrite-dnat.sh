@@ -20,7 +20,7 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
-config_sriov 1
+config_sriov 2
 enable_switchdev
 require_interfaces REP
 unbind_vfs
