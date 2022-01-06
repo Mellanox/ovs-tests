@@ -1888,6 +1888,16 @@ function ns_wrap() {
     echo $cmd
 }
 
+function is_ipv6() {
+    local ip=$1
+
+    if [[ "$ip" == *":"* ]]; then
+        return 0
+    fi
+
+    return 1
+}
+
 function set_lag_resource_allocation() {
     if [ "$short_device_name" != "cx6dx" ]; then
         return

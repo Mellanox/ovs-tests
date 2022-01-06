@@ -7,7 +7,9 @@ OVN_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" &>/dev/null && pwd)
 # OVN IPs
 OVN_LOCAL_CENTRAL_IP="127.0.0.1"
 OVN_CENTRAL_IP="192.168.100.100"
+OVN_CENTRAL_IPV6="192:168:100::100"
 OVN_REMOTE_CONTROLLER_IP="192.168.100.101"
+OVN_REMOTE_CONTROLLER_IPV6="192:168:100::101"
 
 OVN_EXTERNAL_NETWORK_HOST_IP="172.16.1.10"
 OVN_EXTERNAL_NETWORK_HOST_IP_V6="172:16:1::A"
@@ -43,6 +45,7 @@ HAS_BOND=${HAS_BOND:-}
 HAS_VLAN=${HAS_VLAN:-}
 IS_FRAGMENTED=${IS_FRAGMENTED:-}
 HAS_EXTERNAL_NETWORK=${HAS_EXTERNAL_NETWORK:-}
+IS_IPV6_UNDERLAY=${IS_IPV6_UNDERLAY:-}
 
 if [[ -n "$CONFIG_REMOTE" ]]; then
     HAS_REMOTE=1
@@ -151,8 +154,13 @@ function __ovn_config() {
 
     # Config IP on nic if not single node
     if [[ -n "$CONFIG_REMOTE" ]]; then
+        local subnet_mask=24
+        if is_ipv6 $ovn_controller_ip; then
+            subnet_mask=112
+        fi
+
         ip link set $nic up
-        ip addr add $ovn_controller_ip/24 dev $nic
+        ip addr add $ovn_controller_ip/$subnet_mask dev $nic
     fi
 
     ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
@@ -178,14 +186,22 @@ function ovn_config() {
     local ovn_ip=$OVN_LOCAL_CENTRAL_IP
     if [[ -n "$CONFIG_REMOTE" ]]; then
         ovn_ip=$OVN_CENTRAL_IP
+        if [[ -n "$IS_IPV6_UNDERLAY" ]]; then
+            ovn_ip=$OVN_CENTRAL_IPV6
+        fi
     fi
 
     __ovn_config $nic $ovn_ip $ovn_ip
     ovn_start_northd_central $ovn_ip
     ovn_create_topology
 
-    if [[ -n "$CONFIG_REMOTE" ]]; then
-        on_remote_exec "__ovn_config $nic $ovn_ip $OVN_REMOTE_CONTROLLER_IP"
+    if [[ -n "$HAS_REMOTE" ]]; then
+        local ovn_remote_controller_ip=$OVN_REMOTE_CONTROLLER_IP
+        if [[ -n "$IS_IPV6_UNDERLAY" ]]; then
+            ovn_remote_controller_ip=$OVN_REMOTE_CONTROLLER_IPV6
+        fi
+
+        on_remote_exec "__ovn_config $nic $ovn_ip $ovn_remote_controller_ip"
     fi
 }
 

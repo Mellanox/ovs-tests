@@ -22,8 +22,8 @@ function ovn_start_northd_central() {
     local ip=${1:-$OVN_LOCAL_CENTRAL_IP}
 
     $OVN_CTL start_northd
-    ovn-nbctl set-connection ptcp:6641:$ip
-    ovn-sbctl set-connection ptcp:6642:$ip
+    ovn-nbctl set-connection ptcp:6641:[$ip]
+    ovn-sbctl set-connection ptcp:6642:[$ip]
 }
 
 function ovn_stop_northd_central() {
@@ -43,7 +43,7 @@ function ovn_set_ovs_config() {
     local encap_ip=${2:-$OVN_LOCAL_CENTRAL_IP}
     local encap_type=${3:-$TUNNEL_GENEVE}
 
-    ovs-vsctl set open . external-ids:ovn-remote=tcp:$ovn_remote_ip:6642
+    ovs-vsctl set open . external-ids:ovn-remote=tcp:[$ovn_remote_ip]:6642
     ovs-vsctl set open . external-ids:ovn-encap-ip=$encap_ip
     ovs-vsctl set open . external-ids:ovn-encap-type=$encap_type
 }
