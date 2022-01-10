@@ -886,7 +886,7 @@ function set_eswitch_inline_mode() {
 
 function set_eswitch_inline_mode_transport() {
     if [ "$short_device_name" == "cx4lx" ]; then
-        mode=`get_eswitch_inline_mode`
+        local mode=`get_eswitch_inline_mode`
         test "$mode" != "transport" && (set_eswitch_inline_mode transport || err "Failed to set inline mode transport")
     fi
 }
