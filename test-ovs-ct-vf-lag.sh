@@ -158,9 +158,6 @@ function run() {
         return
     fi
 
-    sleep 1
-    title "reconfig ovs during traffic"
-    add_openflow_rules
     sleep 6
 
     timeout 4 tcpdump -qnnei $REP -c 30 'tcp' &
@@ -169,7 +166,7 @@ function run() {
     sleep $t
     verify_no_traffic $tpid
 
-    conntrack -L | grep $IP
+    cat /proc/net/nf_conntrack | grep $IP
 
     kill_client
     iterate_bond_slaves
