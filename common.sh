@@ -14,8 +14,9 @@ NOCOLOR="\033[0;0m"
 RED="\033[0;31m"
 GREEN="\033[0;32m"
 YELLOW="\033[0;33m"
-LIGHTBLUE="\033[0;34m"
-LIGHTBLUE_BOLD="\033[0;94m"
+CYAN="\033[0;36m"
+BLUE="\033[0;34m"
+BLUE_BOLD="\033[0;94m"
 
 # global var to set if test fails. should change to error but never back to
 # success.
@@ -118,7 +119,7 @@ function require_cmd() {
 
 function print_key_val() {
     local m=$@
-    local c=$LIGHTBLUE
+    local c=$CYAN
     awk "{for (i=1; i<=NF; i+=2) print \"$c\"\$i\"$NOCOLOR\", \$(i+1)}" <<< $m | xargs echo
 }
 
@@ -616,7 +617,7 @@ function success2() {
 }
 
 function title() {
-    echo -e "$LIGHTBLUE* $@$NOCOLOR"
+    echo -e "$CYAN* $@$NOCOLOR"
     kmsg $@
 }
 

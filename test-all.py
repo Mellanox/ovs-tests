@@ -989,7 +989,7 @@ def get_tests():
 
 
 def print_test_line(name, reason):
-    print("%-62s " % deco(name, 'light-blue'), end=' ')
+    print("%-62s " % deco(name, 'cyan'), end=' ')
     print("%-30s" % deco(reason, 'yellow'))
 
 
@@ -1102,7 +1102,7 @@ def run_tests(iteration):
             iter_tests.append(test)
 
         __col1 = name.ljust(__col_test_name, ' ')
-        print(deco(__col1, 'light-blue'), end=' ')
+        print(deco(__col1, 'cyan'), end=' ')
         if args.loops > 1:
             print("%-5s" % str(iteration+1), end=' ')
         sys.stdout.flush()
