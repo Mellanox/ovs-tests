@@ -147,7 +147,7 @@ function check_traffic_offload() {
 
     if [[ "$traffic_type" == "icmp6" ]]; then
         tcpdump_filter=$TCPDUMP_IGNORE_IPV6_NEIGH
-        traffic_filter=$ETH_IP6
+        traffic_filter="$ETH_IP6.*proto=58"
     elif [[ "$traffic_type" == "tcp6" ]]; then
         tcpdump_filter="ip6 proto 6"
         traffic_filter="$ETH_IP6.*proto=6"
