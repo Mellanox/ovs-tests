@@ -72,9 +72,8 @@ function check_rules() {
     local count=$1
     local traffic_filter=$2
     local rules_type=$3
-    local frag_filter=$4 #optional
 
-    local result=$(ovs-appctl dpctl/dump-flows type=$rules_type 2>/dev/null | grep $traffic_filter | grep -E "$frag_filter" | grep -v drop)
+    local result=$(ovs-appctl dpctl/dump-flows type=$rules_type 2>/dev/null | grep $traffic_filter | grep -v drop)
     local rules_count=$(echo "$result" | wc -l)
     if [[ -z "$result" ]]; then
         rules_count="0"
@@ -101,8 +100,24 @@ function check_offloaded_rules() {
 
 function check_fragmented_rules() {
     local traffic_filter=$1
+    local expected_count=${2:-4}
 
-    check_rules 4 $traffic_filter "all" "frag=(first|later)"
+    local fragmented_flow_rules=$(ovs_dump_flows --names | grep -E "frag=(first|later)" | grep $traffic_filter | grep -v drop)
+    if echo "$fragmented_flow_rules" | grep "packets:0, bytes:0"; then
+        err "packets:0, bytes:0"
+        echo "$fragmented_flow_rules"
+        return 1
+    fi
+
+    local rules_count=$(echo "$fragmented_flow_rules" | wc -l)
+    if (("$rules_count" != "$expected_count")); then
+        err "Expected 4 rules, found $rules_count"
+        echo "$fragmented_flow_rules"
+        return 1
+    fi
+
+    success "Found expected $expected_count flow rules"
+    return 0
 }
 
 function check_and_print_ovs_offloaded_rules() {
@@ -357,13 +372,8 @@ function check_fragmented_traffic() {
     fi
 
     title "Check OVS Rules"
-    # Fragmented traffic should not be offloaded
-    echo "OVS offloaded flow rules"
-    ovs_dump_offloaded_flows --names
-    check_offloaded_rules 0 $traffic_filter
-
-    echo "All OVS flow rules"
-    ovs_dump_flows --names type=all filter="$rules_filter"
+    # Offloading fragmented traffic is not supported
+    ovs_dump_flows --names filter="$rules_filter"
     check_fragmented_rules $traffic_filter
 
     title "Check captured packets count"
