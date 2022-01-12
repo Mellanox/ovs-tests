@@ -110,9 +110,13 @@ function run() {
     echo "$vx_rules"
     grep -qw not_in_hw <<<"$vx_rules" && err "Some rule is not in hw on $vx"
     grep -qw in_hw <<<"$vx_rules" || err "No in_hw TC rules found on $vx"
+
+    start_clean_openvswitch
 }
 
 title "Test OVS RX with vxlan pop + vlan push"
 run
 
+trap - EXIT
+cleanup
 test_done
