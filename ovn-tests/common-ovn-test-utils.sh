@@ -163,6 +163,7 @@ function __ovn_config() {
 
     if [[ -n "$HAS_EXTERNAL_NETWORK" ]]; then
         ovn_add_network
+        ip link set $NIC up
     fi
 }
 
