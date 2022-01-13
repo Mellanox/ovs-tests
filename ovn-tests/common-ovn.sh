@@ -73,7 +73,7 @@ function check_rules() {
     local traffic_filter=$2
     local rules_type=$3
 
-    local result=$(ovs-appctl dpctl/dump-flows type=$rules_type 2>/dev/null | grep $traffic_filter | grep -v drop)
+    local result=$(ovs-appctl dpctl/dump-flows type=$rules_type 2>/dev/null | grep $traffic_filter | grep -vE "(dst=33:33|drop)")
     local rules_count=$(echo "$result" | wc -l)
     if [[ -z "$result" ]]; then
         rules_count="0"
