@@ -57,8 +57,8 @@ function config_tunnel() {
     local reps=${2:-1}
     config_simple_bridge_with_rep 0
     config_remote_bridge_tunnel $TUNNEL_ID $REMOTE_TUNNEL_IP $tnl_type $reps
-    ip netns exec ns0 ip link set dev $VF mtu 1400
     config_ns ns0 $VF $LOCAL_IP
+    ip netns exec ns0 ip link set dev $VF mtu 1400
 }
 
 function config_2_side_tunnel() {
