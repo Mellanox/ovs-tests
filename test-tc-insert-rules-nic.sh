@@ -4,6 +4,7 @@
 # Expected to support prios 1-16. so can't use default prio 0 which makes the kernel generate a prio
 # which could be higher.
 #
+# Bug SW #2859923: [Upstream] Failed to create chains table err -22 for prios 3-16 on nic mode
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
