@@ -1889,6 +1889,9 @@ function ns_wrap() {
 }
 
 function set_lag_resource_allocation() {
+    if [ "$short_device_name" != "cx6dx" ]; then
+        return
+    fi
     local value=$1
     title "lag_resource_allocation value to $value"
     fw_config LAG_RESOURCE_ALLOCATION=$value || fail "Cannot set lag resource allocation to $value"
