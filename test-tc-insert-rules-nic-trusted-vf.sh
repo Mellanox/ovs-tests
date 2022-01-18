@@ -62,26 +62,28 @@ function test_basic_L4() {
             action drop
 }
 
-function test_prio() {
-    title "Check EOPNOTSUPP adding vf rule on prio without vf trusted mode"
-
-    tc filter add dev $VF protocol ip parent ffff: \
-            prio 3 flower \
-                    skip_sw \
-                    dst_mac e4:11:22:11:4a:51 \
-                    src_mac e4:11:22:11:4a:50 \
-                    ip_proto tcp \
-                    src_ip 1.1.1.1 \
-                    dst_ip 2.2.2.2 \
-            action drop 2>&1 | tee /tmp/log
-    grep -q "Operation not supported" /tmp/log && return
-    err "Expected operation not supported error"
+function test_prio1_to_prio16() {
+    local prio
+    for prio in `seq 1 16`; do
+        tc_filter_success add dev $VF protocol ip parent ffff: \
+                prio $prio flower \
+                        skip_sw \
+                        dst_mac e4:11:22:11:4a:51 \
+                        src_mac e4:11:22:11:4a:50 \
+                        ip_proto tcp \
+                        src_ip 1.1.1.1 \
+                        dst_ip 2.2.2.2 \
+                action drop
+    done
 }
 
 
+require_mlxreg
 config_sriov
 enable_legacy
 unbind_vfs
+title "Set vf trusted mode"
+set_trusted_vf_mode $NIC
 bind_vfs
 reset_tc $VF
 
@@ -91,5 +93,8 @@ for i in `declare -F | awk {'print $3'} | grep ^test_ | grep -v test_done` ; do
     eval $i
     reset_tc $VF
 done
+
+# reload modules to clear trusted vf mode
+reload_modules
 
 test_done
