@@ -14,7 +14,7 @@ IP="7.7.7.1"
 REMOTE="7.7.7.2"
 
 function set_eswitch_ipv4_ttl_modify_enable() {
-    if [ "$short_device_name" == "cx6dx" ]; then
+    if [ "$short_device_name" != "cx5" ]; then
         return
     fi
 
