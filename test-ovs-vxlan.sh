@@ -76,6 +76,10 @@ function run() {
     fi
 
     t=15
+
+    ip netns exec ns0 timeout $((t-4)) tcpdump -qnnei $VF -c 30 'tcp' &
+    tpid2=$!
+
     # traffic
     on_remote timeout $((t+2)) iperf -s -t $t &
     pid1=$!
@@ -91,9 +95,15 @@ function run() {
         return
     fi
 
-    timeout $((t-2)) tcpdump -qnnei $REP -c 10 'tcp' &
+    timeout $((t-4)) tcpdump -qnnei $REP -c 10 'tcp' &
     tpid=$!
+
     sleep $t
+
+    title "Verify traffic on $VF"
+    verify_have_traffic $tpid2
+
+    title "Verify no traffic on $REP"
     verify_no_traffic $tpid
 
     kill -9 $pid1 &>/dev/null
