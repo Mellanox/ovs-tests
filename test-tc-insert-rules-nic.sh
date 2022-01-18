@@ -89,7 +89,8 @@ function check_prio_without_trusted_vf_mode() {
                     src_ip 1.1.1.1 \
                     dst_ip 2.2.2.2 \
             action drop 2>&1 | tee /tmp/log
-    grep -vq "Operation not supported" /tmp/log || err "Expected operation not supported error"
+    grep -q "Operation not supported" /tmp/log && return
+    err "Expected operation not supported error"
 }
 
 
