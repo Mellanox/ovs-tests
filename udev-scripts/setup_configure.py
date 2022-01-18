@@ -54,6 +54,7 @@ class SetupConfigure(object):
         parser.add_argument('--second-server', '-s', help='Second server config', action='store_true')
         parser.add_argument('--dpdk', help='Add DPDK=1 to configuration file', action='store_true')
         parser.add_argument('--sw-steering-mode', help='Configure software steering mode', action='store_true')
+        parser.add_argument('--bluefield', help='Setup configuration for bluefield host', action='store_true')
         parser.add_argument('--steering-mode', choices=['sw', 'fw'], help='Configure steering mode')
 
         self.args = parser.parse_args()
@@ -104,10 +105,14 @@ class SetupConfigure(object):
 
             self.UnbindVFs()
 
-            self.ConfigureSteeringMode()
-            self.ConfigureSwitchdev()
+            if not self.args.bluefield:
+                self.ConfigureSteeringMode()
+                self.ConfigureSwitchdev()
+
             self.SetVFMACs()
-            self.LoadRepInfo()
+            if not self.args.bluefield:
+                self.LoadRepInfo()
+
             self.BringUpDevices()
 
             if self.args.dpdk:
@@ -209,7 +214,8 @@ class SetupConfigure(object):
 
     def UpdateVFInfo(self):
         self.LoadVFInfo()
-        self.LoadRepInfo()
+        if not self.args.bluefield:
+            self.LoadRepInfo()
 
     def get_switch_id(self, port):
         try:
@@ -435,12 +441,39 @@ class SetupConfigure(object):
 
         return cloud_player_ip
 
+    def get_cloud_player_bf_ips(self):
+        cloud_player_1_ip = ''
+        cloud_player_1_bf_ip = ''
+        cloud_player_2_bf_ip = ''
+        try:
+            with open('/workspace/cloud_tools/.setup_info', 'r') as f:
+                for line in f.readlines():
+                    if 'CLOUD_PLAYER_1_IP' in line:
+                        cloud_player_1_ip = line.strip().split('=')[1]
+                    if 'CLOUD_PLAYER_1_ARM_IP' in line:
+                        cloud_player_1_bf_ip = line.strip().split('=')[1]
+                    if 'CLOUD_PLAYER_2_ARM_IP' in line:
+                        cloud_player_2_bf_ip = line.strip().split('=')[1]
+        except IOError:
+            self.Logger.error('Failed to read cloud_tools/.setup_info')
+            raise RuntimeError('Failed to read cloud_tools/.setup_info')
+
+        if cloud_player_1_ip == self.host.name:
+            return cloud_player_1_bf_ip, cloud_player_2_bf_ip
+
+        return cloud_player_2_bf_ip, cloud_player_1_bf_ip
+
     def CreateConfFile(self):
         conf = 'PATH="%s:$PATH"' % self.MLNXToolsPath
 
         nic1 = self.host.PNics[0]
         rep = nic1['vfs'][0]['rep']
         rep2 = nic1['vfs'][1]['rep']
+
+        if self.args.bluefield:
+            rep = "eth2"
+            rep2 = "eth3"
+
         if not rep or not rep2:
             raise RuntimeError('Cannot find representors')
 
@@ -467,6 +500,10 @@ class SetupConfigure(object):
 
         if self.args.dpdk:
             conf += '\nDPDK=1'
+
+        if self.args.bluefield:
+            conf += '\nBF_NIC=%s' % "enp3s0f0np0"
+            conf += '\nBF_IP=%s\nREMOTE_BF_IP=%s' % self.get_cloud_player_bf_ips()
 
         config_file = "/workspace/dev_reg_conf.sh"
         self.Logger.info("Create config file %s" % config_file)
