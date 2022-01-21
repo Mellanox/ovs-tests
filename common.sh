@@ -1037,6 +1037,7 @@ function config_sriov() {
     fi
 
     log "Config $num VFs for $nic"
+    switch_mode_legacy 2>/dev/null
     echo 0 > $numvfs_sysfs
     echo $num > $numvfs_sysfs || fail "Failed to config $num VFs on $nic"
     sleep 0.5
