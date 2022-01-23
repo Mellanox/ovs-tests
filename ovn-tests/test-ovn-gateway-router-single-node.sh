@@ -4,7 +4,6 @@
 #
 
 HAS_REMOTE=1
-HAS_EXTERNAL_NETWORK=1
 
 my_dir="$(dirname "$0")"
 . $my_dir/common-ovn-test-utils.sh
@@ -32,6 +31,7 @@ SERVER_PORT=$NIC
 
 function clean_up_test() {
     ovn_clean_up
+    ovn_remove_network
     on_remote_exec "__reset_nic"
 }
 
@@ -47,8 +47,11 @@ function config_server() {
 }
 
 function config_test() {
+    ip link set $NIC up
     ovn_config
+    ovn_add_network
     config_server
+
     ovn_config_interface_namespace $CLIENT_VF $CLIENT_REP $CLIENT_NS $CLIENT_PORT $CLIENT_MAC $CLIENT_IPV4 $CLIENT_IPV6 $CLIENT_GATEWAY_IPV4 $CLIENT_GATEWAY_IPV6
 }
 

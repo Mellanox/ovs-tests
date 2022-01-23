@@ -44,7 +44,6 @@ HAS_REMOTE=${HAS_REMOTE:-}
 HAS_BOND=${HAS_BOND:-}
 HAS_VLAN=${HAS_VLAN:-}
 IS_FRAGMENTED=${IS_FRAGMENTED:-}
-HAS_EXTERNAL_NETWORK=${HAS_EXTERNAL_NETWORK:-}
 IS_IPV6_UNDERLAY=${IS_IPV6_UNDERLAY:-}
 
 if [[ -n "$CONFIG_REMOTE" ]]; then
@@ -64,10 +63,6 @@ function __ovn_clean_up() {
     ovn_stop_ovn_controller
     ovn_remove_ovs_config
     ovs_clear_bridges
-
-    if [[ -n "$HAS_EXTERNAL_NETWORK" ]]; then
-        ovn_remove_network
-    fi
 
     __reset_nic
     ip -all netns del
@@ -168,11 +163,6 @@ function __ovn_config() {
     ovs_conf_set max-idle 20000
 
     __ovn_config_mtu
-
-    if [[ -n "$HAS_EXTERNAL_NETWORK" ]]; then
-        ovn_add_network
-        ip link set $NIC up
-    fi
 }
 
 function ovn_config() {
