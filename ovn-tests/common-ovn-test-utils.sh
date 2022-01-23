@@ -195,7 +195,7 @@ function ovn_config() {
     ovn_start_northd_central $ovn_ip
     ovn_create_topology
 
-    if [[ -n "$HAS_REMOTE" ]]; then
+    if [[ -n "$CONFIG_REMOTE" ]]; then
         local ovn_remote_controller_ip=$OVN_REMOTE_CONTROLLER_IP
         if [[ -n "$IS_IPV6_UNDERLAY" ]]; then
             ovn_remote_controller_ip=$OVN_REMOTE_CONTROLLER_IPV6
