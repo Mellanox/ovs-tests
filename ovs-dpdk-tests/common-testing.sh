@@ -12,6 +12,17 @@ function ovs_add_ct_rules() {
     ovs-ofctl dump-flows $bridge --color
 }
 
+function ovs_add_ct_rules_dec_ttl() {
+    local bridge=${1:-"br-int"}
+    ovs-ofctl del-flows $bridge
+    ovs-ofctl add-flow $bridge "arp,actions=NORMAL"
+    ovs-ofctl add-flow $bridge "table=0,ip,ct_state=-trk,actions=ct(zone=5, table=1)"
+    ovs-ofctl add-flow $bridge "table=1,ip,ct_state=+trk+new,actions=ct(zone=5, commit),dec_ttl,NORMAL"
+    ovs-ofctl add-flow $bridge "table=1,ip,ct_state=+trk+est,ct_zone=5,actions=dec_ttl,normal"
+    echo "OVS flow rules:"
+    ovs-ofctl dump-flows $bridge --color
+}
+
 function verify_ping() {
     local remote_ip=${1:-$REMOTE_IP}
     local namespace=${2:-ns0}
@@ -122,4 +133,10 @@ function config_remote_vlan() {
            ip link add link $REMOTE_NIC name $vlan_dev type vlan id $vlan
            ip a add $ip/24 dev $vlan_dev
            ip l set dev $vlan_dev up"
+}
+
+function config_remote_nic() {
+    on_remote ip a flush dev $REMOTE_NIC
+    on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
+    on_remote ip l set dev $REMOTE_NIC up
 }
