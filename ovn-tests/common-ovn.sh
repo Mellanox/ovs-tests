@@ -69,33 +69,25 @@ function ovn_bind_port() {
 }
 
 function check_rules() {
-    local count=$1
-    local traffic_filter=$2
-    local rules_type=$3
+    local rule_fields=$1
+    local rules_type=${2:-"all"}
 
-    local result=$(ovs-appctl dpctl/dump-flows type=$rules_type 2>/dev/null | grep $traffic_filter | grep -vE "(dst=33:33|drop)")
-    local rules_count=$(echo "$result" | wc -l)
-    if [[ -z "$result" ]]; then
-        rules_count="0"
-    fi
+    local traffic_rules=$(ovs-appctl dpctl/dump-flows --names type=$rules_type 2>/dev/null | grep -vE "(dst=33:33|drop)")
+    for rule_field in $rule_fields; do
+        title "- Verifying rule $rule_field"
+        result=$(echo "$traffic_rules" | grep -i "$rule_field")
+        if [[ "$result" == "" ]]; then
+            err "Rule $rule_field not found"
+            return 1
+        fi
+        if [[ "$result" =~ "packets:0, bytes:0" ]]; then
+            err "packets:0, bytes:0"
+            return 1
+        fi
+    done
 
-    if echo "$result" | grep "packets:0, bytes:0"; then
-        err "packets:0, bytes:0"
-        return 1
-    elif (("$rules_count" == "$count")); then
-        success "Found $count rules as expected"
-        return 0
-    fi
-
-    err "Expected $count rules, found $rules_count"
-    return 1
-}
-
-function check_offloaded_rules() {
-    local count=$1
-    local traffic_filter=$2
-
-    check_rules $count $traffic_filter "offloaded"
+    success "Found expected rules"
+    return 0
 }
 
 function check_fragmented_rules() {
@@ -121,11 +113,10 @@ function check_fragmented_rules() {
 }
 
 function check_and_print_ovs_offloaded_rules() {
-    local traffic_filter=$1
-    local rules_num=$2
+    local rule_fields=$1
 
-    ovs_dump_offloaded_flows --names | grep "$traffic_filter"
-    check_offloaded_rules $rules_num $traffic_filter
+    ovs_dump_offloaded_flows --names
+    check_rules "$rule_fields" "offloaded"
 }
 
 function send_background_traffic() {
@@ -155,27 +146,16 @@ function check_traffic_offload() {
     local ns=$2
     local dst_ip=$3
     local traffic_type=$4
+    local rule_fields=$5
 
-    local traffic_filter=$ETH_IP
     local tcpdump_filter="$traffic_type"
-    local rules_num=2
-
-    # VLAN traffic is chain rules
-    # Sender side: vlan pop > redirect to port
-    # Receiver side: redirect to port > push vlan
-    if [[ -n "$HAS_VLAN" ]] && [[ "$traffic_type" == "icmp" || "$traffic_type" == "tcp" || "$traffic_type" == "udp" ]]; then
-        rules_num=4
-    fi
 
     if [[ "$traffic_type" == "icmp6" ]]; then
         tcpdump_filter=$TCPDUMP_IGNORE_IPV6_NEIGH
-        traffic_filter="$ETH_IP6.*proto=58"
     elif [[ "$traffic_type" == "tcp6" ]]; then
         tcpdump_filter="ip6 proto 6"
-        traffic_filter="$ETH_IP6.*proto=6"
     elif [[ "$traffic_type" == "udp6" ]]; then
         tcpdump_filter="ip6 proto 17"
-        traffic_filter="$ETH_IP6.*proto=17"
     fi
 
     # Send background traffic before capturing traffic
@@ -198,11 +178,11 @@ function check_traffic_offload() {
     sleep 0.5
 
     title "Check ${traffic_type^^} OVS offload rules on the sender"
-    check_and_print_ovs_offloaded_rules $traffic_filter $rules_num
+    check_and_print_ovs_offloaded_rules "$rule_fields"
 
     if [[ -n "$CONFIG_REMOTE" ]]; then
         title "Check ${traffic_type^^} OVS offload rules on the receiver"
-        on_remote_exec "check_and_print_ovs_offloaded_rules $traffic_filter $rules_num" && success || err
+        on_remote_exec "check_and_print_ovs_offloaded_rules \"$rule_fields\"" && success || err
     fi
 
     # If tcpdump finished then it capture more than expected to be offloaded
@@ -231,16 +211,18 @@ function check_icmp_traffic_offload() {
     local rep=$1
     local ns=$2
     local dst_ip=$3
+    local required_rule_fields=$4
 
-    check_traffic_offload $rep $ns $dst_ip icmp
+    check_traffic_offload $rep $ns $dst_ip icmp "$required_rule_fields"
 }
 
 function check_icmp6_traffic_offload() {
     local rep=$1
     local ns=$2
     local dst_ip=$3
+    local required_rule_fields=$4
 
-    check_traffic_offload $rep $ns $dst_ip icmp6
+    check_traffic_offload $rep $ns $dst_ip icmp6 "$required_rule_fields"
 }
 
 function check_local_tcp_traffic_offload() {
@@ -248,12 +230,13 @@ function check_local_tcp_traffic_offload() {
     local client_ns=$2
     local server_ns=$3
     local server_ip=$4
+    local required_rule_fields=$5
 
     local cmd=$(ns_wrap "timeout 10 iperf3 -s -D" $server_ns)
     eval $cmd
     sleep 0.5
 
-    check_traffic_offload $rep $client_ns $server_ip tcp
+    check_traffic_offload $rep $client_ns $server_ip tcp "$required_rule_fields"
     killall -q iperf3
 }
 
@@ -262,12 +245,13 @@ function check_local_tcp6_traffic_offload() {
     local client_ns=$2
     local server_ns=$3
     local server_ip=$4
+    local required_rule_fields=$5
 
     local cmd=$(ns_wrap "timeout 10 iperf3 -6 -s -D" $server_ns)
     eval $cmd
     sleep 0.5
 
-    check_traffic_offload $rep $client_ns $server_ip tcp6
+    check_traffic_offload $rep $client_ns $server_ip tcp6 "$required_rule_fields"
     killall -q iperf3
 }
 
@@ -276,12 +260,13 @@ function check_remote_tcp_traffic_offload() {
     local client_ns=$2
     local server_ns=$3
     local server_ip=$4
+    local required_rule_fields=$5
 
     local cmd=$(ns_wrap "timeout 15 iperf3 -s -D" $server_ns)
     on_remote "$cmd"
     sleep 0.5
 
-    check_traffic_offload $rep $client_ns $server_ip tcp
+    check_traffic_offload $rep $client_ns $server_ip tcp "$required_rule_fields"
     on_remote "killall -q iperf3"
 }
 
@@ -290,12 +275,13 @@ function check_remote_tcp6_traffic_offload() {
     local client_ns=$2
     local server_ns=$3
     local server_ip=$4
+    local required_rule_fields=$5
 
     local cmd=$(ns_wrap "timeout 15 iperf3 -6 -s -D" $server_ns)
     on_remote "$cmd"
     sleep 0.5
 
-    check_traffic_offload $rep $client_ns $server_ip tcp6
+    check_traffic_offload $rep $client_ns $server_ip tcp6 "$required_rule_fields"
     on_remote "killall -q iperf3"
 }
 
@@ -304,12 +290,13 @@ function check_local_udp_traffic_offload() {
     local client_ns=$2
     local server_ns=$3
     local server_ip=$4
+    local required_rule_fields=$5
 
     local cmd=$(ns_wrap "timeout 10 $OVN_DIR/udp-perf.py -s -D" $server_ns)
     eval $cmd
     sleep 0.5
 
-    check_traffic_offload $rep $client_ns $server_ip udp
+    check_traffic_offload $rep $client_ns $server_ip udp "$required_rule_fields"
     killall -q udp-perf.py
 }
 
@@ -318,12 +305,13 @@ function check_local_udp6_traffic_offload() {
     local client_ns=$2
     local server_ns=$3
     local server_ip=$4
+    local required_rule_fields=$5
 
     local cmd=$(ns_wrap "timeout 10 $OVN_DIR/udp-perf.py -6 -s -D" $server_ns)
     eval $cmd
     sleep 0.5
 
-    check_traffic_offload $rep $client_ns $server_ip udp6
+    check_traffic_offload $rep $client_ns $server_ip udp6 "$required_rule_fields"
     killall -q udp-perf.py
 }
 
@@ -332,12 +320,13 @@ function check_remote_udp_traffic_offload() {
     local client_ns=$2
     local server_ns=$3
     local server_ip=$4
+    local required_rule_fields=$5
 
     local cmd=$(ns_wrap "timeout 15 $OVN_DIR/udp-perf.py -s -D" $server_ns)
     on_remote "$cmd"
     sleep 0.5
 
-    check_traffic_offload $rep $client_ns $server_ip udp
+    check_traffic_offload $rep $client_ns $server_ip udp "$required_rule_fields"
     on_remote "killall -q udp-perf.py"
 }
 
@@ -346,12 +335,13 @@ function check_remote_udp6_traffic_offload() {
     local client_ns=$2
     local server_ns=$3
     local server_ip=$4
+    local required_rule_fields=$5
 
     local cmd=$(ns_wrap "timeout 15 $OVN_DIR/udp-perf.py -6 -s -D" $server_ns)
     on_remote "$cmd"
     sleep 0.5
 
-    check_traffic_offload $rep $client_ns $server_ip udp6
+    check_traffic_offload $rep $client_ns $server_ip udp6 "$required_rule_fields"
     on_remote "killall -q udp-perf.py"
 }
 
