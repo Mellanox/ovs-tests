@@ -556,7 +556,7 @@ function reset_tc() {
     for nic1 in $@ ; do
         ethtool_hw_tc_offload $nic1
         tc qdisc del dev $nic1 ingress >/dev/null 2>&1  || true
-        tc qdisc add dev $nic1 ingress $TC_ARG || err "Failed to add ingress qdisc to $nic1"
+        tc qdisc add dev $nic1 $BLOCK_INDEX ingress $TC_ARG || err "Failed to add ingress qdisc to $nic1"
     done
 }
 
@@ -564,6 +564,14 @@ function reset_tc_cacheable() {
     TC_ARG="cacheable"
     reset_tc $@
     unset TC_ARG
+}
+
+function reset_tc_block_index() {
+    BLOCK_INDEX="ingress_block $1"
+    shift
+
+    reset_tc $@
+    unset BLOCK_INDEX
 }
 
 function log() {
