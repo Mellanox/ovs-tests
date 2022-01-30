@@ -832,7 +832,7 @@ def prepare_logdir():
         logdir = args.log_dir
         os.mkdir(logdir)
     else:
-        logdir = mkdtemp(prefix='log')
+        logdir = mkdtemp(prefix='devtests-')
 
     print("Log dir: " + logdir)
     LOGDIR = logdir
