@@ -878,6 +878,8 @@ def get_dbs():
             continue
         if multi and'ovn' in db:
             continue
+        if multi and 'ipsec' in db:
+            continue
         dbs_out.append(db)
 
     return dbs_out
