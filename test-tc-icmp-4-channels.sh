@@ -57,12 +57,12 @@ function run() {
     fail_if_err
 
     echo "sniff packets on $VF"
-    timeout 2 ip netns exec ns0 tcpdump -qnnei $VF -c 10 'icmp' &
+    timeout 3 ip netns exec ns0 tcpdump -qnnei $VF -c 10 'icmp' &
     pid=$!
-    timeout 2 ip netns exec ns0 tcpdump -qnnei $VF -c 4 'icmp[6:2] == 2' &>/dev/null &
+    timeout 3 ip netns exec ns0 tcpdump -qnnei $VF -c 4 'icmp[6:2] == 2' &>/dev/null &
     pid2=$!
 
-    sleep 0.5
+    sleep 1
 
     echo "run traffic"
     ip netns exec ns0 ping -q -c 10 -i 0.1 -w 2 $IP2 || err "Ping failed"
