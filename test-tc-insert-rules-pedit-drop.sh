@@ -18,8 +18,8 @@ function test_basic_header_rewrite() {
     reset_tc $REP
     tc_filter_fail add dev $REP protocol ip parent ffff: prio 1 \
         flower skip_sw ip_proto icmp \
-        action pedit ex munge eth dst set 20:22:33:44:55:66 \
-        pipe action drop
+        action pedit ex munge eth dst set 20:22:33:44:55:66 pipe \
+        action drop
     reset_tc $REP
 }
 
