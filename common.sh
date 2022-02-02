@@ -1394,6 +1394,11 @@ function check_dpdk_init() {
     fi
 }
 
+function restart_openvswitch_nocheck() {
+    stop_openvswitch
+    service_ovs start
+}
+
 function restart_openvswitch() {
     stop_openvswitch
     service_ovs start
