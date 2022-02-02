@@ -109,7 +109,7 @@ function del_drop_rule() {
 function check_num_filters() {
     local dev=$1
     local num_filters=$2
-    local res="tc -s filter show dev $dev ingress | grep not_in_hw"
+    local res="tc -s filter show dev $dev ingress | grep handle"
 
     RES=`eval $res | wc -l`
     if (( RES != $num_filters )); then err "Got $RES filters, expected $num_filters filters"; fi
