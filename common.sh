@@ -500,7 +500,12 @@ function ssh2() {
 
 # Run given code on remote server which provide all function and env vars
 function on_remote_exec() {
-    ssh2 $REMOTE_SERVER "$(set | grep -Ev "^(BASH|SHELLOPTS|UID|EUID|PPID)"); $@"
+    __on_remote_exec $REMOTE_SERVER "$@"
+}
+
+function __on_remote_exec() {
+    local remote=$1
+    ssh2 $remote "$(set | grep -Ev "^(BASH|SHELLOPTS|UID|EUID|PPID)"); . /etc/os-release; ${@:2}"
 }
 
 function on_remote_dt() {
@@ -516,7 +521,12 @@ bash /tmp/dt_cmd.$$.sh && /bin/rm -f /tmp/dt_cmd.$$.sh"
 }
 
 function on_remote() {
-    ssh2 $REMOTE_SERVER "$@"
+    __on_remote $REMOTE_SERVER "$@"
+}
+
+function __on_remote() {
+    local remote=$1
+    ssh2 $remote "${@:2}"
 }
 
 function require_remote_server() {
