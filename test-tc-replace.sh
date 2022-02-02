@@ -23,7 +23,8 @@ if [ $count -eq 0 ]; then
     err "Cannot find tc rule"
 fi
 
-tc filter show dev $NIC ingress | egrep -z "not_in_hw" && err "Expected in_hw rule"
+tc filter show dev $NIC ingress
+verify_in_hw $NIC 8 || err "Expected in_hw rule"
 
 reset_tc $NIC
 test_done
