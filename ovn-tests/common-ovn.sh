@@ -128,6 +128,28 @@ function check_and_print_ovs_offloaded_rules() {
     check_offloaded_rules $rules_num $traffic_filter
 }
 
+function send_background_traffic() {
+    local traffic_type=$1
+    local ns=$2
+    local dst_ip=$3
+
+    if [[ $traffic_type == "icmp" ]]; then
+        ip netns exec $ns ping -w 4 $dst_ip &
+    elif [[ $traffic_type == "icmp6" ]]; then
+        ip netns exec $ns ping -6 -w 4 $dst_ip &
+    elif [[ $traffic_type == "tcp" ]]; then
+        ip netns exec $ns timeout 15 iperf3 -t 5 -c $dst_ip &
+    elif [[ $traffic_type == "tcp6" ]]; then
+        ip netns exec $ns timeout 15 iperf3 -6 -t 5 -c $dst_ip &
+    elif [[ $traffic_type == "udp" ]]; then
+        ip netns exec $ns timeout 10 $OVN_DIR/udp-perf.py -c $dst_ip --pass-rate 0.7 &
+    elif [[ $traffic_type == "udp6" ]]; then
+        ip netns exec $ns timeout 10 $OVN_DIR/udp-perf.py -6 -c $dst_ip --pass-rate 0.7 &
+    else
+        fail "Unknown traffic $traffic_type"
+    fi
+}
+
 function check_traffic_offload() {
     local rep=$1
     local ns=$2
@@ -156,6 +178,12 @@ function check_traffic_offload() {
         traffic_filter="$ETH_IP6.*proto=17"
     fi
 
+    # Send background traffic before capturing traffic
+    title "Sending ${traffic_type^^} traffic"
+    send_background_traffic $traffic_type $ns $dst_ip
+    local traffic_pid=$!
+    sleep 2
+
     # Listen to traffic on representor
     tcpdump -Unnepi $rep $tcpdump_filter -c 5 &
     local tdpid=$!
@@ -168,24 +196,6 @@ function check_traffic_offload() {
         tdpid_receiver=$(on_remote "nohup tcpdump -Unnepi $rep $tcpdump_filter -c 5 > /dev/null 2>&1 & echo \$!")
     fi
     sleep 0.5
-
-    # Traffic between VFs
-    title "Check sending ${traffic_type^^} traffic"
-    if [[ $traffic_type == "icmp" ]]; then
-        ip netns exec $ns ping -w 4 $dst_ip && success || err
-    elif [[ $traffic_type == "icmp6" ]]; then
-        ip netns exec $ns ping -6 -w 4 $dst_ip && success || err
-    elif [[ $traffic_type == "tcp" ]]; then
-        ip netns exec $ns timeout 15 iperf3 -t 5 -c $dst_ip && success || err
-    elif [[ $traffic_type == "tcp6" ]]; then
-        ip netns exec $ns timeout 15 iperf3 -6 -t 5 -c $dst_ip && success || err
-    elif [[ $traffic_type == "udp" ]]; then
-        ip netns exec $ns timeout 10 $OVN_DIR/udp-perf.py -c $dst_ip --pass-rate 0.7 && success || err
-    elif [[ $traffic_type == "udp6" ]]; then
-        ip netns exec $ns timeout 10 $OVN_DIR/udp-perf.py -6 -c $dst_ip --pass-rate 0.7 && success || err
-    else
-        fail "Unknown traffic $traffic_type"
-    fi
 
     title "Check ${traffic_type^^} OVS offload rules on the sender"
     check_and_print_ovs_offloaded_rules $traffic_filter $rules_num
@@ -206,6 +216,8 @@ function check_traffic_offload() {
         on_remote "[[ -d /proc/$tdpid_receiver ]]" && success || err
     fi
 
+    title "Wait ${traffic_type^^} traffic"
+    wait $traffic_pid && success || err
     ovs_flush_rules
     killall -q tcpdump
 
