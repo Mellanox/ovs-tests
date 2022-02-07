@@ -20,9 +20,18 @@ MULTIPATH=${MULTIPATH:-0}
 [ $MULTIPATH == 1 ] && require_multipath_support
 
 function cleanup() {
+    killall -q -9 iperf3
+    wait &>/dev/null
+    start_clean_openvswitch
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
+
+    if [ $MULTIPATH == 1 ]; then
+        disable_sriov
+        disable_multipath
+    fi
 }
+trap cleanup EXIT
 
 function config_vf() {
     local ns=$1
@@ -123,13 +132,6 @@ for r in `seq $ROUNDS`; do
     ovs-ofctl del-flows $BR tcp
 done
 
-killall -9 iperf3
-wait &>/dev/null
-
-start_clean_openvswitch
+trap - EXIT
 cleanup
-if [ $MULTIPATH == 1 ]; then
-    disable_sriov
-    disable_multipath
-fi
 test_done
