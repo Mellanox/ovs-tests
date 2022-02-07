@@ -14,6 +14,12 @@ function require_ip_xfrm() {
     ip xfrm state &>/dev/null || fail "ipsec is not supported"
 }
 
+function require_ipsec_mode() {
+    if [ ! -f "/sys/class/net/$NIC/compat/devlink/ipsec_mode" ]; then
+        fail "Unsupported Kernel for IPsec full offload"
+    fi
+}
+
 require_ip_xfrm
 
 #KEYMAT 20 octets = KEY 16ocets, SALT 4octets

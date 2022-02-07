@@ -10,6 +10,8 @@ if ! is_ofed; then
     fail "This feature is supported only over OFED"
 fi
 
+require_ipsec_mode
+
 function clean_up() {
     ipsec_set_mode none
 }
