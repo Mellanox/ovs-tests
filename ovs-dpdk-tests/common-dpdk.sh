@@ -62,7 +62,7 @@ function config_ns() {
     local ip_addr=$3
     local ipv6_addr=${4-"2001:db8:0:f101::1"}
 
-    debug "adding namespace $ns and attaching $dev"
+    debug "adding namespace $ns and attaching $dev with ip $ip_addr"
     ip netns add $ns
     ip link set $dev netns $ns
     ip netns exec $ns ifconfig $dev $ip_addr up
