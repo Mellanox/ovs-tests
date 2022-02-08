@@ -1,5 +1,7 @@
 p_server=/tmp/perf_server
 p_client=/tmp/perf_client
+p_ping=/tmp/ping_out
+p_scapy=/tmp/tcpdump
 
 function ovs_add_ct_nat_nop_rules() {
     local bridge=${1:-"br-int"}
@@ -41,6 +43,134 @@ function ovs_add_ct_rules_dec_ttl() {
     ovs-ofctl add-flow $bridge "table=1,ip,ct_state=+trk+est,ct_zone=5,actions=dec_ttl,normal"
     debug "OVS flow rules:"
     ovs-ofctl dump-flows $bridge --color
+}
+
+function ovs_add_meter() {
+    local bridge=${1:-"br-phy"}
+    local meter_id=${2:-0}
+    local type=${3:-"pktps"}
+    local rate=${4:-1}
+    local burst_size=$5
+    local burst=""
+
+    if [ -n "$burst_size" ]; then
+        burst=",burst"
+        burst_size=",burst_size=$burst_size"
+    fi
+
+    local cmd="ovs-ofctl -O openflow13 add-meter $bridge meter=${meter_id},${type}${burst},band=type=drop,rate=${rate}${burst_size}"
+
+    debug "Executing | $cmd"
+    eval $cmd
+}
+
+function ovs_del_meter() {
+    local bridge=${1:-"br-phy"}
+    local meter_id=${2:-1}
+
+    local cmd="ovs-ofctl -O openflow13 del-meter $bridge meter=${meter_id}"
+    debug "Executing | $cmd"
+    eval $cmd
+    sleep 2
+}
+
+function ovs_add_simple_meter_rule() {
+    local bridge=${1:-"br-phy"}
+    local meter_id=${2:-1}
+
+    local cmd="ovs-ofctl -O openflow13 add-flow $bridge "priority=100,table=0,actions=meter:${meter_id},normal""
+    debug "Executing | $cmd"
+    eval $cmd
+}
+
+function ovs_add_bidir_meter_rules() {
+    local bridge=${1:-"br-phy"}
+    local meter_id1=${2:-1}
+    local meter_id2=${3:-2}
+    local in_port1=${4:-"rep0"}
+    local in_port2=${5:-"rep1"}
+
+    ovs-ofctl del-flows $bridge
+    local cmd1="ovs-ofctl -O openflow13 add-flow br-phy "table=0,in_port=${in_port1},actions=meter:${meter_id1},${in_port2}""
+    local cmd2="ovs-ofctl -O openflow13 add-flow br-phy "table=0,in_port=${in_port2},actions=meter:${meter_id2},${in_port1}""
+    debug "Executing | $cmd1"
+    debug "Executing | $cmd2"
+    eval $cmd1
+    eval $cmd2
+}
+
+function send_metered_ping() {
+    local namespace=${1:-"ns0"}
+    local count=${2:-100}
+    local wait=${3:-5}
+    local ip_addr=${4:-"1.1.1.8"}
+    local interval=${5:-0.01}
+    local expected_received=${6:-10}
+
+    rm -rf $p_ping
+    local cmd="ip netns exec $namespace ping -c $count -W $wait -i $interval $ip_addr &> $p_ping"
+    debug "Executing | $cmd"
+    eval $cmd
+    local pkts=$(grep 'received' $p_ping | awk '{ print $4 }')
+
+    if [ $pkts -gt $expected_received ]; then
+        err "expected $expected_received to pass meter but got $pkts"
+        cat $p_ping
+        return 1
+    fi
+    success "expected at most $expected_received packets to pass and $pkts passed"
+    rm -rf $p_ping
+}
+
+function ovs_check_tcpdump() {
+    local expected=${1:-1}
+
+    local pkts=$(cat $p_scapy | wc -l)
+    if [ $pkts -gt $expected ]; then
+        err "expted $expected to pass meter but got $pkts"
+        cat $p_scapy
+        return 1
+    fi
+    success "expected at most $expected packets to pass and $pkts passed"
+    rm -rf $p_scapy
+}
+
+function ovs_send_scapy_packets() {
+    local tgen=$1
+    local dev1=$2
+    local dev2=$3
+    local src_ip=$4
+    local dst_ip=$5
+    local time=$6
+    local pkt_count=$7
+    local src_ns=${8:-"NONE"}
+    local dst_ns=${9:-"NONE"}
+
+    rm -rf $p_scapy
+    local tcpdump_cmd="tcpdump -nei $dev2 -Q in &> $p_scapy &"
+    local scapy_dst_cmd="timeout $((time+5)) $tgen -l -i $dev2 --src-ip $src_ip --time $(($time+2)) &"
+    local scapy_src_cmd="timeout $((time+5)) $tgen -i $dev1 --src-ip $src_ip --dst-ip $dst_ip --time $time --pkt-count $pkt_count --inter 0.01 &"
+
+    if [ -n "$src_ns" ]; then
+        local dst_cmd1="ip netns exec $dst_ns $tcpdump_cmd"
+        local dst_cmd2="ip netns exec $dst_ns $scapy_dst_cmd"
+        local src_cmd1="ip netns exec $src_ns $scapy_src_cmd"
+
+        debug "Executing | $dst_cmd1"
+        eval $dst_cmd1
+        debug "Executing | $dst_cmd2"
+        eval $dst_cmd2
+        debug "Executing | $src_cmd1"
+        eval $src_cmd1
+    else
+        debug "Executing | $tcpdump_cmd"
+        eval $tcpdump_cmd
+        debug "Executing | $scapy_dst_cmd"
+        eval $scapy_dst_cmd
+        debug "Executing | $scapy_src_cmd"
+        eval $scapy_src_cmd
+    fi
+    sleep 3
 }
 
 function verify_ping() {
