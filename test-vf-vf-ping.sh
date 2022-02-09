@@ -13,6 +13,7 @@ MULTIPATH=${MULTIPATH:-0}
 [ $MULTIPATH == 1 ] && require_multipath_support
 
 function cleanup() {
+    ovs_clear_bridges
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
     sleep 0.5 # wait for VF to bind back
@@ -20,6 +21,11 @@ function cleanup() {
         ip link set $i mtu 1500 &>/dev/null
         ifconfig $i 0 &>/dev/null
     done
+    if [ $MULTIPATH == 1 ]; then
+        disable_sriov
+        disable_multipath
+        enable_sriov
+    fi
 }
 
 if [ $MULTIPATH == 1 ]; then
@@ -87,11 +93,6 @@ ip netns exec ns0 ping -q -f -w 4 $IP2 && success || err
 echo "verify tcpdump"
 verify_timedout $tpid
 
-ovs_clear_bridges
+trap - EXIT
 cleanup
-if [ $MULTIPATH == 1 ]; then
-    disable_sriov
-    disable_multipath
-    enable_sriov
-fi
 test_done
