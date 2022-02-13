@@ -29,6 +29,17 @@ SERVER_GATEWAY_IPV4=$(ovn_get_router_port_ip $TOPOLOGY $SERVER_ROUTER $SERVER_RO
 SERVER_GATEWAY_IPV6=$(ovn_get_router_port_ipv6 $TOPOLOGY $SERVER_ROUTER $SERVER_ROUTER_PORT)
 SERVER_PORT=$NIC
 
+OVS_IPv4_ICMP_FLOW_RULES="in_port($CLIENT_REP),eth(src=$CLIENT_MAC.*eth_type(0x0800),ipv4(src=$CLIENT_IPV4.*dst=$SERVER_IPV4.*proto=1.*actions:.*$SERVER_PORT
+in_port($SERVER_PORT),eth.*eth_type(0x0800),ipv4.*dst=$CLIENT_IPV4.*proto=1.*actions:.*$CLIENT_REP"
+OVS_IPv4_TCP_FLOW_RULES="in_port($CLIENT_REP),eth(src=$CLIENT_MAC.*eth_type(0x0800),ipv4(src=$CLIENT_IPV4.*dst=$SERVER_IPV4.*proto=6.*actions:.*$SERVER_PORT
+in_port($SERVER_PORT),eth.*eth_type(0x0800),ipv4.*dst=$CLIENT_IPV4.*proto=6.*actions:.*$CLIENT_REP"
+OVS_IPv4_UDP_FLOW_RULES="in_port($CLIENT_REP),eth(src=$CLIENT_MAC.*eth_type(0x0800),ipv4(src=$CLIENT_IPV4.*dst=$SERVER_IPV4.*proto=17.*actions:.*$SERVER_PORT
+in_port($SERVER_PORT),eth.*eth_type(0x0800),ipv4.*dst=$CLIENT_IPV4.*proto=17.*actions:.*$CLIENT_REP"
+OVS_IPv6_TCP_FLOW_RULES="in_port($CLIENT_REP),eth(src=$CLIENT_MAC.*eth_type(0x86dd),ipv6.*dst=$SERVER_IPV6,proto=6.*actions:.*$SERVER_PORT
+in_port($SERVER_PORT),eth(src=$SERVER_MAC.*eth_type(0x86dd),ipv6(.*dst=$CLIENT_IPV6,proto=6.*actions:.*$CLIENT_REP"
+OVS_IPv6_UDP_FLOW_RULES="in_port($CLIENT_REP),eth(src=$CLIENT_MAC.*eth_type(0x86dd),ipv6.*dst=$SERVER_IPV6,proto=17.*actions:.*$SERVER_PORT
+in_port($SERVER_PORT),eth(src=$SERVER_MAC.*eth_type(0x86dd),ipv6(.*dst=$CLIENT_IPV6,proto=17.*actions:.*$CLIENT_REP"
+
 function clean_up_test() {
     ovn_clean_up
     ovn_remove_network
@@ -60,13 +71,13 @@ function run_test() {
     ovn-sbctl show
 
     title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_PORT($SERVER_IPV4) offloaded"
-    check_icmp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_IPV4
+    check_icmp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_IPV4 "$OVS_IPv4_ICMP_FLOW_RULES"
 
     title "Test TCP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_PORT($SERVER_IPV4) offloaded"
-    check_remote_tcp_traffic_offload $CLIENT_REP $CLIENT_NS "" $SERVER_IPV4
+    check_remote_tcp_traffic_offload $CLIENT_REP $CLIENT_NS "" $SERVER_IPV4 "$OVS_IPv4_TCP_FLOW_RULES"
 
     title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_PORT($SERVER_IPV4) offloaded"
-    check_remote_udp_traffic_offload $CLIENT_REP $CLIENT_NS "" $SERVER_IPV4
+    check_remote_udp_traffic_offload $CLIENT_REP $CLIENT_NS "" $SERVER_IPV4 "$OVS_IPv4_UDP_FLOW_RULES"
 
     # ICMP6 offloading is not supported because IPv6 packet header doesn't contain checksum header
     # which cause offloading to fail
@@ -74,10 +85,10 @@ function run_test() {
     ip netns exec $CLIENT_NS ping -6 -w 4 $SERVER_IPV6 && success || err
 
     title "Test TCP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_PORT($SERVER_IPV6) offloaded"
-    check_remote_tcp6_traffic_offload $CLIENT_REP $CLIENT_NS "" $SERVER_IPV6
+    check_remote_tcp6_traffic_offload $CLIENT_REP $CLIENT_NS "" $SERVER_IPV6 "$OVS_IPv6_TCP_FLOW_RULES"
 
     title "Test UDP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_PORT($SERVER_IPV6) offloaded"
-    check_remote_udp6_traffic_offload $CLIENT_REP $CLIENT_NS "" $SERVER_IPV6
+    check_remote_udp6_traffic_offload $CLIENT_REP $CLIENT_NS "" $SERVER_IPV6 "$OVS_IPv6_UDP_FLOW_RULES"
 }
 
 clean_up_test

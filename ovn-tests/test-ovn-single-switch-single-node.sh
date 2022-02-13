@@ -26,6 +26,15 @@ SERVER_NS=ns1
 SERVER_VF=$VF2
 SERVER_REP=$REP2
 
+OVS_IPv4_FLOW_RULES="in_port($CLIENT_REP),eth(src=$CLIENT_MAC,dst=$SERVER_MAC),eth_type(0x0800),ipv4.*actions:$SERVER_REP
+in_port($SERVER_REP),eth(src=$SERVER_MAC,dst=$CLIENT_MAC),eth_type(0x0800),ipv4.*actions:$CLIENT_REP"
+OVS_IPv6_ICMP_FLOW_RULES="in_port($CLIENT_REP),eth(src=$CLIENT_MAC,dst=$SERVER_MAC),eth_type(0x86dd),ipv6.*proto=58.*actions:$SERVER_REP
+in_port($SERVER_REP),eth(src=$SERVER_MAC,dst=$CLIENT_MAC),eth_type(0x86dd),ipv6.*proto=58.*actions:$CLIENT_REP"
+OVS_IPv6_TCP_FLOW_RULES="in_port($CLIENT_REP),eth(src=$CLIENT_MAC,dst=$SERVER_MAC),eth_type(0x86dd),ipv6.*proto=6.*actions:$SERVER_REP
+in_port($SERVER_REP),eth(src=$SERVER_MAC,dst=$CLIENT_MAC),eth_type(0x86dd),ipv6.*proto=6.*actions:$CLIENT_REP"
+OVS_IPv6_UDP_FLOW_RULES="in_port($CLIENT_REP),eth(src=$CLIENT_MAC,dst=$SERVER_MAC),eth_type(0x86dd),ipv6.*proto=17.*actions:$SERVER_REP
+in_port($SERVER_REP),eth(src=$SERVER_MAC,dst=$CLIENT_MAC),eth_type(0x86dd),ipv6.*proto=17.*actions:$CLIENT_REP"
+
 function run_test() {
     ovn_config_interface_namespace $CLIENT_VF $CLIENT_REP $CLIENT_NS $CLIENT_PORT $CLIENT_MAC $CLIENT_IPV4 $CLIENT_IPV6
     ovn_config_interface_namespace $SERVER_VF $SERVER_REP $SERVER_NS $SERVER_PORT $SERVER_MAC $SERVER_IPV4 $SERVER_IPV6
@@ -34,22 +43,22 @@ function run_test() {
     ovn-sbctl show
 
     title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
-    check_icmp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_IPV4
+    check_icmp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_IPV4 "$OVS_IPv4_FLOW_RULES"
 
     title "Test TCP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
-    check_local_tcp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV4
+    check_local_tcp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV4 "$OVS_IPv4_FLOW_RULES"
 
     title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
-    check_local_udp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV4
+    check_local_udp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV4 "$OVS_IPv4_FLOW_RULES"
 
     title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6)"
-    check_icmp6_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_IPV6
+    check_icmp6_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_IPV6 "$OVS_IPv6_ICMP_FLOW_RULES"
 
     title "Test TCP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
-    check_local_tcp6_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV6
+    check_local_tcp6_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV6 "$OVS_IPv6_TCP_FLOW_RULES"
 
     title "Test UDP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
-    check_local_udp6_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV6
+    check_local_udp6_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV6 "$OVS_IPv6_UDP_FLOW_RULES"
 }
 
 ovn_execute_test
