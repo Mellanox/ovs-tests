@@ -28,7 +28,8 @@ tc_filter add dev $NIC ingress protocol ip prio 3 flower ip_proto tcp skip_sw ve
                     munge ip dst set 7.7.7.2 \
                     munge ip src set 7.7.7.1 \
                     munge eth src set aa:ba:cc:dd:ee:fe \
-                    munge eth dst set aa:b7:cc:dd:ee:fe pipe drop
+                    munge eth dst set aa:b7:cc:dd:ee:fe pipe \
+                    mirred egress redirect dev $REP
 
 reset_tc $NIC
 test_done
