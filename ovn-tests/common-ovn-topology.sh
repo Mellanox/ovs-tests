@@ -210,6 +210,29 @@ function ovn_get_switch_gateway_ipv6() {
     ovn_get_router_port_for_switch $topology $switch ".ipv6[$index]" | cut -d / -f1
 }
 
+function ovn_get_load_balancers() {
+    local topology=$1
+    local attr=${2:-"."}
+
+    ovn_get_topology $topology ".[] | select(.type == \"loadBalancer\") | collect | $attr"
+}
+
+function ovn_get_load_balancer() {
+    local topology=$1
+    local lb=$2
+    local attr=${3:-"."}
+
+    ovn_get_load_balancers $topology ".[] | select(.name == \"$lb\") | $attr"
+}
+
+function ovn_get_load_balancer_vip() {
+    local topology=$1
+    local lb=$2
+    local index=${3:-0}
+
+    ovn_get_load_balancer $topology $lb ".vip"
+}
+
 function read_single_switch_topology() {
     TOPOLOGY=$TOPOLOGY_SINGLE_SWITCH
     CLIENT_SWITCH=$SWITCH1
