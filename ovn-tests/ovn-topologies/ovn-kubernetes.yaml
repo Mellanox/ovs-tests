@@ -1,5 +1,21 @@
 name: ovn-kubernetes
 topology:
+  - name: ovn-k8s-load-balancer-ipv4
+    type: loadBalancer
+    vip: 10.10.10.10
+    ips: [7.7.8.4]
+    options:
+      - event=false
+      - reject=true
+      - skip_snat=false
+  - name: ovn-k8s-load-balancer-ipv6
+    type: loadBalancer
+    vip: 10:10:10::10
+    ips: [7:7:8::4]
+    options:
+      - event=false
+      - reject=true
+      - skip_snat=false
   - name: ovn_cluster_router
     type: router
     ports:
@@ -157,3 +173,6 @@ topology:
           - "7.7.8.4"
         ipv6:
           - "7:7:8::4"
+    loadBalancers:
+      - ovn-k8s-load-balancer-ipv4
+      - ovn-k8s-load-balancer-ipv6
