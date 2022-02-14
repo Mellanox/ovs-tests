@@ -53,6 +53,8 @@ class OVNTopologyReader:
             return OVNLogicalSwitch(entity_data)
         elif entity_type == "router":
             return OVNLogicalRouter(entity_data)
+        elif entity_type == "loadBalancer":
+            return OVNLoadBalancer(entity_data)
 
         raise RuntimeError(f'Unknown entity of type {entity_type}')
 
@@ -61,7 +63,6 @@ class OVNEntity:
     def __init__(self, data):
         self.name = data["name"]
         self._data = data
-        self._ports = data["ports"]
 
     def add_to_ovn(self):
         """Add ovn entity to OVN"""
@@ -75,6 +76,7 @@ class OVNEntity:
 class OVNLogicalSwitch(OVNEntity):
     def __init__(self, data):
         super().__init__(data)
+        self._ports = data["ports"]
 
     def __add_router_port(self, port, cmd_args):
         port_name = port["name"]
@@ -121,6 +123,11 @@ class OVNLogicalSwitch(OVNEntity):
         if port_options:
             cmd_args.append(f"lsp-set-options {port['name']} {' '.join(port_options)}")
 
+    def __add_load_balancers(self, cmd_args):
+        lbs = self._data.get("loadBalancers", [])
+        for lb in lbs:
+            cmd_args.append(f"--may-exist ls-lb-add {self.name} {lb}")
+
     def add_to_ovn(self):
         cmd_args = [f"--may-exist ls-add {self.name}"]
         for port in self._ports:
@@ -128,6 +135,7 @@ class OVNLogicalSwitch(OVNEntity):
 
             self.__set_port_options(port, cmd_args)
             self.__add_port_type(port, cmd_args)
+            self.__add_load_balancers(cmd_args)
 
         return run_ovn_nbctl(cmd_args)
 
@@ -143,6 +151,7 @@ class OVNLogicalSwitch(OVNEntity):
 class OVNLogicalRouter(OVNEntity):
     def __init__(self, data):
         super().__init__(data)
+        self._ports = data["ports"]
 
     def get_ovs_id(self):
         with open('/etc/openvswitch/system-id.conf') as ovs_system_id_file:
@@ -203,6 +212,11 @@ class OVNLogicalRouter(OVNEntity):
 
             cmd_args.append(f"lr-nat-add {self.name} {nat_type} {external_ip} {logical_ip}")
 
+    def __add_load_balancers(self, cmd_args):
+        lbs = self._data.get("loadBalancers", [])
+        for lb in lbs:
+            cmd_args.append(f"--may-exist lr-lb-add {self.name} {lb}")
+
     def add_to_ovn(self):
         cmd_args = [f"--may-exist lr-add {self.name}"]
 
@@ -210,6 +224,7 @@ class OVNLogicalRouter(OVNEntity):
         self.__add_routes(cmd_args)
         self.__add_ports(cmd_args)
         self.__add_nats(cmd_args)
+        self.__add_load_balancers(cmd_args)
 
         return run_ovn_nbctl(cmd_args)
 
@@ -220,6 +235,29 @@ class OVNLogicalRouter(OVNEntity):
 
         cmd_args.append(f"--if-exists lr-del {self.name}")
         return run_ovn_nbctl(cmd_args)
+
+
+class OVNLoadBalancer(OVNEntity):
+    def __init__(self, data):
+        super().__init__(data)
+
+    def __set_options(self, cmd_args):
+        options = self._data.get("options", [])
+        for opt in options:
+            cmd_args.append(f"set LOAD_BALANCER {self.name} options:{opt}")
+
+    def add_to_ovn(self):
+        ips = ",".join(self._data['ips'])
+        protocol = self._data.get('protocol', '')
+        if protocol not in ['', 'tcp', 'udp']:
+            raise RuntimeError(f"Invalid loadBalancer \"{self.name}\" protocol \"{protocol}\"")
+
+        cmd_args = [f"--may-exist lb-add {self.name} {self._data['vip']} {ips} {protocol}"]
+        self.__set_options(cmd_args)
+        return run_ovn_nbctl(cmd_args)
+
+    def remove_from_ovn(self):
+        return run_ovn_nbctl([f"--if-exists lb-del {self.name}"])
 
 
 def parse_args():
