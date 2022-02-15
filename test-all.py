@@ -149,20 +149,57 @@ class DeviceType(object):
     CX6_LX = "0x101f"
     CX7 = "0x1021"
     BF2 = "0xa2d6"
+    devices = {
+        CX4_LX:    "cx4lx",
+        CX5_PCI_3: "cx5",
+        CX5_PCI_4: "cx5",
+        CX6:       "cx6",
+        CX6_DX:    "cx6dx",
+        CX6_LX:    "cx6lx",
+        CX7:       "cx7",
+        BF2:       "bf2",
+    }
 
     @staticmethod
     def get(device_id):
-        tmp = {
-            DeviceType.CX4_LX: "cx4lx",
-            DeviceType.CX5_PCI_3: "cx5",
-            DeviceType.CX5_PCI_4: "cx5",
-            DeviceType.CX6:    "cx6",
-            DeviceType.CX6_DX: "cx6dx",
-            DeviceType.CX6_LX: "cx6lx",
-            DeviceType.CX7: "cx7",
-            DeviceType.BF2: "bf2",
-        }
-        return tmp.get(device_id, '')
+        return DeviceType.devices.get(device_id, '')
+
+    @staticmethod
+    def cmp(nic1, nic2):
+        """
+        -1   - nic1 < nic2
+        0    - nic1 == nic2
+        1    - nic1 > nic2
+        """
+        if not nic1.startswith('cx') or not nic2.startswith('cx'):
+            raise RuntimeError("invalid nic")
+        major1 = nic1[2]
+        major2 = nic2[2]
+        if major1 < major2:
+            return -1
+        if major1 > major2:
+            return 1
+        minor1 = nic1[3:]
+        minor2 = nic2[3:]
+        if minor1 == minor2:
+            return 0
+        if minor1 == "" and minor2 != "":
+            return -1
+        if minor1 != "" and minor2 == "":
+            return 1
+        if minor1 == "lx" and minor2 == "dx":
+            return -1
+        if minor1 == "dx" and minor2 == "lx":
+            return 1
+        raise RuntimeError("cannot compare")
+
+    @staticmethod
+    def lte(nic1, nic2):
+        return DeviceType.cmp(nic1, nic2) <= 0
+
+    @staticmethod
+    def gte(nic1, nic2):
+        return DeviceType.cmp(nic1, nic2) >= 0
 
 
 class ExecCmdFailed(Exception):
@@ -655,6 +692,16 @@ def update_skip_according_to_db(rm, _tests, data):
             if nic == current_nic:
                 t.set_ignore("Unsupported nic %s" % nic)
                 break
+
+        min_nic = data['tests'][name].get('min_nic', None)
+        if min_nic:
+            if not DeviceType.gte(current_nic, min_nic):
+                t.set_ignore("Unsupported nic %s" % current_nic)
+
+        max_nic = data['tests'][name].get('max_nic', None)
+        if max_nic:
+            if not DeviceType.lte(current_nic, max_nic):
+                t.set_ignore("Unsupported nic %s" % current_nic)
 
         min_fw = data['tests'][name].get('min_fw', None)
         if min_fw:
