@@ -84,8 +84,9 @@ function run() {
         -L localtime,srcIP,dstIP > $file&
     sleep 1
 
-    title "run ping for $t seconds"
-    ip netns exec ns0 ping $IP2 -q -i $interval -w $t
+    counter=$(expr $t*1/$interval | bc)
+    title "run: ip netns exec ns0 timeout $((t+2)) ping $IP2 -c $counter -i $interval -W $t"
+    ip netns exec ns0 timeout $((t+2)) ping $IP2 -q -c $counter -i $interval -W $t
 
     wait
 
@@ -102,7 +103,7 @@ function run() {
     #
     n=$(awk 'END {print NR}' $file)
     expected=$(echo $t/$interval*2/$SFLOW_SAMPLING | bc)
-    if (( n >= expected - 5 && n <= expected + 15 )); then
+    if (( n >= expected - 10 && n <= expected + 15 )); then
         success2 "get $n packets, expected $expected"
     else
         err "get $n packets, expected $expected"
@@ -113,8 +114,8 @@ function run() {
 }
 
 config
-add_sflow_port 10
-run 0.1
+add_sflow_port 2
+run 0.2
 add_sflow_port 1
 run 1
 start_clean_openvswitch
