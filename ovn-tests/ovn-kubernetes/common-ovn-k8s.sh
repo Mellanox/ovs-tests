@@ -97,6 +97,12 @@ function read_k8s_topology_pod_service_same_node() {
 
     read_k8s_service
 }
+function read_k8s_topology_pod_service_hairpin() {
+    CLIENT_SWITCH=$NODE2_SWITCH
+    CLIENT_PORT=$NODE2_SWITCH_PORT2
+    read_k8s_topology_pod_client
+    read_k8s_service
+}
 
 function config_ovn_k8s_pf() {
     local ovn_central_ip=$1
@@ -138,5 +144,19 @@ function config_ovn_k8s_vf_lag() {
     ip addr add $ovn_controller_ip/$ovn_controller_ip_mask dev $BRIDGE
 
     ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
+    ovn_start_ovn_controller
+}
+
+function config_ovn_k8s_hairpin() {
+    local ovn_ip=${1:-$OVN_LOCAL_CENTRAL_IP}
+
+    ovn_start_northd_central
+    ovn_create_topology
+
+    config_sriov_switchdev_mode
+    require_interfaces CLIENT_VF CLIENT_REP
+
+    start_clean_openvswitch
+    ovn_set_ovs_config $ovn_ip $ovn_ip
     ovn_start_ovn_controller
 }
