@@ -457,10 +457,15 @@ function ovn_clear_chassis() {
     ovn-sbctl -f csv --columns=name list CHASSIS | xargs -L 1 ovn-sbctl chassis-del &>/dev/null
 }
 
+function ovn_clear_load_balancers() {
+    ovn-nbctl -f csv --columns=name list LOAD_BALANCER | xargs -L 1 ovn-nbctl lb-del &>/dev/null
+}
+
 function ovn_start_clean() {
     $OVN_CTL restart_northd >/dev/null
     ovn_clear_switches
     ovn_clear_routers
+    ovn_clear_load_balancers
     ovn_clear_chassis
 }
 
