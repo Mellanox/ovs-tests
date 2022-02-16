@@ -149,6 +149,9 @@ topology:
           - "7.7.7.4"
         ipv6:
           - "7:7:7::4"
+    loadBalancers:
+      - ovn-k8s-load-balancer-ipv4
+      - ovn-k8s-load-balancer-ipv6
   - name: node-2
     type: switch
     ports:

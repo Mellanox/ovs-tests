@@ -104,6 +104,22 @@ function read_k8s_topology_pod_service_hairpin() {
     read_k8s_service
 }
 
+function read_k8s_topology_pod_service_different_nodes() {
+    CLIENT_SWITCH=$NODE1_SWITCH
+    CLIENT_PORT=$NODE1_SWITCH_PORT1
+    CLIENT_NODE_ROUTER=$NODE1_ROUTER
+    CLIENT_NODE_PORT=$NODE1_ROUTER_PORT
+    read_k8s_topology_pod_client
+
+    SERVER_SWITCH=$NODE2_SWITCH
+    SERVER_PORT=$NODE2_SWITCH_PORT2
+    SERVER_NODE_ROUTER=$NODE2_ROUTER
+    SERVER_NODE_PORT=$NODE2_ROUTER_PORT
+    read_k8s_topology_pod_server
+
+    read_k8s_service
+}
+
 function config_ovn_k8s_pf() {
     local ovn_central_ip=$1
     local ovn_controller_ip=$2
