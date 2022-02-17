@@ -24,6 +24,10 @@ K8S_LB_IPV6="ovn-k8s-load-balancer-ipv6"
 
 OVN_KUBERNETES_NETWORK="physnet"
 
+# VLAN IPs
+OVN_K8S_VLAN_NODE1_TUNNEL_IP="192.168.110.100"
+OVN_K8S_VLAN_NODE2_TUNNEL_IP="192.168.110.101"
+
 # OVN-Kubernetes uses br<nic> naming schema for bridges
 function nic_to_bridge() {
     local nic=$1
@@ -138,6 +142,31 @@ function config_ovn_k8s_pf() {
     ip addr add $ovn_controller_ip/$ovn_controller_ip_mask dev $BRIDGE
 
     ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
+    ovn_start_ovn_controller
+}
+
+function config_ovn_k8s_pf_vlan() {
+    local ovn_central_ip=$1
+    local ovn_controller_ip=$2
+    local ovn_controller_ip_mask=$3
+    local ovn_controller_mac=$4
+    local ovn_tunnel_ip=$5
+    local vf_var=$6
+    local rep_var=$7
+
+    config_sriov_switchdev_mode
+    require_interfaces $vf_var $rep_var
+
+    start_clean_openvswitch
+    ovn_add_network $BRIDGE $NIC $OVN_KUBERNETES_NETWORK
+    ovs_create_bridge_vlan_interface $BRIDGE
+
+    ovn_config_mtu $NIC $BRIDGE $OVN_VLAN_INTERFACE
+    ip link set $NIC addr $ovn_controller_mac
+    ip addr add $ovn_controller_ip/$ovn_controller_ip_mask dev $BRIDGE
+    ip addr add $ovn_tunnel_ip/24 dev $OVN_VLAN_INTERFACE
+
+    ovn_set_ovs_config $ovn_central_ip $ovn_tunnel_ip
     ovn_start_ovn_controller
 }
 
