@@ -57,6 +57,14 @@ function config_vf_lag() {
     bind_vfs $NIC2
 }
 
+function clean_vf_lag() {
+    unbind_vfs
+    unbind_vfs $NIC2
+    clear_bonding
+    config_sriov 0
+    config_sriov 0 $NIC2
+}
+
 function config_ovn_single_node() {
     local ovn_ip=${1:-$OVN_LOCAL_CENTRAL_IP}
 
