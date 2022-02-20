@@ -47,8 +47,8 @@ function run() {
     ovs-vsctl add-port br-ovs $NIC
     ovs-vsctl add-port br-ovs $REP
 
-    local filter="ufid:c5f9a0b1-3399-4436-b742-30825c64a1e5,recirc_id(0),in_port(2),eth_type(0x0800),eth(),ipv4()"
-    local actions="set(eth(dst=76:59:99:fb:aa:aa)),3,set(eth(dst=76:59:99:fb:ff:ff))"
+    local filter="ufid:c5f9a0b1-3399-4436-b742-30825c64a1e5,recirc_id(0),in_port(2),eth_type(0x0800),eth(),ipv4(proto=6),tcp()"
+    local actions="set(ipv4(ttl=3)),3,set(ipv4(ttl=4))"
 
     title "Add dpctl flow"
     add_flow_dump_tc $filter $actions $NIC
@@ -66,6 +66,12 @@ function run() {
         success
     else
         err "expected actions pedit,mirred,pedit."
+    fi
+
+    # catch ovs parsing error
+    local logfile="/var/log/openvswitch/ovs-vswitchd.log"
+    if [ -f $logfile ]; then
+        tail -n50 $logfile | grep "expected act csum with flags" && err "error in ovs logfile"
     fi
 }
 
