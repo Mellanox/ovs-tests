@@ -55,7 +55,7 @@ function __test_vxlan() {
     # because of upstream issue adding decap rule in skip_sw we add with
     # policy none and verify in_hw bit.
     # Bug SW #1360599: [upstream] decap rule offload attempt with skip_sw fails
-    tc filter show dev $vx ingress prio 2 | grep -q -w in_hw || err "Decap rule not in hw"
+    verify_in_hw $vx 2
 
     reset_tc $NIC
     reset_tc $REP
