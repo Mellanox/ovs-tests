@@ -103,12 +103,12 @@ function run() {
 
     title " - show $REP rules"
     echo "$rep_rules"
-    grep -qw not_in_hw <<<"$rep_rules" && err "Some rule is not in hw on $REP"
+    grep -qw "^\s*not_in_hw" <<<"$rep_rules" && err "Some rule is not in hw on $REP"
     grep -qw in_hw <<<"$rep_rules" || err "No in_hw TC rules found on $REP"
 
     title " - show $vx rules"
     echo "$vx_rules"
-    grep -qw not_in_hw <<<"$vx_rules" && err "Some rule is not in hw on $vx"
+    grep -qw "^\s*not_in_hw" <<<"$vx_rules" && err "Some rule is not in hw on $vx"
     grep -qw in_hw <<<"$vx_rules" || err "No in_hw TC rules found on $vx"
 
     start_clean_openvswitch
