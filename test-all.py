@@ -610,11 +610,14 @@ def update_skip_according_to_db(rm, _tests, data):
             return True
         elif type(key) == list:
             for k in key:
+                if k == flow_steering_mode:
+                    t.set_ignore("Unsupported flow steering mode %s" % k)
+                    return True
                 if k == current_nic:
-                    t.set_ignore("Unsupported nic")
+                    t.set_ignore("Unsupported nic %s" % k)
                     return True
                 if kernel_match(k, current_kernel):
-                    t.set_ignore("Unsupported kernel")
+                    t.set_ignore("Unsupported kernel %s" % k)
                     return True
         return False
 
