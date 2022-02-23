@@ -14,9 +14,9 @@ my_dir="$(dirname "$0")"
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
-disable_sriov
-enable_sriov
+config_sriov 2
 enable_switchdev
+config_sriov 2 $NIC2
 enable_switchdev $NIC2
 bind_vfs $NIC
 bind_vfs $NIC2
@@ -46,5 +46,5 @@ ifconfig $REP1_NIC2 $IP1/24 up
 ping -q -c 10 -i 0.2 -w 4 $IP2 && success || err
 
 cleanup
-disable_sriov_port2
+config_sriov 0 $NIC2
 test_done

@@ -11,8 +11,7 @@ my_dir="$(dirname "$0")"
 
 title "Test redirect rule from VF on esw0 to uplink on esw1"
 enable_switchdev
-disable_sriov_port2
-enable_sriov_port2
+config_sriov 2 $NIC2
 enable_switchdev $NIC2
 reset_tc $REP $NIC2
 
@@ -25,6 +24,6 @@ tc filter add dev $NIC2 protocol ip ingress prio 1 flower skip_sw action \
     mirred egress redirect dev $REP && err "Expected to fail"
 
 reset_tc $REP
-disable_sriov_port2
+config_sriov 0 $NIC2
 
 test_done

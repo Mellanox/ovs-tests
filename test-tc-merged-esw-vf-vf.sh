@@ -9,8 +9,7 @@ my_dir="$(dirname "$0")"
 
 title "Test redirect rule from vf on esw0 to vf on esw1"
 enable_switchdev
-disable_sriov_port2
-enable_sriov_port2
+config_sriov 2 $NIC2
 enable_switchdev $NIC2
 REP2=`get_rep 0 $NIC2`
 
@@ -24,6 +23,6 @@ reset_tc $REP2
 tc_filter add dev $REP2 protocol ip ingress prio 1 flower skip_sw dst_mac e4:11:22:11:4a:51 action mirred egress redirect dev $REP
 reset_tc $REP2
 
-disable_sriov_port2
+config_sriov 0 $NIC2
 
 test_done

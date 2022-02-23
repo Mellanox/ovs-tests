@@ -7,12 +7,12 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-disable_sriov
-enable_sriov
+config_sriov
 enable_switchdev
+config_sriov 2 $NIC2
 enable_switchdev $NIC2
 reload_modules
-disable_sriov_port2
+config_sriov 0 $NIC2
 config_sriov
 enable_switchdev
 

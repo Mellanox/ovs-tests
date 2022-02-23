@@ -46,8 +46,7 @@ cleanup
 title "Config local host"
 config_sriov 2
 enable_switchdev
-disable_sriov_port2
-enable_sriov_port2
+config_sriov 2 $NIC2
 enable_switchdev $NIC2
 require_interfaces REP REP2 NIC NIC2
 unbind_vfs

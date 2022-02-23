@@ -1060,20 +1060,14 @@ function config_sriov() {
 }
 
 function disable_sriov() {
+    enable_legacy $NIC
+    enable_legacy $NIC2
     config_sriov 0 $NIC
     config_sriov 0 $NIC2
 }
 
 function enable_sriov() {
     config_sriov 2 $NIC
-    config_sriov 2 $NIC2
-}
-
-function disable_sriov_port2() {
-    config_sriov 0 $NIC2
-}
-
-function enable_sriov_port2() {
     config_sriov 2 $NIC2
 }
 

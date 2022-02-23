@@ -11,8 +11,7 @@ my_dir="$(dirname "$0")"
 
 title "Test redirect rule from uplink on esw0 to uplink on esw1"
 enable_switchdev
-disable_sriov_port2
-enable_sriov_port2
+config_sriov 2 $NIC2
 enable_switchdev $NIC2
 
 title "- add redirect rule $NIC -> $NIC2 - expect to fail as we don't support this"
@@ -20,7 +19,6 @@ reset_tc $NIC
 tc filter add dev $NIC protocol ip ingress prio 1 flower skip_sw action \
     mirred egress redirect dev $NIC2 && err "Expected to fail"
 reset_tc $NIC
-
-disable_sriov_port2
+config_sriov 0 $NIC2
 
 test_done
