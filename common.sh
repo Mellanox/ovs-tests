@@ -461,6 +461,7 @@ function is_cloud() {
 }
 
 function fw_reset() {
+    log "fw reset"
     if is_cloud ; then
         cloud_fw_reset
     else
@@ -471,6 +472,7 @@ function fw_reset() {
 }
 
 function fw_config() {
+    log "fw config $@"
     mlxconfig -y -d $PCI set $@ || err "mlxconfig failed to set $@"
 }
 
