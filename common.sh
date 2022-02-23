@@ -133,7 +133,7 @@ function __get_device_name() {
         short_device_name="bf2"
     elif [ -n "$tmp" ]; then
         device_name=$tmp
-        short_device_name=`echo $device_name | tr [:upper:] [:lower:] | sed -e 's/connectx-/cx/' -e 's/ //g'`
+        short_device_name=`echo $device_name | tr "[:upper:]" "[:lower:]" | sed -e 's/connectx-/cx/' -e 's/ //g'`
         if [ "$short_device_name" == "cx5ex" ]; then
             short_device_name="cx5"
         fi
