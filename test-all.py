@@ -121,6 +121,7 @@ DB_PATH = None
 MINI_REG_LIST = []
 IGNORE_LIST = []
 TEST_TIMEOUT_MAX = 1200
+KMEMLEAK_SYSFS = "/sys/kernel/debug/kmemleak"
 
 TIME_DURATION_UNITS = (
     ('h', 60*60),
@@ -329,6 +330,48 @@ def parse_args():
     return parser.parse_args()
 
 
+def get_better_status(rc, log):
+    status = log.splitlines()[-1].strip()
+    status = strip_color(status)
+    lookback = 7
+
+    if rc:
+        # look for better status
+        for line in log.splitlines()[-lookback:]:
+            line = strip_color(line.strip())
+            if line.startswith('ERROR: '):
+                status = line
+                break
+
+        return status
+
+    if 'TEST PASSED' not in status:
+        # maybe some cleanup prints so look a bit back but not too much
+        for line in log.splitlines()[-lookback:]:
+            line = strip_color(line.strip())
+            if line == 'TEST PASSED':
+                status = line
+                break
+
+    return status
+
+
+def get_kmemleak_info():
+    if not os.path.exists(KMEMLEAK_SYSFS):
+        return
+
+    data = ''
+    with open(KMEMLEAK_SYSFS) as f:
+        data = f.read().strip()
+
+    if data:
+        data = "\n\n\n%s\n%s\n" % ("kmemleak trace", data)
+        with open(KMEMLEAK_SYSFS, 'w') as f:
+            f.write('clear')
+
+    return data
+
+
 def run_test(test, html=False):
     cmd = test.fname
     logname = os.path.join(LOGDIR, test.test_log)
@@ -366,6 +409,10 @@ def run_test(test, html=False):
         else:
             status = "Test timed out and got killed"
         log += "\n%s\n" % deco("ERROR: %s" % status, 'red')
+    else:
+        # not timedout
+        status = get_better_status(subp.returncode, log)
+        log += get_kmemleak_info()
 
     with open(logname, 'w') as f1:
         f1.write(log)
@@ -374,30 +421,8 @@ def run_test(test, html=False):
         with open(logname_html, 'w') as f2:
             f2.write(Ansi2HTMLConverter().convert(log))
 
-    if timedout:
+    if timedout or subp.returncode:
         raise ExecCmdFailed(status)
-
-    status = log.splitlines()[-1].strip()
-    status = strip_color(status)
-    lookback = 7
-
-    if subp.returncode:
-        # look for better status
-        for line in log.splitlines()[-lookback:]:
-            line = strip_color(line.strip())
-            if line.startswith('ERROR: '):
-                status = line
-                break
-
-        raise ExecCmdFailed(status)
-
-    if 'TEST PASSED' not in status:
-        # maybe some cleanup prints so look a bit back but not too much
-        for line in log.splitlines()[-lookback:]:
-            line = strip_color(line.strip())
-            if line == 'TEST PASSED':
-                status = line
-                break
 
     return status
 
