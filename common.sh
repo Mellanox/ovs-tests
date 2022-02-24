@@ -1913,6 +1913,19 @@ function is_ipv6() {
     return 1
 }
 
+function get_lag_resource_allocation_mode() {
+    if [ "$short_device_name" != "cx6dx" ]; then
+        echo 0
+        return
+    fi
+
+    if echo $(fw_query_val LAG_RESOURCE_ALLOCATION) | grep 1 > /dev/null; then
+        echo 1
+    else
+        echo 0
+    fi
+}
+
 function set_lag_resource_allocation() {
     if [ "$short_device_name" != "cx6dx" ]; then
         return
@@ -1921,6 +1934,22 @@ function set_lag_resource_allocation() {
     title "lag_resource_allocation value to $value"
     fw_config LAG_RESOURCE_ALLOCATION=$value || fail "Cannot set lag resource allocation to $value"
     fw_reset
+}
+
+__lag_res_alloc_mode=0
+__lag_res_alloc_change=0
+function enable_lag_resource_allocation_mode() {
+    __lag_res_alloc_mode=`get_lag_resource_allocation_mode`
+    if (( __lag_res_alloc_mode == 0 )); then
+        set_lag_resource_allocation 1
+        __lag_res_alloc_change=1
+    fi
+}
+
+function restore_lag_resource_allocation_mode() {
+    if (( lag_res_alloc_change == 1 )); then
+        set_lag_resource_allocation $__lag_res_alloc_mode
+    fi
 }
 
 function set_lag_port_select_mode() {
