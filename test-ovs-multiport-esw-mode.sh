@@ -18,7 +18,7 @@ function cleanup() {
     title "Cleanup"
     ip netns del ns0 &> /dev/null
     ovs_clear_bridges
-    change_port_state UP &>/dev/null
+    set_port_state_up &>/dev/null
     set_lag_port_select_mode "queue_affinity"
     config_sriov 2
     config_sriov 0 $NIC2
@@ -89,12 +89,6 @@ function add_openflow_rules() {
     ovs-ofctl add-flow br-ovs in_port=$REP,actions=group:1
 }
 
-function change_port_state() {
-    local state=${1:-UP}
-    title "Set $NIC port state $state"
-    mlxlink -d $PCI --port_state $state &>/tmp/mlxlink.log || fail "Failed to change port state\n`cat /tmp/mlxlink.log`"
-}
-
 function run_traffic() {
     ip netns exec ns0 ping -q -c 1 -i 0.1 -w 2 $REMOTE
 
@@ -126,7 +120,7 @@ function run_traffic() {
     title "Verify traffic on remote"
     verify_have_traffic $pid_remote
 
-    change_port_state DN
+    set_port_state_down
 
     new_sending_dev=$(get_sending_dev)
     title "Current interface that send packets $new_sending_dev"
@@ -153,7 +147,7 @@ function run_traffic() {
     title "Verify traffic offload on $REP"
     verify_no_traffic $pid_offload
 
-    change_port_state UP
+    set_port_state_up
 }
 
 trap cleanup EXIT

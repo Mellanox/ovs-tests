@@ -480,6 +480,20 @@ function fw_query_val() {
     mlxconfig -d $PCI q | grep $1 | awk {'print $2'}
 }
 
+function set_port_state() {
+    local state=${1:-UP}
+    title "Set $NIC port state $state"
+    mlxlink -d $PCI --port_state $state &>/tmp/mlxlink.log || fail "Failed to set port state\n`cat /tmp/mlxlink.log`"
+}
+
+function set_port_state_up() {
+    set_port_state UP
+}
+
+function set_port_state_down() {
+    set_port_state DN
+}
+
 function ssh2() {
     ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=3 "$@"
 }
