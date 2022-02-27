@@ -18,24 +18,33 @@ function require_ovn() {
     [ ! -e "${OVN_CTL}" ] && fail "Missing $OVN_CTL"
 }
 
+function ovn_is_northd_central_running() {
+    $OVN_CTL status_northd >/dev/null
+}
+
 function ovn_start_northd_central() {
     local ip=${1:-$OVN_LOCAL_CENTRAL_IP}
 
-    $OVN_CTL start_northd
+    ovn_is_northd_central_running || $OVN_CTL start_northd
+
     ovn-nbctl set-connection ptcp:6641:[$ip]
     ovn-sbctl set-connection ptcp:6642:[$ip]
 }
 
 function ovn_stop_northd_central() {
-    $OVN_CTL stop_northd
+    ovn_is_northd_central_running && $OVN_CTL stop_northd
+}
+
+function ovn_is_controller_running() {
+    $OVN_CTL status_controller >/dev/null
 }
 
 function ovn_start_ovn_controller() {
-    $OVN_CTL start_controller
+    ovn_is_controller_running || $OVN_CTL start_controller
 }
 
 function ovn_stop_ovn_controller() {
-    $OVN_CTL stop_controller
+    ovn_is_controller_running && $OVN_CTL stop_controller
 }
 
 function ovn_set_ovs_config() {
