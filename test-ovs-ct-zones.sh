@@ -35,6 +35,7 @@ trap cleanup EXIT
 function configure_rules() {
     local orig_dev=$1
     local reply_dev=$2
+    local extra_openflow=$3
 
     ovs-ofctl del-flows ovs-br
     ovs-ofctl add-flow ovs-br "table=0, arp, actions=normal"
@@ -49,9 +50,9 @@ function configure_rules() {
     ovs-ofctl add-flow ovs-br "table=7, ip,in_port=$orig_dev,ct_state=+trk+est, actions=output:$reply_dev"
 
     #REPLY
-    ovs-ofctl add-flow ovs-br "table=0, ip,in_port=$reply_dev,ct_state=-trk, actions=ct(zone=7, table=8)"
-    ovs-ofctl add-flow ovs-br "table=8, ip,in_port=$reply_dev,ct_state=+trk+est, actions=ct(zone=5, table=9)"
-    ovs-ofctl add-flow ovs-br "table=9, ip,in_port=$reply_dev,ct_state=+trk+est, actions=output:$orig_dev"
+    ovs-ofctl add-flow ovs-br "table=0, ip,in_port=$reply_dev,ct_state=-trk,tcp,$extra_openflow actions=ct(zone=7, table=8)"
+    ovs-ofctl add-flow ovs-br "table=8, ip,in_port=$reply_dev,ct_state=+trk+est,tcp actions=ct(zone=5, table=9)"
+    ovs-ofctl add-flow ovs-br "table=9, ip,in_port=$reply_dev,ct_state=+trk+est,tcp actions=output:$orig_dev"
 
     ovs-ofctl dump-flows ovs-br --color
 }
@@ -76,15 +77,17 @@ function run() {
     local ovsdev2=$2
     local ns1dev=$3
     local hw=$4
+    local extra_openflow=$5
+    local run_title=$6
 
-    title "Test OVS CT with multiple zones - $5"
+    title "Test OVS CT with multiple zones - $run_title"
 
     echo "setup ovs"
     start_clean_openvswitch
     ovs-vsctl add-br ovs-br
     ovs-vsctl add-port ovs-br $ovsdev1
     ovs-vsctl add-port ovs-br $ovsdev2
-    configure_rules $ovsdev1 $ovsdev2
+    configure_rules $ovsdev1 $ovsdev2 "$extra_openflow"
 
     t=15
 
@@ -136,11 +139,16 @@ function run() {
 cleanup
 config_veth ns0 $IP1
 config_veth ns1 $IP2
-run ns0_veth ns1_veth ns1_peer false "tc only"
+run ns0_veth ns1_veth ns1_peer false "" "tc only"
+
+cleanup
+config_veth ns0 $IP1
+config_veth ns1 $IP2
+run ns0_veth ns1_veth ns1_peer false "tcp_flags=-fin" "tc only - no reply fin (lookup bug)"
 
 cleanup
 config_vf ns0 $VF $REP $IP1
 config_vf ns1 $VF2 $REP2 $IP2
-run $REP $REP2 $VF2 true "hw"
+run $REP $REP2 $VF2 true "" "hw"
 
 test_done
