@@ -74,7 +74,6 @@ function test_tx_rx_off() {
     local NET_PROTO=${4}
     title "test ipsec in $IPSEC_MODE mode with $KEY_LEN key length using $IP_PROTO with offloaded RX"
 
-    title "Config ipsec - both sides offloaded"
     ipsec_config_local $IPSEC_MODE $KEY_LEN $IP_PROTO offload #in this test local is used as RX
     ipsec_config_remote $IPSEC_MODE $KEY_LEN $IP_PROTO
 
