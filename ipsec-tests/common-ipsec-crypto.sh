@@ -3,8 +3,17 @@
 #run_traffic ipv4/ipv6 [udp|tcp|icmp]
 function run_traffic() {
     local IP_PROTO="$1"
-    local NET_PROTO=${2}
+    local NET_PROTO="$2"
+    local trusted_vfs=${3:-"no_trusted_vfs"}
     local IPERF_EXTRA=""
+    local nic=""
+
+    if [[ $trusted_vfs == "trusted_vfs" ]]; then
+        nic=$VF
+    else
+        nic=$NIC
+    fi
+
     if [[ "$NET_PROTO" == "tcp" ]]; then
         :
     elif [[ "$NET_PROTO" == "udp" ]]; then
@@ -23,7 +32,7 @@ function run_traffic() {
     # please notice the no filters on the tcpdump since ipsec encrypt the packets and using crypto offload
     # will require turning TSO/GRO off in some cases in order to capture the expected traffic which will not
     # represent the use case.
-    timeout $t tcpdump -qnnei $NIC -c 5 -w $TCPDUMP_FILE &
+    timeout $t tcpdump -qnnei $nic -c 5 -w $TCPDUMP_FILE &
     local upid=$!
     if [[ "$NET_PROTO" == "icmp" ]]; then
         if [[ "$IP_PROTO" == "ipv4" ]]; then
@@ -39,7 +48,7 @@ function run_traffic() {
         fi
     fi
     fail_if_err
-    title "Verify $NET_PROTO traffic on $NIC"
+    title "Verify $NET_PROTO traffic on $nic"
     verify_have_traffic $upid
 }
 
@@ -49,14 +58,16 @@ function test_tx_off_rx() {
     local KEY_LEN="$2"
     local IP_PROTO="$3"
     local NET_PROTO=${4}
+    local TRUSTED_VFS=${5:-"no_trusted_vfs"}
+
     title "test ipsec in $IPSEC_MODE mode with $KEY_LEN key length using $IP_PROTO with offloaded TX"
 
-    ipsec_config_local $IPSEC_MODE $KEY_LEN $IP_PROTO #in this test local is used as RX
-    ipsec_config_remote $IPSEC_MODE $KEY_LEN $IP_PROTO offload
+    ipsec_config_local $IPSEC_MODE $KEY_LEN $IP_PROTO no-offload $TRUSTED_VFS #in this test local is used as RX
+    ipsec_config_remote $IPSEC_MODE $KEY_LEN $IP_PROTO offload $TRUSTED_VFS
 
     sleep 2
 
-    run_traffic $IP_PROTO $NET_PROTO
+    run_traffic $IP_PROTO $NET_PROTO $TRUSTED_VFS
 
     title "Verify offload"
     local tx_off=`on_remote ip x s s | grep offload |wc -l`
@@ -72,14 +83,16 @@ function test_tx_rx_off() {
     local KEY_LEN="$2"
     local IP_PROTO="$3"
     local NET_PROTO=${4}
+    local TRUSTED_VFS=${5:-"no_trusted_vfs"}
+
     title "test ipsec in $IPSEC_MODE mode with $KEY_LEN key length using $IP_PROTO with offloaded RX"
 
-    ipsec_config_local $IPSEC_MODE $KEY_LEN $IP_PROTO offload #in this test local is used as RX
-    ipsec_config_remote $IPSEC_MODE $KEY_LEN $IP_PROTO
+    ipsec_config_local $IPSEC_MODE $KEY_LEN $IP_PROTO offload $TRUSTED_VFS #in this test local is used as RX
+    ipsec_config_remote $IPSEC_MODE $KEY_LEN $IP_PROTO no-offload $TRUSTED_VFS
 
     sleep 2
 
-    run_traffic $IP_PROTO $NET_PROTO
+    run_traffic $IP_PROTO $NET_PROTO $TRUSTED_VFS
 
     title "Verify offload"
     local tx_off=`on_remote ip x s s | grep offload |wc -l`
@@ -95,14 +108,17 @@ function test_tx_off_rx_off() {
     local KEY_LEN="$2"
     local IP_PROTO="$3"
     local NET_PROTO=${4}
+    local TRUSTED_VFS=${5:-"no_trusted_vfs"}
+
+
     title "test ipsec in $IPSEC_MODE mode with $KEY_LEN key length using $IP_PROTO with offloaded TX & RX"
 
-    ipsec_config_local $IPSEC_MODE $KEY_LEN $IP_PROTO offload #in this test local is used as RX
-    ipsec_config_remote $IPSEC_MODE $KEY_LEN $IP_PROTO offload
+    ipsec_config_local $IPSEC_MODE $KEY_LEN $IP_PROTO offload $TRUSTED_VFS #in this test local is used as RX
+    ipsec_config_remote $IPSEC_MODE $KEY_LEN $IP_PROTO offload $TRUSTED_VFS
 
     sleep 2
 
-    run_traffic $IP_PROTO $NET_PROTO
+    run_traffic $IP_PROTO $NET_PROTO $TRUSTED_VFS
 
     title "verify offload"
     local tx_off=`on_remote ip x s s | grep offload |wc -l`
@@ -114,31 +130,47 @@ function test_tx_off_rx_off() {
 
 function clean_up_crypto() {
     local mtu=${1:-1500}
-    ip address flush $NIC
-    on_remote ip address flush $REMOTE_NIC
+    local trusted_vfs=${2:-"no_trusted_vfs"}
+    local nic="$NIC"
+    local remote_nic="$REMOTE_NIC"
+
+    if [[ "$trusted_vfs" == "trusted_vfs" ]]; then
+        nic="$VF"
+        remote_nic="$VF"
+    fi
+
+    ip address flush $nic
+    on_remote ip address flush $remote_nic
     ipsec_clean_up_on_both_sides
     kill_iperf
-    change_mtu_on_both_sides $mtu
+    change_mtu_on_both_sides $mtu $nic $remote_nic
     rm -f $IPERF_FILE $TCPDUMP_FILE
 }
 
+# Usage <mtu> <ip_proto> <ipsec_mode> <net_proto> [trusted_vfs]
+# mtu = [0-9]*
+# ip_proto = ipv4/ipv6
+# ipsec_mode = transport/tunnel
+# net_proto = tcp/udp/icmp
+# adding trusted_vfs option will run the test over trusted VFs instead of PFs
 function run_test_ipsec_crypto() {
     local mtu=$1
     local ip_proto=$2
     local ipsec_mode=${3:-"transport"}
     local net_proto=${4:-"tcp"}
+    local trusted_vfs=${5:-"no_trusted_vfs"}
     local len
 
     for len in 128 256; do
-        title "test $ipsec_mode $ip_proto over $net_proto with key length $len MTU $mtu"
+        title "test $ipsec_mode $ip_proto over $net_proto with key length $len MTU $mtu with $trusted_vfs"
 
-        clean_up_crypto $mtu
-        test_tx_off_rx $ipsec_mode $len $ip_proto $net_proto
-        clean_up_crypto $mtu
-        test_tx_rx_off $ipsec_mode $len $ip_proto $net_proto
-        clean_up_crypto $mtu
-        test_tx_off_rx_off $ipsec_mode $len $ip_proto $net_proto
-        clean_up_crypto $mtu
+        clean_up_crypto $mtu $trusted_vfs
+        test_tx_off_rx $ipsec_mode $len $ip_proto $net_proto $trusted_vfs
+        clean_up_crypto $mtu $trusted_vfs
+        test_tx_rx_off $ipsec_mode $len $ip_proto $net_proto $trusted_vfs
+        clean_up_crypto $mtu $trusted_vfs
+        test_tx_off_rx_off $ipsec_mode $len $ip_proto $net_proto $trusted_vfs
+        clean_up_crypto $mtu $trusted_vfs
     done
 }
 

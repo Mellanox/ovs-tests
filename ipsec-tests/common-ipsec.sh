@@ -32,7 +32,7 @@ KEY_IN_256=0x`dd if=/dev/urandom count=36 bs=1 2> /dev/null| xxd -p -c 72`
 KEY_OUT_256=0x`dd if=/dev/urandom count=36 bs=1 2> /dev/null| xxd -p -c 72`
 
 # Usage <MODE> <IPSEC_MODE> <KEY_LEN> <IP_PROTO> [offload]
-# MODE = local|remote
+# MODE = local|remote|local_vf|remote_vf
 # IPSEC_MODE = transport|tunnel
 # KEY_LEN = 128|256
 # IP_PROTO = ipv4|ipv6
@@ -54,8 +54,16 @@ function ipsec_config() {
         local nic=$REMOTE_NIC
         local IP=$RIP
         local IP6=$RIP6
+    elif [[ "$MODE" == "local_vf" ]]; then
+        local nic=$VF
+        local IP=$LIP
+        local IP6=$LIP6
+    elif [[ "$MODE" == "remote_vf" ]]; then
+        local nic=$VF
+        local IP=$RIP
+        local IP6=$RIP6
     else
-        fail "Wrong usage, MODE local|remote"
+        fail "Wrong usage, MODE local|remote|local_vf|remote_vf"
     fi
 
     if [[ "$IPSEC_MODE" != "transport" && "$IPSEC_MODE" != "tunnel" ]]; then
@@ -67,18 +75,18 @@ function ipsec_config() {
     fi
 
     if [[ "$KEY_LEN" == 128 ]]; then
-    if [[ "$MODE" == "local" ]]; then
-        local ALGO_LINE_IN="aead rfc4106(gcm(aes)) $KEY_IN_128 128"
+        if [[ "$MODE" == "local" || "$MODE" == "local_vf" ]]; then
+            local ALGO_LINE_IN="aead rfc4106(gcm(aes)) $KEY_IN_128 128"
             local ALGO_LINE_OUT="aead rfc4106(gcm(aes)) $KEY_OUT_128 128"
-    else
+        else
             local ALGO_LINE_IN="aead 'rfc4106(gcm(aes))' $KEY_IN_128 128"
             local ALGO_LINE_OUT="aead 'rfc4106(gcm(aes))' $KEY_OUT_128 128"
         fi
     elif [[ "$KEY_LEN" == 256 ]]; then
-        if [[ "$MODE" == "local" ]]; then
-        local ALGO_LINE_IN="aead rfc4106(gcm(aes)) $KEY_IN_256 128"
+        if [[ "$MODE" == "local" ||  "$MODE" == "local_vf" ]]; then
+            local ALGO_LINE_IN="aead rfc4106(gcm(aes)) $KEY_IN_256 128"
             local ALGO_LINE_OUT="aead rfc4106(gcm(aes)) $KEY_OUT_256 128"
-    else
+        else
             local ALGO_LINE_IN="aead 'rfc4106(gcm(aes))' $KEY_IN_256 128"
             local ALGO_LINE_OUT="aead 'rfc4106(gcm(aes))' $KEY_OUT_256 128"
         fi
@@ -86,14 +94,14 @@ function ipsec_config() {
         fail "Wrong usage, KEY_LEN 128|256"
     fi
 
-    if [ "$SHOULD_OFFLOAD" == "" ]; then
+    if [[ "$SHOULD_OFFLOAD" == "" || "$SHOULD_OFFLOAD" == "no-offload" ]]; then
         OFFLOAD_IN=""
         OFFLOAD_OUT=""
     elif [ "$SHOULD_OFFLOAD" == "offload" ]; then
         OFFLOAD_IN="offload dev ${nic} dir in"
         OFFLOAD_OUT="offload dev ${nic} dir out"
     else
-        fail "Wrong usage, SHOULD_OFFLOAD [offload]"
+        fail "Wrong usage, SHOULD_OFFLOAD [offload|no-offload]"
     fi
 
     cmds="ip address flush $nic"
@@ -111,7 +119,8 @@ function ipsec_config() {
     cmds="$cmds
           ip link set $nic up"
 
-    if [[ "$MODE" == "local" && "$IPSEC_MODE" == "transport" ]]; then
+    if [[ ( "$MODE" == "local" || "$MODE" == "local_vf" ) && "$IPSEC_MODE" == "transport" ]]; then
+        eval "$cmds"
         ip xfrm state flush
         ip xfrm policy flush
         ip xfrm state add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp spi 1000 reqid 10000 $ALGO_LINE_IN mode $IPSEC_MODE sel src $EFFECTIVE_LIP dst $EFFECTIVE_RIP $OFFLOAD_OUT
@@ -119,8 +128,8 @@ function ipsec_config() {
         ip xfrm policy add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP dir out tmpl src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp reqid 10000 mode $IPSEC_MODE
         ip xfrm policy add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP dir in tmpl src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp reqid 10001 mode $IPSEC_MODE
         ip xfrm policy add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP dir fwd tmpl src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp reqid 10001 mode $IPSEC_MODE
-        eval "$cmds"
-    elif [[ "$MODE" == "remote" && "$IPSEC_MODE" == "transport" ]]; then
+    elif [[ ( "$MODE" == "remote" || "$MODE" == "remote_vf" ) && "$IPSEC_MODE" == "transport" ]]; then
+        on_remote "$cmds"
         on_remote "
             ip xfrm state flush
             ip xfrm policy flush
@@ -129,8 +138,7 @@ function ipsec_config() {
             ip xfrm policy add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP dir in tmpl src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp reqid 10000 mode $IPSEC_MODE
             ip xfrm policy add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP dir out tmpl src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp reqid 10001 mode $IPSEC_MODE
             ip xfrm policy add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP dir fwd tmpl src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp reqid 10000 mode $IPSEC_MODE"
-        on_remote "$cmds"
-    elif [[ "$MODE" == "local" && "$IPSEC_MODE" == "tunnel" ]]; then
+    elif [[ ( "$MODE" == "local" || "$MODE" == "local_vf" ) && "$IPSEC_MODE" == "tunnel" ]]; then
             eval "$cmds"
             ip xfrm state flush
             ip xfrm policy flush
@@ -139,7 +147,7 @@ function ipsec_config() {
             ip xfrm policy add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP dir out tmpl src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp reqid 10000 mode tunnel
             ip xfrm policy add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP dir in tmpl src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp reqid 10001 mode tunnel
             ip xfrm policy add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP dir fwd tmpl src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp reqid 10001 mode tunnel
-    elif [[ "$MODE" == "remote" && "$IPSEC_MODE" == "tunnel" ]]; then
+    elif [[ ( "$MODE" == "remote" || "$MODE" == "remote_vf" ) && "$IPSEC_MODE" == "tunnel" ]]; then
         on_remote "$cmds"
         on_remote "ip xfrm state flush
                    ip xfrm policy flush
@@ -157,51 +165,69 @@ function ipsec_config_local() {
     local IPSEC_MODE="$1"
     local KEY_LEN="$2"
     local IP_PROTO="$3"
-    local SHOULD_OFFLOAD="$4"
+    local SHOULD_OFFLOAD=${4:-"no-offload"}
+    local TRUSTED_VFS=${5:-"no-trusted"}
+    local FUNC_MODE="local"
 
-    ipsec_config local $IPSEC_MODE $KEY_LEN $IP_PROTO $SHOULD_OFFLOAD
+    if [ $TRUSTED_VFS == "trusted_vfs" ]; then
+        FUNC_MODE="local_vf"
+    fi
+
+    ipsec_config $FUNC_MODE $IPSEC_MODE $KEY_LEN $IP_PROTO $SHOULD_OFFLOAD
 }
 
 function ipsec_config_remote() {
     local IPSEC_MODE="$1"
     local KEY_LEN="$2"
     local IP_PROTO="$3"
-    local SHOULD_OFFLOAD="$4"
+    local SHOULD_OFFLOAD=${4:-"no-offload"}
+    local TRUSTED_VFS=${5:-"no-trusted"}
+    local FUNC_MODE="remote"
 
-    ipsec_config remote $IPSEC_MODE $KEY_LEN $IP_PROTO $SHOULD_OFFLOAD
+    if [ $TRUSTED_VFS == "trusted_vfs" ]; then
+        FUNC_MODE="remote_vf"
+    fi
+
+    ipsec_config $FUNC_MODE $IPSEC_MODE $KEY_LEN $IP_PROTO $SHOULD_OFFLOAD
 }
 
 function ipsec_config_on_both_sides() {
     local IPSEC_MODE="$1"
     local KEY_LEN="$2"
     local IP_PROTO="$3"
-    local SHOULD_OFFLOAD="$4"
+    local SHOULD_OFFLOAD=${4:-"no-offload"}
+    local TRUSTED_VFS=${5:-"no-trusted"}
 
-    ipsec_config_local $IPSEC_MODE $KEY_LEN $IP_PROTO $SHOULD_OFFLOAD
-    ipsec_config_remote $IPSEC_MODE $KEY_LEN $IP_PROTO $SHOULD_OFFLOAD
+    ipsec_config_local $IPSEC_MODE $KEY_LEN $IP_PROTO $SHOULD_OFFLOAD $TRUSTED_VFS
+    ipsec_config_remote $IPSEC_MODE $KEY_LEN $IP_PROTO $SHOULD_OFFLOAD $TRUSTED_VFS
 }
 
 function ipsec_clean_up_local() {
+    local dev=${1:-"$NIC"}
     ip xfrm state flush
     ip xfrm policy flush
-    ip address flush $NIC
+    ip address flush $dev
 }
 
 function ipsec_clean_up_remote() {
+    local dev=${1:-"$NIC"}
     on_remote "ip xfrm state flush
                ip xfrm policy flush
-               ip address flush $REMOTE_NIC"
+	       ip address flush $dev"
 }
 
 function ipsec_clean_up_on_both_sides() {
-    ipsec_clean_up_local
-    ipsec_clean_up_remote
+    local dev=${1:-"$NIC"}
+    ipsec_clean_up_local $dev
+    ipsec_clean_up_remote $dev
 }
 
 function change_mtu_on_both_sides() {
-    local mtu_val=${1:-1500}
-    ip link set $NIC mtu $mtu_val
-    on_remote ip link set $REMOTE_NIC mtu $mtu_val
+    local mtu_val=${1}
+    local local_dev=${2:-"$NIC"}
+    local remote_dev=${3:-"$REMOTE_NIC"}
+    ip link set $local_dev mtu $mtu_val
+    on_remote ip link set $remote_dev mtu $mtu_val
 }
 
 function start_iperf_server_on_remote() {
@@ -226,4 +252,46 @@ function ipsec_set_mode() {
 
 function ipsec_get_mode() {
     cat /sys/class/net/$NIC/compat/devlink/ipsec_mode
+}
+
+function ipsec_set_trusted_vfs(){
+    require_mlxreg
+    config_sriov
+    enable_legacy
+    unbind_vfs
+    title "Set vf trusted mode"
+    set_trusted_vf_mode $NIC
+    bind_vfs
+    reset_tc $VF
+    TRUSTED_VFS="trusted_vfs"
+}
+
+function ipsec_set_trusted_vfs_on_remote(){
+    on_remote_exec "require_mlxreg
+                    config_sriov
+                    enable_legacy
+                    unbind_vfs
+                    title "Set vf trusted mode on remote"
+                    set_trusted_vf_mode $REMOTE_NIC
+                    bind_vfs
+                    reset_tc $VF"
+    TRUSTED_VFS="trusted_vfs"
+}
+
+function ipsec_cleanup_trusted_vfs(){
+    reload_modules
+}
+
+function ipsec_cleanup_trusted_vfs_on_remote(){
+    on_remote_exec "ipsec_cleanup_trusted_vfs"
+}
+
+function ipsec_set_trusted_vfs_on_both_sides(){
+    ipsec_set_trusted_vfs
+    ipsec_set_trusted_vfs_on_remote
+}
+
+function ipsec_cleanup_trusted_vfs_on_both_sides(){
+    ipsec_cleanup_trusted_vfs
+    ipsec_cleanup_trusted_vfs_on_remote
 }
