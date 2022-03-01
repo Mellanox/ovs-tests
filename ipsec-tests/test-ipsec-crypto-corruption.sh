@@ -25,7 +25,7 @@ function clean_up() {
 
 function prep_pcap() {
     title "Prepare pcap file"
-    local t=3
+    local t=10
     start_iperf_server_on_remote
     timeout $((t+2)) tcpdump -n -s0 -p -i $NIC -c 5 -Q out -w $PCAP_FILE esp or udp port 4500 &
     sleep 1
@@ -36,7 +36,7 @@ function prep_pcap() {
 
 function run_test() {
     prep_pcap
-    local t=5
+    local t=10
     local init_pkts=`on_remote ethtool -S $REMOTE_NIC | grep -E 'rx_packets_phy|vport_rx_packets' | awk {'print $2'} | tail -1`
 
     title "Send corrupted packets"
