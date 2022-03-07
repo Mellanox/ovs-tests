@@ -53,17 +53,6 @@ function test_basic_meter() {
     verify_in_hw $dev 2
     reset_tc $dev
 
-    title "  - rule with four police actions"
-    tc_filter add dev $dev ingress protocol ip prio 2 flower \
-        action police rate 100mbit burst 12m conform-exceed drop/pipe \
-        action police rate 200mbit burst 12m conform-exceed drop/pipe \
-        action police rate 300mbit burst 12m conform-exceed drop/pipe \
-        action police rate 400mbit burst 12m conform-exceed drop/pipe \
-        action mirred egress redirect dev $out_dev
-
-    verify_not_in_hw $dev 2
-    reset_tc $dev
-
     title "  - rule with max rate/burst police action"
     tc_filter add dev $dev ingress protocol ip prio 2 flower \
         action police rate 2047999999999 burst 4294967295 conform-exceed drop/pipe \
@@ -92,15 +81,6 @@ function test_basic_meter() {
         action goto chain 1
 
     verify_in_hw $dev 2
-    reset_tc $dev
-
-    title "  - rule with pedit before police action"
-    tc_filter add dev $dev ingress protocol ip prio 2 flower \
-        action pedit ex munge eth dst set 20:22:33:44:55:66 pipe \
-        action police rate 100mbit burst 12m conform-exceed drop/pipe \
-        action mirred egress redirect dev $out_dev
-
-    verify_not_in_hw $dev 2
     reset_tc $dev
 
     title "  - rule with pedit after police action"
