@@ -25,6 +25,7 @@ function test_basic_meter() {
     local out_dev=$2
 
     title "Test basic meter ($dev -> $out_dev)"
+    reset_tc $dev
 
     title "  - rule with one police action"
     tc_filter add dev $dev ingress protocol ip prio 2 flower \
