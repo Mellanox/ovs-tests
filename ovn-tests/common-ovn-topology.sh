@@ -261,3 +261,14 @@ function read_switch_server() {
     SERVER_VF=$VF2
     SERVER_REP=$REP2
 }
+
+function read_two_switches_topology() {
+    TOPOLOGY=$TOPOLOGY_2_SWITCHES
+    CLIENT_SWITCH=$SWITCH1
+    CLIENT_PORT=$SWITCH1_PORT1
+    SERVER_SWITCH=$SWITCH2
+    SERVER_PORT=$SWITCH2_PORT1
+
+    read_switch_client
+    read_switch_server
+}
