@@ -358,7 +358,7 @@ def get_better_status(rc, log):
 
 def get_kmemleak_info():
     if not os.path.exists(KMEMLEAK_SYSFS):
-        return
+        return ''
 
     data = ''
     with open(KMEMLEAK_SYSFS) as f:
