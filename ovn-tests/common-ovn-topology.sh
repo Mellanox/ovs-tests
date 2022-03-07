@@ -232,3 +232,32 @@ function read_gateway_topology() {
     SERVER_VF=$VF
     SERVER_REP=$REP
 }
+
+function read_single_switch_topology() {
+    TOPOLOGY=$TOPOLOGY_SINGLE_SWITCH
+    CLIENT_SWITCH=$SWITCH1
+    CLIENT_PORT=$SWITCH1_PORT1
+    SERVER_SWITCH=$SWITCH1
+    SERVER_PORT=$SWITCH1_PORT2
+
+    read_switch_client
+    read_switch_server
+}
+
+function read_switch_client() {
+    CLIENT_MAC=$(ovn_get_switch_port_mac $TOPOLOGY $CLIENT_SWITCH $CLIENT_PORT)
+    CLIENT_IPV4=$(ovn_get_switch_port_ip $TOPOLOGY $CLIENT_SWITCH $CLIENT_PORT)
+    CLIENT_IPV6=$(ovn_get_switch_port_ipv6 $TOPOLOGY $CLIENT_SWITCH $CLIENT_PORT)
+    CLIENT_NS=ns0
+    CLIENT_VF=$VF
+    CLIENT_REP=$REP
+}
+
+function read_switch_server() {
+    SERVER_MAC=$(ovn_get_switch_port_mac $TOPOLOGY $SERVER_SWITCH $SERVER_PORT)
+    SERVER_IPV4=$(ovn_get_switch_port_ip $TOPOLOGY $SERVER_SWITCH $SERVER_PORT)
+    SERVER_IPV6=$(ovn_get_switch_port_ipv6 $TOPOLOGY $SERVER_SWITCH $SERVER_PORT)
+    SERVER_NS=ns1
+    SERVER_VF=$VF2
+    SERVER_REP=$REP2
+}
