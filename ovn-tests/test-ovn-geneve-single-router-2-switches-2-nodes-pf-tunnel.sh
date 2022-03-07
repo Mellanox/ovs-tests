@@ -8,8 +8,7 @@ CONFIG_REMOTE=1
 my_dir="$(dirname "$0")"
 . $my_dir/common-ovn-test-utils.sh
 
-TOPOLOGY=$TOPOLOGY_SINGLE_ROUTER_2_SWITCHES
-read_gateway_topology
+read_single_router_two_switches_topology
 
 function run_test() {
     ovn_config_interface_namespace $CLIENT_VF $CLIENT_REP $CLIENT_NS $CLIENT_PORT $CLIENT_MAC $CLIENT_IPV4 $CLIENT_IPV6 $CLIENT_GATEWAY_IPV4 $CLIENT_GATEWAY_IPV6

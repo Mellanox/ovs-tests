@@ -272,3 +272,26 @@ function read_two_switches_topology() {
     read_switch_client
     read_switch_server
 }
+
+function read_single_router_two_switches_topology() {
+    TOPOLOGY=$TOPOLOGY_SINGLE_ROUTER_2_SWITCHES
+    CLIENT_SWITCH=$SWITCH1
+    CLIENT_PORT=$SWITCH1_PORT1
+    SERVER_SWITCH=$SWITCH2
+    SERVER_PORT=$SWITCH2_PORT1
+
+    read_router_client
+    read_router_server
+}
+
+function read_router_client() {
+    read_switch_client
+    CLIENT_GATEWAY_IPV4=$(ovn_get_switch_gateway_ip $TOPOLOGY $CLIENT_SWITCH)
+    CLIENT_GATEWAY_IPV6=$(ovn_get_switch_gateway_ipv6 $TOPOLOGY $CLIENT_SWITCH)
+}
+
+function read_router_server() {
+    read_switch_server
+    SERVER_GATEWAY_IPV4=$(ovn_get_switch_gateway_ip $TOPOLOGY $SERVER_SWITCH)
+    SERVER_GATEWAY_IPV6=$(ovn_get_switch_gateway_ipv6 $TOPOLOGY $SERVER_SWITCH)
+}
