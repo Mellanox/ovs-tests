@@ -96,13 +96,13 @@ function tst_netdev() {
     log "TEST with $p0"
 
     if [ "$p0" == "$NIC" ]; then
-        lag_p0="modify lag map port 1:1 port 2:1"
-        lag_p1="modify lag map port 1:2 port 2:2"
+        lag_p0="lag map port 1:1 port 2:1"
+        lag_p1="lag map port 1:2 port 2:2"
     else
-        lag_p0="modify lag map port 1:2 port 2:2"
-        lag_p1="modify lag map port 1:1 port 2:1"
+        lag_p0="lag map port 1:2 port 2:2"
+        lag_p1="lag map port 1:1 port 2:1"
     fi
-    lag_default="modify lag map port 1:1 port 2:2"
+    lag_default="lag map port 1:1 port 2:2"
 
     title "link down $p0"
     ifconfig $p0 down

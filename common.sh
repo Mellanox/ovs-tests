@@ -306,7 +306,8 @@ function is_vf_lag_activated() {
         # look for "lag map" and not "modify lag map".
         # "lag map" print is from create lag.
         # "modify lag map" print is from modify lag.
-        dmesg | tail -n10 | grep -E "lag map port 1:. port 2:." | grep -v "modify lag map"
+        # In later kernel only printing shared_fdb and mode.
+        dmesg | tail -n10 | grep -E "shared_fdb" | grep -v "modify lag map"
         rc=$?
         if [ $rc -eq 0 ]; then
             break
