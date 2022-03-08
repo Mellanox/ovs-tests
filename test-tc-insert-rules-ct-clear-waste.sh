@@ -18,7 +18,8 @@ reset_tc $NIC
 title "Test many ct clear acts"
 # Error: mlx5_core: Failed to set registers for ct clear.
 tc_filter add dev $NIC ingress protocol ip prio 2 flower skip_sw verbose \
-    action ct clear ct clear ct clear ct clear pipe ct clear ct clear pipe drop
+    action ct clear ct clear ct clear ct clear pipe ct clear ct clear pipe \
+           mirred egress redirect dev $REP
 
 title "Test ct clear acts + pedits"
 # Error: mlx5_core: can't offload re-write of non TCP/UDP.
