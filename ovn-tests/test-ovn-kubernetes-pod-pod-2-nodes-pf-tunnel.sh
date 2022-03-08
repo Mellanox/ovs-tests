@@ -10,7 +10,7 @@ my_dir="$(dirname "$0")"
 require_interfaces NIC
 require_remote_server
 
-read_k8s_topology
+read_k8s_topology_pod_pod_different_nodes
 
 nic=$NIC
 BRIDGE=$(nic_to_bridge $nic)
