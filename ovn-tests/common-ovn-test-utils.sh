@@ -116,6 +116,14 @@ function config_sriov_switchdev_mode() {
     bind_vfs
 }
 
+function ovn_config_mtu() {
+    local nic
+    for nic in $@; do
+        ip link set $nic mtu $OVN_TUNNEL_MTU
+        ip link set $nic up
+    done
+}
+
 function config_ovn_single_node() {
     local ovn_ip=${1:-$OVN_LOCAL_CENTRAL_IP}
 
@@ -127,6 +135,23 @@ function config_ovn_single_node() {
 
     start_clean_openvswitch
     ovn_set_ovs_config $ovn_ip $ovn_ip
+    ovn_start_ovn_controller
+}
+
+function ovn_pf_config() {
+    local ovn_central_ip=$1
+    local ovn_controller_ip=$2
+    local vf_var=$3
+    local rep_var=$4
+
+    config_sriov_switchdev_mode
+    require_interfaces $vf_var $rep_var
+
+    start_clean_openvswitch
+    ovn_config_mtu $NIC
+    ip addr add $ovn_controller_ip/24 dev $NIC
+
+    ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
     ovn_start_ovn_controller
 }
 
@@ -237,6 +262,12 @@ function ovn_config_interface_namespace() {
     if [[ -n "$ipv6_gw" ]]; then
         ip netns exec $ns ip -6 route add default via $ipv6_gw dev $vf
     fi
+}
+
+function ovn_set_ips() {
+    ovn_central_ip=${ovn_central_ip:-$OVN_CENTRAL_IP}
+    ovn_controller_ip=${ovn_controller_ip:-$OVN_CENTRAL_IP}
+    ovn_remote_controller_ip=${ovn_remote_controller_ip:-$OVN_REMOTE_CONTROLLER_IP}
 }
 
 # Fail if test not implementing run_test
