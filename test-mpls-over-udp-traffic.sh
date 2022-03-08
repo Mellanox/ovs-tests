@@ -33,6 +33,7 @@ vfdest2=2.2.2.21
 function cleanup_remote() {
     on_remote "ip link del dev bareudp0 2>/dev/null"
     for i in $NIC $REP $VF; do
+        on_remote reset_tc $i &>/dev/null
         on_remote ip link set $i mtu 1500 &>/dev/null
         on_remote ifconfig $i 0 &>/dev/null
     done
@@ -41,6 +42,7 @@ function cleanup_remote() {
 function cleanup() {
     ip link del dev bareudp0 2>/dev/null
     for i in $NIC $REP $VF; do
+        reset_tc $i &>/dev/null
         ip link set $i mtu 1500 &>/dev/null
         ifconfig $i 0 &>/dev/null
     done
@@ -53,10 +55,7 @@ function prep_setup()
     local profile=$1; shift
     local remote=$1; shift
 
-    local cmd="fw_config FLEX_PARSER_PROFILE_ENABLE=$profile || fail \"Cannot set flex parser profile\"
-               fw_reset
-               config_sriov 0
-               config_sriov 2
+    local cmd="config_sriov 2
                enable_switchdev
                unbind_vfs
                bind_vfs
@@ -70,6 +69,9 @@ function prep_setup()
         on_remote_dt "$cmd"
     else
         title "Prep local"
+        cmd="fw_config FLEX_PARSER_PROFILE_ENABLE=$profile || fail \"Cannot set flex parser profile\"
+             fw_reset
+             $cmd"
         eval "$cmd"
     fi
     [ $? -eq 0 ] || fail "Preparing setup failed!"
