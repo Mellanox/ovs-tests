@@ -110,6 +110,26 @@ function ovn_config_interfaces() {
     fi
 }
 
+function config_sriov_switchdev_mode() {
+    config_sriov
+    enable_switchdev
+    bind_vfs
+}
+
+function config_ovn_single_node() {
+    local ovn_ip=${1:-$OVN_LOCAL_CENTRAL_IP}
+
+    ovn_start_northd_central
+    ovn_create_topology
+
+    config_sriov_switchdev_mode
+    require_interfaces CLIENT_VF CLIENT_REP SERVER_VF SERVER_REP
+
+    start_clean_openvswitch
+    ovn_set_ovs_config $ovn_ip $ovn_ip
+    ovn_start_ovn_controller
+}
+
 function __ovn_config_mtu() {
     # Increase MTU NIC for non single node
     # Geneve packet contains additional data
