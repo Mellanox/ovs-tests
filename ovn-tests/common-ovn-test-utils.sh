@@ -124,6 +124,21 @@ function ovn_config_mtu() {
     done
 }
 
+function config_vf_lag() {
+    local mode=${1:-"802.3ad"}
+
+    config_sriov
+    config_sriov 2 $NIC2
+    enable_switchdev
+    enable_switchdev $NIC2
+    unbind_vfs
+    unbind_vfs $NIC2
+    config_bonding $NIC $NIC2 $mode
+    is_vf_lag_activated || fail
+    bind_vfs
+    bind_vfs $NIC2
+}
+
 function config_ovn_single_node() {
     local ovn_ip=${1:-$OVN_LOCAL_CENTRAL_IP}
 
@@ -138,7 +153,7 @@ function config_ovn_single_node() {
     ovn_start_ovn_controller
 }
 
-function ovn_pf_config() {
+function config_ovn_pf() {
     local ovn_central_ip=$1
     local ovn_controller_ip=$2
     local vf_var=$3
@@ -150,6 +165,24 @@ function ovn_pf_config() {
     start_clean_openvswitch
     ovn_config_mtu $NIC
     ip addr add $ovn_controller_ip/24 dev $NIC
+
+    ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
+    ovn_start_ovn_controller
+}
+
+function config_ovn_vf_lag() {
+    local ovn_central_ip=$1
+    local ovn_controller_ip=$2
+    local vf_var=$3
+    local rep_var=$4
+    local mode=${5:-"802.3ad"}
+
+    config_vf_lag $mode
+    require_interfaces $vf_var $rep_var
+
+    start_clean_openvswitch
+    ovn_config_mtu $NIC $NIC2 $OVN_BOND
+    ip addr add $ovn_controller_ip/24 dev $OVN_BOND
 
     ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
     ovn_start_ovn_controller
