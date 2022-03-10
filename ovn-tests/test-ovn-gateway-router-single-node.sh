@@ -3,10 +3,11 @@
 # Verify traffic between VF and underlay configured with OVN gateway router is offloaded
 #
 
-HAS_REMOTE=1
-
 my_dir="$(dirname "$0")"
 . $my_dir/common-ovn-test-utils.sh
+
+require_interfaces NIC
+require_remote_server
 
 read_gateway_router_topology
 
@@ -16,24 +17,11 @@ function clean_up_test() {
     on_remote_exec "__reset_nic"
 }
 
-function config_server() {
-    on_remote_exec "
-    require_interfaces NIC
-    ifconfig $SERVER_PORT $SERVER_IPV4/24
-    ip -6 addr add $SERVER_IPV6/124 dev $SERVER_PORT
-
-    ip route add $CLIENT_IPV4 via $SERVER_GATEWAY_IPV4 dev $SERVER_PORT
-    ip -6 route add $CLIENT_IPV6 via $SERVER_GATEWAY_IPV6 dev $SERVER_PORT
-    "
-}
-
 function config_test() {
-    ip link set $NIC up
-    ovn_config
-    ovn_add_network
-    config_server
-
+    ovn_single_node_external_config
     ovn_config_interface_namespace $CLIENT_VF $CLIENT_REP $CLIENT_NS $CLIENT_PORT $CLIENT_MAC $CLIENT_IPV4 $CLIENT_IPV6 $CLIENT_GATEWAY_IPV4 $CLIENT_GATEWAY_IPV6
+
+    config_ovn_external_server
 }
 
 function run_test() {

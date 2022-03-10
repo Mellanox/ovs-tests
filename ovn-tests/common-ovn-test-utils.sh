@@ -170,6 +170,34 @@ function config_ovn_pf() {
     ovn_start_ovn_controller
 }
 
+function ovn_single_node_external_config() {
+    local ovn_ip=${1:-$OVN_LOCAL_CENTRAL_IP}
+
+    ovn_start_northd_central
+    ovn_create_topology
+
+    config_sriov_switchdev_mode
+    require_interfaces CLIENT_VF CLIENT_REP
+
+    start_clean_openvswitch
+    ovn_add_network
+    ip link set $NIC up
+
+    ovn_set_ovs_config $ovn_ip $ovn_ip
+    ovn_start_ovn_controller
+}
+
+function config_ovn_external_server() {
+    on_remote_exec "
+    ip link set $SERVER_PORT up
+    ip addr add $SERVER_IPV4/24 dev $SERVER_PORT
+    ip -6 addr add $SERVER_IPV6/124 dev $SERVER_PORT
+
+    ip route add $CLIENT_IPV4 via $SERVER_GATEWAY_IPV4 dev $SERVER_PORT
+    ip -6 route add $CLIENT_IPV6 via $SERVER_GATEWAY_IPV6 dev $SERVER_PORT
+    "
+}
+
 function config_ovn_pf_vlan() {
     local ovn_central_ip=$1
     local ovn_controller_ip=$2
