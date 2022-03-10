@@ -170,6 +170,25 @@ function config_ovn_pf() {
     ovn_start_ovn_controller
 }
 
+function config_ovn_pf_vlan() {
+    local ovn_central_ip=$1
+    local ovn_controller_ip=$2
+    local vf_var=$3
+    local rep_var=$4
+
+    config_sriov_switchdev_mode
+    require_interfaces $vf_var $rep_var
+
+    start_clean_openvswitch
+    ovs_create_bridge_vlan_interface
+    ovs_add_port_to_switch $OVN_PF_BRIDGE $NIC
+    ovn_config_mtu $NIC $OVN_PF_BRIDGE $OVN_VLAN_INTERFACE
+    ip addr add $ovn_controller_ip/24 dev $OVN_VLAN_INTERFACE
+
+    ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
+    ovn_start_ovn_controller
+}
+
 function config_ovn_vf_lag() {
     local ovn_central_ip=$1
     local ovn_controller_ip=$2
