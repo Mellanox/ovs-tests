@@ -342,6 +342,12 @@ function ovn_set_ips() {
     ovn_remote_controller_ip=${ovn_remote_controller_ip:-$OVN_REMOTE_CONTROLLER_IP}
 }
 
+function ovn_set_ipv6_ips() {
+    ovn_central_ip=${ovn_central_ip:-$OVN_CENTRAL_IPV6}
+    ovn_controller_ip=${ovn_controller_ip:-$OVN_CENTRAL_IPV6}
+    ovn_remote_controller_ip=${ovn_remote_controller_ip:-$OVN_REMOTE_CONTROLLER_IPV6}
+}
+
 # Fail if test not implementing run_test
 function run_test() {
     fail "run_test() is not implemented"
