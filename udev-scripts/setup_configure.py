@@ -102,15 +102,12 @@ class SetupConfigure(object):
             self.DestroyVFs()
             self.CreateVFs()
             self.LoadVFInfo()
-
+            self.SetVFMACs()
             self.UnbindVFs()
 
             if not self.args.bluefield:
                 self.ConfigureSteeringMode()
                 self.ConfigureSwitchdev()
-
-            self.SetVFMACs()
-            if not self.args.bluefield:
                 self.LoadRepInfo()
 
             self.BringUpDevices()
