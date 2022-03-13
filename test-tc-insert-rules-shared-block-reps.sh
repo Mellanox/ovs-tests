@@ -6,8 +6,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-require_module act_ct
-
 config_sriov 2
 enable_switchdev
 require_interfaces REP REP2
