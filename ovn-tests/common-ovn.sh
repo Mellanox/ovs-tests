@@ -84,11 +84,13 @@ function check_rules() {
     local traffic_rules=$(ovs-appctl dpctl/dump-flows --names type=$rules_type 2>/dev/null | grep -vE "(dst=33:33|drop)")
     for rule_field in $rule_fields; do
         title "- Verifying rule $rule_field"
-        result=$(echo "$traffic_rules" | grep -i "$rule_field")
+        local result=$(echo "$traffic_rules" | grep -i "$rule_field")
+
         if [[ "$result" == "" ]]; then
             err "Rule $rule_field not found"
             return 1
         fi
+
         if [[ "$result" =~ "packets:0, bytes:0" ]]; then
             err "packets:0, bytes:0"
             return 1
