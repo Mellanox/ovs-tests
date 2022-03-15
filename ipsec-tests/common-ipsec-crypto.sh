@@ -178,7 +178,7 @@ function performance_config() {
     local ip_proto="$1"
     local ipsec_mode="$2"
     local should_offload="$3"
-    ipsec_clean_up_on_both_sides $ipsec_mode $ip_proto
+    ipsec_clean_up_on_both_sides
     ipsec_config_on_both_sides $ipsec_mode 128 $ip_proto $should_offload
 }
 
