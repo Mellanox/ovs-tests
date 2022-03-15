@@ -24,6 +24,9 @@ function cleanup() {
     ip netns del ns1 2> /dev/null
     reset_tc $REP
     reset_tc $REP2
+    reset_tc $REP3
+    config_sriov 2
+    enable_switchdev
 }
 trap cleanup EXIT
 
