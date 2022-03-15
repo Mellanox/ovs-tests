@@ -36,19 +36,9 @@ SWITCH1_PORT2=sw0-port2
 SWITCH2_PORT1=sw1-port1
 
 # Test Config
-TOPOLOGY=${TOPOLOGY:-}
-# Config OVN on remote host
 CONFIG_REMOTE=${CONFIG_REMOTE:-}
 # Check if remote host exist
-HAS_REMOTE=${HAS_REMOTE:-}
 HAS_BOND=${HAS_BOND:-}
-HAS_VLAN=${HAS_VLAN:-}
-IS_FRAGMENTED=${IS_FRAGMENTED:-}
-IS_IPV6_UNDERLAY=${IS_IPV6_UNDERLAY:-}
-
-if [[ -n "$CONFIG_REMOTE" ]]; then
-    HAS_REMOTE=1
-fi
 
 function __reset_nic() {
     local nic=${NIC:-}
@@ -85,29 +75,6 @@ function ovn_clean_up() {
 
     ovn_start_clean
     ovn_stop_northd_central
-}
-
-function ovn_config_interfaces() {
-    require_interfaces NIC
-    config_sriov
-    enable_switchdev
-    bind_vfs
-    require_interfaces VF REP
-
-    if [[ -n "$HAS_BOND" ]]; then
-        require_interfaces NIC2
-        enable_sriov_port2
-        enable_switchdev $NIC2
-        unbind_vfs
-        config_bonding $NIC $NIC2 802.3ad
-        is_vf_lag_activated || fail
-        bind_vfs
-        bind_vfs $NIC2
-    fi
-
-    if [[ -z "$CONFIG_REMOTE" ]]; then
-        require_interfaces VF2 REP2
-    fi
 }
 
 function config_sriov_switchdev_mode() {
@@ -255,91 +222,6 @@ function config_ovn_vf_lag_vlan() {
     ovn_start_ovn_controller
 }
 
-function __ovn_config_mtu() {
-    # Increase MTU NIC for non single node
-    # Geneve packet contains additional data
-    if [[ -n "$CONFIG_REMOTE" ]]; then
-        ip link set $NIC mtu $OVN_TUNNEL_MTU
-        ip link set $NIC up
-
-        if [[ -n "$HAS_BOND" ]]; then
-            ip link set $OVN_BOND mtu $OVN_TUNNEL_MTU
-            ip link set $OVN_BOND up
-        fi
-
-        if [[ -n "$HAS_VLAN" ]]; then
-            ip link set $OVN_VLAN_INTERFACE mtu $OVN_TUNNEL_MTU
-            ip link set $OVN_VLAN_INTERFACE up
-        fi
-    fi
-}
-
-function __ovn_config() {
-    local nic=${1:-$NIC}
-    local ovn_central_ip=${2:-$OVN_LOCAL_CENTRAL_IP}
-    local ovn_controller_ip=${3:-$OVN_LOCAL_CENTRAL_IP}
-
-    ovn_config_interfaces
-    start_clean_openvswitch
-
-    # Config VLAN
-    if [[ -n "$HAS_VLAN" ]]; then
-        ovs_create_bridge_vlan_interface
-        if [[ -n "$HAS_BOND" ]]; then
-            ovs_add_port_to_switch $OVN_PF_BRIDGE $OVN_BOND
-        else
-            ovs_add_port_to_switch $OVN_PF_BRIDGE $NIC
-        fi
-    fi
-
-    # Config IP on nic if not single node
-    if [[ -n "$CONFIG_REMOTE" ]]; then
-        local subnet_mask=24
-        if is_ipv6 $ovn_controller_ip; then
-            subnet_mask=112
-        fi
-
-        ip link set $nic up
-        ip addr add $ovn_controller_ip/$subnet_mask dev $nic
-    fi
-
-    ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
-    ovn_start_ovn_controller
-    ovs_conf_set max-idle 20000
-
-    __ovn_config_mtu
-}
-
-function ovn_config() {
-    local nic=$NIC
-    if [[ -n "$HAS_VLAN" ]]; then
-        nic=$OVN_VLAN_INTERFACE
-    elif [[ -n "$HAS_BOND" ]]; then
-        nic=$OVN_BOND
-    fi
-
-    local ovn_ip=$OVN_LOCAL_CENTRAL_IP
-    if [[ -n "$CONFIG_REMOTE" ]]; then
-        ovn_ip=$OVN_CENTRAL_IP
-        if [[ -n "$IS_IPV6_UNDERLAY" ]]; then
-            ovn_ip=$OVN_CENTRAL_IPV6
-        fi
-    fi
-
-    __ovn_config $nic $ovn_ip $ovn_ip
-    ovn_start_northd_central $ovn_ip
-    ovn_create_topology
-
-    if [[ -n "$CONFIG_REMOTE" ]]; then
-        local ovn_remote_controller_ip=$OVN_REMOTE_CONTROLLER_IP
-        if [[ -n "$IS_IPV6_UNDERLAY" ]]; then
-            ovn_remote_controller_ip=$OVN_REMOTE_CONTROLLER_IPV6
-        fi
-
-        on_remote_exec "__ovn_config $nic $ovn_ip $ovn_remote_controller_ip"
-    fi
-}
-
 function ovn_config_interface_namespace() {
     local vf=$1
     local rep=$2
@@ -376,25 +258,4 @@ function ovn_set_ipv6_ips() {
     ovn_remote_controller_ip=${ovn_remote_controller_ip:-$OVN_REMOTE_CONTROLLER_IPV6}
 }
 
-# Fail if test not implementing run_test
-function run_test() {
-    fail "run_test() is not implemented"
-}
-
-function ovn_execute_test() {
-    ovn_clean_up
-    trap ovn_clean_up EXIT
-
-    ovn_config
-    run_test
-
-    trap - EXIT
-    ovn_clean_up
-
-    test_done
-}
-
 require_ovn
-if [[ -n "$HAS_REMOTE" ]]; then
-    require_remote_server
-fi
