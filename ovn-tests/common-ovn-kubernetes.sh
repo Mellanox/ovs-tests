@@ -73,3 +73,24 @@ function read_k8s_server_node() {
     SERVER_NODE_IP=$(ovn_get_router_port_ip $TOPOLOGY $SERVER_NODE_ROUTER $SERVER_NODE_PORT)
     SERVER_NODE_IP_MASK=$(ovn_get_router_port_ip_mask $TOPOLOGY $SERVER_NODE_ROUTER $SERVER_NODE_PORT)
 }
+
+function config_ovn_k8s_pf() {
+    local ovn_central_ip=$1
+    local ovn_controller_ip=$2
+    local ovn_controller_ip_mask=$3
+    local ovn_controller_mac=$4
+    local vf_var=$5
+    local rep_var=$6
+
+    config_sriov_switchdev_mode
+    require_interfaces $vf_var $rep_var
+
+    start_clean_openvswitch
+    ovn_add_network $BRIDGE $NIC $OVN_KUBERNETES_NETWORK
+    ovn_config_mtu $NIC $BRIDGE
+    ip link set $NIC addr $ovn_controller_mac
+    ip addr add $ovn_controller_ip/$ovn_controller_ip_mask dev $BRIDGE
+
+    ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
+    ovn_start_ovn_controller
+}
