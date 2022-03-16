@@ -114,7 +114,7 @@ function run() {
     sleep 2
 
     # icmp
-    ip netns exec ns0 ping -q -c 1 -w 1 $REMOTE
+    ip netns exec ns0 ping -q -c 3 -w 4 $REMOTE
     if [ $? -ne 0 ]; then
         err "ping failed"
         return
@@ -127,7 +127,7 @@ function run() {
     sleep 2
 
     # icmp
-    ip netns exec ns0 ping -q -c 1 -w 1 $REMOTE
+    ip netns exec ns0 ping -q -c 3 -w 4 $REMOTE
     if [ $? -ne 0 ]; then
         err "ping failed"
         return
