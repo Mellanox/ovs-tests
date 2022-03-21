@@ -57,10 +57,12 @@ function config_ns() {
     local ns=$1
     local dev=$2
     local ip_addr=$3
+    local ipv6_addr=${4-"2001:db8:0:f101::1"}
 
     ip netns add $ns
     ip link set $dev netns $ns
     ip netns exec $ns ifconfig $dev $ip_addr up
+    ip netns exec $ns ip -6 address add $ipv6_addr/64 dev $dev
 }
 
 function set_e2e_cache_enable() {
@@ -115,19 +117,24 @@ function check_offload_contains() {
 
 function check_dpdk_offloads() {
     local IP=$1
+    local filter='ipv6\|icmpv6\|arp\|drop\|ct_state(0x21/0x21)\|flow-dump'
 
-    local x=$(ovs-appctl dpctl/dump-flows -m | grep -v 'ipv6\|icmpv6\|arp\|drop\|ct_state(0x21/0x21)\|flow-dump' | grep -- $IP'\|tnl_pop' | wc -l)
+    if [[ $IP = *":"* ]]; then
+        filter='icmpv6\|arp\|drop\|ct_state(0x21/0x21)\|flow-dump'
+    fi
+
+    local x=$(ovs-appctl dpctl/dump-flows -m | grep -v $filter | grep -- $IP'\|tnl_pop' | wc -l)
     echo "Number of filtered rules: $x"
 
-    local y=$(ovs-appctl dpctl/dump-flows -m type=offloaded | grep -v 'ipv6\|icmpv6\|arp\|drop\|flow-dump' | wc -l)
+    local y=$(ovs-appctl dpctl/dump-flows -m type=offloaded | grep -v $filter | wc -l)
     echo "Number of offloaded rules: $y"
 
     if [ $x -ne $y ]; then
         err "offloads failed"
         echo "Filtered rules:"
-        ovs-appctl dpctl/dump-flows -m | grep -v 'ipv6\|icmpv6\|arp\|drop\|ct_state(0x21/0x21)\|flow-dump' | grep -- $IP'\|tnl_pop'
+        ovs-appctl dpctl/dump-flows -m | grep -v $filter | grep -- $IP'\|tnl_pop'
         echo -e "\n\nOffloaded rules:"
-        ovs-appctl dpctl/dump-flows -m type=offloaded | grep -v 'ipv6\|icmpv6\|arp\|flow-dump'
+        ovs-appctl dpctl/dump-flows -m type=offloaded | grep -v $filter
         return 1
     elif [ $x -eq 0 ]; then
         err "offloads failed. no rules."
