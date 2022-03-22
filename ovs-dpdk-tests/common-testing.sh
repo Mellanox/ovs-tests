@@ -3,11 +3,15 @@ p_client=/tmp/perf_client
 
 function ovs_add_ct_rules() {
     local bridge=${1:-"br-int"}
+    local proto=${2:-"ip"}
+
     ovs-ofctl del-flows $bridge
     ovs-ofctl add-flow $bridge "arp,actions=NORMAL"
-    ovs-ofctl add-flow $bridge "table=0,ip,ct_state=-trk,actions=ct(zone=5, table=1)"
-    ovs-ofctl add-flow $bridge "table=1,ip,ct_state=+trk+new,actions=ct(zone=5, commit),NORMAL"
-    ovs-ofctl add-flow $bridge "table=1,ip,ct_state=+trk+est,ct_zone=5,actions=normal"
+    ovs-ofctl add-flow $bridge "icmp,actions=NORMAL"
+    ovs-ofctl add-flow $bridge "icmp6,actions=NORMAL"
+    ovs-ofctl add-flow $bridge "table=0,$proto,ct_state=-trk,actions=ct(zone=5, table=1)"
+    ovs-ofctl add-flow $bridge "table=1,$proto,ct_state=+trk+new,actions=ct(zone=5, commit),NORMAL"
+    ovs-ofctl add-flow $bridge "table=1,$proto,ct_state=+trk+est,ct_zone=5,actions=normal"
     echo "OVS flow rules:"
     ovs-ofctl dump-flows $bridge --color
 }
@@ -26,8 +30,17 @@ function ovs_add_ct_rules_dec_ttl() {
 function verify_ping() {
     local remote_ip=${1:-$REMOTE_IP}
     local namespace=${2:-ns0}
+
     echo "Testing ping $remote_ip in namespace $namespace"
-    ip netns exec $namespace ping -q -c 10 -W 2 -i 0.01 $remote_ip
+
+    cmd="ip netns exec $namespace ping -q -c 10 -W 2 -i 0.01 $remote_ip"
+
+    if [[ $remote_ip = *":"* ]]; then
+       cmd+=" -6"
+    fi
+
+    eval $cmd
+
     if [ $? -ne 0 ]; then
         err "ping failed"
         return 1
