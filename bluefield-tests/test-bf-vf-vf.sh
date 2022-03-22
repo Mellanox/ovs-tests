@@ -4,7 +4,7 @@
 #
 
 my_dir="$(dirname "$0")"
-. $my_dir/common-bf.sh
+. $my_dir/common-bf-test.sh
 
 require_interfaces NIC
 require_bf
@@ -32,17 +32,15 @@ function config_test() {
     config_sriov
 
     require_interfaces CLIENT_VF SERVER_VF
-    config_vf_ns $CLIENT_NS $CLIENT_VF $CLIENT_IPV4
+    config_bf_vf $CLIENT_NS $CLIENT_VF $CLIENT_REP $CLIENT_IPV4
     ip netns exec $CLIENT_NS ip addr add $CLIENT_IPV6/64 dev $CLIENT_VF
 
-    config_vf_ns $SERVER_NS $SERVER_VF $SERVER_IPV4
+    config_bf_vf $SERVER_NS $SERVER_VF $SERVER_REP $SERVER_IPV4
     ip netns exec $SERVER_NS ip addr add $SERVER_IPV6/64 dev $SERVER_VF
 
     on_bf_exec "start_clean_openvswitch
            ovs-vsctl --may-exist add-br $BRIDGE -- --may-exist add-port $BRIDGE $CLIENT_REP -- --may-exist add-port $BRIDGE $SERVER_REP
-           ip link set $BF_NIC up
-           ip link set $CLIENT_REP up
-           ip link set $SERVER_REP up"
+           ip link set $BF_NIC up"
 }
 
 function run_test() {

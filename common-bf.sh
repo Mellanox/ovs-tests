@@ -1,7 +1,3 @@
-BF_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" &>/dev/null && pwd)
-
-. $BF_DIR/../common.sh
-
 function on_bf() {
     __on_remote $BF_IP "$@"
 }
@@ -36,7 +32,7 @@ function require_remote_bf() {
     on_remote_bf true || fail "Remote BF command failed"
 }
 
-function config_vf_ns() {
+function __config_bf_vf() {
     local ns=$1
     local vf=$2
     local ip=$3  # optional
@@ -48,10 +44,40 @@ function config_vf_ns() {
         prefix=64
     fi
 
-    echo "[$ns] $vf (${mac:+$mac/}$ip)"
     ip netns add $ns
     ${mac:+ip link set $vf address $mac}
     ip link set $vf netns $ns
     ${ip:+ip -netns $ns address replace dev $vf $ip/$prefix}
     ip -netns $ns link set $vf up
+}
+
+function __config_rep() {
+    local rep=$1
+
+    ip address flush dev $rep
+    ip link set dev $rep up
+}
+
+function config_bf_vf() {
+    local ns=$1
+    local vf=$2
+    local rep=$3
+    local ip=$4  # optional
+    local mac=$5 # optional
+
+    echo "[$ns] $vf (${mac:+$mac/}$ip) -> $rep"
+    __config_bf_vf $ns $vf $ip $mac
+    on_bf_exec "__config_rep $rep"
+}
+
+function config_remote_bf_vf() {
+    local ns=$1
+    local vf=$2
+    local rep=$3
+    local ip=$4  # optional
+    local mac=$5 # optional
+
+    echo "[$ns] $vf (${mac:+$mac/}$ip) -> $rep"
+    on_remote_exec "__config_bf_vf $ns $vf $ip $mac"
+    on_remote_bf_exec "__config_rep $rep"
 }
