@@ -1,19 +1,19 @@
 #!/bin/bash
 #
-# Verify traffic between VFs on different nodes configured with OVN router and 2 switches and OVS VLAN is offloaded
+# Test traffic between VFs on different nodes configured with OVN and OVS and OVS VLAN then check traffic is offloaded
 #
 
 CONFIG_REMOTE=1
 
 my_dir="$(dirname "$0")"
-. $my_dir/common-ovn-test-utils.sh
+. $my_dir/common-ovn-basic-test.sh
 
 not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
 
 require_interfaces NIC
 require_remote_server
 
-read_single_router_two_switches_topology
+read_single_switch_topology
 ovn_set_ips
 
 function config_test() {
@@ -40,10 +40,8 @@ function run_test() {
     title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
     check_remote_udp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV4
 
-    # ICMP6 offloading is not supported because IPv6 packet header doesn't contain checksum header
-    # which cause offloading to fail
-    title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6)"
-    ip netns exec $CLIENT_NS ping -6 -w 4 $SERVER_IPV6 && success || err
+    title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
+    check_icmp6_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_IPV6
 
     title "Test TCP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
     check_remote_tcp6_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV6

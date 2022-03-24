@@ -1,29 +1,28 @@
 #!/bin/bash
 #
-# Test traffic between VFs on different nodes configured with OVN and OVS with VF LAG then check traffic is offloaded
+# Test traffic between VFs on different nodes configured with OVN and OVS then check traffic is offloaded
 #
 
 CONFIG_REMOTE=1
-HAS_BOND=1
 
 my_dir="$(dirname "$0")"
-. $my_dir/common-ovn-test-utils.sh
+. $my_dir/common-ovn-basic-test.sh
 
-require_interfaces NIC NIC2
+require_interfaces NIC
 require_remote_server
 
-read_single_router_two_switches_topology
+read_single_switch_topology
 ovn_set_ips
 
 function config_test() {
     ovn_start_northd_central $ovn_central_ip
     ovn_create_topology
 
-    config_ovn_vf_lag $ovn_central_ip $ovn_controller_ip CLIENT_VF CLIENT_REP
-    ovn_config_interface_namespace $CLIENT_VF $CLIENT_REP $CLIENT_NS $CLIENT_PORT $CLIENT_MAC $CLIENT_IPV4 $CLIENT_IPV6 $CLIENT_GATEWAY_IPV4 $CLIENT_GATEWAY_IPV6
+    config_ovn_pf $ovn_central_ip $ovn_controller_ip CLIENT_VF CLIENT_REP
+    ovn_config_interface_namespace $CLIENT_VF $CLIENT_REP $CLIENT_NS $CLIENT_PORT $CLIENT_MAC $CLIENT_IPV4 $CLIENT_IPV6
 
-    on_remote_exec "config_ovn_vf_lag $ovn_central_ip $ovn_remote_controller_ip SERVER_VF SERVER_REP
-                    ovn_config_interface_namespace $SERVER_VF $SERVER_REP $SERVER_NS $SERVER_PORT $SERVER_MAC $SERVER_IPV4 $SERVER_IPV6 $SERVER_GATEWAY_IPV4 $SERVER_GATEWAY_IPV6"
+    on_remote_exec "config_ovn_pf $ovn_central_ip $ovn_remote_controller_ip SERVER_VF SERVER_REP
+                    ovn_config_interface_namespace $SERVER_VF $SERVER_REP $SERVER_NS $SERVER_PORT $SERVER_MAC $SERVER_IPV4 $SERVER_IPV6"
 }
 
 function run_test() {
@@ -39,10 +38,8 @@ function run_test() {
     title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
     check_remote_udp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV4
 
-    # ICMP6 offloading is not supported because IPv6 packet header doesn't contain checksum header
-    # which cause offloading to fail
-    title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6)"
-    ip netns exec $CLIENT_NS ping -6 -w 4 $SERVER_IPV6 && success || err
+    title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
+    check_icmp6_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_IPV6
 
     title "Test TCP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
     check_remote_tcp6_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV6

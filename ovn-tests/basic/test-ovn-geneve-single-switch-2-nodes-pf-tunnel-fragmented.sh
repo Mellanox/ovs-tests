@@ -6,7 +6,7 @@
 CONFIG_REMOTE=1
 
 my_dir="$(dirname "$0")"
-. $my_dir/common-ovn-test-utils.sh
+. $my_dir/common-ovn-basic-test.sh
 
 require_interfaces NIC
 require_remote_server

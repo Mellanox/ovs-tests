@@ -4,7 +4,7 @@
 #
 
 my_dir="$(dirname "$0")"
-. $my_dir/common-ovn-test-utils.sh
+. $my_dir/common-ovn-basic-test.sh
 
 NO_TITLE=1
 

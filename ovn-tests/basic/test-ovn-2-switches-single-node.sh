@@ -1,14 +1,14 @@
 #!/bin/bash
 #
-# Test fragmented traffic between VFs configured with OVN and OVS then check traffic is not offloaded
+# Verify no traffic between VFs configured with OVN 2 isolated switches
 #
 
 my_dir="$(dirname "$0")"
-. $my_dir/common-ovn-test-utils.sh
+. $my_dir/common-ovn-basic-test.sh
 
 require_interfaces NIC
 
-read_single_switch_topology
+read_two_switches_topology
 
 function config_test() {
     config_ovn_single_node
@@ -20,11 +20,11 @@ function run_test() {
     ovs-vsctl show
     ovn-sbctl show
 
-    title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4)"
-    check_fragmented_ipv4_traffic $CLIENT_REP $CLIENT_NS $SERVER_IPV4 1500
+    title "Test no traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4)"
+    ip netns exec $CLIENT_NS ping -w 4 $SERVER_IPV4 && err || success "No Connection"
 
-    title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6)"
-    check_fragmented_ipv6_traffic $CLIENT_REP $CLIENT_NS $SERVER_IPV6 1500
+    title "Test no traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6)"
+    ip netns exec $CLIENT_NS ping -6 -w 4 $SERVER_IPV6 && err || success "No Connection"
 }
 
 ovn_clean_up

@@ -1,13 +1,15 @@
 #!/bin/bash
 #
-# Test traffic between VFs on different nodes configured with OVN and OVS with VF LAG then check traffic is offloaded
+# Test traffic between VFs on different nodes configured with OVN and OVS with VF LAG and VLAN then check traffic is offloaded
 #
 
 CONFIG_REMOTE=1
 HAS_BOND=1
 
 my_dir="$(dirname "$0")"
-. $my_dir/common-ovn-test-utils.sh
+. $my_dir/common-ovn-basic-test.sh
+
+not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
 
 require_interfaces NIC NIC2
 require_remote_server
@@ -19,10 +21,10 @@ function config_test() {
     ovn_start_northd_central $ovn_central_ip
     ovn_create_topology
 
-    config_ovn_vf_lag $ovn_central_ip $ovn_controller_ip CLIENT_VF CLIENT_REP
+    config_ovn_vf_lag_vlan $ovn_central_ip $ovn_controller_ip CLIENT_VF CLIENT_REP
     ovn_config_interface_namespace $CLIENT_VF $CLIENT_REP $CLIENT_NS $CLIENT_PORT $CLIENT_MAC $CLIENT_IPV4 $CLIENT_IPV6
 
-    on_remote_exec "config_ovn_vf_lag $ovn_central_ip $ovn_remote_controller_ip SERVER_VF SERVER_REP
+    on_remote_exec "config_ovn_vf_lag_vlan $ovn_central_ip $ovn_remote_controller_ip SERVER_VF SERVER_REP
                     ovn_config_interface_namespace $SERVER_VF $SERVER_REP $SERVER_NS $SERVER_PORT $SERVER_MAC $SERVER_IPV4 $SERVER_IPV6"
 }
 
@@ -48,15 +50,6 @@ function run_test() {
     title "Test UDP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
     check_remote_udp6_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV6
 }
-
-ovn_clean_up
-trap ovn_clean_up EXIT
-
-config_test
-run_test
-
-trap - EXIT
-ovn_clean_up
 
 ovn_clean_up
 trap ovn_clean_up EXIT
