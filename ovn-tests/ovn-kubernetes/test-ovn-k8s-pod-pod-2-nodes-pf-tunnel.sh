@@ -4,8 +4,7 @@
 #
 
 my_dir="$(dirname "$0")"
-. $my_dir/common-ovn-test-utils.sh
-. $my_dir/common-ovn-kubernetes.sh
+. $my_dir/common-ovn-k8s-test.sh
 
 require_interfaces NIC
 require_remote_server

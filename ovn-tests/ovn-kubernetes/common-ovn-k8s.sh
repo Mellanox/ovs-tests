@@ -33,8 +33,8 @@ function read_k8s_topology_pod_pod_same_node() {
     CLIENT_NODE_PORT=$NODE1_ROUTER_PORT
     read_k8s_topology_pod_client
 
-    SERVER_SWITCH=$NODE2_SWITCH
-    SERVER_PORT=$NODE2_SWITCH_PORT1
+    SERVER_SWITCH=$NODE1_SWITCH
+    SERVER_PORT=$NODE1_SWITCH_PORT2
     read_router_server
 }
 
