@@ -898,10 +898,12 @@ function switch_mode_no_rep_switchdev() {
 }
 
 function get_eswitch_mode() {
+    local pci=${1:-$PCI}
+
     if [ "$devlink_compat" = 1 ]; then
         cat `devlink_compat_dir $NIC`/mode
     else
-        devlink dev eswitch show pci/$PCI | grep -o " mode [a-z]\+" | awk {'print $2'}
+        devlink dev eswitch show pci/$pci | grep -o " mode [a-z]\+" | awk {'print $2'}
     fi
 }
 
@@ -1073,8 +1075,8 @@ function config_sriov() {
 function disable_sriov() {
     config_sriov 0 $NIC
     config_sriov 0 $NIC2
-    enable_legacy $NIC
-    enable_legacy $NIC2
+    [[ "$(get_eswitch_mode)" == "switchdev" ]] && enable_legacy $NIC
+    [[ "$(get_eswitch_mode $PCI2)" == "switchdev" ]] && enable_legacy $NIC2
 }
 
 function enable_sriov() {
