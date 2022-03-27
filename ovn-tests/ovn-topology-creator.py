@@ -144,6 +144,10 @@ class OVNLogicalRouter(OVNEntity):
     def __init__(self, data):
         super().__init__(data)
 
+    def get_ovs_id(self):
+        with open('/etc/openvswitch/system-id.conf') as ovs_system_id_file:
+            return ovs_system_id_file.read().strip()
+
     def __bind_to_chassis(self, cmd_args):
         """Bind OVN Gateway Router to chassis"""
         chassis = self._data.get("chassis")
@@ -152,8 +156,7 @@ class OVNLogicalRouter(OVNEntity):
             return
 
         if chassis.lower() == "local":
-            with open('/etc/openvswitch/system-id.conf') as ovs_system_id_file:
-                chassis = ovs_system_id_file.read().strip()
+            chassis = self.get_ovs_id()
 
         cmd_args.append(f"set Logical_Router {self.name} options:chassis={chassis}")
 
@@ -168,6 +171,7 @@ class OVNLogicalRouter(OVNEntity):
             mac = port["mac"]
             ips_v4 = port.get("ipv4")
             ips_v6 = port.get("ipv6")
+            chassis = port.get("chassis", [])
 
             # Fail if no IP/Network provided
             if not ips_v4 and not ips_v6:
@@ -180,6 +184,12 @@ class OVNLogicalRouter(OVNEntity):
                 addresses += f" {' '.join(ips_v6)}"
 
             cmd_args.append(f"--may-exist lrp-add {self.name} {port_name} {addresses}")
+            for c in chassis:
+                chassis_id = os.getenv(c, "")
+                if chassis_id == "" and c == "local":
+                    chassis_id = self.get_ovs_id()
+
+                cmd_args.append(f"lrp-set-gateway-chassis {port_name} {chassis_id}")
 
     def __add_nats(self, cmd_args):
         nats = self._data.get("nats", [])
