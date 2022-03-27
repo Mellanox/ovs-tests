@@ -1,0 +1,41 @@
+name: distributed-gateway-port
+topology:
+  - name: lr0
+    type: router
+    ports:
+      - name: lr0-sw0
+        mac: "00:00:00:00:ff:01"
+        ipv4:
+          - "7.7.7.1/24"
+        ipv6:
+          - "7:7:7::1/124"
+      - name: lr0-outside
+        mac: "00:00:00:00:ff:05"
+        ipv4:
+          - "172.16.1.1/24"
+        ipv6:
+          - "172:16:1::1/124"
+        chassis:
+          - local
+  - name: outside
+    type: switch
+    ports:
+      - name: outside-lr0
+        type: router
+        routerPort: lr0-outside
+      - name: outside-net
+        type: localnet
+        options:
+          - "network_name=PhyNet"
+  - name: sw0
+    type: switch
+    ports:
+      - name: sw0-port1
+        mac: "50:54:00:00:00:01"
+        ipv4:
+          - "7.7.7.2"
+        ipv6:
+          - "7:7:7::2"
+      - name: sw0-lr0
+        type: router
+        routerPort: lr0-sw0
