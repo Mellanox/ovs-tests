@@ -5,6 +5,7 @@ TOPOLOGY_2_SWITCHES="$OVN_TOPO_DIR/two-switches.yaml"
 TOPOLOGY_SINGLE_ROUTER_2_SWITCHES="$OVN_TOPO_DIR/single-router-2-switches.yaml"
 TOPOLOGY_GATEWAY_ROUTER="$OVN_TOPO_DIR/gateway-router.yaml"
 TOPOLOGY_OVN_KUBERNETES="$OVN_TOPO_DIR/ovn-kubernetes.yaml"
+TOPOLOGY_DISTRIBUTED_GATEWAY_PORT="$OVN_TOPO_DIR/distributed-gateway-port.yaml"
 
 function ovn_create_topology() {
     local topology_file=${1:-$TOPOLOGY}
@@ -278,8 +279,21 @@ function read_gateway_router_topology() {
     CLIENT_PORT=$SWITCH1_PORT1
     read_router_client
 
-    SERVER_ROUTER=$GATEWAY_ROUTER
-    SERVER_ROUTER_PORT=$GATEWAY_ROUTER_PORT
+    read_gateway_server
+}
+
+function read_distributed_gateway_port_topology() {
+    TOPOLOGY=$TOPOLOGY_DISTRIBUTED_GATEWAY_PORT
+    CLIENT_SWITCH=$SWITCH1
+    CLIENT_PORT=$SWITCH1_PORT1
+    read_router_client
+
+    SERVER_ROUTER=$ROUTER
+    SERVER_ROUTER_PORT=$ROUTER_GATEWAY_PORT
+    read_gateway_server
+}
+
+function read_gateway_server() {
     SERVER_IPV4=$OVN_EXTERNAL_NETWORK_HOST_IP
     SERVER_IPV6=$OVN_EXTERNAL_NETWORK_HOST_IP_V6
     SERVER_GATEWAY_IPV4=$(ovn_get_router_port_ip $TOPOLOGY $SERVER_ROUTER $SERVER_ROUTER_PORT)
