@@ -39,8 +39,18 @@ function ovn_is_controller_running() {
     $OVN_CTL status_controller >/dev/null
 }
 
+function verify_ovn_bridge() {
+    for _ in $(seq 1 10); do
+        sleep 1
+        ovs-vsctl list-br | grep -q $OVN_BRIDGE_INT && return 0
+    done
+
+    fail "$OVN_BRIDGE_INT not created after 10 seconds"
+}
+
 function ovn_start_ovn_controller() {
     ovn_is_controller_running || $OVN_CTL start_controller
+    verify_ovn_bridge
 }
 
 function ovn_stop_ovn_controller() {
