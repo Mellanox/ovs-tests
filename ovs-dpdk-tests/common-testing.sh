@@ -1,6 +1,17 @@
 p_server=/tmp/perf_server
 p_client=/tmp/perf_client
 
+function ovs_add_ct_nat_nop_rules() {
+    local bridge=${1:-"br-int"}
+    ovs-ofctl del-flows $bridge
+    ovs-ofctl add-flow $bridge "arp,actions=normal"
+    ovs-ofctl add-flow $bridge "table=0, ip,ct_state=-trk actions=ct(table=1,nat)"
+    ovs-ofctl add-flow $bridge "table=1, ip,ct_state=+trk+new actions=ct(commit),normal"
+    ovs-ofctl add-flow $bridge "table=1, ip,ct_state=+trk+est actions=normal"
+    echo "OVS flow rules:"
+    ovs-ofctl dump-flows $bridge --color
+}
+
 function ovs_add_ct_rules() {
     local bridge=${1:-"br-int"}
     local proto=${2:-"ip"}
