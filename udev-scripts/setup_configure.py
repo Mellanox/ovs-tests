@@ -227,7 +227,17 @@ class SetupConfigure(object):
             with open('/sys/class/net/%s/phys_port_name' % port, 'r') as f:
                 port_name = f.read().strip()
         except IOError:
-            port_name = ''
+            try:
+                port_number = runcmd_output(
+                    'devlink port show %s -j 2> /dev/null| jq .[][].port' % port).strip()
+
+                if port_number != '':
+                    port_name = 'p%s' % port_number
+                else:
+                    port_name = ''
+            except CalledProcessError:
+                port_name = ''
+
         return port_name
 
     def get_port_info(self, port):
