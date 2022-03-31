@@ -21,6 +21,7 @@ function clean_up_test() {
     ovn_remove_network $BRIDGE $nic
     ovs_conf_remove max-idle
     start_clean_openvswitch
+    ip -all netns del
     config_sriov 0
 
     on_remote_exec "ovn_stop_ovn_controller
@@ -29,6 +30,7 @@ function clean_up_test() {
                     ovn_remove_network $BRIDGE $nic
                     ovs_conf_remove max-idle
                     start_clean_openvswitch
+                    ip -all netns del
                     config_sriov 0"
 
     ovn_start_clean
