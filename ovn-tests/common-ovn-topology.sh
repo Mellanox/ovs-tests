@@ -279,6 +279,8 @@ function read_gateway_router_topology() {
     CLIENT_PORT=$SWITCH1_PORT1
     read_router_client
 
+    SERVER_ROUTER=$GATEWAY_ROUTER
+    SERVER_ROUTER_PORT=$GATEWAY_ROUTER_PORT
     read_gateway_server
 }
 
