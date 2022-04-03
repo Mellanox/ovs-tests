@@ -6,6 +6,7 @@ TOPOLOGY_SINGLE_ROUTER_2_SWITCHES="$OVN_TOPO_DIR/single-router-2-switches.yaml"
 TOPOLOGY_GATEWAY_ROUTER="$OVN_TOPO_DIR/gateway-router.yaml"
 TOPOLOGY_OVN_KUBERNETES="$OVN_TOPO_DIR/ovn-kubernetes.yaml"
 TOPOLOGY_DISTRIBUTED_GATEWAY_PORT="$OVN_TOPO_DIR/distributed-gateway-port.yaml"
+TOPOLOGY_OPENSTACK="$OVN_TOPO_DIR/openstack.yaml"
 
 function ovn_create_topology() {
     local topology_file=${1:-$TOPOLOGY}
