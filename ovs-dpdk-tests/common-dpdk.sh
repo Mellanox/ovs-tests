@@ -117,10 +117,10 @@ function check_offload_contains() {
 
 function check_dpdk_offloads() {
     local IP=$1
-    local filter='ipv6\|icmpv6\|arp\|drop\|ct_state(0x21/0x21)\|flow-dump'
+    local filter='icmpv6\|arp\|drop\|ct_state(0x21/0x21)\|flow-dump\|actions:pf'
 
-    if [[ $IP = *":"* ]]; then
-        filter='icmpv6\|arp\|drop\|ct_state(0x21/0x21)\|flow-dump'
+    if [[ $IP != *":"* ]]; then
+        filter="ipv6\|${filter}"
     fi
 
     local x=$(ovs-appctl dpctl/dump-flows -m | grep -v $filter | grep -- $IP'\|tnl_pop' | wc -l)
