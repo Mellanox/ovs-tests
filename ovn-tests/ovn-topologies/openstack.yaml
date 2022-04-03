@@ -1,0 +1,47 @@
+name: openstack
+topology:
+  - name: lr-osp
+    type: router
+    ports:
+      - name: lr-osp-port1
+        mac: "00:00:00:a0:00:01"
+        ipv4:
+          - "7.7.7.1/24"
+        ipv6:
+          - "7:7:7::1/124"
+      - name: lr-osp-port2
+        mac: "00:00:00:a0:00:02"
+        ipv4:
+          - "8.8.8.1/24"
+        ipv6:
+          - "8:8:8::1/124"
+  - name: sw-net-a
+    type: switch
+    ports:
+      - name: sw-net-a-port1
+        mac: "50:54:00:00:00:01"
+        ipv4:
+          - "7.7.7.2"
+        ipv6:
+          - "7:7:7::2"
+      - name: sw-net-a-port2
+        mac: "50:54:00:00:00:02"
+        ipv4:
+          - "7.7.7.3"
+        ipv6:
+          - "7:7:7::3"
+      - name: sw-net-a-lr-osp
+        type: router
+        routerPort: lr-osp-port1
+  - name: sw-net-b
+    type: switch
+    ports:
+      - name: sw-net-b-port1
+        mac: "50:54:00:00:01:01"
+        ipv4:
+          - "8.8.8.2"
+        ipv6:
+          - "8:8:8::2"
+      - name: sw-net-b-lr-osp
+        type: router
+        routerPort: lr-osp-port2
