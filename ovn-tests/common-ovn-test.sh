@@ -1,5 +1,7 @@
 OVN_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
 . $OVN_DIR/../common.sh
+. $OVN_DIR/common-ovn.sh
+. $OVN_DIR/common-ovn-topology.sh
 . $OVN_DIR/common-ovn-test-utils.sh
 
 # Test Config

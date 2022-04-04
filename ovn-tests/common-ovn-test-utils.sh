@@ -1,6 +1,3 @@
-. $OVN_DIR/common-ovn.sh
-. $OVN_DIR/common-ovn-topology.sh
-
 # OVN IPs
 OVN_LOCAL_CENTRAL_IP="127.0.0.1"
 OVN_CENTRAL_IP="192.168.100.100"
