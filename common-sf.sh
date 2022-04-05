@@ -286,3 +286,7 @@ function sf_delete_qos_group() {
     local pci=${2:-$PCI}
     $sfcmd port function rate del pci/$pci/$group_num
 }
+
+function sf_rate_show() {
+    $sfcmd port function rate show
+}
