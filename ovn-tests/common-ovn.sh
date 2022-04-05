@@ -144,19 +144,22 @@ function send_background_traffic() {
     local traffic_type=$1
     local ns=$2
     local dst_ip=$3
+    local timeout=$4
 
     if [[ $traffic_type == "icmp" ]]; then
-        ip netns exec $ns ping -w 4 $dst_ip &
+        ip netns exec $ns ping -w $timeout -i 0.1 $dst_ip &
     elif [[ $traffic_type == "icmp6" ]]; then
-        ip netns exec $ns ping -6 -w 4 $dst_ip &
+        ip netns exec $ns ping -6 -w $timeout -i 0.1 $dst_ip &
     elif [[ $traffic_type == "tcp" ]]; then
-        ip netns exec $ns timeout 15 iperf3 -t 5 -c $dst_ip &
+        ip netns exec $ns iperf3 -t $timeout -c $dst_ip &
     elif [[ $traffic_type == "tcp6" ]]; then
-        ip netns exec $ns timeout 15 iperf3 -6 -t 5 -c $dst_ip &
+        ip netns exec $ns iperf3 -6 -t $timeout -c $dst_ip &
     elif [[ $traffic_type == "udp" ]]; then
-        ip netns exec $ns timeout 10 $OVN_DIR/udp-perf.py -c $dst_ip --pass-rate 0.7 &
+        local packets=$((timeout * 10))
+        ip netns exec $ns $OVN_DIR/udp-perf.py -c $dst_ip --packets $packets --pass-rate 0.7 &
     elif [[ $traffic_type == "udp6" ]]; then
-        ip netns exec $ns timeout 10 $OVN_DIR/udp-perf.py -6 -c $dst_ip --pass-rate 0.7 &
+        local packets=$((timeout * 10))
+        ip netns exec $ns $OVN_DIR/udp-perf.py -6 -c $dst_ip --packets $packets --pass-rate 0.7 &
     else
         fail "Unknown traffic $traffic_type"
     fi
@@ -181,9 +184,9 @@ function check_traffic_offload() {
 
     # Send background traffic before capturing traffic
     title "Sending ${traffic_type^^} traffic"
-    send_background_traffic $traffic_type $ns $dst_ip
+    send_background_traffic $traffic_type $ns $dst_ip 10
     local traffic_pid=$!
-    sleep 2
+    sleep 5
 
     # Listen to traffic on representor
     tcpdump -Unnepi $rep $tcpdump_filter -c 5 &
