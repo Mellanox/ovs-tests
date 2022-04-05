@@ -145,21 +145,22 @@ function send_background_traffic() {
     local ns=$2
     local dst_ip=$3
     local timeout=$4
+    local logfile=$5
 
     if [[ $traffic_type == "icmp" ]]; then
-        ip netns exec $ns ping -w $timeout -i 0.1 $dst_ip &
+        ip netns exec $ns ping -w $timeout -i 0.1 $dst_ip >$logfile &
     elif [[ $traffic_type == "icmp6" ]]; then
-        ip netns exec $ns ping -6 -w $timeout -i 0.1 $dst_ip &
+        ip netns exec $ns ping -6 -w $timeout -i 0.1 $dst_ip >$logfile &
     elif [[ $traffic_type == "tcp" ]]; then
-        ip netns exec $ns iperf3 -t $timeout -c $dst_ip &
+        ip netns exec $ns iperf3 -t $timeout -c $dst_ip --logfile $logfile &
     elif [[ $traffic_type == "tcp6" ]]; then
-        ip netns exec $ns iperf3 -6 -t $timeout -c $dst_ip &
+        ip netns exec $ns iperf3 -6 -t $timeout -c $dst_ip --logfile $logfile &
     elif [[ $traffic_type == "udp" ]]; then
         local packets=$((timeout * 10))
-        ip netns exec $ns $OVN_DIR/udp-perf.py -c $dst_ip --packets $packets --pass-rate 0.7 &
+        ip netns exec $ns $OVN_DIR/udp-perf.py -c $dst_ip --packets $packets --pass-rate 0.7 --logfile $logfile &
     elif [[ $traffic_type == "udp6" ]]; then
         local packets=$((timeout * 10))
-        ip netns exec $ns $OVN_DIR/udp-perf.py -6 -c $dst_ip --packets $packets --pass-rate 0.7 &
+        ip netns exec $ns $OVN_DIR/udp-perf.py -6 -c $dst_ip --packets $packets --pass-rate 0.7 --logfile $logfile &
     else
         fail "Unknown traffic $traffic_type"
     fi
@@ -184,8 +185,10 @@ function check_traffic_offload() {
 
     # Send background traffic before capturing traffic
     title "Sending ${traffic_type^^} traffic"
-    send_background_traffic $traffic_type $ns $dst_ip 10
+    logfile=$(mktemp)
+    send_background_traffic $traffic_type $ns $dst_ip 10 $logfile
     local traffic_pid=$!
+    timeout 5 tail -f $logfile | head -n 5 &
     sleep 5
 
     # Listen to traffic on representor
@@ -224,6 +227,7 @@ function check_traffic_offload() {
     wait $traffic_pid && success || err
     ovs_flush_rules
     killall -q tcpdump
+    rm -f $traffic_log_file
 
     if [[ -n "$CONFIG_REMOTE" ]]; then
         on_remote_exec "ovs_flush_rules
