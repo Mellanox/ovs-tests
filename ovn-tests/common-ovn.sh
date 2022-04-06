@@ -207,7 +207,7 @@ function check_traffic_offload() {
             tcpdump -Unnepi $REP2 $tcpdump_filter -c 5 >/dev/null 2>&1 &
             tdpid_receiver=$!
         else
-            tdpid_receiver=$(on_remote "nohup tcpdump -Unnepi $rep $tcpdump_filter -c 5 > /dev/null 2>&1 & echo \$!")
+            tdpid_receiver=$(on_remote "nohup tcpdump -Unnepi $SERVER_REP $tcpdump_filter -c 5 > /dev/null 2>&1 & echo \$!")
         fi
         sleep 0.5
 
