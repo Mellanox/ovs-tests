@@ -19,10 +19,7 @@ function __ovn_clean_up() {
     ip -all netns del
 
     if [[ -n "$HAS_BOND" ]]; then
-        unbind_vfs
-        unbind_vfs $NIC2
-        clear_bonding
-        disable_sriov_port2
+        clean_vf_lag
     fi
 
     config_sriov 0
