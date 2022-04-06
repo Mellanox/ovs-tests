@@ -172,7 +172,6 @@ function check_traffic_offload() {
     local dst_ip=$3
     local traffic_type=$4
     local rule_fields=$5
-    local skip_offload=$6
 
     local tcpdump_filter="$traffic_type"
 
@@ -186,64 +185,53 @@ function check_traffic_offload() {
 
     # Send background traffic before capturing traffic
     title "Sending ${traffic_type^^} traffic"
-    local traffic_timeout=10
-    if [[ -n "$skip_offload" ]]; then
-        traffic_timeout=5
-    fi
-
-    local logfile=$(mktemp)
-    send_background_traffic $traffic_type $ns $dst_ip $traffic_timeout $logfile
+    logfile=$(mktemp)
+    send_background_traffic $traffic_type $ns $dst_ip 10 $logfile
     local traffic_pid=$!
     timeout 5 tail -f $logfile | head -n 5 &
-    if [[ -z "$skip_offload" ]]; then
-        sleep 5
+    sleep 5
 
-        # Listen to traffic on representor
-        tcpdump -Unnepi $rep $tcpdump_filter -c 5 &
-        local tdpid=$!
+    # Listen to traffic on representor
+    tcpdump -Unnepi $rep $tcpdump_filter -c 5 &
+    local tdpid=$!
 
-        local tdpid_receiver=
-        if [[ -z "$CONFIG_REMOTE" ]]; then
-            tcpdump -Unnepi $REP2 $tcpdump_filter -c 5 >/dev/null 2>&1 &
-            tdpid_receiver=$!
-        else
-            tdpid_receiver=$(on_remote "nohup tcpdump -Unnepi $SERVER_REP $tcpdump_filter -c 5 > /dev/null 2>&1 & echo \$!")
-        fi
-        sleep 0.5
+    local tdpid_receiver=
+    if [[ -z "$CONFIG_REMOTE" ]]; then
+        tcpdump -Unnepi $REP2 $tcpdump_filter -c 5 >/dev/null 2>&1 &
+        tdpid_receiver=$!
+    else
+        tdpid_receiver=$(on_remote "nohup tcpdump -Unnepi $rep $tcpdump_filter -c 5 > /dev/null 2>&1 & echo \$!")
+    fi
+    sleep 0.5
 
-        title "Check ${traffic_type^^} OVS offload rules on the sender"
-        check_and_print_ovs_offloaded_rules "$rule_fields"
+    title "Check ${traffic_type^^} OVS offload rules on the sender"
+    check_and_print_ovs_offloaded_rules "$rule_fields"
 
-        if [[ -n "$CONFIG_REMOTE" ]]; then
-            title "Check ${traffic_type^^} OVS offload rules on the receiver"
-            on_remote_exec "check_and_print_ovs_offloaded_rules \"$rule_fields\"" && success || err
-        fi
-
-        # If tcpdump finished then it capture more than expected to be offloaded
-        title "Check ${traffic_type^^} traffic is offloaded on the sender"
-        [[ -d /proc/$tdpid ]] && success || err
-
-        title "Check ${traffic_type^^} traffic is offloaded on the receiver"
-        if [[ -z "$CONFIG_REMOTE" ]]; then
-            [[ -d /proc/$tdpid_receiver ]] && success || err
-        else
-            on_remote "[[ -d /proc/$tdpid_receiver ]]" && success || err
-        fi
-
-        title "Wait ${traffic_type^^} traffic"
+    if [[ -n "$CONFIG_REMOTE" ]]; then
+        title "Check ${traffic_type^^} OVS offload rules on the receiver"
+        on_remote_exec "check_and_print_ovs_offloaded_rules \"$rule_fields\"" && success || err
     fi
 
+    # If tcpdump finished then it capture more than expected to be offloaded
+    title "Check ${traffic_type^^} traffic is offloaded on the sender"
+    [[ -d /proc/$tdpid ]] && success || err
+
+    title "Check ${traffic_type^^} traffic is offloaded on the receiver"
+    if [[ -z "$CONFIG_REMOTE" ]]; then
+        [[ -d /proc/$tdpid_receiver ]] && success || err
+    else
+        on_remote "[[ -d /proc/$tdpid_receiver ]]" && success || err
+    fi
+
+    title "Wait ${traffic_type^^} traffic"
     wait $traffic_pid && success || err
     ovs_flush_rules
+    killall -q tcpdump
+    rm -f $traffic_log_file
 
-    if [[ -z "$skip_offload" ]]; then
-        killall -q tcpdump
-        rm -f $traffic_log_file
-
-        if [[ -n "$CONFIG_REMOTE" ]]; then
-            on_remote_exec "ovs_flush_rules
+    if [[ -n "$CONFIG_REMOTE" ]]; then
+        on_remote_exec "ovs_flush_rules
                         killall -q tcpdump"
-        fi
     fi
 }
 
@@ -262,7 +250,7 @@ function check_icmp6_traffic_offload() {
     local dst_ip=$3
     local required_rule_fields=$4
 
-    check_traffic_offload $rep $ns $dst_ip icmp6 "$required_rule_fields" 1
+    check_traffic_offload $rep $ns $dst_ip icmp6 "$required_rule_fields"
 }
 
 function check_local_tcp_traffic_offload() {
@@ -291,7 +279,7 @@ function check_local_tcp6_traffic_offload() {
     eval $cmd
     sleep 0.5
 
-    check_traffic_offload $rep $client_ns $server_ip tcp6 "$required_rule_fields" 1
+    check_traffic_offload $rep $client_ns $server_ip tcp6 "$required_rule_fields"
     killall -q iperf3
 }
 
@@ -321,7 +309,7 @@ function check_remote_tcp6_traffic_offload() {
     on_remote "$cmd"
     sleep 0.5
 
-    check_traffic_offload $rep $client_ns $server_ip tcp6 "$required_rule_fields" 1
+    check_traffic_offload $rep $client_ns $server_ip tcp6 "$required_rule_fields"
     on_remote "killall -q iperf3"
 }
 
@@ -351,7 +339,7 @@ function check_local_udp6_traffic_offload() {
     eval $cmd
     sleep 0.5
 
-    check_traffic_offload $rep $client_ns $server_ip udp6 "$required_rule_fields" 1
+    check_traffic_offload $rep $client_ns $server_ip udp6 "$required_rule_fields"
     killall -q udp-perf.py
 }
 
@@ -381,7 +369,7 @@ function check_remote_udp6_traffic_offload() {
     on_remote "$cmd"
     sleep 0.5
 
-    check_traffic_offload $rep $client_ns $server_ip udp6 "$required_rule_fields" 1
+    check_traffic_offload $rep $client_ns $server_ip udp6 "$required_rule_fields"
     on_remote "killall -q udp-perf.py"
 }
 
