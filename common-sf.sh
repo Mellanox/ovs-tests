@@ -275,18 +275,6 @@ function sf_show_port() {
     $sfcmd port show $1 || err "Failed to show sf $1"
 }
 
-function sf_create_qos_group() {
-    local group_num="$1_group"
-    local pci=${2:-$PCI}
-    $sfcmd port function rate add pci/$pci/$group_num
-}
-
-function sf_delete_qos_group() {
-    local group_num="$1_group"
-    local pci=${2:-$PCI}
-    $sfcmd port function rate del pci/$pci/$group_num
-}
-
-function sf_rate_show() {
-    $sfcmd port function rate show
+function sf_port_rate() {
+    $sfcmd port func rate $@
 }
