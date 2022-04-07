@@ -15,6 +15,12 @@ topology:
           - "8.8.8.1/24"
         ipv6:
           - "8:8:8::1/124"
+      - name: lr-osp-port3
+        mac: "00:00:00:a0:00:03"
+        ipv4:
+          - "9.9.9.1/24"
+        ipv6:
+          - "9:9:9::1/124"
   - name: sw-net-a
     type: switch
     ports:
@@ -45,3 +51,25 @@ topology:
       - name: sw-net-b-lr-osp
         type: router
         routerPort: lr-osp-port2
+  - name: sw-net-provider
+    type: switch
+    ports:
+      - name: sw-net-provider-port1
+        mac: "50:54:00:00:02:01"
+        ipv4:
+          - "9.9.9.2"
+        ipv6:
+          - "9:9:9::2"
+      - name: sw-net-provider-port2
+        mac: "50:54:00:00:02:02"
+        ipv4:
+          - "9.9.9.3"
+        ipv6:
+          - "9:9:9::3"
+      - name: provider-net
+        type: localnet
+        options:
+          - "network_name=provider-net"
+      - name: sw-net-provider-lr-osp
+        type: router
+        routerPort: lr-osp-port3
