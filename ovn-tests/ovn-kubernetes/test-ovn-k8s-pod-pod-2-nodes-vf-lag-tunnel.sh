@@ -53,8 +53,9 @@ function run_test() {
     ovs-vsctl show
     ovn-sbctl show
 
-    title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
-    check_icmp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_IPV4
+    # Offloading ICMP with connection tracking is not supported
+    title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4)"
+    ip netns exec $CLIENT_NS ping -w 4 $SERVER_IPV4 && success || err
 
     title "Test TCP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
     check_remote_tcp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV4
