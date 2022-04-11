@@ -7,6 +7,10 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+if ! is_ofed ; then
+    fail "This feature is supported only over OFED"
+fi
+
 function config() {
     title "Config"
     config_sriov 2
