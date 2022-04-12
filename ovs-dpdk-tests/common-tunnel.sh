@@ -11,13 +11,13 @@ TCGRE="${DIR}/ovs-dpdk-tests/tcgre.sh"
 
 function gre_set_entropy() {
     local cmd="$TCGRE $PCI"
-    echo "Run $cmd"
+    debug "Run $cmd"
     eval "$cmd"
 }
 
 function gre_set_entropy_on_remote() {
     local cmd="$TCGRE $PCI"
-    echo "Run on remote $cmd"
+    debug "Run on remote $cmd"
     on_remote "$cmd"
 }
 

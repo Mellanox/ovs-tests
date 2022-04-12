@@ -3,12 +3,14 @@ p_client=/tmp/perf_client
 
 function ovs_add_ct_nat_nop_rules() {
     local bridge=${1:-"br-int"}
+
+    debug "Adding ct_nat_nop rules"
     ovs-ofctl del-flows $bridge
     ovs-ofctl add-flow $bridge "arp,actions=normal"
     ovs-ofctl add-flow $bridge "table=0, ip,ct_state=-trk actions=ct(table=1,nat)"
     ovs-ofctl add-flow $bridge "table=1, ip,ct_state=+trk+new actions=ct(commit),normal"
     ovs-ofctl add-flow $bridge "table=1, ip,ct_state=+trk+est actions=normal"
-    echo "OVS flow rules:"
+    debug "OVS flow rules:"
     ovs-ofctl dump-flows $bridge --color
 }
 
@@ -16,6 +18,7 @@ function ovs_add_ct_rules() {
     local bridge=${1:-"br-int"}
     local proto=${2:-"ip"}
 
+    debug "Adding ct rules"
     ovs-ofctl del-flows $bridge
     ovs-ofctl add-flow $bridge "arp,actions=NORMAL"
     ovs-ofctl add-flow $bridge "icmp,actions=NORMAL"
@@ -23,18 +26,20 @@ function ovs_add_ct_rules() {
     ovs-ofctl add-flow $bridge "table=0,$proto,ct_state=-trk,actions=ct(zone=5, table=1)"
     ovs-ofctl add-flow $bridge "table=1,$proto,ct_state=+trk+new,actions=ct(zone=5, commit),NORMAL"
     ovs-ofctl add-flow $bridge "table=1,$proto,ct_state=+trk+est,ct_zone=5,actions=normal"
-    echo "OVS flow rules:"
+    debug "OVS flow rules:"
     ovs-ofctl dump-flows $bridge --color
 }
 
 function ovs_add_ct_rules_dec_ttl() {
     local bridge=${1:-"br-int"}
+
+    debug "Adding ct_dec_ttl rules"
     ovs-ofctl del-flows $bridge
     ovs-ofctl add-flow $bridge "arp,actions=NORMAL"
     ovs-ofctl add-flow $bridge "table=0,ip,ct_state=-trk,actions=ct(zone=5, table=1)"
     ovs-ofctl add-flow $bridge "table=1,ip,ct_state=+trk+new,actions=ct(zone=5, commit),dec_ttl,NORMAL"
     ovs-ofctl add-flow $bridge "table=1,ip,ct_state=+trk+est,ct_zone=5,actions=dec_ttl,normal"
-    echo "OVS flow rules:"
+    debug "OVS flow rules:"
     ovs-ofctl dump-flows $bridge --color
 }
 
@@ -42,14 +47,13 @@ function verify_ping() {
     local remote_ip=${1:-$REMOTE_IP}
     local namespace=${2:-ns0}
 
-    echo "Testing ping $remote_ip in namespace $namespace"
-
     cmd="ip netns exec $namespace ping -q -c 10 -W 2 -i 0.01 $remote_ip"
 
     if [[ $remote_ip = *":"* ]]; then
        cmd+=" -6"
     fi
 
+    debug "Executing | $cmd"
     eval $cmd
 
     if [ $? -ne 0 ]; then
@@ -64,11 +68,11 @@ function generate_traffic() {
     local namespace=$3
     local t=5
 
-    echo -e "\nTesting TCP traffic remote = $remote , ip = $my_ip , namespace = $namespace"
-
     # server
     rm -rf $p_server
-    ip netns exec ns0 timeout $((t+2)) iperf3 -f Mbits -s -D --logfile $p_server
+    local server_cmd="ip netns exec ns0 timeout $((t+2)) iperf3 -f Mbits -s -D --logfile $p_server"
+    debug "Executing | $server_cmd"
+    eval $server_cmd
     sleep 2
     # client
     rm -rf $p_client
@@ -81,6 +85,7 @@ function generate_traffic() {
         cmd="on_remote $cmd"
     fi
 
+    debug "Executing | $cmd"
     eval $cmd &
     local pid2=$!
 
@@ -107,14 +112,14 @@ function generate_traffic() {
     sleep $((t+1))
 
     if [ -f $p_server ]; then
-        echo "Server traffic"
+        debug "Server traffic"
         cat $p_server
     else
         err "no $p_server , probably problem with iperf"
     fi
 
     if [ -f $p_client ]; then
-        echo "Client traffic"
+        debug "Client traffic"
         cat $p_client
     else
         err "no $p_client , probably problem with iperf or ssh problem"
@@ -130,7 +135,7 @@ function validate_traffic() {
     local server_traffic=$(cat $p_server | grep "SUM" | grep "MBytes/sec" | awk '{print $6}' | head -1)
     local client_traffic=$(cat $p_client | grep "SUM" | grep "MBytes/sec" | awk '{print $6}' | head -1)
 
-    echo "validate traffic server: $server_traffic , client: $client_traffic"
+    debug "validate traffic server: $server_traffic , client: $client_traffic"
     if [[ -z $server_traffic || $server_traffic < $1 ]]; then
         err "server traffic is $server_traffic, lower than limit $min_traffic"
     fi

@@ -15,6 +15,7 @@ function config_remote_bridge_tunnel() {
     local tnl_type=${3:-vxlan}
     local reps=${4:-1}
 
+    debug "configuring remote bridge tunnel type $tnl_type key $vni remote_ip $2 with $reps reps"
     ovs-vsctl --may-exist add-br br-int   -- set Bridge br-int datapath_type=netdev   -- br-set-external-id br-int bridge-id br-int   -- set bridge br-int fail-mode=standalone
     ovs-vsctl add-port br-int ${tnl_type}0   -- set interface ${tnl_type}0 type=${tnl_type} options:key=${vni} options:remote_ip=${remote_ip}
 
@@ -26,6 +27,8 @@ function config_remote_bridge_tunnel() {
 
 function config_simple_bridge_with_rep() {
     local reps=$1
+
+    debug "configuring simple bridge with $1 reps"
     ovs-vsctl --may-exist add-br br-phy -- set Bridge br-phy datapath_type=netdev -- br-set-external-id br-phy bridge-id br-phy -- set bridge br-phy fail-mode=standalone
     ovs-vsctl add-port br-phy pf -- set Interface pf type=dpdk options:dpdk-devargs=$PCI
 
@@ -81,7 +84,7 @@ function query_sw_packets() {
         num_of_pkts=350000
     fi
 
-    echo "Expecting $num_of_pkts to reach SW"
+    debug "Expecting $num_of_pkts to reach SW"
     local pkts1=$(ovs-appctl dpif-netdev/pmd-stats-show | grep 'packets received:' | sed -n '1p' | awk '{print $3}')
     local pkts2=$(ovs-appctl dpif-netdev/pmd-stats-show | grep 'packets received:' | sed -n '2p' | awk '{print $3}')
 
@@ -96,7 +99,7 @@ function query_sw_packets() {
     fi
 
     local total_pkts=$(($pkts1+$pkts2))
-    echo -e "Received $total_pkts packets in SW"
+    debug "Received $total_pkts packets in SW"
     if [ $total_pkts -gt $num_of_pkts ]; then
         err "$total_pkts reached SW"
         return 1
@@ -124,16 +127,16 @@ function check_dpdk_offloads() {
     fi
 
     local x=$(ovs-appctl dpctl/dump-flows -m | grep -v $filter | grep -- $IP'\|tnl_pop' | wc -l)
-    echo "Number of filtered rules: $x"
+    debug "Number of filtered rules: $x"
 
     local y=$(ovs-appctl dpctl/dump-flows -m type=offloaded | grep -v $filter | wc -l)
-    echo "Number of offloaded rules: $y"
+    debug "Number of offloaded rules: $y"
 
     if [ $x -ne $y ]; then
         err "offloads failed"
-        echo "Filtered rules:"
+        debug "Filtered rules:"
         ovs-appctl dpctl/dump-flows -m | grep -v $filter | grep -- $IP'\|tnl_pop'
-        echo -e "\n\nOffloaded rules:"
+        debug "\n\nOffloaded rules:"
         ovs-appctl dpctl/dump-flows -m type=offloaded | grep -v $filter
         return 1
     elif [ $x -eq 0 ]; then
@@ -158,7 +161,7 @@ function check_offloaded_connections() {
     if [ $x -lt $num_of_connections ]; then
         err "No offloaded connections created, expected $num_of_connections, got $x"
     else
-        echo "Number of offloaded connections: $x"
+        debug "Number of offloaded connections: $x"
     fi
 }
 
@@ -196,24 +199,24 @@ function check_e2e_stats() {
     local expected_add_hw_messages=$1
 
     local x=$(ovs-appctl dpctl/offload-stats-show -m | grep 'Total       HW add e2e flows:' | awk '{print $6}')
-    echo "Number of offload messages: $x"
+    debug "Number of offload messages: $x"
 
     if [ $x -lt $((expected_add_hw_messages)) ]; then
         err "offloads failed"
     fi
 
-    echo "Sleeping for 15 seconds to age the flows"
+    debug "Sleeping for 15 seconds to age the flows"
     sleep 15
     # check deletion from DB
     local y=$(ovs-appctl dpctl/offload-stats-show -m | grep 'Total       Merged e2e flows:' | awk '{print $5}')
-    echo "Number of DB entries: $y"
+    debug "Number of DB entries: $y"
 
     if [ $y -ge 2 ]; then
         err "deletion from DB failed"
     fi
 
     local z=$(ovs-appctl dpctl/offload-stats-show -m | grep 'Total       HW del e2e flows:' | awk '{print $6}')
-    echo "Number of delete HW messages: $z"
+    debug "Number of delete HW messages: $z"
 
     if [ $z -lt $((expected_add_hw_messages)) ]; then
         err "offloads failed"
