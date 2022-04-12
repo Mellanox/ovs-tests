@@ -45,6 +45,13 @@ function configure_dpdk_rep_ports() {
     done
 }
 
+function ignore_expected_dpdk_err_msg() {
+    # [MLNX OFED] Bug SW #2334320: [OVS-DPDK] Failed to init debugfs files appears in dmesg after configure the setup
+    add_expected_error_msg ".*Failed to init debugfs files.*"
+}
+
+ignore_expected_dpdk_err_msg
+
 function config_remote_bridge_tunnel() {
     local vni=$1
     local remote_ip=$2
