@@ -133,6 +133,9 @@ class OVNLogicalSwitch(OVNEntity):
         self.__add_load_balancers(cmd_args)
         for port in self._ports:
             cmd_args.append(f"--may-exist lsp-add {self.name} {port['name']}")
+            tag = port.get("tag")
+            if tag:
+                cmd_args.append(f"set LOGICAL_SWITCH_PORT {port['name']} tag={tag}")
 
             self.__set_port_options(port, cmd_args)
             self.__add_port_type(port, cmd_args)
