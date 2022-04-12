@@ -18,9 +18,15 @@ topology:
       - name: lr-osp-port3
         mac: "00:00:00:a0:00:03"
         ipv4:
-          - "9.9.9.1/24"
+          - "2.2.2.1/24"
         ipv6:
-          - "9:9:9::1/124"
+          - "2:2:2::1/124"
+      - name: lr-osp-port4
+        mac: "00:00:00:a0:00:04"
+        ipv4:
+          - "3.3.3.1/24"
+        ipv6:
+          - "3:3:3::1/124"
   - name: sw-net-a
     type: switch
     ports:
@@ -57,15 +63,15 @@ topology:
       - name: sw-net-provider-port1
         mac: "50:54:00:00:02:01"
         ipv4:
-          - "9.9.9.2"
+          - "2.2.2.2"
         ipv6:
-          - "9:9:9::2"
+          - "2:2:2::2"
       - name: sw-net-provider-port2
         mac: "50:54:00:00:02:02"
         ipv4:
-          - "9.9.9.3"
+          - "2.2.2.3"
         ipv6:
-          - "9:9:9::3"
+          - "2:2:2::3"
       - name: provider-net
         type: localnet
         options:
@@ -73,3 +79,26 @@ topology:
       - name: sw-net-provider-lr-osp
         type: router
         routerPort: lr-osp-port3
+  - name: sw-net-provider-vlan
+    type: switch
+    ports:
+      - name: sw-net-provider-vlan-port1
+        mac: "50:54:00:00:03:01"
+        ipv4:
+          - "3.3.3.2"
+        ipv6:
+          - "3:3:3::2"
+      - name: sw-net-provider-vlan-port2
+        mac: "50:54:00:00:03:02"
+        ipv4:
+          - "3.3.3.3"
+        ipv6:
+          - "3:3:3::3"
+      - name: provider-net-vlan
+        type: localnet
+        tag: 101
+        options:
+          - "network_name=provider-net"
+      - name: sw-net-provider-vlan-lr-osp
+        type: router
+        routerPort: lr-osp-port4
