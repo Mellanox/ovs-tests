@@ -130,12 +130,12 @@ class OVNLogicalSwitch(OVNEntity):
 
     def add_to_ovn(self):
         cmd_args = [f"--may-exist ls-add {self.name}"]
+        self.__add_load_balancers(cmd_args)
         for port in self._ports:
             cmd_args.append(f"--may-exist lsp-add {self.name} {port['name']}")
 
             self.__set_port_options(port, cmd_args)
             self.__add_port_type(port, cmd_args)
-            self.__add_load_balancers(cmd_args)
 
         return run_ovn_nbctl(cmd_args)
 
