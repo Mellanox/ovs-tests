@@ -85,7 +85,7 @@ function run() {
     sleep 1
 
     counter=$(expr $t*1/$interval | bc)
-    title "run: ip netns exec ns0 timeout $((t+2)) ping $IP2 -c $counter -i $interval -W $t"
+    debug "run: ip netns exec ns0 timeout $((t+2)) ping $IP2 -c $counter -i $interval -W $t"
     ip netns exec ns0 timeout $((t+2)) ping $IP2 -q -c $counter -i $interval -W $t
 
     wait

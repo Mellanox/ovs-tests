@@ -29,7 +29,7 @@ trap cleanup EXIT
 function config() {
     cleanup
     set_e2e_cache_enable true
-    echo "Restarting OVS"
+    debug "Restarting OVS"
     start_clean_openvswitch
 
     config_simple_bridge_with_rep 2
@@ -43,7 +43,7 @@ function add_openflow_rules1() {
     ovs-ofctl add-flow br-phy "table=0,tcp,ct_state=-trk,actions=ct(zone=5, table=1)"
     ovs-ofctl add-flow br-phy "table=1,tcp,ct_state=+trk+new,actions=ct(zone=5, commit),NORMAL"
     ovs-ofctl add-flow br-phy "table=1,tcp,ct_state=+trk+est,ct_zone=5,actions=normal"
-    echo -e "\nOVS flow rules:"
+    debug "\nOVS flow rules:"
     ovs-ofctl dump-flows br-phy --color
 }
 
@@ -55,11 +55,11 @@ function run() {
 
     # check number of flows
     x=$(ovs-appctl dpctl/dump-e2e-flows |wc -l)
-    echo "Number of merged flows: ";echo $x
+    debug "Number of merged flows: $x"
 
     del_openflow_rules br-phy
     y=$(ovs-appctl dpctl/dump-e2e-flows |wc -l)
-    echo "Number of merged flows after deletion: ";echo $y
+    debug "Number of merged flows after deletion: $y"
     if [ $y -ne 0 ]; then
         err "Flows not deleted"
     fi

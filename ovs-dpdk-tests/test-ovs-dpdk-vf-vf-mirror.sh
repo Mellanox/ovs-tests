@@ -40,7 +40,7 @@ trap cleanup EXIT
 function config() {
     cleanup
     set_e2e_cache_enable false
-    echo "Restarting OVS"
+    debug "Restarting OVS"
     start_clean_openvswitch
 
     config_simple_bridge_with_rep 1
@@ -60,14 +60,14 @@ function run() {
     config_remote
 
     t=5
-    echo -e "\nTesting Ping"
+    debug "\nTesting Ping"
     on_remote timeout $t ping $IP -c 10 -i 0.1 -q
     if [ $? -ne 0 ]; then
         err "ping failed"
         return
     fi
 
-    echo -e "\nTesting TCP traffic"
+    debug "\nTesting TCP traffic"
     # traffic
     ip netns exec ns0 timeout $((t+2)) iperf3 -s &
     pid1=$!
@@ -88,7 +88,7 @@ function run() {
     check_dpdk_offloads $IP
     kill -9 $pid1 &>/dev/null
     killall iperf3 &>/dev/null
-    echo "wait for bgs"
+    debug "wait for bgs"
     wait
 }
 

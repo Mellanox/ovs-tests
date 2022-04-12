@@ -41,7 +41,7 @@ trap cleanup EXIT
 function config() {
     cleanup
     set_e2e_cache_enable false
-    echo "Restarting OVS"
+    debug "Restarting OVS"
     start_clean_openvswitch
 
     config_simple_bridge_with_rep 0
@@ -98,7 +98,7 @@ function run() {
 
     kill -9 $pid1 &>/dev/null
     killall iperf3 &>/dev/null
-    echo "wait for bgs"
+    debug "wait for bgs"
     wait
 }
 

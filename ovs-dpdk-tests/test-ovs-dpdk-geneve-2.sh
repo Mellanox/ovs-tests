@@ -83,14 +83,14 @@ function run() {
     config true $LOCAL_TUN $REMOTE_IP $REMOTE
     ovs-ofctl dump-flows br-int --color
 
-    echo -e "Testing ping"
+    debug "Testing ping"
     ip netns exec ns0 ping -q -c 5 $REMOTE -w 7
     if [ $? -ne 0 ]; then
         err "ping failed"
         return
     fi
 
-    echo -e "\nTesting TCP traffic"
+    debug "\nTesting TCP traffic"
     t=15
     # traffic
     ip netns exec ns0 timeout $((t+2)) iperf3 -s &
@@ -113,7 +113,7 @@ function run() {
 
     kill -9 $pid1 &>/dev/null
     killall iperf3 &>/dev/null
-    echo "wait for bgs"
+    debug "wait for bgs"
     wait
 }
 

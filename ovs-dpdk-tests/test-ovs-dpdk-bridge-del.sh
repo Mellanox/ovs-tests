@@ -32,7 +32,7 @@ function config() {
 
     cleanup
     set_e2e_cache_enable $e2e_setting
-    echo "Restarting OVS"
+    debug "Restarting OVS"
     restart_openvswitch
 
     config_simple_bridge_with_rep 0
@@ -41,11 +41,11 @@ function config() {
 }
 
 function run() {
-    title "creating bridges without e2e-enabled"
+    debug "creating bridges without e2e-enabled"
     config true
     ovs-vsctl show
 
-    title "deleting bridges"
+    debug "deleting bridges"
     timeout 10 ovs-vsctl del-br br-int
     if [ $? -eq 124 ]; then
         err "Timed out deleting bridge"
@@ -55,11 +55,11 @@ function run() {
         err "Timed out deleting bridge"
     fi
 
-    title "creating bridges with e2e-enabled"
+    debug "creating bridges with e2e-enabled"
     config true
     ovs-vsctl show
 
-    title "deleting bridges"
+    debug "deleting bridges"
     timeout 10 ovs-vsctl del-br br-int
     if [ $? -eq 124 ]; then
         err "Timed out deleting bridge"

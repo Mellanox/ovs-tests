@@ -22,7 +22,7 @@ bind_vfs
 
 cleanup_test
 set_e2e_cache_enable false
-echo "Restarting OVS"
+debug "Restarting OVS"
 start_clean_openvswitch
 
 config_tunnel gre

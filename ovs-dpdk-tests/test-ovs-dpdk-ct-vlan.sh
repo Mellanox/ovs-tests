@@ -26,7 +26,7 @@ function config() {
     ip link set dev $VF netns ns0
     ip netns exec ns0 ifconfig $VF $LOCAL_IP/24 up
 
-    echo "Restarting OVS"
+    debug "Restarting OVS"
     start_clean_openvswitch
 
     config_simple_bridge_with_rep 1

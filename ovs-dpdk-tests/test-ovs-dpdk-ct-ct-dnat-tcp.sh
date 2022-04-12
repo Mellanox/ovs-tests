@@ -33,7 +33,7 @@ function config() {
     cleanup
     set_e2e_cache_enable false
     enable_ct_ct_nat_offload
-    echo "Restarting OVS"
+    debug "Restarting OVS"
     start_clean_openvswitch
 
     config_simple_bridge_with_rep 2
@@ -52,7 +52,7 @@ function add_openflow_rules() {
     ovs-ofctl add-flow br-phy "table=0,in_port=rep1,tcp,ct_state=-trk actions=ct(zone=2, table=1)"
     ovs-ofctl add-flow br-phy "table=1,in_port=rep1,tcp,ct_state=+trk+new actions=ct(zone=2, commit, nat),rep0"
     ovs-ofctl add-flow br-phy "table=1,in_port=rep1,tcp,ct_state=+trk+est actions=ct(zone=2, nat),rep0"
-    echo;echo "OVS flow rules:"
+    debug "OVS flow rules:"
     ovs-ofctl dump-flows br-phy --color
 }
 
@@ -60,7 +60,7 @@ function run() {
     config
     add_openflow_rules
 
-    echo;echo "Testing TCP traffic"
+    debug "Testing TCP traffic"
     t=15
     # traffic
     ip netns exec ns1 timeout $((t+2)) iperf3 -s &
@@ -82,7 +82,7 @@ function run() {
     check_dpdk_offloads $IP
     check_offloaded_connections 5
     killall iperf3 &>/dev/null
-    echo "wait for bgs"
+    debug "wait for bgs"
     wait
 }
 

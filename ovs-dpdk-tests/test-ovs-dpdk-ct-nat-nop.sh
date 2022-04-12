@@ -18,7 +18,7 @@ function config() {
     bind_vfs
     cleanup_test
     set_e2e_cache_enable false
-    echo "Restarting OVS"
+    debug "Restarting OVS"
     start_clean_openvswitch
     config_simple_bridge_with_rep 2
     config_ns ns0 $VF $IP
@@ -28,9 +28,9 @@ function config() {
 function run() {
     config
     ovs_add_ct_nat_nop_rules br-phy
-    echo -e "\n Testing icmp traffic"
+    debug "\n Testing icmp traffic"
     verify_ping $IP_2 ns0
-    echo -e "\n Testing TCP traffic"
+    debug "\n Testing TCP traffic"
     # traffic
     generate_traffic "local" $IP ns1
     # check offloads

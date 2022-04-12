@@ -28,7 +28,7 @@ trap cleanup_test EXIT
 gre_set_entropy
 
 set_e2e_cache_enable false
-echo "Restarting OVS"
+debug "Restarting OVS"
 start_clean_openvswitch
 
 config_tunnel vxlan

@@ -46,7 +46,7 @@ trap cleanup EXIT
 function config() {
     cleanup
     set_e2e_cache_enable false
-    echo "Restarting OVS"
+    debug "Restarting OVS"
     start_clean_openvswitch
 
     config_simple_bridge_with_rep 0
@@ -101,7 +101,7 @@ function run() {
         return
     fi
 
-    sleep 11
+    sleep 1
     # check offloads
     check_dpdk_offloads $IP
 }

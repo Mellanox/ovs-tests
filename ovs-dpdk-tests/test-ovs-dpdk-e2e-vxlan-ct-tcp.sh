@@ -44,7 +44,7 @@ trap cleanup EXIT
 function config() {
     cleanup
     set_e2e_cache_enable true
-    echo "Restarting OVS"
+    debug "Restarting OVS"
     start_clean_openvswitch
 
     config_simple_bridge_with_rep 0
@@ -69,7 +69,7 @@ function add_openflow_rules() {
     ovs-ofctl add-flow br-int "table=0,tcp,ct_state=-trk,actions=ct(zone=5, table=1)"
     ovs-ofctl add-flow br-int "table=1,tcp,ct_state=+trk+new,actions=ct(zone=5, commit),NORMAL"
     ovs-ofctl add-flow br-int "table=1,tcp,ct_state=+trk+est,ct_zone=5,actions=normal"
-    echo -e "\nOVS flow rules:"
+    debug "\nOVS flow rules:"
     ovs-ofctl dump-flows br-int --color
 }
 
@@ -78,7 +78,7 @@ function run() {
     config_remote
     add_openflow_rules
 
-    echo -e "\nTesting TCP traffic"
+    debug "\nTesting TCP traffic"
     t=15
     # traffic
     ip netns exec ns0 timeout $((t+2)) iperf3 -s &
@@ -97,7 +97,7 @@ function run() {
 
     kill -9 $pid1 &>/dev/null
     killall iperf3 &>/dev/null
-    echo "wait for bgs"
+    debug "wait for bgs"
     wait
 
     check_e2e_stats 20
