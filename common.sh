@@ -601,6 +601,13 @@ function reset_tc_block_index() {
     unset BLOCK_INDEX
 }
 
+function debug() {
+    local time=`date +%H:%M:%S`
+    local m="${CYAN}$time | $NOCOLOR$@"
+
+    echo -e "$m"
+}
+
 function log() {
     echo $@
     kmsg $@
