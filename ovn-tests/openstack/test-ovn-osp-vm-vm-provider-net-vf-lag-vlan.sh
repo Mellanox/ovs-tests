@@ -12,17 +12,17 @@ my_dir="$(dirname "$0")"
 require_interfaces NIC NIC2
 require_remote_server
 
-read_osp_topology_vm_vm_provider_net
+read_osp_topology_vm_vm_provider_vlan_net
 ovn_set_ips
 
 function config_test() {
     ovn_start_northd_central $ovn_central_ip
     ovn_create_topology
 
-    config_ovn_vf_lag_vlan_provider_net $ovn_central_ip $ovn_controller_ip CLIENT_VF CLIENT_REP
+    config_ovn_vf_lag_provider_net $ovn_central_ip $ovn_controller_ip CLIENT_VF CLIENT_REP
     ovn_config_interface_namespace $CLIENT_VF $CLIENT_REP $CLIENT_NS $CLIENT_PORT $CLIENT_MAC $CLIENT_IPV4 $CLIENT_IPV6
 
-    on_remote_exec "config_ovn_vf_lag_vlan_provider_net $ovn_central_ip $ovn_remote_controller_ip SERVER_VF SERVER_REP
+    on_remote_exec "config_ovn_vf_lag_provider_net $ovn_central_ip $ovn_remote_controller_ip SERVER_VF SERVER_REP
                     ovn_config_interface_namespace $SERVER_VF $SERVER_REP $SERVER_NS $SERVER_PORT $SERVER_MAC $SERVER_IPV4 $SERVER_IPV6"
 }
 
