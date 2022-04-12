@@ -1935,6 +1935,14 @@ function is_ipv6() {
     return 1
 }
 
+function create_vlan_interface() {
+    local parent_int=$1
+    local vlan_int=$2
+    local vlan_id=$3
+
+    ip link add link $parent_int name $vlan_int type vlan id $vlan_id
+}
+
 function get_lag_resource_allocation_mode() {
     if [ "$short_device_name" != "cx6dx" ]; then
         echo 0

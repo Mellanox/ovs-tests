@@ -10,6 +10,8 @@ OVN_TUNNEL_MTU=1700
 OVN_PF_BRIDGE="br-pf"
 OVN_VLAN_INTERFACE="vlan-int"
 OVN_VLAN_TAG=100
+PF_VLAN_INT="$NIC.$OVN_VLAN_TAG"
+BOND_VLAN_INT="$OVN_BOND.$OVN_VLAN_TAG"
 
 function __reset_nic() {
     local nic=${NIC:-}

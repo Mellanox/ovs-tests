@@ -17,6 +17,8 @@ function __ovn_clean_up() {
 
     __reset_nic
     ip -all netns del
+    ip link del $PF_VLAN_INT 2>/dev/null
+    ip link del $BOND_VLAN_INT 2>/dev/null
 
     if [[ -n "$HAS_BOND" ]]; then
         clean_vf_lag
@@ -123,6 +125,7 @@ function config_ovn_external_server() {
     "
 }
 
+# Config ovn with ovs internal port with vlan
 function config_ovn_pf_vlan() {
     local ovn_central_ip=$1
     local ovn_controller_ip=$2
@@ -137,6 +140,25 @@ function config_ovn_pf_vlan() {
     ovs_add_port_to_switch $OVN_PF_BRIDGE $NIC
     ovn_config_mtu $NIC $OVN_PF_BRIDGE $OVN_VLAN_INTERFACE
     ip addr add $ovn_controller_ip/24 dev $OVN_VLAN_INTERFACE
+
+    ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
+    ovn_start_ovn_controller
+}
+
+# Config ovn with linux vlan interface created from NIC
+function config_ovn_pf_vlan_int() {
+    local ovn_central_ip=$1
+    local ovn_controller_ip=$2
+    local vf_var=$3
+    local rep_var=$4
+
+    config_sriov_switchdev_mode
+    require_interfaces $vf_var $rep_var
+
+    start_clean_openvswitch
+    create_vlan_interface $NIC $PF_VLAN_INT $OVN_VLAN_TAG
+    ovn_config_mtu $NIC $PF_VLAN_INT
+    ip addr add $ovn_controller_ip/24 dev $PF_VLAN_INT
 
     ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
     ovn_start_ovn_controller
@@ -175,6 +197,25 @@ function config_ovn_vf_lag_vlan() {
     ovs_add_port_to_switch $OVN_PF_BRIDGE $OVN_BOND
     ovn_config_mtu $NIC $NIC2 $OVN_BOND $OVN_PF_BRIDGE $OVN_VLAN_INTERFACE
     ip addr add $ovn_controller_ip/24 dev $OVN_VLAN_INTERFACE
+
+    ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
+    ovn_start_ovn_controller
+}
+
+function config_ovn_vf_lag_vlan_int() {
+    local ovn_central_ip=$1
+    local ovn_controller_ip=$2
+    local vf_var=$3
+    local rep_var=$4
+    local mode=${5:-"802.3ad"}
+
+    config_vf_lag $mode
+    require_interfaces $vf_var $rep_var
+
+    start_clean_openvswitch
+    create_vlan_interface $OVN_BOND $BOND_VLAN_INT $OVN_VLAN_TAG
+    ovn_config_mtu $NIC $NIC2 $OVN_BOND $BOND_VLAN_INT
+    ip addr add $ovn_controller_ip/24 dev $BOND_VLAN_INT
 
     ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
     ovn_start_ovn_controller

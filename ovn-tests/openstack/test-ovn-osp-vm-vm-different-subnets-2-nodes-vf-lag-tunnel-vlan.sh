@@ -19,10 +19,10 @@ function config_test() {
     ovn_start_northd_central $ovn_central_ip
     ovn_create_topology
 
-    config_ovn_vf_lag_vlan $ovn_central_ip $ovn_controller_ip CLIENT_VF CLIENT_REP
+    config_ovn_vf_lag_vlan_int $ovn_central_ip $ovn_controller_ip CLIENT_VF CLIENT_REP
     ovn_config_interface_namespace $CLIENT_VF $CLIENT_REP $CLIENT_NS $CLIENT_PORT $CLIENT_MAC $CLIENT_IPV4 $CLIENT_IPV6 $CLIENT_GATEWAY_IPV4 $CLIENT_GATEWAY_IPV6
 
-    on_remote_exec "config_ovn_vf_lag_vlan $ovn_central_ip $ovn_remote_controller_ip SERVER_VF SERVER_REP
+    on_remote_exec "config_ovn_vf_lag_vlan_int $ovn_central_ip $ovn_remote_controller_ip SERVER_VF SERVER_REP
                     ovn_config_interface_namespace $SERVER_VF $SERVER_REP $SERVER_NS $SERVER_PORT $SERVER_MAC $SERVER_IPV4 $SERVER_IPV6 $SERVER_GATEWAY_IPV4 $SERVER_GATEWAY_IPV6"
 }
 
