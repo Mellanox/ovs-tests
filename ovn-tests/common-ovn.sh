@@ -186,7 +186,7 @@ function check_traffic_offload() {
 
     # Send background traffic before capturing traffic
     title "Sending ${traffic_type^^} traffic"
-    local traffic_timeout=10
+    local traffic_timeout=15
     if [[ -n "$skip_offload" ]]; then
         traffic_timeout=5
     fi
@@ -199,15 +199,15 @@ function check_traffic_offload() {
         sleep 5
 
         # Listen to traffic on representor
-        tcpdump -Unnepi $rep $tcpdump_filter -c 5 &
+        tcpdump -Unnepi $rep $tcpdump_filter -c 30 &
         local tdpid=$!
 
         local tdpid_receiver=
         if [[ -z "$CONFIG_REMOTE" ]]; then
-            tcpdump -Unnepi $REP2 $tcpdump_filter -c 5 >/dev/null 2>&1 &
+            tcpdump -Unnepi $REP2 $tcpdump_filter -c 30 >/dev/null 2>&1 &
             tdpid_receiver=$!
         else
-            tdpid_receiver=$(on_remote "nohup tcpdump -Unnepi $SERVER_REP $tcpdump_filter -c 5 > /dev/null 2>&1 & echo \$!")
+            tdpid_receiver=$(on_remote "nohup tcpdump -Unnepi $SERVER_REP $tcpdump_filter -c 30 > /dev/null 2>&1 & echo \$!")
         fi
         sleep 0.5
 
@@ -221,6 +221,7 @@ function check_traffic_offload() {
 
         # If tcpdump finished then it capture more than expected to be offloaded
         title "Check ${traffic_type^^} traffic is offloaded on the sender"
+        sleep 3
         [[ -d /proc/$tdpid ]] && success || err
 
         title "Check ${traffic_type^^} traffic is offloaded on the receiver"
