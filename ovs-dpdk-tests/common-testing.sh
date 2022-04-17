@@ -89,7 +89,19 @@ function generate_traffic() {
     kill -0 $pid2 &>/dev/null
     if [ $? -ne 0 ]; then
        err "iperf3 failed"
+       kill_iperf
        return 1
+    fi
+
+    #check iperf on remote
+    if [ "$remote" == "remote" ]; then
+       proc_cmd="on_remote ps -efww | grep iperf3 | grep -v grep |wc -l"
+       num_proc=$(eval $proc_cmd)
+       if [[  $num_proc < 1 ]] ; then
+          err "no iperf3 process on the machine"
+          kill_iperf
+          return 1
+       fi
     fi
 
     sleep $((t+1))
