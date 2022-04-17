@@ -92,7 +92,7 @@ function generate_traffic() {
        return 1
     fi
 
-    sleep $t
+    sleep $((t+1))
 
     if [ -f $p_server ]; then
         echo "Server traffic"
