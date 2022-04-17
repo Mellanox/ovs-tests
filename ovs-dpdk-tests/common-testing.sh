@@ -3,6 +3,24 @@ p_client=/tmp/perf_client
 p_ping=/tmp/ping_out
 p_scapy=/tmp/tcpdump
 
+function ovs_add_ct_after_nat_rules(){
+    local bridge=$1
+    local ip=$2
+    local dummy_ip=$3
+    local rep=${4:-"rep0"}
+    local rep2=${5:-"rep1"}
+
+   ovs-ofctl del-flows $bridge
+   ovs-ofctl add-flow $bridge "table=0,priority=1,actions=drop"
+   ovs-ofctl add-flow $bridge "table=0,priority=10,arp,actions=NORMAL"
+   ovs-ofctl add-flow $bridge "table=0,priority=20,in_port=$rep2,ip,actions=ct(nat),$rep"
+   ovs-ofctl add-flow $bridge "table=0,priority=30,in_port=$rep,ip,nw_dst=$dummy_ip,actions=ct(commit,nat(dst=$ip:5201),table=1)"
+   ovs-ofctl add-flow $bridge "table=1,ip,actions=ct(commit,table=2)"
+   ovs-ofctl add-flow $bridge "table=2,in_port=$rep,ip,actions=$rep2"
+   echo "OVS flow rules:"
+   ovs-ofctl dump-flows $bridge --color
+}
+
 function ovs_add_ct_nat_nop_rules() {
     local bridge=${1:-"br-int"}
 
