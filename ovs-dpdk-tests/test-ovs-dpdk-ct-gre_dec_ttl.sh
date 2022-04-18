@@ -36,7 +36,7 @@ generate_traffic "remote"
 # check offloads
 check_dpdk_offloads $LOCAL_IP
 check_offloaded_connections 5
-check_offload_contains "ttl=63" 4
+check_offload_contains "ttl=63" 2
 
 start_clean_openvswitch
 test_done
