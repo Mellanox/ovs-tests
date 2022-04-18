@@ -110,7 +110,7 @@ function check_offload_contains() {
     local text=$1
     local num_flows=$2
 
-    local flows=$(ovs-appctl dpctl/dump-flows -m | grep "$1" |wc -l)
+    local flows=$(ovs-appctl dpctl/dump-flows -m type=offloaded | grep "$1" |wc -l)
     if [ $flows -ne $num_flows ]; then
         err "expected $num_flows flows with $1 message but got $flows"
         echo "flows:"
