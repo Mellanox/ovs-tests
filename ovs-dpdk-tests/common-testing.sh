@@ -160,8 +160,10 @@ function validate_traffic() {
 }
 
 function kill_iperf() {
-   killall -9 iperf3 &>/dev/null
-   on_remote killall -9 iperf3 &>/dev/null
+   debug "Executing | killall -9 iperf3"
+   killall -9 iperf3
+   debug "Executing | on_remote killall -9 iperf3"
+   on_remote killall -9 iperf3
    sleep 1
 }
 
