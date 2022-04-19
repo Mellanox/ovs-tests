@@ -209,11 +209,13 @@ class OVNLogicalRouter(OVNEntity):
             nat_type = nat["type"]
             external_ip = nat["external_ip"]
             logical_ip = nat["logical_ip"]
+            port = nat.get("port", "")
+            mac = nat.get("mac", "")
 
             if nat_type not in ("snat", "dnat", "dnat_and_snat"):
                 raise ValueError(f'Invalid: "{self.name}" router has NAT with invalid type "{nat_type}"')
 
-            cmd_args.append(f"lr-nat-add {self.name} {nat_type} {external_ip} {logical_ip}")
+            cmd_args.append(f"lr-nat-add {self.name} {nat_type} {external_ip} {logical_ip} {port} {mac}")
 
     def __add_load_balancers(self, cmd_args):
         lbs = self._data.get("loadBalancers", [])
