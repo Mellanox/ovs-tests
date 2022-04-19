@@ -201,7 +201,7 @@ class OVNLogicalRouter(OVNEntity):
                 if chassis_id == "" and c == "local":
                     chassis_id = self.get_ovs_id()
 
-                cmd_args.append(f"lrp-set-gateway-chassis {port_name} {chassis_id}")
+                cmd_args.append(f"lrp-set-gateway-chassis {port_name} {chassis_id} 10")
 
     def __add_nats(self, cmd_args):
         nats = self._data.get("nats", [])
