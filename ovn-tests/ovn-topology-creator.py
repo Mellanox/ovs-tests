@@ -6,11 +6,23 @@ import subprocess
 import sys
 import yaml
 
+LOGICAL_ROUTER_TYPE = "LOGICAL_ROUTER"
+LOGICAL_SWITCH_TYPE = "LOGICAL_SWITCH"
+LOAD_BALANCER_TYPE = "LOAD_BALANCER"
+
+OVN_ENTITIES_DEP = {
+    LOAD_BALANCER_TYPE: 0,
+    LOGICAL_SWITCH_TYPE: 10,
+    LOGICAL_ROUTER_TYPE: 100
+}
+
 
 class OVNTopologyReader:
     def __init__(self, name, entities):
         self.name = name
-        self._entities = entities
+        self._entities = {entity_type: [] for entity_type in OVN_ENTITIES_DEP}
+        for e in entities:
+            self._entities[e.get_type()].append(e)
 
     @classmethod
     def from_file(cls, file_path):
@@ -27,14 +39,14 @@ class OVNTopologyReader:
         return cls(name, ovn_entities)
 
     def add_to_ovn(self):
-        for ovn_entity in self._entities:
+        for ovn_entity in self.sorted_entities():
             if ovn_entity.add_to_ovn():
                 return 1
 
         return 0
 
     def remove_from_ovn(self):
-        for ovn_entity in self._entities:
+        for ovn_entity in self.sorted_entities(reverse=True):
             if ovn_entity.remove_from_ovn():
                 return 1
 
@@ -58,6 +70,15 @@ class OVNTopologyReader:
 
         raise RuntimeError(f'Unknown entity of type {entity_type}')
 
+    def sorted_entities(self, reverse=False):
+        """ return a sorted list of the topology entities according to dependencies """
+
+        entities = []
+        for el in self._entities.values():
+            entities.extend(el)
+
+        return sorted(entities, reverse=reverse, key=lambda e: OVN_ENTITIES_DEP[e.get_type()])
+
 
 class OVNEntity:
     def __init__(self, data):
@@ -70,6 +91,10 @@ class OVNEntity:
 
     def remove_from_ovn(self):
         """Remove ovn entity to OVN"""
+        pass
+
+    def get_type(self):
+        """Returns entity type"""
         pass
 
 
@@ -149,6 +174,9 @@ class OVNLogicalSwitch(OVNEntity):
 
         cmd_args.append(f"--if-exists ls-del {self.name}")
         return run_ovn_nbctl(cmd_args)
+
+    def get_type(self):
+        return LOGICAL_SWITCH_TYPE
 
 
 class OVNLogicalRouter(OVNEntity):
@@ -241,6 +269,9 @@ class OVNLogicalRouter(OVNEntity):
         cmd_args.append(f"--if-exists lr-del {self.name}")
         return run_ovn_nbctl(cmd_args)
 
+    def get_type(self):
+        return LOGICAL_ROUTER_TYPE
+
 
 class OVNLoadBalancer(OVNEntity):
     def __init__(self, data):
@@ -263,6 +294,9 @@ class OVNLoadBalancer(OVNEntity):
 
     def remove_from_ovn(self):
         return run_ovn_nbctl([f"--if-exists lb-del {self.name}"])
+
+    def get_type(self):
+        return LOAD_BALANCER_TYPE
 
 
 def parse_args():
