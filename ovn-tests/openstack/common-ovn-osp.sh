@@ -17,6 +17,7 @@ SWITCH_NETWORK_PROVIDER_VLAN_PORT2="sw-net-provider-vlan-port2"
 
 # Physical Networks
 PROVIDER_NETWORK="provider-net"
+OSP_EXTERNAL_NETWORK="ext-net"
 
 function read_osp_topology_vm_vm_same_subnet() {
     CLIENT_SWITCH=$SWITCH_NETWORK_A
@@ -56,4 +57,16 @@ function read_osp_topology_vm_vm_provider_vlan_net() {
     SERVER_SWITCH=$SWITCH_NETWORK_PROVIDER_VLAN
     SERVER_PORT=$SWITCH_NETWORK_PROVIDER_VLAN_PORT2
     read_switch_server
+}
+
+function read_osp_topology_vm_ext() {
+    local server_port=${1:-$NIC}
+
+    CLIENT_SWITCH=$SWITCH_NETWORK_A
+    CLIENT_PORT=$SWITCH_NETWORK_A_PORT1
+    read_router_client
+
+    SERVER_PORT=$server_port
+    SERVER_IPV4=$OVN_EXTERNAL_NETWORK_HOST_IP
+    SERVER_IPV6=$OVN_EXTERNAL_NETWORK_HOST_IP_V6
 }

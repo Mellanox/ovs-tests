@@ -99,6 +99,7 @@ function config_ovn_pf() {
 
 function ovn_single_node_external_config() {
     local ovn_ip=${1:-$OVN_LOCAL_CENTRAL_IP}
+    local network=${2:-$OVN_EXTERNAL_NETWORK}
 
     ovn_start_northd_central
     ovn_create_topology
@@ -107,22 +108,52 @@ function ovn_single_node_external_config() {
     require_interfaces CLIENT_VF CLIENT_REP
 
     start_clean_openvswitch
-    ovn_add_network
+    ovn_add_network $OVN_PF_BRIDGE $NIC $network
     ip link set $NIC up
 
     ovn_set_ovs_config $ovn_ip $ovn_ip
     ovn_start_ovn_controller
 }
 
-function config_ovn_external_server() {
-    on_remote_exec "
-    ip link set $SERVER_PORT up
-    ip addr add $SERVER_IPV4/24 dev $SERVER_PORT
-    ip -6 addr add $SERVER_IPV6/124 dev $SERVER_PORT
+function config_port_ip() {
+    local port=$1
+    local ip=$2
+    local ipv6=$3
+    local ip_mask=${4:-24}
+    local ipv6_mask=${5:-64}
 
-    ip route add $CLIENT_IPV4 via $SERVER_GATEWAY_IPV4 dev $SERVER_PORT
-    ip -6 route add $CLIENT_IPV6 via $SERVER_GATEWAY_IPV6 dev $SERVER_PORT
+    ip link set $port up
+    ip addr add $ip/$ip_mask dev $port
+
+    if [[ -n "$ipv6" ]]; then
+        ip -6 addr add $ipv6/$ipv6_mask dev $port
+    fi
+}
+
+config_ovn_external_server_ip() {
+    local server_port=${1:-$NIC}
+    local server_ipv4=${2:-$OVN_EXTERNAL_NETWORK_HOST_IP}
+    local server_ipv6=${3:-$OVN_EXTERNAL_NETWORK_HOST_IP_V6}
+
+    on_remote_exec "config_port_ip $server_port $server_ipv4 $server_ipv6"
+}
+
+function config_ovn_external_server_route() {
+    local server_port=$1
+    local gw_ipv4=$2
+    local network_ipv4=$3
+    local gw_ipv6=$4
+    local network_ipv6=$5
+
+    on_remote_exec "
+    ip route add $network_ipv4 via $gw_ipv4 dev $server_port
+    ip -6 route add $network_ipv6 via $gw_ipv6 dev $server_port
     "
+}
+
+function config_ovn_external_server() {
+    config_ovn_external_server_ip $SERVER_PORT $SERVER_IPV4 $SERVER_IPV6
+    config_ovn_external_server_route $SERVER_PORT $SERVER_GATEWAY_IPV4 $CLIENT_IPV4 $SERVER_GATEWAY_IPV6 $CLIENT_IPV6
 }
 
 # Config ovn with ovs internal port with vlan
