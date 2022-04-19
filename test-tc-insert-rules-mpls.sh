@@ -40,7 +40,10 @@ ip link set up dev bareudp0
 ip link set up dev $REP
 reset_tc $NIC
 
-tc_filter add dev bareudp0 protocol mpls_uc prio 1 ingress flower mpls_label $LABEL enc_dst_port $UDPPORT enc_key_id $LABEL action mpls pop protocol ip pipe action pedit ex munge eth dst set 00:11:22:33:44:21 pipe action mirred egress redirect dev $REP
+tc_filter add dev bareudp0 protocol mpls_uc prio 1 ingress flower mpls_label $LABEL enc_dst_port $UDPPORT \
+    action mpls pop protocol ip pipe \
+    action vlan push_eth dst_mac 00:11:22:33:44:21 src_mac 82:f5:af:53:f2:16 \
+    action mirred egress redirect dev $REP
 
 verify_in_hw bareudp0 1
 
