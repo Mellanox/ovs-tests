@@ -27,6 +27,25 @@ topology:
           - "3.3.3.1/24"
         ipv6:
           - "3:3:3::1/124"
+      - name: lr-osp-ext
+        mac: "00:00:00:a0:00:05"
+        ipv4:
+          - "172.16.1.1/24"
+        ipv6:
+          - "172:16:1::1/24"
+        chassis:
+          - local
+    nats:
+      - type: dnat_and_snat
+        external_ip: 172.16.1.5
+        logical_ip: 7.7.7.2
+        port: sw-net-a-port1
+        mac: "00:00:00:a0:01:01"
+      - type: dnat_and_snat
+        external_ip: 172:16:1::5
+        logical_ip: 7:7:7::2
+        port: sw-net-a-port1
+        mac: "00:00:00:a0:01:02"
   - name: sw-net-a
     type: switch
     ports:
@@ -102,3 +121,13 @@ topology:
       - name: sw-net-provider-vlan-lr-osp
         type: router
         routerPort: lr-osp-port4
+  - name: sw-net-ext
+    type: switch
+    ports:
+      - name: sw-net-ext-net
+        type: localnet
+        options:
+          - "network_name=ext-net"
+      - name: sw-net-ext-lr-osp
+        type: router
+        routerPort: lr-osp-ext
