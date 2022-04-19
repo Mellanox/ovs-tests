@@ -62,6 +62,23 @@ function verify_ping() {
     fi
 }
 
+function verify_iperf_running()
+{
+    local remote=${1:-"local"}
+    local proc_cmd="ps -efww | grep iperf3 | grep -v grep | wc -l"
+
+    if [ "$remote" == "remote" ]; then
+       proc_cmd="on_remote $proc_cmd"
+    fi
+
+    local num_proc=$(eval $proc_cmd)
+    if [[  $num_proc < 1 ]] ; then
+       err "no iperf3 process on $remote"
+       kill_iperf
+       return 1
+    fi
+}
+
 function generate_traffic() {
     local remote=${1:-"local"}
     local my_ip=${2:-$LOCAL_IP}
@@ -74,6 +91,9 @@ function generate_traffic() {
     debug "Executing | $server_cmd"
     eval $server_cmd
     sleep 2
+
+    verify_iperf_running
+
     # client
     rm -rf $p_client
     local cmd="iperf3 -f Mbits -c $my_ip -t $t -P 5 &> $p_client"
@@ -100,13 +120,7 @@ function generate_traffic() {
 
     #check iperf on remote
     if [ "$remote" == "remote" ]; then
-       proc_cmd="on_remote ps -efww | grep iperf3 | grep -v grep |wc -l"
-       num_proc=$(eval $proc_cmd)
-       if [[  $num_proc < 1 ]] ; then
-          err "no iperf3 process on the machine"
-          kill_iperf
-          return 1
-       fi
+        verify_iperf_running $remote
     fi
 
     sleep $((t+1))
