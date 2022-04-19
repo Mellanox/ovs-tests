@@ -12,11 +12,8 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
-IPERF_FILE="/tmp/temp1.txt"
-TCPDUMP_FILE="/tmp/temp2.txt"
-
-function clean_up(){
-    clean_up_crypto 1500 trusted_vfs
+function cleanup(){
+    cleanup_crypto 1500 trusted_vfs
     ipsec_cleanup_trusted_vfs_on_both_sides
 }
 
@@ -25,10 +22,10 @@ function run_test() {
     run_test_ipsec_crypto 9000 ipv4 transport icmp trusted_vfs
 }
 
-trap clean_up EXIT
+trap cleanup EXIT
 ipsec_set_trusted_vfs
 ipsec_set_trusted_vfs_on_remote
 run_test
 trap - EXIT
-clean_up
+cleanup
 test_done

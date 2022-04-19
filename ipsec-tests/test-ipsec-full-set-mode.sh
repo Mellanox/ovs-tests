@@ -12,7 +12,7 @@ fi
 
 require_ipsec_mode
 
-function clean_up() {
+function cleanup() {
     ipsec_set_mode none
 }
 
@@ -22,8 +22,8 @@ function run_test() {
     ipsec_set_mode full
 }
 
-trap clean_up EXIT
+trap cleanup EXIT
 run_test
 trap - EXIT
-clean_up
+cleanup
 test_done

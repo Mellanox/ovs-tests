@@ -12,8 +12,8 @@ function config() {
     ipsec_config_on_both_sides transport 128 ipv4 offload
 }
 
-function clean_up() {
-    ipsec_clean_up_on_both_sides
+function cleanup() {
+    ipsec_cleanup_on_both_sides
 }
 
 function run_test() {
@@ -22,8 +22,8 @@ function run_test() {
     enable_legacy
 }
 
-trap clean_up EXIT
+trap cleanup EXIT
 run_test
 trap - EXIT
-clean_up
+cleanup
 test_done

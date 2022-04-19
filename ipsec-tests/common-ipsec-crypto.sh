@@ -1,5 +1,8 @@
 #!/bin/bash
 
+IPERF_FILE="/tmp/iperf.log"
+TCPDUMP_FILE="/tmp/tcpdump.log"
+
 #run_traffic ipv4/ipv6 [udp|tcp|icmp]
 function run_traffic() {
     local IP_PROTO="$1"
@@ -128,7 +131,7 @@ function test_tx_off_rx_off() {
     fi
 }
 
-function clean_up_crypto() {
+function cleanup_crypto() {
     local mtu=${1:-1500}
     local trusted_vfs=${2:-"no_trusted_vfs"}
     local nic="$NIC"
@@ -141,7 +144,7 @@ function clean_up_crypto() {
 
     ip address flush $nic
     on_remote ip address flush $remote_nic
-    ipsec_clean_up_on_both_sides
+    ipsec_cleanup_on_both_sides
     kill_iperf
     change_mtu_on_both_sides $mtu $nic $remote_nic
     rm -f $IPERF_FILE $TCPDUMP_FILE
@@ -164,13 +167,13 @@ function run_test_ipsec_crypto() {
     for len in 128 256; do
         title "test $ipsec_mode $ip_proto over $net_proto with key length $len MTU $mtu with $trusted_vfs"
 
-        clean_up_crypto $mtu $trusted_vfs
+        cleanup_crypto $mtu $trusted_vfs
         test_tx_off_rx $ipsec_mode $len $ip_proto $net_proto $trusted_vfs
-        clean_up_crypto $mtu $trusted_vfs
+        cleanup_crypto $mtu $trusted_vfs
         test_tx_rx_off $ipsec_mode $len $ip_proto $net_proto $trusted_vfs
-        clean_up_crypto $mtu $trusted_vfs
+        cleanup_crypto $mtu $trusted_vfs
         test_tx_off_rx_off $ipsec_mode $len $ip_proto $net_proto $trusted_vfs
-        clean_up_crypto $mtu $trusted_vfs
+        cleanup_crypto $mtu $trusted_vfs
     done
 }
 
@@ -178,7 +181,7 @@ function performance_config() {
     local ip_proto="$1"
     local ipsec_mode="$2"
     local should_offload="$3"
-    ipsec_clean_up_on_both_sides
+    ipsec_cleanup_on_both_sides
     ipsec_config_on_both_sides $ipsec_mode 128 $ip_proto $should_offload
 }
 

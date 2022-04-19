@@ -5,12 +5,12 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common-ipsec.sh
+. $my_dir/common-ipsec-crypto.sh
 
 require_remote_server
 
 vxlan_lip="1.1.1.1"
 vxlan_rip="1.1.1.2"
-TCPDUMP_FILE="/tmp/temp2.txt"
 
 function config_vxlan_local() {
     ip link add vx0 type vxlan id 100 local $LIP6 remote $RIP6 dev $NIC dstport 4789
@@ -28,9 +28,9 @@ function config() {
     config_vxlan_remote
 }
 
-function clean_up() {
+function cleanup() {
     kill_iperf
-    ipsec_clean_up_on_both_sides
+    ipsec_cleanup_on_both_sides
     ip link del dev vx0 2> /dev/null
     on_remote "ip link del dev vx0 2> /dev/null"
     change_mtu_on_both_sides 1500
@@ -54,13 +54,13 @@ function run_test() {
     verify_have_traffic $pid
 }
 
-trap clean_up EXIT
+trap cleanup EXIT
 config
 run_test
-clean_up
+cleanup
 change_mtu_on_both_sides 9000
 config
 run_test
 trap - EXIT
-clean_up
+cleanup
 test_done

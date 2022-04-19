@@ -16,8 +16,8 @@ function config() {
     ipsec_config_on_both_sides transport 128 $L3_PROTO offload
 }
 
-function clean_up() {
-    ipsec_clean_up_on_both_sides
+function cleanup() {
+    ipsec_cleanup_on_both_sides
     kill_iperf
     change_mtu_on_both_sides 1500
     rm -f $TCPDUMP_FILE
@@ -48,16 +48,16 @@ function run_test() {
     sleep 3
 }
 
-trap clean_up EXIT
+trap cleanup EXIT
 run_test ipv4
-clean_up
+cleanup
 run_test ipv6
-clean_up
+cleanup
 change_mtu_on_both_sides 9000
 run_test ipv4
-clean_up
+cleanup
 change_mtu_on_both_sides 9000
 run_test ipv6
 trap - EXIT
-clean_up
+cleanup
 test_done

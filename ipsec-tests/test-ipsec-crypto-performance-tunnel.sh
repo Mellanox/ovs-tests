@@ -10,8 +10,8 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
-function clean_up() {
-    ipsec_clean_up_on_both_sides
+function cleanup() {
+    ipsec_cleanup_on_both_sides
     kill_iperf
     change_mtu_on_both_sides 1500
     rm -f /tmp/offload_results.txt /tmp/results.txt
@@ -26,15 +26,15 @@ function run_test() {
         title "Test with mtu = $mtu"
         change_mtu_on_both_sides $mtu
         run_performance_test tunnel ipv4
-        clean_up
+        cleanup
         change_mtu_on_both_sides $mtu
         run_performance_test tunnel ipv6
-        clean_up
+        cleanup
     done
 }
 
-trap clean_up EXIT
+trap cleanup EXIT
 run_test
 trap - EXIT
-clean_up
+cleanup
 test_done

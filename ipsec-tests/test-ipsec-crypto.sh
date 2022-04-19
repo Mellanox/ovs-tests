@@ -12,11 +12,8 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
-IPERF_FILE="/tmp/temp1.txt"
-TCPDUMP_FILE="/tmp/temp2.txt"
-
-function clean_up(){
-    clean_up_crypto
+function cleanup(){
+    cleanup_crypto
 }
 
 function run_test() {
@@ -24,8 +21,8 @@ function run_test() {
     run_test_ipsec_crypto 9000 ipv4 transport tcp
 }
 
-trap clean_up EXIT
+trap cleanup EXIT
 run_test
 trap - EXIT
-clean_up
+cleanup
 test_done

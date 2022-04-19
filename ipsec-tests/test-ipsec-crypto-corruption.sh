@@ -13,12 +13,12 @@ PCAP_FILE="/tmp/corruption-test-pkts.pcap"
 
 
 function config() {
-    ipsec_clean_up_on_both_sides
+    ipsec_cleanup_on_both_sides
     ipsec_config_on_both_sides transport 128 ipv4 offload
 }
 
-function clean_up() {
-    ipsec_clean_up_on_both_sides
+function cleanup() {
+    ipsec_cleanup_on_both_sides
     kill_iperf
     rm -f $PCAP_FILE
 }
@@ -52,9 +52,9 @@ function run_test() {
     verify_no_traffic $pid
 }
 
-trap clean_up EXIT
+trap cleanup EXIT
 config
 run_test
 trap - EXIT
-clean_up
+cleanup
 test_done

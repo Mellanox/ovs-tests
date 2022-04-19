@@ -202,24 +202,24 @@ function ipsec_config_on_both_sides() {
     ipsec_config_remote $IPSEC_MODE $KEY_LEN $IP_PROTO $SHOULD_OFFLOAD $TRUSTED_VFS
 }
 
-function ipsec_clean_up_local() {
+function ipsec_cleanup_local() {
     local dev=${1:-"$NIC"}
     ip xfrm state flush
     ip xfrm policy flush
     ip address flush $dev
 }
 
-function ipsec_clean_up_remote() {
+function ipsec_cleanup_remote() {
     local dev=${1:-"$NIC"}
     on_remote "ip xfrm state flush
                ip xfrm policy flush
 	       ip address flush $dev"
 }
 
-function ipsec_clean_up_on_both_sides() {
+function ipsec_cleanup_on_both_sides() {
     local dev=${1:-"$NIC"}
-    ipsec_clean_up_local $dev
-    ipsec_clean_up_remote $dev
+    ipsec_cleanup_local $dev
+    ipsec_cleanup_remote $dev
 }
 
 function change_mtu_on_both_sides() {
