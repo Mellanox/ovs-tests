@@ -62,10 +62,16 @@ function config_ns() {
     local ip_addr=$3
     local ipv6_addr=${4-"2001:db8:0:f101::1"}
 
+    debug "adding namespace $ns and attaching $dev"
     ip netns add $ns
     ip link set $dev netns $ns
     ip netns exec $ns ifconfig $dev $ip_addr up
     ip netns exec $ns ip -6 address add $ipv6_addr/64 dev $dev
+    local cmd="ip netns | grep $ns | wc -l"
+    local num_ns=$(eval $cmd)
+    if [ $num_ns -ne 1 ]; then
+        err "failed to add namespace $ns"
+    fi
 }
 
 function set_e2e_cache_enable() {
