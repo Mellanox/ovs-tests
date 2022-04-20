@@ -132,25 +132,30 @@ function check_dpdk_offloads() {
         filter="ipv6\|${filter}"
     fi
 
-    local x=$(ovs-appctl dpctl/dump-flows -m | grep -v $filter | grep -- $IP'\|tnl_pop' | wc -l)
+    ovs-appctl dpctl/dump-flows -m | grep -v $filter | grep -- $IP'\|tnl_pop' &> /tmp/filtered.txt
+    local x=$(cat /tmp/filtered.txt | wc -l)
     debug "Number of filtered rules: $x"
 
-    local y=$(ovs-appctl dpctl/dump-flows -m type=offloaded | grep -v $filter | wc -l)
+    cat /tmp/filtered.txt | grep 'offloaded:yes' &> /tmp/offloaded.txt
+    local y=$(cat /tmp/offloaded.txt | wc -l)
     debug "Number of offloaded rules: $y"
 
     if [ $x -ne $y ]; then
         err "offloads failed"
         debug "Filtered rules:"
-        ovs-appctl dpctl/dump-flows -m | grep -v $filter | grep -- $IP'\|tnl_pop'
-        debug "\n\nOffloaded rules:"
-        ovs-appctl dpctl/dump-flows -m type=offloaded | grep -v $filter
+        cat /tmp/filtered.txt
+        debug "Offloaded rules:"
+        cat /tmp/offloaded.txt
+        rm -rf /tmp/offloaded.txt /tmp/filtered.txt
         return 1
     elif [ $x -eq 0 ]; then
         err "offloads failed. no rules."
+        rm -rf /tmp/offloaded.txt /tmp/filtered.txt
         return 1
     fi
 
     query_sw_packets
+    rm -rf /tmp/offloaded.txt /tmp/filtered.txt
 }
 
 function del_openflow_rules() {
