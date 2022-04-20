@@ -85,6 +85,9 @@ function generate_traffic() {
     local namespace=$3
     local t=5
 
+    #clean rules
+    ovs-appctl revalidator/purge
+
     # server
     rm -rf $p_server
     local server_cmd="ip netns exec ns0 timeout $((t+2)) iperf3 -f Mbits -s -D --logfile $p_server"
