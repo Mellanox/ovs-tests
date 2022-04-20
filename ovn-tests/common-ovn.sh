@@ -263,7 +263,7 @@ function check_icmp6_traffic_offload() {
     local dst_ip=$3
     local required_rule_fields=$4
 
-    check_traffic_offload $rep $ns $dst_ip icmp6 "$required_rule_fields" 1
+    check_traffic_offload $rep $ns $dst_ip icmp6 "$required_rule_fields"
 }
 
 function check_local_tcp_traffic_offload() {
@@ -292,7 +292,7 @@ function check_local_tcp6_traffic_offload() {
     eval $cmd
     sleep 0.5
 
-    check_traffic_offload $rep $client_ns $server_ip tcp6 "$required_rule_fields" 1
+    check_traffic_offload $rep $client_ns $server_ip tcp6 "$required_rule_fields"
     killall -q iperf3
 }
 
@@ -322,7 +322,7 @@ function check_remote_tcp6_traffic_offload() {
     on_remote "$cmd"
     sleep 0.5
 
-    check_traffic_offload $rep $client_ns $server_ip tcp6 "$required_rule_fields" 1
+    check_traffic_offload $rep $client_ns $server_ip tcp6 "$required_rule_fields"
     on_remote "killall -q iperf3"
 }
 
@@ -352,7 +352,7 @@ function check_local_udp6_traffic_offload() {
     eval $cmd
     sleep 0.5
 
-    check_traffic_offload $rep $client_ns $server_ip udp6 "$required_rule_fields" 1
+    check_traffic_offload $rep $client_ns $server_ip udp6 "$required_rule_fields"
     killall -q udp-perf.py
 }
 
@@ -382,7 +382,7 @@ function check_remote_udp6_traffic_offload() {
     on_remote "$cmd"
     sleep 0.5
 
-    check_traffic_offload $rep $client_ns $server_ip udp6 "$required_rule_fields" 1
+    check_traffic_offload $rep $client_ns $server_ip udp6 "$required_rule_fields"
     on_remote "killall -q udp-perf.py"
 }
 
