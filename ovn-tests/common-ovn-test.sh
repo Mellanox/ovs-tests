@@ -115,6 +115,23 @@ function ovn_single_node_external_config() {
     ovn_start_ovn_controller
 }
 
+function config_ovn_single_node_external_vf_lag() {
+    local ovn_ip=${1:-$OVN_LOCAL_CENTRAL_IP}
+    local network=${2:-$OVN_EXTERNAL_NETWORK}
+
+    ovn_start_northd_central
+    ovn_create_topology
+
+    config_vf_lag
+    require_interfaces CLIENT_VF CLIENT_REP
+
+    start_clean_openvswitch
+    ovn_add_network $OVN_PF_BRIDGE $OVN_BOND $network
+
+    ovn_set_ovs_config $ovn_ip $ovn_ip
+    ovn_start_ovn_controller
+}
+
 function config_port_ip() {
     local port=$1
     local ip=$2
