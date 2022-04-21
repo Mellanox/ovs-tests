@@ -503,3 +503,10 @@ function ovn_remove_network() {
 
     ovs-vsctl --if-exists del-port $br $network_iface -- --if-exists del-br $br -- remove Open_vSwitch . external_ids ovn-bridge-mappings
 }
+
+function ovn_lsp_set_tag() {
+    local port=$1
+    local tag=$2
+
+    ovn-nbctl set LOGICAL_SWITCH_PORT $port tag=$tag
+}

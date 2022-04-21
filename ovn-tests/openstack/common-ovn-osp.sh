@@ -14,6 +14,7 @@ SWITCH_NETWORK_PROVIDER_PORT1="sw-net-provider-port1"
 SWITCH_NETWORK_PROVIDER_PORT2="sw-net-provider-port2"
 SWITCH_NETWORK_PROVIDER_VLAN_PORT1="sw-net-provider-vlan-port1"
 SWITCH_NETWORK_PROVIDER_VLAN_PORT2="sw-net-provider-vlan-port2"
+SWITCH_EXT_NETWORK_PORT="sw-net-ext-net"
 
 # Physical Networks
 PROVIDER_NETWORK="provider-net"

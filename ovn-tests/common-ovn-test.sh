@@ -155,6 +155,18 @@ config_ovn_external_server_ip() {
     on_remote_exec "config_port_ip $server_port $server_ipv4 $server_ipv6"
 }
 
+config_ovn_external_server_ip_vlan() {
+    local parent_int=${1:-$NIC}
+    local vlan_int=${2:-$PF_VLAN_INT}
+    local tag=${3:-$OVN_VLAN_TAG}
+    local server_ipv4=${4:-$OVN_EXTERNAL_NETWORK_HOST_IP}
+    local server_ipv6=${5:-$OVN_EXTERNAL_NETWORK_HOST_IP_V6}
+
+    on_remote_exec "ip link set $parent_int up
+                    create_vlan_interface $parent_int $vlan_int $tag
+                    config_port_ip $vlan_int $server_ipv4 $server_ipv6"
+}
+
 function config_ovn_external_server_route() {
     local server_port=$1
     local gw_ipv4=$2
