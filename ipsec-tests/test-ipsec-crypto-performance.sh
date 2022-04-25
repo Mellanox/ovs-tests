@@ -6,7 +6,7 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common-ipsec.sh
-. $my_dir/common-ipsec-crypto.sh
+. $my_dir/common-ipsec-offload.sh
 
 require_remote_server
 
