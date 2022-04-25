@@ -17,7 +17,6 @@ function cleanup() {
 }
 
 function run_test() {
-    enable_legacy
     title "changing to ipsec full offload mode"
     ipsec_set_mode full
 }
