@@ -19,8 +19,8 @@ function cleanup(){
 
 
 function run_test() {
-    run_test_ipsec_crypto 1500 ipv6 transport tcp trusted_vfs
-    run_test_ipsec_crypto 9000 ipv6 transport tcp trusted_vfs
+    run_test_ipsec_offload 1500 ipv6 transport tcp trusted_vfs
+    run_test_ipsec_offload 9000 ipv6 transport tcp trusted_vfs
 }
 
 trap cleanup EXIT

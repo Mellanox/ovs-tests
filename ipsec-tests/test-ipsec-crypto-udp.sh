@@ -17,8 +17,8 @@ function cleanup() {
 }
 
 function run_test() {
-    run_test_ipsec_crypto 1500 ipv4 transport udp
-    run_test_ipsec_crypto 9000 ipv4 transport udp
+    run_test_ipsec_offload 1500 ipv4 transport udp
+    run_test_ipsec_offload 9000 ipv4 transport udp
 }
 
 trap cleanup EXIT

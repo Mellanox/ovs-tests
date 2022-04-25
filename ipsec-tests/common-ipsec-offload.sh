@@ -156,7 +156,7 @@ function cleanup_crypto() {
 # ipsec_mode = transport/tunnel
 # net_proto = tcp/udp/icmp
 # adding trusted_vfs option will run the test over trusted VFs instead of PFs
-function run_test_ipsec_crypto() {
+function run_test_ipsec_offload() {
     local mtu=$1
     local ip_proto=$2
     local ipsec_mode=${3:-"transport"}
