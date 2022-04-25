@@ -100,8 +100,11 @@ function ipsec_config() {
     elif [ "$SHOULD_OFFLOAD" == "offload" ]; then
         OFFLOAD_IN="offload dev ${nic} dir in"
         OFFLOAD_OUT="offload dev ${nic} dir out"
+    elif [ "$SHOULD_OFFLOAD" == "full_offload" ]; then
+        OFFLOAD_IN="full_offload dev ${nic} dir in"
+        OFFLOAD_OUT="full_offload dev ${nic} dir out"
     else
-        fail "Wrong usage, SHOULD_OFFLOAD [offload|no-offload]"
+        fail "Wrong usage, SHOULD_OFFLOAD needs to be set to offload for IPsec crypto offload, full_offload for IPsec full offload, no-offload for SW IPsec"
     fi
 
     cmds="ip address flush $nic"
@@ -213,13 +216,36 @@ function ipsec_cleanup_remote() {
     local dev=${1:-"$NIC"}
     on_remote "ip xfrm state flush
                ip xfrm policy flush
-	       ip address flush $dev"
+               ip address flush $dev"
 }
 
 function ipsec_cleanup_on_both_sides() {
     local dev=${1:-"$NIC"}
     ipsec_cleanup_local $dev
     ipsec_cleanup_remote $dev
+}
+
+#This function sets back ipsec devlink mode to none
+function ipsec_cleanup_devlink_mode_local() {
+    local nic=${1:-"$NIC"}
+    if [[ `ipsec_get_mode $nic` != "none" ]]; then
+        ipsec_set_mode none $nic
+    fi
+}
+
+#This function sets back ipsec devlink mode to none
+function ipsec_cleanup_devlink_mode_remote() {
+    local nic=${1:-"$REMOTE_NIC"}
+    on_remote "if [[ `ipsec_get_mode $nic` != "none" ]]; then
+                   ipsec_set_mode none $nic
+               fi"
+}
+
+function ipsec_cleanup_devlink_mode_on_both_sides() {
+    local local_dev=${1:-"$NIC"}
+    local remote_dev=${2:-"$REMOTE_NIC"}
+    ipsec_cleanup_devlink_mode_local $local_dev
+    ipsec_cleanup_devlink_mode_remote $remote_dev
 }
 
 function change_mtu_on_both_sides() {
@@ -247,11 +273,21 @@ function kill_iperf() {
 
 function ipsec_set_mode() {
     local mode=$1
-    echo $mode > /sys/class/net/$NIC/compat/devlink/ipsec_mode || err "Failed to set ipsec mode $mode"
+    local nic=${2:-"$NIC"}
+    enable_legacy
+    echo $mode > /sys/class/net/$nic/compat/devlink/ipsec_mode || err "Failed to set ipsec mode $mode"
+    switch_mode_switchdev
+}
+
+function ipsec_set_mode_on_remote() {
+    local mode=$1
+    local nic=${2:-"$NIC"}
+    on_remote_exec "ipsec_set_mode $mode $nic"
 }
 
 function ipsec_get_mode() {
-    cat /sys/class/net/$NIC/compat/devlink/ipsec_mode
+    local nic=${1:-"NIC"}
+    cat /sys/class/net/$nic/compat/devlink/ipsec_mode
 }
 
 function ipsec_set_trusted_vfs(){

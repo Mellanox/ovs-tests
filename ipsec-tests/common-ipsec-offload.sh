@@ -55,6 +55,27 @@ function run_traffic() {
     verify_have_traffic $upid
 }
 
+function get_ipsec_counter() {
+    local counter_name="$1"
+    local dev=${2:-"$NIC"}
+    local res
+
+    if [[ "$counter_name" != "tx" &&  "$counter_name" != "rx" ]]; then
+        err "Wrong argument for function get_ipsec_counter"
+    fi
+
+    res=`ethtool -S $dev | grep "ipsec_full_${counter_name}_pkts:" | awk '{print $2}'`
+    echo $res
+}
+
+function get_ipsec_counter_on_remote() {
+    local counter_name="$1"
+    local dev=${2:-"$NIC"}
+
+    on_remote_exec "get_ipsec_counter $counter_name $dev"
+}
+
+
 #tx offloaded rx not
 function test_tx_off_rx() {
     local IPSEC_MODE="$1"
@@ -62,21 +83,38 @@ function test_tx_off_rx() {
     local IP_PROTO="$3"
     local NET_PROTO=${4}
     local TRUSTED_VFS=${5:-"no_trusted_vfs"}
+    local offload=${6:-"offload"}
 
     title "test ipsec in $IPSEC_MODE mode with $KEY_LEN key length using $IP_PROTO with offloaded TX"
 
     ipsec_config_local $IPSEC_MODE $KEY_LEN $IP_PROTO no-offload $TRUSTED_VFS #in this test local is used as RX
-    ipsec_config_remote $IPSEC_MODE $KEY_LEN $IP_PROTO offload $TRUSTED_VFS
+    ipsec_config_remote $IPSEC_MODE $KEY_LEN $IP_PROTO $offload $TRUSTED_VFS
 
     sleep 2
 
+    if [[ "$offload" == "full_offload" ]]; then
+        local pre_test_pkts_tx=`get_ipsec_counter_on_remote tx`
+        local pre_test_pkts_rx=`get_ipsec_counter_on_remote rx`
+    fi
+
     run_traffic $IP_PROTO $NET_PROTO $TRUSTED_VFS
 
+    if [[ "$offload" == "full_offload" ]]; then
+        local post_test_pkts_tx=`get_ipsec_counter_on_remote tx`
+        local post_test_pkts_rx=`get_ipsec_counter_on_remote rx`
+    fi
+
     title "Verify offload"
+
     local tx_off=`on_remote ip x s s | grep offload |wc -l`
     local rx_off=`ip x s s | grep offload |wc -l`
+
     if [[ "$tx_off" != 2 || "$rx_off" != 0 ]]; then
         fail "offload rules are not added as expected!"
+    fi
+
+    if [[ "$offload" == "full_offload" && ("$post_test_pkts_tx" -le "$pre_test_pkts_tx" || "$post_test_pkts_rx" -le "$pre_test_pkts_rx") ]]; then
+            fail "IPsec full offload counters didn't increase"
     fi
 }
 
@@ -87,21 +125,36 @@ function test_tx_rx_off() {
     local IP_PROTO="$3"
     local NET_PROTO=${4}
     local TRUSTED_VFS=${5:-"no_trusted_vfs"}
+    local offload=${6:-"offload"}
 
     title "test ipsec in $IPSEC_MODE mode with $KEY_LEN key length using $IP_PROTO with offloaded RX"
 
-    ipsec_config_local $IPSEC_MODE $KEY_LEN $IP_PROTO offload $TRUSTED_VFS #in this test local is used as RX
+    ipsec_config_local $IPSEC_MODE $KEY_LEN $IP_PROTO $offload $TRUSTED_VFS #in this test local is used as RX
     ipsec_config_remote $IPSEC_MODE $KEY_LEN $IP_PROTO no-offload $TRUSTED_VFS
 
     sleep 2
 
+    if [[ "$offload" == "full_offload" ]]; then
+        local pre_test_pkts_tx=`get_ipsec_counter tx`
+        local pre_test_pkts_rx=`get_ipsec_counter rx`
+    fi
+
     run_traffic $IP_PROTO $NET_PROTO $TRUSTED_VFS
+
+    if [[ "$offload" == "full_offload" ]]; then
+        local post_test_pkts_tx=`get_ipsec_counter tx`
+        local post_test_pkts_rx=`get_ipsec_counter rx`
+    fi
 
     title "Verify offload"
     local tx_off=`on_remote ip x s s | grep offload |wc -l`
     local rx_off=`ip x s s | grep offload |wc -l`
     if [[ "$tx_off" != 0 || "$rx_off" != 2 ]]; then
         fail "offload rules are not added as expected!"
+    fi
+
+    if [[ "$offload" == "full_offload" && ("$post_test_pkts_tx" -le "$pre_test_pkts_tx" || "$post_test_pkts_rx" -le "$pre_test_pkts_rx") ]]; then
+            fail "IPsec full offload counters didn't increase"
     fi
 }
 
@@ -112,22 +165,45 @@ function test_tx_off_rx_off() {
     local IP_PROTO="$3"
     local NET_PROTO=${4}
     local TRUSTED_VFS=${5:-"no_trusted_vfs"}
-
+    local offload=${6:-"offload"}
 
     title "test ipsec in $IPSEC_MODE mode with $KEY_LEN key length using $IP_PROTO with offloaded TX & RX"
 
-    ipsec_config_local $IPSEC_MODE $KEY_LEN $IP_PROTO offload $TRUSTED_VFS #in this test local is used as RX
-    ipsec_config_remote $IPSEC_MODE $KEY_LEN $IP_PROTO offload $TRUSTED_VFS
+    ipsec_config_local $IPSEC_MODE $KEY_LEN $IP_PROTO $offload $TRUSTED_VFS #in this test local is used as RX
+    ipsec_config_remote $IPSEC_MODE $KEY_LEN $IP_PROTO $offload $TRUSTED_VFS
 
     sleep 2
 
+    if [[ "$offload" == "full_offload" ]]; then
+        local remote_pre_test_pkts_tx=`get_ipsec_counter_on_remote tx`
+        local remote_pre_test_pkts_rx=`get_ipsec_counter_on_remote rx`
+        local local_pre_test_pkts_tx=`get_ipsec_counter tx`
+        local local_pre_test_pkts_rx=`get_ipsec_counter rx`
+    fi
+
     run_traffic $IP_PROTO $NET_PROTO $TRUSTED_VFS
+
+    if [[ "$offload" == "full_offload" ]]; then
+        local remote_post_test_pkts_tx=`get_ipsec_counter_on_remote tx`
+        local remote_post_test_pkts_rx=`get_ipsec_counter_on_remote rx`
+        local local_post_test_pkts_tx=`get_ipsec_counter tx`
+        local local_post_test_pkts_rx=`get_ipsec_counter rx`
+    fi
 
     title "verify offload"
     local tx_off=`on_remote ip x s s | grep offload |wc -l`
     local rx_off=`ip x s s | grep offload |wc -l`
     if [[ "$tx_off" != 2 || "$rx_off" != 2 ]]; then
         fail "offload rules are not added as expected!"
+    fi
+
+    #verify TX side
+    if [[ "$offload" == "full_offload" && ("$remote_post_test_pkts_tx" -le "$remote_pre_test_pkts_tx" || "$remote_post_test_pkts_rx" -le "$remote_pre_test_pkts_rx") ]]; then
+            fail "IPsec full offload counters didn't increase on TX side"
+    fi
+    #verify RX side
+    if [[ "$offload" == "full_offload" && ("$local_post_test_pkts_tx" -le "$local_pre_test_pkts_tx" || "$local_post_test_pkts_rx" -le "$local_pre_test_pkts_rx") ]]; then
+            fail "IPsec full offload counters didn't increase on RX side"
     fi
 }
 
@@ -150,29 +226,38 @@ function cleanup_crypto() {
     rm -f $IPERF_FILE $TCPDUMP_FILE
 }
 
+function cleanup_full() {
+    local mtu=${1:-1500}
+    local trusted_vfs=${2:-"no_trusted_vfs"}
+    cleanup_crypto $mtu $trusted_vfs
+    ipsec_cleanup_devlink_mode_on_both_sides
+}
+
 # Usage <mtu> <ip_proto> <ipsec_mode> <net_proto> [trusted_vfs]
 # mtu = [0-9]*
 # ip_proto = ipv4/ipv6
 # ipsec_mode = transport/tunnel
 # net_proto = tcp/udp/icmp
 # adding trusted_vfs option will run the test over trusted VFs instead of PFs
+# offload_type = offload/full-offload.
 function run_test_ipsec_offload() {
     local mtu=$1
     local ip_proto=$2
     local ipsec_mode=${3:-"transport"}
     local net_proto=${4:-"tcp"}
     local trusted_vfs=${5:-"no_trusted_vfs"}
+    local offload_type=${6:-"offload"}
     local len
 
     for len in 128 256; do
         title "test $ipsec_mode $ip_proto over $net_proto with key length $len MTU $mtu with $trusted_vfs"
 
         cleanup_crypto $mtu $trusted_vfs
-        test_tx_off_rx $ipsec_mode $len $ip_proto $net_proto $trusted_vfs
+        test_tx_off_rx $ipsec_mode $len $ip_proto $net_proto $trusted_vfs $offload_type
         cleanup_crypto $mtu $trusted_vfs
-        test_tx_rx_off $ipsec_mode $len $ip_proto $net_proto $trusted_vfs
+        test_tx_rx_off $ipsec_mode $len $ip_proto $net_proto $trusted_vfs $offload_type
         cleanup_crypto $mtu $trusted_vfs
-        test_tx_off_rx_off $ipsec_mode $len $ip_proto $net_proto $trusted_vfs
+        test_tx_off_rx_off $ipsec_mode $len $ip_proto $net_proto $trusted_vfs $offload_type
         cleanup_crypto $mtu $trusted_vfs
     done
 }
