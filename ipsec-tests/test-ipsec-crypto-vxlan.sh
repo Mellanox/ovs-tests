@@ -23,6 +23,9 @@ function config_vxlan_remote() {
 }
 
 function config() {
+    local mtu=$1
+    title "configure IPsec in transport mode with 128 key length using ipv4 over a vxlan tunnel with $mtu MTU"
+    change_mtu_on_both_sides $mtu
     ipsec_config_on_both_sides transport 128 ipv4 offload
     config_vxlan_local
     config_vxlan_remote
@@ -55,11 +58,10 @@ function run_test() {
 }
 
 trap cleanup EXIT
-config
+config 1500
 run_test
 cleanup
-change_mtu_on_both_sides 9000
-config
+config 9000
 run_test
 trap - EXIT
 cleanup
