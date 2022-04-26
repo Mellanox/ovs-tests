@@ -17,7 +17,7 @@ PF_VLAN_INT="$NIC.$OVN_VLAN_TAG"
 BOND_VLAN_INT="$OVN_BOND.$OVN_VLAN_TAG"
 
 function __reset_nic() {
-    local nic=${NIC:-}
+    local nic=${1:-$NIC}
 
     ip link set $nic down
     ip addr flush dev $nic
