@@ -6,6 +6,8 @@ import sys
 import socket
 import logging
 import traceback
+import json
+import xml.etree.ElementTree as ET
 from glob import glob
 from time import sleep
 from itertools import chain
@@ -29,6 +31,8 @@ def runcmd2(cmd):
 def runcmd_output(cmd):
     return check_output(cmd, shell=True).decode()
 
+def get_vm_details_path():
+    return '/workspace/nested_data.json'
 
 def start_kmemleak():
     """Make sure kmemleak thread is running if supported. ignore errors."""
@@ -55,6 +59,7 @@ class SetupConfigure(object):
         parser.add_argument('--dpdk', help='Add DPDK=1 to configuration file', action='store_true')
         parser.add_argument('--sw-steering-mode', help='Configure software steering mode', action='store_true')
         parser.add_argument('--bluefield', help='Setup configuration for bluefield host', action='store_true')
+        parser.add_argument('--vdpa', help='Setup configuration for vdpa host', action='store_true')
         parser.add_argument('--steering-mode', choices=['sw', 'fw'], help='Configure steering mode')
 
         self.args = parser.parse_args()
@@ -112,7 +117,7 @@ class SetupConfigure(object):
 
             self.BringUpDevices()
 
-            if self.args.dpdk:
+            if self.args.dpdk or self.args.vdpa:
                 self.configure_hugepages()
 
             self.ConfigureOVS()
@@ -437,6 +442,111 @@ class SetupConfigure(object):
         # might need a second to let udev rename
         sleep(1)
 
+    def get_cloud_player_vm_name(self, vm_num):
+        path = get_vm_details_path()
+        i = 1
+        try:
+            with open(path) as json_file:
+                data = json.load(json_file)
+                for vm in data:
+                    if vm['parent_ip'] == self.host.name:
+                        if i == vm_num:
+                            return vm['domain_name']
+                        else:
+                            i += 1
+        except IOError:
+            self.Logger.error('Failed to read %s' % path)
+            raise RuntimeError('Failed to read %s ' % path)
+
+    def findTagIndex(self, tree, tag):
+        i = 0
+        for child in tree.iter():
+            i += 1
+            if (child.tag == tag):
+                return i
+        return -1
+
+    def getLastIndex(self, devices, tag):
+        count = 0
+        found = False
+        for child in devices:
+            count += 1
+            if (child.tag == tag):
+                found = True
+            elif (found == True):
+                return count - 1
+        return -1
+
+    def vdpa_vm_init(self, vm_num):
+        vm_name = self.get_cloud_player_vm_name(vm_num)
+        nic1 = self.host.PNics[0]
+        orig_xml_file="/tmp/vdpa_vm%s_orig.xml" % vm_num
+        runcmd2("sed -i '/OVS_USER_ID=\"openvswitch:hugetlbfs\"/c\OVS_USER_ID=\"root:root\"' /etc/sysconfig/openvswitch")
+
+
+        if os.path.isfile(orig_xml_file):
+            runcmd2("virsh destroy %s &> /dev/null" % vm_name)
+            runcmd_output("virsh define %s &> /dev/null" % orig_xml_file)
+            runcmd_output("virsh start %s &> /dev/null" % vm_name)
+
+        xml_file = '/tmp/vdpa_vm%s.xml' % vm_num
+        runcmd_output("virsh dumpxml %s > %s" % (vm_name, xml_file))
+        runcmd_output("cp %s %s" % (xml_file, orig_xml_file,))
+        runcmd2("virsh destroy %s &> /dev/null" % vm_name)
+        runcmd_output("virsh undefine %s &> /dev/null" % vm_name)
+
+        tree = ET.parse(xml_file)
+        root = tree.getroot()
+
+        # Add memoryBack block
+        memBack=ET.Element('memoryBacking')
+        HugePages = ET.SubElement(memBack, 'hugepages')
+        memIndex = self.findTagIndex(root, 'memory')
+        root.insert(memIndex, memBack)
+
+        # Modify cpu block
+        cpu = root.find('cpu')
+        cpuAttrib = cpu.attrib.copy()
+        for attrib in cpuAttrib:
+            cpu.attrib.pop(attrib)
+        cpu.set('match','exact')
+        cpu.set('mode','custom')
+        cpu.set('check','full')
+        cpuNuma = ET.SubElement(cpu, 'numa')
+        cpuNumaSubElem = ET.SubElement(cpuNuma, 'cell', id='0', cpus='0-1', memory='2097152', unit='KiB', memAccess='shared')
+
+        # Add vdpa interface
+        devices = root.find('devices')
+        sock_path='/tmp/sock%s' % vm_num
+        idx = self.getLastIndex(devices, 'interface')
+        interface = ET.Element('interface', type='vhostuser')
+        interfaceSource = ET.SubElement(interface, 'source', type='unix', path=sock_path, mode='server')
+        interfaceModel = ET.SubElement(interface, 'model', type='virtio')
+        devices.insert(idx, interface)
+
+        out = ET.ElementTree(root)
+        out.write(xml_file)
+        runcmd_output("virsh define %s &> /dev/null" % xml_file)
+        self.Logger.info("Initialized VM %s XML under %s", vm_name, xml_file)
+        return
+
+    def get_cloud_player_vm_ip(self, vm_num):
+        path = get_vm_details_path()
+        i = 1
+        try:
+            with open(path) as json_file:
+                data = json.load(json_file)
+                for vm in data:
+                    if vm['parent_ip'] == self.host.name:
+                        if i == vm_num:
+                            return vm['ip']
+                        else:
+                            i += 1
+
+        except IOError:
+            self.Logger.error('Failed to read %s' % path)
+            raise RuntimeError('Failed to read %s ' % path)
+
     def get_cloud_player_ip(self):
         cloud_player_1_ip = ''
         cloud_player_2_ip = ''
@@ -511,6 +621,15 @@ class SetupConfigure(object):
 
         conf += '\nREMOTE_SERVER=%s' % self.get_cloud_player_ip()
 
+        if self.args.vdpa:
+            conf += '\nNESTED_VM_IP1=%s' % self.get_cloud_player_vm_ip(1)
+            conf += '\nNESTED_VM_IP2=%s' % self.get_cloud_player_vm_ip(2)
+            conf += '\nNESTED_VM_NAME1=%s' % self.get_cloud_player_vm_name(1)
+            conf += '\nNESTED_VM_NAME2=%s' % self.get_cloud_player_vm_name(2)
+            conf += '\nVDPA=1'
+            self.vdpa_vm_init(1)
+            self.vdpa_vm_init(2)
+
         if self.flow_steering_mode:
             conf += '\nSTEERING_MODE=%s' % self.flow_steering_mode
 
@@ -529,8 +648,11 @@ class SetupConfigure(object):
         self.Logger.info("export CONFIG=%s" % config_file)
 
     def configure_hugepages(self):
-        self.Logger.info("Allocating 2GB in the RAM for DPDK")
-        runcmd2('echo 2048 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages')
+        nr_hugepages = 2048
+        if (self.args.vdpa):
+            nr_hugepages = 4096
+        self.Logger.info("Allocating %s hugepages", nr_hugepages)
+        runcmd2('echo %s > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages' % nr_hugepages)
 
     @property
     def Logger(self):
