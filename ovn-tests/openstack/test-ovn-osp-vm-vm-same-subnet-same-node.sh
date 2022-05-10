@@ -21,23 +21,25 @@ function run_test() {
     ovn-sbctl show
 
     title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
-    check_icmp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_IPV4
+    check_icmp_traffic_offload $SERVER_IPV4
 
     title "Test TCP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
-    check_local_tcp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV4
+    check_local_tcp_traffic_offload $SERVER_IPV4
 
     title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
-    check_local_udp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV4
+    check_local_udp_traffic_offload $SERVER_IPV4
 
-    title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6)"
-    check_icmp6_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_IPV6
+    title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
+    check_icmp6_traffic_offload $SERVER_IPV6
 
     title "Test TCP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
-    check_local_tcp6_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV6
+    check_local_tcp6_traffic_offload $SERVER_IPV6
 
     title "Test UDP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
-    check_local_udp6_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV6
+    check_local_udp6_traffic_offload $SERVER_IPV6
 }
+
+TRAFFIC_INFO['local_traffic']=1
 
 ovn_clean_up
 trap ovn_clean_up EXIT
