@@ -31,21 +31,23 @@ function run_test() {
     ip netns exec $CLIENT_NS ping -w 4 $SERVER_IPV4 && success || err
 
     title "Test TCP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
-    check_local_tcp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV4
+    check_local_tcp_traffic_offload $SERVER_IPV4
 
     title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
-    check_local_udp_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV4
+    check_local_udp_traffic_offload $SERVER_IPV4
 
     # Offloading ICMP with connection tracking is not supported
     title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6)"
     ip netns exec $CLIENT_NS ping -6 -w 4 $SERVER_IPV6 && success || err
 
     title "Test TCP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
-    check_local_tcp6_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV6
+    check_local_tcp6_traffic_offload $SERVER_IPV6
 
     title "Test UDP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
-    check_local_udp6_traffic_offload $CLIENT_REP $CLIENT_NS $SERVER_NS $SERVER_IPV6
+    check_local_udp6_traffic_offload $SERVER_IPV6
 }
+
+TRAFFIC_INFO['local_traffic']=1
 
 clean_up_test
 

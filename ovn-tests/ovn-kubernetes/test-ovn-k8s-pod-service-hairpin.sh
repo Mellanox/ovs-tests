@@ -29,10 +29,10 @@ function run_test() {
     ip netns exec $CLIENT_NS ping -w 4 $LB_IPV4 && success || err
 
     title "Test TCP traffic between $CLIENT_VF($CLIENT_IPV4) -> $CLIENT_VF($LB_IPV4) offloaded"
-    check_local_tcp_traffic_offload $CLIENT_REP $CLIENT_NS $CLIENT_NS $LB_IPV4
+    check_local_tcp_traffic_offload $LB_IPV4
 
     title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $CLIENT_VF($LB_IPV4) offloaded"
-    check_local_udp_traffic_offload $CLIENT_REP $CLIENT_NS $CLIENT_NS $LB_IPV4
+    check_local_udp_traffic_offload $LB_IPV4
 
     # ICMP6 offloading is not supported because IPv6 packet header doesn't contain checksum header
     # which cause offloading to fail and offloading ICMP with connection tracking is not supported
@@ -41,11 +41,14 @@ function run_test() {
     ip netns exec $CLIENT_NS ping -6 -w 4 $LB_IPV6 && success || err
 
     title "Test TCP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $CLIENT_VF($LB_IPV6) offloaded"
-    check_local_tcp6_traffic_offload $CLIENT_REP $CLIENT_NS $CLIENT_NS $LB_IPV6
+    check_local_tcp6_traffic_offload $LB_IPV6
 
     title "Test UDP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $CLIENT_VF($LB_IPV6) offloaded"
-    check_local_udp6_traffic_offload $CLIENT_REP $CLIENT_NS $CLIENT_NS $LB_IPV6
+    check_local_udp6_traffic_offload $LB_IPV6
 }
+
+TRAFFIC_INFO['skip_offload']=1
+TRAFFIC_INFO['server_ns']=${TRAFFIC_INFO['client_ns']}
 
 clean_up_test
 
