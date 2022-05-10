@@ -249,18 +249,18 @@ function read_switch_client() {
     CLIENT_MAC=$(ovn_get_switch_port_mac $TOPOLOGY $CLIENT_SWITCH $CLIENT_PORT)
     CLIENT_IPV4=$(ovn_get_switch_port_ip $TOPOLOGY $CLIENT_SWITCH $CLIENT_PORT)
     CLIENT_IPV6=$(ovn_get_switch_port_ipv6 $TOPOLOGY $CLIENT_SWITCH $CLIENT_PORT)
-    CLIENT_NS=ns0
-    CLIENT_VF=$VF
-    CLIENT_REP=$REP
+    CLIENT_NS=${TRAFFIC_INFO['client_ns']}
+    CLIENT_VF=${TRAFFIC_INFO['client_vf']}
+    CLIENT_REP=${TRAFFIC_INFO['client_rep']}
 }
 
 function read_switch_server() {
     SERVER_MAC=$(ovn_get_switch_port_mac $TOPOLOGY $SERVER_SWITCH $SERVER_PORT)
     SERVER_IPV4=$(ovn_get_switch_port_ip $TOPOLOGY $SERVER_SWITCH $SERVER_PORT)
     SERVER_IPV6=$(ovn_get_switch_port_ipv6 $TOPOLOGY $SERVER_SWITCH $SERVER_PORT)
-    SERVER_NS=ns1
-    SERVER_VF=$VF2
-    SERVER_REP=$REP2
+    SERVER_NS=${TRAFFIC_INFO['server_ns']}
+    SERVER_VF=${TRAFFIC_INFO['server_vf']}
+    SERVER_REP=${TRAFFIC_INFO['server_rep']}
 }
 
 function read_two_switches_topology() {
