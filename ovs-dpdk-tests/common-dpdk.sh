@@ -7,6 +7,13 @@ function require_dpdk() {
     fi
 }
 
+function setup_vdpa_vm_keys() {
+    local vm_ip=${1:-$NESTED_VM_IP1}
+    if [ "${VDPA}" == "1" ]; then
+        sshpass -p 3tango ssh-copy-id -f -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $vm_ip &> /dev/null
+    fi
+}
+
 require_dpdk
 
 function config_remote_bridge_tunnel() {
@@ -36,6 +43,48 @@ function config_simple_bridge_with_rep() {
     do
         ovs-vsctl add-port br-phy rep$i -- set Interface rep$i type=dpdk options:dpdk-devargs=$PCI,representor=[$i]
     done
+}
+
+function start_vdpa_vm() {
+    local vm_name=${1:-$NESTED_VM_NAME1}
+    local vm_ip=${1:-$NESTED_VM_IP1}
+    local vm_started="false"
+
+    if [ "${VDPA}" != "1" ]; then
+        return
+    fi
+    local status=$(virsh list --all | grep $vm_name | awk '{ print $3 }')
+
+    if [ "${status}" != "running" ]; then
+        debug "starting VM $vm_name"
+        virsh start $vm_name & >/dev/null
+        for i in {0..100}
+        do
+            status=$(virsh list --all | grep "$vm_name" | awk '{ print $3 }')
+            if [[ $status == "running" ]]; then
+                for i in {0..500}
+                do
+                    if ping -c1 $vm_ip -w 1 &> /dev/null; then
+                        vm_started="true"
+                        break
+                    fi
+                done
+                if [ "${vm_started}" == "false" ]; then
+                    fail "timeout waiting for VM to start"
+                    return
+                fi
+                success "VM $vm_name started"
+                sleep 2
+                setup_vdpa_vm_keys $vm_ip
+                return
+            fi
+            sleep 2
+        done
+    else
+        success "VM $vm_name already started"
+        return
+    fi
+    fail "could not start VM"
 }
 
 function config_local_tunnel_ip() {
