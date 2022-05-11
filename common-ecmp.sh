@@ -34,7 +34,7 @@ function dmesg_chk() {
     local tst="$1"
     local emsg="$2"
     sleep 0.7
-    a=`dmesg | tail -n6 | grep -m1 "$tst"`
+    a=`dmesg | tail -n6 | grep -m1 -e "$tst"`
     if [ $? -ne 0 ]; then
         err $emsg
         return 1
@@ -45,7 +45,7 @@ function dmesg_chk() {
 }
 
 function is_vf_lag_active() {
-    dmesg_chk "lag map: port 1:1 port 2:2" "vf lag is not active"
+    dmesg_chk "lag map:* port 1:1 port 2:2" "vf lag is not active"
 }
 
 out_dev=dummy9
