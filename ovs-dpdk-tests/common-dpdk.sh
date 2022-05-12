@@ -1,6 +1,8 @@
 . ${DIR}/ovs-dpdk-tests/common-tunnel.sh
 . ${DIR}/ovs-dpdk-tests/common-testing.sh
 
+VDPA_DEV_NAME="eth2"
+
 function require_dpdk() {
     if [ "${DPDK}" != "1" ]; then
         fail "Missing DPDK=1"
@@ -122,16 +124,26 @@ function config_ns() {
     local dev=$2
     local ip_addr=$3
     local ipv6_addr=${4-"2001:db8:0:f101::1"}
+    local vm_ip=$NESTED_VM_IP1
 
-    debug "adding namespace $ns and attaching $dev with ip $ip_addr"
-    ip netns add $ns
-    ip link set $dev netns $ns
-    ip netns exec $ns ifconfig $dev $ip_addr up
-    ip netns exec $ns ip -6 address add $ipv6_addr/64 dev $dev
-    local cmd="ip netns | grep $ns | wc -l"
-    local num_ns=$(eval $cmd)
-    if [ $num_ns -ne 1 ]; then
-        err "failed to add namespace $ns"
+    if [ "${ns}" != "ns0" ]; then
+        vm_ip=$NESTED_VM_IP2
+    fi
+    if [ "${VDPA}" != "1" ]; then
+        debug "adding namespace $ns and attaching $dev"
+        ip netns add $ns
+        ip link set $dev netns $ns
+        ip netns exec $ns ifconfig $dev $ip_addr/24 up
+        ip netns exec $ns ip -6 address add $ipv6_addr/64 dev $dev
+        local cmd="ip netns | grep $ns | wc -l"
+        local num_ns=$(eval $cmd)
+        if [ $num_ns -ne 1 ]; then
+            err "failed to add namespace $ns"
+        fi
+    else
+        debug "setting $VDPA_DEV_NAME ip $ip_addr on vm $vm_ip"
+        on_vm $vm_ip ifconfig $VDPA_DEV_NAME $ip_addr/24 up
+        on_vm $vm_ip ip -6 address add $ipv6_addr/64 dev $VDPA_DEV_NAME
     fi
 }
 
