@@ -16,6 +16,23 @@ function setup_vdpa_vm_keys() {
 
 require_dpdk
 
+function configure_dpdk_rep_ports() {
+    local reps=$1
+    local bridge=$2
+
+    for (( i=0; i<$reps; i++ ))
+    do
+        if [ "${VDPA}" != "1" ]; then
+            ovs-vsctl add-port $bridge rep$i -- set Interface rep$i type=dpdk options:dpdk-devargs=$PCI,representor=[$i]
+        else
+            local vf_num="VF"
+            vf_num+=$((i+1))
+            local vfpci=$(get_vf_pci ${!vf_num})
+            ovs-vsctl add-port $bridge rep$i -- set Interface rep$i type=dpdkvdpa options:vdpa-socket-path=/tmp/sock$(($i+1)) options:vdpa-accelerator-devargs=$vfpci options:dpdk-devargs=$PCI,representor=[$i]
+        fi
+    done
+}
+
 function config_remote_bridge_tunnel() {
     local vni=$1
     local remote_ip=$2
@@ -26,28 +43,23 @@ function config_remote_bridge_tunnel() {
     ovs-vsctl --may-exist add-br br-int   -- set Bridge br-int datapath_type=netdev   -- br-set-external-id br-int bridge-id br-int   -- set bridge br-int fail-mode=standalone
     ovs-vsctl add-port br-int ${tnl_type}0   -- set interface ${tnl_type}0 type=${tnl_type} options:key=${vni} options:remote_ip=${remote_ip}
 
-    for (( i=0; i<$reps; i++ ))
-    do
-        ovs-vsctl add-port br-int rep$i -- set Interface rep$i type=dpdk options:dpdk-devargs=$PCI,representor=[$i]
-    done
+    configure_dpdk_rep_ports $reps "br-int"
+
 }
 
 function config_simple_bridge_with_rep() {
     local reps=$1
 
-    debug "configuring simple bridge with $1 reps"
+    debug "configuring simple bridge with $reps reps"
     ovs-vsctl --may-exist add-br br-phy -- set Bridge br-phy datapath_type=netdev -- br-set-external-id br-phy bridge-id br-phy -- set bridge br-phy fail-mode=standalone
     ovs-vsctl add-port br-phy pf -- set Interface pf type=dpdk options:dpdk-devargs=$PCI
 
-    for (( i=0; i<$reps; i++ ))
-    do
-        ovs-vsctl add-port br-phy rep$i -- set Interface rep$i type=dpdk options:dpdk-devargs=$PCI,representor=[$i]
-    done
+    configure_dpdk_rep_ports $reps "br-phy"
 }
 
 function start_vdpa_vm() {
     local vm_name=${1:-$NESTED_VM_NAME1}
-    local vm_ip=${1:-$NESTED_VM_IP1}
+    local vm_ip=${2:-$NESTED_VM_IP1}
     local vm_started="false"
 
     if [ "${VDPA}" != "1" ]; then
