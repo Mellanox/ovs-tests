@@ -1102,6 +1102,12 @@ function set_macs() {
     $SET_MACS $NIC $count
 }
 
+function get_vf_pci() {
+    local vf=${1:-$VF}
+
+    echo $(basename `readlink /sys/class/net/${vf}/device`)
+}
+
 function unbind_vfs() {
     local nic=${1:-$NIC}
     local vfpci
