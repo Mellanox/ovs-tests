@@ -79,3 +79,4 @@ function config_bf_ovn_single_node() {
 
 require_bf
 on_bf_exec "require_ovn"
+TRAFFIC_INFO['bf_traffic']=1
