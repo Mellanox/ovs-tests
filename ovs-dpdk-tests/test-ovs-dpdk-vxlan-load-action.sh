@@ -95,11 +95,7 @@ function run() {
     add_openflow_rules
 
     # icmp
-    ip netns exec ns0 ping -q -c 10 -w 15 $REMOTE
-    if [ $? -ne 0 ]; then
-        err "ping failed"
-        return
-    fi
+    verify_ping $REMOTE ns0
 
     sleep 1
     # check offloads

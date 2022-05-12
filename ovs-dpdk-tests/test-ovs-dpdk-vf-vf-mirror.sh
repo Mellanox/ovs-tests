@@ -61,11 +61,7 @@ function run() {
 
     t=5
     debug "\nTesting Ping"
-    on_remote timeout $t ping $IP -c 10 -i 0.1 -q
-    if [ $? -ne 0 ]; then
-        err "ping failed"
-        return
-    fi
+    verify_ping $REMOTE ns0
 
     debug "\nTesting TCP traffic"
     # traffic

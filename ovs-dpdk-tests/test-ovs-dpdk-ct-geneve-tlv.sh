@@ -93,11 +93,7 @@ function run() {
     config_openflow_rules
 
     debug "Testing ping"
-    on_remote ping -q -c 5 -w 5 $IP
-    if [ $? -ne 0 ]; then
-        err "ping failed"
-        return
-    fi
+    verify_ping $REMOTE ns0
 
     debug "\nTesting UDP traffic"
     t=15

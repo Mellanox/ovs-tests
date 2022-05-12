@@ -93,11 +93,7 @@ function run() {
     add_openflow_rules
 
     debug "Testing ping"
-    ip netns exec ns0 ping -q -c 5 $REMOTE -w 7
-    if [ $? -ne 0 ]; then
-        err "ping failed"
-        return
-    fi
+    verify_ping $REMOTE ns0
 
     debug "\nTesting TCP traffic"
     t=15

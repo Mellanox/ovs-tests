@@ -67,11 +67,7 @@ function run() {
 
     t=5
     debug "\nTesting Ping"
-    ip netns exec ns1 timeout $t ping $IP -c 10 -i 0.1 -q
-    if [ $? -ne 0 ]; then
-        err "ping failed"
-        return
-    fi
+    verify_ping $IP ns1
 
     debug "\nTesting TCP traffic"
     # traffic
