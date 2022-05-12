@@ -32,6 +32,7 @@ declare -A TRAFFIC_INFO=(
     ['server_verify_offload']=1
     ['skip_offload']=""
     ['local_traffic']=""
+    ['bf_traffic']=""
 )
 
 function require_ovn() {
@@ -201,6 +202,94 @@ function __tcpdump_filter() {
     echo $tcpdump_filter
 }
 
+function __verify_client_rules() {
+    local client_rule_fields=$1
+    local bf_traffic=${TRAFFIC_INFO['bf_traffic']}
+
+    if [[ -z $bf_traffic ]]; then
+        check_and_print_ovs_offloaded_rules "$client_rule_fields"
+    else
+        on_bf_exec "check_and_print_ovs_offloaded_rules \"$client_rule_fields\""
+    fi
+}
+
+function __verify_server_rules() {
+    local server_rule_fields=$1
+    local bf_traffic=${TRAFFIC_INFO['bf_traffic']}
+
+    if [[ -z $bf_traffic ]]; then
+        on_remote_exec "check_and_print_ovs_offloaded_rules \"$server_rule_fields\"" && success || err
+    else
+        on_remote_bf_exec "check_and_print_ovs_offloaded_rules \"$server_rule_fields\"" && success || err
+    fi
+}
+
+function __start_tcpdump_local() {
+    local rep=$1
+    local tcpdump_filter=$2
+    local non_offloaded_packets=$3
+
+    local tdpid=
+    local bf_traffic=${TRAFFIC_INFO['bf_traffic']}
+    if [[ -z "$bf_traffic" ]]; then
+        tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets >/dev/null 2>&1 &
+        tdpid=$!
+    else
+        tdpid=$(on_bf "nohup tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets >/dev/null 2>&1 & echo \$!")
+    fi
+
+    echo $tdpid
+}
+
+function __start_tcpdump() {
+    local rep=$1
+    local tcpdump_filter=$2
+    local non_offloaded_packets=$3
+
+    local tdpid=
+    local local_traffic=${TRAFFIC_INFO['local_traffic']}
+    local bf_traffic=${TRAFFIC_INFO['bf_traffic']}
+    if [[ -n "$local_traffic" ]]; then
+        tdpid=$(__start_tcpdump_local $rep "$tcpdump_filter" $non_offloaded_packets)
+    else
+        if [[ -z "$bf_traffic" ]]; then
+            tdpid=$(on_remote "nohup tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets >/dev/null 2>&1 & echo \$!")
+        else
+            tdpid=$(on_remote_bf "nohup tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets >/dev/null 2>&1 & echo \$!")
+        fi
+    fi
+
+    echo $tdpid
+}
+
+function __verify_tcpdump_offload_local() {
+    local tdpid=$1
+    local bf_traffic=${TRAFFIC_INFO['bf_traffic']}
+
+    if [[ -z "$bf_traffic" ]]; then
+        [[ -d /proc/$tdpid ]] && success || err
+    else
+        on_bf "[[ -d /proc/$tdpid ]]" && success || err
+    fi
+}
+
+function __verify_tcpdump_offload() {
+    local tdpid=$1
+
+    local local_traffic=${TRAFFIC_INFO['local_traffic']}
+    local bf_traffic=${TRAFFIC_INFO['bf_traffic']}
+
+    if [[ -n "$local_traffic" ]]; then
+        __verify_tcpdump_offload_local $tdpid
+    else
+        if [[ -z "$bf_traffic" ]]; then
+            on_remote "[[ -d /proc/$tdpid ]]" && success || err
+        else
+            on_remote_bf "[[ -d /proc/$tdpid ]]" && success || err
+        fi
+    fi
+}
+
 function check_traffic_offload() {
     local server_ip=$1
     local traffic_type=$2
@@ -218,6 +307,7 @@ function check_traffic_offload() {
     local non_offloaded_packets=${TRAFFIC_INFO['non_offloaded_packets']}
     local skip_offload=${TRAFFIC_INFO['skip_offload']}
     local local_traffic=${TRAFFIC_INFO['local_traffic']}
+    local bf_traffic=${TRAFFIC_INFO['bf_traffic']}
     local tcpdump_filter=$(__tcpdump_filter $traffic_type)
 
     if [[ -z $client_verify_offload ]] && [[ -z $server_verify_offload ]]; then
@@ -248,56 +338,51 @@ function check_traffic_offload() {
 
     local tdpid=
     if [[ -n $client_verify_offload ]]; then
-        tcpdump -Unnepi $client_rep $tcpdump_filter -c $non_offloaded_packets &
-        local tdpid=$!
+        tdpid=$(__start_tcpdump_local $client_rep "$tcpdump_filter" $non_offloaded_packets)
     fi
 
     local tdpid_receiver=
     if [[ -n $server_verify_offload ]]; then
-        if [[ -n "$local_traffic" ]]; then
-            tcpdump -Unnepi $server_rep $tcpdump_filter -c $non_offloaded_packets >/dev/null 2>&1 &
-            tdpid_receiver=$!
-        else
-            tdpid_receiver=$(on_remote "nohup tcpdump -Unnepi $server_rep $tcpdump_filter -c $non_offloaded_packets > /dev/null 2>&1 & echo \$!")
-        fi
-        sleep 0.5
+        tdpid_receiver=$(__start_tcpdump $server_rep "$tcpdump_filter" $non_offloaded_packets)
     fi
 
     if [[ -n $client_rule_fields ]]; then
         title "Check ${traffic_type^^} OVS offload rules on the sender"
-        check_and_print_ovs_offloaded_rules "$client_rule_fields"
+        __verify_client_rules "$client_rule_fields"
     fi
 
     if [[ -z "$local_traffic" ]] && [[ -n $server_rule_fields ]]; then
         title "Check ${traffic_type^^} OVS offload rules on the receiver"
-        on_remote_exec "check_and_print_ovs_offloaded_rules \"$server_rule_fields\"" && success || err
+        __verify_server_rules "$server_rule_fields"
     fi
 
     # If tcpdump finished then it capture more than expected to be offloaded
+    sleep "${TRAFFIC_INFO['offloaded_traffic_time_window']}"
+
     if [[ -n $client_verify_offload ]]; then
         title "Check ${traffic_type^^} traffic is offloaded on the sender"
-        sleep "${TRAFFIC_INFO['offloaded_traffic_time_window']}"
-        [[ -d /proc/$tdpid ]] && success || err
+        __verify_tcpdump_offload_local $tdpid
     fi
 
     if [[ -n $server_verify_offload ]]; then
         title "Check ${traffic_type^^} traffic is offloaded on the receiver"
-        if [[ -n "$local_traffic" ]]; then
-            [[ -d /proc/$tdpid_receiver ]] && success || err
-        else
-            on_remote "[[ -d /proc/$tdpid_receiver ]]" && success || err
-        fi
+        __verify_tcpdump_offload $tdpid_receiver
     fi
 
     title "Wait ${traffic_type^^} traffic"
     wait $traffic_pid && success || err
-    ovs_flush_rules
-    killall -q tcpdump
     rm -f $logfile
 
-    if [[ -z "$local_traffic" ]]; then
-        on_remote_exec "ovs_flush_rules
-                        killall -q tcpdump"
+    if [[ -z "$bf_traffic" ]]; then
+        ovs_flush_rules
+        if [[ -z "$local_traffic" ]]; then
+            on_remote_exec "ovs_flush_rules"
+        fi
+    else
+        on_bf_exec "ovs_flush_rules"
+        if [[ -z "$local_traffic" ]]; then
+            on_remote_bf_exec "ovs_flush_rules"
+        fi
     fi
 }
 
