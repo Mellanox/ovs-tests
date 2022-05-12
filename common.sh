@@ -1277,7 +1277,7 @@ list_del corruption|which is not allocated|Objects remaining|assertion failed|\
 Slab cache still has objects|new suspected memory leaks|Unknown object at|\
 warning: consoletype is now deprecated|warning: use tty|\
 kfree for unknown address|UBSAN|KASAN"
-    local memtrack="memtrack_report: Summary: .* leak(s) detected"
+    local memtrack="memtrack_report: Summary: .* leak\(s\) detected"
     local mlx5_errs="mlx5_core .* err |mlx5_core .* failed |syndrome"
     local fw_errs="health compromised|firmware internal error|assert_var|\
 Command completion arrived after timeout|Error cqe|failed reclaiming pages"
@@ -1285,7 +1285,7 @@ Command completion arrived after timeout|Error cqe|failed reclaiming pages"
     local look_ahead_count=12
     local filter="networkd-dispatcher|nm-dispatcher|uses legacy ethtool link settings|\
 EAL: WARNING: cpu flags constant_tsc=yes nonstop_tsc=no|mlnx_interface_mgr.sh|sssd.*segfault|\
-Skipping post send: QP err|memtrack_report: Summary: 0 leak(s) detected|\
+Skipping post send: QP err|memtrack_report: Summary: 0 leak\(s\) detected|\
 systemd.* Requested transaction contradicts existing jobs: Resource deadlock avoided|\
 failed to kill vid 0081/0|\
 Spectre V2 : WARNING: Unprivileged eBPF is enabled with eIBRS on, data leaks possible via Spectre v2 BHB attacks!"
