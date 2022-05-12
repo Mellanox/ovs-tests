@@ -304,7 +304,17 @@ function remote_ovs_cleanup() {
     title "Cleaning up remote"
     on_remote_dt "ip a flush dev $NIC
                   ip netns del ns0 &>/dev/null
-                  start_clean_openvswitch"
+                  start_clean_openvswitch
+                  if [ "${VDPA}" == "1" ]; then
+                      local status=$(virsh list --all | grep $NESTED_VM_NAME1 | awk '{ print $3 }')
+                      if [ "${status}" != "running" ]; then
+                          on_vm $NESTED_VM_IP1 ip a flush dev $VDPA_DEV_NAME
+                      fi
+                      status=$(virsh list --all | grep $NESTED_VM_NAME2 | awk '{ print $3 }')
+                      if [ "${status}" != "running" ]; then
+                          on_vm $NESTED_VM_IP2 ip a flush dev $VDPA_DEV_NAME
+                      fi
+                  fi"
 }
 
 function cleanup_test() {
