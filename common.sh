@@ -1300,7 +1300,8 @@ EAL: WARNING: cpu flags constant_tsc=yes nonstop_tsc=no|mlnx_interface_mgr.sh|ss
 Skipping post send: QP err|memtrack_report: Summary: 0 leak\(s\) detected|\
 systemd.* Requested transaction contradicts existing jobs: Resource deadlock avoided|\
 failed to kill vid 0081/0|\
-Spectre V2 : WARNING: Unprivileged eBPF is enabled with eIBRS on, data leaks possible via Spectre v2 BHB attacks!"
+Spectre V2 : WARNING: Unprivileged eBPF is enabled with eIBRS on, data leaks possible via Spectre v2 BHB attacks!|\
+kvm"
 
     if [ -n "$__expected_error_msgs" ]; then
         filter+="$__expected_error_msgs"
