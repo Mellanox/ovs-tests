@@ -204,6 +204,8 @@ function verify_iperf_running()
 
     if [ "$remote" == "remote" ]; then
        proc_cmd="on_remote $proc_cmd"
+    elif [ "${VDPA}" == "1" ]; then
+       proc_cmd="on_vm $NESTED_VM_IP1 $proc_cmd"
     fi
 
     local num_proc=$(eval $proc_cmd)
@@ -218,6 +220,16 @@ function generate_traffic() {
     local remote=${1:-"local"}
     local my_ip=${2:-$LOCAL_IP}
     local namespace=$3
+
+    local server_dst_execution="ip netns exec ns0"
+    local client_dst_execution="ip netns exec $namespace"
+
+    if [ "${VDPA}" == "1" ]; then
+        server_dst_execution="on_vm $NESTED_VM_IP1"
+        on_vm $NESTED_VM_IP1 rm -rf $p_server
+        client_dst_execution="on_vm $NESTED_VM_IP2"
+        on_vm $NESTED_VM_IP2 rm -rf $p_client
+    fi
     local t=5
 
     #clean rules
@@ -225,7 +237,7 @@ function generate_traffic() {
 
     # server
     rm -rf $p_server
-    local server_cmd="ip netns exec ns0 timeout $((t+2)) iperf3 -f Mbits -s -D --logfile $p_server"
+    local server_cmd="${server_dst_execution} timeout $((t+2)) iperf3 -f Mbits -s -D --logfile $p_server"
     debug "Executing | $server_cmd"
     eval $server_cmd
     sleep 2
@@ -236,7 +248,7 @@ function generate_traffic() {
     rm -rf $p_client
     local cmd="iperf3 -f Mbits -c $my_ip -t $t -P 5 &> $p_client"
     if [ -n "$namespace" ]; then
-        cmd="ip netns exec $namespace $cmd"
+        cmd="${client_dst_execution} $cmd"
     fi
 
     if [ "$remote" == "remote" ]; then
@@ -262,6 +274,13 @@ function generate_traffic() {
     fi
 
     sleep $((t+1))
+
+    if [ "${VDPA}" == "1" ]; then
+        scp root@${NESTED_VM_IP1}:${p_server} $p_server &> /dev/null
+        if [ -n "$namespace"  ]; then
+            scp root@${NESTED_VM_IP2}:${p_client} $p_client &> /dev/null
+        fi
+    fi
 
     if [ -f $p_server ]; then
         debug "Server traffic"
@@ -298,8 +317,14 @@ function validate_traffic() {
 }
 
 function kill_iperf() {
-   debug "Executing | killall -9 iperf3"
-   killall -9 iperf3
+   local dst_execution=""
+
+   if [ "${VDPA}" == "1" ]; then
+      dst_execution="on_vm $NESTED_VM_IP1 "
+   fi
+   local cmd="${dst_execution}killall -9 iperf3"
+   debug "Executing | $cmd"
+   eval $cmd
    debug "Executing | on_remote killall -9 iperf3"
    on_remote killall -9 iperf3
    sleep 1
