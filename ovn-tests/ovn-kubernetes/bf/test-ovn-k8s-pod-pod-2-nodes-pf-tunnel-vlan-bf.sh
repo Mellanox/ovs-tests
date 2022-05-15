@@ -44,11 +44,25 @@ function config_test() {
 }
 
 function run_test() {
+    # Offloading ICMP with connection tracking is not supported
     title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4)"
     ip netns exec $CLIENT_NS ping -w 4 $SERVER_IPV4 && success || err "icmp failed"
 
+    title "Test TCP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
+    check_remote_tcp_traffic_offload $SERVER_IPV4
+
+    title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
+    check_remote_udp_traffic_offload $SERVER_IPV4
+
+    # Offloading ICMP with connection tracking is not supported
     title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6)"
     ip netns exec $CLIENT_NS ping -w 4 $SERVER_IPV6 && success || err "icmp6 failed"
+
+    title "Test TCP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
+    check_remote_tcp6_traffic_offload $SERVER_IPV6
+
+    title "Test UDP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
+    check_remote_udp6_traffic_offload $SERVER_IPV6
 }
 
 clean_up_test
