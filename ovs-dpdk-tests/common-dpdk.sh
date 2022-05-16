@@ -114,9 +114,18 @@ function config_static_arp_ns() {
     local ns2=$2
     local dev=$3
     local ip_addr=$4
+    local dst_execution1="ip netns exec $ns"
+    local dst_execution2="ip netns exec $ns2"
 
-    ip netns exec $ns ip link set $dev address e4:11:22:33:44:50
-    ip netns exec $ns2 arp -s $ip_addr e4:11:22:33:44:50
+    if [ "${VDPA}" == 1 ]; then
+        dst_execution1="on_vm $NESTED_VM_IP1"
+        dst_execution2="on_vm $NESTED_VM_IP2"
+        dev=$VDPA_DEV_NAME
+    fi
+
+    local mac=$(${dst_execution1} ip l | grep -A1 "$dev" | grep link | cut -d ' ' -f 6)
+    local cmd1="${dst_execution2} arp -s $ip_addr $mac"
+    eval $cmd1
 }
 
 function config_ns() {
