@@ -69,7 +69,7 @@ tcpdump -ni $REP src 7.7.7.7 > /tmp/_xx &
 pid=$!
 sleep 1
 ip netns exec ns1 ping -c 3 7.7.7.7
-sleep 1
+sleep 2
 kill $pid
 sync
 n=$(cat /tmp/_xx | grep "ICMP echo reply" | wc -l)
