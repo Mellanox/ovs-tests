@@ -312,6 +312,7 @@ function cleanup_test() {
     ip a flush dev $NIC
     ip -all netns delete &>/dev/null
     cleanup_e2e_cache
+    cleanup_ct_ct_nat_offload
     cleanup_remote_tunnel $tunnel_device_name
     sleep 0.5
 }
