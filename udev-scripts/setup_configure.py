@@ -116,6 +116,8 @@ class SetupConfigure(object):
                 self.configure_hugepages()
 
             self.ConfigureOVS()
+            if self.args.bluefield:
+                self.ConfigureBfOVS()
             self.BindVFs()
             self.UpdateVFInfo()
 
@@ -404,6 +406,13 @@ class SetupConfigure(object):
         self.RestartOVS()
         runcmd_output('ovs-vsctl set Open_vSwitch . other_config:hw-offload=true')
         self.RestartOVS()
+
+    def ConfigureBfOVS(self):
+        self.Logger.info("Setting [hw-offload=true] configuration to BF OVS")
+        bf_ip, _ = self.get_cloud_player_bf_ips()
+        runcmd_output('ssh %s "systemctl restart openvswitch-switch;'
+                      'ovs-vsctl set Open_vSwitch . other_config:hw-offload=true;'
+                      'systemctl restart openvswitch-switch;"' % bf_ip)
 
     def get_reps(self):
         reps = []
