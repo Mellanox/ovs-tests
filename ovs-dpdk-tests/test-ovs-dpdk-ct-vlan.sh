@@ -22,9 +22,7 @@ bind_vfs
 trap 'cleanup_test $vlan_dev' EXIT
 
 function config() {
-    ip netns add ns0
-    ip link set dev $VF netns ns0
-    ip netns exec ns0 ifconfig $VF $LOCAL_IP/24 up
+    config_ns ns0 $VF $LOCAL_IP
 
     debug "Restarting OVS"
     start_clean_openvswitch
