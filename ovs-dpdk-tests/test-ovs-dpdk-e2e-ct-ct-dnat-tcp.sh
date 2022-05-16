@@ -40,18 +40,18 @@ function config() {
     config_ns ns0 $VF $IP
     config_ns ns1 $VF2 $IP_2
     sleep 2
-    config_static_arp_ns ns1 ns0 $VF2 $FAKE_IP
+    config_static_arp_ns ns0 ns1 $VF $FAKE_IP
 }
 
 function add_openflow_rules() {
     ovs-ofctl del-flows br-phy
     ovs-ofctl add-flow br-phy "arp,actions=normal"
-    ovs-ofctl add-flow br-phy "table=0,in_port=rep0,tcp,ct_state=-trk actions=ct(zone=2, table=1)"
-    ovs-ofctl add-flow br-phy "table=1,in_port=rep0,tcp,ct_state=+trk+new actions=ct(zone=2, commit, nat(dst=${IP_2}:5201)),rep1"
-    ovs-ofctl add-flow br-phy "table=1,in_port=rep0,tcp,ct_state=+trk+est actions=ct(zone=2, nat),rep1"
     ovs-ofctl add-flow br-phy "table=0,in_port=rep1,tcp,ct_state=-trk actions=ct(zone=2, table=1)"
-    ovs-ofctl add-flow br-phy "table=1,in_port=rep1,tcp,ct_state=+trk+new actions=ct(zone=2, commit, nat),rep0"
+    ovs-ofctl add-flow br-phy "table=1,in_port=rep1,tcp,ct_state=+trk+new actions=ct(zone=2, commit, nat(dst=${IP}:5201)),rep0"
     ovs-ofctl add-flow br-phy "table=1,in_port=rep1,tcp,ct_state=+trk+est actions=ct(zone=2, nat),rep0"
+    ovs-ofctl add-flow br-phy "table=0,in_port=rep0,tcp,ct_state=-trk actions=ct(zone=2, table=1)"
+    ovs-ofctl add-flow br-phy "table=1,in_port=rep0,tcp,ct_state=+trk+new actions=ct(zone=2, commit, nat),rep1"
+    ovs-ofctl add-flow br-phy "table=1,in_port=rep0,tcp,ct_state=+trk+est actions=ct(zone=2, nat),rep1"
     debug "OVS flow rules:"
     ovs-ofctl dump-flows br-phy --color
 }
@@ -61,29 +61,11 @@ function run() {
     add_openflow_rules
 
     debug "\nTesting TCP traffic"
-    t=15
-    # traffic
-    ip netns exec ns1 timeout $((t+2)) iperf3 -s &
-    pid1=$!
-    sleep 1
-    ip netns exec ns0 iperf3 -c $FAKE_IP -t $t -P 5 &
-    pid2=$!
+    generate_traffic "local" $FAKE_IP ns1
 
-    # verify pid
-    sleep 3
-    kill -0 $pid2 &>/dev/null
-    if [ $? -ne 0 ]; then
-        err "iperf3 failed"
-        return
-    fi
-
-    sleep $((t-4))
     # check offloads
     check_dpdk_offloads $IP
     check_offloaded_connections 5
-    killall iperf3 &>/dev/null
-    debug "wait for bgs"
-    wait
 }
 
 run

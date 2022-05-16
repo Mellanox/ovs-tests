@@ -96,29 +96,11 @@ function run() {
     verify_ping $REMOTE ns0
 
     debug "\nTesting UDP traffic"
-    t=15
-    # traffic
-    ip netns exec ns0 iperf3 -s &
-    pid1=$!
-    sleep 2
-    on_remote iperf3 -c $IP -t $t -u&
-    pid2=$!
-
-    # verify pid
-    sleep 2
-    kill -0 $pid2 &>/dev/null
-    if [ $? -ne 0 ]; then
-        err "iperf3 failed"
-        return
-    fi
+    generate_traffic "remote" $IP
 
     # check offloads
     check_dpdk_offloads $IP
 
-    kill -9 $pid1 &>/dev/null
-    killall iperf3 &>/dev/null
-    debug "wait for bgs"
-    wait
 }
 
 run

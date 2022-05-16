@@ -79,28 +79,9 @@ function run() {
     add_openflow_rules
 
     debug "\nTesting TCP traffic"
-    t=15
-    # traffic
-    ip netns exec ns0 timeout $((t+2)) iperf3 -s &
-    pid1=$!
-    sleep 2
-    on_remote timeout $((t+2)) iperf3 -c $IP -t $t -P 10&
-    pid2=$!
+    generate_traffic "remote" $IP
 
-    # verify pid
-    sleep 5
-    kill -0 $pid2 &>/dev/null
-    if [ $? -ne 0 ]; then
-        err "iperf3 failed"
-        return
-    fi
-
-    kill -9 $pid1 &>/dev/null
-    killall iperf3 &>/dev/null
-    debug "wait for bgs"
-    wait
-
-    check_e2e_stats 20
+    check_e2e_stats 10
 }
 
 run
