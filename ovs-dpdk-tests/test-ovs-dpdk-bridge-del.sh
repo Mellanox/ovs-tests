@@ -21,16 +21,12 @@ require_interfaces REP NIC
 unbind_vfs
 bind_vfs
 
-function cleanup() {
-    cleanup_e2e_cache
-    sleep 0.5
-}
-trap cleanup EXIT
+trap cleanup_test EXIT
 
 function config() {
     local e2e_setting=$1
 
-    cleanup
+    cleanup_test
     set_e2e_cache_enable $e2e_setting
     debug "Restarting OVS"
     restart_openvswitch

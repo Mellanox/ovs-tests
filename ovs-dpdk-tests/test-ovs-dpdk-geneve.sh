@@ -23,23 +23,10 @@ require_interfaces REP NIC
 unbind_vfs
 bind_vfs
 
-
-function cleanup_remote() {
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip l del dev geneve1 &>/dev/null
-}
-
-function cleanup() {
-    ip a flush dev $NIC
-    ip netns del ns0 &>/dev/null
-    cleanup_e2e_cache
-    cleanup_remote
-    sleep 0.5
-}
-trap cleanup EXIT
+trap cleanup_test EXIT
 
 function config() {
-    cleanup
+    cleanup_test
     set_e2e_cache_enable false
     debug "Restarting OVS"
     start_clean_openvswitch
@@ -51,12 +38,12 @@ function config() {
 }
 
 function config_remote() {
-    on_remote ip link del geneve1 &>/dev/null
-    on_remote ip link add geneve1 type geneve id $GENEVE_ID remote $LOCAL_TUN dstport 6081
+    on_remote ip link del $TUNNEL_DEV &>/dev/null
+    on_remote ip link add $TUNNEL_DEV type geneve id $GENEVE_ID remote $LOCAL_TUN dstport 6081
     on_remote ip a flush dev $REMOTE_NIC
     on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
-    on_remote ip a add $REMOTE/24 dev geneve1
-    on_remote ip l set dev geneve1 up
+    on_remote ip a add $REMOTE/24 dev $TUNNEL_DEV
+    on_remote ip l set dev $TUNNEL_DEV up
     on_remote ip l set dev $REMOTE_NIC up
 }
 

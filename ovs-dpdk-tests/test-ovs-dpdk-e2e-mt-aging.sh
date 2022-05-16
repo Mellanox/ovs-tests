@@ -18,17 +18,10 @@ require_interfaces REP NIC
 unbind_vfs
 bind_vfs
 
-function cleanup() {
-    ip a flush dev $NIC
-    ip netns del ns0 &>/dev/null
-    ip netns del ns1 &>/dev/null
-    cleanup_e2e_cache
-    sleep 0.5
-}
-trap cleanup EXIT
+trap cleanup_test EXIT
 
 function config() {
-    cleanup
+    cleanup_test
     set_e2e_cache_enable true
     debug "Restarting OVS"
     start_clean_openvswitch

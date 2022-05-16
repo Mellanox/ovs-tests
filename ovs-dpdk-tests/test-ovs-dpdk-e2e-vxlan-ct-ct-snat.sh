@@ -28,23 +28,10 @@ require_interfaces REP NIC
 unbind_vfs
 bind_vfs
 
-
-function cleanup_remote() {
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip l del dev vxlan1 &>/dev/null
-}
-
-function cleanup() {
-    ip a flush dev $NIC
-    ip netns del ns0 &>/dev/null
-    cleanup_e2e_cache
-    cleanup_remote
-    sleep 0.5
-}
-trap cleanup EXIT
+trap cleanup_test EXIT
 
 function config() {
-    cleanup
+    cleanup_test
     set_e2e_cache_enable true
     debug "Restarting OVS"
     start_clean_openvswitch
@@ -58,13 +45,13 @@ function config() {
 }
 
 function config_remote() {
-    on_remote ip link del vxlan1 &>/dev/null
-    on_remote ip link add vxlan1 type vxlan id $VXLAN_ID remote $LOCAL_TUN dstport 4789
+    on_remote ip link del $TUNNEL_DEV &>/dev/null
+    on_remote ip link add $TUNNEL_DEV type vxlan id $VXLAN_ID remote $LOCAL_TUN dstport 4789
     on_remote ip a flush dev $REMOTE_NIC
     on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
-    on_remote ip a add $REMOTE/24 dev vxlan1
-    on_remote ip l set dev vxlan1 address $VXLAN_MAC
-    on_remote ip l set dev vxlan1 up
+    on_remote ip a add $REMOTE/24 dev $TUNNEL_DEV
+    on_remote ip l set dev $TUNNEL_DEV address $VXLAN_MAC
+    on_remote ip l set dev $TUNNEL_DEV up
     on_remote ip l set dev $REMOTE_NIC up
 }
 

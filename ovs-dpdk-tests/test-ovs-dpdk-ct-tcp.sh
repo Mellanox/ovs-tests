@@ -21,21 +21,10 @@ unbind_vfs
 bind_vfs
 
 
-function cleanup_remote() {
-    on_remote ip a flush dev $REMOTE_NIC
-}
-
-function cleanup() {
-    ip a flush dev $NIC
-    ip netns del ns0 &>/dev/null
-    cleanup_e2e_cache
-    cleanup_remote
-    sleep 0.5
-}
-trap cleanup EXIT
+trap cleanup_test EXIT
 
 function config() {
-    cleanup
+    cleanup_test
     set_e2e_cache_enable false
     debug "Restarting OVS"
     start_clean_openvswitch
