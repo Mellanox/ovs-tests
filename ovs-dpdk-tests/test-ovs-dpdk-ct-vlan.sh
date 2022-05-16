@@ -22,13 +22,13 @@ bind_vfs
 trap 'cleanup_test $vlan_dev' EXIT
 
 function config() {
-    config_ns ns0 $VF $LOCAL_IP
-
     debug "Restarting OVS"
     start_clean_openvswitch
 
     config_simple_bridge_with_rep 1
+    start_vdpa_vm
     ovs-vsctl set port rep0 tag=$vlan
+    config_ns ns0 $VF $LOCAL_IP
 }
 
 cleanup_test $vlan_dev

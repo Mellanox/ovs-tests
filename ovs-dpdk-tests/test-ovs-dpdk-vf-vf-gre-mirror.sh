@@ -34,6 +34,7 @@ set_e2e_cache_enable false
 debug "Restarting OVS"
 start_clean_openvswitch
 config_tunnel vxlan 2
+start_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
 add_remote_mirror gre br-int 150 $DUMMY_IP $MIRROR_IP
 config_ns ns1 $VF2 $IP2
 

@@ -64,6 +64,7 @@ function config_tunnel() {
     fi
     config_simple_bridge_with_rep 0
     config_remote_bridge_tunnel $TUNNEL_ID $REMOTE_TUNNEL_IP $tnl_type $reps
+    start_vdpa_vm
     config_ns ns0 $VF $LOCAL_IP
     local cmd="${dst_execution} ip link set dev $dev mtu 1400"
     eval $cmd

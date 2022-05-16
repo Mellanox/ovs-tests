@@ -30,6 +30,8 @@ function config() {
     start_clean_openvswitch
 
     config_simple_bridge_with_rep 2
+    start_vdpa_vm
+    start_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
     config_ns ns0 $VF $IP
     config_ns ns1 $VF2 $IP_2
     sleep 2

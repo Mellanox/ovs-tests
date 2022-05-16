@@ -34,6 +34,7 @@ function config() {
     config_simple_bridge_with_rep 0
     config_remote_bridge_tunnel $GENEVE_ID $REMOTE_IP geneve
     config_local_tunnel_ip $LOCAL_TUN br-phy
+    start_vdpa_vm
     config_ns ns0 $VF $IP
 }
 

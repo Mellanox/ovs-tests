@@ -36,6 +36,7 @@ function config() {
     config_remote_bridge_tunnel $VXLAN_ID $REMOTE_IP
     config_local_tunnel_ip $LOCAL_TUN br-phy
     add_local_mirror rep1 1 br-int
+    start_vdpa_vm
     config_ns ns0 $VF $IP
 }
 

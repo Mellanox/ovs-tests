@@ -30,6 +30,7 @@ function config() {
     start_clean_openvswitch
 
     config_simple_bridge_with_rep 1
+    start_vdpa_vm
     config_ns ns0 $VF $IP
 }
 
