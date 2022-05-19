@@ -232,9 +232,6 @@ function generate_traffic() {
     fi
     local t=5
 
-    #clean rules
-    ovs-appctl revalidator/purge
-
     # server
     rm -rf $p_server
     local server_cmd="${server_dst_execution} timeout $((t+2)) iperf3 -f Mbits -s -D --logfile $p_server"
