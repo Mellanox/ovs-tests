@@ -35,10 +35,8 @@ function config() {
     debug "Restarting OVS"
     start_clean_openvswitch
 
-    config_simple_bridge_with_rep 0
-    config_remote_bridge_tunnel $VXLAN_ID $REMOTE_IP
+    config_tunnel "vxlan"
     config_local_tunnel_ip $LOCAL_TUN br-phy
-    config_ns ns0 $VF $IP
     ip netns exec ns0 ip r a $SNAT_ROUTE/24 dev $VF
     ip netns exec ns0 arp -s $SNAT_IP $VXLAN_MAC
 }

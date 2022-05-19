@@ -34,12 +34,9 @@ function config() {
     debug "Restarting OVS"
     start_clean_openvswitch
 
-    config_simple_bridge_with_rep 0
-    config_remote_bridge_tunnel $VXLAN_ID $REMOTE_IP
-    add_remote_mirror vxlan br-int 150 $DUMMY_IP $MIRROR_IP
+    config_tunnel "vxlan"
     config_local_tunnel_ip $LOCAL_TUN br-phy
-    start_vdpa_vm
-    config_ns ns0 $VF $IP
+    add_remote_mirror vxlan br-int 150 $DUMMY_IP $MIRROR_IP
 }
 
 function config_remote() {
