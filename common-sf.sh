@@ -1,6 +1,7 @@
 #!/bin/bash
 
 sfcmd='devlink'
+irq_reguest_debug_func='mlx5_irq_request'
 
 function __set_sf_cmd() {
     if which mlxdevm &>/dev/null ; then
@@ -8,7 +9,15 @@ function __set_sf_cmd() {
     fi
 }
 
+function __irq_reguest_debug_func() {
+    cat /sys/kernel/debug/dynamic_debug/control | grep mlx5_irqs_request_mask &>/dev/null
+    if [[ $? -eq 0 ]]; then
+        irq_reguest_debug_func='mlx5_irqs_request_mask'
+    fi
+}
+
 __set_sf_cmd
+__irq_reguest_debug_func
 
 function sf_get_rep() {
     local sfnum=$1
@@ -205,11 +214,11 @@ function sf_set_cpu_affinity() {
 }
 
 function enbale_irq_reguest_debug() {
-    echo "func mlx5_irq_request +p" > /sys/kernel/debug/dynamic_debug/control
+    echo "func $irq_reguest_debug_func +p" > /sys/kernel/debug/dynamic_debug/control
 }
 
 function disable_irq_reguest_debug() {
-    echo "func mlx5_irq_request -p" > /sys/kernel/debug/dynamic_debug/control
+    echo "func $irq_reguest_debug_func -p" > /sys/kernel/debug/dynamic_debug/control
 }
 
 function start_cpu_irq_check() {
@@ -250,7 +259,7 @@ function check_cpu_irq() {
         return 1
     fi
 
-    local mlx5_irq_requests=`journalctl --since="$_start_irq_check" | grep $sf_dev | grep mlx5_irq_request || true`
+    local mlx5_irq_requests=`journalctl --since="$_start_irq_check" | grep $sf_dev | grep $irq_reguest_debug_func || true`
 
     if [ "$mlx5_irq_requests" == "" ]; then
         err "Can't find mlx5_irq_requests for $sf_dev"
