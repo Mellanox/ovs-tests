@@ -25,18 +25,29 @@ topology:
           - "7.7.7.1/24"
         ipv6:
           - "7:7:7::1/112"
+        chassis:
+          - local
       - name: rtos-node-2
         mac: "00:00:00:00:ff:02"
         ipv4:
           - "7.7.8.1/24"
         ipv6:
           - "7:7:8::1/112"
+        chassis:
+          - REMOTE_CHASSIS
       - name: rtoj-ovn_cluster_router
         mac: "00:00:00:00:ff:03"
         ipv4:
           - "100.64.0.1/16"
         ipv6:
           - "100:64:0::1/64"
+    routes:
+      - route: "100.64.0.2 100.64.0.2"
+      - route: "100.64.0.3 100.64.0.3"
+      - route: "7.7.7.0/24 100.64.0.2"
+        policy: "src-ip"
+      - route: "7.7.8.0/24 100.64.0.3"
+        policy: "src-ip"
   - name: GR_node-1
     type: router
     chassis: local
@@ -55,7 +66,7 @@ topology:
           - "100:64:0::2/64"
     routes:
       - route: "7.7.0.0/16 100.64.0.1"
-      - route: "0.0.0.0/0 172.16.0.1"
+      - route: "0.0.0.0/0 172.16.0.1 rtoe-GR_node-1"
       - route: "7:7::/16 100:64:0::1"
       - route: "::/0 172:16:0::1"
     nats:
@@ -67,6 +78,7 @@ topology:
         logical_ip: 7:7::/16
   - name: GR_node-2
     type: router
+    chassis: REMOTE_CHASSIS
     ports:
       - name: rtoe-GR_node-2
         mac: "00:00:00:02:ff:01"
@@ -82,7 +94,7 @@ topology:
           - "100:64:0::3/64"
     routes:
       - route: "7.7.0.0/16 100.64.0.1"
-      - route: "0.0.0.0/0 172.16.0.1"
+      - route: "0.0.0.0/0 172.16.0.1 rtoe-GR_node-2"
       - route: "7:7::/16 100:64:0::1"
       - route: "::/0 172:16:0::1"
 

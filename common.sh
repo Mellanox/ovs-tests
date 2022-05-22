@@ -1963,6 +1963,10 @@ function create_vlan_interface() {
     ip link add link $parent_int name $vlan_int type vlan id $vlan_id
 }
 
+function get_ovs_id() {
+    cat /etc/openvswitch/system-id.conf
+}
+
 function get_lag_resource_allocation_mode() {
     if [ "$short_device_name" != "cx6dx" ]; then
         echo 0

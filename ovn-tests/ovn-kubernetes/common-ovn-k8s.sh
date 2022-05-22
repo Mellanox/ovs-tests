@@ -123,3 +123,18 @@ function read_k8s_topology_pod_service_different_nodes() {
 
     read_k8s_service
 }
+
+function read_k8s_topology_pod_ext() {
+    local server_port=$1
+
+    CLIENT_SWITCH=$NODE1_SWITCH
+    CLIENT_PORT=$NODE1_SWITCH_PORT1
+    CLIENT_NODE_ROUTER=$NODE1_ROUTER
+    CLIENT_NODE_PORT=$NODE1_ROUTER_PORT
+    read_k8s_topology_pod_client
+
+    SERVER_NODE_ROUTER=$NODE2_ROUTER
+    SERVER_NODE_PORT=$NODE2_ROUTER_PORT
+    read_k8s_server_node
+    SERVER_IPV4=$SERVER_NODE_IP
+}

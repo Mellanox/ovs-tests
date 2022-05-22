@@ -13,6 +13,15 @@ function config_ovn_k8s_pf() {
     config_sriov_switchdev_mode
     require_interfaces $vf_var $rep_var
 
+    config_ovn_k8s_pf_ext_server $ovn_central_ip $ovn_controller_ip $ovn_controller_ip_mask $ovn_controller_mac
+}
+
+function config_ovn_k8s_pf_ext_server() {
+    local ovn_central_ip=$1
+    local ovn_controller_ip=$2
+    local ovn_controller_ip_mask=$3
+    local ovn_controller_mac=$4
+
     start_clean_openvswitch
     ovn_add_network $BRIDGE $NIC $OVN_KUBERNETES_NETWORK
     ovn_config_mtu $NIC $BRIDGE
