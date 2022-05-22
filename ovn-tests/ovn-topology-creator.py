@@ -203,7 +203,12 @@ class OVNLogicalRouter(OVNEntity):
     def __add_routes(self, cmd_args):
         routes = self._data.get("routes", [])
         for route in routes:
-            cmd_args.append(f"lr-route-add {self.name} {route}")
+            cmd = "--may-exist"
+            policy = route.get("policy", "")
+            if policy:
+                cmd += f" --policy={policy}"
+            cmd += f" lr-route-add {self.name} {route['route']}"
+            cmd_args.append(cmd)
 
     def __add_ports(self, cmd_args):
         for port in self._ports:
