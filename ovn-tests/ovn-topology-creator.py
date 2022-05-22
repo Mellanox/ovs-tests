@@ -195,10 +195,12 @@ class OVNLogicalRouter(OVNEntity):
         if not chassis:
             return
 
-        if chassis.lower() == "local":
-            chassis = self.get_ovs_id()
+        chassis_id = os.getenv(chassis, "")
+        if chassis_id == "" and chassis == "local":
+            chassis_id = self.get_ovs_id()
 
-        cmd_args.append(f"set Logical_Router {self.name} options:chassis={chassis}")
+        if chassis_id:
+            cmd_args.append(f"set Logical_Router {self.name} options:chassis={chassis_id}")
 
     def __add_routes(self, cmd_args):
         routes = self._data.get("routes", [])
@@ -234,7 +236,8 @@ class OVNLogicalRouter(OVNEntity):
                 if chassis_id == "" and c == "local":
                     chassis_id = self.get_ovs_id()
 
-                cmd_args.append(f"lrp-set-gateway-chassis {port_name} {chassis_id} 10")
+                if chassis_id:
+                    cmd_args.append(f"lrp-set-gateway-chassis {port_name} {chassis_id} 10")
 
     def __add_nats(self, cmd_args):
         nats = self._data.get("nats", [])
@@ -259,8 +262,8 @@ class OVNLogicalRouter(OVNEntity):
         cmd_args = [f"--may-exist lr-add {self.name}"]
 
         self.__bind_to_chassis(cmd_args)
-        self.__add_routes(cmd_args)
         self.__add_ports(cmd_args)
+        self.__add_routes(cmd_args)
         self.__add_nats(cmd_args)
         self.__add_load_balancers(cmd_args)
 
