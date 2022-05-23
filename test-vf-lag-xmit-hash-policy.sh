@@ -5,12 +5,15 @@
 #
 # Bug SW #2780336: Kernel panic and call trace appears in mlx5_del_flow_rules when creating vf-lag with xmit hash policy layer2+3
 # Require LAG_RESOURCE_ALLOCATION to be enabled.
+# Newer FW versions do not require enabling LAG_RESOURCE_ALLOCATION anymore to move to hash mode.
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 require_module bonding
 not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
+
+need_lag_resource_allocation=`fw_ver_ge 33 1048`
 
 function config() {
     config_sriov 2
@@ -46,8 +49,8 @@ function check_bond_xmit_hash_policy() {
 trap cleanup EXIT
 
 clear_bonding
-set_lag_resource_allocation 1
+[[ "$need_lag_resource_allocation" != "0" ]] &&  set_lag_resource_allocation 1
 config
 check_bond_xmit_hash_policy
-set_lag_resource_allocation 0
+[[ "$need_lag_resource_allocation" != "0" ]] &&  set_lag_resource_allocation 0
 test_done

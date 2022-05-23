@@ -1714,6 +1714,23 @@ function require_fw_ver() {
     fi
 }
 
+function fw_ver_ge() {
+    local minor=$1
+    local subminor=$2
+
+    FWV=( ${FW//./ } )
+    if [ ${FWV[1]} -gt $minor ]; then
+        echo 0
+        return
+    elif [ ${FWV[1]} -eq $minor ]; then
+        if [ ${FWV[2]} -ge $subminor ]; then
+            echo 0
+            return
+        fi
+    fi
+    echo 1
+}
+
 function __include_common_dpdk() {
     . ${DIR}/ovs-dpdk-tests/common-dpdk.sh
 }
