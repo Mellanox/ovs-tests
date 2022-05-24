@@ -77,6 +77,33 @@ function config_bf_ovn_single_node() {
                 ovn_start_ovn_controller"
 }
 
+function config_bf_ovn_pf() {
+    local ovn_central_ip=$1
+    local ovn_controller_ip=$2
+
+    start_clean_openvswitch
+    ovn_config_mtu $BF_NIC
+    ip addr add $ovn_controller_ip/24 dev $BF_NIC
+
+    ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
+    ovn_start_ovn_controller
+}
+
+function config_bf_ovn_pf_vlan() {
+    local ovn_central_ip=$1
+    local ovn_controller_ip=$2
+
+    start_clean_openvswitch
+    ovs_create_bridge_vlan_interface
+    ovs_add_port_to_switch $OVN_PF_BRIDGE $BF_NIC
+
+    ovn_config_mtu $BF_NIC $OVN_PF_BRIDGE $OVN_VLAN_INTERFACE
+    ip addr add $ovn_controller_ip/24 dev $OVN_VLAN_INTERFACE
+
+    ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
+    ovn_start_ovn_controller
+}
+
 require_bf
 on_bf_exec "require_ovn"
 TRAFFIC_INFO['bf_traffic']=1
