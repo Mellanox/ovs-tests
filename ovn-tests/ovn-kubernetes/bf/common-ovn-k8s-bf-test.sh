@@ -2,6 +2,8 @@ OVN_K8S_BF_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
 . $OVN_K8S_BF_DIR/../../common-ovn-bf-test.sh
 . $OVN_K8S_BF_DIR/../common-ovn-k8s.sh
 
+EXTERNAL_SERVER_IP="172.16.0.10"
+
 function config_bf_ovn_k8s_pf() {
     local ovn_central_ip=$1
     local ovn_controller_ip=$2
