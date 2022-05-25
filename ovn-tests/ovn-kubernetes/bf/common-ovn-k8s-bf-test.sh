@@ -2,7 +2,7 @@ OVN_K8S_BF_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
 . $OVN_K8S_BF_DIR/../../common-ovn-bf-test.sh
 . $OVN_K8S_BF_DIR/../common-ovn-k8s.sh
 
-function config_bf_ovn_pf() {
+function config_bf_ovn_k8s_pf() {
     local ovn_central_ip=$1
     local ovn_controller_ip=$2
     local ovn_controller_ip_mask=$3
@@ -18,7 +18,7 @@ function config_bf_ovn_pf() {
     ovn_start_ovn_controller
 }
 
-function config_bf_ovn_pf_vlan() {
+function config_bf_ovn_k8s_pf_vlan() {
     local ovn_central_ip=$1
     local ovn_controller_ip=$2
     local ovn_controller_ip_mask=$3
