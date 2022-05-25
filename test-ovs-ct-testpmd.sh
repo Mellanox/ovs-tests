@@ -6,6 +6,7 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
+. $my_dir/common-ovs-ct.sh
 pktgen="$DIR/network-testing/pktgen/pktgen_sample04_many_flows.sh"
 
 require_module act_ct pktgen
@@ -95,21 +96,6 @@ function reconfig_flows() {
     ovs-ofctl add-flow br-ovs "table=1, ip,ct_state=+trk+est,ct_zone=12 actions=normal"
 }
 
-function verify_counter() {
-    sysfs_counter="/sys/kernel/debug/mlx5/$PCI/ct/offloaded"
-    if [ -f $sysfs_counter ]; then
-        log "check count"
-        a=`cat $sysfs_counter`
-        echo $a
-        if [ $a -lt 1000 ]; then
-            err "low count"
-        fi
-    else
-        warn "Cannot check offloaded count"
-    fi
-#    cat /proc/net/nf_conntrack | grep --color=auto -i offload
-}
-
 function run() {
     title "Test OVS CT TCP"
 
@@ -131,13 +117,14 @@ function run() {
     echo "sleep 3 sec, fg now"
     sleep 3
 
-    t=60
+    t=50
     echo "running for $t seconds"
     run_testpmd || return
     run_pktgen || return
-    sleep $((t+10))
 
-    verify_counter
+    sleep $((t-10))
+    verify_ct_hw_counter 120000
+    sleep 20
 
     log "flush"
     kill_pktgen

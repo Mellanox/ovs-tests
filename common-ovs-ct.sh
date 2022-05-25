@@ -79,3 +79,22 @@ function verify_ct_udp_have_traffic() {
     # short-lived udp connections are not offloaded so wait a bit for offload.
     sleep 3
 }
+
+function verify_ct_hw_counter() {
+    local sysfs_counter="/sys/kernel/debug/mlx5/$PCI/ct/offloaded"
+    local cnt=$1
+    local a
+    log "checking hw offload ct tuples count is at least $cnt"
+
+    if [ -f $sysfs_counter ]; then
+        a=`cat $sysfs_counter`
+    else
+        a=`cat /proc/net/nf_conntrack | grep HW_OFFLOAD | wc -l`
+        a=$((a*2))
+    fi
+
+    echo "offloaded ct tuples count: $a"
+    if [ $a -lt $cnt ]; then
+        err "low count, expected at least $cnt"
+    fi
+}
