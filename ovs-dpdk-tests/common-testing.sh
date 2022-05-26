@@ -21,6 +21,23 @@ function ovs_add_ct_after_nat_rules(){
    ovs-ofctl dump-flows $bridge --color
 }
 
+function ovs_add_ipv6_mod_hdr_rules() {
+    local my_ipv6=$1
+    local peer_ipv6=$2
+    local dummy_peer_ipv6=$3
+    local bridge=${4:-"br-phy"}
+    local rep0=${5:-"rep0"}
+    local rep1=${6:-"rep1"}
+
+    debug "Adding ipv6_mod_hdr rules"
+    ovs-ofctl del-flows $bridge
+    ovs-ofctl del-flows -OOpenFlow15 $bridge
+    ovs-ofctl add-flow -OOpenFlow15 $bridge in_port=$rep0,ipv6,ipv6_dst=${dummy_peer_ipv6},ipv6_src=${my_ipv6},actions=set_field:${peer_ipv6}-\>ipv6_dst,set_field:${my_ipv6}-\>ipv6_src,$rep1
+    ovs-ofctl add-flow -OOpenFlow15 $bridge in_port=$rep1,ipv6,ipv6_dst=${my_ipv6},ipv6_src=${peer_ipv6},actions=set_field:${my_ipv6}-\>ipv6_dst,set_field:${dummy_peer_ipv6}-\>ipv6_src,$rep0
+    debug "OVS flow rules:"
+    ovs-ofctl dump-flows $bridge --color
+}
+
 function ovs_add_ct_nat_nop_rules() {
     local bridge=${1:-"br-int"}
 
