@@ -109,6 +109,32 @@ function ovs_del_meter() {
     sleep 2
 }
 
+function ovs_wait_until_ipv6_done() {
+    local remote_ip=${1:-$REMOTE_IP}
+    local namespace=${2:-ns0}
+    local dst_execution="ip netns exec $namespace"
+
+    if [ "${VDPA}" == "1" ]; then
+        dst_execution="on_vm $NESTED_VM_IP1"
+    fi
+
+    local cmd="${dst_execution} ping -c1 -W 1 $remote_ip"
+    if [[ $remote_ip = *":"* ]]; then
+       cmd+=" -6"
+    fi
+    for i in {0..15}
+    do
+        eval $cmd &> /dev/null
+        if [ $? -ne 0 ]; then
+            debug "sleeping for 1 second until IPv6 stack is set"
+            sleep 1
+        else
+            return 0
+        fi
+    done
+    fail "IPv6 solicitation failed"
+}
+
 function ovs_add_simple_meter_rule() {
     local bridge=${1:-"br-phy"}
     local meter_id=${2:-1}
