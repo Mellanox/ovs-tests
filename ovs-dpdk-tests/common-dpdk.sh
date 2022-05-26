@@ -109,6 +109,30 @@ function config_local_tunnel_ip() {
     ip link set $dev up
 }
 
+function config_static_ipv6_neigh_ns() {
+    local ns=$1
+    local ns2=$2
+    local src_dev=$3
+    local dst_dev=$4
+    local ip_addr=$5
+    local dst_execution1="ip netns exec $ns"
+    local dst_execution2="ip netns exec $ns2"
+
+    if [ "${VDPA}" == 1 ]; then
+        dst_execution1="on_vm $NESTED_VM_IP1"
+        dst_execution2="on_vm $NESTED_VM_IP2"
+        src_dev=$VDPA_DEV_NAME
+        dst_dev=$VDPA_DEV_NAME
+    fi
+
+    local mac=$(${dst_execution1} ip l | grep -A1 "$src_dev" | grep link | cut -d ' ' -f 6)
+    if [ -z "$mac" ]; then
+        fail "could not get device $src_dev mac"
+    fi
+    local cmd1="${dst_execution2} ip -6 neigh add $ip_addr lladdr $mac dev $dst_dev"
+    eval $cmd1
+}
+
 function config_static_arp_ns() {
     local ns=$1
     local ns2=$2
