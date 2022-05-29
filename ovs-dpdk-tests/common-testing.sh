@@ -237,13 +237,14 @@ function ovs_send_scapy_packets() {
 function verify_ping() {
     local remote_ip=${1:-$REMOTE_IP}
     local namespace=${2:-ns0}
+    local size=${3:-56}
     local dst_execution="ip netns exec $namespace"
 
     if [ "${VDPA}" == "1" ]; then
         dst_execution="on_vm $NESTED_VM_IP1"
     fi
 
-    cmd="${dst_execution} ping -q -c 10 -W 2 -i 0.01 $remote_ip"
+    cmd="${dst_execution} ping -q -c 10 -W 2 -i 0.01 $remote_ip -s $size"
 
     if [[ $remote_ip = *":"* ]]; then
        cmd+=" -6"
