@@ -61,6 +61,7 @@ class SetupConfigure(object):
         parser.add_argument('--bluefield', help='Setup configuration for bluefield host', action='store_true')
         parser.add_argument('--vdpa', help='Setup configuration for vdpa host', action='store_true')
         parser.add_argument('--steering-mode', choices=['sw', 'fw'], help='Configure steering mode')
+        parser.add_argument('--skip-kmemleak', help='Skip enabling kmemleak scan', action='store_true')
 
         self.args = parser.parse_args()
 
@@ -90,7 +91,8 @@ class SetupConfigure(object):
         try:
             self.flow_steering_mode = None
 
-            start_kmemleak()
+            if not self.args.skip_kmemleak:
+                start_kmemleak()
             self.set_ovs_service()
             self.StopOVS()
             self.ReloadModules()
