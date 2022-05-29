@@ -38,6 +38,27 @@ function ovs_add_ipv6_mod_hdr_rules() {
     ovs-ofctl dump-flows $bridge --color
 }
 
+function ovs_add_ct_dnat_rules() {
+    local rx_port=$1
+    local tx_port=$2
+    local nat_ip=$3
+    local proto=$4
+    local nat_port=${5:-""}
+    local bridge=${6:-br-phy}
+
+    debug "Adding ct-nat rules"
+    ovs-ofctl del-flows $bridge
+    ovs-ofctl add-flow $bridge "table=0,arp,actions=NORMAL"
+    ovs-ofctl add-flow $bridge "table=0,in_port=${rx_port},${proto},ct_state=-trk actions=ct(zone=2, table=1, commit, nat(dst=$nat_ip${nat_port}))"
+    ovs-ofctl add-flow $bridge "table=1,in_port=${rx_port},${proto},ct_state=+trk+new actions=ct(zone=2, commit),${tx_port}"
+    ovs-ofctl add-flow $bridge "table=1,in_port=${rx_port},${proto},ct_state=+trk+est actions=${tx_port}"
+    ovs-ofctl add-flow $bridge "table=0,in_port=${tx_port},${proto},ct_state=-trk actions=ct(zone=2, table=1, nat)"
+    ovs-ofctl add-flow $bridge "table=1,in_port=${tx_port},${proto},ct_state=+trk+new actions=ct(zone=2, commit),${rx_port}"
+    ovs-ofctl add-flow $bridge "table=1,in_port=${tx_port},${proto},ct_state=+trk+est actions=${rx_port}"
+    debug "OVS flow rules:"
+    ovs-ofctl dump-flows $bridge --color
+}
+
 function ovs_add_ct_nat_nop_rules() {
     local bridge=${1:-"br-int"}
 
