@@ -3,3 +3,4 @@ logs
 insertion-rate-*-data.txt
 .vscode
 psample/psample
+.*.swp
