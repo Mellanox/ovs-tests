@@ -1703,8 +1703,8 @@ function require_fw_opt() {
 function require_fw_ver() {
     local minor=$1
     local subminor=$2
+    local FWV=( ${FW//./ } )
 
-    FWV=( ${FW//./ } )
     if [ ${FWV[1]} -lt $minor ]; then
         fail "FW ($FW) must be >= xx.$minor.$subminor, please upgrade"
     elif [ ${FWV[1]} -eq $minor ]; then
@@ -1717,18 +1717,16 @@ function require_fw_ver() {
 function fw_ver_ge() {
     local minor=$1
     local subminor=$2
+    local FWV=( ${FW//./ } )
 
-    FWV=( ${FW//./ } )
     if [ ${FWV[1]} -gt $minor ]; then
-        echo 0
-        return
+        return 0
     elif [ ${FWV[1]} -eq $minor ]; then
         if [ ${FWV[2]} -ge $subminor ]; then
-            echo 0
-            return
+            return 0
         fi
     fi
-    echo 1
+    return 1
 }
 
 function __include_common_dpdk() {
@@ -2005,6 +2003,8 @@ function set_lag_resource_allocation() {
     if [ "$short_device_name" != "cx6dx" ]; then
         return
     fi
+    fw_ver_ge 33 1048 && return
+
     local value=$1
     title "lag_resource_allocation value to $value"
     fw_config LAG_RESOURCE_ALLOCATION=$value || fail "Cannot set lag resource allocation to $value"

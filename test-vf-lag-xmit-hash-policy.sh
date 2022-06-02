@@ -13,8 +13,6 @@ my_dir="$(dirname "$0")"
 require_module bonding
 not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
 
-need_lag_resource_allocation=`fw_ver_ge 33 1048`
-
 function config() {
     config_sriov 2
     config_sriov 2 $NIC2
@@ -49,8 +47,8 @@ function check_bond_xmit_hash_policy() {
 trap cleanup EXIT
 
 clear_bonding
-[[ "$need_lag_resource_allocation" != "0" ]] &&  set_lag_resource_allocation 1
+set_lag_resource_allocation_mode 1
 config
 check_bond_xmit_hash_policy
-[[ "$need_lag_resource_allocation" != "0" ]] &&  set_lag_resource_allocation 0
+set_lag_resource_allocation_mode 0
 test_done
