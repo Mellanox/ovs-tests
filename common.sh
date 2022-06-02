@@ -2014,8 +2014,8 @@ function set_lag_resource_allocation() {
 __lag_res_alloc_mode=0
 __lag_res_alloc_change=0
 function enable_lag_resource_allocation_mode() {
-    __lag_res_alloc_mode=`get_lag_resource_allocation_mode`
     if (( __lag_res_alloc_mode == 0 )); then
+        __lag_res_alloc_mode=`get_lag_resource_allocation_mode`
         set_lag_resource_allocation 1
         __lag_res_alloc_change=1
     fi
