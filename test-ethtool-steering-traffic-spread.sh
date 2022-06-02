@@ -29,9 +29,8 @@ trap cleanup EXIT
 function config_ethtool_steering() {
     max_ch=$(ethtool -l $NIC | grep Combined | head -1 | cut -f2-)
     let last_ch=max_ch-1
-
-    ethtool -L $NIC combined $max_ch
-    ethtool -X $NIC equal 2
+    eq_ch=2
+    ethtool -X $NIC equal $eq_ch
     ethtool -x $NIC
     ethtool -u $NIC
 }
@@ -68,13 +67,13 @@ function run() {
 
     title "verify counters on all channels"
     for i in `seq 0 $last_ch`; do
-        if [ $i -lt 2 ]; then
+        if [ $i -lt $eq_ch ]; then
             if [ ${rqs_old[$i]} != ${rqs[$i]} ]; then
                 echo "diff on channel $i - ok"
             else
                 err "Expected diff on channel $i"
             fi
-        else # $i >= 2
+        else # $i >= $eq_ch
             if [ ${rqs_old[$i]} != ${rqs[$i]} ]; then
                 err "Expected no diff on channel $i"
             fi
