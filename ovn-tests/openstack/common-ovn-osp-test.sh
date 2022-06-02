@@ -39,3 +39,37 @@ function config_ovn_vf_lag_provider_net() {
     ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
     ovn_start_ovn_controller
 }
+
+function config_ovn_osp_gw_chassis_pf() {
+    local ovn_central_ip=$1
+    local ovn_controller_ip=$2
+    local network=${3:-$OSP_EXTERNAL_NETWORK}
+
+    start_clean_openvswitch
+    ovn_add_network $OVN_PF_BRIDGE $NIC $network
+    ovn_config_mtu $NIC $OVN_PF_BRIDGE
+    ip link set $NIC up
+    ip addr add $ovn_controller_ip/24 dev $OVN_PF_BRIDGE
+
+    ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
+    ovn_start_ovn_controller
+}
+
+function config_ovn_osp_gw_chassis_pf_vlan() {
+    local ovn_central_ip=$1
+    local ovn_controller_ip=$2
+    local network=${3:-$OSP_EXTERNAL_NETWORK}
+
+    start_clean_openvswitch
+    create_vlan_interface $NIC $PF_VLAN_INT $OVN_VLAN_TAG
+    ovn_add_network $OVN_PF_BRIDGE $NIC $network
+
+    ip link set $NIC up
+    ip link set $PF_VLAN_INT up
+
+    ovn_config_mtu $NIC $PF_VLAN_INT $OVN_PF_BRIDGE
+    ip addr add $ovn_controller_ip/24 dev $PF_VLAN_INT
+
+    ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
+    ovn_start_ovn_controller
+}

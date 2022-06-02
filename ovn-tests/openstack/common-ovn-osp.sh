@@ -20,6 +20,9 @@ SWITCH_EXT_NETWORK_PORT="sw-net-ext-net"
 PROVIDER_NETWORK="provider-net"
 OSP_EXTERNAL_NETWORK="ext-net"
 
+# Default gateway chassis is local host
+export GW_CHASSIS=$(get_ovs_id)
+
 function read_osp_topology_vm_vm_same_subnet() {
     CLIENT_SWITCH=$SWITCH_NETWORK_A
     CLIENT_PORT=$SWITCH_NETWORK_A_PORT1
@@ -68,6 +71,15 @@ function read_osp_topology_vm_ext() {
     read_router_client
 
     SERVER_PORT=$server_port
+    SERVER_IPV4=$OVN_EXTERNAL_NETWORK_HOST_IP
+    SERVER_IPV6=$OVN_EXTERNAL_NETWORK_HOST_IP_V6
+}
+
+function read_osp_topology_vm_ext_snat() {
+    CLIENT_SWITCH=$SWITCH_NETWORK_B
+    CLIENT_PORT=$SWITCH_NETWORK_B_PORT1
+    read_router_client
+
     SERVER_IPV4=$OVN_EXTERNAL_NETWORK_HOST_IP
     SERVER_IPV6=$OVN_EXTERNAL_NETWORK_HOST_IP_V6
 }

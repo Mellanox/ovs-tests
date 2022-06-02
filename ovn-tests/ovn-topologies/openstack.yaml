@@ -34,7 +34,7 @@ topology:
         ipv6:
           - "172:16:1::1/24"
         chassis:
-          - local
+          - GW_CHASSIS
     nats:
       - type: dnat_and_snat
         external_ip: 172.16.1.5
@@ -46,6 +46,12 @@ topology:
         logical_ip: 7:7:7::2
         port: sw-net-a-port1
         mac: "00:00:00:a0:01:02"
+      - type: snat
+        external_ip: 172.16.1.6
+        logical_ip: 8.8.8.0/24
+      - type: snat
+        external_ip: 172:16:1::6
+        logical_ip: 8:8:8::0/64
   - name: sw-net-a
     type: switch
     ports:
