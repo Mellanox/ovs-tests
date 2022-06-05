@@ -47,8 +47,8 @@ function check_bond_xmit_hash_policy() {
 trap cleanup EXIT
 
 clear_bonding
-set_lag_resource_allocation_mode 1
+set_lag_resource_allocation 1
 config
 check_bond_xmit_hash_policy
-set_lag_resource_allocation_mode 0
+set_lag_resource_allocation 0
 test_done
