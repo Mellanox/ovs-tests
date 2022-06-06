@@ -4,6 +4,7 @@
 #
 # Bug SW #3053325: steering registers aren't clear when moving from FDB context to VF NIC context
 #
+# requires fw fix from fw xx.34.0164
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
