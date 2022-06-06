@@ -1729,6 +1729,13 @@ function fw_ver_ge() {
     return 1
 }
 
+function fw_ver_lt() {
+    if fw_ver_ge $@; then
+        return 1
+    fi
+    return 0
+}
+
 function __include_common_dpdk() {
     . ${DIR}/ovs-dpdk-tests/common-dpdk.sh
 }
@@ -2003,7 +2010,6 @@ function set_lag_resource_allocation() {
     if [ "$short_device_name" != "cx6dx" ]; then
         return
     fi
-    fw_ver_ge 33 1048 && return
 
     local value=$1
     title "lag_resource_allocation value to $value"
