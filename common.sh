@@ -1438,14 +1438,21 @@ function check_dpdk_init() {
     fi
 }
 
+__ovs_version_printed=0
+function __print_ovs_version_once() {
+    [ $__ovs_version_printed == 0 ] && __ovs_version_printed=1 && ovs-vswitchd -V
+}
+
 function restart_openvswitch_nocheck() {
     stop_openvswitch
     service_ovs start
+    __print_ovs_version_once
 }
 
 function restart_openvswitch() {
     stop_openvswitch
     service_ovs start
+    __print_ovs_version_once
     check_ovs_settings
     sleep 1
 }
