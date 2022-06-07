@@ -91,6 +91,7 @@ function run() {
     config
     config_remote
 
+    sleep 2
     title "test ping"
     ip netns exec ns0 ping -q -c 1 -w 1 $REMOTE
     if [ $? -ne 0 ]; then
