@@ -489,9 +489,8 @@ def glob_tests(glob_filter):
         glob_filter = glob_filter[0].split(',')
 
     for test in TESTS:
-        name = test.name
         for g in glob_filter:
-            if fnmatch(name, g):
+            if fnmatch(test.name, g):
                 _tests.append(test)
                 break
 
