@@ -1040,6 +1040,13 @@ def get_all_tests(include_subfolders=False):
     return lst
 
 
+def get_tests_from_glob(lst):
+    for i in lst:
+        t = os.path.join(MYDIR, i)
+        if os.path.exists(t):
+            TESTS.append(Test(t))
+
+
 def get_tests():
     global TESTS
     try:
@@ -1061,6 +1068,7 @@ def get_tests():
             tmp = get_all_tests()
             TESTS = [Test(t) for t in tmp]
             glob_tests(args.glob)
+            get_tests_from_glob(args.glob)
             update_skip_according_to_rm()
             revert_skip_if_needed()
 
