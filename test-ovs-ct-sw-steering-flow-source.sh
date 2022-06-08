@@ -7,6 +7,7 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
+steering_dump=$my_dir/mlx_steering_dump.zip
 
 require_module act_ct
 echo 1 > /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
@@ -41,7 +42,7 @@ function verify_ste_tuples() {
     local dev=$1
 
     cat /sys/kernel/debug/mlx5/$PCI/steering/fdb/* > /tmp/fsdump
-    python3 mlx_steering_dump.zip -f /tmp/fsdump -vvtc > /tmp/fsdump_parsed
+    python3 $steering_dump -f /tmp/fsdump -vvtc > /tmp/fsdump_parsed
 
     tuples_stes=`cat /tmp/fsdump_parsed  | grep -i "$IP1" | grep -i "$IP2" | grep -i "TCP"`
     tuples_stes_tx=`echo "$tuples_stes" | grep -i "TX"`
