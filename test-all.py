@@ -208,7 +208,7 @@ class ExecCmdFailed(Exception):
 
 
 class Test(object):
-    def __init__(self, test_file):
+    def __init__(self, test_file, opts={}):
         self._test_file = test_file
         self._name = os.path.basename(test_file)
         self._passed = False
@@ -222,6 +222,7 @@ class Test(object):
         self.issues = []
         self.set_logs()
         self.iteration = 0
+        self.opts = opts or {}
 
     def set_logs(self, post=0):
         post_log = '.log' if not post else '.%s.log' % post
@@ -650,15 +651,13 @@ def update_skip_according_to_db(rm, _tests, data):
 
     for t in _tests:
         name = t.name
+        opts = t.opts
         bugs_list = []
 
-        if data['tests'][name] is None:
-            data['tests'][name] = {}
-
-        ignore_for_linust = data['tests'][name].get('ignore_for_linust', 0)
-        ignore_for_upstream = data['tests'][name].get('ignore_for_upstream', 0)
-        ignore_for_debug_kernel = data['tests'][name].get('ignore_for_debug_kernel', 0)
-        simx_ignore = data['tests'][name].get('simx_ignore', 0)
+        ignore_for_linust = opts.get('ignore_for_linust', 0)
+        ignore_for_upstream = opts.get('ignore_for_upstream', 0)
+        ignore_for_debug_kernel = opts.get('ignore_for_debug_kernel', 0)
+        simx_ignore = opts.get('simx_ignore', 0)
         is_debug_kernel = '_debug_' in current_kernel and '_min_debug_' not in current_kernel
 
         if ignore_for_debug_kernel and is_debug_kernel:
@@ -675,7 +674,7 @@ def update_skip_according_to_db(rm, _tests, data):
             t.set_ignore("Ignore on for-upstream kernel")
             continue
 
-        ignore_fs = data['tests'][name].get('ignore_flow_steering', '')
+        ignore_fs = opts.get('ignore_flow_steering', '')
         if ignore_fs and (not flow_steering_mode or ignore_fs == flow_steering_mode):
             t.set_ignore("Ignore flow steering mode %s" % ignore_fs)
             continue
@@ -687,23 +686,23 @@ def update_skip_according_to_db(rm, _tests, data):
                 t.set_ignore("Ignore for SimX mode with reason %s" % simx_ignore)
                 continue
 
-        ignore_not_supported = data['tests'][name].get('ignore_not_supported', 0)
+        ignore_not_supported = opts.get('ignore_not_supported', 0)
 
         if should_ignore(ignore_not_supported, t):
             continue
 
-        ignore_failed = data['tests'][name].get('ignore_failed', 0)
+        ignore_failed = opts.get('ignore_failed', 0)
         if ignore_failed:
             t.set_skip("Test failed and first ignored - check manually")
 
         if re.search(r'\.el[0-9]+\.', current_kernel):
-            min_kernel = data['tests'][name].get('min_kernel_rhel', None)
+            min_kernel = opts.get('min_kernel_rhel', None)
         elif 'bluefield' in current_kernel:
-            min_kernel = data['tests'][name].get('min_kernel_bf', None)
+            min_kernel = opts.get('min_kernel_bf', None)
         else:
-            min_kernel = data['tests'][name].get('min_kernel', None)
+            min_kernel = opts.get('min_kernel', None)
 
-        kernels = data['tests'][name].get('kernels', [])
+        kernels = opts.get('kernels', [])
         if kernels and not min_kernel:
             raise RuntimeError("%s: Specifying kernels without min_kernel is not allowed." % name)
 
@@ -721,22 +720,22 @@ def update_skip_according_to_db(rm, _tests, data):
                     t.set_ignore("Unsupported kernel version. Minimum %s" % min_kernel)
                     continue
 
-        for nic in data['tests'][name].get('ignore_nic', []):
+        for nic in opts.get('ignore_nic', []):
             if nic == current_nic:
                 t.set_ignore("Unsupported nic %s" % nic)
                 break
 
-        min_nic = data['tests'][name].get('min_nic', None)
+        min_nic = opts.get('min_nic', None)
         if min_nic:
             if not DeviceType.gte(current_nic, min_nic):
                 t.set_ignore("Unsupported nic %s" % current_nic)
 
-        max_nic = data['tests'][name].get('max_nic', None)
+        max_nic = opts.get('max_nic', None)
         if max_nic:
             if not DeviceType.lte(current_nic, max_nic):
                 t.set_ignore("Unsupported nic %s" % current_nic)
 
-        min_fw = data['tests'][name].get('min_fw', None)
+        min_fw = opts.get('min_fw', None)
         if min_fw:
             cx_type = min_fw.split('.')[0]
             cx_ver = min_fw[min_fw.index('.')+1:]
@@ -749,29 +748,29 @@ def update_skip_according_to_db(rm, _tests, data):
             continue
 
         # issue number key with list of kernels
-        issue_keys = [x for x in data['tests'][name].keys() if isinstance(x, int)]
+        issue_keys = [x for x in opts.keys() if isinstance(x, int)]
         for issue in issue_keys:
-            for kernel in data['tests'][name][issue]:
+            for kernel in opts[issue]:
                 if kernel_match(kernel, current_kernel):
                     bugs_list.append(issue)
 
-        ignore_kernel = data['tests'][name].get('ignore_kernel', {})
+        ignore_kernel = opts.get('ignore_kernel', {})
         for kernel in ignore_kernel:
             if kernel_match(kernel, current_kernel):
                 bugs_list += ignore_kernel[kernel]
 
-        for fw in data['tests'][name].get('ignore_fw', {}):
+        for fw in opts.get('ignore_fw', {}):
             if not current_fw_ver or re.search("^%s$" % fw, current_fw_ver):
-                bugs_list += data['tests'][name]['ignore_fw'][fw]
+                bugs_list += opts['ignore_fw'][fw]
 
-        ignore_smfs = data['tests'][name].get('ignore_smfs', [])
+        ignore_smfs = opts.get('ignore_smfs', [])
         if ignore_smfs and (not flow_steering_mode or flow_steering_mode == 'smfs'):
             for key in ignore_smfs:
                 if key == current_nic or kernel_match(key, current_kernel):
                     bugs_list.extend(ignore_smfs[key])
 
         if simx_mode:
-            simx_ignore_issues = data['tests'][name].get('simx_ignore_issue', [])
+            simx_ignore_issues = opts.get('simx_ignore_issue', [])
             bugs_list.extend(simx_ignore_issues)
 
         for bug in bugs_list:
@@ -1012,7 +1011,15 @@ def read_ignore_list():
 
 def load_tests_from_db(data):
     subfolder = data.get('tests_subfolder', '')
-    tests = [Test(os.path.join(MYDIR, subfolder, key)) for key in data['tests']]
+
+    tests = []
+    for key in data['tests']:
+        if fnmatch(key, 'test-*.sh'):
+            tests.append(Test(os.path.join(MYDIR, subfolder, key), data['tests'][key]))
+        else:
+            items = data['tests'][key]
+            tests.extend([Test(os.path.join(MYDIR, key, key2), items[key2]) for key2 in items])
+
     for test in tests:
         if not test.exists():
             warn("Cannot find test %s" % test.name)
