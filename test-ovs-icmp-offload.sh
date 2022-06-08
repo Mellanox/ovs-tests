@@ -58,21 +58,23 @@ ovs-ofctl add-flow brv-1 "in_port($REP2),ip,dl_dst=e4:11:11:11:11:11,actions=dro
 ovs-ofctl add-flow brv-1 "in_port($REP2),ip,icmp,actions=$REP" || err
 
 # quick ping to make ovs add rules
-ping -q -c 1 -w 1 $VM2_IP && success || err
+ping -q -c 1 -w 1 $VM2_IP && success || err "ping failed"
 
 tdtmpfile=/tmp/$$.pcap
-timeout 15 tcpdump -nnepi $REP icmp -c 30 -w $tdtmpfile &
+timeout 7 tcpdump -nnepi $REP icmp -c 30 -w $tdtmpfile &
 tdpid=$!
 sleep 0.5
 
 title "Test ping $VM1_IP -> $VM2_IP - expect to pass"
-ping -q -f -w 15 $VM2_IP && success || err
+ping -q -f -w 7 $VM2_IP && success || err "ping failed"
+
+
+echo "dump"
+ovs_dump_tc_flows --names
+tc -s filter show dev $REP ingress
 
 title "Verify we have 2 rules"
 check_offloaded_rules 2
-
-ovs_dump_tc_flows --names
-tc -s filter show dev $REP ingress
 
 kill $tdpid 2>/dev/null
 sleep 1
