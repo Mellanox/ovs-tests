@@ -7,6 +7,8 @@
 # 3. Both VFs are tagged with VLAN 2.
 # 4. First VF is tagged with VLAN 3, second VF is pvid/untagged with VLAN 3.
 # 5. First VF is pvid/untagged with VLAN 2, second VF is tagged with VLAN 2.
+# 6. Both VFs are tagged with VLAN 2 inside namespaces and their representors
+# are pvid/untagged ports of VLAN 3 (QinQ) on bridge.
 #
 # Bug SW #2753854: [mlx5, ETH, x86] Traffic lose between 2 VFs with vlans on bridge
 #
