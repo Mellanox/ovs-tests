@@ -92,8 +92,8 @@ function run_traffic() {
 
     check_offloaded_rules 0x0806 $NIC $NIC2
 
-    title "Sending IPv6 ping to $ipv6 from $NIC2"
     local ipv6=`on_remote ip netns exec $NS ifconfig $NIC | grep inet6 | awk -F' ' '{print $2}' | awk '{print $1}'`
+    title "Sending IPv6 ping to $ipv6 from $NIC2"
     on_remote ip netns exec $NS2 ping6 $ipv6%$NIC2 -c $t
 
     if [ $? -ne 0 ]; then
