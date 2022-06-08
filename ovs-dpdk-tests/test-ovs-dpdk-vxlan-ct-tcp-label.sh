@@ -17,12 +17,18 @@ require_interfaces REP NIC
 unbind_vfs
 bind_vfs
 
-trap cleanup_test EXIT
+trap test_cleanup_local EXIT
+
+function test_cleanup_local() {
+    cleanup_test
+    ovs_conf_remove ct-labels-mapping
+}
 
 function config() {
     cleanup_test
     set_e2e_cache_enable false
     debug "Restarting OVS"
+    ovs_conf_set ct-labels-mapping true
     start_clean_openvswitch
 
     config_tunnel "vxlan"
