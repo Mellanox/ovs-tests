@@ -58,13 +58,4 @@ run_test
 trap - EXIT
 ovn_clean_up
 
-ovn_clean_up
-trap ovn_clean_up EXIT
-
-config_test
-run_test
-
-trap - EXIT
-ovn_clean_up
-
 test_done
