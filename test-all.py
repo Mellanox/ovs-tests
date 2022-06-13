@@ -1040,11 +1040,23 @@ def get_all_tests(include_subfolders=False):
     return lst
 
 
+def test_exists(t):
+    if not t.startswith(MYDIR):
+        t = os.path.join(MYDIR, i)
+    for test in TESTS:
+        if test.fname == t:
+            return True
+    return False
+
+
 def get_tests_from_glob(lst):
     for i in lst:
         t = os.path.join(MYDIR, i)
-        if os.path.exists(t):
-            TESTS.append(Test(t))
+        if not os.path.exists(t):
+            continue
+        if test_exists(t):
+            continue
+        TESTS.append(Test(t))
 
 
 def get_tests():
