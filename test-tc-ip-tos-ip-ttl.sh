@@ -27,19 +27,13 @@ function __test_basic_vxlan() {
     ip link add $vx type vxlan dev $NIC dstport $vxlan_port external
     [ $? -ne 0 ] && err "Failed to create vxlan interface" && return 1
     ip link set dev $vx up
-    tc qdisc add dev $vx ingress
 
     ip addr flush dev $NIC
     ip addr add $ip_src/16 dev $NIC
     ifconfig $NIC up
     ip neigh add $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
 
-    reset_tc $NIC
-    reset_tc $REP
-
-    reset_tc $REP
-    reset_tc $vx
-
+    reset_tc $NIC $vx
 
     tc_filter add dev $vx protocol 0x806 parent ffff: prio 1 \
                 flower \
@@ -59,8 +53,6 @@ function __test_basic_vxlan() {
     tc filter show dev $vx ingress prio 1 | grep -q -w in_hw || err "Decap rule not in hw"
 
 
-    reset_tc $NIC
-    reset_tc $REP
     reset_tc $vx
     ip addr flush dev $NIC
     ip link del $vx
