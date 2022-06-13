@@ -42,8 +42,6 @@ function __test_vxlan() {
     bind_vfs
     ifconfig $NIC up
     ifconfig $REP up
-    reset_tc $NIC
-    reset_tc $REP
 
     m=`ip addr show $vx 2>&1`
     [ $? -ne 0 ] && fail $m
@@ -53,8 +51,7 @@ function __test_vxlan() {
     ip neigh add $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
 
     title " - add vxlan rule"
-        reset_tc $REP
-        reset_tc $vx
+        reset_tc $REP $vx
         title "    - encap"
         tc_filter_success add dev $REP protocol 0x806 parent ffff: prio 1 \
                     flower \
@@ -84,9 +81,7 @@ function __test_vxlan() {
         # Bug SW #1360599: [upstream] decap rule offload attempt with skip_sw fails
         tc filter show dev $vx ingress prio 2 | grep -q -w in_hw || err "Decap rule not in hw"
 
-    reset_tc $NIC
-    reset_tc $REP
-    reset_tc $vx
+    reset_tc $REP $vx
     ip addr flush dev $NIC
     ip link del $vx
 }

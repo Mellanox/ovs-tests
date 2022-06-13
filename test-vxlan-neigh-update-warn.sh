@@ -43,7 +43,6 @@ function neigh_update_test() {
     echo "local_ip $local_ip remote_ip $remote_ip"
 
     ifconfig $NIC up
-    reset_tc $NIC
     reset_tc $REP
     wait_for_linkup $NIC
 

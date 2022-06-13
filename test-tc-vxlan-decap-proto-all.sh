@@ -23,7 +23,6 @@ ip link add $VXLAN type vxlan dstport 4789 external udp6zerocsumrx || fail "Fail
 ip addr add dev $NIC $TUN_SRC_V4/16
 ifconfig $VXLAN up
 reset_tc $VXLAN
-reset_tc $NIC
 
 # decap rule set on the vxlan device
 echo "-- add vxlan decap rule"
@@ -38,7 +37,6 @@ if [ $? -eq 0 ]; then
 fi
 
 reset_tc $VXLAN
-reset_tc $NIC
 ip addr flush dev $NIC
 ip link del $VXLAN
 

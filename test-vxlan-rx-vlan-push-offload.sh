@@ -57,8 +57,6 @@ function __test_vxlan() {
     # Bug SW #1360599: [upstream] decap rule offload attempt with skip_sw fails
     verify_in_hw $vx 2
 
-    reset_tc $NIC
-    reset_tc $REP
     reset_tc $vx
     ip addr flush dev $NIC
     ip link del $vx

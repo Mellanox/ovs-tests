@@ -28,10 +28,6 @@ function __test_basic_vxlan() {
     ifconfig $NIC up
     ip neigh add $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
 
-    reset_tc $NIC
-    reset_tc $REP
-
-    reset_tc $REP
     reset_tc $vx
 
     tc_filter add dev $vx protocol 0x806 parent ffff: prio 1 \
@@ -48,8 +44,6 @@ function __test_basic_vxlan() {
     local i
     i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i  --no_zero > /tmp/port$i
 
-    reset_tc $NIC
-    reset_tc $REP
     reset_tc $vx
     ip addr flush dev $NIC
     ip link del $vx

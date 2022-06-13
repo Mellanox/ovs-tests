@@ -31,7 +31,7 @@ function __test_basic_vxlan() {
     ifconfig $NIC up
     ip neigh replace $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
 
-    reset_tc $NIC $REP $vx
+    reset_tc $REP $vx
 
     skip=""
     chain=1
@@ -62,9 +62,7 @@ function __test_basic_vxlan() {
                 action mirred egress redirect dev $REP
     tc_filter_success show dev $vx ingress prio 2 | grep -q -w in_hw || err "Decap rule not in hw"
 
-    reset_tc $NIC
-    reset_tc $REP
-    reset_tc $vx
+    reset_tc $REP $vx
     ip neigh del $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
     ip addr flush dev $NIC
     ip link del $vx

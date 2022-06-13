@@ -52,7 +52,6 @@ function neigh_update_test() {
 
     # tunnel key set
     ifconfig $NIC up
-    reset_tc $NIC
     reset_tc $REP
 
     tc_filter add dev $REP protocol arp parent ffff: prio 1\
