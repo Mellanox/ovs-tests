@@ -75,8 +75,9 @@ function run() {
     tc filter show dev $REP2 ingress
 
     echo "sniff packets on $REP"
-    timeout 2 tcpdump -qnnei $REP -c 6 'icmp' &
+    timeout 3 tcpdump -qnnei $REP -c 6 'icmp' &
     pid=$!
+    sleep 1
 
     echo "run traffic"
     ip netns exec ns0 ping -q -c 10 -i 0.1 -w 2 $IP2 || err "Ping failed"
