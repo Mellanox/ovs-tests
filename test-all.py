@@ -1057,13 +1057,11 @@ def test_exists(t):
 
 
 def get_tests_from_glob(lst):
+    tmp = []
     for i in lst:
         t = os.path.join(MYDIR, i)
-        if not os.path.exists(t):
-            continue
-        if test_exists(t):
-            continue
-        TESTS.append(Test(t))
+        tmp.extend(glob(t))
+    TESTS.extend([Test(t) for t in tmp])
 
 
 def get_tests():
