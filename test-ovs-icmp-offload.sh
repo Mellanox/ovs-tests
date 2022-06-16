@@ -70,13 +70,11 @@ ping -q -f -w 7 $VM2_IP && success || err "ping failed"
 
 title "Test lastused"
 for i in `ovs_dump_tc_flows | grep 0x0800 | grep -o "used:[^s]*" | cut -d: -f2 `; do
-    # round - can fail if slow as 0.51 will be 1
-    # c=`printf "%.0f\n" $i`
-    # trim the dot
-    c=${i%.*}
+    # round number down or up.
+    c=`printf "%.0f\n" $i`
     echo "lastused $i -> $c"
-    if [ $c -ne 0 ]; then
-        err "lastused is not 0"
+    if [ $c -gt 1 ]; then
+        err "lastused is $i"
     fi
 done
 
