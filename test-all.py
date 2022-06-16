@@ -211,6 +211,8 @@ class Test(object):
     def __init__(self, test_file, opts={}):
         self._test_file = test_file
         self._name = os.path.basename(test_file)
+        self._relpath = MYDIR
+        self._relname = os.path.relpath(test_file, self._relpath)
         self._passed = False
         self._failed = False
         self._skip = False
@@ -289,6 +291,10 @@ class Test(object):
     @property
     def name(self):
         return self._name
+
+    @property
+    def relname(self):
+        return self._relname
 
     def __repr__(self):
         return "<Test %s>" % self._name
