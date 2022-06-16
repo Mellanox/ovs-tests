@@ -1293,6 +1293,7 @@ kfree for unknown address|UBSAN|KASAN"
     local mlx5_errs="mlx5_core .* err |mlx5_core .* failed |syndrome"
     local fw_errs="health compromised|firmware internal error|assert_var|\
 Command completion arrived after timeout|Error cqe|failed reclaiming pages"
+    local ovs_errs="Kernel flower acknowledgment does not match request"
     local look_ahead="Call Trace:|Allocated by task|Freed by task"
     local look_ahead_count=12
     local filter="networkd-dispatcher|nm-dispatcher|uses legacy ethtool link settings|\
@@ -1307,7 +1308,7 @@ kvm"
         filter+="$__expected_error_msgs"
     fi
 
-    look="$look|$memtrack|$mlx5_errs|$fw_errs"
+    look="$look|$memtrack|$mlx5_errs|$fw_errs|$ovs_errs"
     local a=`journalctl_for_test | grep -E -i "$look" | grep -v -E -i "$filter" || true`
     local b=`journalctl_for_test | grep -E -A $look_ahead_count -i "$look_ahead" || true`
     if [ "$a" != "" ] || [ "$b" != "" ]; then
@@ -1453,6 +1454,7 @@ function restart_openvswitch() {
     stop_openvswitch
     service_ovs start
     __print_ovs_version_once
+    ovs-appctl vlog/set tc:syslog:warn
     check_ovs_settings
     sleep 1
 }
