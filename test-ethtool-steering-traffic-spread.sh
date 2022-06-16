@@ -30,6 +30,7 @@ function config_ethtool_steering() {
     max_ch=$(ethtool -l $NIC | grep Combined | head -1 | cut -f2-)
     let last_ch=max_ch-1
     eq_ch=2
+    ethtool -L $NIC combined $max_ch
     ethtool -X $NIC equal $eq_ch
     ethtool -x $NIC
     ethtool -u $NIC
