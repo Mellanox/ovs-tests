@@ -1450,11 +1450,20 @@ function restart_openvswitch_nocheck() {
     __print_ovs_version_once
 }
 
+__ovs_log_levels=""
+function ovs_set_log_levels() {
+    __ovs_log_levels=$@
+}
+
 function restart_openvswitch() {
     stop_openvswitch
     service_ovs start
     __print_ovs_version_once
     ovs-appctl vlog/set tc:syslog:warn
+    local i
+    if [ "$__ovs_log_levels" != "" ]; then
+        ovs-appctl vlog/set $__ovs_log_levels
+    fi
     check_ovs_settings
     sleep 1
 }
