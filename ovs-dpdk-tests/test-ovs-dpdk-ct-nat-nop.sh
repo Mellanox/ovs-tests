@@ -30,9 +30,7 @@ function config() {
 function run() {
     config
     ovs_add_ct_nat_nop_rules br-phy
-    debug "\n Testing icmp traffic"
     verify_ping $IP_2 ns0
-    debug "\n Testing TCP traffic"
     # traffic
     generate_traffic "local" $IP ns1
     # check offloads

@@ -55,7 +55,6 @@ function run() {
     config_remote
     add_openflow_rules
 
-    debug "\nTesting TCP traffic"
     generate_traffic "remote" $IP
 
     # check offloads

@@ -48,10 +48,8 @@ function run() {
     config_remote
 
     t=5
-    debug "\nTesting Ping"
     verify_ping $REMOTE ns0
 
-    debug "\nTesting TCP traffic"
     generate_traffic "remote" $IP
 
     # check offloads

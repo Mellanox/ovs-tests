@@ -60,10 +60,8 @@ function run() {
     config_remote
     add_openflow_rules
 
-    debug "Testing ping"
     verify_ping $REMOTE ns0
 
-    debug "\nTesting TCP traffic"
     generate_traffic "remote" $IP
 
     # check offloads

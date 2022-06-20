@@ -20,10 +20,8 @@ function run() {
     config_2_side_tunnel geneve
     ovs_add_ct_rules
 
-    debug "Testing ping"
     verify_ping
 
-    debug "Testing TCP traffic"
     generate_traffic "remote" $LOCAL_IP ns0
 
     # check offloads

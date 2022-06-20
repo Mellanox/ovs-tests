@@ -43,7 +43,6 @@ function run() {
     config_openflow_rules false
     config_openflow_rules true
 
-    debug "Testing ping"
     verify_ping
 
     generate_traffic "remote" $LOCAL_IP ns0

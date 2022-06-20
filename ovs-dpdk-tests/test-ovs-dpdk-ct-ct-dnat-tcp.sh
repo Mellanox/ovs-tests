@@ -54,7 +54,6 @@ function run() {
     config
     add_openflow_rules
 
-    debug "Testing TCP traffic"
     generate_traffic "local" $FAKE_IP ns1
 
     # check offloads
