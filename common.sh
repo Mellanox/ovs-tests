@@ -1460,7 +1460,6 @@ function restart_openvswitch() {
     service_ovs start
     __print_ovs_version_once
     ovs-appctl vlog/set tc:syslog:warn
-    local i
     if [ "$__ovs_log_levels" != "" ]; then
         ovs-appctl vlog/set $__ovs_log_levels
     fi
