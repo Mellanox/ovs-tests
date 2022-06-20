@@ -1308,7 +1308,7 @@ kvm"
         filter+="$__expected_error_msgs"
     fi
 
-    look="$look|$memtrack|$mlx5_errs|$fw_errs|$ovs_errs"
+    look="$look|$memtrack|$mlx5_errs|$fw_errs"
     local a=`journalctl_for_test | grep -E -i "$look" | grep -v -E -i "$filter" || true`
     local b=`journalctl_for_test | grep -E -A $look_ahead_count -i "$look_ahead" || true`
     if [ "$a" != "" ] || [ "$b" != "" ]; then
