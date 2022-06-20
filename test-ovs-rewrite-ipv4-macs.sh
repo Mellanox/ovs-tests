@@ -55,12 +55,12 @@ function test_traffic() {
     shift
     local iperf_extra=$@
 
-    timeout -k1 4 iperf -c $FAKE_VM2_IP $iperf_extra -i 999 -t 3 || fail "Iperf failed"
+    timeout -k1 5 iperf3 -c $FAKE_VM2_IP $iperf_extra -t 3 || fail "Iperf initial failed"
 
     timeout 2 tcpdump -nnei $dev -c 3 'tcp' &
     tdpid=$!
 
-    timeout -k1 4 iperf -c $FAKE_VM2_IP $iperf_extra -i 999 -t 3 && success || fail "Iperf failed"
+    timeout -k1 5 iperf3 -c $FAKE_VM2_IP $iperf_extra -t 3 && success || fail "Iperf failed"
     check_offloaded_rules 2
 
     title "Verify with tcpdump"
@@ -106,7 +106,7 @@ function config() {
     ip netns add ns0
     ip link set $VF2 netns ns0
     ip netns exec ns0 ifconfig $VF2 $VM2_IP/24 up
-    ip netns exec ns0 iperf -s -i 999 &
+    ip netns exec ns0 iperf3 -s &
     iperf_server_pid=$!
 
     VF_MAC=`cat /sys/class/net/$VF/address`
@@ -153,11 +153,11 @@ function case2() {
 }
 
 function case3() {
-    title "Test [$VM1_IP @ $VF_MAC] -> [fake $FAKE_VM2_IP and fake mac $FAKE_MAC]:fake port 5020 (will be rewritten to [$FAKE_VM1_IP @ $FAKE_MAC_SRC] -> [$VM2_IP @ $VF2_MAC]: port 5001)"
+    title "Test [$VM1_IP @ $VF_MAC] -> [fake $FAKE_VM2_IP and fake mac $FAKE_MAC]:fake port 5020 (will be rewritten to [$FAKE_VM1_IP @ $FAKE_MAC_SRC] -> [$VM2_IP @ $VF2_MAC]: port 5201)"
 
     ovs-ofctl del-flows brv-1
-    add_flow "ip,nw_src=$VM1_IP,nw_dst=$FAKE_VM2_IP,dl_src=$VF_MAC,dl_dst=$FAKE_MAC,tcp,tcp_dst=5020,actions=mod_nw_src=$FAKE_VM1_IP,mod_nw_dst=$VM2_IP,mod_dl_src=$FAKE_MAC_SRC,mod_dl_dst=$VF2_MAC,mod_tp_dst=5001,output:2"
-    add_flow "ip,nw_src=$VM2_IP,nw_dst=$FAKE_VM1_IP,dl_src=$VF2_MAC,dl_dst=$FAKE_MAC_SRC,tcp,tcp_src=5001,actions=mod_nw_src=$FAKE_VM2_IP,mod_nw_dst=$VM1_IP,mod_dl_src=$FAKE_MAC_SRC,mod_dl_dst=$VF_MAC,mod_tp_src=5020,output:1"
+    add_flow "ip,nw_src=$VM1_IP,nw_dst=$FAKE_VM2_IP,dl_src=$VF_MAC,dl_dst=$FAKE_MAC,tcp,tcp_dst=5020,actions=mod_nw_src=$FAKE_VM1_IP,mod_nw_dst=$VM2_IP,mod_dl_src=$FAKE_MAC_SRC,mod_dl_dst=$VF2_MAC,mod_tp_dst=5201,output:2"
+    add_flow "ip,nw_src=$VM2_IP,nw_dst=$FAKE_VM1_IP,dl_src=$VF2_MAC,dl_dst=$FAKE_MAC_SRC,tcp,tcp_src=5201,actions=mod_nw_src=$FAKE_VM2_IP,mod_nw_dst=$VM1_IP,mod_dl_src=$FAKE_MAC_SRC,mod_dl_dst=$VF_MAC,mod_tp_src=5020,output:1"
     add_flow "arp,actions=normal"
 
     ip n replace $FAKE_VM2_IP dev $VF lladdr $FAKE_MAC
