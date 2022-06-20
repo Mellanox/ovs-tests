@@ -13,98 +13,25 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
-IP=1.1.1.7
-REMOTE=1.1.1.8
-
-LOCAL_TUN=7.7.7.7
-REMOTE_IP=7.7.7.8
-GENEVE_ID=42
-
-function cleanup() {
-    local exec_on_remote=${1:-false}
-    local cmd="ip a flush dev $NIC; \
-               ip netns del ns0 &>/dev/null; \
-               "
-    local restart_cmd="ovs_clear_bridges; \
-                       stop_openvswitch; \
-                       service_ovs start; \
-                       "
-
-    if [ "$exec_on_remote" = true ]; then
-        title "Cleaning up remote"
-        on_remote ovs-vsctl clear open_vswitch . other_config
-        on_remote_dt "$cmd"
-        on_remote_dt "$restart_cmd"
-    else
-        title "Cleaning up local"
-        cleanup_e2e_cache
-        eval "$cmd"
-        start_clean_openvswitch
-    fi
-}
-
-function cleanup_exit() {
-    cleanup false
-    cleanup true
-}
-
-function config() {
-    local exec_on_remote=${1:=false}
-    local wanted_remote_ip=$2
-    local wanted_local_ip=$3
-    local vf_ip=$4
-    local cmd="config_sriov 2; \
-               require_interfaces REP NIC; \
-               unbind_vfs; \
-               bind_vfs; \
-               set_e2e_cache_enable false; \
-               start_clean_openvswitch; \
-               config_simple_bridge_with_rep 0; \
-               config_remote_bridge_tunnel $GENEVE_ID $wanted_remote_ip geneve; \
-               config_local_tunnel_ip $wanted_local_ip br-phy; \
-               config_ns ns0 $VF $vf_ip; \
-               ip netns exec ns0 ifconfig $VF mtu 1400
-               "
-
-    if [ "$exec_on_remote" = true ]; then
-        title "Configuring remote server"
-        on_remote_dt "$cmd"
-        on_remote_dt ovs_conf_set hw-offload false
-    else
-        title "Configuring local server"
-        cleanup false
-        eval "$cmd"
-    fi
-}
-
-function add_openflow_rules() {
-    ovs-ofctl del-flows br-int
-    ovs-ofctl add-flow br-int "arp,actions=NORMAL"
-    ovs-ofctl add-flow br-int "table=0,ip,ct_state=-trk,actions=ct(zone=5, table=1)"
-    ovs-ofctl add-flow br-int "table=1,ip,ct_state=+trk+new,actions=ct(zone=5, commit),NORMAL"
-    ovs-ofctl add-flow br-int "table=1,ip,ct_state=+trk+est,ct_zone=5,actions=normal"
-    debug "\nOVS flow rules:"
-    ovs-ofctl dump-flows br-int --color
-}
+cleanup_test
+remote_ovs_cleanup
 
 function run() {
-    config false $REMOTE_IP $LOCAL_TUN $IP
-    config true $LOCAL_TUN $REMOTE_IP $REMOTE
-    add_openflow_rules
+    config_2_side_tunnel geneve
+    ovs_add_ct_rules
 
     debug "Testing ping"
-    verify_ping $REMOTE ns0
+    verify_ping
 
-    debug "\nTesting TCP traffic"
-    generate_traffic "remote" $IP ns0
+    debug "Testing TCP traffic"
+    generate_traffic "remote" $LOCAL_IP ns0
 
     # check offloads
-    check_dpdk_offloads $IP
+    check_dpdk_offloads $LOCAL_IP
     check_offloaded_connections 5
-    debug "wait for bgs"
-    wait
 }
 
 run
-cleanup_exit
+cleanup_test
+remote_ovs_cleanup
 test_done
