@@ -29,7 +29,6 @@ generate_traffic "remote" $LOCAL_IP ns0
 
 # check offloads
 check_dpdk_offloads $LOCAL_IP
-check_offloaded_connections 5
 
 
 cleanup_test

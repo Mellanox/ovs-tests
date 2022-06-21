@@ -35,7 +35,6 @@ generate_traffic "remote" $LOCAL_IP
 
 # check offloads
 check_dpdk_offloads $LOCAL_IP
-check_offloaded_connections 5
 
 start_clean_openvswitch
 test_done

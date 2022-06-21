@@ -306,6 +306,7 @@ function generate_traffic() {
     local remote=$1
     local my_ip=$2
     local namespace=$3
+    local num_connections=5
 
     local server_dst_execution="ip netns exec ns0"
     local client_dst_execution="ip netns exec $namespace"
@@ -333,7 +334,7 @@ function generate_traffic() {
 
     # client
     rm -rf $p_client
-    local cmd="iperf3 -f Mbits -c $my_ip -t $t -P 5 &> $p_client"
+    local cmd="iperf3 -f Mbits -c $my_ip -t $t -P $num_connections &> $p_client"
     if [ -n "$namespace" ]; then
         cmd="${client_dst_execution} $cmd"
     fi
@@ -360,6 +361,9 @@ function generate_traffic() {
         verify_iperf_running $remote
     fi
 
+    if echo $TESTNAME | grep -q -- "-ct-" ; then
+        check_offloaded_connections $num_connections
+    fi
     sleep $((t+1))
 
     if [ "${VDPA}" == "1" ]; then

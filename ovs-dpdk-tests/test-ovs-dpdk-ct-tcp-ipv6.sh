@@ -41,7 +41,6 @@ function run() {
     title "Sending traffic"
     generate_traffic "local" $IP ns1
     check_dpdk_offloads $IP2
-    check_offloaded_connections 5
 }
 
 run

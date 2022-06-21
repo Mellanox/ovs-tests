@@ -26,7 +26,6 @@ function run() {
 
     # check offloads
     check_dpdk_offloads $LOCAL_IP
-    check_offloaded_connections 5
 }
 
 run

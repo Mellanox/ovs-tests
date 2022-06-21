@@ -59,7 +59,6 @@ function run() {
 
     # check offloads
     check_dpdk_offloads $IP
-    check_offloaded_connections 5
 }
 
 run

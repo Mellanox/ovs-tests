@@ -65,7 +65,6 @@ function run() {
 
     generate_traffic "remote" $LOCAL_IP
     check_dpdk_offloads $LOCAL_IP
-    check_offloaded_connections 5
 }
 
 run

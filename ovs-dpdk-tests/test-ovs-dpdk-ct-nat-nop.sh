@@ -32,7 +32,6 @@ function run() {
     generate_traffic "local" $LOCAL_IP ns1
     # check offloads
     check_dpdk_offloads $LOCAL_IP
-    check_offloaded_connections 5
 }
 
 run
