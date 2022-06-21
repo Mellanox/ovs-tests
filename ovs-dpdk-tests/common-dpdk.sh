@@ -9,13 +9,6 @@ function require_dpdk() {
     fi
 }
 
-function setup_vdpa_vm_keys() {
-    local vm_ip=${1:-$NESTED_VM_IP1}
-    if [ "${VDPA}" == "1" ]; then
-        sshpass -p 3tango ssh-copy-id -f -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $vm_ip &> /dev/null
-    fi
-}
-
 require_dpdk
 
 function configure_dpdk_rep_ports() {
@@ -89,7 +82,6 @@ function start_vdpa_vm() {
                 fi
                 success "VM $vm_name started"
                 sleep 2
-                setup_vdpa_vm_keys $vm_ip
                 return
             fi
             sleep 2
