@@ -53,7 +53,7 @@ function run() {
     config_remote
     add_openflow_rules
 
-    debug "\nTesting UDP traffic"
+    debug "Testing UDP traffic"
     t=5
     # traffic
     ip netns exec ns0 timeout -k 1 $((t+2)) iperf -s &
