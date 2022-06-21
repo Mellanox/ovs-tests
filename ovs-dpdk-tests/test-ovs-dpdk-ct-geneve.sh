@@ -11,13 +11,6 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
-IP=1.1.1.7
-REMOTE=1.1.1.8
-
-LOCAL_TUN=7.7.7.7
-REMOTE_IP=7.7.7.8
-GENEVE_ID=42
-
 config_sriov 2
 require_interfaces REP NIC
 unbind_vfs
@@ -32,15 +25,15 @@ function config() {
     start_clean_openvswitch
 
     config_tunnel "geneve"
-    config_local_tunnel_ip $LOCAL_TUN br-phy
+    config_local_tunnel_ip $LOCAL_TUN_IP br-phy
 }
 
 function config_remote() {
     on_remote ip link del $TUNNEL_DEV &>/dev/null
-    on_remote ip link add $TUNNEL_DEV type geneve id $GENEVE_ID remote $LOCAL_TUN dstport 6081
+    on_remote ip link add $TUNNEL_DEV type geneve id $TUNNEL_ID remote $LOCAL_TUN_IP dstport 6081
     on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
-    on_remote ip a add $REMOTE/24 dev $TUNNEL_DEV
+    on_remote ip a add $REMOTE_TUNNEL_IP/24 dev $REMOTE_NIC
+    on_remote ip a add $REMOTE_IP/24 dev $TUNNEL_DEV
     on_remote ip l set dev $TUNNEL_DEV up
     on_remote ip l set dev $REMOTE_NIC up
 }
@@ -60,12 +53,12 @@ function run() {
     config_remote
     add_openflow_rules
 
-    verify_ping $REMOTE ns0
+    verify_ping $REMOTE_IP ns0
 
-    generate_traffic "remote" $IP
+    generate_traffic "remote" $LOCAL_IP
 
     # check offloads
-    check_dpdk_offloads $IP
+    check_dpdk_offloads $LOCAL_IP
     check_offloaded_connections 5
 }
 

@@ -12,8 +12,6 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
-IP2=1.1.1.15
-
 DUMMY_IP=8.8.8.8
 MIRROR_IP=8.8.8.7
 
@@ -36,7 +34,7 @@ start_clean_openvswitch
 config_tunnel vxlan 2
 start_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
 add_remote_mirror gre br-int 150 $DUMMY_IP $MIRROR_IP
-config_ns ns1 $VF2 $IP2
+config_ns ns1 $VF2 $REMOTE_IP
 
 
 function config_remote() {

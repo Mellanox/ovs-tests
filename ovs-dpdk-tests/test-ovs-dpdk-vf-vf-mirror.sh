@@ -11,9 +11,7 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
-IP=1.1.1.7
 IP2=1.1.1.15
-REMOTE=1.1.1.8
 
 config_sriov 2
 enable_switchdev
@@ -33,13 +31,13 @@ function config() {
     add_local_mirror mirror 1 br-phy
     start_vdpa_vm
     start_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
-    config_ns ns0 $VF $IP
+    config_ns ns0 $VF $LOCAL_IP
     config_ns ns1 $VF2 $IP2
 }
 
 function config_remote() {
     on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip a add $REMOTE/24 dev $REMOTE_NIC
+    on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
     on_remote ip l set dev $REMOTE_NIC up
 }
 
@@ -48,12 +46,12 @@ function run() {
     config_remote
 
     t=5
-    verify_ping $REMOTE ns0
+    verify_ping $REMOTE_IP ns0
 
-    generate_traffic "remote" $IP
+    generate_traffic "remote" $LOCAL_IP
 
     # check offloads
-    check_dpdk_offloads $IP
+    check_dpdk_offloads $LOCAL_IP
 }
 
 run

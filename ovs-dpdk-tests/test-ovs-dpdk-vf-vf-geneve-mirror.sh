@@ -12,11 +12,6 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
-IP=1.1.1.7
-IP2=1.1.1.15
-
-REMOTE_IP=7.7.7.8
-VXLAN_ID=42
 DUMMY_IP=8.8.8.8
 MIRROR_IP=8.8.8.7
 
@@ -35,12 +30,12 @@ function config() {
     start_clean_openvswitch
 
     config_simple_bridge_with_rep 0
-    config_remote_bridge_tunnel $VXLAN_ID $REMOTE_IP vxlan 2
+    config_remote_bridge_tunnel $TUNNEL_ID $REMOTE_TUNNEL_IP vxlan 2
     add_remote_mirror geneve br-int 150 $DUMMY_IP $MIRROR_IP
     start_vdpa_vm
     start_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
-    config_ns ns0 $VF $IP
-    config_ns ns1 $VF2 $IP2
+    config_ns ns0 $VF $LOCAL_IP
+    config_ns ns1 $VF2 $REMOTE_IP
 }
 
 function config_remote() {
@@ -54,12 +49,12 @@ function run() {
     config_remote
 
     t=5
-    verify_ping $IP ns1
+    verify_ping $LOCAL_IP ns1
 
-    generate_traffic "local" $IP ns1
+    generate_traffic "local" $LOCAL_IP ns1
 
     # check offloads
-    check_dpdk_offloads $IP
+    check_dpdk_offloads $LOCAL_IP
 }
 
 run

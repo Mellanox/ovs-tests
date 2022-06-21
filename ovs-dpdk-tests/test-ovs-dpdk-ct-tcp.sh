@@ -11,15 +11,11 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
-IP=1.1.1.7
-REMOTE=1.1.1.8
-
 config_sriov 2
 enable_switchdev
 require_interfaces REP NIC
 unbind_vfs
 bind_vfs
-
 
 trap cleanup_test EXIT
 
@@ -31,12 +27,12 @@ function config() {
 
     config_simple_bridge_with_rep 1
     start_vdpa_vm
-    config_ns ns0 $VF $IP
+    config_ns ns0 $VF $LOCAL_IP
 }
 
 function config_remote() {
     on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip a add $REMOTE/24 dev $REMOTE_NIC
+    on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
     on_remote ip l set dev $REMOTE_NIC up
 }
 
@@ -55,10 +51,10 @@ function run() {
     config_remote
     add_openflow_rules
 
-    generate_traffic "remote" $IP
+    generate_traffic "remote" $LOCAL_IP
 
     # check offloads
-    check_dpdk_offloads $IP
+    check_dpdk_offloads $LOCAL_IP
     check_offloaded_connections 5
 }
 
