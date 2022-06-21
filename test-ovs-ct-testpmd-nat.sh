@@ -112,7 +112,7 @@ function run() {
     echo "add zone 12 rule for priming offload callbacks"
     tc_filter add dev $REP prio 1337 proto ip chain 1337 ingress flower \
         skip_sw ct_state -trk action ct zone 12 pipe \
-        ation mirred egress redirect dev $REP2
+        action mirred egress redirect dev $REP2
 
     echo "sleep 3 sec, fg now"
     sleep 3
