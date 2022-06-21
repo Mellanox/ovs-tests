@@ -1,3 +1,6 @@
+LOCAL_IP=1.1.1.7
+REMOTE_IP=1.1.1.8
+
 p_server=/tmp/perf_server
 p_client=/tmp/perf_client
 p_ping=/tmp/ping_out
