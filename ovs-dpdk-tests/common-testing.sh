@@ -303,13 +303,17 @@ function verify_iperf_running()
 }
 
 function generate_traffic() {
-    local remote=${1:-"local"}
-    local my_ip=${2:-$LOCAL_IP}
+    local remote=$1
+    local my_ip=$2
     local namespace=$3
 
     local server_dst_execution="ip netns exec ns0"
     local client_dst_execution="ip netns exec $namespace"
 
+    if [ -z "$remote" ] || [ -z "$my_ip" ]; then
+        fail "Missing arguments for generate_traffic()"
+        return 1
+    fi
     if [ "${VDPA}" == "1" ]; then
         server_dst_execution="on_vm $NESTED_VM_IP1"
         on_vm $NESTED_VM_IP1 rm -rf $p_server

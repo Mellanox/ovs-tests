@@ -31,7 +31,7 @@ config_remote_tunnel gre
 start_vdpa_vm
 
 verify_ping
-generate_traffic "remote"
+generate_traffic "remote" $LOCAL_IP
 
 # check offloads
 check_dpdk_offloads $LOCAL_IP

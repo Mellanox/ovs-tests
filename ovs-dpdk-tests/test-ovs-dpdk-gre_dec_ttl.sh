@@ -30,7 +30,7 @@ config_local_tunnel_ip $LOCAL_TUN_IP br-phy
 config_remote_tunnel gre
 ovs-ofctl add-flow br-int ip,actions=dec_ttl,normal
 verify_ping
-generate_traffic "remote"
+generate_traffic "remote" $LOCAL_IP
 
 # check offloads
 check_dpdk_offloads $LOCAL_IP

@@ -40,7 +40,7 @@ on_remote ip a add $DUMMY_IP/24 dev $REMOTE_NIC
 
 verify_ping
 
-generate_traffic "remote"
+generate_traffic "remote" $LOCAL_IP
 
 # check offloads
 check_dpdk_offloads $LOCAL_IP

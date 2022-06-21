@@ -55,7 +55,7 @@ function run() {
     config_remote
     add_openflow_rules
 
-    generate_traffic "remote"
+    generate_traffic "remote" $LOCAL_IP
 
     # check offloads
     check_dpdk_offloads $LOCAL_IP

@@ -63,7 +63,7 @@ function run() {
     # icmp
     verify_ping $REMOTE_IP ns0
 
-    generate_traffic "remote"
+    generate_traffic "remote" $LOCAL_IP
     check_dpdk_offloads $LOCAL_IP
     check_offloaded_connections 5
 }
