@@ -406,6 +406,9 @@ def run_test(test, html=False):
         # timeout introduced in python3.3
         out, _ = subp.communicate()
 
+    if not out:
+        raise ExecCmdFailed("Empty result")
+
     log = out.decode('ascii', 'ignore')
     if not log:
         raise ExecCmdFailed("Empty output")
