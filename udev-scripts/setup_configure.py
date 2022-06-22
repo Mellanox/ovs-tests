@@ -606,16 +606,18 @@ class SetupConfigure(object):
 
         conf += '\nREMOTE_SERVER=%s' % self.get_cloud_player_ip()
 
-        if self.args.vdpa:
+        if os.path.exists(NESTED_VM_DATA):
             vm1 = self.get_cloud_player_vm(1)
             vm2 = self.get_cloud_player_vm(2)
             conf += '\nNESTED_VM_IP1=%s' % vm1['ip']
             conf += '\nNESTED_VM_IP2=%s' % vm2['ip']
             conf += '\nNESTED_VM_NAME1=%s' % vm1['domain_name']
             conf += '\nNESTED_VM_NAME2=%s' % vm2['domain_name']
-            conf += '\nVDPA=1'
-            self.vdpa_vm_init(1, vm1['domain_name'])
-            self.vdpa_vm_init(2, vm2['domain_name'])
+
+            if self.args.vdpa:
+                conf += '\nVDPA=1'
+                self.vdpa_vm_init(1, vm1['domain_name'])
+                self.vdpa_vm_init(2, vm2['domain_name'])
 
         if self.flow_steering_mode:
             conf += '\nSTEERING_MODE=%s' % self.flow_steering_mode
