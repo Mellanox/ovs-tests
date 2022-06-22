@@ -452,17 +452,6 @@ class SetupConfigure(object):
             self.Logger.error('Failed to read %s' % path)
             raise RuntimeError('Failed to read %s ' % path)
 
-    def get_cloud_player_vm_name(self, vm_num):
-        data = self.get_nested_vm_data()
-        i = 1
-        for vm in data:
-            if vm['parent_ip'] == self.host.name:
-                if i == vm_num:
-                    return vm['domain_name']
-                else:
-                    i += 1
-        return None
-
     def findTagIndex(self, tree, tag):
         i = 0
         for child in tree.iter():
@@ -482,8 +471,7 @@ class SetupConfigure(object):
                 return count - 1
         return -1
 
-    def vdpa_vm_init(self, vm_num):
-        vm_name = self.get_cloud_player_vm_name(vm_num)
+    def vdpa_vm_init(self, vm_num, vm_name):
         nic1 = self.host.PNics[0]
         orig_xml_file="/tmp/vdpa_vm%s_orig.xml" % vm_num
         runcmd2("sed -i '/OVS_USER_ID=\"openvswitch:hugetlbfs\"/c\OVS_USER_ID=\"root:root\"' /etc/sysconfig/openvswitch")
@@ -534,15 +522,14 @@ class SetupConfigure(object):
         self.Logger.info("Initialized VM %s XML under %s", vm_name, xml_file)
         return
 
-    def get_cloud_player_vm_ip(self, vm_num):
+    def get_cloud_player_vm(self, vm_num):
         data = self.get_nested_vm_data()
         i = 1
         for vm in data:
             if vm['parent_ip'] == self.host.name:
                 if i == vm_num:
-                    return vm['ip']
-                else:
-                    i += 1
+                    return vm
+                i += 1
         return None
 
     def get_cloud_player_ip(self):
@@ -620,13 +607,15 @@ class SetupConfigure(object):
         conf += '\nREMOTE_SERVER=%s' % self.get_cloud_player_ip()
 
         if self.args.vdpa:
-            conf += '\nNESTED_VM_IP1=%s' % self.get_cloud_player_vm_ip(1)
-            conf += '\nNESTED_VM_IP2=%s' % self.get_cloud_player_vm_ip(2)
-            conf += '\nNESTED_VM_NAME1=%s' % self.get_cloud_player_vm_name(1)
-            conf += '\nNESTED_VM_NAME2=%s' % self.get_cloud_player_vm_name(2)
+            vm1 = self.get_cloud_player_vm(1)
+            vm2 = self.get_cloud_player_vm(2)
+            conf += '\nNESTED_VM_IP1=%s' % vm1['ip']
+            conf += '\nNESTED_VM_IP2=%s' % vm2['ip']
+            conf += '\nNESTED_VM_NAME1=%s' % vm1['domain_name']
+            conf += '\nNESTED_VM_NAME2=%s' % vm2['domain_name']
             conf += '\nVDPA=1'
-            self.vdpa_vm_init(1)
-            self.vdpa_vm_init(2)
+            self.vdpa_vm_init(1, vm1['domain_name'])
+            self.vdpa_vm_init(2, vm2['domain_name'])
 
         if self.flow_steering_mode:
             conf += '\nSTEERING_MODE=%s' % self.flow_steering_mode
