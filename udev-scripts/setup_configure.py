@@ -16,6 +16,8 @@ from subprocess import check_call
 from subprocess import check_output
 from subprocess import CalledProcessError
 
+NESTED_VM_DATA="/workspace/nested_data.json"
+
 
 def runcmd(cmd):
     return check_call(cmd, shell=True)
@@ -31,8 +33,6 @@ def runcmd2(cmd):
 def runcmd_output(cmd):
     return check_output(cmd, shell=True).decode()
 
-def get_vm_details_path():
-    return '/workspace/nested_data.json'
 
 def start_kmemleak():
     """Make sure kmemleak thread is running if supported. ignore errors."""
@@ -444,21 +444,24 @@ class SetupConfigure(object):
         # might need a second to let udev rename
         sleep(1)
 
-    def get_cloud_player_vm_name(self, vm_num):
-        path = get_vm_details_path()
-        i = 1
+    def get_nested_vm_data(self):
         try:
-            with open(path) as json_file:
-                data = json.load(json_file)
-                for vm in data:
-                    if vm['parent_ip'] == self.host.name:
-                        if i == vm_num:
-                            return vm['domain_name']
-                        else:
-                            i += 1
+            with open(NESTED_VM_DATA) as json_file:
+                return json.load(json_file)
         except IOError:
             self.Logger.error('Failed to read %s' % path)
             raise RuntimeError('Failed to read %s ' % path)
+
+    def get_cloud_player_vm_name(self, vm_num):
+        data = self.get_nested_vm_data()
+        i = 1
+        for vm in data:
+            if vm['parent_ip'] == self.host.name:
+                if i == vm_num:
+                    return vm['domain_name']
+                else:
+                    i += 1
+        return None
 
     def findTagIndex(self, tree, tag):
         i = 0
@@ -532,21 +535,15 @@ class SetupConfigure(object):
         return
 
     def get_cloud_player_vm_ip(self, vm_num):
-        path = get_vm_details_path()
+        data = self.get_nested_vm_data()
         i = 1
-        try:
-            with open(path) as json_file:
-                data = json.load(json_file)
-                for vm in data:
-                    if vm['parent_ip'] == self.host.name:
-                        if i == vm_num:
-                            return vm['ip']
-                        else:
-                            i += 1
-
-        except IOError:
-            self.Logger.error('Failed to read %s' % path)
-            raise RuntimeError('Failed to read %s ' % path)
+        for vm in data:
+            if vm['parent_ip'] == self.host.name:
+                if i == vm_num:
+                    return vm['ip']
+                else:
+                    i += 1
+        return None
 
     def get_cloud_player_ip(self):
         cloud_player_1_ip = ''
