@@ -495,7 +495,6 @@ class SetupConfigure(object):
         runcmd_output("virsh dumpxml %s > %s" % (vm_name, xml_file))
         runcmd_output("cp %s %s" % (xml_file, orig_xml_file,))
         runcmd2("virsh destroy %s &> /dev/null" % vm_name)
-        runcmd_output("virsh undefine %s &> /dev/null" % vm_name)
 
         tree = ET.parse(xml_file)
         root = tree.getroot()
