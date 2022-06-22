@@ -2067,10 +2067,13 @@ function set_lag_port_select_mode() {
 function __common_main() {
     if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
         echo "To run a test export a config and run the test script as so:"
+        echo
         echo "export CONFIG=/path/to/config.sh"
         echo "$TESTDIR/$TESTNAME"
         echo
-        echo "To do kmemleak scan per test export KMEMLEAK_SCAN_PER_TEST=1"
+        echo "Available exports:"
+        echo
+        echo "KMEMLEAK_SCAN_PER_TEST=1      - Do kmemleak scan per test."
         exit 0
     fi
     if [ "X${NO_TITLE}" == "X" ]; then
