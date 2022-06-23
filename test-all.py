@@ -333,6 +333,8 @@ def parse_args():
                         help='Loop the tests. stop if loop fails.')
     parser.add_argument('--run-skipped', action='store_true',
                         help='Run tests that are skipped by open issue.')
+    parser.add_argument('--rerun-failed', action='store_true',
+                        help='Rerun failed test.')
 
     return parser.parse_args()
 
@@ -1182,16 +1184,67 @@ def pre_quick_status_updates():
         test.status = format_result(res, reason, html=True)
 
 
+def __run_test(test):
+    failed = False
+    res = ''
+    reason = ''
+    logname = ''
+    total_seconds = 0.0
+
+    __col1 = test.name.ljust(COL_TEST_NAME, ' ')
+    print(deco(__col1, 'cyan'), end=' ')
+    if args.loops > 1:
+        print("%-5s" % str(test.iteration+1), end=' ')
+    sys.stdout.flush()
+
+    if not test.exists():
+        failed = True
+        test.set_failed()
+        res = 'FAILED'
+        reason = 'Cannot find test'
+    elif test.ignore:
+        res = 'IGNORED'
+        reason = test.reason
+    elif test.skip:
+        res = 'SKIP'
+        reason = test.reason
+    elif args.dry:
+        res = 'DRY'
+    else:
+        start_time = datetime.now()
+        logname = os.path.join(LOGDIR, test.test_log)
+        try:
+            reason = test.run(args.html)
+            res = 'TEST PASSED'
+            test.set_passed()
+        except ExecCmdFailed as e:
+            failed = True
+            test.set_failed()
+            res = 'FAILED'
+            reason = str(e)
+        end_time = datetime.now()
+        total_seconds = float("%.2f" % (end_time - start_time).total_seconds())
+
+    test.run_time = total_seconds
+    total_seconds = "%-7s" % total_seconds
+    print("%s " % total_seconds, end=' ')
+
+    if (test.name in MINI_REG_LIST) and (test.skip or test.ignore or test.failed):
+        res = "%s SHOW STOPPER" % res
+    test.status = format_result(res, reason, html=True)
+    print("%s %s" % (format_result(res, reason), logname))
+
+    return failed
+
+
 def run_tests(iteration):
     ignore = args.from_test is not None
     failed = False
 
     pre_quick_status_updates()
-    __col_test_name = COL_TEST_NAME
-    __col_test_name_title = __col_test_name
 
     if iteration == 0:
-        __col1 = "Test".ljust(__col_test_name_title, ' ')
+        __col1 = "Test".ljust(COL_TEST_NAME, ' ')
         if args.loops > 1:
             print("%s %-5s %-8s %s" % (__col1, "Iter", "Time", "Status"))
         else:
@@ -1204,9 +1257,8 @@ def run_tests(iteration):
         if test.iteration > 0:
             continue
 
-        name = test.name
         if ignore:
-            if args.from_test != name:
+            if args.from_test != test.name:
                 continue
             ignore = False
 
@@ -1217,60 +1269,22 @@ def run_tests(iteration):
             test.set_logs(iteration)
             iter_tests.append(test)
 
-        __col1 = name.ljust(__col_test_name, ' ')
-        print(deco(__col1, 'cyan'), end=' ')
-        if args.loops > 1:
-            print("%-5s" % str(iteration+1), end=' ')
-        sys.stdout.flush()
-
-        test.status = 'UNKNOWN'
-
         # Pre update summary report before running next test.
         # In case we crash we still might want the report.
+        test.status = 'UNKNOWN'
         if args.html and not args.dry:
             save_summary_html()
 
-        res = ''
-        reason = ''
-        logname = ''
-        total_seconds = 0.0
+        test_failed = __run_test(test)
+        failed = failed or test_failed
 
-        if not test.exists():
-            failed = True
-            test.set_failed()
-            res = 'FAILED'
-            reason = 'Cannot find test'
-        elif test.ignore:
-            res = 'IGNORED'
-            reason = test.reason
-        elif test.skip:
-            res = 'SKIP'
-            reason = test.reason
-        elif args.dry:
-            res = 'DRY'
-        else:
-            start_time = datetime.now()
-            logname = os.path.join(LOGDIR, test.test_log)
-            try:
-                reason = test.run(args.html)
-                res = 'TEST PASSED'
-                test.set_passed()
-            except ExecCmdFailed as e:
-                failed = True
-                test.set_failed()
-                res = 'FAILED'
-                reason = str(e)
-            end_time = datetime.now()
-            total_seconds = float("%.2f" % (end_time - start_time).total_seconds())
-
-        test.run_time = total_seconds
-        total_seconds = "%-7s" % total_seconds
-        print("%s " % total_seconds, end=' ')
-
-        if (test.name in MINI_REG_LIST) and (test.skip or test.ignore or test.failed):
-            res = "%s SHOW STOPPER" % res
-        test.status = format_result(res, reason, html=True)
-        print("%s %s" % (format_result(res, reason), logname))
+        if test_failed and args.rerun_failed:
+            test = copy(test)
+            test.iteration = 1
+            test.set_logs(test.iteration)
+            test.status = 'UNKNOWN'
+            iter_tests.append(test)
+            __run_test(test)
 
         if args.stop and failed:
             return 1
