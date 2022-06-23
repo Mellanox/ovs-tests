@@ -1221,10 +1221,17 @@ def __run_test(test):
     logname = ''
     total_seconds = 0.0
 
-    __col1 = test.name.ljust(COL_TEST_NAME, ' ')
+    name = test.name
+    if args.loops == 1 and test.iteration > 0:
+        # rerun
+        name += RERUN_TAG
+
+    __col1 = name.ljust(COL_TEST_NAME, ' ')
     print(deco(__col1, 'cyan'), end=' ')
+
     if args.loops > 1:
         print("%-5s" % str(test.iteration+1), end=' ')
+
     sys.stdout.flush()
 
     if not test.exists():
@@ -1327,13 +1334,16 @@ def run_tests(iteration):
     return failed
 
 
+RERUN_TAG = "*rerun"
+
 def calc_test_col_len():
     global COL_TEST_NAME
+    rerun_tag_len = len(RERUN_TAG)
     ln = 1
     for t in TESTS:
         if len(t.name) > ln:
-            ln = len(t.name)
-    ln+=2
+            ln = len(t.name) + rerun_tag_len
+    ln += 2
     COL_TEST_NAME = ln
     return ln
 
