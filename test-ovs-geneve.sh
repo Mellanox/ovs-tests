@@ -82,7 +82,6 @@ function initial_traffic() {
     # (i.e. restoring reg_0 correctly)
     ip netns exec ns0 iperf3 -s -D
     on_remote timeout -k1 3 iperf3 -c $IP -t 2
-    killall -9 iperf3
 }
 
 function run() {
@@ -99,8 +98,7 @@ function run() {
 
     initial_traffic
 
-    # traffic
-    ip netns exec ns0 iperf3 -s -D
+    title "Run traffic"
     on_remote timeout -k1 15 iperf3 -c $IP -t 12 -P3 &
     pid2=$!
 
