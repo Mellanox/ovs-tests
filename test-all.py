@@ -53,6 +53,22 @@ HTML_CSS = """
     </style>
 """
 
+RERUN_HTML = """
+        <h2>Rerun Results</h2>
+        <table id="rerun_table" class="asap_table">
+            <thead>
+                 <tr>
+                    <th>Test</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                 </tr>
+            </thead>
+            <tbody>
+                {rerun_results}
+            </tbody>
+        </table>
+"""
+
 HTML = """<!DOCTYPE html>
 <html>
     <head>
@@ -90,19 +106,7 @@ HTML = """<!DOCTYPE html>
                 {results}
             </tbody>
         </table>
-        <h2>Rerun Results</h2>
-        <table id="rerun_table" class="asap_table">
-            <thead>
-                 <tr>
-                    <th>Test</th>
-                    <th>Time</th>
-                    <th>Status</th>
-                 </tr>
-            </thead>
-            <tbody>
-                {rerun_results}
-            </tbody>
-        </table>
+        {rerun}
     </body>
 </html>
 """
@@ -928,10 +932,14 @@ def save_summary_html():
 
     results = prep_html_results(TESTS)
     rerun_results = prep_html_results(RERUN_TESTS)
+    if rerun_results:
+        rerun = RERUN_HTML.format(rerun_results=rerun_results)
+    else:
+        rerun = ""
 
     summary_file = "%s/summary.html" % LOGDIR
     with open(summary_file, 'w') as f:
-        f.write(HTML.format(style=HTML_CSS, summary=summary, results=results, rerun_results=rerun_results))
+        f.write(HTML.format(style=HTML_CSS, summary=summary, results=results, rerun=rerun))
     return summary_file
 
 
