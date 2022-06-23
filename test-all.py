@@ -60,6 +60,7 @@ HTML = """<!DOCTYPE html>
         {style}
     </head>
     <body>
+        <h2>Summary</h2>
         <table id="summary_table" class="asap_table">
             <thead>
                 <tr>
@@ -76,7 +77,7 @@ HTML = """<!DOCTYPE html>
                 {summary}
             </tbody>
         </table>
-        <br>
+        <h2>Tests Results</h2>
         <table id="results_table" class="asap_table">
             <thead>
                  <tr>
@@ -89,6 +90,19 @@ HTML = """<!DOCTYPE html>
                 {results}
             </tbody>
         </table>
+        <h2>Rerun Results</h2>
+        <table id="rerun_table" class="asap_table">
+            <thead>
+                 <tr>
+                    <th>Test</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                 </tr>
+            </thead>
+            <tbody>
+                {rerun_results}
+            </tbody>
+        </table>
     </body>
 </html>
 """
@@ -97,6 +111,7 @@ MYNAME = os.path.basename(__file__)
 MYDIR = os.path.abspath(os.path.dirname(__file__))
 LOGDIR = ''
 TESTS = []
+RERUN_TESTS = []
 WONT_FIX = {}
 COLOURS = {
     "black": 30,
@@ -861,7 +876,7 @@ def ignore_excluded(exclude):
                 t.set_ignore('excluded')
 
 
-def get_results():
+def get_summary():
     number_of_tests = len(TESTS)
     passed_tests = sum(map(lambda test: test.passed, TESTS))
     failed_tests = sum(map(lambda test: test.failed, TESTS))
@@ -886,15 +901,9 @@ def get_results():
             }
 
 
-def save_summary_html():
-    if not LOGDIR:
-        return
-
-    results = get_results()
-    summary = SUMMARY_ROW.format(**results)
-
+def prep_html_results(tests):
     test_results = ''
-    for t in TESTS:
+    for t in tests:
         status = t.status
         if status in ('UNKNOWN', "DIDN'T RUN"):
             status = format_result(status, '', html=True)
@@ -907,9 +916,22 @@ def save_summary_html():
 
         test_results += RESULT_ROW.format(test=t.name, run_time=t.run_time, status=status)
 
+    return test_results
+
+
+def save_summary_html():
+    if not LOGDIR:
+        return
+
+    tmp = get_summary()
+    summary = SUMMARY_ROW.format(**tmp)
+
+    results = prep_html_results(TESTS)
+    rerun_results = prep_html_results(RERUN_TESTS)
+
     summary_file = "%s/summary.html" % LOGDIR
     with open(summary_file, 'w') as f:
-        f.write(HTML.format(style=HTML_CSS, summary=summary, results=test_results))
+        f.write(HTML.format(style=HTML_CSS, summary=summary, results=results, rerun_results=rerun_results))
     return summary_file
 
 
@@ -1251,6 +1273,7 @@ def run_tests(iteration):
             print("%s %-8s %s" % (__col1, "Time", "Status"))
 
     iter_tests = []
+    rerun_tests = []
 
     for test in TESTS:
         # skip copied tests
@@ -1283,7 +1306,7 @@ def run_tests(iteration):
             test.iteration = 1
             test.set_logs(test.iteration)
             test.status = 'UNKNOWN'
-            iter_tests.append(test)
+            rerun_tests.append(test)
             __run_test(test)
 
         if args.stop and failed:
@@ -1291,6 +1314,7 @@ def run_tests(iteration):
     # end test loop
 
     TESTS.extend(iter_tests)
+    RERUN_TESTS.extend(rerun_tests)
 
     return failed
 
