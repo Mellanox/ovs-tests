@@ -1401,8 +1401,12 @@ def signal_handler(signum, frame):
     sys.exit(signum)
 
 
-def get_total_runtime():
-    return float("%.2f" % (datetime.now() - test_all_start_time).total_seconds())
+def get_total_runtime(with_reruns=False):
+    all_time = (datetime.now() - test_all_start_time).total_seconds()
+    if not with_reruns:
+        all_time -= sum(t.run_time for t in RERUN_TESTS)
+
+    return float("%.2f" % all_time)
 
 
 def get_distro():
