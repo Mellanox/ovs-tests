@@ -19,10 +19,10 @@ my_dir="$(dirname "$0")"
 # It is eth1 on Host 1 in the diagram of
 #   http://docs.openvswitch.org/en/latest/_images/sflow.png
 #
-SFLOW_AGENT=${SFLOW_AGENT:-$1}
+SFLOW_AGENT=lo
 
 # IP address of eth0 on Monitoring Host
-SFLOW_TARGET=${REMOTE_SERVER:-$2}
+SFLOW_TARGET=127.0.0.1
 
 # default port number
 SFLOW_PORT=6343
@@ -37,10 +37,8 @@ LOCAL_TUN=7.7.7.7
 REMOTE_IP=7.7.7.8
 VXLAN_ID=42
 
-require_remote_server
-
-on_remote which sflowtool || fail "sflowtool missing on remote host $REMOTE_SERVER"
-on_remote pkill sflowtool
+which sflowtool || fail "sflowtool is missing"
+pkill sflowtool
 
 config_sriov 2
 enable_switchdev
@@ -106,8 +104,7 @@ function run() {
     local t=10
     interval=$1
 
-    ssh2 $SFLOW_TARGET timeout $((t+2)) sflowtool -p $SFLOW_PORT \
-        -L localtime,srcIP,dstIP > $file&
+    timeout $((t+2)) sflowtool -p $SFLOW_PORT -L localtime,srcIP,dstIP > $file&
     sleep 1
 
     title "Ping for $t seconds"
