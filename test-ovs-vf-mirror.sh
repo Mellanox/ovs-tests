@@ -16,15 +16,11 @@ unbind_vfs
 bind_vfs
 VF3=`get_vf 2`
 require_interfaces REP REP2 REP3 VF VF2 VF3
-reset_tc $REP
-reset_tc $REP2
 
 function cleanup() {
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
-    reset_tc $REP
-    reset_tc $REP2
-    reset_tc $REP3
+    reset_tc $REP $REP2 $REP3
     config_sriov 2
     enable_switchdev
 }
@@ -82,4 +78,6 @@ function run() {
 
 
 run
+trap - EXIT
+cleanup
 test_done
