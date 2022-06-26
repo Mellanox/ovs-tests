@@ -17,7 +17,6 @@ MAC="e4:11:22:11:4a:51"
 function cleanup() {
     title "Cleanup"
     ip netns del ns0 &> /dev/null
-    ovs_clear_bridges
     set_port_state_up &>/dev/null
     set_lag_port_select_mode "queue_affinity"
     config_sriov 2
@@ -147,6 +146,7 @@ function run_traffic() {
     title "Verify traffic offload on $REP"
     verify_no_traffic $pid_offload
 
+    ovs_clear_bridges
     set_port_state_up
 }
 
