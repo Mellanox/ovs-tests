@@ -68,9 +68,9 @@ function run() {
 
     wait $pk1 &>/dev/null
 
-    echo "test traffic on $REP"
+    title "test traffic on $REP"
     verify_no_traffic $pid2
-    echo "test mirror traffic on $VF3"
+    title "test mirror traffic on $VF3"
     verify_have_traffic $pid3
 
     ovs-vsctl del-br br-ovs
