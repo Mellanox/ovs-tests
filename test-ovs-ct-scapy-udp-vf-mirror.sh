@@ -107,6 +107,8 @@ function run() {
     kill $pk1 &>/dev/null
     wait $pk1 $pk2 2>/dev/null
 
+    tc -s filter show dev $REP ingress
+
     title "Verify offload on $REP"
     verify_no_traffic $pid2
     title "Verify mirror traffic on $VF3"
