@@ -52,7 +52,7 @@ function test_cpu_affinity_fail() {
 
 }
 
-enable_norep_switchdev $NIC
+enable_switchdev $NIC
 config
 test_cpu_affinity_fail
 cleanup

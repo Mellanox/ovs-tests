@@ -905,22 +905,12 @@ function switch_mode() {
         devlink dev eswitch set pci/$pci mode $mode $extra || fail "Failed to set mode $mode"
     fi
 
-    if [ "$mode" = "switchdev" ]; then
+    if [ "$mode" == "switchdev" ] && [ "$vf_count" != 0 ]; then
         wait_for_reps $nic $vf_count
         bring_up_reps $nic
     fi
 
     wait_for_ifaces
-}
-
-function switch_mode_no_rep() {
-    local mode=$1
-    local nic=${2:-$NIC}
-    local pci=$(basename `readlink /sys/class/net/$nic/device`)
-
-    log "Change $nic eswitch ($pci) mode to $mode"
-
-    devlink dev eswitch set pci/$pci mode $mode $extra || fail "Failed to set mode $mode"
 }
 
 function switch_mode_legacy() {
@@ -931,15 +921,11 @@ function switch_mode_switchdev() {
     switch_mode switchdev $1
 }
 
-function switch_mode_no_rep_switchdev() {
-    switch_mode_no_rep switchdev $1
-}
-
 function get_eswitch_mode() {
     if [ "$devlink_compat" = 1 ]; then
-        cat `devlink_compat_dir $NIC`/mode
+        cat `devlink_compat_dir $NIC`/mode 2>/dev/null
     else
-        devlink dev eswitch show pci/$PCI | grep -o " mode [a-z]\+" | awk {'print $2'}
+        devlink dev eswitch show pci/$PCI 2>/dev/null | grep -o " mode [a-z]\+" | awk {'print $2'}
     fi
 }
 
@@ -1043,12 +1029,6 @@ function enable_switchdev() {
     local nic=${1:-$NIC}
     unbind_vfs $nic
     switch_mode_switchdev $nic
-}
-
-function enable_norep_switchdev() {
-    local nic=${1:-$NIC}
-    unbind_vfs $nic
-    switch_mode_no_rep_switchdev $nic
 }
 
 function enable_legacy() {

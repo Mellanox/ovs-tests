@@ -48,7 +48,7 @@ function create_vdpa_netdev
     sleep 4
 }
 
-enable_norep_switchdev $NIC $VDPADEV1
+enable_switchdev $NIC
 title "Test vdpa using SF on a host"
 
 modprobe mlx5_vdpa || fail

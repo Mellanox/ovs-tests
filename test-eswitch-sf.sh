@@ -19,7 +19,7 @@ function sf_port_add_del_test() {
     fail_if_err
 }
 
-enable_norep_switchdev $NIC
+enable_switchdev $NIC
 title "Test sf port add delete commands"
 for iter in 1 2 ; do
     title "iter $iter"

@@ -76,7 +76,7 @@ function run_traffic() {
     verify_no_traffic $pid1
 }
 
-enable_norep_switchdev $NIC
+enable_switchdev $NIC
 config
 run_traffic
 cleanup
