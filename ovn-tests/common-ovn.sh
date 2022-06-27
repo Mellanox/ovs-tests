@@ -112,18 +112,13 @@ function check_rules() {
     local rule_fields=$1
     local rules_type=${2:-"all"}
 
-    local traffic_rules=$(ovs-appctl dpctl/dump-flows --names type=$rules_type 2>/dev/null | grep -vE "(dst=33:33|drop)")
+    local traffic_rules=$(ovs-appctl dpctl/dump-flows --names type=$rules_type 2>/dev/null | grep -vE "(dst=33:33|drop|packets:0)")
     for rule_field in $rule_fields; do
         title "- Verifying rule $rule_field"
         local result=$(echo "$traffic_rules" | grep -i "$rule_field")
 
         if [[ "$result" == "" ]]; then
             err "Rule $rule_field not found"
-            return 1
-        fi
-
-        if [[ "$result" =~ "packets:0, bytes:0" ]]; then
-            err "packets:0, bytes:0"
             return 1
         fi
     done
@@ -136,13 +131,7 @@ function check_fragmented_rules() {
     local traffic_filter=$1
     local expected_count=${2:-4}
 
-    local fragmented_flow_rules=$(ovs_dump_flows --names | grep -E "frag=(first|later)" | grep $traffic_filter | grep -v drop)
-    if echo "$fragmented_flow_rules" | grep "packets:0, bytes:0"; then
-        err "packets:0, bytes:0"
-        echo "$fragmented_flow_rules"
-        return 1
-    fi
-
+    local fragmented_flow_rules=$(ovs_dump_flows --names | grep -E "frag=(first|later)" | grep $traffic_filter | grep -vE "(drop|packets:0)")
     local rules_count=$(echo "$fragmented_flow_rules" | wc -l)
     if (("$rules_count" != "$expected_count")); then
         err "Expected 4 rules, found $rules_count"
