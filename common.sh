@@ -888,6 +888,11 @@ function switch_mode() {
     local extra="$extra_mode"
     local vf_count=`get_vfs_count $nic`
 
+    local old_mode=`get_eswitch_mode $nic`
+    if [ "$old_mode" == "$mode" ]; then
+        return
+    fi
+
     log "Change $nic eswitch ($pci) mode to $mode $extra"
 
     if [ "$devlink_compat" = 1 ]; then
