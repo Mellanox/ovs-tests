@@ -1139,16 +1139,19 @@ function get_vf_pci() {
 }
 
 function unbind_vfs() {
-    local nic=${1:-$NIC}
+    local nics=${@:-$NIC}
     local vfpci
+    local nic
     local i
 
-    log "Unbind vfs of $nic"
-    for i in `ls -1d /sys/class/net/$nic/device/virt* 2>/dev/null`; do
-        vfpci=$(basename `readlink $i`)
-        if [ -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
-            echo $vfpci > /sys/bus/pci/drivers/mlx5_core/unbind
-        fi
+    for nic in $nics; do
+        log "Unbind vfs of $nic"
+        for i in `ls -1d /sys/class/net/$nic/device/virt* 2>/dev/null`; do
+            vfpci=$(basename `readlink $i`)
+            if [ -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
+                echo $vfpci > /sys/bus/pci/drivers/mlx5_core/unbind
+            fi
+        done
     done
 }
 
