@@ -24,8 +24,6 @@ function config() {
     config_bonding $NIC $NIC2
     fail_if_err
     reset_tc $NIC $NIC2
-    ethtool_hw_tc_offload $NIC
-    ethtool_hw_tc_offload $NIC2
     config_shared_block
     if [ $TEST_FAILED == 1 ]; then
         cleanup
