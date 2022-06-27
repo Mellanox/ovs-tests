@@ -1104,8 +1104,20 @@ function config_sriov() {
 }
 
 function disable_sriov() {
+    # a feature in the driver let user set eswitch mode even if sriov is not enabled.
+    # then to go back to nic mode need to enable and disable sriov again.
+    # another feature is disabling sriov doesn't affect eswitch mode and we could stay in
+    # offloads mode.
+
+    # make sure in legacy mode
     enable_legacy $NIC
     enable_legacy $NIC2
+
+    # make sure in nic mode by enabling sriov and then disabling sriov.
+    config_sriov 2 $NIC
+    config_sriov 2 $NIC2
+
+    # disable sriov
     config_sriov 0 $NIC
     config_sriov 0 $NIC2
 }
