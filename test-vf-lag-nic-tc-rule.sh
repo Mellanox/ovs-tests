@@ -19,7 +19,6 @@ function config_shared_block() {
 
 function config() {
     title "- config"
-    disable_sriov
     wait_for_ifaces
     config_bonding $NIC $NIC2
     fail_if_err
