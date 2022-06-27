@@ -53,6 +53,7 @@ trap cleanup EXIT
 cleanup
 config
 tc_create_filter
+trap - EXIT
 cleanup
 config_sriov 2 $NIC
 test_done
