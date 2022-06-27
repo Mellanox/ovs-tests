@@ -1170,8 +1170,8 @@ function get_bound_vfs_count() {
 
 function wait_for_vfs() {
     local nic=$1
-    local count=$2
     local vfs=0
+    local count=`get_vfs_count $nic`
     local i
 
     for i in `seq 10`; do
@@ -1184,27 +1184,31 @@ function wait_for_vfs() {
 }
 
 function bind_vfs() {
-    local nic=${1:-$NIC}
-    local vf_count=`get_vfs_count $nic`
+    local nics=${@:-$NIC}
     local i vfpci
+    local nic
     local err=0
 
-    log "Bind vfs of $nic"
-    for i in `ls -1d /sys/class/net/$nic/device/virt*`; do
-        vfpci=$(basename `readlink $i`)
-        if [ ! -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
-            echo $vfpci > /sys/bus/pci/drivers/mlx5_core/bind
-            if [ $? -ne 0 ]; then
-                log "Cannot bind VF $vfpci"
-                err=1
+    for nic in $nics; do
+        log "Bind vfs of $nic"
+        for i in `ls -1d /sys/class/net/$nic/device/virt*`; do
+            vfpci=$(basename `readlink $i`)
+            if [ ! -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
+                echo $vfpci > /sys/bus/pci/drivers/mlx5_core/bind
+                if [ $? -ne 0 ]; then
+                    log "Cannot bind VF $vfpci"
+                    err=1
+                fi
             fi
+        done
+
+        # wait for vfs if there isn't an error.
+        if [ $err -eq 0 ]; then
+            wait_for_vfs $nic
+            udevadm settle # wait for udev renaming after bind
         fi
     done
 
-    if [ $err -eq 0 ]; then
-        wait_for_vfs $nic $vf_count
-        udevadm settle # wait for udev renaming after bind
-    fi
     return $err
 }
 
