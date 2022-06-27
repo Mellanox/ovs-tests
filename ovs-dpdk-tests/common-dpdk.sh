@@ -5,14 +5,13 @@ VDPA_DEV_NAME="eth2"
 
 function set_ovs_dpdk_debug_logs () {
     local log="/var/log/openvswitch/ovs-vswitchd.log"
-    if [ "${ENABLE_OVS_DEBUG}" != "1" ]; then
+    if [ "$ENABLE_OVS_DEBUG" != "1" ]; then
         return
     fi
     if [ -f $log ]; then
         echo > $log
     fi
-    ovs_set_log_levels ofproto_dpif_upcall:file:DBG dpif_netdev:file:DBG \
-                      netdev_offload_dpdk:file:DBG netdev_offload:file:DBG
+    ovs_set_log_levels ofproto_dpif_upcall:file:DBG netdev_offload_dpdk:file:DBG
 }
 
 function require_dpdk() {
