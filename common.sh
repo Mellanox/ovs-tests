@@ -2083,6 +2083,7 @@ function __common_main() {
         echo "Available exports:"
         echo
         echo "KMEMLEAK_SCAN_PER_TEST=1      - Do kmemleak scan per test."
+        echo "FREEZE_ON_ERROR=1             - Pause test on each error."
         exit 0
     fi
     if [ "X${NO_TITLE}" == "X" ]; then
