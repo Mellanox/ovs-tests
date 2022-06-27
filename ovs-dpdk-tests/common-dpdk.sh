@@ -5,6 +5,9 @@ VDPA_DEV_NAME="eth2"
 
 function set_ovs_dpdk_debug_logs () {
     local log="/var/log/openvswitch/ovs-vswitchd.log"
+    if [ "${ENABLE_OVS_DEBUG}" != "1" ]; then
+        return
+    fi
     if [ -f $log ]; then
         echo > $log
     fi
@@ -16,13 +19,10 @@ function require_dpdk() {
     if [ "${DPDK}" != "1" ]; then
         fail "Missing DPDK=1"
     fi
-
-    if [ "${ENABLE_OVS_DEBUG}" == "1" ]; then
-       set_ovs_dpdk_debug_logs
-    fi
 }
 
 require_dpdk
+set_ovs_dpdk_debug_logs
 
 function configure_dpdk_rep_ports() {
     local reps=$1
