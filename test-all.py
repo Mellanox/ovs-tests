@@ -1088,21 +1088,15 @@ def get_all_tests(include_subfolders=False):
     return lst
 
 
-def test_exists(t):
-    if not t.startswith(MYDIR):
-        t = os.path.join(MYDIR, i)
-    for test in TESTS:
-        if test.fname == t:
-            return True
-    return False
-
-
-def get_tests_from_glob(lst):
+def get_tests_from_glob(lst, tests):
     tmp = []
     for i in lst:
-        t = os.path.join(MYDIR, i)
-        tmp.extend(glob(t))
-    TESTS.extend([Test(t) for t in tmp])
+        g = glob(os.path.join(MYDIR, i))
+        for f in g:
+            if f in tests:
+                continue
+            tmp.append(f)
+    return [Test(t) for t in tmp]
 
 
 def get_tests():
@@ -1124,9 +1118,10 @@ def get_tests():
             revert_skip_if_needed()
         else:
             tmp = get_all_tests()
+            _added = get_tests_from_glob(args.glob, tmp)
             TESTS = [Test(t) for t in tmp]
             glob_tests(args.glob)
-            get_tests_from_glob(args.glob)
+            TESTS.extend(_added)
             update_skip_according_to_rm()
             revert_skip_if_needed()
 
