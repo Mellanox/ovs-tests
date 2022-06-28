@@ -922,10 +922,13 @@ function switch_mode_switchdev() {
 }
 
 function get_eswitch_mode() {
+    local nic=${1:-$NIC}
+
     if [ "$devlink_compat" = 1 ]; then
-        cat `devlink_compat_dir $NIC`/mode 2>/dev/null
+        cat `devlink_compat_dir $nic`/mode 2>/dev/null
     else
-        devlink dev eswitch show pci/$PCI 2>/dev/null | grep -o " mode [a-z]\+" | awk {'print $2'}
+        local pci=$(basename `readlink /sys/class/net/$nic/device`)
+        devlink dev eswitch show pci/$pci 2>/dev/null | grep -o " mode [a-z]\+" | awk {'print $2'}
     fi
 }
 
