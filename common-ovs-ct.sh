@@ -40,24 +40,38 @@ function start_traffic() {
 }
 
 function verify_traffic() {
-    ip netns exec ns0 timeout $((t-4)) tcpdump -qnnei $VF -c 30 tcp &
-    tpid1=$!
-    timeout $((t-4)) tcpdump -qnnei $REP -c 10 tcp &
-    tpid2=$!
-    if [ -n "$vxlan_dev" ]; then
-        timeout $((t-4)) tcpdump -qnnei $vxlan_dev -c 10 tcp &
-        tpid3=$!
+    local have_traffic=$1
+    local no_traffic=$2
+
+    if [ "$have_traffic" == "" ] && [ "$no_traffic" == "" ]; then
+        err "Nothing to verify"
+        return
     fi
 
+    local nic
+    declare -A tpids
+
+    for nic in $have_traffic; do
+        ip netns exec ns0 timeout $((t-4)) tcpdump -qnnei $nic -c 30 tcp &
+        tpids[$nic]=$!
+    done
+
+    for nic in $no_traffic; do
+        timeout $((t-4)) tcpdump -qnnei $nic -c 10 tcp &
+        tpids[$nic]=$!
+    done
+
     sleep $t
-    title "Verify traffic on $VF"
-    verify_have_traffic $tpid1
-    title "Verify offload on $REP"
-    verify_no_traffic $tpid2
-    if [ -n "$vxlan_dev" ]; then
-        title "Verify offload on $vxlan_dev"
-        verify_no_traffic $tpid3
-    fi
+
+    for nic in $have_traffic; do
+        title "Verify traffic on $nic"
+        verify_have_traffic ${tpids[$nic]}
+    done
+
+    for nic in $no_traffic; do
+        title "Verify offload on $nic"
+        verify_no_traffic ${tpids[$nic]}
+    done
 }
 
 function kill_traffic() {

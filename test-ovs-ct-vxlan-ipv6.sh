@@ -114,20 +114,13 @@ function run() {
     add_openflow_rules
     sleep 2
 
-    ping_remote
-    if [ $? -ne 0 ]; then
-        return
-    fi
+    ping_remote || return
 
     initial_traffic
 
-    start_traffic
-    if [ $? -ne 0 ]; then
-        return
-    fi
+    start_traffic || return
 
-    vxlan_dev="vxlan_sys_4789"
-    verify_traffic
+    verify_traffic "$VF" "$REP vxlan_sys_4789"
 
     kill_traffic
 }

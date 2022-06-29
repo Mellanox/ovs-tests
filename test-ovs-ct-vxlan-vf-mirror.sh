@@ -93,26 +93,14 @@ function run() {
     add_openflow_rules
     sleep 2
 
-    ping_remote
-    if [ $? -ne 0 ]; then
-        return
-    fi
+    ping_remote || return
 
     initial_traffic
 
-    start_traffic
-    if [ $? -ne 0 ]; then
-        return
-    fi
+    start_traffic || return
 
-    timeout $((t-4)) tcpdump -qnnei $VF2 -c 30 tcp &
-    tpid_mirror=$!
-
-    vxlan_dev="vxlan_sys_4789"
-    verify_traffic
-
-    title "Verify mirror traffic on $VF2"
-    verify_have_traffic $tpid_mirror
+    # mirror traffic on VF2
+    verify_traffic "$VF2" "vxlan_sys_4789"
 
     kill_traffic
 }
