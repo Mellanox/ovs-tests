@@ -325,14 +325,12 @@ function check_traffic_offload() {
     # Send initial traffic for 5 seconds
     sleep "${TRAFFIC_INFO['offloaded_traffic_verification_delay']}"
 
-    local tdpid=
     if [[ -n $client_verify_offload ]]; then
-        tdpid=$(__start_tcpdump_local $client_rep "$tcpdump_filter" $non_offloaded_packets)
+        local tdpid=$(__start_tcpdump_local $client_rep "$tcpdump_filter" $non_offloaded_packets)
     fi
 
-    local tdpid_receiver=
     if [[ -n $server_verify_offload ]]; then
-        tdpid_receiver=$(__start_tcpdump $server_rep "$tcpdump_filter" $non_offloaded_packets)
+        local tdpid_receiver=$(__start_tcpdump $server_rep "$tcpdump_filter" $non_offloaded_packets)
     fi
 
     if [[ -n $client_rule_fields ]]; then
