@@ -14,7 +14,7 @@ read_k8s_topology_pod_service_different_nodes
 nic=$NIC
 BRIDGE=$(nic_to_bridge $nic)
 
-function clean_up_test() {
+function __clean_up_test() {
     ovn_stop_ovn_controller
     ovn_remove_ovs_config
     __reset_nic
@@ -22,14 +22,11 @@ function clean_up_test() {
     start_clean_openvswitch
     ip -all netns del
     config_sriov 0
+}
 
-    on_remote_exec "ovn_stop_ovn_controller
-                    ovn_remove_ovs_config
-                    __reset_nic
-                    ovn_remove_network $BRIDGE $nic
-                    start_clean_openvswitch
-                    ip -all netns del
-                    config_sriov 0"
+function clean_up_test() {
+    __clean_up_test
+    on_remote_exec "__clean_up_test"
 
     ovn_start_clean
     ovn_stop_northd_central

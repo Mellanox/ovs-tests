@@ -15,20 +15,20 @@ nic=$NIC
 BRIDGE=$(nic_to_bridge $nic)
 export REMOTE_CHASSIS=$(on_remote_exec "get_ovs_id")
 
-function clean_up_test() {
+function __clean_up_test() {
     ovn_stop_ovn_controller
     ovn_remove_ovs_config
     ovn_remove_network $BRIDGE $nic
     start_clean_openvswitch
+    __reset_nic
+}
+
+function clean_up_test() {
+    __clean_up_test
     ip -all netns del
     config_sriov 0
-    __reset_nic
 
-    on_remote_exec "ovn_stop_ovn_controller
-                    ovn_remove_ovs_config
-                    ovn_remove_network $BRIDGE $nic
-                    start_clean_openvswitch
-                    __reset_nic"
+    on_remote_exec "__clean_up_test"
 
     ovn_start_clean
     ovn_stop_northd_central
