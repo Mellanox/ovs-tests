@@ -67,42 +67,52 @@ function config_simple_bridge_with_rep() {
 function start_vdpa_vm() {
     local vm_name=${1:-$NESTED_VM_NAME1}
     local vm_ip=${2:-$NESTED_VM_IP1}
-    local vm_started="false"
 
     if [ "${VDPA}" != "1" ]; then
         return
     fi
+
     local status=$(virsh list --all | grep $vm_name | awk '{ print $3 }')
 
-    if [ "${status}" != "running" ]; then
-        debug "starting VM $vm_name"
-        virsh start $vm_name & >/dev/null
-        for i in {0..100}
-        do
-            status=$(virsh list --all | grep "$vm_name" | awk '{ print $3 }')
-            if [[ $status == "running" ]]; then
-                for i in {0..500}
-                do
-                    if ping -c1 $vm_ip -w 1 &> /dev/null; then
-                        vm_started="true"
-                        break
-                    fi
-                done
-                if [ "${vm_started}" == "false" ]; then
-                    fail "timeout waiting for VM to start"
-                    return
-                fi
-                success "VM $vm_name started"
-                sleep 2
-                return
-            fi
-            sleep 2
-        done
-    else
+    if [ "${status}" == "running" ]; then
         success "VM $vm_name already started"
         return
     fi
-    fail "could not start VM"
+
+    debug "starting VM $vm_name"
+    timeout 20 virsh start $vm_name &>/dev/null
+    if [ $? -ne 0 ]; then
+        fail "could not start VM"
+    fi
+
+    for i in {0..20}; do
+        status=$(virsh list --all | grep "$vm_name" | awk '{ print $3 }')
+        if [ "${status}" == "running" ]; then
+            break
+        fi
+        sleep 1
+    done
+
+    if [ "${status}" != "running" ]; then
+        fail "VM is not running"
+    fi
+
+    local vm_started="false"
+
+    for i in {0..60}; do
+        if ping -c1 $vm_ip -w 1 &>/dev/null; then
+            vm_started="true"
+            break
+        fi
+    done
+
+    if [ "${vm_started}" == "false" ]; then
+        fail "timeout waiting for VM to start"
+    fi
+
+    sleep 2
+    on_vm $vm_ip true || fail "VM is not ready"
+    success "VM $vm_name started"
 }
 
 function config_local_tunnel_ip() {
