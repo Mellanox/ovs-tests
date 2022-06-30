@@ -503,6 +503,7 @@ function check_fragmented_traffic() {
 
     # Listen to traffic on representor
     timeout 10 tcpdump -Unnepi $rep $tcpdump_filter -c 8 &
+    local tdpid=$!
     sleep 0.5
 
     title "Check sending traffic"
