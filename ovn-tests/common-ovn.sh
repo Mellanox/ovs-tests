@@ -240,12 +240,10 @@ function __start_tcpdump() {
     local bf_traffic=${TRAFFIC_INFO['bf_traffic']}
     if [[ -n "$local_traffic" ]]; then
         tdpid=$(__start_tcpdump_local $rep "$tcpdump_filter" $non_offloaded_packets)
+    elif [[ -z "$bf_traffic" ]]; then
+        tdpid=$(on_remote "nohup tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets >/dev/null 2>&1 & echo \$!")
     else
-        if [[ -z "$bf_traffic" ]]; then
-            tdpid=$(on_remote "nohup tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets >/dev/null 2>&1 & echo \$!")
-        else
-            tdpid=$(on_remote_bf "nohup tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets >/dev/null 2>&1 & echo \$!")
-        fi
+        tdpid=$(on_remote_bf "nohup tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets >/dev/null 2>&1 & echo \$!")
     fi
 
     echo $tdpid
