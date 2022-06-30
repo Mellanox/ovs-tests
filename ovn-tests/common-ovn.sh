@@ -221,7 +221,7 @@ function __start_tcpdump_local() {
     local tdpid=
     local bf_traffic=${TRAFFIC_INFO['bf_traffic']}
     if [[ -z "$bf_traffic" ]]; then
-        tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets >/dev/null 2>&1 &
+        tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets >/dev/null &
         tdpid=$!
     else
         tdpid=$(on_bf "nohup tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets >/dev/null 2>&1 & echo \$!")
