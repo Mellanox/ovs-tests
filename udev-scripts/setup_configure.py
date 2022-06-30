@@ -639,11 +639,12 @@ class SetupConfigure(object):
         self.Logger.info("export CONFIG=%s" % config_file)
 
     def configure_hugepages(self):
-        nr_hugepages = 2048
-        if (self.args.vdpa):
+        if self.args.vdpa:
             nr_hugepages = 4096
+        else:
+            nr_hugepages = 2048
         self.Logger.info("Allocating %s hugepages", nr_hugepages)
-        runcmd2('echo %s > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages' % nr_hugepages)
+        runcmd('echo %s > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages' % nr_hugepages)
 
     @property
     def Logger(self):
