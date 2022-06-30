@@ -257,8 +257,10 @@ function __verify_tcpdump_offload_local() {
 
     if [[ -z "$bf_traffic" ]]; then
         [[ -d /proc/$tdpid ]] && success || err
+        killall -q tcpdump
     else
         on_bf "[[ -d /proc/$tdpid ]]" && success || err
+        on_bf "killall -q tcpdump"
     fi
 }
 
