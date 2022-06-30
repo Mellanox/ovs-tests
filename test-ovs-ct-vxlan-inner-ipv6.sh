@@ -83,40 +83,19 @@ function add_openflow_rules() {
     ovs-ofctl dump-flows br-ovs --color
 }
 
-function initial_traffic() {
-    title "initial traffic"
-    # this part is important when using multi-table CT.
-    # the initial traffic will cause ovs to create initial tc rules
-    # and also tuple rules. but since ovs adds the rules somewhat late
-    # conntrack will already mark the conn est. and tuple rules will be in hw.
-    # so we start second traffic which will be faster added to hw before
-    # conntrack and this will check the miss rule in our driver is ok
-    # (i.e. restoring reg_0 correctly)
-    ip netns exec ns0 iperf3 -s -D
-    on_remote timeout -k1 3 iperf3 -c $IP -t 2
-    killall -9 iperf3
-}
-
 function run() {
     config
     config_remote_vxlan
     add_openflow_rules
     sleep 2
 
-    ping_remote
-    if [ $? -ne 0 ]; then
-        return
-    fi
+    ping_remote || return
 
     initial_traffic
 
-    start_traffic
-    if [ $? -ne 0 ]; then
-        return
-    fi
+    start_traffic || return
 
-    vxlan_dev="vxlan_sys_4789"
-    verify_traffic
+    verify_traffic "$VF" "$REP vxlan_sys_4789"
 
     kill_traffic
 }
