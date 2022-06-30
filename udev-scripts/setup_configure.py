@@ -476,16 +476,16 @@ class SetupConfigure(object):
 
     def vdpa_vm_init(self, vm_num, vm_name):
         nic1 = self.host.PNics[0]
-        orig_xml_file="/tmp/vdpa_vm%s_orig.xml" % vm_num
-
-        if os.path.isfile(orig_xml_file):
-            runcmd2("virsh destroy %s &> /dev/null" % vm_name)
-            runcmd_output("virsh define %s &> /dev/null" % orig_xml_file)
-            runcmd_output("virsh start %s &> /dev/null" % vm_name)
-
+        orig_xml_file="/tmp/orig_vm%s.xml" % vm_num
         xml_file = '/tmp/vdpa_vm%s.xml' % vm_num
+
+        if os.path.exists(xml_file):
+            # assume we already defined vdpa into the vm
+            self.Logger.info("vdpa vm %s already configured" % vm_name)
+            return
+
         runcmd_output("virsh dumpxml %s > %s" % (vm_name, xml_file))
-        runcmd_output("cp %s %s" % (xml_file, orig_xml_file,))
+        runcmd_output("cp %s %s" % (xml_file, orig_xml_file))
         runcmd2("virsh destroy %s &> /dev/null" % vm_name)
 
         tree = ET.parse(xml_file)
@@ -510,7 +510,7 @@ class SetupConfigure(object):
 
         # Add vdpa interface
         devices = root.find('devices')
-        sock_path='/tmp/sock%s' % vm_num
+        sock_path = '/tmp/sock%s' % vm_num
         idx = self.getLastIndex(devices, 'interface')
         interface = ET.Element('interface', type='vhostuser')
         interfaceSource = ET.SubElement(interface, 'source', type='unix', path=sock_path, mode='server')
@@ -521,7 +521,6 @@ class SetupConfigure(object):
         out.write(xml_file)
         runcmd_output("virsh define %s &> /dev/null" % xml_file)
         self.Logger.info("Initialized VM %s XML under %s", vm_name, xml_file)
-        return
 
     def get_cloud_player_vm(self, vm_num):
         data = self.get_nested_vm_data()
