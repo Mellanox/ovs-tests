@@ -322,14 +322,17 @@ function check_traffic_offload() {
         return
     fi
 
-    # Send initial traffic for 5 seconds
-    sleep "${TRAFFIC_INFO['offloaded_traffic_verification_delay']}"
+    tmp=${TRAFFIC_INFO['offloaded_traffic_verification_delay']}
+    echo "Sleep for $tmp seconds initial traffic"
+    sleep $tmp
 
     if [[ -n $client_verify_offload ]]; then
+        echo "Start client tcpdump"
         local tdpid=$(__start_tcpdump_local $client_rep "$tcpdump_filter" $non_offloaded_packets)
     fi
 
     if [[ -n $server_verify_offload ]]; then
+        echo "Start server tcpdump"
         local tdpid_receiver=$(__start_tcpdump $server_rep "$tcpdump_filter" $non_offloaded_packets)
     fi
 
