@@ -471,11 +471,12 @@ class SetupConfigure(object):
                 return count - 1
         return -1
 
+    def set_sysconfig_openvswitch_user(self):
+        runcmd2("sed -i '/OVS_USER_ID=\"openvswitch:hugetlbfs\"/c\OVS_USER_ID=\"root:root\"' /etc/sysconfig/openvswitch")
+
     def vdpa_vm_init(self, vm_num, vm_name):
         nic1 = self.host.PNics[0]
         orig_xml_file="/tmp/vdpa_vm%s_orig.xml" % vm_num
-        runcmd2("sed -i '/OVS_USER_ID=\"openvswitch:hugetlbfs\"/c\OVS_USER_ID=\"root:root\"' /etc/sysconfig/openvswitch")
-
 
         if os.path.isfile(orig_xml_file):
             runcmd2("virsh destroy %s &> /dev/null" % vm_name)
@@ -616,6 +617,7 @@ class SetupConfigure(object):
 
             if self.args.vdpa:
                 conf += '\nVDPA=1'
+                self.set_sysconfig_openvswitch_user()
                 self.vdpa_vm_init(1, vm1['domain_name'])
                 self.vdpa_vm_init(2, vm2['domain_name'])
 
