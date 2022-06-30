@@ -56,7 +56,7 @@ function config_tunnel() {
 
     local dst_execution="ip netns exec ns0"
     if [ "${VDPA}" == "1" ]; then
-        dst_execution="on_vm $NESTED_VM_IP1"
+        dst_execution="on_vm1"
         dev=$VDPA_DEV_NAME
     fi
     config_simple_bridge_with_rep 0

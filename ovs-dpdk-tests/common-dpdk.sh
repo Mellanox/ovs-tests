@@ -111,7 +111,7 @@ function start_vdpa_vm() {
     fi
 
     sleep 2
-    on_vm $vm_ip true || fail "VM is not ready"
+    __on_remote $vm_ip true || fail "VM is not ready"
     success "VM $vm_name started"
 }
 
@@ -133,8 +133,8 @@ function config_static_ipv6_neigh_ns() {
     local dst_execution2="ip netns exec $ns2"
 
     if [ "${VDPA}" == 1 ]; then
-        dst_execution1="on_vm $NESTED_VM_IP1"
-        dst_execution2="on_vm $NESTED_VM_IP2"
+        dst_execution1="on_vm1"
+        dst_execution2="on_vm2"
         src_dev=$VDPA_DEV_NAME
         dst_dev=$VDPA_DEV_NAME
     fi
@@ -156,8 +156,8 @@ function config_static_arp_ns() {
     local dst_execution2="ip netns exec $ns2"
 
     if [ "${VDPA}" == 1 ]; then
-        dst_execution1="on_vm $NESTED_VM_IP1"
-        dst_execution2="on_vm $NESTED_VM_IP2"
+        dst_execution1="on_vm1"
+        dst_execution2="on_vm2"
         dev=$VDPA_DEV_NAME
     fi
 
@@ -189,8 +189,8 @@ function config_ns() {
         fi
     else
         debug "setting $VDPA_DEV_NAME ip $ip_addr on vm $vm_ip"
-        on_vm $vm_ip ifconfig $VDPA_DEV_NAME $ip_addr/24 up
-        on_vm $vm_ip ip -6 address add $ipv6_addr/64 dev $VDPA_DEV_NAME
+        __on_remote $vm_ip ifconfig $VDPA_DEV_NAME $ip_addr/24 up
+        __on_remote $vm_ip ip -6 address add $ipv6_addr/64 dev $VDPA_DEV_NAME
     fi
 }
 

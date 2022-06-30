@@ -139,7 +139,7 @@ function ovs_wait_until_ipv6_done() {
     local dst_execution="ip netns exec $namespace"
 
     if [ "${VDPA}" == "1" ]; then
-        dst_execution="on_vm $NESTED_VM_IP1"
+        dst_execution="on_vm1"
     fi
 
     local cmd="${dst_execution} ping -c1 -W 1 $remote_ip"
@@ -265,7 +265,7 @@ function verify_ping() {
     local dst_execution="ip netns exec $namespace"
 
     if [ "${VDPA}" == "1" ]; then
-        dst_execution="on_vm $NESTED_VM_IP1"
+        dst_execution="on_vm1"
     fi
 
     cmd="${dst_execution} ping -q -c 10 -W 2 -i 0.01 $remote_ip -s $size"
@@ -291,7 +291,7 @@ function verify_iperf_running()
     if [ "$remote" == "remote" ]; then
        proc_cmd="on_remote $proc_cmd"
     elif [ "${VDPA}" == "1" ]; then
-       proc_cmd="on_vm $NESTED_VM_IP1 $proc_cmd"
+       proc_cmd="on_vm1 $proc_cmd"
     fi
 
     local num_proc=$(eval $proc_cmd)
@@ -316,10 +316,10 @@ function generate_traffic() {
         return 1
     fi
     if [ "${VDPA}" == "1" ]; then
-        server_dst_execution="on_vm $NESTED_VM_IP1"
-        on_vm $NESTED_VM_IP1 rm -rf $p_server
-        client_dst_execution="on_vm $NESTED_VM_IP2"
-        on_vm $NESTED_VM_IP2 rm -rf $p_client
+        server_dst_execution="on_vm1"
+        on_vm1 rm -rf $p_server
+        client_dst_execution="on_vm2"
+        on_vm2 rm -rf $p_client
     fi
     local t=5
 
@@ -411,7 +411,7 @@ function kill_iperf() {
    local dst_execution=""
 
    if [ "${VDPA}" == "1" ]; then
-      dst_execution="on_vm $NESTED_VM_IP1 "
+      dst_execution="on_vm1 "
    fi
    local cmd="${dst_execution}killall -9 iperf3"
    debug "Executing | $cmd"
@@ -436,8 +436,8 @@ function cleanup_test() {
     cleanup_ct_ct_nat_offload
     cleanup_remote_tunnel $tunnel_device_name
     if [ "${VDPA}" == "1" ]; then
-        on_vm $NESTED_VM_IP1 ip a flush dev $VDPA_DEV_NAME
-        on_vm $NESTED_VM_IP2 ip a flush dev $VDPA_DEV_NAME
+        on_vm1 ip a flush dev $VDPA_DEV_NAME
+        on_vm2 ip a flush dev $VDPA_DEV_NAME
     fi
     sleep 0.5
 }

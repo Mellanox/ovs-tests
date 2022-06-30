@@ -533,10 +533,12 @@ EOF
 bash /tmp/dt_cmd.$$.sh && /bin/rm -f /tmp/dt_cmd.$$.sh"
 }
 
-function on_vm() {
-    local vm_ip=${1:-$NESTED_VM_IP1}
+function on_vm1() {
+    __on_remote $NESTED_VM_IP1 "$@"
+}
 
-    __on_remote $vm_ip "${@:2}"
+function on_vm2() {
+    __on_remote $NESTED_VM_IP2 "$@"
 }
 
 function on_remote() {
