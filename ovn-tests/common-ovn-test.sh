@@ -23,8 +23,6 @@ function __ovn_clean_up() {
     if [[ -n "$HAS_BOND" ]]; then
         clean_vf_lag
     fi
-
-    config_sriov 0
 }
 
 function ovn_clean_up() {
@@ -57,11 +55,10 @@ function config_vf_lag() {
 }
 
 function clean_vf_lag() {
+    # must unbind vfs to create/destroy lag
     unbind_vfs
     unbind_vfs $NIC2
     clear_bonding
-    config_sriov 0
-    config_sriov 0 $NIC2
 }
 
 function config_ovn_single_node() {
