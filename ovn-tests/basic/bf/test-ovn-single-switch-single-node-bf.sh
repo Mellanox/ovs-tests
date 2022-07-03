@@ -13,9 +13,9 @@ read_single_switch_topology
 function clean_up_test() {
     ip -all netns del
     on_bf_exec "ovn_stop_ovn_controller
-               start_clean_openvswitch
-               ovn_start_clean
-               ovn_stop_northd_central"
+                start_clean_openvswitch
+                ovn_start_clean
+                ovn_stop_northd_central"
 }
 
 function config_test() {

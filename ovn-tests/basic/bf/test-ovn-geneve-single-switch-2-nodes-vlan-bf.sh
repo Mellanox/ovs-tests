@@ -16,11 +16,11 @@ function clean_up_test() {
     ip -all netns del
     config_sriov 0
     on_bf_exec "ovn_stop_ovn_controller
-               ovn_remove_ovs_config
-               start_clean_openvswitch
-               __reset_nic $BF_NIC
-               ovn_start_clean
-               ovn_stop_northd_central"
+                ovn_remove_ovs_config
+                start_clean_openvswitch
+                __reset_nic $BF_NIC
+                ovn_start_clean
+                ovn_stop_northd_central"
 
     on_remote_exec "ip -all netns del
                     config_sriov 0"

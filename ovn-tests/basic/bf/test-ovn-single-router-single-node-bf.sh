@@ -14,9 +14,9 @@ function clean_up_test() {
     ip -all netns del
     config_sriov 0
     on_bf_exec "ovn_stop_ovn_controller
-               start_clean_openvswitch
-               ovn_start_clean
-               ovn_stop_northd_central"
+                start_clean_openvswitch
+                ovn_start_clean
+                ovn_stop_northd_central"
 }
 
 function config_test() {
