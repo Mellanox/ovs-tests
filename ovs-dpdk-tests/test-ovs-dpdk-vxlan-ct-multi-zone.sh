@@ -42,6 +42,7 @@ function config_remote() {
 function add_openflow_rules() {
     ovs-ofctl del-flows br-int
     ovs-ofctl add-flow br-int "arp,actions=NORMAL"
+    ovs-ofctl add-flow br-int "icmp,actions=NORMAL"
     ovs-ofctl add-flow br-int "table=0,tcp,ct_state=-trk actions=ct(zone=2, table=1)"
     ovs-ofctl add-flow br-int "table=1,tcp,ct_state=+trk+new actions=ct(zone=2, commit, table=2)"
     ovs-ofctl add-flow br-int "table=1,ct_zone=2,tcp,ct_state=+trk+est actions=ct(zone=3, table=2)"
@@ -55,6 +56,7 @@ function run() {
     config_remote
     add_openflow_rules
 
+    verify_ping
     generate_traffic "remote" $LOCAL_IP
 
     # check offloads

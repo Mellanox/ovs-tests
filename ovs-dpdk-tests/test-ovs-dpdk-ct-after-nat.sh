@@ -30,6 +30,7 @@ function run() {
     config
     ovs_add_ct_after_nat_rules br-phy $REMOTE_IP $DUMMY_IP rep0 rep1
     generate_traffic local $DUMMY_IP ns1
+    verify_ping
     check_dpdk_offloads $REMOTE_IP
 }
 

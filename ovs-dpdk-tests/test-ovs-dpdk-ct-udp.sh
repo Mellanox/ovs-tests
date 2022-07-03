@@ -41,6 +41,7 @@ function config_remote() {
 function add_openflow_rules() {
     ovs-ofctl del-flows br-phy
     ovs-ofctl add-flow br-phy "arp,actions=NORMAL"
+    ovs-ofctl add-flow br-phy "icmp,actions=NORMAL"
     ovs-ofctl add-flow br-phy "table=0,udp,ct_state=-trk,actions=ct(zone=5, table=1)"
     ovs-ofctl add-flow br-phy "table=1,udp,ct_state=+trk+new,actions=ct(zone=5, commit),NORMAL"
     ovs-ofctl add-flow br-phy "table=1,udp,ct_state=+trk+est,ct_zone=5,actions=normal"
@@ -53,6 +54,7 @@ function run() {
     config_remote
     add_openflow_rules
 
+    verify_ping
     debug "Testing UDP traffic"
     t=5
     # traffic

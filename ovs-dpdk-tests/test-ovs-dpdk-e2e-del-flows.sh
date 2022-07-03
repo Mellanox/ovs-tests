@@ -32,6 +32,7 @@ function config() {
 function add_openflow_rules1() {
     ovs-ofctl del-flows br-phy
     ovs-ofctl add-flow br-phy "arp,actions=NORMAL"
+    ovs-ofctl add-flow br-phy "icmp,actions=NORMAL"
     ovs-ofctl add-flow br-phy "table=0,tcp,ct_state=-trk,actions=ct(zone=5, table=1)"
     ovs-ofctl add-flow br-phy "table=1,tcp,ct_state=+trk+new,actions=ct(zone=5, commit),NORMAL"
     ovs-ofctl add-flow br-phy "table=1,tcp,ct_state=+trk+est,ct_zone=5,actions=normal"
@@ -43,6 +44,7 @@ function run() {
     config
     add_openflow_rules1
 
+    verify_ping
     generate_traffic "local" $LOCAL_IP ns1
 
     # check number of flows
