@@ -167,10 +167,10 @@ function send_background_traffic() {
         ip netns exec $ns iperf3 -6 -t $timeout -c $dst_ip --logfile $logfile &
     elif [[ $traffic_type == "udp" ]]; then
         local packets=$((timeout * 10))
-        ip netns exec $ns $OVN_DIR/udp-perf.py -c $dst_ip --packets $packets --pass-rate 0.7 --logfile $logfile &
+        ip netns exec $ns timeout $((timeout+3)) $OVN_DIR/udp-perf.py -c $dst_ip --packets $packets --pass-rate 0.7 --logfile $logfile &
     elif [[ $traffic_type == "udp6" ]]; then
         local packets=$((timeout * 10))
-        ip netns exec $ns $OVN_DIR/udp-perf.py -6 -c $dst_ip --packets $packets --pass-rate 0.7 --logfile $logfile &
+        ip netns exec $ns timeout $((timeout+3)) $OVN_DIR/udp-perf.py -6 -c $dst_ip --packets $packets --pass-rate 0.7 --logfile $logfile &
     else
         fail "Unknown traffic $traffic_type"
     fi
