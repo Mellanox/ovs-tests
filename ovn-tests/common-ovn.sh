@@ -273,8 +273,10 @@ function __verify_tcpdump_offload() {
     else
         if [[ -z "$bf_traffic" ]]; then
             on_remote "[[ -d /proc/$tdpid ]]" && success || err
+            on_remote "killall -9 tcpdump"
         else
             on_remote_bf "[[ -d /proc/$tdpid ]]" && success || err
+            on_remote_bf "killall -9 tcpdump"
         fi
     fi
 }
