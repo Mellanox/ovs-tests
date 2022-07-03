@@ -327,12 +327,12 @@ function check_traffic_offload() {
     sleep $tmp
 
     if [[ -n $client_verify_offload ]]; then
-        echo "Start client tcpdump"
+        echo "Start sender tcpdump"
         local tdpid=$(__start_tcpdump_local $client_rep "$tcpdump_filter" $non_offloaded_packets)
     fi
 
     if [[ -n $server_verify_offload ]]; then
-        echo "Start server tcpdump"
+        echo "Start receiver tcpdump"
         local tdpid_receiver=$(__start_tcpdump $server_rep "$tcpdump_filter" $non_offloaded_packets)
     fi
 
