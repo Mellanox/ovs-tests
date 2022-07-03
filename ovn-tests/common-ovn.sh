@@ -162,9 +162,9 @@ function send_background_traffic() {
     elif [[ $traffic_type == "icmp6" ]]; then
         ip netns exec $ns ping -6 -w $timeout -i 0.1 $dst_ip >$logfile &
     elif [[ $traffic_type == "tcp" ]]; then
-        ip netns exec $ns iperf3 -t $timeout -c $dst_ip --logfile $logfile &
+        ip netns exec $ns timeout $((timeout+3)) iperf3 -t $timeout -c $dst_ip --logfile $logfile &
     elif [[ $traffic_type == "tcp6" ]]; then
-        ip netns exec $ns iperf3 -6 -t $timeout -c $dst_ip --logfile $logfile &
+        ip netns exec $ns timeout $((timeout+3)) iperf3 -6 -t $timeout -c $dst_ip --logfile $logfile &
     elif [[ $traffic_type == "udp" ]]; then
         local packets=$((timeout * 10))
         ip netns exec $ns timeout $((timeout+3)) $OVN_DIR/udp-perf.py -c $dst_ip --packets $packets --pass-rate 0.7 --logfile $logfile &
