@@ -313,6 +313,7 @@ function check_traffic_offload() {
         traffic_timeout=${TRAFFIC_INFO['non_offloaded_traffic_timeout']}
     fi
 
+    echo "logfile: $logfile"
     send_background_traffic $traffic_type $client_ns $server_ip $traffic_timeout $logfile
     local traffic_pid=$!
     timeout 5 tail -f $logfile | head -n 5 &
@@ -320,7 +321,6 @@ function check_traffic_offload() {
     if [[ -n "$skip_offload" ]]; then
         wait $traffic_pid && success || err
         ovs_flush_rules
-        rm -f $logfile
         return
     fi
 
@@ -363,7 +363,6 @@ function check_traffic_offload() {
 
     title "Wait ${traffic_type^^} traffic"
     wait $traffic_pid && success || err
-    rm -f $logfile
 
     if [[ -z "$bf_traffic" ]]; then
         ovs_flush_rules
