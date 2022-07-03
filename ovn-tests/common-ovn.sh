@@ -270,14 +270,12 @@ function __verify_tcpdump_offload() {
 
     if [[ -n "$local_traffic" ]]; then
         __verify_tcpdump_offload_local $tdpid
+    elif [[ -z "$bf_traffic" ]]; then
+        on_remote "[[ -d /proc/$tdpid ]]" && success || err
+        on_remote "killall -q tcpdump"
     else
-        if [[ -z "$bf_traffic" ]]; then
-            on_remote "[[ -d /proc/$tdpid ]]" && success || err
-            on_remote "killall -q tcpdump"
-        else
-            on_remote_bf "[[ -d /proc/$tdpid ]]" && success || err
-            on_remote_bf "killall -q tcpdump"
-        fi
+        on_remote_bf "[[ -d /proc/$tdpid ]]" && success || err
+        on_remote_bf "killall -q tcpdump"
     fi
 }
 
