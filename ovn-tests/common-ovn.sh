@@ -362,7 +362,15 @@ function check_traffic_offload() {
     fi
 
     title "Wait ${traffic_type^^} traffic"
-    wait $traffic_pid && success || err
+    wait $traffic_pid
+    local rc=$?
+    if [[ $rc -eq 124 ]]; then
+        err "Failed timeout"
+    elif [[ $rc -eq 0 ]]; then
+        success
+    else
+        err "Failed rc $?"
+    fi
 
     if [[ -z "$bf_traffic" ]]; then
         ovs_flush_rules
