@@ -108,6 +108,13 @@ function get_tx_pkts() {
     ethtool -S $1 | grep -E 'tx_packets_phy|vport_tx_packets' | awk {'print $2'} | tail -1
 }
 
+function get_tx_pkts_ns() {
+    local ns=$1
+    local dev=$2
+
+    ip netns exec $ns cat /sys/class/net/$dev/statistics/tx_packets
+}
+
 function require_cmd() {
     local i
     for i in $@ ; do

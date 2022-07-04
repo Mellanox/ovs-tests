@@ -286,6 +286,7 @@ function check_traffic_offload() {
     local traffic_type=$2
 
     local client_ns=${TRAFFIC_INFO['client_ns']}
+    local client_vf=${TRAFFIC_INFO['client_vf']}
     local client_rep=${TRAFFIC_INFO['client_rep']}
     local client_rule_fields=${TRAFFIC_INFO['client_rule_fields']}
     local client_verify_offload=${TRAFFIC_INFO['client_verify_offload']}
@@ -313,6 +314,8 @@ function check_traffic_offload() {
         traffic_timeout=${TRAFFIC_INFO['non_offloaded_traffic_timeout']}
     fi
 
+    local vf_tx_pkts=`get_tx_pkts_ns $client_ns $client_vf`
+
     echo "logfile: $logfile"
     send_background_traffic $traffic_type $client_ns $server_ip $traffic_timeout $logfile
     local traffic_pid=$!
@@ -327,6 +330,15 @@ function check_traffic_offload() {
     tmp=${TRAFFIC_INFO['offloaded_traffic_verification_delay']}
     echo "Sleep for $tmp seconds initial traffic"
     sleep $tmp
+
+    title "Check vf counter"
+    local vf_tx_pkts2=`get_tx_pkts_ns $client_ns $client_vf`
+    let tx_diff=vf_tx_pkts2-vf_tx_pkts
+    if [[ $tx_diff -gt 10 ]]; then
+        success
+    else
+        err "Counter diff $tx_diff"
+    fi
 
     if [[ -n $client_verify_offload ]]; then
         echo "Start sender tcpdump"
