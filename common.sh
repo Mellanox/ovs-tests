@@ -158,6 +158,17 @@ function is_simx() {
     return 1
 }
 
+function print_mlnx_ofed_version() {
+    if is_ofed ; then
+        # first try version field and fallback to ofed_info script.
+        local ofed_version=`modinfo --field version mlx5_core`
+        if [ -z "$ofed_version" ]; then
+            ofed_version=`ofed_info -s 2>/dev/null | tr -d :`
+        fi
+        log "MLNX_OFED $ofed_version"
+    fi
+}
+
 function __setup_common() {
     start_test_timestamp
 
@@ -187,12 +198,7 @@ function __setup_common() {
     status="NIC $NIC FW $FW PCI $PCI DEVICE $DEVICE $device_name"
     log $status
 
-    # first try version field and fallback to ofed_info script.
-    local ofed_version=`modinfo --field version mlx5_core`
-    if [ -z "$ofed_version" ]; then
-        ofed_version=`ofed_info -s 2>/dev/null | tr -d :`
-    fi
-    is_ofed && log "MLNX_OFED $ofed_version"
+    print_mlnx_ofed_version
     __test_for_devlink_compat
 
     setup_expected_steering_mode
