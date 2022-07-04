@@ -101,11 +101,21 @@ function verify_tc_policy_none() {
 
 function run() {
     local file=/tmp/sflow.txt
-    local t=10
+    local t
     interval=$1
 
+    t=2
+    title "Ping for $t seconds to warm up"
+    ip netns exec ns0 ping $IP2 -q -i $interval -w $t
+    sleep 1
+
+    t=10
     timeout $((t+2)) sflowtool -p $SFLOW_PORT -L localtime,srcIP,dstIP > $file&
     sleep 1
+    pgrep sflowtool
+    if [[ $? != 0 ]]; then
+        err "sflowtool is not running in background in 1 second"
+    fi
 
     title "Ping for $t seconds"
     ip netns exec ns0 ping $IP2 -q -i $interval -w $t
