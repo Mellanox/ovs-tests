@@ -636,7 +636,7 @@ class SetupConfigure(object):
         config_file = "/workspace/dev_reg_conf.sh"
         self.Logger.info("Create config file %s" % config_file)
         with open(config_file, 'w+') as f:
-            f.write(conf)
+            f.write(conf+'\n')
         # just for easy copy paste
         self.Logger.info("export CONFIG=%s" % config_file)
 
