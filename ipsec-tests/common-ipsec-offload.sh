@@ -228,7 +228,7 @@ function cleanup_full() {
     local mtu=${1:-1500}
     local trusted_vfs=${2:-"no_trusted_vfs"}
     cleanup_crypto $mtu $trusted_vfs
-    ipsec_cleanup_devlink_mode_on_both_sides
+    ipsec_clear_mode_on_both_sides
 }
 
 # Usage <mtu> <ip_proto> <ipsec_mode> <net_proto> [trusted_vfs]

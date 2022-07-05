@@ -224,21 +224,11 @@ function ipsec_cleanup_on_both_sides() {
     ipsec_cleanup_remote $dev
 }
 
-function ipsec_cleanup_devlink_mode_local() {
-    local nic=${1:-"$NIC"}
-    ipsec_set_mode none $nic
-}
-
-function ipsec_cleanup_devlink_mode_remote() {
-    local nic=${1:-"$REMOTE_NIC"}
-    ipsec_set_mode_on_remote none $nic
-}
-
-function ipsec_cleanup_devlink_mode_on_both_sides() {
+function ipsec_clear_mode_on_both_sides() {
     local local_dev=${1:-"$NIC"}
     local remote_dev=${2:-"$REMOTE_NIC"}
-    ipsec_cleanup_devlink_mode_local $local_dev
-    ipsec_cleanup_devlink_mode_remote $remote_dev
+    ipsec_set_mode none $nic
+    ipsec_set_mode_on_remote none $nic
 }
 
 function change_mtu_on_both_sides() {
