@@ -266,6 +266,9 @@ function verify_ping() {
 
     if [ "${VDPA}" == "1" ]; then
         dst_execution="on_vm1"
+        if [ "${namespace}" != "ns0" ]; then
+            dst_execution="on_vm2"
+        fi
     fi
 
     cmd="${dst_execution} ping -q -c 10 -W 2 -i 0.01 $remote_ip -s $size"
