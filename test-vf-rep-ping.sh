@@ -53,9 +53,9 @@ function test_ping_flood() {
     if [ -n "$size" ]; then
         size="-s $size"
     fi
-    ping 7.7.7.2 -f -c $COUNT $size -w $TIMEOUT > $TMP1 &
-    ping 7.7.7.2 -f -c $COUNT $size -w $TIMEOUT > $TMP2 &
-    ping 7.7.7.2 -f -c $COUNT $size -w $TIMEOUT > $TMP3 &
+    ping $IP2 -f -c $COUNT $size -w $TIMEOUT > $TMP1 &
+    ping $IP2 -f -c $COUNT $size -w $TIMEOUT > $TMP2 &
+    ping $IP2 -f -c $COUNT $size -w $TIMEOUT > $TMP3 &
     wait
     err=0
     for i in 1 2 3; do
@@ -71,9 +71,7 @@ function test_ping_flood() {
     if [[ $err == 0 ]]; then
         success
     fi
-    rm -fr $TMP1
-    rm -fr $TMP2
-    rm -fr $TMP3
+    rm -fr $TMP1 $TMP2 $TMP3
 }
 
 test_ping_flood 10000
