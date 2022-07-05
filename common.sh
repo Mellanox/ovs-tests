@@ -572,6 +572,11 @@ function require_remote_server() {
     fi
     log "Remote server $REMOTE_SERVER"
     on_remote true || fail "Remote command failed"
+
+    local tmp="## TEST $TESTNAME REMOTE ##"
+    local count=${#tmp}
+    local sep=$(printf '%*s' $count | tr ' ' '#')
+    on_remote "echo -e '$sep\n$tmp\n$sep' >> /dev/kmsg"
 }
 
 function kmsg() {
