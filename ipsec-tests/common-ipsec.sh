@@ -224,20 +224,14 @@ function ipsec_cleanup_on_both_sides() {
     ipsec_cleanup_remote $dev
 }
 
-#This function sets back ipsec devlink mode to none
 function ipsec_cleanup_devlink_mode_local() {
     local nic=${1:-"$NIC"}
-    if [[ `ipsec_get_mode $nic` != "none" ]]; then
-        ipsec_set_mode none $nic
-    fi
+    ipsec_set_mode none $nic
 }
 
-#This function sets back ipsec devlink mode to none
 function ipsec_cleanup_devlink_mode_remote() {
     local nic=${1:-"$REMOTE_NIC"}
-    on_remote "if [[ `ipsec_get_mode $nic` != "none" ]]; then
-                   ipsec_set_mode none $nic
-               fi"
+    ipsec_set_mode_on_remote none $nic
 }
 
 function ipsec_cleanup_devlink_mode_on_both_sides() {
