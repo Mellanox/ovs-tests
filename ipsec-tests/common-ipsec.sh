@@ -1,7 +1,5 @@
-#!/bin/bash
-
-my_dir="$(dirname "$0")"
-. $my_dir/../common.sh
+IPSEC_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
+. $IPSEC_DIR/../common.sh
 
 LIP="172.16.0.1"
 RIP="172.16.0.2"

@@ -1,5 +1,3 @@
-#!/bin/bash
-
 IPERF_FILE="/tmp/iperf.log"
 TCPDUMP_FILE="/tmp/tcpdump.log"
 
