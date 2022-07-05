@@ -1,5 +1,6 @@
 IPSEC_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
 . $IPSEC_DIR/../common.sh
+. $IPSEC_DIR/common-ipsec-offload.sh
 
 LIP="172.16.0.1"
 RIP="172.16.0.2"
