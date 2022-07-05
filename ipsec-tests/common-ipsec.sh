@@ -35,13 +35,13 @@ KEY_OUT_256=0x`dd if=/dev/urandom count=36 bs=1 2> /dev/null| xxd -p -c 72`
 # IPSEC_MODE = transport|tunnel
 # KEY_LEN = 128|256
 # IP_PROTO = ipv4|ipv6
-# SHOULD_OFFLOAD = [offload]
+# SHOULD_OFFLOAD = [no-offload|offload|full_offload] *empty means no-offload.
 function ipsec_config() {
     local MODE="$1"
     local IPSEC_MODE="$2"
     local KEY_LEN="$3"
     local IP_PROTO="$4"
-    local SHOULD_OFFLOAD="$5"  #SHOULD_OFFLOAD will be equal to "" if no offload
+    local SHOULD_OFFLOAD="$5"
     local EFFECTIVE_LIP=$LIP
     local EFFECTIVE_RIP=$RIP
 
