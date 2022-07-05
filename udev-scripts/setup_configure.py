@@ -484,7 +484,7 @@ class SetupConfigure(object):
     def vdpa_vm_init(self, vm_num, vm_name):
         nic1 = self.host.PNics[0]
         orig_xml_file="/tmp/orig_vm%s.xml" % vm_num
-        xml_file = '/tmp/vdpa_vm%s.xml' % vm_num
+        xml_file = "/tmp/vdpa_vm%s.xml" % vm_num
 
         if os.path.exists(xml_file):
             # assume we already defined vdpa into the vm
@@ -499,7 +499,7 @@ class SetupConfigure(object):
         root = tree.getroot()
 
         # Add memoryBack block
-        memBack=ET.Element('memoryBacking')
+        memBack = ET.Element('memoryBacking')
         HugePages = ET.SubElement(memBack, 'hugepages')
         memIndex = self.findTagIndex(root, 'memory')
         root.insert(memIndex, memBack)
@@ -509,9 +509,9 @@ class SetupConfigure(object):
         cpuAttrib = cpu.attrib.copy()
         for attrib in cpuAttrib:
             cpu.attrib.pop(attrib)
-        cpu.set('match','exact')
-        cpu.set('mode','custom')
-        cpu.set('check','full')
+        cpu.set('match', 'exact')
+        cpu.set('mode', 'custom')
+        cpu.set('check', 'full')
         cpuNuma = ET.SubElement(cpu, 'numa')
         cpuNumaSubElem = ET.SubElement(cpuNuma, 'cell', id='0', cpus='0-1', memory='2097152', unit='KiB', memAccess='shared')
 
