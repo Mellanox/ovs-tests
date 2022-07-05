@@ -65,6 +65,12 @@ class SetupConfigure(object):
 
         self.args = parser.parse_args()
 
+        if self.args.bluefield and self.args.steering_mode:
+            self.Logger.warning("Using default steering mode for bluefield.")
+
+        if self.args.sw_steering_mode:
+            self.Logger.warning("--sw-steering-mode is deprecated. don't use it.")
+
     def set_ovs_service(self):
         self.ID = ''
         try:
