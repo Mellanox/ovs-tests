@@ -457,7 +457,6 @@ class SetupConfigure(object):
             with open(NESTED_VM_DATA) as json_file:
                 return json.load(json_file)
         except IOError:
-            self.Logger.error('Failed to read %s' % path)
             raise RuntimeError('Failed to read %s ' % path)
 
     def findTagIndex(self, tree, tag):
@@ -574,7 +573,6 @@ class SetupConfigure(object):
                     if 'CLOUD_PLAYER_2_ARM_IP' in line:
                         cloud_player_2_bf_ip = line.strip().split('=')[1]
         except IOError:
-            self.Logger.error('Failed to read cloud_tools/.setup_info')
             raise RuntimeError('Failed to read cloud_tools/.setup_info')
 
         if cloud_player_1_ip == self.host.name:
