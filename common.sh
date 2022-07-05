@@ -1457,7 +1457,8 @@ function check_ovs_settings() {
 function check_dpdk_init() {
     local force=0
     local want=""
-    local want_extra="-w $PCI,representor=[0,1],dv_xmeta_en=1"
+    local dummy_pci="0000:00:00.0"
+    local want_extra="-a $dummy_pci"
 
     if [ "${DPDK}" == 1 ]; then
         want="true"

@@ -2,6 +2,7 @@
 . ${DIR}/ovs-dpdk-tests/common-testing.sh
 
 VDPA_DEV_NAME="eth2"
+DPDK_PORT_EXTRA_ARGS="dv_xmeta_en=1"
 
 function set_ovs_dpdk_debug_logs () {
     local log="/var/log/openvswitch/ovs-vswitchd.log"
@@ -30,12 +31,15 @@ function configure_dpdk_rep_ports() {
     for (( i=0; i<$reps; i++ ))
     do
         if [ "${VDPA}" != "1" ]; then
-            ovs-vsctl add-port $bridge rep$i -- set Interface rep$i type=dpdk options:dpdk-devargs=$PCI,representor=[$i]
+            ovs-vsctl add-port $bridge rep$i -- set Interface rep$i type=dpdk options:dpdk-devargs=$PCI,representor=[$i],$DPDK_PORT_EXTRA_ARGS
         else
             local vf_num="VF"
             vf_num+=$((i+1))
             local vfpci=$(get_vf_pci ${!vf_num})
-            ovs-vsctl add-port $bridge rep$i -- set Interface rep$i type=dpdkvdpa options:vdpa-socket-path=/tmp/sock$(($i+1)) options:vdpa-accelerator-devargs=$vfpci options:dpdk-devargs=$PCI,representor=[$i]
+            ovs-vsctl add-port $bridge rep$i -- \
+                set Interface rep$i type=dpdkvdpa options:vdpa-socket-path=/tmp/sock$(($i+1)) \
+                options:vdpa-accelerator-devargs=$vfpci \
+                options:dpdk-devargs=$PCI,representor=[$i],$DPDK_PORT_EXTRA_ARGS
         fi
     done
 }
@@ -59,7 +63,7 @@ function config_simple_bridge_with_rep() {
 
     debug "configuring simple bridge with $reps reps"
     ovs-vsctl --may-exist add-br br-phy -- set Bridge br-phy datapath_type=netdev -- br-set-external-id br-phy bridge-id br-phy -- set bridge br-phy fail-mode=standalone
-    ovs-vsctl add-port br-phy pf -- set Interface pf type=dpdk options:dpdk-devargs=$PCI
+    ovs-vsctl add-port br-phy pf -- set Interface pf type=dpdk options:dpdk-devargs=$PCI,$DPDK_PORT_EXTRA_ARGS
 
     configure_dpdk_rep_ports $reps "br-phy"
 }
