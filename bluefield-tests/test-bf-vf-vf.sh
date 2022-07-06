@@ -32,10 +32,10 @@ function config_test() {
     config_sriov
 
     require_interfaces CLIENT_VF SERVER_VF
-    config_bf_vf $CLIENT_NS $CLIENT_VF $CLIENT_REP $CLIENT_IPV4
+    config_vf $CLIENT_NS $CLIENT_VF $CLIENT_REP $CLIENT_IPV4
     ip netns exec $CLIENT_NS ip addr add $CLIENT_IPV6/64 dev $CLIENT_VF
 
-    config_bf_vf $SERVER_NS $SERVER_VF $SERVER_REP $SERVER_IPV4
+    config_vf $SERVER_NS $SERVER_VF $SERVER_REP $SERVER_IPV4
     ip netns exec $SERVER_NS ip addr add $SERVER_IPV6/64 dev $SERVER_VF
 
     on_bf_exec "start_clean_openvswitch

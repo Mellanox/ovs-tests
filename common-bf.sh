@@ -34,7 +34,7 @@ function require_remote_bf() {
     on_remote_bf true || fail "Remote BF command failed"
 }
 
-function __config_bf_vf() {
+function __config_vf() {
     local ns=$1
     local vf=$2
     local ip=$3  # optional
@@ -60,15 +60,15 @@ function __config_rep() {
     ip link set dev $rep up
 }
 
-function config_bf_vf() {
+function config_vf() {
     local ns=$1
     local vf=$2
     local rep=$3
     local ip=$4  # optional
     local mac=$5 # optional
 
-    echo "[$ns] $vf (${mac:+$mac/}$ip) -> $rep"
-    __config_bf_vf $ns $vf $ip $mac
+    echo "[$ns] $vf (${mac:+$mac/}$ip) -> BF $rep"
+    __config_vf $ns $vf $ip $mac
     on_bf_exec "__config_rep $rep"
 }
 
@@ -79,7 +79,7 @@ function config_remote_bf_vf() {
     local ip=$4  # optional
     local mac=$5 # optional
 
-    echo "[$ns] $vf (${mac:+$mac/}$ip) -> $rep"
-    on_remote_exec "__config_bf_vf $ns $vf $ip $mac"
+    echo "[$ns] $vf (${mac:+$mac/}$ip) -> BF $rep"
+    on_remote_exec "__config_vf $ns $vf $ip $mac"
     on_remote_bf_exec "__config_rep $rep"
 }

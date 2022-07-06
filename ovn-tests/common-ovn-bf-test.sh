@@ -14,7 +14,7 @@ function __config_bf_ovn_interface_namespace() {
     local ip_gw=$6   # optional
     local ipv6_gw=$7 # optional
 
-    __config_bf_vf $ns $vf $ip $mac
+    __config_vf $ns $vf $ip $mac
     ip netns exec $ns ip -6 addr add $ipv6/64 dev $vf
 
     if [[ -n "$ip_gw" ]]; then
