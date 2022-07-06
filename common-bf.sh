@@ -22,7 +22,7 @@ function require_bf() {
     log "BF $BF_IP"
     on_bf true || fail "BF command failed"
     print_remote_test_separator $BF_IP
-    on_bf "echo MLNX_OFED \`modinfo --field version mlx5_core\` >> /dev/kmsg"
+    on_bf "echo MLNX_OFED \`modinfo --field version mlx5_core\` | tee -a /dev/kmsg"
 }
 
 function require_remote_bf() {
