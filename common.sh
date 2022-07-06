@@ -581,6 +581,14 @@ function __on_remote() {
     ssh2 $remote "${@:2}"
 }
 
+function print_remote_test_separator() {
+    local remote=$1
+    local tmp="## TEST $TESTNAME REMOTE ##"
+    local count=${#tmp}
+    local sep=$(printf '%*s' $count | tr ' ' '#')
+    __on_remote $remote "echo -e \"$sep\n$tmp\n$sep\" >> /dev/kmsg"
+}
+
 function require_remote_server() {
     if [ -z "$REMOTE_SERVER" ]; then
         fail "Remote server is not configured"
@@ -590,11 +598,7 @@ function require_remote_server() {
     fi
     log "Remote server $REMOTE_SERVER"
     on_remote true || fail "Remote command failed"
-
-    local tmp="## TEST $TESTNAME REMOTE ##"
-    local count=${#tmp}
-    local sep=$(printf '%*s' $count | tr ' ' '#')
-    on_remote "echo -e '$sep\n$tmp\n$sep' >> /dev/kmsg"
+    print_remote_test_separator $REMOTE_IP
 }
 
 function kmsg() {

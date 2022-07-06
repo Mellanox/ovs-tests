@@ -21,6 +21,7 @@ function require_bf() {
 
     log "BF $BF_IP"
     on_bf true || fail "BF command failed"
+    print_remote_test_separator $BF_IP
     on_bf_exec print_mlnx_ofed_version
 }
 
