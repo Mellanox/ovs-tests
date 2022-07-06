@@ -520,6 +520,10 @@ function set_port_state_down() {
     set_port_state DN
 }
 
+function scp2() {
+    scp -q -o ConnectTimeout=3 "$@"
+}
+
 function ssh2() {
     ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=3 "$@"
 }
@@ -529,9 +533,23 @@ function on_remote_exec() {
     __on_remote_exec $REMOTE_SERVER "$@"
 }
 
+__foo_copied=0
+# use a static file to avoid creating endless temp files.
+__FOO="/tmp/foo.sh"
+function __foo_copy() {
+    if [ "$__foo_copied" == 1 ]; then
+        return
+    fi
+    set | grep -Ev "^(BASH|SHELLOPTS|UID|EUID|PPID)" > $__FOO
+    echo ". /etc/os-release" >> $__FOO
+    scp2 -q $__FOO $remote:/tmp/
+    __foo_copied=1
+}
+
 function __on_remote_exec() {
     local remote=$1
-    ssh2 $remote "$(set | grep -Ev "^(BASH|SHELLOPTS|UID|EUID|PPID)"); . /etc/os-release; ${@:2}"
+    __foo_copy
+    ssh2 $remote ". $__FOO; ${@:2}"
 }
 
 function on_remote_dt() {
