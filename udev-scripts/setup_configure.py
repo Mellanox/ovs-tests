@@ -16,7 +16,7 @@ from subprocess import check_call
 from subprocess import check_output
 from subprocess import CalledProcessError
 
-NESTED_VM_DATA="/workspace/nested_data.json"
+NESTED_VM_DATA = "/workspace/nested_data.json"
 
 
 def runcmd(cmd):
@@ -37,7 +37,7 @@ def runcmd_output(cmd):
 def start_kmemleak():
     """Make sure kmemleak thread is running if supported. ignore errors."""
     if os.path.exists('/sys/kernel/debug/kmemleak'):
-        scan=180
+        scan = 180
         print("Set kmemleak scan thread to %s seconds" % scan)
         runcmd("echo scan=%s > /sys/kernel/debug/kmemleak" % scan)
     else:
@@ -82,7 +82,7 @@ class SetupConfigure(object):
                         break
             # lsb_release lib doesnt always exists
             # self.is_ubuntu = lsb_release.get_os_release()['ID'].lower() == 'ubuntu'
-        except:
+        except OSError:
             pass
 
         if self.ID:
@@ -141,7 +141,7 @@ class SetupConfigure(object):
 
             self.CreateConfFile()
 
-        except:
+        except Exception:
             self.Logger.error(str(traceback.format_exc()))
             return 1
 
@@ -193,11 +193,11 @@ class SetupConfigure(object):
                 continue
 
             PFInfo = {
-                      'vfs'    : [],
-                      'sw_id'  : None,
-                      'topoID' : None,
-                      'name'   : PFName,
-                      'bus'    : bus,
+                      'vfs': [],
+                      'sw_id': None,
+                      'topoID': None,
+                      'name': PFName,
+                      'bus': bus,
                      }
 
             self.Logger.info("Found PF %s", PFName)
@@ -214,9 +214,9 @@ class SetupConfigure(object):
                 busOutput = os.path.basename(os.readlink(device))
 
                 VFInfo = {
-                            'rep'  : None,
-                            'name' : nameOutput,
-                            'bus'  : busOutput,
+                            'rep': None,
+                            'name': nameOutput,
+                            'bus': busOutput,
                         }
 
                 self.Logger.info('PF %s VF %s', PFInfo['name'], nameOutput)
@@ -417,7 +417,7 @@ class SetupConfigure(object):
         runcmd_output("systemctl restart %s" % self.ovs_service)
 
     def ConfigureOVS(self):
-        self.Logger.info("Setting [hw-offload=true] configuration to OVS" )
+        self.Logger.info("Setting [hw-offload=true] configuration to OVS")
         self.RestartOVS()
         runcmd_output('ovs-vsctl set Open_vSwitch . other_config:hw-offload=true')
         self.RestartOVS()
@@ -463,7 +463,7 @@ class SetupConfigure(object):
         i = 0
         for child in tree.iter():
             i += 1
-            if (child.tag == tag):
+            if child.tag == tag:
                 return i
         return -1
 
@@ -472,18 +472,18 @@ class SetupConfigure(object):
         found = False
         for child in devices:
             count += 1
-            if (child.tag == tag):
+            if child.tag == tag:
                 found = True
-            elif (found == True):
+            elif found:
                 return count - 1
         return -1
 
     def set_sysconfig_openvswitch_user(self):
-        runcmd2("sed -i '/OVS_USER_ID=\"openvswitch:hugetlbfs\"/c\OVS_USER_ID=\"root:root\"' /etc/sysconfig/openvswitch")
+        runcmd2("sed -i 's/OVS_USER_ID=\"openvswitch:hugetlbfs\"/OVS_USER_ID=\"root:root\"/' /etc/sysconfig/openvswitch")
 
     def vdpa_vm_init(self, vm_num, vm_name):
         nic1 = self.host.PNics[0]
-        orig_xml_file="/tmp/orig_vm%s.xml" % vm_num
+        orig_xml_file = "/tmp/orig_vm%s.xml" % vm_num
         xml_file = "/tmp/vdpa_vm%s.xml" % vm_num
 
         if os.path.exists(xml_file):
