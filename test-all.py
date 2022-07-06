@@ -141,6 +141,7 @@ MINI_REG_LIST = []
 IGNORE_LIST = []
 TEST_TIMEOUT_MAX = 1200
 KMEMLEAK_SYSFS = "/sys/kernel/debug/kmemleak"
+RERUN_TAG = "*rerun"
 
 TIME_DURATION_UNITS = (
     ('h', 60*60),
@@ -1329,8 +1330,6 @@ def run_tests(iteration):
     return failed
 
 
-RERUN_TAG = "*rerun"
-
 def calc_test_col_len():
     global COL_TEST_NAME
     rerun_tag_len = len(RERUN_TAG)
@@ -1411,7 +1410,7 @@ def get_distro():
             for line in f.readlines():
                 line = line.strip().split('=')
                 distro[line[0]] = line[1].strip('"')
-    except:
+    except OSError:
         pass
     return distro
 
