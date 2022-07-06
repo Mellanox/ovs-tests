@@ -5,8 +5,7 @@
 # Require external server
 #
 
-my_dir="$(cd "$(dirname ${BASH_SOURCE[0]})" &>/dev/null && pwd)"
-. $my_dir/../common.sh
+my_dir="$(dirname "$0")"
 . $my_dir/common-dpdk.sh
 
 trap cleanup_test EXIT

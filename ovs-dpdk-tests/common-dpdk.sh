@@ -1,5 +1,7 @@
-. ${DIR}/ovs-dpdk-tests/common-tunnel.sh
-. ${DIR}/ovs-dpdk-tests/common-testing.sh
+DPDK_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
+. $DPDK_DIR/../common.sh
+. $DPDK_DIR/common-tunnel.sh
+. $DPDK_DIR/common-testing.sh
 
 VDPA_DEV_NAME="eth2"
 DPDK_PORT_EXTRA_ARGS="dv_xmeta_en=1"

@@ -6,7 +6,6 @@
 # Bug SW #2644904: [ovs-dpdk, e2e-enable] Failed deleting ovs from bridge when we try to cleanup the setup
 
 my_dir="$(dirname "$0")"
-. $my_dir/../common.sh
 . $my_dir/common-dpdk.sh
 
 IP=1.1.1.7

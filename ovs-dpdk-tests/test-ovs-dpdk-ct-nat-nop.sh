@@ -5,7 +5,6 @@
 #
 
 my_dir="$(dirname "$0")"
-. $my_dir/../common.sh
 . $my_dir/common-dpdk.sh
 
 trap cleanup_test EXIT

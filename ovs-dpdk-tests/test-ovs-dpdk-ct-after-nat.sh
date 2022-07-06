@@ -4,8 +4,6 @@
 #
 
 my_dir="$(dirname "$0")"
-
-. $my_dir/../common.sh
 . $my_dir/common-dpdk.sh
 
 DUMMY_IP=1.1.1.111

@@ -4,8 +4,8 @@
 #
 # Require external server
 #
+
 my_dir="$(dirname "$0")"
-. $my_dir/../common.sh
 . $my_dir/common-dpdk.sh
 
 require_remote_server
