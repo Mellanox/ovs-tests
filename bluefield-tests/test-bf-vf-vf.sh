@@ -38,9 +38,8 @@ function config_test() {
     config_vf $SERVER_NS $SERVER_VF $SERVER_REP $SERVER_IPV4
     ip netns exec $SERVER_NS ip addr add $SERVER_IPV6/64 dev $SERVER_VF
 
-    on_bf_exec "start_clean_openvswitch
-           ovs-vsctl --may-exist add-br $BRIDGE -- --may-exist add-port $BRIDGE $CLIENT_REP -- --may-exist add-port $BRIDGE $SERVER_REP
-           ip link set $BF_NIC up"
+    on_bf_exec "ovs-vsctl --may-exist add-br $BRIDGE -- --may-exist add-port $BRIDGE $CLIENT_REP -- --may-exist add-port $BRIDGE $SERVER_REP
+                ip link set $BF_NIC up"
 }
 
 function run_test() {
