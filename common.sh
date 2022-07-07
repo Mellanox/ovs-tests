@@ -1353,9 +1353,10 @@ function check_for_errors_log() {
     local look="DEADLOCK|possible circular locking|possible recursive locking|\
 WARNING:|RIP:|BUG:|refcount > 1|refcount_t|segfault|in_atomic|hw csum failure|\
 list_del corruption|which is not allocated|Objects remaining|assertion failed|\
-Slab cache still has objects|new suspected memory leaks|Unknown object at|\
+Slab cache still has objects|Unknown object at|\
 warning: consoletype is now deprecated|warning: use tty|\
 kfree for unknown address|UBSAN|KASAN"
+    local memleak="new suspected memory leaks"
     local memtrack="memtrack_report: Summary: .* leak\(s\) detected"
     local mlx5_errs="mlx5_core .* err |mlx5_core .* failed |syndrome"
     local fw_errs="health compromised|firmware internal error|assert_var|\
@@ -1384,6 +1385,19 @@ kvm"
     fi
     [ "$a" != "" ] && echo "$a"
     [ "$b" != "" ] && echo "$b"
+
+    a=`journalctl_for_test | grep -E -i "$memleak" || true`
+    if [ "$a" != "" ]; then
+        # WA getting 2 "mount.nfs" leaks sometimes in regression VM.
+        cat $kmemleak_sysfs | grep -q "mount.nfs"
+        local mount_issue=$?
+        local count=`cat $kmemleak_sysfs | grep -c "unreferenced object"`
+        if [ $mount_issue -ne 0 ] || [ $count -ne 2 ]; then
+            err "Detected errors in the log"
+            echo "$a"
+            rc=1
+        fi
+    fi
 
     return $rc
 }
