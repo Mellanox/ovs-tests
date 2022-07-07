@@ -95,7 +95,7 @@ ovs-ofctl add-flow brv-1 "priority=100,udp,tp_dst:5002 actions=drop" || err_clea
 
 function test_udp() {
     title "Test iperf udp $VF($VM1_IP) -> $VF2($VM2_IP)"
-    iperf -u -c $VM2_IP -t 1 -P1 -l 1550
+    iperf -u -c $VM2_IP -t 1 -P1 -l 1550 2>/dev/null
 }
 
 # TODO verify we actually run iperf with mtu > netdev mtu

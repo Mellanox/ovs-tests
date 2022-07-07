@@ -44,7 +44,7 @@ function test_frags() {
     elif [ "$_test" == "ipv6" ]; then
         count=`tcpdump -nnr $tdtmpfile 'ip6[6] = 44' | wc -l`
     else
-        fail "Mssing _test value"
+        fail "Missing _test value"
     fi
 
     if [[ $count = 0 ]]; then
@@ -107,7 +107,7 @@ function config_ipv6() {
 function run_cases() {
     title "Test fragmented packets VF->REP"
     start_tcpdump
-    ip netns exec ns0 iperf -u -c $IP1 -b 1M -l 2000 -n 1M $iperf_ext
+    ip netns exec ns0 iperf -u -c $IP1 -b 1M -l 2000 -n 1M $iperf_ext 2>/dev/null
     stop_tcpdump
     title " - verify with tcpdump"
     test_frags
@@ -116,7 +116,7 @@ function run_cases() {
     # the second fragment will be with data of size 1.
     title "Test fragmented packets VF->REP 1473"
     start_tcpdump
-    ip netns exec ns0 iperf -u -c $IP1 -b 1M -l 1473 -n 1M $iperf_ext
+    ip netns exec ns0 iperf -u -c $IP1 -b 1M -l 1473 -n 1M $iperf_ext 2>/dev/null
     stop_tcpdump
     title " - verify with tcpdump"
     test_frags
@@ -126,7 +126,7 @@ function run_cases() {
     # this case is we have 7 bytes to copy and left with padding of 1.
     title "Test fragmented packets VF->REP 1479"
     start_tcpdump
-    ip netns exec ns0 iperf -u -c $IP1 -b 1M -l 1479 -n 1M $iperf_ext
+    ip netns exec ns0 iperf -u -c $IP1 -b 1M -l 1479 -n 1M $iperf_ext 2>/dev/null
     stop_tcpdump
     title " - verify with tcpdump"
     test_frags
