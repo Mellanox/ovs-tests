@@ -30,7 +30,6 @@ config_shared_block
 
 function cleanup() {
     clean_shared_block
-    clear_bonding
     restore_sriov_autoprobe
 }
 
@@ -57,6 +56,7 @@ function test_32_dest() {
 
 test_32_dest
 check_kasan
+clear_bonding
 config_sriov 2
 config_sriov 2 $NIC2
 test_done
