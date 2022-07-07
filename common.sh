@@ -598,7 +598,7 @@ function require_remote_server() {
     fi
     log "Remote server $REMOTE_SERVER"
     on_remote true || fail "Remote command failed"
-    print_remote_test_separator $REMOTE_IP
+    print_remote_test_separator $REMOTE_SERVER
 }
 
 function kmsg() {
