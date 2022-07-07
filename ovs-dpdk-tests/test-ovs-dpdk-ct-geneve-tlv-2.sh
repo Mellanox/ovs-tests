@@ -17,21 +17,20 @@ remote_ovs_cleanup
 
 function config_openflow_rules() {
     local exec_on_remote=${1:-false}
-    local cmd="ovs-ofctl del-flows br-int; \
-    ovs-ofctl add-flow br-int arp,actions=normal; \
-    ovs-ofctl add-flow br-int icmp,actions=normal; \
-    ovs-ofctl add-tlv-map br-int \"{class=0xffff,type=0x80,len=4}->tun_metadata0\"; \
-    ovs-ofctl add-flow br-int \"table=0,in_port=geneve0,ip,tun_metadata0=0x1234,ct_state=-trk actions=ct(table=1)\"; \
-    ovs-ofctl add-flow br-int \"table=1,in_port=geneve0,ip,tun_metadata0=0x1234,ct_state=+trk+new actions=ct(commit),normal\"; \
-    ovs-ofctl add-flow br-int \"table=1,in_port=geneve0,ip,tun_metadata0=0x1234,ct_state=+trk+est actions=normal\"; \
-    ovs-ofctl add-flow br-int \"table=0,in_port=rep0,ip,ct_state=-trk actions=ct(table=1)\"; \
-    ovs-ofctl add-flow br-int \"table=1,in_port=rep0,ip,ct_state=+trk+new actions=set_field:0x1234->tun_metadata0,ct(commit),normal\"; \
-    ovs-ofctl add-flow br-int \"table=1,in_port=rep0,ip,ct_state=+trk+est actions=set_field:0x1234->tun_metadata0,normal\"; \
-    ovs-ofctl dump-flows br-int --color; \
-    "
+    local cmd="ovs-ofctl del-flows br-int;
+               ovs-ofctl add-flow br-int arp,actions=normal;
+               ovs-ofctl add-flow br-int icmp,actions=normal;
+               ovs-ofctl add-tlv-map br-int \"{class=0xffff,type=0x80,len=4}->tun_metadata0\";
+               ovs-ofctl add-flow br-int \"table=0,in_port=geneve0,ip,tun_metadata0=0x1234,ct_state=-trk actions=ct(table=1)\";
+               ovs-ofctl add-flow br-int \"table=1,in_port=geneve0,ip,tun_metadata0=0x1234,ct_state=+trk+new actions=ct(commit),normal\";
+               ovs-ofctl add-flow br-int \"table=1,in_port=geneve0,ip,tun_metadata0=0x1234,ct_state=+trk+est actions=normal\";
+               ovs-ofctl add-flow br-int \"table=0,in_port=rep0,ip,ct_state=-trk actions=ct(table=1)\";
+               ovs-ofctl add-flow br-int \"table=1,in_port=rep0,ip,ct_state=+trk+new actions=set_field:0x1234->tun_metadata0,ct(commit),normal\";
+               ovs-ofctl add-flow br-int \"table=1,in_port=rep0,ip,ct_state=+trk+est actions=set_field:0x1234->tun_metadata0,normal\";
+               ovs-ofctl dump-flows br-int --color"
 
     if [ "$exec_on_remote" = true ]; then
-        on_remote_dt "$cmd"
+        on_remote "$cmd"
     else
         eval "$cmd"
     fi

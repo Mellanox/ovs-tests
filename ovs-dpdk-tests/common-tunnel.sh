@@ -94,8 +94,8 @@ function create_tunnel_config() {
 
      if [ "$remote" == "remote" ]; then
         title "Configuring remote server"
-        on_remote_dt "$cmd
-                      ovs_conf_set hw-offload false"
+        on_remote_exec "$cmd
+                        ovs_conf_set hw-offload false"
      else
          title "Configuring local server"
          eval "$cmd"

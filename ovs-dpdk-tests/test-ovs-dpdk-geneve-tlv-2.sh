@@ -17,17 +17,16 @@ remote_ovs_cleanup
 
 function config_openflow_rules() {
     local exec_on_remote=${1:-false}
-    local cmd="ovs-ofctl add-tlv-map br-int \"{class=0xffff,type=0x80,len=4}->tun_metadata0\"; \
-               ovs-ofctl del-flows br-int; \
-               ovs-ofctl add-flow br-int arp,actions=normal; \
-               ovs-ofctl add-flow br-int \"priority=1,arp,actions=normal\"; \
-               ovs-ofctl add-flow br-int \"in_port=rep0,actions=set_field:0x1234->tun_metadata0,normal\"; \
-               ovs-ofctl add-flow br-int \"tun_metadata0=0x1234,actions=normal\"; \
-               ovs-ofctl dump-flows br-int --color; \
-               "
+    local cmd="ovs-ofctl add-tlv-map br-int \"{class=0xffff,type=0x80,len=4}->tun_metadata0\";
+               ovs-ofctl del-flows br-int;
+               ovs-ofctl add-flow br-int arp,actions=normal;
+               ovs-ofctl add-flow br-int \"priority=1,arp,actions=normal\";
+               ovs-ofctl add-flow br-int \"in_port=rep0,actions=set_field:0x1234->tun_metadata0,normal\";
+               ovs-ofctl add-flow br-int \"tun_metadata0=0x1234,actions=normal\";
+               ovs-ofctl dump-flows br-int --color"
 
     if [ "$exec_on_remote" = true ]; then
-        on_remote_dt "$cmd"
+        on_remote "$cmd"
     else
         eval "$cmd"
     fi

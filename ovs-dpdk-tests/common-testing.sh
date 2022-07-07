@@ -426,9 +426,9 @@ function kill_iperf() {
 
 function remote_ovs_cleanup() {
     title "Cleaning up remote"
-    on_remote_dt "ip a flush dev $NIC
-                  ip netns del ns0 &>/dev/null
-                  start_clean_openvswitch"
+    on_remote_exec "ip a flush dev $NIC
+                    ip netns del ns0 &>/dev/null
+                    start_clean_openvswitch"
 }
 
 function cleanup_test() {
