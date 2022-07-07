@@ -131,7 +131,7 @@ function run() {
     pid=$!
 
     title "run traffic for $t seconds"
-    ip netns exec ns1 timeout $((t+1)) iperf -s -i 1 -p 21845 &
+    ip netns exec ns1 timeout $((t+2)) iperf -s -i 1 -p 21845 &
 #    ip netns exec ns1 timeout $((t+1)) iperf3 -s -i 1 -D
 #    ip netns exec ns1 $pktgen -l -i $VETH_VF --src-ip $ip --time $((t+1)) &
 #    ip netns exec ns1 timeout $t ./py-server.py $ip_remote 7000 &
@@ -172,7 +172,7 @@ function run() {
     pid=$!
 
     sleep $t
-    killall -9 iperf &>/dev/null
+    killall -q -9 iperf
     wait $! 2>/dev/null
 
     # test sniff or timeout
