@@ -444,7 +444,10 @@ def run_test(test, html=False):
     else:
         # not timedout
         status = get_better_status(subp.returncode, log)
-        log += get_kmemleak_info()
+        memleak = get_kmemleak_info()
+        log += memleak
+        if memleak:
+            raise ExecCmdFailed("kmemleak found issues")
 
     with open(logname, 'w') as f1:
         f1.write(log)
