@@ -58,5 +58,7 @@ test_32_dest
 check_kasan
 clear_bonding
 config_sriov 2
-config_sriov 2 $NIC2
+config_sriov 0 $NIC2
+trap - EXIT
+cleanup
 test_done
