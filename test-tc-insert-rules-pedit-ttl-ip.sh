@@ -26,10 +26,10 @@ function tc_filter_failure() {
     else
         local pattern="(can't offload re-write|^RTNETLINK answers)"
 
-        echo $std_error_text
         if [[ $std_error_text =~ $pattern ]];then
             success
         else
+            echo $std_error_text
             err "expected offload re-write error message on stderr"
         fi
     fi
@@ -107,7 +107,7 @@ function test_sctp_rewrite() {
         pipe action mirred egress redirect dev $REP2
     reset_tc $REP
 
-    title "- ttl & addr fields (must be error message)"
+    title "- ttl & addr fields - expected to fail"
     tc_filter_failure add dev $REP protocol ip parent ffff: prio 1 \
         flower skip_sw ip_proto sctp \
         action pedit ex \
@@ -116,7 +116,7 @@ function test_sctp_rewrite() {
         pipe action mirred egress redirect dev $REP2
     reset_tc $REP
 
-    title "- addr fields only (must be error message)"
+    title "- addr fields only - expected to fail"
     tc_filter_failure add dev $REP protocol ip parent ffff: prio 1 \
         flower skip_sw ip_proto sctp \
         action pedit ex \
@@ -138,7 +138,7 @@ function test_sctp_rewrite_ipv6() {
         pipe action mirred egress redirect dev $REP2
     reset_tc $REP
 
-    title "- hoplimit & addr fields (must be error message)"
+    title "- hoplimit & addr fields - expected to fail"
     tc_filter_failure add dev $REP protocol ipv6 parent ffff: prio 1 \
         flower skip_sw ip_proto sctp \
         action pedit ex \
@@ -147,7 +147,7 @@ function test_sctp_rewrite_ipv6() {
         pipe action mirred egress redirect dev $REP2
     reset_tc $REP
 
-    title "- addr field only (must be error message)"
+    title "- addr field only - expected to fail"
     tc_filter_failure add dev $REP protocol ipv6 parent ffff: prio 1 \
         flower skip_sw ip_proto sctp \
         action pedit ex \
@@ -165,5 +165,4 @@ test_tcp_rewrite_ipv6
 test_sctp_rewrite
 test_sctp_rewrite_ipv6
 
-title "Check log"
 test_done

@@ -10,11 +10,14 @@ my_dir="$(dirname "$0")"
 not_relevant_for_nic cx4
 
 function tc_filter_fail() {
-    eval tc -s filter $@ && err "Expected to fail adding rule"
+    eval tc -s filter $@ &>/tmp/log
+    grep -q "Drop with modify header action is not supported" /tmp/log && success && return
+    cat /tmp/log
+    err "Expected to fail adding rule"
 }
 
 function test_basic_header_rewrite() {
-    title "Add basic pedit rule on representor with drop"
+    title "Add basic pedit rule on representor with drop - expected to fail"
     reset_tc $REP
     tc_filter_fail add dev $REP protocol ip parent ffff: prio 1 \
         flower skip_sw ip_proto icmp \

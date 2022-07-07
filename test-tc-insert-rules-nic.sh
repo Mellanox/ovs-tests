@@ -73,8 +73,8 @@ function test_prio() {
                     ip_proto tcp \
                     src_ip 1.1.1.1 \
                     dst_ip 2.2.2.2 \
-            action drop 2>&1 | tee /tmp/log
-    grep -q "Operation not supported" /tmp/log && return
+            action drop >/tmp/log 2>&1
+    grep -q "Operation not supported" /tmp/log && success && return
     err "Expected operation not supported error"
 }
 

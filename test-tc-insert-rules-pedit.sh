@@ -89,5 +89,4 @@ test_complex_header_rewrite_add1
 test_complex_header_rewrite_add2
 test_complex_header_rewrite_set
 
-title "Check log"
 test_done

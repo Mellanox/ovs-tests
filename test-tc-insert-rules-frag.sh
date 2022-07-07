@@ -21,27 +21,25 @@ function test_tc_filter() {
 
     a=`eval tc filter $@ 2>&1`
     err=$?
-    [ -n "$a" ] && echo $a
 
     echo "$a" | grep -q "Operation not supported\|Match on frag first/later is not supported" && true || false
     opnotsupp=$?
 
     if [ $err != 0 ] && [ $opnotsupp == 0 ]; then
-        success $reason
-    else
-        err $reason
+        success
+        return
     fi
+
+    echo $a
+    err "Expected to fail"
 }
 
-
-reason="Expected to fail with reason EOPNOTSUPP"
-
-title "Test fragfirst rule"
+title "Test fragfirst rule fails"
 reset_tc $NIC
 test_tc_filter add dev $NIC protocol ip parent ffff: flower skip_sw ip_flags firstfrag \
     dst_mac e4:11:22:11:4a:51 src_mac e4:11:22:11:4a:50 action drop
 
-title "Test nofragfirst rule"
+title "Test nofragfirst rule fails"
 reset_tc $NIC
 test_tc_filter add dev $NIC protocol ip parent ffff: flower skip_sw ip_flags nofirstfrag \
     dst_mac e4:11:22:11:4a:51 src_mac e4:11:22:11:4a:50 action drop

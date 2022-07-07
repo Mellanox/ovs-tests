@@ -39,5 +39,4 @@ enable_switchdev
 test_header_rewrite_ttl_uplink
 test_header_rewrite_ttl_vport
 
-title "Check log"
 test_done

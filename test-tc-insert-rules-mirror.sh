@@ -26,7 +26,10 @@ function test2() {
     reset_tc $REP
     tc filter add dev $REP ingress protocol arp prio 1 flower skip_sw \
         action mirred egress mirror dev $REP2 pipe \
-        action mirred egress redirect dev $REP2 && err || success
+        action mirred egress redirect dev $REP2 &>/tmp/log
+    [ $? -ne 0 ] && success && return
+    cat /tmp/log
+    err "Expected to fail"
     reset_tc $REP
 }
 

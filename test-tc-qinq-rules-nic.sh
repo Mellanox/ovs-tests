@@ -11,7 +11,8 @@ enable_legacy
 require_interfaces NIC
 
 function tc_filter_fail() {
-    eval tc -s filter $@ && err "Expected to fail adding rule"
+    eval tc -s filter $@ &>/tmp/log && err "Expected to fail adding rule" && return
+    success
 }
 
 function __test_test_simple_cvlan() {
