@@ -1835,10 +1835,6 @@ function fw_ver_lt() {
     return 0
 }
 
-function __include_common_dpdk() {
-    . ${DIR}/ovs-dpdk-tests/common-dpdk.sh
-}
-
 function __load_config() {
     local conf
 
@@ -1857,10 +1853,6 @@ function __load_config() {
 
     echo "Loading config $conf"
     . $conf
-
-    if [ "x${DPDK}" == "x1" ]; then
-        __include_common_dpdk
-    fi
 
     test -n "$FORCE_VF2" && VF2=$FORCE_VF2
     test -n "$FORCE_REP2" && REP2=$FORCE_REP2
