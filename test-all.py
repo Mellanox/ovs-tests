@@ -431,6 +431,7 @@ def run_test(test, html=False):
     if not out:
         raise ExecCmdFailed("Empty result")
 
+    rc = subp.returncode
     log = out.decode('ascii', 'ignore')
     if not log:
         raise ExecCmdFailed("Empty output")
@@ -441,13 +442,15 @@ def run_test(test, html=False):
         else:
             status = "Test timed out and got killed"
         log += "\n%s\n" % deco("ERROR: %s" % status, 'red')
+        rc = 1
     else:
         # not timedout
-        status = get_better_status(subp.returncode, log)
+        status = get_better_status(rc, log)
         memleak = get_kmemleak_info()
-        log += memleak
         if memleak:
-            raise ExecCmdFailed("kmemleak found issues")
+            log += memleak
+            status = "kmemleak found issues"
+            rc = 1
 
     with open(logname, 'w') as f1:
         f1.write(log)
@@ -456,7 +459,7 @@ def run_test(test, html=False):
         with open(logname_html, 'w') as f2:
             f2.write(Ansi2HTMLConverter().convert(log))
 
-    if timedout or subp.returncode:
+    if rc:
         raise ExecCmdFailed(status)
 
     return status
