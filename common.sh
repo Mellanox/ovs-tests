@@ -1473,7 +1473,7 @@ function check_ovs_settings() {
 
     a=`ovs-vsctl get Open_vSwitch . other_config:hw-offload 2>/dev/null | tr -d '"'`
     if [ "$a" != "true" ]; then
-        warn "OVS hw-offload is disabled"
+        warn "OVS hw-offload is not set"
     fi
 
     a=`ovs-vsctl get Open_vSwitch . other_config:tc-policy 2>/dev/null | tr -d '"'`
