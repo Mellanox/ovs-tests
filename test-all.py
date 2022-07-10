@@ -1093,6 +1093,8 @@ def get_all_tests(include_subfolders=False):
 
 
 def get_tests_from_glob(lst, tests):
+    if not lst:
+        return []
     tmp = []
     for i in lst:
         g = glob(os.path.join(MYDIR, i))
