@@ -633,7 +633,6 @@ def get_current_state():
     global flow_steering_mode
     global simx_mode
 
-    distro = get_distro()
     nic = get_config_value('NIC')
     current_fw_ver = get_current_fw(nic)
     current_nic = args.test_nic if args.test_nic else DeviceType.get(get_current_nic_type(nic))
@@ -641,8 +640,6 @@ def get_current_state():
     flow_steering_mode = get_flow_steering_mode(nic)
     simx_mode = True if args.test_simx else check_simx(nic)
 
-    if 'PRETTY_NAME' in distro:
-        print(distro['PRETTY_NAME'])
     print("nic: %s" % current_nic)
     print("fw: %s" % current_fw_ver)
     print("flow steering: %s" % flow_steering_mode)
@@ -1108,6 +1105,9 @@ def get_tests_from_glob(lst, tests):
 
 def get_tests():
     global TESTS
+    distro = get_distro()
+    if 'PRETTY_NAME' in distro:
+        print(distro['PRETTY_NAME'])
     try:
         if args.db:
             TESTS = []
@@ -1415,7 +1415,8 @@ def get_distro():
         with open("/etc/os-release", 'r') as f:
             for line in f.readlines():
                 line = line.strip().split('=')
-                distro[line[0]] = line[1].strip('"')
+                if line[0]:
+                    distro[line[0]] = line[1].strip('"')
     except OSError:
         pass
     return distro
