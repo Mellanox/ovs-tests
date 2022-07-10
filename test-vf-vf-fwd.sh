@@ -22,7 +22,7 @@ MULTIPATH=${MULTIPATH:-0}
 function cleanup() {
     killall -q -9 iperf3
     wait &>/dev/null
-    start_clean_openvswitch
+    ovs_clear_bridges
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
 
@@ -32,27 +32,6 @@ function cleanup() {
     fi
 }
 trap cleanup EXIT
-
-function config_vf() {
-    local ns=$1
-    local vf=$2
-    local rep=$3
-    local ip=$4
-
-    echo "$ns : $vf ($ip) -> $rep"
-    if [ ! -e /sys/class/net/$vf ]; then
-        err "Cannot find $vf"
-        return 1
-    fi
-    if [ ! -e /sys/class/net/$rep ]; then
-        err "Cannot find $rep"
-        return 1
-    fi
-    ifconfig $rep 0 up
-    ip netns add $ns
-    ip link set $vf netns $ns
-    ip netns exec $ns ifconfig $vf $ip/24 up
-}
 
 cleanup
 
