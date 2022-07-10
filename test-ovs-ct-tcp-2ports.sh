@@ -44,18 +44,6 @@ require_interfaces REP REP2 REP3 REP4
 reset_tc $REP
 reset_tc $REP2
 
-function config_vf() {
-    local ns=$1
-    local vf=$2
-    local rep=$3
-    local ip=$4
-
-    echo "[$ns] $vf ($ip) -> $rep"
-    ifconfig $rep 0 up
-    ip link set $vf netns $ns
-    ip netns exec $ns ifconfig $vf $ip/24 up
-}
-
 function run() {
     title "Test OVS CT TCP"
     ip netns add ns0
