@@ -33,21 +33,15 @@ function config() {
     local subnet=$3
 
     title "Config local host"
-    config_sriov 3
-    enable_switchdev
-    REP3=`get_rep 2`
-    require_interfaces REP REP2 REP3 NIC
-    unbind_vfs
-    bind_vfs
-    VF3=`get_vf 2`
-    reset_tc $REP
-    reset_tc $REP2
 
     ip a add dev $VF $local_ip/$subnet
     ip link set dev $VF up
     config_vf ns0 $VF2 $REP2 $VF_IP
     ip addr flush dev $NIC
     ip link set dev $NIC up
+    ip link set dev $REP up
+    ip link set dev $REP2 up
+    ip link set dev $REP3 up
 
     start_clean_openvswitch
     ovs-vsctl add-br ovs-br
@@ -62,7 +56,6 @@ function config() {
             options:key=98 options:dst_port=4789;
 
     title "Config remote host"
-    remote_disable_sriov
     on_remote "ip link add vxlan1 type vxlan id 98 dev $REMOTE_NIC local $remote_ip dstport 4789 udp6zerocsumrx
                ifconfig vxlan1 $REMOTE_VF_IP/24 up
                ip link set vxlan1 addr 0a:40:bd:30:89:99
@@ -99,6 +92,14 @@ function run() {
     verify_no_traffic $tpid
 }
 
+config_sriov 3
+enable_switchdev
+REP3=`get_rep 2`
+require_interfaces REP REP2 REP3 NIC
+unbind_vfs
+bind_vfs
+VF3=`get_vf 2`
+remote_disable_sriov
 
 title "Test IPv4 tunnel"
 cleanup
