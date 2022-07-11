@@ -35,6 +35,7 @@ function remote_cleanup() {
 
 function config_local {
     enable_lag_resource_allocation_mode
+    set_lag_port_select_mode "multiport_esw"
     config_sriov 1
     config_sriov 1 $NIC2
     enable_switchdev
@@ -51,6 +52,7 @@ function config_local {
 }
 
 function local_cleanup {
+    set_lag_port_select_mode "queue_affinity"
     restore_lag_resource_allocation_mode
 }
 
