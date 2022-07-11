@@ -63,7 +63,7 @@ virtio_net1=$(vdpa_find_netdev $VDPADEV1) || err "Cannot find vdpa dev for $VDPA
 virtio_net2=$(vdpa_find_netdev $VDPADEV2) || err "Cannot find vdpa dev for $VDPADEV2"
 fail_if_err
 
-pf=$(devlink port show | grep "flavour physical port $port" | sed -e 's/.*netdev\ //' | sed -e 's/\ .*//')
+pf=$(devlink port show | grep "flavour physical port 0" | sed -e 's/.*netdev\ //' | sed -e 's/\ .*//')
 ip link set up dev $pf
 
 ip netns add ns0
