@@ -2137,8 +2137,8 @@ function set_lag_port_select_mode() {
     log "Changing lag port select mode to $mode"
     enable_legacy &>/dev/null
     enable_legacy $NIC2 &>/dev/null
-    echo $mode > /sys/class/net/$NIC/compat/devlink/lag_port_select_mode || fail "Failed to set lag_port_select_mode to $mode"
-    echo $mode > /sys/class/net/$NIC2/compat/devlink/lag_port_select_mode || fail "Failed to set lag_port_select_mode to $mode"
+    echo $mode > /sys/class/net/$NIC/compat/devlink/lag_port_select_mode || fail "Failed to set $NIC lag_port_select_mode to $mode"
+    echo $mode > /sys/class/net/$NIC2/compat/devlink/lag_port_select_mode || fail "Failed to set $NIC2 lag_port_select_mode to $mode"
 }
 
 function __common_main() {
