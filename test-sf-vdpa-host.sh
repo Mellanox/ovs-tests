@@ -19,18 +19,14 @@ OVSBR=vdpa-br
 
 trap cleanup EXIT
 
-function cleanup
-{
+function cleanup {
     ip netns del ns0 > /dev/null 2>&1
     delete_sf $rep2 > /dev/null 2>&1
     delete_sf $rep1 > /dev/null 2>&1
-    ovs-vsctl del-port $OVSBR $rep1 > /dev/null 2>&1
-    ovs-vsctl del-port $OVSBR $rep2 > /dev/null 2>&1
-    ovs-vsctl del-br $OVSBR > /dev/null 2>&1
+    ovs_clear_bridges
 }
 
-function create_vdpa_netdev
-{
+function create_vdpa_netdev {
     local sfnum=$1
     local rep
     local auxdev
@@ -79,7 +75,8 @@ ip netns exec ns0 ip addr add 7.7.7.21/24 dev $virtio_net1
 ip link set up dev $virtio_net2
 ip addr add 7.7.7.24/24 dev $virtio_net2
 title "Test ping from $virtio_net2 on default namespace to $virtio_net1 on ns0"
-ping -q -c 5 -i 0.2 -w 4 -I $virtio_net2 7.7.7.21 && success || err
+ping -q -c 5 -i 0.2 -w 4 -I $virtio_net2 7.7.7.21 && success || err "Ping failed"
 
+trap - EXIT
 cleanup
 test_done
