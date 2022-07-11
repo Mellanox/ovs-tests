@@ -2128,9 +2128,8 @@ function restore_lag_resource_allocation_mode() {
 }
 
 function set_lag_port_select_mode() {
-    if ! is_ofed ; then
-        # This is MLNX OFED only. It is expected upstream to have correct mode
-        # according to driver state.
+    if [ ! -f /sys/class/net/$NIC/compat/devlink/lag_port_select_mode ]; then
+        # MLNX OFED 5.7 needs to enable a compat. verify if exists.
         return
     fi
     local mode=$1
