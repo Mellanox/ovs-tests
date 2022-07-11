@@ -1782,6 +1782,14 @@ function not_relevant_for_nic() {
     done
 }
 
+function min_nic_cx6() {
+    not_relevant_for_nic cx4 cx4lx cx5
+}
+
+function min_nic_cx6dx() {
+    not_relevant_for_nic cx4 cx4lx cx5 cx6
+}
+
 function relevant_for_nic() {
     local nic
     for nic in $@ ; do
