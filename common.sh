@@ -527,6 +527,21 @@ function cloud_fw_reset() {
     load_modules
 }
 
+function is_bf() {
+    lspci -s 00:00.0 2>/dev/null | grep -wq "PCI bridge: Mellanox Technologies"
+}
+
+function is_bf_host() {
+    # BF NIC mode should not have BF vars.
+    if [ -z "$BF_NIC" ] || [ -z "$BF_IP" ]; then
+        return 1
+    fi
+
+    # Same $PCI could appear in arm so return if arm.
+    lspci -s 00:00.0 2>/dev/null | grep -wq "PCI bridge: Mellanox Technologies" && return 1
+    lspci -s $PCI 2>/dev/null | grep -wq "Mellanox .* BlueField.* integrated"
+}
+
 function is_ofed() {
     modprobe -q mlx_compat && return 0
     return 1
