@@ -21,8 +21,6 @@ function cleanup() {
     done
     disable_sriov
     set_vport_match_metadata
-    enable_sriov
-    enable_switchdev
 }
 
 trap cleanup EXIT
