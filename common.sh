@@ -1083,6 +1083,7 @@ function enable_legacy() {
 }
 
 function set_vport_match_legacy() {
+    echo "Set vport match legacy"
     if [ "$devlink_compat" -ge 1 ]; then
         echo "legacy" > /sys/class/net/$NIC/compat/devlink/vport_match_mode || err "Failed to set vport match mode legacy"
     else
@@ -1092,6 +1093,7 @@ function set_vport_match_legacy() {
 }
 
 function set_vport_match_metadata() {
+    echo "Set vport match metadata"
     if [ "$devlink_compat" -ge 1 ]; then
         echo "metadata" > /sys/class/net/$NIC/compat/devlink/vport_match_mode || err "Failed to set vport match mode metadata"
     else
