@@ -7,15 +7,9 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-IP1="7.7.7.1"
-IP2="7.7.7.2"
-
 config_sriov 2
 enable_switchdev
 require_interfaces REP
-unbind_vfs
-bind_vfs
-reset_tc $REP
 
 mac2="e4:11:22:11:77:77"
 vx=vxlan1
@@ -23,7 +17,6 @@ vxlan_port=4789
 
 function cleanup() {
     ip link del $vx &>/dev/null
-    ip -all netns delete
     reset_tc $REP
 }
 trap cleanup EXIT
@@ -32,9 +25,7 @@ function test_duplicate_tunnel() {
     local ip_src=$1
     local ip_dst=$2
 
-    ip -all netns delete
     title "Test duplicated encap entries"
-    config_vf ns0 $VF $REP $IP1
 
     title "- create vxlan interface"
     ip link del $vx >/dev/null 2>&1
@@ -55,7 +46,8 @@ function test_duplicate_tunnel() {
         ttl 64
         nocsum"
 
-    title "- add vf mirror rules and expect to fail"
+    title "- add dup encap rule and expect to fail"
+    reset_tc $REP
     tc filter add dev $REP ingress protocol ip prio 2 flower skip_sw \
         dst_mac $mac2 \
         $TUNNEL_KEY_SET pipe \
