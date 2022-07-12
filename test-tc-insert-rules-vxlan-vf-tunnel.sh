@@ -85,5 +85,4 @@ require_interfaces NIC REP VF1
 
 test_vxlan
 
-check_for_errors_log
 test_done

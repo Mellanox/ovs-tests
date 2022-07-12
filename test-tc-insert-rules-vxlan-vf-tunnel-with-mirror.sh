@@ -59,5 +59,4 @@ function test_vxlan_mirror_encap() {
 
 test_vxlan_mirror_encap
 
-check_for_errors_log
 test_done
