@@ -29,6 +29,7 @@ trap cleanup EXIT
 
 disable_sriov
 set_vport_match_legacy
+fail_if_err
 enable_sriov
 enable_switchdev
 unbind_vfs
