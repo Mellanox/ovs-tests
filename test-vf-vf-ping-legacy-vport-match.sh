@@ -15,10 +15,6 @@ function cleanup() {
     ovs_clear_bridges
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
-    for i in $REP $REP2 $VF $VF2 ; do
-        ip link set $i mtu 1500 &>/dev/null
-        ifconfig $i 0 &>/dev/null
-    done
     disable_sriov
     set_vport_match_metadata
 }
