@@ -8,8 +8,8 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+min_nic_cx6
 require_remote_server
-not_relevant_for_nic cx4 cx4lx cx5
 
 LOCAL_IP="7.7.7.5"
 REMOTE_IP="7.7.7.1"

@@ -6,10 +6,10 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-not_relevant_for_nic cx4 cx4lx cx5
 
-require_remote_server
+min_nic_cx6
 require_module act_police
+require_remote_server
 
 IP=1.1.1.7
 REMOTE=1.1.1.8

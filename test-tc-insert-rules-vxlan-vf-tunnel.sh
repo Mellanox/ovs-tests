@@ -6,7 +6,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-not_relevant_for_nic cx4 cx4lx cx5
+min_nic_cx6
 
 function test_vxlan() {
     local ip_src="20.1.11.1"

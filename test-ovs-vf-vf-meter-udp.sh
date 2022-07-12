@@ -6,7 +6,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-not_relevant_for_nic cx4 cx4lx cx5
+min_nic_cx6
 require_module act_police
 
 IP1="7.7.7.1"
