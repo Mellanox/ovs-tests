@@ -1729,9 +1729,8 @@ function getnet() {
 }
 
 function eval2() {
-    local err
     eval $@
-    err=$?
+    local err=$?
     test $err != 0 && err "Command failed ($err): $@"
     return $err
 }
