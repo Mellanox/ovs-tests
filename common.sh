@@ -1863,9 +1863,6 @@ function __load_config() {
 
     echo "Loading config $conf"
     . $conf
-
-    test -n "$FORCE_VF2" && VF2=$FORCE_VF2
-    test -n "$FORCE_REP2" && REP2=$FORCE_REP2
 }
 
 function __trapped_int_cleanup() {
