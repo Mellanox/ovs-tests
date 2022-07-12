@@ -186,7 +186,6 @@ function __test_basic_vxlan() {
     reset_tc $REP
 
     for skip in "" skip_hw skip_sw ; do
-        skip_sw_wa=0
         title "- skip:$skip dst_port:$vxlan_port"
         reset_tc $REP
         reset_tc $vx
