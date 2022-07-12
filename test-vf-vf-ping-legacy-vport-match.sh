@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# test moving to swtichdev mode and trafic while using legacy vport_match mode
+# test moving to swtichdev mode and traffic while using legacy vport_match mode
 #
 # [MLNX OFED] Bug SW #2571799: can't move to switchdev mode if vport_match is legacy
 #
@@ -12,24 +12,20 @@ IP1="7.7.7.1"
 IP2="7.7.7.2"
 
 function cleanup() {
+    ovs_clear_bridges
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
-    sleep 0.5 # wait for VF to bind back
     for i in $REP $REP2 $VF $VF2 ; do
         ip link set $i mtu 1500 &>/dev/null
         ifconfig $i 0 &>/dev/null
     done
-}
-
-function cleanup_vport_match_mode() {
-    cleanup
     disable_sriov
     set_vport_match_metadata
     enable_sriov
     enable_switchdev
 }
 
-trap cleanup_vport_match_mode EXIT
+trap cleanup EXIT
 
 disable_sriov
 set_vport_match_legacy
@@ -76,7 +72,6 @@ ip netns exec ns0 ping -q -f -w 4 $IP2 && success || err
 echo "verify tcpdump"
 verify_timedout $tpid
 
-ovs_clear_bridges
-cleanup
 trap - EXIT
+cleanup
 test_done
