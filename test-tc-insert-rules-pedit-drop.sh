@@ -10,10 +10,8 @@ my_dir="$(dirname "$0")"
 not_relevant_for_nic cx4
 
 function tc_filter_fail() {
-    eval tc -s filter $@ &>/tmp/log
-    grep -q "Drop with modify header action is not supported" /tmp/log && success && return
-    cat /tmp/log
-    err "Expected to fail adding rule"
+    eval tc -s filter $@ &>/dev/null && err "Expected to fail adding rule" && return
+    success
 }
 
 function test_basic_header_rewrite() {

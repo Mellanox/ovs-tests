@@ -17,9 +17,8 @@ function run() {
     title "Test redirect rule from uplink on esw0 $NIC to uplink on esw1 $NIC2 - expected to fail"
     reset_tc $NIC
     tc filter add dev $NIC protocol ip ingress prio 1 flower skip_sw action \
-        mirred egress redirect dev $NIC2 &>/tmp/log
-    grep -q "devices are not the same uplink" /tmp/log && success && return
-    cat /tmp/log
+        mirred egress redirect dev $NIC2 &>/dev/null
+    [ $? -ne 0 ] && success && return
     err "Expected to fail"
 }
 

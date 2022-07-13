@@ -11,7 +11,7 @@ enable_legacy
 require_interfaces NIC
 
 function tc_filter_fail() {
-    eval tc -s filter $@ &>/tmp/log && err "Expected to fail adding rule" && return
+    eval tc -s filter $@ &>/dev/null && err "Expected to fail adding rule" && return
     success
 }
 
