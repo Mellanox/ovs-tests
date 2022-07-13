@@ -46,7 +46,7 @@ HTML_CSS = """
     <style>
       .asap_table td { background-color: lightgray; }
       .asap_table th { text-align: left; }
-      .asap_table td.testname { font-weight: bold; }
+      .asap_table td.testname { font-weight: bold; white-space: nowrap; }
       table#summary_table th { background-color: gray; }
       table#summary_table td { font-weight: bold; }
       table#results_table th { background-color: gray; }
