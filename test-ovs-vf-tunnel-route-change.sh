@@ -70,7 +70,7 @@ function run() {
     local subnet=$2
     local stack_vf1=$3
     local stack_vf2=$4
-    local t=3
+    local t=5
     local vxlan_netdev="vxlan_sys_4789"
 
     echo "run ping for $t seconds"
@@ -82,13 +82,13 @@ function run() {
     sleep 2
 
     echo "sniff packets on $vxlan_netdev"
-    timeout $t tcpdump -qnnei $vxlan_netdev -c 2 -Q in icmp &
+    timeout $t tcpdump -qnnei $vxlan_netdev -c 3 -Q in icmp &
     tpid=$!
     sleep 1
 
     ip netns exec ns0 ping -I $VF2 $REMOTE_VF_IP -c $t -w $t || err "Ping failed"
 
-    title "test traffic on $vxlan_netdev"
+    title "test offload on $vxlan_netdev"
     verify_no_traffic $tpid
 }
 
