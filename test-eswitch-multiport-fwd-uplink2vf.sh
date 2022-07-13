@@ -52,6 +52,7 @@ function config_local {
 }
 
 function local_cleanup {
+    reset_tc $NIC $NIC2 $REP
     set_lag_port_select_mode "queue_affinity"
     restore_lag_resource_allocation_mode
 }
@@ -82,4 +83,5 @@ start_tcpdump
 ping -c 2 $remote_ip || err "ping failed"
 stop_tcpdump
 cleanup
+trap - EXIT
 test_done
