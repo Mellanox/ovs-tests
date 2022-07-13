@@ -70,7 +70,7 @@ function test_reps() {
     time switch_mode_switchdev $NIC
     if [ $expected_time -eq 0 ]; then
         get_time_set_channels $REP
-        let expected_time=$t+50
+        let expected_time=$t+100
     fi
     test_time_set_channels $REP
 
