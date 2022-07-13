@@ -12,7 +12,7 @@ require_interfaces NIC NIC2
 
 function config_shared_block() {
     for i in bond0 $NIC $NIC2 ; do
-        tc qdisc del dev $i ingress
+        tc qdisc del dev $i ingress &>/dev/null
         tc qdisc add dev $i ingress_block 22 ingress || err "Failed to add ingress_block"
     done
 }
