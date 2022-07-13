@@ -19,17 +19,17 @@ function config() {
     config_simple_bridge_with_rep 2
     start_vdpa_vm
     start_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
-    config_ns ns1 $VF $LOCAL_IP
-    config_ns ns0 $VF2 $REMOTE_IP
-    config_static_arp_ns ns0 ns1 $VF2 $DUMMY_IP
+    config_ns ns0 $VF $LOCAL_IP
+    config_ns ns1 $VF2 $REMOTE_IP
+    config_static_arp_ns ns0 ns1 $VF $DUMMY_IP
 }
 
 function run() {
     config
-    ovs_add_ct_after_nat_rules br-phy $REMOTE_IP $DUMMY_IP rep0 rep1
-    generate_traffic local $DUMMY_IP ns1
+    ovs_add_ct_after_nat_rules br-phy $LOCAL_IP $DUMMY_IP rep1 rep0
     verify_ping
-    check_dpdk_offloads $REMOTE_IP
+    generate_traffic local $DUMMY_IP ns1
+    check_dpdk_offloads $LOCAL_IP
 }
 
 run
