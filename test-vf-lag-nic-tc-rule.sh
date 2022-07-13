@@ -45,8 +45,8 @@ function clean_shared_block() {
 
 function cleanup() {
     clean_shared_block
-    clear_bonding
     disable_sriov
+    clear_bonding
 }
 
 trap cleanup EXIT
