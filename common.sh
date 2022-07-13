@@ -218,7 +218,7 @@ function set_ovs_debug_logs () {
     if [ -f $log ]; then
         echo > $log
     fi
-    ovs_set_log_levels netdev_offload:file:DBG tc:file:DBG
+    ovs_set_log_levels netdev_offload:file:DBG netdev_offload_tc:file:DBG tc:file:DBG
 }
 
 function __set_testpmd() {
