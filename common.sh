@@ -677,6 +677,15 @@ function log() {
     kmsg $@
 }
 
+function log_once() {
+    local var=$1
+    shift
+    [ "${!var}" != "" ] && return
+    eval $var=1
+    echo $@
+    kmsg $@
+}
+
 function warn() {
     echo -e "${YELLOW}WARNING: $@$NOCOLOR"
     kmsg "WARN: $@"
@@ -1181,13 +1190,14 @@ function unbind_vfs() {
     local i
 
     for nic in $nics; do
-        log "Unbind vfs of $nic"
         for i in `ls -1d /sys/class/net/$nic/device/virt* 2>/dev/null`; do
             vfpci=$(basename `readlink $i`)
             if [ -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
+                log_once __once_unbind_vfs "Unbind vfs of $nic"
                 echo $vfpci > /sys/bus/pci/drivers/mlx5_core/unbind
             fi
         done
+        unset __once_unbind_vfs
     done
 }
 
@@ -1221,10 +1231,10 @@ function bind_vfs() {
     local err=0
 
     for nic in $nics; do
-        log "Bind vfs of $nic"
         for i in `ls -1d /sys/class/net/$nic/device/virt*`; do
             vfpci=$(basename `readlink $i`)
             if [ ! -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
+                log_once __once_bind_vfs "Bind vfs of $nic"
                 echo $vfpci > /sys/bus/pci/drivers/mlx5_core/bind
                 if [ $? -ne 0 ]; then
                     log "Cannot bind VF $vfpci"
@@ -1232,6 +1242,7 @@ function bind_vfs() {
                 fi
             fi
         done
+        unset __once_bind_vfs
 
         # wait for vfs if there isn't an error.
         if [ $err -eq 0 ]; then
