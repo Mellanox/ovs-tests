@@ -537,17 +537,17 @@ function on_remote_exec() {
     __on_remote_exec $REMOTE_SERVER "$@"
 }
 
-__foo_copied=0
+__foo_copied=()
 # use a static file to avoid creating endless temp files.
 __FOO="/tmp/foo.sh"
 function __foo_copy() {
-    if [ "$__foo_copied" == 1 ]; then
+    if [[ "${__foo_copied[@]}" =~ $remote ]]; then
         return
     fi
     set | grep -Ev "^(BASH|SHELLOPTS|UID|EUID|PPID)" > $__FOO
     echo ". /etc/os-release" >> $__FOO
     scp2 -q $__FOO $remote:/tmp/
-    __foo_copied=1
+    __foo_copied+=($remote)
 }
 
 function __on_remote_exec() {
