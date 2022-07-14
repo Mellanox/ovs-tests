@@ -14,14 +14,14 @@ TOPOLOGY_OPENSTACK="$OVN_TOPO_DIR/openstack.yaml"
 function ovn_create_topology() {
     local topology_file=${1:-$TOPOLOGY}
 
-    $OVN_TOPOLOGY_CREATOR -f "$topology_file" -c
+    $OVN_TOPOLOGY_CREATOR -f "$topology_file" -c || fail "Failed to create topology"
     ovn-nbctl show
 }
 
 function ovn_destroy_topology() {
     local topology_file=${1:-$TOPOLOGY}
 
-    $OVN_TOPOLOGY_CREATOR -f "$topology_file" -d
+    $OVN_TOPOLOGY_CREATOR -f "$topology_file" -d || err "Failed to destroy topology"
 }
 
 function ovn_parse_topology() {
