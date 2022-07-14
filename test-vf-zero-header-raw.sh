@@ -60,7 +60,7 @@ M1="IP(frag=5,dst=\"2.2.2.2\",proto=1)/(\"X\"*1)"
 send_pkt $M1
 
 for P in $PROTOS; do
-    title "Test procotol $P"
+    title "Test protocol $P"
     P=${!P}
 
     for S in $SIZES; do
