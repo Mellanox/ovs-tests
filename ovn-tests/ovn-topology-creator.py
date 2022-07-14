@@ -317,8 +317,12 @@ def parse_args():
                         help='Destroy OVN logical topology')
 
     args = parser.parse_args()
+
     if (args.create and args.destroy) or (not args.create and not args.destroy):
         raise RuntimeError("Invalid args: Either use --create or --destroy")
+
+    if not args.file:
+        raise RuntimeError("Invalid args: empty filename")
 
     return args
 
@@ -354,7 +358,8 @@ def main():
         else:
             return 1
     except Exception as ex:
-        print(ex)
+        script = os.path.basename(__file__)
+        print('%s: %s' % (script, ex))
         return 1
 
     return ret_code
