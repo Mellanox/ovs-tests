@@ -53,14 +53,14 @@ fi
 function add_flow() {
     m=`ovs-appctl dpctl/add-flow $flow 2 ; $dump_sleep ; ovs_dump_tc_flows | grep -m1 1.1.1.1`
     if [ -n "$m" ]; then
-	    return 0
+        return 0
     fi
 
     local tmp="ovs_dump_ovs_flows | grep -m 1.1.1.1"
     if [ -n "$tmp" ]; then
-	    echo $flow
-	    err "Rule not in tc"
-	    return 1
+        echo $flow
+        err "Rule not in tc"
+        return 1
     fi
 
     m=`ovs-appctl dpctl/add-flow $flow 2 ; $dump_sleep ; ovs_dump_tc_flows | grep -m1 1.1.1.1`
