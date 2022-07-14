@@ -3,6 +3,7 @@
 # Test bond0 is still master over two uplinks before sriov and after switchdev mode is set.
 # This test is checking the new uplink rep mode where uplink rep is not a new netdev device.
 #
+# [Kernel Upstream] Bug SW #3138783: [Upstream] Enable sriov after configuring bond in nic mode retriggers configuring bond again
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -10,12 +11,17 @@ my_dir="$(dirname "$0")"
 require_module bonding
 
 function config() {
+    # See RM #3138783. seems to happen after clean driver restart.
+    reload_modules
+
+    # start from sriov
     title "disable sriov"
     config_sriov 0
     config_sriov 0 $NIC2
     title "config bonding"
     config_bonding $NIC $NIC2
     fail_if_err
+
     title "enable sriov"
     config_sriov 2
     config_sriov 2 $NIC2
