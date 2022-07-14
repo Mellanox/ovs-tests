@@ -73,6 +73,31 @@ function get_ipsec_counter_on_remote() {
     on_remote_exec "get_ipsec_counter $counter_name $dev"
 }
 
+function check_offloaded_rules() {
+    local mode=${1:-"both"}
+    local tx_check_val=0
+    local rx_check_val=0
+
+    if [[ "$mode" == "tx" ]]; then
+            tx_check_val=2
+    elif [[ "$mode" == "rx" ]];then
+            rx_check_val=2
+    elif [[ "$mode" == "both" ]]; then
+            tx_check_val=2
+            rx_check_val=2
+    else
+            err "test issue, wrong usage of check_offloaded_rules"
+    fi
+
+    title "Verify offload"
+
+    local tx_off=`on_remote ip x s s | grep offload |wc -l`
+    local rx_off=`ip x s s | grep offload |wc -l`
+
+    if [[ "$tx_off" != $tx_check_val || "$rx_off" != $rx_check_val ]]; then
+        fail "offload rules are not added as expected!"
+    fi
+}
 
 #tx offloaded rx not
 function test_tx_off_rx() {
@@ -102,14 +127,7 @@ function test_tx_off_rx() {
         local post_test_pkts_rx=`get_ipsec_counter_on_remote rx`
     fi
 
-    title "Verify offload"
-
-    local tx_off=`on_remote ip x s s | grep offload |wc -l`
-    local rx_off=`ip x s s | grep offload |wc -l`
-
-    if [[ "$tx_off" != 2 || "$rx_off" != 0 ]]; then
-        fail "offload rules are not added as expected!"
-    fi
+    check_offloaded_rules tx
 
     if [[ "$offload" == "full_offload" && ("$post_test_pkts_tx" -le "$pre_test_pkts_tx" || "$post_test_pkts_rx" -le "$pre_test_pkts_rx") ]]; then
             fail "IPsec full offload counters didn't increase"
@@ -144,12 +162,7 @@ function test_tx_rx_off() {
         local post_test_pkts_rx=`get_ipsec_counter rx`
     fi
 
-    title "Verify offload"
-    local tx_off=`on_remote ip x s s | grep offload |wc -l`
-    local rx_off=`ip x s s | grep offload |wc -l`
-    if [[ "$tx_off" != 0 || "$rx_off" != 2 ]]; then
-        fail "offload rules are not added as expected!"
-    fi
+    check_offloaded_rules rx
 
     if [[ "$offload" == "full_offload" && ("$post_test_pkts_tx" -le "$pre_test_pkts_tx" || "$post_test_pkts_rx" -le "$pre_test_pkts_rx") ]]; then
             fail "IPsec full offload counters didn't increase"
@@ -188,12 +201,7 @@ function test_tx_off_rx_off() {
         local local_post_test_pkts_rx=`get_ipsec_counter rx`
     fi
 
-    title "verify offload"
-    local tx_off=`on_remote ip x s s | grep offload |wc -l`
-    local rx_off=`ip x s s | grep offload |wc -l`
-    if [[ "$tx_off" != 2 || "$rx_off" != 2 ]]; then
-        fail "offload rules are not added as expected!"
-    fi
+    check_offloaded_rules both
 
     #verify TX side
     if [[ "$offload" == "full_offload" && ("$remote_post_test_pkts_tx" -le "$remote_pre_test_pkts_tx" || "$remote_post_test_pkts_rx" -le "$remote_pre_test_pkts_rx") ]]; then
