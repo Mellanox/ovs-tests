@@ -18,10 +18,10 @@ CASES=${CASES:-"hw"}
 
 function cleanup() {
     echo "cleanup"
-    start_clean_openvswitch
+    ovs_clear_bridges
     ip netns del ns0 &> /dev/null
 
-    for i in `seq 0 7`; do
+    for i in `seq 0 3`; do
         ip link del veth$i &> /dev/null
     done
 }
@@ -91,8 +91,6 @@ function test_case() {
     local REP=$REP
     local REP2=$REP2
 
-    cleanup
-
     title "Test case $cs"
 
     if [[ "$cs" == "veth" ]]; then
@@ -143,9 +141,10 @@ function test_case() {
     test_traffic $REP
     check_offloaded_rewrite_rules $VM1_IP 2
 
-    start_clean_openvswitch
-
+    ovs_clear_bridges
 }
+
+start_clean_openvswitch
 
 for cs in $CASES; do
     test_case $cs

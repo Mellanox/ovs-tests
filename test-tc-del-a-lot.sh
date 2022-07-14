@@ -13,9 +13,8 @@ enable_switchdev
 REP=veth0
 
 function cleanup() {
-    for i in `seq 0 7`; do
-        ip link del veth$i &> /dev/null
-    done
+    ip link del veth0 &> /dev/null
+    ip link del veth1 &> /dev/null
     reset_tc $NIC
 }
 

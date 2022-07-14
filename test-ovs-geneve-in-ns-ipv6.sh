@@ -20,11 +20,11 @@ remote_tun="2001:0db8:0:f101::2"
 
 function cleanup() {
     echo "cleanup"
-    start_clean_openvswitch
+    ovs_clear_bridges
     ip l del dev genev_sys_6081 &>/dev/null
     ip netns del ns0 &> /dev/null
 
-    for i in `seq 0 7`; do
+    for i in `seq 0 3`; do
         ip link del veth$i &> /dev/null
     done
 }
@@ -47,7 +47,7 @@ function configure_geneve() {
     local geneve_port=$1
 
     title "Test geneve with port $geneve_port"
-    cleanup
+    start_clean_openvswitch
 
     echo "setup veth and ns"
     ip link add veth0 type veth peer name veth1 || fail "Failed to configure veth"

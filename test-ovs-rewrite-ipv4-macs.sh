@@ -24,7 +24,7 @@ function cleanup() {
     ip n flush all
     ip netns del ns0 &> /dev/null
 
-    for i in `seq 0 7`; do
+    for i in `seq 0 3`; do
         ip link del veth$i &> /dev/null
     done
 }

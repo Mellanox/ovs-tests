@@ -17,7 +17,7 @@ function cleanup() {
     ip l del dev gre_sys &>/dev/null
     ip netns del ns0 &> /dev/null
 
-    for i in `seq 0 7`; do
+    for i in `seq 0 3`; do
         ip link del veth$i &> /dev/null
     done
 }
@@ -89,7 +89,7 @@ KEY=nokey
 create_gre_tunnel
 do_traffic
 check_offloaded_rules 2
-start_clean_openvswitch
+ovs_clear_bridges
 
 echo "cleanup"
 cleanup
