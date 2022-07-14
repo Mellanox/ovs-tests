@@ -17,27 +17,32 @@ ifconfig $VF up
 FAKE_MAC="a2:b4:c0:f0:fc:8b"
 
 function send_pkt() {
-    local D=$1
-    local pkt="Ether(dst=\"$FAKE_MAC\")/$D"
+    local pkt=$1
 
-    title "sending $pkt"
     python -c "from scapy.all import sendp, Ether, IP, Dot1Q; sendp($pkt, iface=\"$VF\")"
 }
 
 function run_test() {
     local D=$1
+    local pkt="Ether(dst=\"$FAKE_MAC\")/$D"
+
+    title "Packet $pkt"
+
     # verify we have packet with fragment offset > 0
     timeout 5 tcpdump -nnvei $REP -c 1 ether "dst $FAKE_MAC and ip[6:2] & 0x1fff > 0" &
-    sleep 1
+    sleep 2
     tdpid=$!
 
-    send_pkt $D
+    send_pkt $pkt
+
     wait $tdpid
-    rc=$?
+    local rc=$?
     if [[ $rc -eq 0 ]]; then
         success
+    elif [[ $rc -eq 124 ]]; then
+        err "No packet received"
     else
-        err
+        err "tcpdump failed"
     fi
 }
 
