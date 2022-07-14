@@ -29,7 +29,9 @@ function run_traffic() {
 
     title "Run $NET_PROTO traffic"
     rm -f $TCPDUMP_FILE $IPERF_FILE
-    start_iperf_server
+    if [[ "$NET_PROTO" != "icmp" ]]; then
+       start_iperf_server
+    fi
     # please notice the no filters on the tcpdump since ipsec encrypt the packets and using crypto offload
     # will require turning TSO/GRO off in some cases in order to capture the expected traffic which will not
     # represent the use case.
@@ -37,9 +39,9 @@ function run_traffic() {
     local upid=$!
     if [[ "$NET_PROTO" == "icmp" ]]; then
         if [[ "$IP_PROTO" == "ipv4" ]]; then
-            (on_remote timeout $((t+2)) ping $LIP -c 7 > /dev/null) || err "ping failed"
+            (on_remote ping $LIP -q -c 10 -i 0.1 -w 3) || err "ping failed"
         else
-            (on_remote timeout $((t+2)) ping $LIP6 -c 7 > /dev/null) || err "ping failed"
+            (on_remote ping $LIP6 -q -c 10 -i 0.1 -w 3) || err "ping failed"
         fi
     else
         if [[ "$IP_PROTO" == "ipv4" ]]; then
@@ -89,13 +91,21 @@ function check_offloaded_rules() {
             err "test issue, wrong usage of check_offloaded_rules"
     fi
 
-    title "Verify offload"
+    title "Verify offloaded rules"
 
     local tx_off=`on_remote ip x s s | grep offload |wc -l`
     local rx_off=`ip x s s | grep offload |wc -l`
 
     if [[ "$tx_off" != $tx_check_val || "$rx_off" != $rx_check_val ]]; then
-        fail "offload rules are not added as expected!"
+        err "ipsec rules are not offloaded!"
+        echo -e "${CYAN}Dumping IPsec Rules$NOCOLOR"
+        echo "Local Rules:"
+        ip xfrm state show
+        ip xfrm policy show
+        echo "Remote Rules:"
+        on_remote "ip xfrm state show"
+        on_remote "ip xfrm state show"
+        fail_if_err
     fi
 }
 
