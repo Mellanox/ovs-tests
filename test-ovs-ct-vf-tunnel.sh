@@ -101,6 +101,7 @@ function config() {
     ip -netns ns0 neigh replace $REMOTE_VXLAN_DEV_IP dev $VF2 lladdr $REMOTE_VXLAN_DEV_MAC
     ip addr flush dev $NIC
     ip link set dev $NIC up
+    ip link set dev $REP up
 
     config_ovs
 
