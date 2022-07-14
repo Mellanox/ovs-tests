@@ -23,10 +23,8 @@ function config() {
 
 function cleanup() {
     clear_bonding
-    set_lag_port_select_mode "queue_affinity" &>/dev/null
-    config_sriov 2 &>/dev/null
-    config_sriov 0 $NIC2 &>/dev/null
-    enable_switchdev &>/dev/null
+    set_lag_port_select_mode "queue_affinity"
+    config_sriov 0 $NIC2
 }
 
 function check_bond_xmit_hash_policy() {
@@ -45,10 +43,12 @@ function check_bond_xmit_hash_policy() {
 }
 
 trap cleanup EXIT
-
-clear_bonding
 fw_ver_lt 33 1048 && set_lag_resource_allocation 1
+
 config
 check_bond_xmit_hash_policy
+
 fw_ver_lt 33 1048 && set_lag_resource_allocation 0
+trap - EXIT
+cleanup
 test_done
