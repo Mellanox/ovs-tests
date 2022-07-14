@@ -39,7 +39,6 @@ function cleanup() {
     ip netns del ns0 &>/dev/null
     ip netns del ns1 &>/dev/null
     cleanup_remote
-    sleep 0.5
 }
 trap cleanup EXIT
 
@@ -133,4 +132,7 @@ function run() {
 
 run
 start_clean_openvswitch
+
+trap - EXIT
+cleanup
 test_done
