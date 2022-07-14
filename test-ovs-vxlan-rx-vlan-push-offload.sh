@@ -72,6 +72,7 @@ function run_client() {
 
 function kill_traffic() {
     killall -q iperf3
+    on_remote "killall -q iperf3"
 }
 
 function run() {
