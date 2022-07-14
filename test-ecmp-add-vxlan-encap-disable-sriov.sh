@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 # Add VXLAN encap rule in ECMP mode and disable sriov first on pf1 and then pf0
-#
+# Also reload modules after the disable sriov because it might catch a call trace
 # Bug SW #1504474: [ECMP] mlx5_core crash in mlx5e_detach_encap
-#
+# Bug SW #3138647: [ASAP, OFED 5.7, ECMP ] call trace in mlx5_vxlan_destroy appears when reload modules after adding VXLAN encap rule in ECMP mode and disable sriov
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -85,6 +85,8 @@ function test_add_encap_and_disable_sriov() {
     config_sriov 0 $NIC
     title "- enable sriov $NIC"
     config_sriov 2 $NIC
+    title "- reload modules"
+    reload_modules
 }
 
 cleanup
