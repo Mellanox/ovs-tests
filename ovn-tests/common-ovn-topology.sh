@@ -1,3 +1,6 @@
+OVN_TOPOLOGY_CREATOR="$OVN_DIR/ovn-topology-creator.py"
+
+
 # Topologies
 OVN_TOPO_DIR="$OVN_DIR/ovn-topologies"
 TOPOLOGY_SINGLE_SWITCH="$OVN_TOPO_DIR/single-switch.yaml"
@@ -11,14 +14,14 @@ TOPOLOGY_OPENSTACK="$OVN_TOPO_DIR/openstack.yaml"
 function ovn_create_topology() {
     local topology_file=${1:-$TOPOLOGY}
 
-    $OVN_DIR/ovn-topology-creator.py -f "$topology_file" -c
+    $OVN_TOPOLOGY_CREATOR -f "$topology_file" -c
     ovn-nbctl show
 }
 
 function ovn_destroy_topology() {
     local topology_file=${1:-$TOPOLOGY}
 
-    $OVN_DIR/ovn-topology-creator.py -f "$topology_file" -d
+    $OVN_TOPOLOGY_CREATOR -f "$topology_file" -d
 }
 
 function ovn_parse_topology() {
