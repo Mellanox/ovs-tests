@@ -109,7 +109,11 @@ trap cleanup EXIT
 cleanup
 config
 fail_if_err
+
 test_config_ovs_bond_port_order
 test_ovs_restart_block_support
 test_ovs_restart_block_reattach
+
+trap - EXIT
+cleanup
 test_done
