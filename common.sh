@@ -1362,6 +1362,22 @@ function check_kasan() {
 
 __expected_error_msgs=""
 
+function add_expected_err_for_kernel_issue() {
+    local kernel=$1
+    local issue_id=$2
+    local message=$3
+
+    if [[ `uname -r` != "$kernel" ]]; then
+        return
+    fi
+
+    redmine_info $issue_id
+
+    if redmine_bug_is_open ; then
+        add_expected_error_msg $message
+    fi
+}
+
 function add_expected_error_msg() {
     local m=$1
     __expected_error_msgs+="|$m"
@@ -1944,7 +1960,7 @@ function redmine_info() {
     RM_SUBJ=""
     eval `curl -m 1 -s "$url" | python -c "from __future__ import print_function; import sys, json; i=json.load(sys.stdin)['issue']; print(\"RM_STATUS_ID=%s\nRM_STATUS=%s\nRM_SUBJ=%s\" % (json.dumps(i['status']['id']), json.dumps(i['status']['name']), json.dumps(i['subject'])))" 2>/dev/null`
     if [ -z "$RM_STATUS_ID" ]; then
-        warn "Failed to fetch redmine info"
+        warn "Failed to fetch #$id redmine info"
     fi
 }
 
