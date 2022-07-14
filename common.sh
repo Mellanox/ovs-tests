@@ -332,9 +332,12 @@ function is_vf_lag_activated() {
         # "lag map" print is from create lag.
         # "modify lag map" print is from modify lag.
         # In later kernel only printing shared_fdb and mode.
-        dmesg | tail -n10 | grep -E "shared_fdb" | grep -v "modify lag map"
+        dmesg | tail -n10 | grep "shared_fdb" | grep -v "modify lag map"
         rc=$?
         if [ $rc -eq 0 ]; then
+            # wait for driver to actually create the lag and check for error.
+            sleep 1
+            dmesg | tail -n10 | grep -q "Failed to create LAG" && err "Failed to create lag"
             break
         fi
     done
