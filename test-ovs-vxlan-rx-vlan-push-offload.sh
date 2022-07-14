@@ -56,14 +56,12 @@ function config() {
 }
 
 function run_server() {
-    on_remote timeout $((t+3)) iperf -s &
-    pk1=$!
-    sleep 2
+    on_remote timeout $((t+3)) iperf3 -D -s
 }
 
 function run_client() {
-    ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -P3 -i2 &
-    pk2=$!
+    ip netns exec ns0 timeout $((t+2)) iperf3 -c $REMOTE -t $t -P3 -i2 &
+    local pk2=$!
 
     # verify pid
     sleep 2
@@ -73,9 +71,7 @@ function run_client() {
 }
 
 function kill_traffic() {
-    kill -9 $pk1 &>/dev/null
-    kill -9 $pk2 &>/dev/null
-    wait $pk1 $pk2 2>/dev/null
+    killall -q iperf3
 }
 
 function run() {
