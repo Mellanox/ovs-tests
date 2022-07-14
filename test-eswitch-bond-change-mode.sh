@@ -46,7 +46,10 @@ function verify_bond_master() {
 
 trap cleanup EXIT
 cleanup
+
 config
 verify_bond_master
+
+trap - EXIT
 cleanup
 test_done
