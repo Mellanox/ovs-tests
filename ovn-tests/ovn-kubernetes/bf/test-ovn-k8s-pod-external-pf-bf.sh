@@ -37,9 +37,10 @@ function clean_up_test() {
 function config_test() {
     config_sriov
     require_interfaces CLIENT_VF
-    on_bf_exec "ovn_start_northd_central $CLIENT_NODE_IP
-                ovn_create_topology
-                config_bf_ovn_pf $CLIENT_NODE_IP $CLIENT_NODE_IP $CLIENT_NODE_IP_MASK $CLIENT_NODE_MAC"
+    on_bf_exec "ovn_start_northd_central $CLIENT_NODE_IP &&
+                ovn_create_topology &&
+                config_bf_ovn_pf $CLIENT_NODE_IP $CLIENT_NODE_IP $CLIENT_NODE_IP_MASK $CLIENT_NODE_MAC" || err "Config failed"
+    fail_if_err
     config_bf_ovn_interface_namespace $CLIENT_VF $CLIENT_REP $CLIENT_NS $CLIENT_PORT $CLIENT_MAC $CLIENT_IPV4 $CLIENT_IPV6 $CLIENT_GATEWAY_IPV4 $CLIENT_GATEWAY_IPV6
 
     on_remote "ip addr add $EXTERNAL_SERVER_IP/$SERVER_NODE_IP_MASK dev $NIC"
