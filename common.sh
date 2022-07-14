@@ -2105,7 +2105,7 @@ function create_vlan_interface() {
 }
 
 function get_ovs_id() {
-    cat /etc/openvswitch/system-id.conf
+    cat /etc/openvswitch/system-id.conf 2>/dev/null || fail "Got empty ovs id"
 }
 
 function get_lag_resource_allocation_mode() {
