@@ -5,6 +5,8 @@ OVN_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
 . $OVN_DIR/common-ovn-topology.sh
 . $OVN_DIR/common-ovn-test-utils.sh
 
+TRAFFIC_INFO['bf_traffic']=1
+
 function __config_bf_ovn_interface_namespace() {
     local vf=$1
     local ns=$2
@@ -104,6 +106,7 @@ function config_bf_ovn_pf_vlan() {
     ovn_start_ovn_controller
 }
 
-require_bf
-on_bf_exec "require_ovn"
-TRAFFIC_INFO['bf_traffic']=1
+function __common_ovn_bf_test_init() {
+    require_bf
+    on_bf_exec "require_ovn"
+}
