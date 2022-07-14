@@ -27,7 +27,7 @@ function run() {
     echo "Restarting OVS"
     start_clean_openvswitch
     ovs-vsctl set Open_vSwitch . other_config:hw-offload=false || fail "Failed to set ovs hw-offload=false"
-    start_clean_openvswitch
+    restart_openvswitch_nocheck
 
     ovs-vsctl add-br br-ovs
     ovs-vsctl add-port br-ovs vxlan1 -- set interface vxlan1 type=vxlan options:local_ip=$LOCAL_TUN options:remote_ip=$REMOTE_IP options:key=222 options:dst_port=4789
@@ -39,8 +39,6 @@ function run() {
     restart_openvswitch
 
     check_for_err "Failed to parse tunnel attributes"
-
-    start_clean_openvswitch
 }
 
 
