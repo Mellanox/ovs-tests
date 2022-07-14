@@ -8,6 +8,8 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
+add_expected_err_for_kernel_issue 5.17.0_mlnx 3122795 "segfault.*libc-2.31.so"
+
 IP="7.7.7.1"
 REMOTE="7.7.7.2"
 
