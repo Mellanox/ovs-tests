@@ -48,8 +48,9 @@ function config() {
     ovs-vsctl add-br ovs-br
     ovs-vsctl add-port ovs-br $NIC
     ovs-vsctl add-port ovs-br $SF_REP
-    ovs-vsctl add-port ovs-br $REP2
-    ovs-vsctl add-port ovs-br vxlan1 \
+    ovs-vsctl add-br ovs-br2
+    ovs-vsctl add-port ovs-br2 $REP2
+    ovs-vsctl add-port ovs-br2 vxlan1 \
         -- set interface vxlan1 type=vxlan \
             options:remote_ip=$remote_ip \
             options:local_ip=$local_ip \
