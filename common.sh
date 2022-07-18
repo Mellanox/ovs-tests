@@ -785,6 +785,30 @@ function add_vf_vlan() {
     ip -netns $ns link set $vf.$vlan up
 }
 
+function add_vf_qinq() {
+    local ns=$1
+    local vf=$2
+    local rep=$3
+    local ip=$4
+    local vlan_outer=$5
+    local vlan_inner=$6
+    local mac=$7 # optional
+    local prefix=24
+
+    if [[ "$ip" == *":"* ]]; then
+        # ipv6
+        prefix=64
+    fi
+
+    echo "[$ns] $vf.$vlan_outer.$vlan_inner (${mac:+$mac/}$ip) -> $rep"
+    ip -netns $ns link add link $vf name $vf.$vlan_outer type vlan protocol 802.1ad id $vlan_outer
+    ip -netns $ns link add link $vf.$vlan_outer name $vf.$vlan_outer.$vlan_inner type vlan id $vlan_inner
+    ${mac:+ip -netns $ns link set $vf.$vlan_outer.$vlan_inner address $mac}
+    ip -netns $ns address replace dev $vf.$vlan_outer.$vlan_inner $ip/$prefix
+    ip -netns $ns link set $vf.$vlan_outer up
+    ip -netns $ns link set $vf.$vlan_outer.$vlan_inner up
+}
+
 function config_reps() {
     local want=$1
     local nic=$2
