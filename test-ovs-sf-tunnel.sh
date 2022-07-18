@@ -63,7 +63,7 @@ function config() {
                ip addr add $remote_ip/$subnet dev $REMOTE_NIC
                ip link set $REMOTE_NIC up"
 
-    sleep 1
+    sleep 2
 }
 
 function run() {
