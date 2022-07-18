@@ -139,8 +139,14 @@ function run() {
 
     timeout $((t-2)) tcpdump -qnnei $REP -c 10 'udp' &
     tpid=$!
+    timeout $((t-2)) tcpdump -qnnei vxlan_sys_4789 -c 10 &
+    tpid1=$!
     sleep $t
+
+    title "Verify offload on $REP"
     verify_no_traffic $tpid
+    title "Verify offload on vxlan_sys_4789"
+    verify_no_traffic $tpid1
 
     kill -9 $pid1 &>/dev/null
     killall iperf &>/dev/null
