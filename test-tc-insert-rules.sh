@@ -262,11 +262,10 @@ function test_basic_vxlan_ipv6() {
 function test_insert_ip_no_ip_proto() {
     reset_tc $REP
     tc_filter_success add dev $REP protocol ip parent ffff: `prio` \
-                flower \
-                        skip_sw \
-			dst_mac e4:11:22:11:4a:51 \
-			src_mac e4:11:22:11:4a:50 \
-			src_ip 1.1.1.5 \
+                flower skip_sw \
+                dst_mac e4:11:22:11:4a:51 \
+                src_mac e4:11:22:11:4a:50 \
+                src_ip 1.1.1.5 \
                 action drop
     # TODO test result?
 }
@@ -277,11 +276,10 @@ function test_insert_ip_no_ip_proto() {
 function test_insert_ip_with_unmatched_bits_mask() {
     reset_tc $REP
     tc_filter_success add dev $REP protocol ip parent ffff: `prio` \
-                flower \
-                        skip_sw \
-			dst_mac e4:11:22:11:4a:51 \
-			src_mac e4:11:22:11:4a:50 \
-			src_ip 1.1.1.5/24 \
+                flower skip_sw \
+                dst_mac e4:11:22:11:4a:51 \
+                src_mac e4:11:22:11:4a:50 \
+                src_ip 1.1.1.5/24 \
                 action drop
 }
 
@@ -300,8 +298,7 @@ function test_five_tuple_match() {
         title "- $NIC -> $REP ip_proto $proto"
         reset_tc $NIC
         tc_filter_success add dev $NIC protocol ip parent ffff: `prio` \
-            flower \
-            skip_sw \
+            flower skip_sw \
             dst_ip 10.0.5.1 \
             src_ip 10.0.5.2 \
             ip_proto $proto \
