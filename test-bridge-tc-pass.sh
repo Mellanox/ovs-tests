@@ -50,14 +50,14 @@ config_vf $namespace2 $VF2 $REP2 $VF2_IP $VF2_MAC
 sleep 1
 
 title "test ping from VF MAC address"
-verify_ping_ns $namespace1 $VF $REP $VF2_IP $time
+verify_ping_ns $namespace1 $VF $REP $VF2_IP $time $time
 
 title "insert TC rules for spoof check"
 tc_filter add dev $REP ingress prio 1 flower src_mac $VF1_MAC action gact pass
 tc_filter add dev $REP ingress prio 2 flower action gact drop
 
 title "test ping from VF MAC address with TC rules"
-verify_ping_ns $namespace1 $VF $REP $VF2_IP $time
+verify_ping_ns $namespace1 $VF $REP $VF2_IP $time $time
 
 title "test ping from spoofed MAC address with TC rules"
 ip -netns $namespace1 link set $VF address $SPOOFED_MAC
@@ -65,7 +65,7 @@ ip netns exec $namespace1 ping -I $VF $VF2_IP -c 5 -w 5 -q && err "Expected to f
 ip -netns $namespace1 link set $VF address $VF1_MAC
 
 title "test ping from VF MAC address with TC rules again"
-verify_ping_ns $namespace1 $VF $REP $VF2_IP $time
+verify_ping_ns $namespace1 $VF $REP $VF2_IP $time $time
 
 cleanup
 trap - EXIT

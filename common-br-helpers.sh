@@ -8,7 +8,7 @@ function test_no_vlan() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF $br $VF2_IP $time
+    verify_ping_ns $namespace1 $VF $br $VF2_IP $time $time
 
     ip link del name $br type bridge
     ip netns del $namespace1
@@ -29,7 +29,7 @@ function test_trunk_to_trunk_vlan() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF.2 $br $VF2_IP_VLAN2 $time
+    verify_ping_ns $namespace1 $VF.2 $br $VF2_IP_VLAN2 $time $time
 
     ip link del name $br type bridge
     ip netns del $namespace1
@@ -49,7 +49,7 @@ function test_trunk_to_access_vlan() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF.3 $br $VF2_IP_UNTAGGED $time
+    verify_ping_ns $namespace1 $VF.3 $br $VF2_IP_UNTAGGED $time $time
 
     ip link del name $br type bridge
     ip netns del $namespace1
@@ -69,7 +69,7 @@ function test_access_to_trunk_vlan() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF $br $VF2_IP_VLAN2 $time
+    verify_ping_ns $namespace1 $VF $br $VF2_IP_VLAN2 $time $time
 
     ip link del name $br type bridge
     ip netns del $namespace1
@@ -90,7 +90,7 @@ function test_access_to_access_qinq() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF.2 $br $VF2_IP_VLAN2 $time
+    verify_ping_ns $namespace1 $VF.2 $br $VF2_IP_VLAN2 $time $time
 
     ip link del name $br type bridge
     ip netns del $namespace1

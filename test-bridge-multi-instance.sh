@@ -60,15 +60,15 @@ config_vf $namespace4 $VF4 $REP4 $VF4_IP
 sleep 1
 
 title "test ping on bridges"
-verify_ping_ns $namespace1 $VF $REP2 $VF2_IP $time
-verify_ping_ns $namespace3 $VF3 $REP4 $VF4_IP $time
+verify_ping_ns $namespace1 $VF $REP2 $VF2_IP $time $time
+verify_ping_ns $namespace3 $VF3 $REP4 $VF4_IP $time $time
 title "verify no connectivity between bridges"
 ip netns exec $namespace1 ping -I $VF $VF4_IP -c 3 -w 3 -q && err "Expected to fail ping"
 
 title "move $VF to $br2 and verify connectivity"
 ip link set $REP master $br2
-verify_ping_ns $namespace1 $VF $REP4 $VF4_IP $time
-verify_ping_ns $namespace3 $VF3 $REP4 $VF4_IP $time
+verify_ping_ns $namespace1 $VF $REP4 $VF4_IP $time $time
+verify_ping_ns $namespace3 $VF3 $REP4 $VF4_IP $time $time
 title "verify no connectivity between bridges"
 ip netns exec $namespace1 ping -I $VF $VF2_IP -c 3 -w 3 -q && err "Expected to fail ping"
 

@@ -117,22 +117,22 @@ function change_slaves() {
 title "test ping esw0->esw1"
 change_slaves
 flush_bridge $br
-verify_ping_ns $namespace1 $VF $REP $VF2_IP $time
+verify_ping_ns $namespace1 $VF $REP $VF2_IP $time $time
 
 title "test ping esw0->bond"
 change_slaves
 flush_bridge $br
-verify_ping_ns $namespace1 $VF $bond $REMOTE_IP $time
+verify_ping_ns $namespace1 $VF $bond $REMOTE_IP $time $time
 
 title "test ping esw1->esw0"
 change_slaves
 flush_bridge $br
-verify_ping_ns $namespace2 $VF2.2 $REP2 $VF1_IP $time
+verify_ping_ns $namespace2 $VF2.2 $REP2 $VF1_IP $time $time
 
 title "test ping esw1->bond"
 change_slaves
 flush_bridge $br
-verify_ping_ns $namespace2 $VF2.2 $bond $REMOTE_IP $time
+verify_ping_ns $namespace2 $VF2.2 $bond $REMOTE_IP $time $time
 
 cleanup
 trap - EXIT

@@ -76,7 +76,7 @@ function test_no_vlan() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF $NIC $REMOTE_IP $time
+    verify_ping_ns $namespace1 $VF $NIC $REMOTE_IP $time $time
 
     on_remote "ip a flush dev $REMOTE_NIC &>/dev/null"
     ip link del name $br type bridge
@@ -105,7 +105,7 @@ function test_trunk_to_trunk_vlan() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF.2 $NIC $REMOTE_IP_VLAN2 $time
+    verify_ping_ns $namespace1 $VF.2 $NIC $REMOTE_IP_VLAN2 $time $time
 
     on_remote "ip link del link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2 &>/dev/null"
     ip link del name $br type bridge
@@ -132,7 +132,7 @@ function test_trunk_to_access_vlan() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF.3 $NIC $REMOTE_IP_UNTAGGED $time
+    verify_ping_ns $namespace1 $VF.3 $NIC $REMOTE_IP_UNTAGGED $time $time
 
     on_remote "ip link del link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2 &>/dev/null"
     ip link del name $br type bridge
@@ -160,7 +160,7 @@ function test_access_to_trunk_vlan() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF $NIC $REMOTE_IP_VLAN2 $time
+    verify_ping_ns $namespace1 $VF $NIC $REMOTE_IP_VLAN2 $time $time
 
     on_remote "ip link del link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2 &>/dev/null"
     ip link del name $br type bridge
@@ -191,7 +191,7 @@ function test_access_to_trunk_qinq() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF.2 $NIC $REMOTE_IP_VLAN2 $time
+    verify_ping_ns $namespace1 $VF.2 $NIC $REMOTE_IP_VLAN2 $time $time
 
     on_remote "
               ip link del link $REMOTE_NIC name ${REMOTE_NIC}.3.2 type vlan id 2 &>/dev/null
@@ -222,7 +222,7 @@ function test_access_to_access_qinq() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF.2 $NIC $REMOTE_IP_VLAN2 $time
+    verify_ping_ns $namespace1 $VF.2 $NIC $REMOTE_IP_VLAN2 $time $time
 
     on_remote "ip link del link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2 &>/dev/null"
     ip link del name $br type bridge
