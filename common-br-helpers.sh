@@ -90,7 +90,7 @@ function test_access_to_access_qinq() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF.2 $br $VF2_IP_VLAN2 $time $time
+    verify_ping_ns $namespace1 $VF.2 $br $VF2_IP_VLAN2 $time $time 'vlan and vlan and icmp'
 
     ip link del name $br type bridge
     ip netns del $namespace1
