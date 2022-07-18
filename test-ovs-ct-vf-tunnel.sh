@@ -141,12 +141,16 @@ function run() {
     tpid=$!
     timeout $((t-2)) tcpdump -qnnei vxlan_sys_4789 -c 10 &
     tpid1=$!
+    ip netns exec ns0 timeout $((t-2)) tcpdump -qnnei $VF2 -c 30 &
+    tpid2=$!
     sleep $t
 
     title "Verify offload on $REP"
     verify_no_traffic $tpid
     title "Verify offload on vxlan_sys_4789"
     verify_no_traffic $tpid1
+    title "Verify have traffic on $VF2"
+    verify_have_traffic $tpid2
 
     kill -9 $pid1 &>/dev/null
     killall iperf &>/dev/null
