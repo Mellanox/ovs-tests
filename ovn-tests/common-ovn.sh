@@ -36,7 +36,11 @@ declare -A TRAFFIC_INFO=(
 )
 
 function require_ovn() {
-    [ ! -e "${OVN_CTL}" ] && fail "Missing $OVN_CTL"
+    [ -e "${OVN_CTL}" ] || fail "Missing $OVN_CTL"
+}
+
+function require_bf_ovn() {
+    on_bf "test -e $OVN_CTL" || fail "Missing $OVN_CTL on BF"
 }
 
 function ovn_is_northd_central_running() {

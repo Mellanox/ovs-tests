@@ -108,5 +108,5 @@ function config_bf_ovn_pf_vlan() {
 
 function __common_ovn_bf_test_init() {
     require_bf
-    on_bf_exec "require_ovn"
+    require_bf_ovn
 }
