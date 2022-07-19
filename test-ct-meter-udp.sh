@@ -99,13 +99,12 @@ function run() {
     verify_no_traffic $pid
 
     rate=`cat $TMPFILE | grep "receiver" | sed  "s/\[.*Bytes//" | sed "s/ Mbits.*//"`
+    [ -z "$rate" ] && err "Missing rate" && return
     title "verify rate"
     verify_rate $rate $RATE
-
-    reset_tc $REP
-    reset_tc $REP2
 }
 
 
 run
+reset_tc $REP $REP2
 test_done
