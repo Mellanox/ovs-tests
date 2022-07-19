@@ -26,6 +26,17 @@ TAGS = (
     "TODO",
 )
 
+expected = {
+    "test-eswitch-devlink-reload.sh": ["Warning: mlx5_core: reload while VFs are present is unfavorable."]
+}
+
+
+def expected_line(test, line):
+    for e in expected.get(test, []):
+        if e in line:
+            return True
+    return False
+
 
 def start():
     tests = glob("test-*.sh")
@@ -39,17 +50,14 @@ def start():
         if r.content.find('TEST PASSED') < 0:
             continue
 
-        content = r.content.lower()
         for i in TAGS:
-            a = content.find(i.lower())
-            if a < 0:
+            for line in r.content.splitlines():
+                if (i.lower() in line.lower()) and not expected_line(test, line):
+                    break
+            if i.lower() not in line.lower():
                 continue
             print("%s    - %s" % (test, i))
             print("  %s" % url)
-            #b = content.find("\n", a)
-            #a = content.rfind("\n", a)
-            #print(a,b)
-            #print(content[a:b])
             break
 
 
