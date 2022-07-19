@@ -26,7 +26,7 @@ function add_flow() {
 
     local tmp="ovs_dump_ovs_flows | grep -m $g"
     if [ -n "$tmp" ]; then
-        echo $flow
+        echo $tmp
         err "Rule not in tc"
         return 1
     fi
