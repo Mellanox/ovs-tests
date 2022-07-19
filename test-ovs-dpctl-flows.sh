@@ -5,6 +5,7 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
+. $my_dir/common-ovs-dpctl.sh
 
 VM1_IP="7.7.7.1"
 VM2_IP="7.7.7.2"
@@ -12,77 +13,20 @@ VM2_IP="7.7.7.2"
 local_tun="2.2.2.2"
 remote_tun="2.2.2.3"
 
-function cleanup() {
-    echo "cleanup"
-    start_clean_openvswitch
-}
-
 enable_switchdev
 unbind_vfs
 set_eswitch_inline_mode_transport
 bind_vfs
 require_interfaces REP REP2
-cleanup
+start_clean_openvswitch
 
 echo "setup ovs"
 ovs-vsctl add-br brv-1
 ovs-vsctl add-port brv-1 $REP
 ovs-vsctl add-port brv-1 $REP2
-UFID="ufid:c5f9a0b1-3399-4436-b742-30825c64a1e5"
 
 ipv4="1.1.1.1"
 ipv6="2002:db8:0:f101::55"
-
-function is_ovs_2_10() {
-    ovs-vsctl --version | grep -q 2.10
-}
-
-dump_sleep=":"
-if is_ofed && is_ovs_2_10 ; then
-    dump_sleep="sleep 0.2"
-fi
-
-function add_flow() {
-    local g=$1
-    m=`ovs-appctl dpctl/add-flow $flow 2 ; $dump_sleep ; ovs_dump_tc_flows | grep -m1 $g`
-    [ -z "$m" ] && m=`ovs-appctl dpctl/add-flow $flow 2 ; $dump_sleep ; ovs_dump_tc_flows | grep -m1 $g`
-    if [ -z "$m" ]; then
-        err "Failed to add test flow: $flow"
-        return 1
-    fi
-    return 0
-}
-
-function add_sw_flow() {
-    local g=$1
-    sw=`ovs-dpctl add-flow $flow 2 ; ovs-dpctl dump-flows | grep recirc | grep -m1 $g`
-    [ -z "$sw" ] && sw=`ovs-dpctl add-flow $flow 2 ; ovs-dpctl dump-flows | grep recirc | grep -m1 $g`
-    if [ -z "$sw" ]; then
-        err "Failed to add sw flow: $flow"
-        return 1
-    fi
-    return 0
-}
-
-function verify_keys_in_flow() {
-    local g=$1
-    local keys="${@:2}"
-    local key
-    ovs-dpctl del-flows && sleep 0.5
-    add_sw_flow $g
-    for key in $keys; do
-        in_m=`echo $m | grep -o "$key([^)]*)"`
-        in_sw=`echo $sw | grep -o "$key([^)]*)"`
-        if [ "$in_m" != "$in_sw" ]; then
-            m2=`echo $m | cut -d" " -f1`
-            sw2=`echo $sw | cut -d" " -f1`
-            sw2=${sw2:13}
-            echo flow1 $m2
-            echo flow2 $sw2
-            err "Expected $key() to be the same"
-        fi
-    done
-}
 
 function test_appctl_rule_tcp() {
     title 'Test appctl rule TCP'
@@ -122,5 +66,5 @@ test_appctl_rule_udp
 test_appctl_rule_tcp_ipv6
 test_appctl_rule_udp_ipv6
 
-cleanup
+ovs_clear_bridges
 test_done
