@@ -78,7 +78,7 @@ ovs-ofctl add-flow brv-1 "udp,nw_dst=$VM2_IP,actions=normal"
 #ovs-ofctl add-flow brv-1 "udp,nw_dst=$VM1_IP,actions=normal"
 ovs-ofctl add-flow brv-1 "udp,nw_dst=$VM1_IP,actions=mod_tp_src=1234,normal"
 ovs-ofctl add-flow brv-1 "arp,actions=normal"
-ovs-dpctl del-flows
+ovs-appctl dpctl/del-flows
 
 title "Test header rewrite with gro off"
 

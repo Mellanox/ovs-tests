@@ -82,7 +82,7 @@ ovs-ofctl del-flows brv-1
 ovs-ofctl add-flow brv-1 "ip,nw_dst=$FAKE_VM2_IP,actions=mod_nw_dst=$VM2_IP,normal"
 ovs-ofctl add-flow brv-1 "ip,nw_dst=$VM1_IP,actions=mod_nw_src=$FAKE_VM2_IP,normal"
 ovs-ofctl add-flow brv-1 "arp,actions=normal"
-ovs-dpctl del-flows
+ovs-appctl dpctl/del-flows
 
 title "Test ping $VM1_IP -> fake $FAKE_VM2_IP (will be rewritten to $VM2_IP)"
 ping -q -c 10 -i 0.2 -w 4 $FAKE_VM2_IP && success || err "ping failed"
