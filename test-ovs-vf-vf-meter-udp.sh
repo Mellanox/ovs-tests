@@ -60,14 +60,14 @@ function test_udp() {
     echo "wait for bgs"
     wait
 
-   rate=`cat $TMPFILE | grep "\[SUM\]  0\.0-10.* Bytes/sec" | awk {'print $6'}`
-   if [ -z "$rate" ]; then
+    rate=`cat $TMPFILE | grep "\[SUM\]  0\.0-10.* Bytes/sec" | awk {'print $6'}`
+    if [ -z "$rate" ]; then
         err "Cannot find rate"
         return
-   fi
-   rate=`bc <<< $rate/1000/1000*8`
+    fi
+    rate=`bc <<< $rate/1000/1000*8`
 
-   verify_rate $rate $RATE
+    verify_rate $rate $RATE
 }
 
 enable_switchdev
