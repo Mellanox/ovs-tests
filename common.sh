@@ -1723,15 +1723,17 @@ function verify_rate() {
     local rate=$1
     local expected_rate=$2
 
-    [ -n "$rate" ] && [ "$rate" -eq "$rate" ] 2>/dev/null
+    [ -z "$rate" ] && err "Missing rate" && return
+
+    [ "$rate" -eq "$rate" ] 2>/dev/null
     if [ $? -ne 0 ]; then
         err "rate is not numeric"
         return
     fi
 
-    delta=$((100 * ($expected_rate - $rate)/$expected_rate ))
+    local delta=$((100 * ($expected_rate - $rate)/$expected_rate))
     if [ ${delta#-} -gt 10 ]; then
-        err "rate $rate is over the limit $expected_rate"
+        err "delta $delta: rate $rate is over the limit $expected_rate"
     fi
 }
 
