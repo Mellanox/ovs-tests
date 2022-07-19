@@ -58,7 +58,7 @@ function test_udp() {
 
     killall -9 iperf &>/dev/null
     echo "wait for bgs"
-    wait
+    wait &>/dev/null
 
     rate=`cat $TMPFILE | grep "\[SUM\]  0\.0-10.* Bytes/sec" | awk {'print $6'}`
     if [ -z "$rate" ]; then
