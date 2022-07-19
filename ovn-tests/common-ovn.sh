@@ -260,10 +260,10 @@ function __verify_tcpdump_offload_local() {
     local bf_traffic=${TRAFFIC_INFO['bf_traffic']}
 
     if [[ -z "$bf_traffic" ]]; then
-        [[ -d /proc/$tdpid ]] && success || err
+        [[ -d /proc/$tdpid ]] && success || err "tcpdump is not running"
         killall -q tcpdump
     else
-        on_bf "[[ -d /proc/$tdpid ]]" && success || err
+        on_bf "[[ -d /proc/$tdpid ]]" && success || err "tcpdump is not running"
         on_bf "killall -q tcpdump"
     fi
 }
@@ -277,10 +277,10 @@ function __verify_tcpdump_offload() {
     if [[ -n "$local_traffic" ]]; then
         __verify_tcpdump_offload_local $tdpid
     elif [[ -z "$bf_traffic" ]]; then
-        on_remote "[[ -d /proc/$tdpid ]]" && success || err
+        on_remote "[[ -d /proc/$tdpid ]]" && success || err "tcpdump is not running"
         on_remote "killall -q tcpdump"
     else
-        on_remote_bf "[[ -d /proc/$tdpid ]]" && success || err
+        on_remote_bf "[[ -d /proc/$tdpid ]]" && success || err "tcpdump is not running"
         on_remote_bf "killall -q tcpdump"
     fi
 }
@@ -338,10 +338,11 @@ function check_traffic_offload() {
     title "Check vf counter"
     local vf_tx_pkts2=`get_tx_pkts_ns $client_ns $client_vf`
     let tx_diff=vf_tx_pkts2-vf_tx_pkts
-    if [[ $tx_diff -gt 10 ]]; then
+    local expected=10
+    if [[ $tx_diff -gt $expected ]]; then
         success
     else
-        err "Counter diff $tx_diff"
+        err "Counter diff $tx_diff < $expected"
     fi
 
     if [[ -n $client_verify_offload ]]; then
@@ -381,11 +382,11 @@ function check_traffic_offload() {
     wait $traffic_pid
     local rc=$?
     if [[ $rc -eq 124 ]]; then
-        err "Failed timeout"
+        err "Failed for process timeout"
     elif [[ $rc -eq 0 ]]; then
         success
     else
-        err "Failed rc $?"
+        err "Failed with rc $?"
     fi
 
     if [[ -z "$bf_traffic" ]]; then
