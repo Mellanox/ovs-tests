@@ -71,6 +71,8 @@ function config_bf_ovn_single_node() {
     local ovn_ip=${1:-$OVN_LOCAL_CENTRAL_IP}
 
     config_sriov
+    unbind_vfs
+    bind_vfs
     require_interfaces CLIENT_VF SERVER_VF
     on_bf_exec "ovn_start_northd_central
                 ovn_create_topology
