@@ -53,7 +53,7 @@ function test_duplicate_tunnel() {
         $TUNNEL_KEY_SET pipe \
         action mirred egress mirror dev $vx pipe \
         $TUNNEL_KEY_SET pipe \
-        action mirred egress redirect dev $vx && err || success
+        action mirred egress redirect dev $vx &>/dev/null && err || success
 }
 
 
