@@ -24,6 +24,7 @@ TAGS = (
     "WARNING",
     "XXX",
     "TODO",
+    "Killed",
 )
 
 expected = {
