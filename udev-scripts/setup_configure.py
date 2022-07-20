@@ -122,8 +122,7 @@ class SetupConfigure(object):
                 self.ConfigureSteeringMode()
                 self.ConfigureSwitchdev()
                 self.LoadRepInfo()
-
-            self.BringUpDevices()
+                self.BringUpDevices()
 
             if self.args.dpdk or self.args.vdpa:
                 self.configure_hugepages()
