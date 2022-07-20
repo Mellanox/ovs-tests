@@ -87,7 +87,7 @@ function test_groups_creation() {
     title "Groups creation"
         local groups="1st_grp 2nd_grp"
 
-    for group in $groups;do
+    for group in $groups; do
         sf_port_rate add $PCI_DEV/$group || return 1
         sf_port_rate show $PCI_DEV/$group || return 1
     done
@@ -163,7 +163,7 @@ function test_groups_deletion() {
 
     [ -z "$groups" ] && warn "No groups to delete" && return
 
-    for group in $groups;do
+    for group in $groups; do
         sf_port_rate del $group || ret=1
     done
 
@@ -180,7 +180,7 @@ function run() {
         test_groups_deletion
     "
 
-    for test_case in $test_cases;do
+    for test_case in $test_cases; do
         eval $test_case && success || err "Test case $test_case failed"
     done
 }
