@@ -37,9 +37,9 @@ function check_attr() {
     local rate=$3
     local value
 
-    sf_port_rate set $handle $attr $rate || err "Failed to set rate $rate" && return 1
-    sf_port_rate show $handle -j
-    value=$(sf_port_rate show $handle -j | jq '.[][].'$attr) || err "Failed to get rate" && return 1
+    sf_port_rate set $handle $attr $rate || (err "Failed to set rate $rate" && return 1)
+    sf_port_rate show $handle
+    value=$(sf_port_rate show $handle -j | jq '.[][].'$attr) || (err "Failed to get rate" && return 1)
     if [ "$value" != "$rate" ]; then
         err "Expected value of $attr to be $rate, got $value"
         return 1
@@ -114,8 +114,8 @@ function set_parent() {
     local node=$2
     local parent
 
-    sf_port_rate set $leaf parent $node || return 1
-    sf_port_rate show $leaf -j
+    sf_port_rate set $leaf parent $node || (err "Failed to set parent" && return 1)
+    sf_port_rate show $leaf
     parent=$(sf_port_rate show $leaf -j | jq -r .[][].parent | xargs)
     if [ "$parent" != "$node" ]; then
         err "Expected $leaf parent $node, got $parent"
@@ -127,7 +127,7 @@ function unset_parent() {
     local leaf=$1
     local parent
 
-    sf_port_rate set $leaf noparent || return 1
+    sf_port_rate set $leaf noparent || (err "Failed to remove parent" && return 1)
     parent=$(sf_port_rate show $leaf -j | jq -r .[][].parent | xargs)
     if [ "$parent" != "null" ]; then
         err "Expected $leaf without parent, got $parent"
