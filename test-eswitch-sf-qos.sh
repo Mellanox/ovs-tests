@@ -21,12 +21,13 @@ function config() {
 }
 
 function check_rate() {
-    local objs="$1"
-    local rate="1000"
+    local objs=$1
+    local rate="1000000"
 
     for obj in $objs; do
-        check_attr $obj tx_share $(( rate += 100 )) || return 1
-        check_attr $obj tx_max $(( rate += 500 )) || return 1
+        echo "set rate $rate on $obj"
+        check_attr $obj tx_share $rate || return 1
+        check_attr $obj tx_max $rate || return 1
     done
 }
 
