@@ -36,13 +36,14 @@ function check_attr() {
     local rate=$3
     local value
 
-    sf_port_rate set $handle $attr $rate || return 1
+    sf_port_rate set $handle $attr $rate || err "Failed to set rate $rate" && return 1
     sf_port_rate show $handle -j
-    value=$(sf_port_rate show $handle -j | jq '.[][].'$attr) || return 1
+    value=$(sf_port_rate show $handle -j | jq '.[][].'$attr) || err "Failed to get rate" && return 1
     if [ "$value" != "$rate" ]; then
         err "Expected value of $attr to be $rate, got $value"
         return 1
     fi
+    return 0
 }
 
 function test_leafs_creation() {
@@ -56,6 +57,7 @@ function test_leafs_creation() {
     fi
 
     echo "$output"
+    return 0
 }
 
 function get_leafs() {
