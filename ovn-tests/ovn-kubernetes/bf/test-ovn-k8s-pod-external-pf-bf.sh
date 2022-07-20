@@ -13,7 +13,7 @@ read_k8s_topology_pod_ext
 SERVER_IPV4=$EXTERNAL_SERVER_IP
 
 BRIDGE=$(nic_to_bridge $BF_NIC)
-export REMOTE_CHASSIS=$(on_remote_exec "get_ovs_id")
+export REMOTE_CHASSIS=$(on_remote_bf_exec "get_ovs_id")
 
 function clean_up_test() {
     ip -all netns del
@@ -39,12 +39,13 @@ function config_test() {
     require_interfaces CLIENT_VF
     on_bf_exec "ovn_start_northd_central $CLIENT_NODE_IP &&
                 ovn_create_topology &&
-                config_bf_ovn_pf $CLIENT_NODE_IP $CLIENT_NODE_IP $CLIENT_NODE_IP_MASK $CLIENT_NODE_MAC" || err "Config failed"
+                config_bf_ovn_k8s_pf $CLIENT_NODE_IP $CLIENT_NODE_IP $CLIENT_NODE_IP_MASK $CLIENT_NODE_MAC" || err "Config failed"
     fail_if_err
     config_bf_ovn_interface_namespace $CLIENT_VF $CLIENT_REP $CLIENT_NS $CLIENT_PORT $CLIENT_MAC $CLIENT_IPV4 $CLIENT_IPV6 $CLIENT_GATEWAY_IPV4 $CLIENT_GATEWAY_IPV6
 
-    on_remote "ip addr add $EXTERNAL_SERVER_IP/$SERVER_NODE_IP_MASK dev $NIC"
-    on_remote_bf_exec "config_bf_ovn_pf $CLIENT_NODE_IP $SERVER_NODE_IP $SERVER_NODE_IP_MASK $SERVER_NODE_MAC
+    on_remote "ip addr add $EXTERNAL_SERVER_IP/$SERVER_NODE_IP_MASK dev $NIC
+               ip link set $NIC up"
+    on_remote_bf_exec "config_bf_ovn_k8s_pf $CLIENT_NODE_IP $SERVER_NODE_IP $SERVER_NODE_IP_MASK $SERVER_NODE_MAC
                        ovs-vsctl add-port $BRIDGE $BF_HOST_NIC
                        ip link set $BF_HOST_NIC up"
 }
