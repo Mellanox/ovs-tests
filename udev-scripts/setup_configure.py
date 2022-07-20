@@ -105,16 +105,17 @@ class SetupConfigure(object):
     def Run(self):
         try:
             self.flow_steering_mode = None
+            self.host = Host(socket.gethostbyname(socket.gethostname()))
 
             if not self.args.skip_kmemleak:
                 start_kmemleak()
             self.set_ovs_service()
             self.StopOVS()
             self.ReloadModules()
-
-            self.host = Host(socket.gethostbyname(socket.gethostname()))
-
             self.UpdatePATHEnvironmentVariable()
+
+            if self.args.dpdk or self.args.vdpa:
+                self.configure_hugepages()
 
             self.LoadPFInfo()
             if not self.host.PNics:
@@ -125,26 +126,19 @@ class SetupConfigure(object):
             self.CreateVFs()
             self.LoadVFInfo()
             self.SetVFMACs()
-            self.UnbindVFs()
 
             if self.args.bluefield:
                 self.detect_bf_mode()
-            else:
-                self.ConfigureSteeringMode()
-                self.ConfigureSwitchdev()
-                self.LoadRepInfo()
-                self.BringUpDevices()
-
-            if self.args.dpdk or self.args.vdpa:
-                self.configure_hugepages()
-
-            if self.args.bluefield:
                 self.Configure_BF_OVS()
             else:
+                self.ConfigureSteeringMode()
+                self.UnbindVFs()
+                self.ConfigureSwitchdev()
+                self.BindVFs()
+                self.LoadVFInfo()
+                self.LoadRepInfo()
+                self.BringUpReps()
                 self.ConfigureOVS()
-
-            self.BindVFs()
-            self.UpdateVFInfo()
 
             if self.args.second_server:
                 return
@@ -240,11 +234,6 @@ class SetupConfigure(object):
             PFInfo['vfs'] = sorted(vfs, key=lambda k: k['bus'])
             if len(PFInfo['vfs']) == 0:
                 raise RuntimeError("Cannot find VFs for PF %s" % PFInfo['name'])
-
-    def UpdateVFInfo(self):
-        self.LoadVFInfo()
-        if not self.args.bluefield:
-            self.LoadRepInfo()
 
     def get_switch_id(self, port):
         try:
@@ -453,8 +442,8 @@ class SetupConfigure(object):
                     reps.append(VFInfo['rep'])
         return reps
 
-    def BringUpDevices(self):
-        self.Logger.info("Bring up devices")
+    def BringUpReps(self):
+        self.Logger.info("Bring up reps")
         reps = self.get_reps()
         for devName in reps:
             runcmd2('ethtool -K %s hw-tc-offload on' % devName)
