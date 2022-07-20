@@ -948,6 +948,7 @@ function switch_mode() {
 
     local old_mode=`get_eswitch_mode $nic`
     if [ "$old_mode" == "$mode" ]; then
+        log "E-Switch mode for $nic is $mode"
         return
     fi
 
