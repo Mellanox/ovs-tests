@@ -78,6 +78,7 @@ function config_bf_ovn_single_node() {
                 ovn_create_topology
                 start_clean_openvswitch
                 ovn_set_ovs_config $ovn_ip $ovn_ip
+                ip link set $BF_NIC up
                 ovn_start_ovn_controller"
 }
 
@@ -88,6 +89,7 @@ function config_bf_ovn_pf() {
     start_clean_openvswitch
     ovn_config_mtu $BF_NIC
     ip addr add $ovn_controller_ip/24 dev $BF_NIC
+    ip link set $BF_NIC up
 
     ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
     ovn_start_ovn_controller
@@ -103,6 +105,7 @@ function config_bf_ovn_pf_vlan() {
 
     ovn_config_mtu $BF_NIC $OVN_PF_BRIDGE $OVN_VLAN_INTERFACE
     ip addr add $ovn_controller_ip/24 dev $OVN_VLAN_INTERFACE
+    ip link set $BF_NIC up
 
     ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
     ovn_start_ovn_controller
