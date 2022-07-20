@@ -14,6 +14,7 @@ function config_bf_ovn_k8s_pf() {
     ovn_add_network $BRIDGE $BF_NIC $OVN_KUBERNETES_NETWORK
     ovn_config_mtu $BF_NIC $BRIDGE
     ip link set $BF_NIC addr $ovn_controller_mac
+    ip link set $BF_NIC up
     ip addr add $ovn_controller_ip/$ovn_controller_ip_mask dev $BRIDGE
 
     ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
@@ -33,6 +34,7 @@ function config_bf_ovn_k8s_pf_vlan() {
 
     ovn_config_mtu $BF_NIC $BRIDGE $OVN_VLAN_INTERFACE
     ip link set $BF_NIC addr $ovn_controller_mac
+    ip link set $BF_NIC up
     ip addr add $ovn_controller_ip/$ovn_controller_ip_mask dev $BRIDGE
     ip addr add $ovn_tunnel_ip/24 dev $OVN_VLAN_INTERFACE
 
