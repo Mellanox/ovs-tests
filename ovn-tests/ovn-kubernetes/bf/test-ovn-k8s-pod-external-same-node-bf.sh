@@ -33,7 +33,7 @@ function config_test() {
 
     on_bf_exec "ovn_start_northd_central $CLIENT_NODE_IP
                 ovn_create_topology
-                config_bf_ovn_pf $CLIENT_NODE_IP $CLIENT_NODE_IP $CLIENT_NODE_IP_MASK $CLIENT_NODE_MAC
+                config_bf_ovn_k8s_pf $CLIENT_NODE_IP $CLIENT_NODE_IP $CLIENT_NODE_IP_MASK $CLIENT_NODE_MAC
                 ovs-vsctl add-port $BRIDGE $BF_HOST_NIC
                 ip link set $BF_HOST_NIC up"
 
