@@ -320,6 +320,11 @@ class Test(object):
         return "<Test %s>" % self._name
 
 
+def kmsg(msg):
+    with open("/dev/kmsg", "w") as f:
+        f.write(msg+"\n")
+
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--verbose', '-v', action='store_true',
@@ -422,6 +427,7 @@ def run_test(test, html=False):
             except subprocess.TimeoutExpired as e:
                 subp.terminate()
                 out = e.output
+                kmsg("Test got terminated")
                 terminated = True
             timedout = True
     except AttributeError:
