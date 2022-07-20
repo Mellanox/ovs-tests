@@ -93,6 +93,15 @@ class SetupConfigure(object):
         else:
             self.ovs_service = "openvswitch"
 
+    def detect_bf_mode(self):
+        pci = self.host.PNics[0]['bus']
+        out = runcmd_output("mlxconfig -d %s q | grep INTERNAL_CPU_ESWITCH_MANAGER" % pci)
+        if 'ECPF' in out:
+            self.bf_mode = 'ECPF'
+        else:
+            self.bf_mode = 'HOST_PF'
+        self.Logger.info("BlueField mode is %s" % self.bf_mode)
+
     def Run(self):
         try:
             self.flow_steering_mode = None
@@ -118,7 +127,9 @@ class SetupConfigure(object):
             self.SetVFMACs()
             self.UnbindVFs()
 
-            if not self.args.bluefield:
+            if self.args.bluefield:
+                self.detect_bf_mode()
+            else:
                 self.ConfigureSteeringMode()
                 self.ConfigureSwitchdev()
                 self.LoadRepInfo()
