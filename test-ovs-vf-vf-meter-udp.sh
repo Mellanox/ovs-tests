@@ -27,15 +27,19 @@ function config_ovs() {
     ovs-vsctl add-port $BR $REP2
 
     ovs-ofctl del-flows $BR
+    ovs-ofctl -O OpenFlow13 add-flow $BR "arp,actions=normal"
+    ovs-ofctl -O OpenFlow13 add-flow $BR "icmp,actions=normal"
     ovs-ofctl -O OpenFlow13 add-meter $BR meter=1,kbps,burst,band=type=drop,rate=$((RATE*1000)),burst_size=64
     ovs-ofctl -O OpenFlow13 add-flow $BR "ip,nw_src=${IP2},actions=meter:1,output:${REP}"
     ovs-ofctl -O OpenFlow13 add-flow $BR "ip,nw_src=${IP1},actions=output:${REP2}"
-    ovs-ofctl -O OpenFlow13 add-flow $BR "arp,actions=normal"
 
     ovs-ofctl dump-flows $BR -O OpenFlow13 --color
 }
 
 function test_udp() {
+    title "Test ping"
+    ip netns exec ns1 ping -q -c 1 -w 1 $IP1 || err "Ping failed"
+
     title "Test iperf udp $VF($IP1) -> $VF2($IP2)"
     t=10
     ip netns exec ns0 timeout -k 1 $((t+5)) iperf -f Bytes -s -u > $TMPFILE &
