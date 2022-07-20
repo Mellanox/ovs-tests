@@ -261,10 +261,10 @@ function __verify_tcpdump_offload_local() {
 
     if [[ -z "$bf_traffic" ]]; then
         [[ -d /proc/$tdpid ]] && success || err "tcpdump is not running"
-        killall -q tcpdump
+        kill $tdpid && wait $tdpid &>/dev/null
     else
         on_bf "[[ -d /proc/$tdpid ]]" && success || err "tcpdump is not running"
-        on_bf "killall -q tcpdump"
+        on_bf "kill $tdpid && wait $tdpid" &>/dev/null
     fi
 }
 
