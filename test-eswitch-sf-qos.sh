@@ -38,11 +38,10 @@ function check_attr() {
     sf_port_rate set $handle $attr $rate || return 1
     sf_port_rate show $handle -j
     value=$(sf_port_rate show $handle -j | jq '.[][].'$attr) || return 1
-    [ "$value" == "$rate" ] ||
-        {
-            err "Expected $handle $attr $rate, got - $value"
-            return 1
-        }
+    if [ "$value" != "$rate" ]; then
+        err "Expected value of $attr to be $rate, got $value"
+        return 1
+    fi
 }
 
 function test_leafs_creation() {
@@ -50,11 +49,11 @@ function test_leafs_creation() {
     local output=$(sf_port_rate show | grep "${PCI_DEV}.*type leaf")
     local num_leafs=$(echo "$output" | wc -l)
 
-    [ "$NUM_SFS" -eq $num_leafs ] ||
-        {
-            err "Expected $NUM_SFS leafs created, got - $num_leafs"
-            return 1
-        }
+    if [ "$NUM_SFS" != "$num_leafs" ]; then
+        err "Expected $NUM_SFS leafs created, got $num_leafs"
+        return 1
+    fi
+
     echo "$output"
 }
 
@@ -114,11 +113,10 @@ function set_parent() {
     sf_port_rate set $leaf parent $node || return 1
     sf_port_rate show $leaf -j
     parent=$(sf_port_rate show $leaf -j | jq -r .[][].parent | xargs)
-    [ "$parent" == "$node" ] ||
-        {
-            err "Expected $leaf parent $node, got - '$parent'"
-            return 1
-        }
+    if [ "$parent" != "$node" ]; then
+        err "Expected $leaf parent $node, got $parent"
+        return 1
+    fi
 }
 
 function unset_parent() {
@@ -127,11 +125,10 @@ function unset_parent() {
 
     sf_port_rate set $leaf noparent || return 1
     parent=$(sf_port_rate show $leaf -j | jq -r .[][].parent | xargs)
-    [ "$parent" == "null" ] ||
-        {
-            err "Expected $leaf noparent, got - '$parent'"
-            return 1
-        }
+    if [ "$parent" != "null" ]; then
+        err "Expected $leaf without parent, got $parent"
+        return 1
+    fi
 }
 
 function test_leafs_set_parent() {
@@ -178,11 +175,11 @@ function test_leafs_deletion() {
     remove_sfs
     local output=$(sf_port_rate show | grep "${PCI_DEV}.*type leaf")
 
-    [ -z "$output" ] ||
-        {
+    if [ -n "$output" ]; then
             err "Leafs weren't deleted:\n$output"
             return 1
-        }
+    fi
+    return 0
 }
 
 function run() {
@@ -197,7 +194,7 @@ function run() {
     "
 
     for test_case in $test_cases;do
-        eval $test_case && success || err
+        eval $test_case && success || err "Test case $test_case failed"
     done
 }
 
