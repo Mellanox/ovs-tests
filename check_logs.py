@@ -26,6 +26,7 @@ TAGS = (
     "TODO",
     "Killed",
     "File exists",
+    "No such file or directory",
 )
 
 expected = {
