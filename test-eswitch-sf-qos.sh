@@ -170,18 +170,6 @@ function test_groups_deletion() {
     return $ret
 }
 
-function test_leafs_deletion() {
-    title "Leafs deletion"
-    remove_sfs
-    local output=$(sf_port_rate show | grep "${PCI_DEV}.*type leaf")
-
-    if [ -n "$output" ]; then
-            err "Leafs weren't deleted:\n$output"
-            return 1
-    fi
-    return 0
-}
-
 function run() {
     test_cases="
         test_leafs_creation
@@ -190,7 +178,6 @@ function run() {
         test_groups_set_rates
         test_leafs_set_parent
         test_groups_deletion
-        test_leafs_deletion
     "
 
     for test_case in $test_cases;do
@@ -201,5 +188,6 @@ function run() {
 trap remove_sfs EXIT
 config
 run
+remove_sfs
 trap - EXIT
 test_done
