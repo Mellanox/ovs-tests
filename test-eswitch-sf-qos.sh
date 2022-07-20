@@ -14,6 +14,7 @@ PCI_DEV="pci/$PCI"
 NUM_SFS=4
 
 function config() {
+    config_sriov 0
     enable_switchdev $NIC
     create_sfs $NUM_SFS
     fail_if_err "Failed to create sfs"
