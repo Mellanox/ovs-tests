@@ -12,6 +12,7 @@ my_dir="$(dirname "$0")"
 
 PCI_DEV="pci/$PCI"
 NUM_SFS=4
+MLX5_LINKSPEED_UNIT=125000
 
 function config() {
     config_sriov 0
@@ -22,12 +23,12 @@ function config() {
 
 function check_rate() {
     local objs=$1
-    local rate="1000000"
+    local rate="$MLX5_LINKSPEED_UNIT"
 
     for obj in $objs; do
         echo "set rate $rate on $obj"
-        check_attr $obj tx_share $rate || return 1
-        check_attr $obj tx_max $rate || return 1
+        check_attr $obj tx_share $(( rate *= 2 )) || return 1
+        check_attr $obj tx_max $(( rate *= 3 )) || return 1
     done
 }
 
