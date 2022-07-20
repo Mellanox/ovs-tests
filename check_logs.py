@@ -25,6 +25,7 @@ TAGS = (
     "XXX",
     "TODO",
     "Killed",
+    "File exists",
 )
 
 expected = {
