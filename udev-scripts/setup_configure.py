@@ -129,6 +129,10 @@ class SetupConfigure(object):
 
             if self.args.bluefield:
                 self.detect_bf_mode()
+                if self.bf_mode == 'HOST_PF':
+                    self.args.bluefield = False
+
+            if self.args.bluefield:
                 self.Configure_BF_OVS()
             else:
                 self.ConfigureSteeringMode()
