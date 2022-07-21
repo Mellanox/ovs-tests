@@ -133,6 +133,10 @@ function create_sfs() {
         [ "$sf_with_cfg" == 1 ] && sf_cfg_unbind $sf_dev && sf_bind $sf_dev
 
         [ "$sf_disable_netdev" != 1 ] && sleep 0.5
+
+        eval SF$i=`sf_get_netdev $i`
+        eval SF_REP$i=`sf_get_rep $i`
+        eval SF_DEV$i=`sf_get_dev $i`
     done
 }
 
