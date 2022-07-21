@@ -117,7 +117,7 @@ function create_sfs() {
     title "Create $count SFs"
 
     for i in `seq $count`; do
-        create_sf $pfnum $i || return 1
+        create_sf $pfnum $i || break
 
         local rep=$(sf_get_rep $i)
         [ "$sf_disable_roce" == 1 ] && sf_disable_roce $rep
@@ -126,7 +126,7 @@ function create_sfs() {
         local sf_dev=$(sf_get_dev $i)
         if [ -z "$sf_dev" ]; then
             err "Failed to get sf dev for pfnum $pfnum sfnum $i"
-            continue
+            break
         fi
 
         [ "$sf_disable_netdev" == 1 ] && sf_disable_netdev $sf_dev
@@ -135,9 +135,15 @@ function create_sfs() {
         [ "$sf_disable_netdev" != 1 ] && sleep 0.5
 
         eval SF$i=`sf_get_netdev $i`
-        eval SF_REP$i=`sf_get_rep $i`
-        eval SF_DEV$i=`sf_get_dev $i`
+        eval SF_REP$i=$rep
+        eval SF_DEV$i=$sf_dev
     done
+
+    if [ $TEST_FAILED != 0 ]; then
+        remove_sfs
+    fi
+
+    fail_if_err "Failed to create sfs"
 }
 
 function unbind_sfs() {

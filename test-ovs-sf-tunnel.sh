@@ -104,7 +104,6 @@ bind_vfs
 remote_disable_sriov
 
 create_sfs 1
-fail_if_err "Failed to create sfs"
 
 title "Test IPv4 tunnel"
 clean_config

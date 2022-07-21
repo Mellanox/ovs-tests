@@ -49,8 +49,6 @@ function config() {
     set_eswitch_ipv4_ttl_modify_enable true
 
     create_sfs 1
-    fail_if_err "Failed to create sfs"
-
     start_clean_openvswitch
     config_remote
     ip link set dev $NIC up

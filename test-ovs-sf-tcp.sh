@@ -21,7 +21,6 @@ trap cleanup EXIT
 function config() {
     title "Config"
     create_sfs 2
-    fail_if_err "Failed to create sfs"
     start_clean_openvswitch
     config_ns
     config_ovs
