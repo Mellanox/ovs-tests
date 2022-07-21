@@ -25,16 +25,6 @@ function config() {
     title "Config"
     start_clean_openvswitch
     create_sfs 2
-
-    title "SFs Netdev Rep Info"
-    SF1=`sf_get_netdev 1`
-    SF_REP1=`sf_get_rep 1`
-    SF_DEV1=`sf_get_dev 1`
-    echo "SF: $SF1, REP: $SF_REP1, DEV: $SF_DEV1"
-    SF2=`sf_get_netdev 2`
-    SF_REP2=`sf_get_rep 2`
-    SF_DEV2=`sf_get_dev 2`
-    echo "SF: $SF2, REP: $SF_REP2, DEV: $SF_DEV2"
 }
 
 function config_test() {

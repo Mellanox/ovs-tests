@@ -24,7 +24,7 @@ function cleanup() {
 trap cleanup EXIT
 
 function clean_config() {
-    ip addr flush dev $SF &>/dev/null
+    ip addr flush dev $SF1 &>/dev/null
     ip netns del ns0 &>/dev/null
     start_clean_openvswitch
     cleanup_remote_vxlan
@@ -37,9 +37,9 @@ function config() {
 
     title "Config local host"
 
-    ip a add dev $SF $local_ip/$subnet
-    ip link set dev $SF up
-    ip link set dev $SF_REP up
+    ip a add dev $SF1 $local_ip/$subnet
+    ip link set dev $SF1 up
+    ip link set dev $SF_REP1 up
     config_vf ns0 $VF2 $REP2 $VF_IP
     ip addr flush dev $NIC
     ip link set dev $NIC up
@@ -47,7 +47,7 @@ function config() {
     start_clean_openvswitch
     ovs-vsctl add-br ovs-br
     ovs-vsctl add-port ovs-br $NIC
-    ovs-vsctl add-port ovs-br $SF_REP
+    ovs-vsctl add-port ovs-br $SF_REP1
     ovs-vsctl add-br ovs-br2
     ovs-vsctl add-port ovs-br2 $REP2
     ovs-vsctl add-port ovs-br2 vxlan1 \
@@ -73,8 +73,8 @@ function run() {
     # initial traffic to offload
     ip netns exec ns0 ping -I $VF2 $REMOTE_VF_IP -c 1 -w 1 -q || err "Initial ping failed"
 
-    echo "sniff packets on $SF"
-    timeout $t tcpdump -qnnei $SF -c 4 "$filter" &
+    echo "sniff packets on $SF1"
+    timeout $t tcpdump -qnnei $SF1 -c 4 "$filter" &
     tpid=$!
     sleep 0.5
 
@@ -90,7 +90,7 @@ function run() {
     wait $ppid &>/dev/null
     [ $? -ne 0 ] && err "Ping failed" && return 1
 
-    title "test traffic on $SF"
+    title "test traffic on $SF1"
     verify_no_traffic $tpid
     title "test traffic on $REP2"
     verify_no_traffic $tpid2
@@ -105,9 +105,6 @@ remote_disable_sriov
 
 create_sfs 1
 fail_if_err "Failed to create sfs"
-SF=`sf_get_netdev 1`
-SF_REP=`sf_get_rep 1`
-echo "SF $SF REP $SF_REP"
 
 title "Test IPv4 tunnel"
 clean_config

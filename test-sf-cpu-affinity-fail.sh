@@ -27,12 +27,6 @@ function config() {
     title "Config"
     enbale_irq_reguest_debug
     create_sfs 1
-
-    title "SFs Netdev Rep Info"
-    SF=`sf_get_netdev 1`
-    SF_DEV=`sf_get_dev 1`
-    echo "SF: $SF, DEV: $SF_DEV"
-
     title "Disabling CPU #1"
     disable_cpu1
 }
@@ -40,7 +34,7 @@ function config() {
 function test_cpu_affinity_fail() {
     title "Trying to set SF CPU affinity to CPU #1"
     __ignore_errors=1
-    sf_set_cpu_affinity $SF_DEV 1
+    sf_set_cpu_affinity $SF_DEV1 1
     local rc=$?
     __ignore_errors=0
 

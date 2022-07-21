@@ -24,16 +24,6 @@ function config() {
     fail_if_err "Failed to create sfs"
 
     start_clean_openvswitch
-
-    title "SFs Netdev Rep Info"
-    SF1=`sf_get_netdev 1`
-    SF_REP1=`sf_get_rep 1`
-    echo "SF: $SF1, REP: $SF_REP1"
-
-    SF2=`sf_get_netdev 2`
-    SF_REP2=`sf_get_rep 2`
-    echo "SF: $SF2, REP: $SF_REP2"
-
     config_ns
     config_ovs
 }

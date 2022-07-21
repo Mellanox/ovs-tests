@@ -53,14 +53,8 @@ function config() {
 
     start_clean_openvswitch
     config_remote
-
-    title "SFs Netdev Rep Info"
-    SF=`sf_get_netdev 1`
-    SF_REP=`sf_get_rep 1`
-    echo "SF: $SF, REP: $SF_REP"
-
     ip link set dev $NIC up
-    config_vf ns0 $SF $SF_REP $IP
+    config_vf ns0 $SF1 $SF_REP1 $IP
     config_ovs
 }
 
@@ -72,12 +66,12 @@ function config_remote() {
 
 function config_ovs() {
     ovs-vsctl add-br br-ovs
-    ovs-vsctl add-port br-ovs $SF_REP
+    ovs-vsctl add-port br-ovs $SF_REP1
     ovs-vsctl add-port br-ovs $NIC
     ovs-ofctl del-flows br-ovs
     ovs-ofctl add-flow br-ovs "arp,action=normal"
-    ovs-ofctl add-flow br-ovs "in_port=$SF_REP,ip actions=dec_ttl,output:$NIC"
-    ovs-ofctl add-flow br-ovs "in_port=$NIC,ip actions=dec_ttl,output:$SF_REP"
+    ovs-ofctl add-flow br-ovs "in_port=$SF_REP1,ip actions=dec_ttl,output:$NIC"
+    ovs-ofctl add-flow br-ovs "in_port=$NIC,ip actions=dec_ttl,output:$SF_REP1"
 }
 
 function run_traffic() {
@@ -91,8 +85,8 @@ function run_traffic() {
     sleep 2
     pidof iperf3 &>/dev/null || err "iperf failed"
 
-    echo "sniff packets on $SF_REP"
-    timeout $((t-4)) tcpdump -qnnei $SF_REP -c 10 'tcp' &
+    echo "sniff packets on $SF_REP1"
+    timeout $((t-4)) tcpdump -qnnei $SF_REP1 -c 10 'tcp' &
     pid1=$!
 
     sleep $t
