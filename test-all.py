@@ -275,9 +275,10 @@ class Test(object):
     def failed(self):
         return self._failed
 
-    def set_failed(self):
+    def set_failed(self, reason):
         self._passed = False
         self._failed = True
+        self._reason = reason
 
     @property
     def fname(self):
@@ -775,13 +776,19 @@ def update_skip_according_to_db(rm, _tests, data):
 
         min_nic = opts.get('min_nic', None)
         if min_nic:
-            if not DeviceType.gte(current_nic, min_nic):
-                t.set_ignore("Unsupported nic %s" % current_nic)
+            try:
+                if not DeviceType.gte(current_nic, min_nic):
+                    t.set_ignore("Unsupported nic %s" % current_nic)
+            except AttributeError as e:
+                t.set_failed(str(e))
 
         max_nic = opts.get('max_nic', None)
         if max_nic:
-            if not DeviceType.lte(current_nic, max_nic):
-                t.set_ignore("Unsupported nic %s" % current_nic)
+            try:
+                if not DeviceType.lte(current_nic, max_nic):
+                    t.set_ignore("Unsupported nic %s" % current_nic)
+            except AttributeError as e:
+                t.set_failed(str(e))
 
         min_fw = opts.get('min_fw', None)
         if min_fw:
@@ -1263,6 +1270,9 @@ def __run_test(test):
     elif test.skip:
         res = 'SKIP'
         reason = test.reason
+    elif test.failed:
+        res = 'FAILED'
+        reason = test.reason
     elif args.dry:
         res = 'DRY'
     else:
@@ -1274,9 +1284,9 @@ def __run_test(test):
             test.set_passed()
         except ExecCmdFailed as e:
             failed = True
-            test.set_failed()
-            res = 'FAILED'
             reason = str(e)
+            res = 'FAILED'
+            test.set_failed(reason)
         end_time = datetime.now()
         total_seconds = float("%.2f" % (end_time - start_time).total_seconds())
 
