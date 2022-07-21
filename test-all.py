@@ -186,14 +186,22 @@ class DeviceType(object):
         return DeviceType.devices.get(device_id, '')
 
     @staticmethod
+    def is_valid_compare(nic1, nic2):
+        if nic1.startswith('cx') and nic2.startswith('cx'):
+            return True
+        if nic1.startswith('bf') and nic2.startswith('bf'):
+            return True
+        return False
+
+    @staticmethod
     def cmp(nic1, nic2):
         """
         -1   - nic1 < nic2
         0    - nic1 == nic2
         1    - nic1 > nic2
         """
-        if not nic1.startswith('cx') or not nic2.startswith('cx'):
-            raise RuntimeError("Invalid nics for comparison %s %s" % (nic1, nic2))
+        if not DeviceType.is_valid_compare(nic1, nic2):
+            raise AttributeError("Invalid nics for comparison %s %s" % (nic1, nic2))
         major1 = nic1[2]
         major2 = nic2[2]
         if major1 < major2:
