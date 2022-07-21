@@ -193,7 +193,7 @@ class DeviceType(object):
         1    - nic1 > nic2
         """
         if not nic1.startswith('cx') or not nic2.startswith('cx'):
-            raise RuntimeError("invalid nic")
+            raise RuntimeError("Invalid nics for comparison %s %s" % (nic1, nic2))
         major1 = nic1[2]
         major2 = nic2[2]
         if major1 < major2:
@@ -212,7 +212,7 @@ class DeviceType(object):
             return -1
         if minor1 == "dx" and minor2 == "lx":
             return 1
-        raise RuntimeError("cannot compare")
+        raise RuntimeError("Cannot compare nics %s %s" % (nic1, nic2))
 
     @staticmethod
     def lte(nic1, nic2):
