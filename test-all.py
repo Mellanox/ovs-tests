@@ -194,12 +194,20 @@ class DeviceType(object):
         return False
 
     @staticmethod
+    def __normalize(nic):
+        if nic == 'bf2':
+            return 'cx6dx'
+        return nic
+
+    @staticmethod
     def cmp(nic1, nic2):
         """
         -1   - nic1 < nic2
         0    - nic1 == nic2
         1    - nic1 > nic2
         """
+        nic1 = DeviceType.__normalize(nic1)
+        nic2 = DeviceType.__normalize(nic2)
         if not DeviceType.is_valid_compare(nic1, nic2):
             raise AttributeError("Invalid nics for comparison %s %s" % (nic1, nic2))
         major1 = nic1[2]
