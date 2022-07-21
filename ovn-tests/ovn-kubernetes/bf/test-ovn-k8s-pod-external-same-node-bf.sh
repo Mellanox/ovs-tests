@@ -30,6 +30,7 @@ function config_test() {
     config_sriov
     require_interfaces CLIENT_VF
     ip addr add $EXTERNAL_SERVER_IP/$SERVER_NODE_IP_MASK dev $NIC
+    ip link set $NIC up
 
     on_bf_exec "ovn_start_northd_central $CLIENT_NODE_IP
                 ovn_create_topology
