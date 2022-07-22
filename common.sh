@@ -2209,9 +2209,12 @@ function __common_main() {
 
 # script executed directly. evaluate user input.
 if [ "$TESTNAME" == "common.sh" ]; then
-    if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
-        echo "To evaluate a function run as so:"
-        echo "bash common.sh [function] [args]"
+    if [ "$1" == "-h" ] || [ "$1" == "--help" ] || [ "$*" == "" ]; then
+        echo "Evaluate a script as:"
+        echo
+        echo "bash common.sh [script]"
+        echo
+        echo "Example: bash common.sh \"enable_switchdev\""
         exit 0
     fi
     __load_config
