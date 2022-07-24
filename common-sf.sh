@@ -290,3 +290,19 @@ function sf_show_port() {
 function sf_port_rate() {
     $sfcmd port func rate $@
 }
+
+
+function __common_sf_exec() {
+    local __argv0=$0
+    if [ "$__argv0" == "-bash" ] ; then
+        __argv0='.'
+    fi
+    local COMMON_SF=`basename $__argv0`
+    if [ "$COMMON_SF" == "common-sf.sh" ]; then
+        # script executed directly. evaluate user input.
+        local DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" &>/dev/null && pwd)
+        . $DIR/common.sh $@
+    fi
+}
+
+__common_sf_exec $@
