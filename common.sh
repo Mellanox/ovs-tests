@@ -2214,13 +2214,16 @@ function __common_main() {
 function __common_help() {
     echo "Evaluate a script as:"
     echo
-    echo "bash common.sh [script]"
+    echo "bash $TESTNAME [script]"
     echo
-    echo "Example: bash common.sh \"enable_switchdev\""
+    echo "Example: bash $TESTNAME \"enable_switchdev\""
     exit 0
 }
 
 function __common_eval() {
+    if [ "$1" == "-h" ] || [ "$1" == "--help" ] || [ "$*" == "" ]; then
+        __common_help
+    fi
     NO_TITLE=1
     __common_main
     echo "Evaluate: $@"
@@ -2228,11 +2231,8 @@ function __common_eval() {
     exit $?
 }
 
-# script executed directly. evaluate user input.
-if [ "$TESTNAME" == "common.sh" ]; then
-    if [ "$1" == "-h" ] || [ "$1" == "--help" ] || [ "$*" == "" ]; then
-        __common_help
-    fi
+# common script executed directly. evaluate user input.
+if [[ "$TESTNAME" == common* ]]; then
     __common_eval $@
 fi
 
