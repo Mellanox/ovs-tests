@@ -41,6 +41,9 @@ function config_test() {
                     require_interfaces SERVER_VF"
     on_remote_bf_exec "config_bf_ovn_k8s_pf_vlan $CLIENT_NODE_IP $SERVER_NODE_IP $SERVER_NODE_IP_MASK $SERVER_NODE_MAC $OVN_K8S_VLAN_NODE2_TUNNEL_IP"
     config_bf_ovn_remote_interface_namespace $SERVER_VF $SERVER_REP $SERVER_NS $SERVER_PORT $SERVER_MAC $SERVER_IPV4 $SERVER_IPV6 $SERVER_GATEWAY_IPV4 $SERVER_GATEWAY_IPV6
+
+    # WA, taffic doesn't work until dump flows. #3146080
+    on_bf ovs-ofctl dump-flows br-int &>/dev/null
 }
 
 function run_test() {
