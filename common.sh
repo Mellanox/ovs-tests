@@ -2183,19 +2183,23 @@ function set_lag_port_select_mode() {
     echo $mode > /sys/class/net/$NIC2/compat/devlink/lag_port_select_mode || fail "Failed to set $NIC2 lag_port_select_mode to $mode"
 }
 
+function __test_help() {
+    echo "To run a test export a config and run the test script as so:"
+    echo
+    echo "export CONFIG=/path/to/config.sh"
+    echo "$TESTDIR/$TESTNAME"
+    echo
+    echo "Available exports:"
+    echo
+    echo "KMEMLEAK_SCAN_PER_TEST=1      - Do kmemleak scan per test."
+    echo "FREEZE_ON_ERROR=1             - Pause test on each error."
+    echo "ENABLE_OVS_DEBUG=1            - Set ovs debug level."
+    exit 0
+}
+
 function __common_main() {
     if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
-        echo "To run a test export a config and run the test script as so:"
-        echo
-        echo "export CONFIG=/path/to/config.sh"
-        echo "$TESTDIR/$TESTNAME"
-        echo
-        echo "Available exports:"
-        echo
-        echo "KMEMLEAK_SCAN_PER_TEST=1      - Do kmemleak scan per test."
-        echo "FREEZE_ON_ERROR=1             - Pause test on each error."
-        echo "ENABLE_OVS_DEBUG=1            - Set ovs debug level."
-        exit 0
+        __test_help
     fi
     if [ "X${NO_TITLE}" == "X" ]; then
         title2 $TESTNAME
@@ -2207,22 +2211,29 @@ function __common_main() {
     __setup_clean
 }
 
-# script executed directly. evaluate user input.
-if [ "$TESTNAME" == "common.sh" ]; then
-    if [ "$1" == "-h" ] || [ "$1" == "--help" ] || [ "$*" == "" ]; then
-        echo "Evaluate a script as:"
-        echo
-        echo "bash common.sh [script]"
-        echo
-        echo "Example: bash common.sh \"enable_switchdev\""
-        exit 0
-    fi
-    __load_config
-    trap __trapped_int_cleanup INT
-    __setup_common
+function __common_help() {
+    echo "Evaluate a script as:"
+    echo
+    echo "bash common.sh [script]"
+    echo
+    echo "Example: bash common.sh \"enable_switchdev\""
+    exit 0
+}
+
+function __common_eval() {
+    NO_TITLE=1
+    __common_main
     echo "Evaluate: $@"
     eval $@
     exit $?
+}
+
+# script executed directly. evaluate user input.
+if [ "$TESTNAME" == "common.sh" ]; then
+    if [ "$1" == "-h" ] || [ "$1" == "--help" ] || [ "$*" == "" ]; then
+        __common_help
+    fi
+    __common_eval $@
 fi
 
 # script included from bash console. do nothing
