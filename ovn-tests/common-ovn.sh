@@ -323,7 +323,6 @@ function check_traffic_offload() {
     echo "logfile: $logfile"
     send_background_traffic $traffic_type $client_ns $server_ip $traffic_timeout $logfile
     local traffic_pid=$!
-    timeout 5 tail -f $logfile | head -n 5 &
 
     if [[ -n "$skip_offload" ]]; then
         wait $traffic_pid && success || err
@@ -334,6 +333,7 @@ function check_traffic_offload() {
     tmp=${TRAFFIC_INFO['offloaded_traffic_verification_delay']}
     echo "Sleep for $tmp seconds initial traffic"
     sleep $tmp
+    head -n5 $logfile
 
     title "Check vf counter"
     local vf_tx_pkts2=`get_tx_pkts_ns $client_ns $client_vf`
