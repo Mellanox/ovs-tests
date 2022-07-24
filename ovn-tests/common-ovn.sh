@@ -386,7 +386,8 @@ function check_traffic_offload() {
     elif [[ $rc -eq 0 ]]; then
         success
     else
-        err "Failed with rc $?"
+        tail -n5 $logfile
+        err "Failed with rc $rc"
     fi
 
     if [[ -z "$bf_traffic" ]]; then
