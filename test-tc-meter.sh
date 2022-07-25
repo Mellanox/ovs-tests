@@ -21,10 +21,11 @@ unbind_vfs
 bind_vfs
 
 function cleanup() {
-    ip netns del ns0 2> /dev/null
-    ip netns del ns1 2> /dev/null
+    ip netns del ns0
+    ip netns del ns1
     reset_tc $REP $REP2
-    tc action flush action police 2> /dev/null
+    sleep 0.5
+    tc action flush action police
 }
 trap cleanup EXIT
 
@@ -111,4 +112,6 @@ function run() {
 }
 
 run
+trap - EXIT
+cleanup
 test_done
