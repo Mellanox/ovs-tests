@@ -141,7 +141,6 @@ class SetupConfigure(object):
                 self.BindVFs()
                 self.LoadVFInfo()
                 self.LoadRepInfo()
-                self.BringUpReps()
                 self.ConfigureOVS()
 
             if self.args.second_server:
@@ -436,22 +435,6 @@ class SetupConfigure(object):
         runcmd_output('ssh %s "systemctl restart openvswitch-switch && '
                       'ovs-vsctl set Open_vSwitch . other_config:hw-offload=true && '
                       'systemctl restart openvswitch-switch"' % bf_ip)
-
-    def get_reps(self):
-        reps = []
-        for PFInfo in self.host.PNics:
-            reps.append(PFInfo['name'])
-            for VFInfo in PFInfo['vfs']:
-                if VFInfo['rep']:
-                    reps.append(VFInfo['rep'])
-        return reps
-
-    def BringUpReps(self):
-        self.Logger.info("Bring up reps")
-        reps = self.get_reps()
-        for devName in reps:
-            runcmd2('ethtool -K %s hw-tc-offload on' % devName)
-            runcmd2('ip link set dev %s up' % devName)
 
     def BindVFs(self):
         for VFInfo in chain.from_iterable(map(lambda PFInfo: PFInfo['vfs'], self.host.PNics)):
