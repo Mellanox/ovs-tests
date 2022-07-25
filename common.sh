@@ -1426,10 +1426,9 @@ kvm"
     a=`journalctl_for_test | grep -E -i "$memleak" || true`
     if [ "$a" != "" ]; then
         # WA getting 2 "mount.nfs" leaks sometimes in regression VM.
-        cat $kmemleak_sysfs | grep -q "mount.nfs"
-        local mount_issue=$?
-        local count=`cat $kmemleak_sysfs | grep -c "unreferenced object"`
-        if [ $mount_issue -ne 0 ] || [ $count -ne 2 ]; then
+        # WA getting 4 "mount.nfs" leaks sometimes in regression VM BF.
+        local mount_count=`cat $kmemleak_sysfs | grep -c "mount.nfs"`
+        if [ $mount_count -ne 2  ] && [ $mount_count -ne 4 ]; then
             err "Detected errors in the log"
             echo "$a"
             rc=1
