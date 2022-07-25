@@ -2130,11 +2130,6 @@ function get_ovs_id() {
 }
 
 function get_lag_resource_allocation_mode() {
-    if [ "$short_device_name" != "cx6dx" ]; then
-        echo 0
-        return
-    fi
-
     if echo $(fw_query_val LAG_RESOURCE_ALLOCATION) | grep 1 > /dev/null; then
         echo 1
     else
@@ -2143,10 +2138,6 @@ function get_lag_resource_allocation_mode() {
 }
 
 function set_lag_resource_allocation() {
-    if [ "$short_device_name" != "cx6dx" ]; then
-        return
-    fi
-
     local value=$1
     title "lag_resource_allocation value to $value"
     fw_config LAG_RESOURCE_ALLOCATION=$value || fail "Cannot set lag resource allocation to $value"
