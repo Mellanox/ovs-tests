@@ -294,13 +294,26 @@ function del_openflow_rules() {
 }
 
 function check_offloaded_connections() {
-    local num_of_connections=$1
+    local expected_connections=$1
+    local current_connections
+    local result
 
-    local x=$(ovs-appctl dpctl/offload-stats-show | grep 'Total' | grep 'CT bi-dir Connections:' | awk '{print $5}')
-    if [ $x -lt $num_of_connections ]; then
-        err "No offloaded connections created, expected $num_of_connections, got $x"
-    else
-        debug "Number of offloaded connections: $x"
+    for (( i=0; i<3; i++ ))
+    do
+        current_connections=$(ovs-appctl dpctl/offload-stats-show | grep 'Total' | grep 'CT bi-dir Connections:' | awk '{print $5}')
+        if [ $current_connections -lt $expected_connections ]; then
+            result="0"
+            debug "Not sufficient offloaded connections, current $current_connections vs expected $expected_connections - recheck"
+            sleep 0.7
+        else
+            result="1"
+            debug "Number of offloaded connections: $current_connections is at least as expected $expected_connections"
+            break
+        fi
+    done
+
+    if [ "$result" == "0" ] ; then
+        err "Not enough offloaded connections created, expected $expected_connections, got $current_connections"
     fi
 }
 
