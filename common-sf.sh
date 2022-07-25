@@ -200,7 +200,7 @@ function sf_reload_aux() {
     start_cpu_irq_check
     devlink dev reload auxiliary/$sf_dev
     if [ $? -ne 0 ]; then
-        err "$sf_dev: Devlink reload auxiliary failed"
+        err "$sf_dev: Failed to reload auxiliary device $sf_dev"
         return 1
     fi
     check_cpu_irq $sf_dev $cpus
@@ -210,8 +210,8 @@ function sf_reload_aux() {
 function sf_set_cpu_affinity() {
     local sf_dev=$1
     local cpus=$2
-    log "Setting cpu affinity with value $cpus to $sf_dev"
 
+    log "Setting cpu affinity with value $cpus to $sf_dev"
     $sfcmd dev param set auxiliary/$sf_dev name cpu_affinity value $cpus cmode driverinit
     if [ $? -ne 0 ]; then
         err "$sf_dev: Failed to set cpu affinity"
@@ -240,7 +240,7 @@ function parse_cpus_value() {
     #        parse_cpus_value 0
     #        parse_cpus_value 2-10
     #        parse_cpus_value 3-5,10
-    local cpus=$1
+    local cpus=${1:?"missing cpus"}
     local extra_cpu
 
     if [[ $cpus == ?(-)+([0-9]) ]]; then
@@ -281,7 +281,7 @@ function check_cpu_irq() {
     for cpu in $cpus; do
         grep --color "cpu $cpu" <<< $mlx5_irq_requests
         if [ $? -ne 0 ]; then
-            err "did not find matching cpu: $cpu"
+            err "Can't find matching cpu: $cpu"
             return 1
         fi
     done
