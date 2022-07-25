@@ -10,8 +10,8 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+min_nic_cx6dx
 require_module bonding
-not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
 
 function config() {
     config_sriov 2

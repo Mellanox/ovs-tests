@@ -5,6 +5,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+min_nic_cx6dx
 local_ip=6.6.6.5
 remote_ip=6.6.6.6
 
