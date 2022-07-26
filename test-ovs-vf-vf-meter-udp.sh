@@ -44,7 +44,7 @@ function test_udp() {
     t=10
     ip netns exec ns0 timeout -k 1 $((t+5)) iperf -f Bytes -s -u > $TMPFILE &
     sleep 2
-    ip netns exec ns1 timeout -k 1 $((t+2)) iperf -u -c $IP1 -t $t -u -l 1400 -b2G -P2 &
+    ip netns exec ns1 timeout -k 1 $((t+2)) iperf -u -c $IP1 -t $t -u -l 1400 -b2G -P4 &
     pid1=$!
 
     sleep 2
