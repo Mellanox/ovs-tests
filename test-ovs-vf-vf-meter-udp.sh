@@ -69,7 +69,7 @@ function test_udp() {
         err "Cannot find rate"
         return
     fi
-    rate=`bc <<< $rate/1000/1000*8`
+    rate=`bc <<< 8*$rate/1000/1000`
 
     verify_rate $rate $RATE
 }
