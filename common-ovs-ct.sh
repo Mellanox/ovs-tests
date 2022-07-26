@@ -52,7 +52,11 @@ function verify_traffic() {
     declare -A tpids
 
     for nic in $have_traffic; do
-        ip netns exec ns0 timeout $((t-4)) tcpdump -qnnei $nic -c 30 tcp &
+        if [ -e /sys/class/net/$nic ]; then
+            tcpdump -qnnei $nic -c 30 tcp &
+        else
+            ip netns exec ns0 timeout $((t-4)) tcpdump -qnnei $nic -c 30 tcp &
+        fi
         tpids[$nic]=$!
     done
 
