@@ -559,18 +559,6 @@ function __on_remote_exec() {
     ssh2 $remote ". $__FOO; ${@:2}"
 }
 
-function on_remote_dt() {
-    # We assume that the scripts are accessible at the same location on remote host ${DIR}
-    ssh2 $REMOTE_SERVER "cat > /tmp/dt_cmd.$$.sh <<EOF
-export CONFIG=${CONFIG}
-export NO_TITLE=1
-. ${DIR}/common.sh
-
-$@
-EOF
-bash /tmp/dt_cmd.$$.sh && /bin/rm -f /tmp/dt_cmd.$$.sh"
-}
-
 function on_vm1() {
     __on_remote $NESTED_VM_IP1 "$@"
 }
