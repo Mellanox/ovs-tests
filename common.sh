@@ -2155,7 +2155,7 @@ function enable_lag_resource_allocation_mode() {
 }
 
 function restore_lag_resource_allocation_mode() {
-    if (( lag_res_alloc_change == 1 )); then
+    if (( __lag_res_alloc_change == 1 )); then
         set_lag_resource_allocation $__lag_res_alloc_mode
     fi
 }
