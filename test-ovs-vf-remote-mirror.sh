@@ -32,9 +32,9 @@ VXLAN_ID1=42
 VXLAN_ID2=52
 
 function cleanup_remote() {
-    on_remote_dt "ovs_clear_bridges
-                  ip a flush dev $NIC
-                  ip netns del ns0 &>/dev/null" &>/dev/null
+    on_remote_exec "ovs_clear_bridges
+                    ip a flush dev $NIC
+                    ip netns del ns0 &>/dev/null"
 }
 
 function cleanup() {
@@ -47,37 +47,38 @@ function cleanup() {
 }
 trap cleanup EXIT
 
-function prep_setup()
-{
-    local remote=$1
+function prep_setup1() {
+    config_sriov 2
+    enable_switchdev
+    unbind_vfs
+    bind_vfs
+    start_clean_openvswitch
+    reset_tc $NIC $REP $REP2
+}
 
-    local cmd="config_sriov 2
-               enable_switchdev
-               unbind_vfs
-               bind_vfs
-               start_clean_openvswitch
-               reset_tc $NIC $REP $REP2"
+function prep_setup() {
+    local remote=$1
 
     if [ "X$remote" != "X" ]; then
         title "Prep remote"
-        on_remote_dt "$cmd"
+        on_remote_exec prep_setup1
     else
         title "Prep local"
-        eval "$cmd"
+        prep_setup1
     fi
     [ $? -eq 0 ] || fail "Preparing setup failed!"
 }
 
-function setup_topo()
-{
-    local tundev=$1; shift
-    local vf=$1; shift
-    local rep=$1; shift
-    local tunip=$1; shift
-    local vfip=$1; shift
-    local vfdest=$1; shift
-    local tundest=$1; shift
-    local remote=$1; shift
+function setup_topo1() {
+    local tundev=$1
+    local vf=$2
+    local rep=$3
+    local tunip=$4
+    local vfip=$5
+    local vfdest=$6
+    local tundest=$7
+    local remote=$8
+    local mac
 
     if [ "X$remote" != "X" ]; then
         mac="00:00:00:00:03:02"
@@ -85,14 +86,26 @@ function setup_topo()
         mac="00:00:00:00:03:01"
     fi
 
-    local cmd="config_vf ns0 $vf $rep $vfip $mac
-               ip link set dev $tundev up
-               ip addr add $tunip/24 dev $tundev
-               ovs-vsctl add-br br-ovs
-               ovs-vsctl add-port br-ovs $rep
-               ovs-vsctl add-port br-ovs vxlan1 -- set interface vxlan1 type=vxlan \
-                   options:local_ip=$tunip options:remote_ip=$tundest \
-                   options:key=$VXLAN_ID1 options:dst_port=4789"
+    config_vf ns0 $vf $rep $vfip $mac
+    ip link set dev $tundev up
+    ip addr add $tunip/24 dev $tundev
+    ovs-vsctl add-br br-ovs
+    ovs-vsctl add-port br-ovs $rep
+    ovs-vsctl add-port br-ovs vxlan1 -- set interface vxlan1 type=vxlan \
+            options:local_ip=$tunip options:remote_ip=$tundest \
+            options:key=$VXLAN_ID1 options:dst_port=4789
+}
+
+function setup_topo() {
+    local tundev=$1
+    local vf=$2
+    local rep=$3
+    local tunip=$4
+    local vfip=$5
+    local vfdest=$6
+    local tundest=$7
+    local remote=$8
+    local extra_cmd
 
     if [ "X$remote" != "X" ]; then
         extra_cmd="ovs-vsctl add-port br-ovs vxlan2 -- set interface vxlan2 type=vxlan \
@@ -103,8 +116,7 @@ function setup_topo()
                        output-port=@p2 -- set bridge br-ovs mirrors=@m"
 
         title "Setup topo on remote"
-        on_remote_dt "$cmd
-                      $extra_cmd"
+        on_remote_exec setup_topo1 $@ && on_remote_exec "$extra_cmd"
     else
         extra_cmd="ovs-vsctl add-br br-ovs-m
                    config_vf ns1 $VF2 $REP2 3.3.3.3 00:00:00:00:03:03
@@ -115,8 +127,7 @@ function setup_topo()
                    ovs-ofctl add-flow br-ovs-m \"in_port=vxlan2,action=$REP2\""
 
         title "Setup topo on local"
-        eval "$cmd
-              $extra_cmd"
+        setup_topo1 $@ && eval "$extra_cmd"
     fi
 
     [ $? -eq 0 ] || fail "Preparing test topo failed!"
@@ -131,7 +142,7 @@ prep_setup
 prep_setup "remote"
 
 require_interfaces NIC VF REP VF2 REP2
-on_remote_dt "require_interfaces NIC VF REP"
+on_remote_exec "require_interfaces NIC VF REP"
 
 setup_topo "$NIC" "$VF" "$REP" "$tunip1" "$vfip1" "$vfdest1" "$tundest1"
 setup_topo "$NIC" "$VF" "$REP" "$tunip2" "$vfip2" "$vfdest2" "$tundest2" "remote"
@@ -155,6 +166,6 @@ verify_have_traffic $tpid_1
 echo "verify tcpdump on $REP"
 verify_no_traffic $tpid_2
 
+trap - EXIT
 cleanup
-
 test_done
