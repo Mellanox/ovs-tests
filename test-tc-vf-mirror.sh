@@ -34,8 +34,8 @@ test "$mac1" || fail "no mac1"
 test "$mac2" || fail "no mac2"
 
 function cleanup() {
-    ip netns del ns0 2> /dev/null
-    ip netns del ns1 2> /dev/null
+    ip netns del ns0
+    ip netns del ns1
     reset_tc $REP $REP2
 }
 trap cleanup EXIT
@@ -90,6 +90,5 @@ run "Test VF mirror, with mirror on different nic" $VF4 $REP4
 # back to defaults
 trap - EXIT
 cleanup
-config_sriov 2
 config_sriov 0 $NIC2
 test_done

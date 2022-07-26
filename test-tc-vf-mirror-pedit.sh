@@ -16,8 +16,7 @@ require_interfaces REP REP2 REP3
 unbind_vfs
 bind_vfs
 VF3=`get_vf 2`
-reset_tc $REP
-reset_tc $REP2
+reset_tc $REP $REP2
 
 mac1=`cat /sys/class/net/$VF/address`
 mac2=`cat /sys/class/net/$VF2/address`
@@ -26,10 +25,9 @@ test "$mac1" || fail "no mac1"
 test "$mac2" || fail "no mac2"
 
 function cleanup() {
-    ip netns del ns0 2> /dev/null
-    ip netns del ns1 2> /dev/null
-    reset_tc $REP
-    reset_tc $REP2
+    ip netns del ns0
+    ip netns del ns1
+    reset_tc $REP $REP2
 }
 trap cleanup EXIT
 
@@ -71,18 +69,12 @@ function run() {
     echo "run traffic"
     ip netns exec ns0 ping -q -c 10 -i 0.1 -w 2 $IP2 || err "Ping failed"
 
-    wait $pid
-    # test sniff timedout
-    rc=$?
-    if [[ $rc -eq 0 ]]; then
-        success
-    elif [[ $rc -eq 124 ]]; then
-        err "No mirrored packets"
-    else
-        err "Tcpdump failed"
-    fi
+    title "verify mirred packets"
+    verify_have_traffic $pid
 }
 
 
 run
+trap - EXIT
+cleanup
 test_done
