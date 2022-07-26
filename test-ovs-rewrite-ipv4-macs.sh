@@ -52,8 +52,7 @@ trap kill_iperf_server EXIT
 
 function test_traffic() {
     local dev=$1
-    shift
-    local iperf_extra=$@
+    local iperf_extra=$2
 
     timeout -k1 5 iperf3 -c $FAKE_VM2_IP $iperf_extra -t 3 || fail "Iperf initial failed"
 
