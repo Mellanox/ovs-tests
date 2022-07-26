@@ -50,10 +50,9 @@ function cleanup() {
 }
 trap cleanup EXIT
 
-function prep_setup()
-{
-    local profile=$1; shift
-    local remote=$1; shift
+function prep_setup() {
+    local profile=$1
+    local remote=$2
 
     local cmd="config_sriov 2
                enable_switchdev
@@ -78,8 +77,7 @@ function prep_setup()
     set +x
 }
 
-function setup_topo()
-{
+function setup_topo() {
     local tundev=$1; shift
     local vf=$1; shift
     local rep=$1; shift
@@ -159,6 +157,7 @@ echo
 
 echo
 title "=============           Cleanup             =================="
+trap - EXIT
 cleanup
 prep_setup 0
 prep_setup 0 "remote"
