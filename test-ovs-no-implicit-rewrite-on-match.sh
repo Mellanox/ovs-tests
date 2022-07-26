@@ -63,15 +63,13 @@ trap kill_iperf_server EXIT
 
 function test_traffic() {
     local dev=$1
-    shift
-    local iperf_extra=$@
 
-    timeout -k1 4 iperf -c $FAKE_VM2_IP $iperf_extra -i 999 -t 3 || fail "Iperf failed"
+    timeout -k1 4 iperf -c $FAKE_VM2_IP -i 999 -t 3 || fail "Iperf failed"
 
     timeout 2 tcpdump -nnei $dev -c 3 'tcp' &
     tdpid=$!
 
-    timeout -k1 4 iperf -c $FAKE_VM2_IP $iperf_extra -i 999 -t 3 && success || fail "Iperf failed"
+    timeout -k1 4 iperf -c $FAKE_VM2_IP -i 999 -t 3 && success || fail "Iperf failed"
     check_offloaded_rules 2
 
     title "Verify with tcpdump"
