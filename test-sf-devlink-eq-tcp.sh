@@ -15,7 +15,7 @@ IP1="7.7.7.1"
 IP2="7.7.7.2"
 
 function cleanup() {
-    deconfig_iter
+    ip -all netns delete
     remove_sfs
 }
 
@@ -39,6 +39,8 @@ function config_iter() {
 }
 
 function deconfig_iter() {
+    ip -netns ns0 link set dev $SF1 netns 1
+    ip -netns ns1 link set dev $SF2 netns 1
     ip -all netns delete
     ovs_clear_bridges
 }
