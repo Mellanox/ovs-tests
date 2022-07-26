@@ -245,7 +245,7 @@ while [[ $# -gt 0 ]]; do
         --encrypt)
         ENCRYPT="encrypt $2"
         shift # pass argument
-	shift #pass value
+        shift #pass value
         ;;
         --send-sci)
         SEND_SCI="send_sci $2"
@@ -344,13 +344,13 @@ if [[ $TX_KEY == "" ]]; then
             TX_KEY="$REMOTE_KEY_256"
         else
             TX_KEY="$REMOTE_KEY"
-	fi
+        fi
     else
         if [[ $CIPHER == "cipher gcm-aes-256"  || $CIPHER == "cipher gcm-aes-xpn-256" ]]; then
             TX_KEY="$LOCAL_KEY_256"
         else
             TX_KEY="$LOCAL_KEY"
-	fi
+        fi
     fi
 fi
 
@@ -360,13 +360,13 @@ if [[ $RX_KEY == "" ]]; then
             RX_KEY="$LOCAL_KEY_256"
         else
             RX_KEY="$LOCAL_KEY"
-	fi
+        fi
     else
         if [[ $CIPHER == "cipher gcm-aes-256"  || $CIPHER == "cipher gcm-aes-xpn-256" ]]; then
             RX_KEY="$REMOTE_KEY_256"
         else
             RX_KEY="$REMOTE_KEY"
-	fi
+        fi
     fi
 fi
 
