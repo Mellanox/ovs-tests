@@ -533,6 +533,11 @@ function scp2() {
 
 function ssh2() {
     ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=3 "$@"
+    local rc=$?
+    if [ $rc -eq 255 ]; then
+        debug "SSH connection to $1 timedout"
+    fi
+    return $rc
 }
 
 # Run given code on remote server which provide all function and env vars
