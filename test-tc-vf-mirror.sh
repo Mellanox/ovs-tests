@@ -41,12 +41,13 @@ function cleanup() {
 trap cleanup EXIT
 
 function run() {
-    reset_tc $REP $REP2
     title $1
-    vf_mirror=$2
-    mirror=$3
+    local vf_mirror=$2
+    local mirror=$3
+
     ifconfig $vf_mirror 0 up
     ifconfig $mirror 0 up
+    reset_tc $REP $REP2
 
     title "add arp rules"
     tc_filter add dev $REP ingress protocol arp prio 1 flower \
@@ -70,14 +71,18 @@ function run() {
     tc filter show dev $REP ingress
 
     title "sniff packets on $vf_mirror"
-    timeout 5 tcpdump -qnei $vf_mirror -c 6 'icmp' &
-    pid=$!
+    timeout 5 tcpdump -qnei $vf_mirror -c 6 "icmp[icmptype] == icmp-echo" &
+    pid1=$!
+    timeout 5 tcpdump -qnei $vf_mirror -c 6 "icmp[icmptype] == icmp-echoreply" &
+    pid2=$!
 
     title "run traffic"
     ip netns exec ns0 ping -q -i 0.2 -w 5 $IP2 || err "Ping failed"
 
-    title "verify mirred packets"
-    verify_have_traffic $pid
+    title "verify mirred packets - echo req"
+    verify_have_traffic $pid1
+    title "verify mirred packets - echo reply"
+    verify_have_traffic $pid2
 }
 
 config_vf ns0 $VF $REP $IP1

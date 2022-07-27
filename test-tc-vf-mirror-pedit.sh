@@ -63,14 +63,18 @@ function run() {
     tc filter show dev $REP ingress
 
     echo "sniff packets on $VF3"
-    timeout 2 tcpdump -qnei $VF3 -c 6 'icmp' &
-    pid=$!
+    timeout 2 tcpdump -qnei $VF3 -c 6 "icmp[icmptype] == icmp-echo" &
+    pid1=$!
+    timeout 2 tcpdump -qnei $VF3 -c 6 "icmp[icmptype] == icmp-echoreply" &
+    pid2=$!
 
     echo "run traffic"
     ip netns exec ns0 ping -q -c 10 -i 0.1 -w 2 $IP2 || err "Ping failed"
 
-    title "verify mirred packets"
-    verify_have_traffic $pid
+    title "verify mirred packets - echo req"
+    verify_have_traffic $pid1
+    title "verify mirred packets - echo reply"
+    verify_have_traffic $pid2
 }
 
 
