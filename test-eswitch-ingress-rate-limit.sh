@@ -19,7 +19,7 @@ IP2=10.0.0.2
 OVSBR=br-ovs
 
 # rates in mbps.
-rates="8 12"
+rates="16 32"
 
 function cleanup() {
     stop_iperf
@@ -39,12 +39,22 @@ function config() {
     ovs-vsctl add-port $OVSBR $REP
     ovs-vsctl add-port $OVSBR $REP2
     config_vf ns0 $VF $REP $IP1
+    ip link set up dev $REP2
 }
 
 function config_dev() {
     local dev=$1
     ip link set up dev $dev
     ip addr add $IP2/24 dev $dev
+
+    # After moving to switchdev mode rate limiting doesn't work for first couple
+    # of seconds of traffic. Previous test version just ignored first second of
+    # every session of iperf3 in total rate calculation. However, 1 second is
+    # not enough to stabilize the rate on newer NICs like cx6dx. Instead of
+    # trying to guess exact timeout to ignore with iperf3 'O' flag just execute
+    # single warm-up iperf3 run when configuring the device.
+    ovs-vsctl set interface $REP ingress_policing_rate=10000
+    ip netns exec ns0 iperf3 -t 10 -fm -c $IP2
 }
 
 function check_mrate() {
@@ -110,8 +120,15 @@ config
 iperf3 -s -fm -D
 sleep 1
 
-title "Test VF->BR"
-run $OVSBR
+# Newer NICs support internal port offload, which will cause VF->BR rule to be
+# in_hw. Since using internal port in such way is not intended by internal port
+# implementation, is not tested in internal port-dedicated tests and doesn't
+# work when uplink link is down anyway, just don't execute this part of the
+# test.
+if [ "$short_device_name" == "cx5" ]; then
+    title "Test VF->BR"
+    run $OVSBR
+fi
 
 title "Test VF->VF"
 run $VF2
