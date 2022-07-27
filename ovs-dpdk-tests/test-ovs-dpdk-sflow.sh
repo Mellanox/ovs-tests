@@ -101,8 +101,9 @@ function run() {
     # The sampling rate is 1/10, so we expect to receive 20 sFlow packets.
     #
     n=$(awk 'END {print NR}' $file)
-    expected=$(echo $t/$interval*2/$SFLOW_SAMPLING | bc)
-    if (( n >= expected - 10 && n <= expected + 15 )); then
+    local expected=$(echo $t/$interval*2/$SFLOW_SAMPLING | bc)
+    let ten_precent=$expected*10/100
+    if (( $n >= $expected - $ten_precent && $n <= $expected + $ten_precent )); then
         success2 "get $n packets, expected $expected"
     else
         err "get $n packets, expected $expected"
@@ -114,7 +115,7 @@ function run() {
 
 config
 add_sflow_port 2
-run 0.2
+run 0.01
 add_sflow_port 1
 run 1
 start_clean_openvswitch
