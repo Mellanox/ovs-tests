@@ -1013,6 +1013,9 @@ def get_dbs():
 
     if len(args.db) == 1 and '*' in args.db[0]:
         dbs = glob(args.db[0]) or glob(os.path.join(MYDIR, 'databases', args.db[0]))
+        for db in dbs[:]:
+            if os.path.basename(db) not in ('first_db.yaml', 'second_db.yaml', 'ct_db.yaml'):
+                dbs.remove(db)
     elif len(args.db) == 1 and os.path.isdir(args.db[0]):
         dbs = glob(args.db[0]+'/*') or glob(os.path.join(MYDIR, 'databases', args.db[0]+'/*'))
     elif len(args.db) == 1 and ',' in args.db[0]:
@@ -1020,7 +1023,6 @@ def get_dbs():
     else:
         dbs = args.db
 
-    multi = len(dbs) > 1
     dbs_out = []
     for db in dbs:
         db = get_db_path(db)
@@ -1028,16 +1030,6 @@ def get_dbs():
             return {}
         if not DB_PATH:
             DB_PATH = os.path.dirname(db)
-        if multi and 'mini_reg' in db:
-            continue
-        if multi and 'ignore' in db:
-            continue
-        if multi and 'dpdk' in db:
-            continue
-        if multi and'ovn' in db:
-            continue
-        if multi and 'ipsec' in db:
-            continue
         dbs_out.append(db)
 
     return dbs_out
