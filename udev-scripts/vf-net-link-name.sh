@@ -77,8 +77,7 @@ for cnt in {1..2}; do
                 if [ -a /sys/bus/pci/devices/${pci}/${dev} ]; then
                     _swid=`get_mdev_swid $dev`
                     _portname=`get_mdev_port_name $dev`
-                    if [ "$_swid" = "$SWID" ] && [ "$_portname" = "$PORT_NAME" ]
-                    then
+                    if [ "$_swid" = "$SWID" ] && [ "$_portname" = "$PORT_NAME" ]; then
                         echo "NAME=`get_sf_rep_name $pci`"
                         exit
                     fi

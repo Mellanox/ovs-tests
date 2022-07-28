@@ -39,8 +39,7 @@ function test_32_dest() {
     title "Add mirror rule on block qdisc with 32 dst"
     tc_filter del block 22 ingress
     command="tc_filter_success add block 22 ingress protocol arp prio 1 flower "
-    for i in {0..14}
-    do
+    for i in {0..14}; do
         TMP_REP=`get_rep $i`
         command+=" action mirred egress mirror dev $TMP_REP pipe"
         TMP_REP=`get_rep $i $NIC2`

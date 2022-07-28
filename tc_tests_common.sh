@@ -368,8 +368,7 @@ function check_test_results() {
     local -n arr1=$1
     local -n arr2=$2
 
-    for m in "${!arr1[@]}"
-    do
+    for m in "${!arr1[@]}"; do
         # Calculate absolute difference between baseline time and this test run (per cent).
         read abs_diff <<< $(awk -v v1="${arr2[$m]}" -v v2="${arr1[$m]}" 'BEGIN{diff=(v2-v1)/v1 * 100;abs=diff<0?-diff:diff; printf "%.0f", abs}')
         if ((abs_diff > 10)); then

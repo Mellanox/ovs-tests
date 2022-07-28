@@ -29,7 +29,7 @@ dst_port=1234
 id=98
 
 function err_or_warn() {
-    if $VERIFY_SOURCE_PORT ; then
+    if $VERIFY_SOURCE_PORT; then
         err $@
     else
         warn $@
@@ -55,9 +55,10 @@ function verify_hw_rules() {
         title "- verify hw rule on port$i"
         mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
         grep -A5 $mac /tmp/port$i | grep -q "$src_tag\s*:$src" || err_or_warn "Expected rule with source port $src"
-        if indir_table_used $i
-        then grep -A5 $mac /tmp/port$i | grep -q "destination_type\s*:FLOW_TABLE_" || err "Expected rule with dest flow_table"
-        else grep -A5 $mac /tmp/port$i | grep -q "$dst_tag\s*:$dst" || err "Expected rule with dest port $dst"
+        if indir_table_used $i; then
+            grep -A5 $mac /tmp/port$i | grep -q "destination_type\s*:FLOW_TABLE_" || err "Expected rule with dest flow_table"
+        else
+            grep -A5 $mac /tmp/port$i | grep -q "$dst_tag\s*:$dst" || err "Expected rule with dest port $dst"
         fi
     done
 }

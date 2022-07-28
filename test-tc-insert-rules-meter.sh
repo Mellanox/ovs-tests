@@ -133,8 +133,7 @@ function test_multiple_meters() {
 
     title "Test insert $count rules with meter ($dev -> $out_dev)"
     reset_tc $dev
-    for i in `seq $count`
-    do
+    for i in `seq $count`; do
         tc_filter add dev $dev ingress protocol ip prio 2 flower \
             dst_ip 1.1.1.${i} \
             action police rate 100mbit burst 12m conform-exceed drop/pipe \

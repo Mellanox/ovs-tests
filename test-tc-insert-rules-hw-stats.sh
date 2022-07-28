@@ -27,8 +27,7 @@ function tc_wrapper() {
 function test_unsupported_hw_stats() {
 
     title "Test adding unsupported hw stats"
-    for stats_type in disabled immediate
-    do
+    for stats_type in disabled immediate; do
         echo "* adding rule with $stats_type"
         tc_wrapper "tc filter" $stats_type && \
             err "Expected to fail with $stats_type stats" || success
@@ -39,8 +38,7 @@ function test_unsupported_hw_stats() {
 function test_supported_hw_stats() {
 
     title "Test adding supported hw stats"
-    for stats_type in delayed
-    do
+    for stats_type in delayed; do
         echo "* adding rule with $stats_type"
         tc_wrapper tc_filter_success $stats_type
 

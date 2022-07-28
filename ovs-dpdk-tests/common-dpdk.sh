@@ -30,8 +30,7 @@ function configure_dpdk_rep_ports() {
     local reps=$1
     local bridge=$2
 
-    for (( i=0; i<$reps; i++ ))
-    do
+    for (( i=0; i<$reps; i++ )); do
         if [ "${VDPA}" != "1" ]; then
             ovs-vsctl add-port $bridge rep$i -- set Interface rep$i type=dpdk options:dpdk-devargs=$PCI,representor=[$i],$DPDK_PORT_EXTRA_ARGS
         else
@@ -298,8 +297,7 @@ function check_offloaded_connections() {
     local current_connections
     local result
 
-    for (( i=0; i<3; i++ ))
-    do
+    for (( i=0; i<3; i++ )); do
         current_connections=$(ovs-appctl dpctl/offload-stats-show | grep 'Total' | grep 'CT bi-dir Connections:' | awk '{print $5}')
         if [ $current_connections -lt $expected_connections ]; then
             result="0"

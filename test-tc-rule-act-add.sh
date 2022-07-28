@@ -104,15 +104,12 @@ function add_del_act() {
     tc actions flush action $act_type || err "action $act_type flush failed"
 }
 
-if [ -z "$action_type" ]
-then
-    for act in "${!actions[@]}"
-    do
+if [ -z "$action_type" ]; then
+    for act in "${!actions[@]}"; do
         add_del_rule $act
         add_del_act $act
     done
-elif [ -z "${actions[$action_type]}" ]
-then
+elif [ -z "${actions[$action_type]}" ]; then
     err "Unrecognized action type: $action_type"
 else
     add_del_rule $action_type

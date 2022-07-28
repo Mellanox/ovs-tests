@@ -147,8 +147,7 @@ function ovs_wait_until_ipv6_done() {
     if [[ $remote_ip = *":"* ]]; then
        cmd+=" -6"
     fi
-    for i in {0..15}
-    do
+    for i in {0..15}; do
         eval $cmd &> /dev/null
         if [ $? -ne 0 ]; then
             debug "sleeping for 1 second until IPv6 stack is set"

@@ -72,8 +72,7 @@ function configure_macsec_multi_secrets() {
         effective_remote_key="$MULTI_REMOTE_KEY_256"
     fi
 
-    for i in 2 3 4
-    do
+    for i in 2 3 4; do
         if [ "$SIDE" == "server" ]; then
             ip macsec add $MACSEC_IF tx sa $((i-1)) pn $PACKET_NUMBER off key "0$i" "$effective_remote_key$i"
         
@@ -87,8 +86,7 @@ function configure_macsec_multi_secrets() {
 }
 
 function switch_tx_sa() {
-    for i in 0 1 2 3
-    do
+    for i in 0 1 2 3; do
         ip macsec set $MACSEC_IF tx sa $i off
     done
     ip macsec set $MACSEC_IF tx sa $TX_SA_TO_ENABLE on

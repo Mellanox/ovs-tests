@@ -389,8 +389,7 @@ function test_macsec_multi_sa() {
 
     test_macsec $mtu $encrypt $ip_proto $macsec_ip_proto $key_len $net_proto $offload on
 
-    for i in 0 1 2 3
-    do
+    for i in 0 1 2 3; do
         title "Test MACSEC with Multi SAs with mtu = $mtu , encrypt = $encrypt , ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len and offload = $offload using SA $i"
         set_tx_sa $dev $macsec_dev $i
         change_mtu_on_both_sides $mtu $dev $macsec_dev

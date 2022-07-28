@@ -23,8 +23,7 @@ function test1() {
     title "Add local mirror rule with 16 dst"
     reset_tc $NIC
     command="tc_filter_success add dev $NIC ingress protocol arp prio 1 flower skip_sw"
-    for i in {0..14}
-    do
+    for i in {0..14}; do
         TMP_REP=`get_rep $i`
         command+=" action mirred egress mirror dev $TMP_REP pipe"
     done
@@ -52,8 +51,7 @@ function test2() {
 
     reset_tc $REP
     command="tc_filter_success add dev $REP ingress protocol arp prio 1 flower skip_sw"
-    for i in {1..15}
-    do
+    for i in {1..15}; do
         command+=" action tunnel_key set src_ip $ip_src dst_ip $ip_dst dst_port 4789 id $i ttl 64 nocsum pipe action mirred egress mirror dev $vx pipe"
     done
     command+=" action tunnel_key set src_ip $ip_src dst_ip $ip_dst dst_port 4789 id 16 ttl 64 nocsum pipe action mirred egress redirect dev $vx"
@@ -80,8 +78,7 @@ function test3() {
     ip neigh add $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
 
     command="tc_filter_success add dev $REP ingress protocol arp prio 1 flower skip_sw"
-    for i in {1..7}
-    do
+    for i in {1..7}; do
         TMP_REP=`get_rep $i`
         command+=" action mirred egress mirror dev $TMP_REP pipe"
         command+=" action tunnel_key set src_ip $ip_src dst_ip $ip_dst dst_port 4789 id $i ttl 64 nocsum pipe action mirred egress mirror dev $vx pipe"

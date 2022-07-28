@@ -45,9 +45,10 @@ function set_neighs() {
 
     # Add neigh for every second encap to test both neigh valid and invalid cases
     for ((i = 0; i < encaps_per_file/2; i++)); do
-        if [ "$clear" == 1 ]
-        then ip neigh del ${remote_ip_net}${remote_ip_host} dev $NIC
-        else ip neigh add ${remote_ip_net}${remote_ip_host} lladdr ${vxlan_mac} dev $NIC
+        if [ "$clear" == 1 ]; then
+            ip neigh del ${remote_ip_net}${remote_ip_host} dev $NIC
+        else
+            ip neigh add ${remote_ip_net}${remote_ip_host} lladdr ${vxlan_mac} dev $NIC
         fi
 
         ((remote_ip_host+=2))

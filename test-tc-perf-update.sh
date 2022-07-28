@@ -57,9 +57,10 @@ function set_neighs() {
     local clear="$4"
 
     for ((i = 0; i < num_encaps; i++)); do
-        if [ "$clear" == 1 ]
-        then ip neigh del ${remote_ip_net}${remote_ip_host} dev $NIC
-        else ip neigh add ${remote_ip_net}${remote_ip_host} lladdr ${vxlan_mac} dev $NIC
+        if [ "$clear" == 1 ]; then
+            ip neigh del ${remote_ip_net}${remote_ip_host} dev $NIC
+        else
+            ip neigh add ${remote_ip_net}${remote_ip_host} lladdr ${vxlan_mac} dev $NIC
         fi
 
         ((remote_ip_host++))
@@ -220,20 +221,17 @@ tests=( ["l2"]="test_l2"
         ["multi_encap"]="test_multi_encap"
         ["multi_pedit_encap"]="test_multi_pedit_encap" )
 
-if [ "all" == "$profile" ]
-then
-    for t in "${!tests[@]}"
-    do ${tests[$t]}
+if [ "all" == "$profile" ]; then
+    for t in "${!tests[@]}"; do
+        ${tests[$t]}
     done
-elif [ -z "${tests[$profile]}" ]
-then
+elif [ -z "${tests[$profile]}" ]; then
     err "Unrecognized test $profile"
 else
     ${tests[$profile]}
 fi
 
 echo "RESULTS:"
-for res in "${!results[@]}"
-do
+for res in "${!results[@]}"; do
     echo "$res=${results[$res]}"
 done
