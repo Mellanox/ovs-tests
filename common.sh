@@ -1,7 +1,7 @@
 #!/bin/bash
 
 __argv0=$0
-if [ "$__argv0" == "-bash" ] ; then
+if [ "$__argv0" == "-bash" -o "$__argv0" == "/bin/bash" ]; then
     __argv0='.'
 fi
 TESTNAME=`basename $__argv0`
