@@ -1155,9 +1155,15 @@ function disable_sriov() {
     enable_legacy $NIC
     enable_legacy $NIC2
 
-    # make sure in nic mode by enabling sriov and then disabling sriov.
-    config_sriov 2 $NIC
-    config_sriov 2 $NIC2
+    # In some kernels uiser could be in eswitch mode while sriov disabled
+    # and the only way to get back to nic mode is enable and disable sriov.
+    # in those kernels either devlink eswitch mode reported switchdev or fail
+    # with -EOPNOTSUPP if in legacy.
+    local mode=`get_eswitch_mode 2>/dev/null`
+    if [ "$mode" == "switchdev" ]; then
+        config_sriov 2 $NIC
+        config_sriov 2 $NIC2
+    fi
 
     # disable sriov
     config_sriov 0 $NIC
