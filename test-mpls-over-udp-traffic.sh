@@ -31,11 +31,12 @@ tundest2=8.8.8.21
 vfdest2=2.2.2.21
 
 function cleanup1() {
-    ip link del dev bareudp0 2>/dev/null
+    [ -e /sys/class/net/bareudp0 ] && ip link del dev bareudp0
     for i in $NIC $REP $VF; do
-        reset_tc $i &>/dev/null
-        ip link set $i mtu 1500 &>/dev/null
-        ifconfig $i 0 &>/dev/null
+        [ ! -e /sys/class/net/$i ] && continue
+        reset_tc $i
+        ip link set $i mtu 1500
+        ifconfig $i 0
     done
 }
 
