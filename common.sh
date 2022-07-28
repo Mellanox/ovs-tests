@@ -1340,6 +1340,21 @@ function get_test_time_elapsed() {
     echo $sec
 }
 
+function convertsecs() {
+    local t=$1 h m s o=""
+    ((h=$t/3600))
+    ((m=($t%3600)/60))
+    ((s=$t%60))
+    [ "$h" != "0" ] && o+="${h}h"
+    [ "$m" != "0" ] && o+="${m}m"
+    [ "$s" != "0" ] && o+="${s}s"
+    echo $o
+}
+
+function get_test_time_elapsed_human() {
+    convertsecs `get_test_time_elapsed`
+}
+
 function journalctl_for_test() {
     journalctl --since="$_check_start_ts_full"
 }
@@ -1769,7 +1784,7 @@ function fail_if_err() {
     if [ $TEST_FAILED != 0 ]; then
         kill_all_bgs
         check_for_errors_log
-        log "runtime: `get_test_time_elapsed`"
+        log "runtime: `get_test_time_elapsed_human`"
         fail $m
     fi
 }
@@ -1794,7 +1809,7 @@ function test_done() {
     reload_driver_per_test && reload_modules
     kmemleak_scan_per_test && kmemleak_scan
     check_for_errors_log
-    log "runtime: `get_test_time_elapsed`"
+    log "runtime: `get_test_time_elapsed_human`"
     if [ $TEST_FAILED == 0 ]; then
         success "TEST PASSED"
     else
