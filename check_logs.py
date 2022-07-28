@@ -27,6 +27,7 @@ TAGS = (
     "Killed",
     "File exists",
     "No such file or directory",
+    "SSH connection",
 )
 
 expected = {
