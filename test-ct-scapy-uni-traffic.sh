@@ -42,19 +42,11 @@ sport=`randport`
 dport=`randport`
 
 function run_python_ns() {
-    local ns=$1; shift;
+    local ns=$1
+    shift
 
     #echo "[$ns] python: $@"
     ip netns exec $ns python -c "$@"
-}
-
-function wait_for_enter() {
-    while [ true ]; do
-        if read -t 30 -p "Hit any key to continue" -n 1
-        then
-            break;
-        fi
-    done
 }
 
 function verify_mf_in_hw() {
