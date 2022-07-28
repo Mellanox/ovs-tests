@@ -535,7 +535,7 @@ function ssh2() {
     ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=3 "$@"
     local rc=$?
     if [ $rc -eq 255 ]; then
-        debug "SSH connection to $1 timedout"
+        debug "SSH connection $1 rc 255"
     fi
     return $rc
 }
