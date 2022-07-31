@@ -354,6 +354,8 @@ def parse_args():
                         help='start from test')
     parser.add_argument('--to-test', '-t',
                         help='stop at a test')
+    parser.add_argument('--inject-test', '-j',
+                        help='Inject provided test after each test planned to run')
     parser.add_argument('--exclude', '-e', action='append',
                         help='exclude tests')
     parser.add_argument('--glob', '-g', action='append',
@@ -1379,6 +1381,10 @@ def run_tests(iteration):
     ignore_from_test = args.from_test is not None
     ignore_to_test = args.to_test is not None
     failed = False
+    inject_test = None
+
+    if args.inject_test:
+        inject_test = Test(os.path.join(MYDIR, args.inject_test))
 
     pre_quick_status_updates()
 
@@ -1415,6 +1421,11 @@ def run_tests(iteration):
 
         test_failed = __run_test(test)
         failed = failed or test_failed
+
+        if inject_test and not (test.skip or test.ignore) and \
+            inject_test.name != test.name:
+                test = copy_test(inject_test, 0)
+                __run_test(test)
 
         if test_failed and args.rerun_failed:
             test = copy_test(test, 1)
