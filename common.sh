@@ -225,11 +225,12 @@ function __setup_common() {
     set_ovs_debug_logs
 }
 
+ovs_log_path="/var/log/openvswitch/ovs-vswitchd.log"
+
 function set_ovs_debug_logs () {
-    local log="/var/log/openvswitch/ovs-vswitchd.log"
     if [ "$CLEAR_OVS_LOG" == 1 ]; then
-        if [ -f $log ]; then
-            echo > $log
+        if [ -f $ovs_log_path ]; then
+            echo > $ovs_log_path
         fi
     fi
     if [ "$ENABLE_OVS_DEBUG" != "1" ]; then
@@ -1609,9 +1610,12 @@ function restart_openvswitch() {
     sleep 1
 }
 
+__ovs_used=0
+
 function start_clean_openvswitch() {
     restart_openvswitch
     ovs_clear_bridges
+    __ovs_used=1
 }
 
 function wait_for_ifaces() {
@@ -1819,6 +1823,19 @@ function reload_driver_per_test() {
     return 1
 }
 
+function dump_ovs_log() {
+    local look="ERR|WARN"
+    local filter="timeval|ioctl|coverage"
+
+    if [ -f $ovs_log_path ] && [ "$__ovs_used" == 1 ] && [ "$CLEAR_OVS_LOG" == 1 ]; then
+        local a=`cat $ovs_log_path | grep -E "$look" | grep -v -E "$filter"`
+        if [ "$a" != "" ]; then
+            err "Detected errors in ovs log"
+            echo "$a"
+        fi
+    fi
+}
+
 function test_done() {
     kill_all_bgs
     set +e
@@ -1829,6 +1846,7 @@ function test_done() {
     if [ $TEST_FAILED == 0 ]; then
         success "TEST PASSED"
     else
+        dump_ovs_log
         fail "TEST FAILED"
     fi
     exit $TEST_FAILED
