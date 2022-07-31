@@ -158,6 +158,21 @@ function is_simx() {
     return 1
 }
 
+function ofed_ver_lte() {
+    local ver=$1
+    if ! is_ofed ; then
+        return 1
+    fi
+    local major=`modinfo --field version mlx5_core | tr ".-" " " | awk {'print $1'}`
+    local minor=`modinfo --field version mlx5_core | tr ".-" " " | awk {'print $2'}`
+    local cur="${major}.$minor"
+    local o=`bc <<< "$cur <= $ver"`
+    if [ "$o" == 1 ]; then
+        return 0
+    fi
+    return 1
+}
+
 function print_mlnx_ofed_version() {
     if is_ofed ; then
         # first try version field and fallback to ofed_info script.
@@ -1179,14 +1194,16 @@ function disable_sriov() {
     enable_legacy $NIC
     enable_legacy $NIC2
 
-    # In some kernels uiser could be in eswitch mode while sriov disabled
+    # In old kernels/mlnx ofed versions user could be in eswitch mode while sriov disabled
     # and the only way to get back to nic mode is enable and disable sriov.
-    # in those kernels either devlink eswitch mode reported switchdev or fail
-    # with -EOPNOTSUPP if in legacy.
-    local mode=`get_eswitch_mode 2>/dev/null`
-    if [ "$mode" == "switchdev" ]; then
-        config_sriov 2 $NIC
-        config_sriov 2 $NIC2
+    # In those kernels devlink eswitch mode fail if never changed mode
+    # or reports switchdev/legacy and user can't tell if nic mode.
+    if ofed_ver_lte 5.7; then
+        local mode=`get_eswitch_mode 2>/dev/null`
+        if [ "$mode" != "" ]; then
+            config_sriov 2 $NIC
+            config_sriov 2 $NIC2
+        fi
     fi
 
     # disable sriov
