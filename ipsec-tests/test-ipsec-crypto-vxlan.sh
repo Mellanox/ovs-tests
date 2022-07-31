@@ -21,15 +21,6 @@ function config_vxlan_remote() {
                ifconfig vx0 $vxlan_rip/24 up"
 }
 
-function verify_crypto_offload_on_both_sides() {
-    local tx_off=`on_remote ip x s s | grep offload |wc -l`
-    local rx_off=`ip x s s | grep offload |wc -l`
-    title "Verify offload"
-    if [[ "$tx_off" != 2 || "$rx_off" != 2 ]]; then
-        fail "offload rules are not added as expected!"
-    fi
-}
-
 function config() {
     local mtu=$1
     title "configure IPsec in transport mode with 128 key length using ipv4 over a vxlan tunnel with $mtu MTU"
@@ -63,7 +54,7 @@ function run_test() {
 
     title "Verify traffic on $NIC"
     verify_have_traffic $pid
-    verify_crypto_offload_on_both_sides
+    check_offloaded_rules both
 }
 
 trap cleanup EXIT
