@@ -352,6 +352,8 @@ def parse_args():
                         help='not to actually run the test')
     parser.add_argument('--from_test', '-f',
                         help='start from test')
+    parser.add_argument('--to_test', '-t',
+                        help='stop at a test')
     parser.add_argument('--exclude', '-e', action='append',
                         help='exclude tests')
     parser.add_argument('--glob', '-g', action='append',
@@ -1308,7 +1310,8 @@ def __run_test(test):
 
 
 def run_tests(iteration):
-    ignore = args.from_test is not None
+    ignore_from_test = args.from_test is not None
+    ignore_to_test = args.to_test is not None
     failed = False
 
     pre_quick_status_updates()
@@ -1328,10 +1331,10 @@ def run_tests(iteration):
         if test.iteration > 0:
             continue
 
-        if ignore:
+        if ignore_from_test:
             if args.from_test != test.name:
                 continue
-            ignore = False
+            ignore_from_test = False
 
         if iteration > 0:
             # save as a copy for the summary
@@ -1359,6 +1362,9 @@ def run_tests(iteration):
 
         if args.stop and failed:
             return 1
+
+        if ignore_to_test and args.to_test == test.name:
+            break
     # end test loop
 
     TESTS.extend(iter_tests)
