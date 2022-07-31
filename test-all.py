@@ -1309,6 +1309,14 @@ def __run_test(test):
     return failed
 
 
+def copy_test(test, iteration):
+    test = copy(test)
+    test.iteration = iteration
+    test.set_logs(test.iteration)
+    test.status = 'UNKNOWN'
+    return test
+
+
 def run_tests(iteration):
     ignore_from_test = args.from_test is not None
     ignore_to_test = args.to_test is not None
@@ -1338,9 +1346,7 @@ def run_tests(iteration):
 
         if iteration > 0:
             # save as a copy for the summary
-            test = copy(test)
-            test.iteration = iteration
-            test.set_logs(iteration)
+            test = copy_test(test, iteration)
             iter_tests.append(test)
 
         # Pre update summary report before running next test.
@@ -1353,10 +1359,7 @@ def run_tests(iteration):
         failed = failed or test_failed
 
         if test_failed and args.rerun_failed:
-            test = copy(test)
-            test.iteration = 1
-            test.set_logs(test.iteration)
-            test.status = 'UNKNOWN'
+            test = copy_test(test, 1)
             rerun_tests.append(test)
             __run_test(test)
 
