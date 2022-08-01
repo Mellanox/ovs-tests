@@ -18,10 +18,12 @@ function devlink_dev_set_param() {
     local pci_dev=`devlink_get_pci_dev $dev`
 
     devlink dev param set $pci_dev name $param_name value $value cmode $cmode || err "Failed to set $dev param $param_name=$value"
+}
 
-    if [ "$cmode" == "driverinit" ]; then
-        devlink dev reload $pci_dev
-    fi
+function devlink_dev_reload() {
+    local dev=$1
+    local pci_dev=`devlink_get_pci_dev $dev`
+    devlink dev reload $pci_dev
 }
 
 function devlink_dev_set_eq() {
@@ -33,6 +35,7 @@ function devlink_dev_set_eq() {
     for dev in $devs; do
         devlink_dev_set_param $dev io_eq_size $io_eq_size
         devlink_dev_set_param $dev event_eq_size $event_eq_size
+        devlink_dev_reload $dev
     done
 }
 
