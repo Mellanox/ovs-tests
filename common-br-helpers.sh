@@ -161,7 +161,7 @@ function test_access_to_access_qinq() {
     sleep 1
 }
 
-function test_vf_to_vf_all() {
+function test_vf_to_vf_vlan() {
     title "test ping (no VLAN)"
     test_no_vlan
 
@@ -176,7 +176,9 @@ function test_vf_to_vf_all() {
 
     title "test ping (VLAN untagged<->tagged)"
     test_access_to_trunk_vlan
+}
 
+function test_vf_to_vf_qinq() {
     title "test ping (QinQ tagged<->tagged)"
     test_trunk_to_trunk_qinq
 
