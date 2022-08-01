@@ -1,5 +1,13 @@
 #!/bin/bash
 
+function cleanup_br() {
+    ip link del name $br type bridge
+    ip -netns $namespace1 link set dev $VF netns 1
+    ip -netns $namespace2 link set dev $VF2 netns 1
+    ip netns del $namespace1
+    ip netns del $namespace2
+}
+
 function test_no_vlan() {
     create_bridge_with_interfaces $br $REP $REP2
     config_vf $namespace1 $VF $REP $VF1_IP $VF1_MAC
@@ -10,10 +18,7 @@ function test_no_vlan() {
 
     verify_ping_ns $namespace1 $VF $br $VF2_IP $time $time
 
-    ip link del name $br type bridge
-    ip netns del $namespace1
-    ip netns del $namespace2
-    sleep 1
+    cleanup_br
 }
 
 function test_trunk_to_trunk_vlan() {
@@ -31,10 +36,7 @@ function test_trunk_to_trunk_vlan() {
 
     verify_ping_ns $namespace1 $VF.2 $br $VF2_IP_VLAN2 $time $time
 
-    ip link del name $br type bridge
-    ip netns del $namespace1
-    ip netns del $namespace2
-    sleep 1
+    cleanup_br
 }
 
 function test_trunk_to_access_vlan() {
@@ -51,10 +53,7 @@ function test_trunk_to_access_vlan() {
 
     verify_ping_ns $namespace1 $VF.3 $br $VF2_IP_UNTAGGED $time $time
 
-    ip link del name $br type bridge
-    ip netns del $namespace1
-    ip netns del $namespace2
-    sleep 1
+    cleanup_br
 }
 
 function test_access_to_trunk_vlan() {
@@ -71,10 +70,7 @@ function test_access_to_trunk_vlan() {
 
     verify_ping_ns $namespace1 $VF $br $VF2_IP_VLAN2 $time $time
 
-    ip link del name $br type bridge
-    ip netns del $namespace1
-    ip netns del $namespace2
-    sleep 1
+    cleanup_br
 }
 
 function test_trunk_to_trunk_qinq() {
@@ -92,10 +88,7 @@ function test_trunk_to_trunk_qinq() {
 
     verify_ping_ns $namespace1 $VF.3.2 $br $VF2_IP_VLAN2 $time $time 'vlan and vlan and icmp'
 
-    ip link del name $br type bridge
-    ip netns del $namespace1
-    ip netns del $namespace2
-    sleep 1
+    cleanup_br
 }
 
 function test_trunk_to_access_qinq() {
@@ -113,10 +106,7 @@ function test_trunk_to_access_qinq() {
 
     verify_ping_ns $namespace1 $VF.3.2 $br $VF2_IP_VLAN2 $time $time 'vlan and vlan and icmp'
 
-    ip link del name $br type bridge
-    ip netns del $namespace1
-    ip netns del $namespace2
-    sleep 1
+    cleanup_br
 }
 
 function test_access_to_trunk_qinq() {
@@ -134,10 +124,7 @@ function test_access_to_trunk_qinq() {
 
     verify_ping_ns $namespace1 $VF.2 $br $VF2_IP_VLAN2 $time $time 'vlan and vlan and icmp'
 
-    ip link del name $br type bridge
-    ip netns del $namespace1
-    ip netns del $namespace2
-    sleep 1
+    cleanup_br
 }
 
 function test_access_to_access_qinq() {
@@ -155,10 +142,7 @@ function test_access_to_access_qinq() {
 
     verify_ping_ns $namespace1 $VF.2 $br $VF2_IP_VLAN2 $time $time 'vlan and vlan and icmp'
 
-    ip link del name $br type bridge
-    ip netns del $namespace1
-    ip netns del $namespace2
-    sleep 1
+    cleanup_br
 }
 
 function test_vf_to_vf_vlan() {
