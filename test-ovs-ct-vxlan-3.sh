@@ -65,7 +65,7 @@ function cleanup() {
     ip netns del ns0 &>/dev/null
     ip netns del ns1 &>/dev/null
     ovs_clear_bridges
-    reset_tc $REP &>/dev/null
+    reset_tc $REP
     cleanup_remote_vxlan
     sleep 0.5
 }
