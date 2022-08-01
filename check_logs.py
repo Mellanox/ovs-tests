@@ -28,6 +28,7 @@ TAGS = (
     "File exists",
     "No such file or directory",
     "SSH connection",
+    "Cannot find device",
 )
 
 expected = {
