@@ -7,6 +7,7 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
+. $my_dir/common-ovs-ct.sh
 
 require_module act_ct
 require_remote_server
@@ -107,38 +108,11 @@ function run() {
     config_remote
     add_openflow_rules
 
-    # icmp
-    ip netns exec ns0 ping -q -c 1 -w 1 $REMOTE
-    if [ $? -ne 0 ]; then
-        err "ping failed"
-        return
-    fi
+    ping_remote || return
 
-    # initial traffic
-    on_remote timeout 4 iperf3 -s -D
-    sleep 1
-    ip netns exec ns0 timeout 3 iperf3 -c $REMOTE -t 2 &
-    pid2=$!
+    initial_traffic
 
-    sleep 4
-    kill -9 $pid2 &>/dev/null
-    wait $pid2 &>/dev/null
-    on_remote killall -9 -q iperf3
-
-    # traffic
-    on_remote timeout 16 iperf3 -s -D
-    sleep 1
-    ip netns exec ns0 timeout 16 iperf3 -c $REMOTE -t 14 -P3 &
-    pid2=$!
-
-    # verify pid
-    sleep 2
-    kill -0 $pid2 &>/dev/null
-    if [ $? -ne 0 ]; then
-        on_remote killall -9 -q iperf3
-        err "iperf failed"
-        return
-    fi
+    start_traffic || return
 
     # verify traffic
     ip netns exec ns0 timeout 12 tcpdump -qnnei $VF -c 30 ip &
@@ -156,10 +130,7 @@ function run() {
     title "Verify offload on genev_sys_6081"
     verify_no_traffic $tpid3
 
-    kill -9 $pid2 &>/dev/null
-    on_remote killall -9 -q iperf3
-    echo "wait for bgs"
-    wait &>/dev/null
+    kill_traffic
 }
 
 run
