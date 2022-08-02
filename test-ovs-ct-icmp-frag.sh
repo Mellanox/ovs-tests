@@ -2,7 +2,7 @@
 #
 # Test OVS CT icmp traffic over MTU
 #
-# Bug SW #1774992: [CT] frag packets not passing with ct rules
+# SW #1774992: [CT] frag packets not passing with ct rules
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
