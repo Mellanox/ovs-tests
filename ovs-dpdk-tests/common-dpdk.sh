@@ -1,3 +1,5 @@
+CLEAR_OVS_LOG=1
+
 DPDK_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
 . $DPDK_DIR/../common.sh
 . $DPDK_DIR/common-tunnel.sh

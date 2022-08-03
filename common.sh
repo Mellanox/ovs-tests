@@ -227,11 +227,13 @@ function __setup_common() {
 
 function set_ovs_debug_logs () {
     local log="/var/log/openvswitch/ovs-vswitchd.log"
+    if [ "$CLEAR_OVS_LOG" == 1 ]; then
+        if [ -f $log ]; then
+            echo > $log
+        fi
+    fi
     if [ "$ENABLE_OVS_DEBUG" != "1" ]; then
         return
-    fi
-    if [ -f $log ]; then
-        echo > $log
     fi
     ovs_set_log_levels netdev_offload:file:DBG netdev_offload_tc:file:DBG tc:file:DBG
 }
@@ -2238,6 +2240,7 @@ function __test_help() {
     echo "KMEMLEAK_SCAN_PER_TEST=1      - Do kmemleak scan per test."
     echo "FREEZE_ON_ERROR=1             - Pause test on each error."
     echo "ENABLE_OVS_DEBUG=1            - Set ovs debug level."
+    echo "CLEAR_OVS_LOG=1               - Clear ovs log at the start of the test."
     exit 0
 }
 
