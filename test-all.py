@@ -820,6 +820,10 @@ def update_skip_according_to_db(rm, _tests, data):
         ignore_count = 0
 
         for i in ignore:
+            if 'rm' in i and 'reason' in i:
+                t.set_failed("Invalid ignore key rm and reason.")
+                break
+
             for k in i:
                 v = i[k]
                 if k == 'nic':
@@ -836,12 +840,17 @@ def update_skip_according_to_db(rm, _tests, data):
                         ignore_count+=1
                 elif k == 'rm':
                     ignore_count+=1
+                elif k == 'reason':
+                    ignore_count+=1
                 else:
                     t.set_failed("Invalid ignore key: %s=%s" % (k, v))
+                    break
 
             if ignore_count == len(i):
                 if 'rm' in i:
                     bugs_list.append(i['rm'])
+                elif 'reason' in i:
+                    t.set_ignore(i['reason'])
                 else:
                     t.set_ignore("Ignore combination %s" % i.values())
 
