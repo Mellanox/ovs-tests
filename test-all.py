@@ -825,6 +825,9 @@ def update_skip_according_to_db(rm, _tests, data):
                 if k == 'nic':
                     if v == current_nic:
                         ignore_count+=1
+                elif k =='fw':
+                    if not current_fw_ver or re.search("^%s$" % v, current_fw_ver):
+                        ignore_count+=1
                 elif k == 'steering':
                     if not flow_steering_mode or v == flow_steering_mode:
                         ignore_count+=1
