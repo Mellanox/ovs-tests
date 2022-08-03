@@ -625,6 +625,7 @@ class SetupConfigure(object):
 
         if self.args.bluefield:
             conf += '\nBF_NIC=%s' % "enp3s0f0np0"
+            conf += '\nBF_NIC2=%s' % "enp3s0f0np1"
             conf += '\nBF_HOST_NIC=%s' % "eth0"
             conf += '\nBF_IP=%s\nREMOTE_BF_IP=%s' % self.get_cloud_player_bf_ips()
 
