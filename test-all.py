@@ -814,6 +814,34 @@ def update_skip_according_to_db(rm, _tests, data):
             else:
                 t.set_failed("Invalid fw to compare")
 
+        ignore = opts.get("ignore", [])
+        if type(ignore) == dict:
+            ignore = [ignore]
+        ignore_count = 0
+
+        for i in ignore:
+            for k in i:
+                v = i[k]
+                if k == 'nic':
+                    if v == current_nic:
+                        ignore_count+=1
+                elif k == 'steering':
+                    if not flow_steering_mode or v == flow_steering_mode:
+                        ignore_count+=1
+                elif k == 'kernel':
+                    if kernel_match(v, current_kernel):
+                        ignore_count+=1
+                elif k == 'rm':
+                    ignore_count+=1
+                else:
+                    t.set_failed("Invalid ignore key: %s=%s" % (k, v))
+
+            if ignore_count == len(i):
+                if 'rm' in i:
+                    bugs_list.append(i['rm'])
+                else:
+                    t.set_ignore("Ignore combination %s" % i.values())
+
         if t.ignore or t.failed:
             continue
 
