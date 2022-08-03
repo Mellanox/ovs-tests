@@ -64,7 +64,7 @@ function test_udp() {
     echo "wait for bgs"
     wait &>/dev/null
 
-    rate=`cat $TMPFILE | grep "\[SUM\]  0\.0-10.* Bytes/sec" | awk {'print $6'}`
+    local rate=$(cat $TMPFILE | grep "SUM" | grep "Bytes/sec" | awk '{print $6}' | head -1)
     if [ -z "$rate" ]; then
         err "Cannot find rate"
         return
