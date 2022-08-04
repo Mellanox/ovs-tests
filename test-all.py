@@ -575,8 +575,7 @@ def get_config():
     elif os.path.exists(os.path.join(MYDIR, config)):
         return os.path.join(MYDIR, config)
 
-    warn("Cannot find config %s" % config)
-    return
+    raise RuntimeError("Cannot find config %s" % config)
 
 
 def get_config_value(key):
