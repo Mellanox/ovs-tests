@@ -586,13 +586,9 @@ def get_config_value(key):
         with open(config, 'r') as f1:
             for line in f1.readlines():
                 if line.startswith("%s=" % key):
-                    val = line.split('=')[1].strip()
-                    return val
+                    return line.split('=')[1].strip().strip('"')
     except IOError:
         err("Cannot read config %s" % config)
-        return
-
-    err("Cannot get %s from CONFIG." % key)
 
 
 def get_pci(nic):
@@ -652,6 +648,18 @@ def check_simx(nic):
     return True
 
 
+def fix_path_from_config():
+    path = get_config_value('PATH')
+    if not path:
+        return
+    newp = []
+    for p in path.split(os.pathsep):
+        if p == "$PATH":
+            continue
+        newp.append(p)
+    os.environ['PATH'] = os.pathsep.join(newp) + os.pathsep + os.environ['PATH']
+
+
 def get_current_state():
     global current_nic
     global current_fw_ver
@@ -659,6 +667,7 @@ def get_current_state():
     global flow_steering_mode
     global simx_mode
 
+    fix_path_from_config()
     nic = get_config_value('NIC')
     current_fw_ver = get_current_fw(nic)
     current_nic = args.test_nic if args.test_nic else DeviceType.get(get_current_nic_type(nic))
