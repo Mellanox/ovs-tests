@@ -68,9 +68,6 @@ function test_reps() {
     unbind_vfs $NIC
     time switch_mode_switchdev $NIC
     test_time_for_net_up $NIC
-
-    enable_legacy
-    config_sriov 2 $NIC
 }
 
 

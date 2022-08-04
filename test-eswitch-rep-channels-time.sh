@@ -73,9 +73,6 @@ function test_reps() {
         let expected_time=$t+100
     fi
     test_time_set_channels $REP
-
-    enable_legacy
-    config_sriov 2 $NIC
 }
 
 
