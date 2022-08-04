@@ -1969,7 +1969,6 @@ function __setup_clean() {
             ip -6 address flush dev $n
         fi
     done
-    config_sriov 0 $NIC2
 }
 
 function warn_if_redmine_bug_is_open() {
