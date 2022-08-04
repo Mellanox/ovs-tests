@@ -9,6 +9,7 @@ my_dir="$(dirname "$0")"
 
 
 function cleanup() {
+    config_sriov 2
     restore_sriov_autoprobe
 }
 
@@ -78,5 +79,6 @@ test_reps 8
 test_reps 16
 
 echo "Cleanup"
+trap - EXIT
 cleanup
 test_done
