@@ -59,11 +59,12 @@ function test_reps() {
     fi
 
     title "Test $want REPs"
-
-    title "- test legacy $want VFs"
     time config_sriov $want $NIC
-    # not testing link up time in legacy mode currently
-    #test_time_for_net_up $NIC
+
+#    title "- test legacy"
+#    enable_legacy
+#    # not testing link up time in legacy mode currently
+#    test_time_for_net_up $NIC
 
     title "- test switchdev"
     unbind_vfs $NIC
