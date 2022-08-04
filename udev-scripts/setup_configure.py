@@ -52,6 +52,8 @@ class Host(object):
 
 class SetupConfigure(object):
     MLNXToolsPath = '/opt/mellanox/ethtool/sbin:/opt/mellanox/iproute2/sbin:/opt/verutils/bin/'
+    config_file = "/workspace/dev_reg_conf.sh"
+    profile_sh = "/etc/profile.d/zz_dev_reg_env.sh"
 
     def ParseArgs(self):
         parser = ArgumentParser(prog=self.__class__.__name__)
@@ -148,6 +150,7 @@ class SetupConfigure(object):
 
             self.CreateConfFile()
             self.WA_add_del_ns()
+            self.print_notes()
 
         except Exception:
             self.Logger.error(str(traceback.format_exc()))
@@ -172,8 +175,8 @@ class SetupConfigure(object):
         sleep(5)
 
     def UpdatePATHEnvironmentVariable(self):
-        os.environ['PATH'] = self.MLNXToolsPath + os.pathsep + os.environ.get('PATH')
-        with open('/etc/profile.d/zz_dev_reg_env.sh', 'w') as f:
+        os.environ['PATH'] = self.MLNXToolsPath + os.pathsep + os.environ['PATH']
+        with open(self.profile_sh, 'w') as f:
             f.write('if [[ ! "$PATH" =~ "/opt/mellanox" ]]; then\n')
             f.write('    PATH="%s:$PATH"\n' % self.MLNXToolsPath)
             f.write('fi\n')
@@ -629,12 +632,14 @@ class SetupConfigure(object):
             conf += '\nBF_HOST_NIC=%s' % "eth0"
             conf += '\nBF_IP=%s\nREMOTE_BF_IP=%s' % self.get_cloud_player_bf_ips()
 
-        config_file = "/workspace/dev_reg_conf.sh"
-        self.Logger.info("Create config file %s" % config_file)
-        with open(config_file, 'w+') as f:
+        self.Logger.info("Create config file %s" % self.config_file)
+        with open(self.config_file, 'w+') as f:
             f.write(conf+'\n')
-        # just for easy copy paste
-        self.Logger.info("export CONFIG=%s" % config_file)
+
+    def print_notes(self):
+        notes = ["source %s" % self.profile_sh,
+                 "export CONFIG=%s" % self.config_file]
+        self.Logger.info("Notes:\n%s" % '\n'.join(notes))
 
     def configure_hugepages(self):
         if self.args.vdpa:
