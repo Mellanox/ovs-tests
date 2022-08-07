@@ -57,6 +57,8 @@ function ipsec_config() {
     local EFFECTIVE_LIP=$LIP
     local EFFECTIVE_RIP=$RIP
 
+    log "ipsec_config $@"
+
     if [[ "$MODE" == "local" ]]; then
         local nic=$NIC
         local IP=$LIP
