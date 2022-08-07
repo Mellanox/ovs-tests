@@ -2,13 +2,6 @@ IPSEC_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
 . $IPSEC_DIR/../common.sh
 . $IPSEC_DIR/common-ipsec-offload.sh
 
-LIP="172.16.0.1"
-RIP="172.16.0.2"
-LIP6="2001:192:168:211::64"
-RIP6="2001:192:168:211::65"
-
-require_cmd xxd
-
 function require_ip_xfrm() {
     ip xfrm state &>/dev/null || fail "ipsec is not supported"
 }
@@ -19,16 +12,23 @@ function require_ipsec_mode() {
     fi
 }
 
+require_cmd xxd
 require_ip_xfrm
 
-#KEYMAT 20 octets = KEY 16ocets, SALT 4octets
-#128 refers to the KEY without the SALT.
-KEY_IN_128=0x`dd if=/dev/urandom count=20 bs=1 2> /dev/null| xxd -p -c 40`
-KEY_OUT_128=0x`dd if=/dev/urandom count=20 bs=1 2> /dev/null| xxd -p -c 40`
-#KEYMAT 36 octets = KEY 32ocets, SALT 4octets
-#256 refers to the KEY without the SALT.
-KEY_IN_256=0x`dd if=/dev/urandom count=36 bs=1 2> /dev/null| xxd -p -c 72`
-KEY_OUT_256=0x`dd if=/dev/urandom count=36 bs=1 2> /dev/null| xxd -p -c 72`
+LIP="172.16.0.1"
+RIP="172.16.0.2"
+LIP6="2001:192:168:211::64"
+RIP6="2001:192:168:211::65"
+
+# KEYMAT 20 octets = KEY 16ocets, SALT 4octets
+# 128 refers to the KEY without the SALT.
+KEY_IN_128=0x`dd if=/dev/urandom count=20 bs=1 2>/dev/null | xxd -p -c 40`
+KEY_OUT_128=0x`dd if=/dev/urandom count=20 bs=1 2>/dev/null | xxd -p -c 40`
+
+# KEYMAT 36 octets = KEY 32ocets, SALT 4octets
+# 256 refers to the KEY without the SALT.
+KEY_IN_256=0x`dd if=/dev/urandom count=36 bs=1 2>/dev/null | xxd -p -c 72`
+KEY_OUT_256=0x`dd if=/dev/urandom count=36 bs=1 2>/dev/null | xxd -p -c 72`
 
 # Usage <MODE> <IPSEC_MODE> <KEY_LEN> <IP_PROTO> [offload]
 # MODE = local|remote|local_vf|remote_vf
