@@ -48,14 +48,14 @@ tc_filter add dev $REP2 protocol all prio 4 root flower dst_mac $mac0 action mir
 
 rm -f /tmp/_xx
 
-tcpdump -ni $REP src 7.7.7.7 > /tmp/_xx &
+tcpdump -ni $REP src 7.7.7.7 -w /tmp/_xx &
 pid=$!
 sleep 1
-ip netns exec ns1 ping -c 3 7.7.7.7 || err "Ping failed"
+ip netns exec ns1 ping -c 3 7.7.7.7 || fail "Ping failed"
 sleep 1
 kill $pid
 sync
-n=$(cat /tmp/_xx | grep "ICMP echo reply" | wc -l)
+n=$(tcpdump -nnr /tmp/_xx icmp | grep "ICMP echo reply" | wc -l)
 if (( n == 0 )); then
     success "ping offloaded"
 else
@@ -65,15 +65,14 @@ fi
 title "add trap action"
 tc_filter add dev $REP protocol ip prio 1 root flower skip_sw src_ip 7.7.7.7 action trap
 
-tcpdump -ni $REP src 7.7.7.7 > /tmp/_xx &
+tcpdump -ni $REP src 7.7.7.7 -w /tmp/_xx &
 pid=$!
 sleep 1
 ip netns exec ns1 ping -c 3 7.7.7.7
 sleep 2
 kill $pid
 sync
-n=$(cat /tmp/_xx | grep "ICMP echo reply" | wc -l)
-
+n=$(tcpdump -nnr /tmp/_xx icmp | grep "ICMP echo reply" | wc -l)
 if (( n == 3 )); then
     success "ping not offloaded - trap rule worked"
 else
