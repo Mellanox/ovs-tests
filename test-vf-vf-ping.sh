@@ -9,9 +9,6 @@ my_dir="$(dirname "$0")"
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
-MULTIPATH=${MULTIPATH:-0}
-[ $MULTIPATH == 1 ] && require_multipath_support
-
 function cleanup() {
     ovs_clear_bridges
     ip netns del ns0 2> /dev/null
@@ -21,29 +18,11 @@ function cleanup() {
         ip link set $i mtu 1500 &>/dev/null
         ifconfig $i 0 &>/dev/null
     done
-    if [ $MULTIPATH == 1 ]; then
-        disable_sriov
-        disable_multipath
-        enable_sriov
-    fi
 }
 
-if [ $MULTIPATH == 1 ]; then
-    disable_sriov
-    enable_multipath || fail
-    enable_sriov
-    enable_switchdev $NIC
-    enable_switchdev $NIC2
-    unbind_vfs $NIC
-    unbind_vfs $NIC2
-    bind_vfs $NIC
-    bind_vfs $NIC2
-else
-    enable_switchdev
-    unbind_vfs
-    bind_vfs
-fi
-
+enable_switchdev
+unbind_vfs
+bind_vfs
 require_interfaces VF VF2 REP REP2
 
 trap cleanup EXIT

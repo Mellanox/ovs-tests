@@ -1071,22 +1071,6 @@ function set_eswitch_encap() {
     fi
 }
 
-function require_multipath_support() {
-    local m=""
-
-    if [ "$devlink_compat" = 1 ]; then
-        if [ -e `devlink_compat_dir $NIC`/multipath ]; then
-            m="ok"
-        fi
-    else
-        m=`get_multipath_mode`
-    fi
-
-    if [ "$m" == "" ]; then
-        fail "Require multipath support"
-    fi
-}
-
 function require_interfaces() {
     local i
     local net
@@ -1095,30 +1079,6 @@ function require_interfaces() {
         [ -z $net ] && fail "Var $i is empty"
         [ ! -e /sys/class/net/$net ] && fail "Cannot find interface $net"
     done
-}
-
-function enable_multipath() {
-    if [ "$devlink_compat" = 1 ]; then
-        echo enabled > `devlink_compat_dir $NIC`/multipath
-    else
-        devlink dev eswitch set pci/$PCI multipath enable
-    fi
-}
-
-function disable_multipath() {
-    if [ "$devlink_compat" = 1 ]; then
-        echo disabled > `devlink_compat_dir $NIC`/multipath
-    else
-        devlink dev eswitch set pci/$PCI multipath disable
-    fi
-}
-
-function get_multipath_mode() {
-    if [ "$devlink_compat" = 1 ]; then
-        cat `devlink_compat_dir $NIC`/multipath
-    else
-        devlink dev eswitch show pci/$PCI | grep -o "\bmultipath [a-z]\+" | awk {'print $2'}
-    fi
 }
 
 function enable_switchdev() {
@@ -2046,18 +2006,6 @@ function verify_mlxconfig_for_sf() {
 
 function get_free_memory() {
     echo $(cat /proc/meminfo | grep MemFree | sed 's/[^0-9]*//g')
-}
-
-### workarounds
-function wa_reset_multipath() {
-    # we currently switch to legacy and back because of an issue
-    # when multipath is ready.
-    # Bug SW #1391181: [ASAP MLNX OFED] Enabling multipath only becomes enabled
-    # when changing mode from legacy to switchdev
-    enable_legacy $NIC
-    enable_legacy $NIC2
-    enable_switchdev $NIC
-    enable_switchdev $NIC2
 }
 
 function dmfs_dump() {

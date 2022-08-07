@@ -16,8 +16,6 @@ IP2="7.7.7.2"
 
 ROUNDS=${ROUNDS:-10}
 let TIMEOUT=ROUNDS*90
-MULTIPATH=${MULTIPATH:-0}
-[ $MULTIPATH == 1 ] && require_multipath_support
 
 function cleanup() {
     killall -q -9 iperf3
@@ -25,33 +23,15 @@ function cleanup() {
     ovs_clear_bridges
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
-
-    if [ $MULTIPATH == 1 ]; then
-        disable_sriov
-        disable_multipath
-    fi
 }
 trap cleanup EXIT
 
 cleanup
 
-if [ $MULTIPATH == 1 ]; then
-    disable_sriov
-    enable_multipath || fail
-    enable_sriov
-    enable_switchdev $NIC
-    enable_switchdev $NIC2
-    unbind_vfs $NIC
-    unbind_vfs $NIC2
-    set_eswitch_inline_mode_transport
-    bind_vfs $NIC
-    bind_vfs $NIC2
-else
-    enable_switchdev
-    unbind_vfs
-    set_eswitch_inline_mode_transport
-    bind_vfs
-fi
+enable_switchdev
+unbind_vfs
+set_eswitch_inline_mode_transport
+bind_vfs
 
 require_interfaces VF VF2 REP REP2
 start_clean_openvswitch

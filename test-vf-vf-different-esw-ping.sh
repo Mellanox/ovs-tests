@@ -17,9 +17,6 @@ test -z "$NIC2" && fail "Missing NIC2"
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
-MULTIPATH=${MULTIPATH:-0}
-[ $MULTIPATH == 1 ] && require_multipath_support
-
 function cleanup() {
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
@@ -52,9 +49,6 @@ function is_offloaded_rules() {
 
 cleanup
 disable_sriov
-if [ $MULTIPATH == 1 ]; then
-    enable_multipath || fail
-fi
 enable_sriov
 enable_switchdev $NIC
 enable_switchdev $NIC2
@@ -99,9 +93,4 @@ wait $tdpid && err || success
 
 ovs_clear_bridges
 cleanup
-if [ $MULTIPATH == 1 ]; then
-    disable_sriov
-    disable_multipath
-    enable_sriov
-fi
 test_done
