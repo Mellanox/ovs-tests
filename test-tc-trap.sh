@@ -53,8 +53,7 @@ function test_trap() {
     tcpdump -ni $REP src 7.7.7.7 -w /tmp/_xx &
     pid=$!
     sleep 1
-    ip netns exec ns1 ping -c 3 7.7.7.7 || fail "Ping failed"
-    sleep 1
+    ip netns exec ns1 ping -c 3 -w 4 7.7.7.7 || fail "Ping failed"
     kill $pid
     sync
     n=$(tcpdump -nnr /tmp/_xx icmp | grep "ICMP echo reply" | wc -l)
@@ -71,8 +70,7 @@ function test_trap() {
     tcpdump -ni $REP src 7.7.7.7 -w /tmp/_xx &
     pid=$!
     sleep 1
-    ip netns exec ns1 ping -c 3 7.7.7.7
-    sleep 2
+    ip netns exec ns1 ping -c 3 -w 4 7.7.7.7
     kill $pid
     sync
     n=$(tcpdump -nnr /tmp/_xx icmp | grep "ICMP echo reply" | wc -l)
