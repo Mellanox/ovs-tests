@@ -3,6 +3,10 @@
 my_dir="$(dirname "$0")"
 . $my_dir/../common.sh
 
+require_cmd xxd
+
+MACSEC_CONFIG="$TESTDIR/macsec-config.sh"
+
 LIP="1.1.1.1"
 RIP="1.1.1.2"
 MACSEC_LIP="2.2.2.1"
@@ -12,16 +16,15 @@ MACSEC_RIP6="2001:192:168:200::65"
 LIP6="2001:192:168:211::64"
 RIP6="2001:192:168:211::65"
 
-require_cmd xxd
+# KEYMAT 20 octets = KEY 16ocets, SALT 4octets
+# 128 refers to the KEY without the SALT.
+KEY_IN_128=`dd if=/dev/urandom count=16 bs=1 2>/dev/null | xxd -p -c 40`
+KEY_OUT_128=`dd if=/dev/urandom count=16 bs=1 2>/dev/null | xxd -p -c 40`
 
-#KEYMAT 20 octets = KEY 16ocets, SALT 4octets
-#128 refers to the KEY without the SALT.
-KEY_IN_128=`dd if=/dev/urandom count=16 bs=1 2> /dev/null| xxd -p -c 40`
-KEY_OUT_128=`dd if=/dev/urandom count=16 bs=1 2> /dev/null| xxd -p -c 40`
-#KEYMAT 36 octets = KEY 32ocets, SALT 4octets
-#256 refers to the KEY without the SALT.
-KEY_IN_256=`dd if=/dev/urandom count=32 bs=1 2> /dev/null| xxd -p -c 72`
-KEY_OUT_256=`dd if=/dev/urandom count=32 bs=1 2> /dev/null| xxd -p -c 72`
+# KEYMAT 36 octets = KEY 32ocets, SALT 4octets
+# 256 refers to the KEY without the SALT.
+KEY_IN_256=`dd if=/dev/urandom count=32 bs=1 2>/dev/null | xxd -p -c 72`
+KEY_OUT_256=`dd if=/dev/urandom count=32 bs=1 2>/dev/null | xxd -p -c 72`
 
 IPERF_FILE="/tmp/iperf.log"
 TCPDUMP_FILE="/tmp/tcpdump.log"
@@ -142,12 +145,12 @@ function set_tx_sa() {
     local sa_to_enable="$3"
 
     #set tx sa for local
-    $TESTDIR/macsec-config.sh --device $dev --interface $macsec_dev --enable-sa $sa_to_enable
-    $TESTDIR/macsec-config.sh --device $dev --interface $macsec_dev --set-encoding-sa $sa_to_enable
+    $MACSEC_CONFIG --device $dev --interface $macsec_dev --enable-sa $sa_to_enable
+    $MACSEC_CONFIG --device $dev --interface $macsec_dev --set-encoding-sa $sa_to_enable
 
     #set tx sa for remote
-    ssh2 $REMOTE_SERVER "bash -s" -- < $my_dir/macsec-config.sh --device $dev --interface $macsec_dev --enable-sa $sa_to_enable
-    ssh2 $REMOTE_SERVER "bash -s" -- < $my_dir/macsec-config.sh --device $dev --interface $macsec_dev --set-encoding-sa $sa_to_enable
+    on_remote $MACSEC_CONFIG --device $dev --interface $macsec_dev --enable-sa $sa_to_enable
+    on_remote $MACSEC_CONFIG --device $dev --interface $macsec_dev --set-encoding-sa $sa_to_enable
 }
 
 function verify_offload() {
@@ -429,7 +432,7 @@ function run_test_macsec() {
 
     for len in 256 128; do
         macsec_cleanup
-        if [[ "$multi_sa" == on ]]; then
+        if [[ "$multi_sa" == "on" ]]; then
             title "Test MACSEC with Multi SAs with mtu = $mtu , encrypt = $encrypt , ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len and offload = $offload"
             test_macsec_multi_sa $mtu $encrypt $ip_proto $macsec_ip_proto $len $net_proto $offload
             # the following echo is to separate between different iterations prints (by starting a new line) during the test
