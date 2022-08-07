@@ -97,7 +97,6 @@ function check_offloaded_rules() {
     local rx_off=`ip x s s | grep -c -w offload`
 
     if [[ "$tx_off" != $tx_check_val || "$rx_off" != $rx_check_val ]]; then
-        err "ipsec rules are not offloaded"
         debug "Dumping IPsec rules"
         echo "Local Rules:"
         ip xfrm state show
@@ -105,7 +104,7 @@ function check_offloaded_rules() {
         echo "Remote Rules:"
         on_remote "ip xfrm state show
                    ip xfrm policy show"
-        fail_if_err
+        fail "ipsec rules are not offloaded"
     fi
 }
 
