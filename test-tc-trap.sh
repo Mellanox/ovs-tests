@@ -47,7 +47,6 @@ tc_filter add dev $REP protocol all prio 4 root flower dst_mac $mac1 action mirr
 tc_filter add dev $REP2 protocol all prio 4 root flower dst_mac $mac0 action mirred egress redirect dev $REP
 
 rm -f /tmp/_xx
-
 tcpdump -ni $REP src 7.7.7.7 -w /tmp/_xx &
 pid=$!
 sleep 1
@@ -65,6 +64,7 @@ fi
 title "add trap action"
 tc_filter add dev $REP protocol ip prio 1 root flower skip_sw src_ip 7.7.7.7 action trap
 
+rm -f /tmp/_xx
 tcpdump -ni $REP src 7.7.7.7 -w /tmp/_xx &
 pid=$!
 sleep 1
@@ -79,4 +79,5 @@ else
     err "ping offloaded - trap rule didn't work"
 fi
 
+rm -f /tmp/_xx
 test_done
