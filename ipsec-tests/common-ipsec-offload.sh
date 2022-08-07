@@ -103,8 +103,8 @@ function check_offloaded_rules() {
         ip xfrm state show
         ip xfrm policy show
         echo "Remote Rules:"
-        on_remote "ip xfrm state show"
-        on_remote "ip xfrm state show"
+        on_remote "ip xfrm state show
+                   ip xfrm policy show"
         fail_if_err
     fi
 }
