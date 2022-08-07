@@ -88,7 +88,7 @@ function check_offloaded_rules() {
         tx_check_val=2
         rx_check_val=2
     else
-        err "test issue, wrong usage of check_offloaded_rules"
+        fail "test issue, wrong usage of check_offloaded_rules"
     fi
 
     title "Verify offloaded rules"
