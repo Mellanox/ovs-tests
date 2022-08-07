@@ -20,15 +20,27 @@ RIP="172.16.0.2"
 LIP6="2001:192:168:211::64"
 RIP6="2001:192:168:211::65"
 
+function ipsec_rand_hex_key() {
+    local size=$1
+    local key=`dd if=/dev/urandom count=$size bs=1 2>/dev/null | xxd -p -c $size 2>/dev/null`
+    [ -z "$key" ] && return
+    echo 0x$key
+}
+
 # KEYMAT 20 octets = KEY 16ocets, SALT 4octets
 # 128 refers to the KEY without the SALT.
-KEY_IN_128=0x`dd if=/dev/urandom count=20 bs=1 2>/dev/null | xxd -p -c 40`
-KEY_OUT_128=0x`dd if=/dev/urandom count=20 bs=1 2>/dev/null | xxd -p -c 40`
+KEY_IN_128=`ipsec_rand_hex_key 20`
+KEY_OUT_128=`ipsec_rand_hex_key 20`
 
 # KEYMAT 36 octets = KEY 32ocets, SALT 4octets
 # 256 refers to the KEY without the SALT.
-KEY_IN_256=0x`dd if=/dev/urandom count=36 bs=1 2>/dev/null | xxd -p -c 72`
-KEY_OUT_256=0x`dd if=/dev/urandom count=36 bs=1 2>/dev/null | xxd -p -c 72`
+KEY_IN_256=`ipsec_rand_hex_key 36`
+KEY_OUT_256=`ipsec_rand_hex_key 36`
+
+# assume if one key is empty there is a problem with the generation.
+if [ -z "$KEY_IN_128" ]; then
+    fail "Empty ipsec keys"
+fi
 
 # Usage <MODE> <IPSEC_MODE> <KEY_LEN> <IP_PROTO> [offload]
 # MODE = local|remote|local_vf|remote_vf
