@@ -81,24 +81,24 @@ function check_offloaded_rules() {
     local rx_check_val=0
 
     if [[ "$mode" == "tx" ]]; then
-            tx_check_val=2
+        tx_check_val=2
     elif [[ "$mode" == "rx" ]];then
-            rx_check_val=2
+        rx_check_val=2
     elif [[ "$mode" == "both" ]]; then
-            tx_check_val=2
-            rx_check_val=2
+        tx_check_val=2
+        rx_check_val=2
     else
-            err "test issue, wrong usage of check_offloaded_rules"
+        err "test issue, wrong usage of check_offloaded_rules"
     fi
 
     title "Verify offloaded rules"
 
-    local tx_off=`on_remote ip x s s | grep offload |wc -l`
-    local rx_off=`ip x s s | grep offload |wc -l`
+    local tx_off=`on_remote ip x s s | grep -c -w offload`
+    local rx_off=`ip x s s | grep -c -w offload`
 
     if [[ "$tx_off" != $tx_check_val || "$rx_off" != $rx_check_val ]]; then
-        err "ipsec rules are not offloaded!"
-        echo -e "${CYAN}Dumping IPsec Rules$NOCOLOR"
+        err "ipsec rules are not offloaded"
+        debug "Dumping IPsec rules"
         echo "Local Rules:"
         ip xfrm state show
         ip xfrm policy show
@@ -140,7 +140,7 @@ function test_tx_off_rx() {
     check_offloaded_rules tx
 
     if [[ "$offload" == "full_offload" && ("$post_test_pkts_tx" -le "$pre_test_pkts_tx" || "$post_test_pkts_rx" -le "$pre_test_pkts_rx") ]]; then
-            fail "IPsec full offload counters didn't increase"
+        fail "IPsec full offload counters didn't increase"
     fi
 }
 
@@ -175,7 +175,7 @@ function test_tx_rx_off() {
     check_offloaded_rules rx
 
     if [[ "$offload" == "full_offload" && ("$post_test_pkts_tx" -le "$pre_test_pkts_tx" || "$post_test_pkts_rx" -le "$pre_test_pkts_rx") ]]; then
-            fail "IPsec full offload counters didn't increase"
+        fail "IPsec full offload counters didn't increase"
     fi
 }
 
@@ -215,11 +215,11 @@ function test_tx_off_rx_off() {
 
     #verify TX side
     if [[ "$offload" == "full_offload" && ("$remote_post_test_pkts_tx" -le "$remote_pre_test_pkts_tx" || "$remote_post_test_pkts_rx" -le "$remote_pre_test_pkts_rx") ]]; then
-            fail "IPsec full offload counters didn't increase on TX side"
+        fail "IPsec full offload counters didn't increase on TX side"
     fi
     #verify RX side
     if [[ "$offload" == "full_offload" && ("$local_post_test_pkts_tx" -le "$local_pre_test_pkts_tx" || "$local_post_test_pkts_rx" -le "$local_pre_test_pkts_rx") ]]; then
-            fail "IPsec full offload counters didn't increase on RX side"
+        fail "IPsec full offload counters didn't increase on RX side"
     fi
 }
 
