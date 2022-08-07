@@ -350,9 +350,9 @@ def parse_args():
                         help='stop on first error')
     parser.add_argument('--dry', '-d', action='store_true',
                         help='not to actually run the test')
-    parser.add_argument('--from_test', '-f',
+    parser.add_argument('--from-test', '-f',
                         help='start from test')
-    parser.add_argument('--to_test', '-t',
+    parser.add_argument('--to-test', '-t',
                         help='stop at a test')
     parser.add_argument('--exclude', '-e', action='append',
                         help='exclude tests')
