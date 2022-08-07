@@ -87,25 +87,13 @@ function ipsec_config() {
         fail "Wrong usage, IP_PROTO ipv4|ipv6"
     fi
 
-    if [[ "$KEY_LEN" == 128 ]]; then
-        if [[ "$MODE" == "local" || "$MODE" == "local_vf" ]]; then
-            local ALGO_LINE_IN="aead rfc4106(gcm(aes)) $KEY_IN_128 128"
-            local ALGO_LINE_OUT="aead rfc4106(gcm(aes)) $KEY_OUT_128 128"
-        else
-            local ALGO_LINE_IN="aead 'rfc4106(gcm(aes))' $KEY_IN_128 128"
-            local ALGO_LINE_OUT="aead 'rfc4106(gcm(aes))' $KEY_OUT_128 128"
-        fi
-    elif [[ "$KEY_LEN" == 256 ]]; then
-        if [[ "$MODE" == "local" ||  "$MODE" == "local_vf" ]]; then
-            local ALGO_LINE_IN="aead rfc4106(gcm(aes)) $KEY_IN_256 128"
-            local ALGO_LINE_OUT="aead rfc4106(gcm(aes)) $KEY_OUT_256 128"
-        else
-            local ALGO_LINE_IN="aead 'rfc4106(gcm(aes))' $KEY_IN_256 128"
-            local ALGO_LINE_OUT="aead 'rfc4106(gcm(aes))' $KEY_OUT_256 128"
-        fi
-    else
+    eval key_in="\$KEY_IN_$KEY_LEN"
+    eval key_out="\$KEY_OUT_$KEY_LEN"
+    if [ -z "$key_in" ]; then
         fail "Wrong usage, KEY_LEN 128|256"
     fi
+    local ALGO_LINE_IN="aead 'rfc4106(gcm(aes))' $key_in 128"
+    local ALGO_LINE_OUT="aead 'rfc4106(gcm(aes))' $key_out 128"
 
     if [[ "$SHOULD_OFFLOAD" == "" || "$SHOULD_OFFLOAD" == "no-offload" ]]; then
         OFFLOAD_IN=""
@@ -136,14 +124,15 @@ function ipsec_config() {
           ip link set $nic up"
 
     if [[ ( "$MODE" == "local" || "$MODE" == "local_vf" ) && "$IPSEC_MODE" == "transport" ]]; then
-        eval "$cmds"
-        ip xfrm state flush
-        ip xfrm policy flush
-        ip xfrm state add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp spi 1000 reqid 10000 $ALGO_LINE_IN mode $IPSEC_MODE sel src $EFFECTIVE_LIP dst $EFFECTIVE_RIP $OFFLOAD_OUT
-        ip xfrm state add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp spi 1001 reqid 10001 $ALGO_LINE_OUT mode $IPSEC_MODE sel src $EFFECTIVE_RIP dst $EFFECTIVE_LIP $OFFLOAD_IN
-        ip xfrm policy add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP dir out tmpl src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp reqid 10000 mode $IPSEC_MODE
-        ip xfrm policy add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP dir in tmpl src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp reqid 10001 mode $IPSEC_MODE
-        ip xfrm policy add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP dir fwd tmpl src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp reqid 10001 mode $IPSEC_MODE
+        eval "$cmds
+            ip xfrm state flush
+            ip xfrm policy flush
+            ip xfrm state add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp spi 1000 reqid 10000 $ALGO_LINE_IN mode $IPSEC_MODE sel src $EFFECTIVE_LIP dst $EFFECTIVE_RIP $OFFLOAD_OUT
+            ip xfrm state add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp spi 1001 reqid 10001 $ALGO_LINE_OUT mode $IPSEC_MODE sel src $EFFECTIVE_RIP dst $EFFECTIVE_LIP $OFFLOAD_IN
+            ip xfrm policy add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP dir out tmpl src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp reqid 10000 mode $IPSEC_MODE
+            ip xfrm policy add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP dir in tmpl src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp reqid 10001 mode $IPSEC_MODE
+            ip xfrm policy add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP dir fwd tmpl src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp reqid 10001 mode $IPSEC_MODE
+        "
     elif [[ ( "$MODE" == "remote" || "$MODE" == "remote_vf" ) && "$IPSEC_MODE" == "transport" ]]; then
         on_remote "$cmds"
         on_remote "
@@ -153,16 +142,18 @@ function ipsec_config() {
             ip xfrm state add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp spi 1001 reqid 10001 $ALGO_LINE_OUT mode $IPSEC_MODE sel src $EFFECTIVE_RIP dst $EFFECTIVE_LIP $OFFLOAD_OUT
             ip xfrm policy add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP dir in tmpl src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp reqid 10000 mode $IPSEC_MODE
             ip xfrm policy add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP dir out tmpl src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp reqid 10001 mode $IPSEC_MODE
-            ip xfrm policy add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP dir fwd tmpl src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp reqid 10000 mode $IPSEC_MODE"
+            ip xfrm policy add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP dir fwd tmpl src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp reqid 10000 mode $IPSEC_MODE
+        "
     elif [[ ( "$MODE" == "local" || "$MODE" == "local_vf" ) && "$IPSEC_MODE" == "tunnel" ]]; then
-            eval "$cmds"
-            ip xfrm state flush
-            ip xfrm policy flush
-            ip xfrm state add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp spi 1000 reqid 10000 $ALGO_LINE_IN mode $IPSEC_MODE $OFFLOAD_OUT
-            ip xfrm state add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp spi 1001 reqid 10001 $ALGO_LINE_IN mode $IPSEC_MODE $OFFLOAD_IN
-            ip xfrm policy add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP dir out tmpl src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp reqid 10000 mode tunnel
-            ip xfrm policy add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP dir in tmpl src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp reqid 10001 mode tunnel
-            ip xfrm policy add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP dir fwd tmpl src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp reqid 10001 mode tunnel
+            eval "$cmds
+                ip xfrm state flush
+                ip xfrm policy flush
+                ip xfrm state add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp spi 1000 reqid 10000 $ALGO_LINE_IN mode $IPSEC_MODE $OFFLOAD_OUT
+                ip xfrm state add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp spi 1001 reqid 10001 $ALGO_LINE_IN mode $IPSEC_MODE $OFFLOAD_IN
+                ip xfrm policy add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP dir out tmpl src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp reqid 10000 mode tunnel
+                ip xfrm policy add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP dir in tmpl src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp reqid 10001 mode tunnel
+                ip xfrm policy add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP dir fwd tmpl src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp reqid 10001 mode tunnel
+            "
     elif [[ ( "$MODE" == "remote" || "$MODE" == "remote_vf" ) && "$IPSEC_MODE" == "tunnel" ]]; then
         on_remote "$cmds"
         on_remote "ip xfrm state flush
@@ -171,7 +162,8 @@ function ipsec_config() {
                    ip xfrm state add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp spi 1001 reqid 10001 $ALGO_LINE_IN mode $IPSEC_MODE $OFFLOAD_OUT
                    ip xfrm policy add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP dir out tmpl src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp reqid 10001 mode tunnel
                    ip xfrm policy add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP dir in tmpl src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp reqid 10000 mode tunnel
-                   ip xfrm policy add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP dir fwd tmpl src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp reqid 10000 mode tunnel"
+                   ip xfrm policy add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP dir fwd tmpl src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp reqid 10000 mode tunnel
+        "
     else
         fail "Cannot config ipsec mode $MODE ipsec_mode $IPSEC_MODE"
     fi
