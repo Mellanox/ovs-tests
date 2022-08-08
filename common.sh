@@ -559,6 +559,7 @@ function ssh2() {
 
 # Run given code on remote server which provide all function and env vars
 function on_remote_exec() {
+    [ -z "$REMOTE_SERVER" ] && fail "No remote server configured"
     __on_remote_exec $REMOTE_SERVER "$@"
 }
 
@@ -582,14 +583,17 @@ function __on_remote_exec() {
 }
 
 function on_vm1() {
+    [ -z "$NESTED_VM_IP1" ] && fail "No vm ip1 configured"
     __on_remote $NESTED_VM_IP1 "$@"
 }
 
 function on_vm2() {
+    [ -z "$NESTED_VM_IP2" ] && fail "No vm ip2 configured"
     __on_remote $NESTED_VM_IP2 "$@"
 }
 
 function on_remote() {
+    [ -z "$REMOTE_SERVER" ] && fail "No remote server configured"
     __on_remote $REMOTE_SERVER "$@"
 }
 
