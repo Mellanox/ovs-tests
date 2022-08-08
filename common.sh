@@ -695,8 +695,7 @@ function log_once() {
     shift
     [ "${!var}" != "" ] && return
     eval $var=1
-    echo $@
-    kmsg $@
+    log $@
 }
 
 function warn() {
