@@ -570,7 +570,9 @@ function __foo_copy() {
     if [[ "${__foo_copied[@]}" =~ $remote ]]; then
         return
     fi
-    set | grep -Ev "^(BASH|SHELLOPTS|UID|EUID|PPID)" > $__FOO
+    local i
+    for i in _longopt _parse_help _parse_usage; do unset -f $i ; done
+    set | grep -Ev "^(BASH|SHELLOPTS|UID|EUID|PPID|_OVS_VSCTL)" > $__FOO
     echo ". /etc/os-release" >> $__FOO
     scp2 -q $__FOO $remote:/tmp/
     __foo_copied+=($remote)
