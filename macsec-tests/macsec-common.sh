@@ -1,8 +1,3 @@
-#!/bin/bash
-
-my_dir="$(dirname "$0")"
-. $my_dir/../common.sh
-
 require_cmd xxd
 
 MACSEC_CONFIG="$TESTDIR/macsec-config.sh"
