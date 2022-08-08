@@ -104,3 +104,16 @@ function ipsec_clear_setup() {
     ipsec auto --delete $IPSEC_CONN
     ipsec_setup_stop
 }
+
+function ipsec_verify_trafficstatus() {
+    local in=`ipsec_trafficstatus $IPSEC_CONN | grep -o "inBytes=[0-9]\+" | cut -d= -f2`
+    local out=`ipsec_trafficstatus $IPSEC_CONN | grep -o "outBytes=[0-9]\+" | cut -d= -f2`
+
+    if [ -z "$in" ] || [ "$in" == 0 ]; then
+        err "Mssing inBytes"
+    fi
+
+    if [ -z "$out" ] || [ "$out" == 0 ]; then
+        err "Mssing outBytes"
+    fi
+}
