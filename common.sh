@@ -679,10 +679,7 @@ function reset_tc_block_index() {
 }
 
 function debug() {
-    local time=`date +%H:%M:%S`
-    local m="${CYAN}$time | $NOCOLOR$@"
-
-    echo -e "$m"
+    echo -e "${CYAN}`get_time_short` | $NOCOLOR$@"
 }
 
 function log() {
@@ -1327,8 +1324,13 @@ function get_rep() {
 function get_time() {
     date +"%s"
 }
+
 function get_date_time() {
     date +"%Y-%m-%d %H:%M:%S"
+}
+
+function get_time_short() {
+    date +"%H:%M:%S"
 }
 
 function get_ms_time() {
