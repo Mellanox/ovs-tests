@@ -232,7 +232,7 @@ function disable_irq_reguest_debug() {
 
 function start_cpu_irq_check() {
     sleep 1
-    _start_irq_check=`get_time_short`
+    _start_irq_check=`get_date_time`
 }
 
 function parse_cpus_value() {

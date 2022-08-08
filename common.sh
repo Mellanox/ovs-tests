@@ -1327,7 +1327,7 @@ function get_rep() {
 function get_time() {
     date +"%s"
 }
-function get_time_short() {
+function get_date_time() {
     date +"%Y-%m-%d %H:%M:%S"
 }
 
@@ -1339,7 +1339,7 @@ function start_test_timestamp() {
     # sleep to get a unique timestamp
     sleep 1
     _check_start_ts=`date +"%s"`
-    _check_start_ts_full=`get_time_short`
+    _check_start_ts_full=`get_date_time`
 }
 
 function get_test_time_elapsed() {
