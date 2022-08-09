@@ -21,6 +21,14 @@ function ipsec_get_hostkey() {
     ipsec_dump_hostkeys | head -1
 }
 
+function __ipsec_init_keys() {
+    ipsec showhostkey --dump &>/dev/null
+    if [ $? == 1 ]; then
+        ipsec initnss --nssdir /var/lib/ipsec/nss
+        ipsec newhostkey
+    fi
+}
+
 function ipsec_get_left_key() {
     local rsaid=$1
     ipsec showhostkey --left --rsaid $rsaid
@@ -50,12 +58,11 @@ function ipsec_trafficstatus() {
     [ -n "$conn" ] && ipsec trafficstatus | grep -w $conn
 }
 
-function ipsec_newhostkey() {
-    ipsec newhostkey
-}
-
 function ipsec_config_conn() {
+    __ipsec_init_keys
     local key=`ipsec_get_hostkey`
+
+    on_remote_exec __ipsec_init_keys
     local remote_key=`on_remote_exec ipsec_get_hostkey`
 
     if [ -z "$key" ]; then
