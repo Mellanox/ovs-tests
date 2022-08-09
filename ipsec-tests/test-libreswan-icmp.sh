@@ -2,7 +2,7 @@
 #
 
 my_dir="$(dirname "$0")"
-. $my_dir/common-ipsec-libreswan.sh
+. $my_dir/common-libreswan.sh
 
 require_remote_server
 
