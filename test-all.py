@@ -726,7 +726,6 @@ def update_skip_according_to_db(rm, _tests, data):
         ignore_for_linust = opts.get('ignore_for_linust', 0)
         ignore_for_upstream = opts.get('ignore_for_upstream', 0)
         ignore_for_debug_kernel = opts.get('ignore_for_debug_kernel', 0)
-        simx_ignore = opts.get('simx_ignore', 0)
         is_debug_kernel = '_debug_' in current_kernel and '_min_debug_' not in current_kernel
 
         if ignore_for_debug_kernel and is_debug_kernel:
@@ -747,13 +746,6 @@ def update_skip_according_to_db(rm, _tests, data):
         if ignore_fs and (not flow_steering_mode or ignore_fs == flow_steering_mode):
             t.set_ignore("Ignore flow steering mode %s" % ignore_fs)
             continue
-
-        if simx_mode and simx_ignore:
-            if type(simx_ignore) == list:
-                bugs_list.extend(simx_ignore)
-            else:
-                t.set_ignore("Ignore for SimX mode with reason %s" % simx_ignore)
-                continue
 
         ignore_not_supported = opts.get('ignore_not_supported', 0)
 
