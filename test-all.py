@@ -875,9 +875,10 @@ def update_skip_according_to_db(rm, _tests, data):
             if kernel_match(kernel, current_kernel):
                 bugs_list += ignore_kernel[kernel]
 
-        for fw in opts.get('ignore_fw', {}):
-            if not current_fw_ver or re.search("^%s$" % fw, current_fw_ver):
-                bugs_list += opts['ignore_fw'][fw]
+        if not simx_mode:
+            for fw in opts.get('ignore_fw', {}):
+                if not current_fw_ver or re.search("^%s$" % fw, current_fw_ver):
+                    bugs_list += opts['ignore_fw'][fw]
 
         ignore_smfs = opts.get('ignore_smfs', [])
         if ignore_smfs and (not flow_steering_mode or flow_steering_mode == 'smfs'):
