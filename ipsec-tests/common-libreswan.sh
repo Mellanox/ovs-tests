@@ -7,7 +7,7 @@ IPSEC_MYTUNNEL_CONF="$IPSEC_CONFIG_DIR/${IPSEC_CONN}.conf"
 
 function require_ipsec() {
     require_cmd ipsec
-    ipsec --version | grep -q Libreswan || fail "ipsec is not Libreswan"
+    ipsec --version | grep Libreswan || fail "ipsec is not Libreswan"
 }
 
 require_ipsec
