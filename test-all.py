@@ -850,10 +850,14 @@ def update_skip_according_to_db(rm, _tests, data):
                     ignore_count+=1
                 elif k == 'reason':
                     ignore_count+=1
+                elif k == 'simx':
+                    if (simx_mode and v) or (not simx_mode and not v):
+                        ignore_count+=1
                 else:
                     t.set_failed("Invalid ignore key: %s=%s" % (k, v))
                     break
 
+            # check if all ignore conditions matched.
             if ignore_count == len(i):
                 if 'rm' in i:
                     bugs_list.append(i['rm'])
