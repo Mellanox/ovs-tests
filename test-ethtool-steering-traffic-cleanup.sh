@@ -62,9 +62,9 @@ function run() {
     ping -c 1 -w 1 $REMOTE_IP || fail "Ping failed"
 
     title "send data from remote"
-    c1=`ethtool -S $NIC | grep "rx_bytes:" | awk {'print $2'}`
+    c1=`ethtool -S $NIC | grep -w "rx_bytes:" | awk {'print $2'}`
     on_remote sh -c "echo hello | nc -p 6633 -u $IP" || fail "Remote command failed"
-    c2=`ethtool -S $NIC | grep "rx_bytes:" | awk {'print $2'}`
+    c2=`ethtool -S $NIC | grep -w "rx_bytes:" | awk {'print $2'}`
 
     title "verify traffic received on uplink"
     let c1+=10
