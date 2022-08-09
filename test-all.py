@@ -803,7 +803,7 @@ def update_skip_according_to_db(rm, _tests, data):
                 t.set_failed(str(e))
 
         min_fw = opts.get('min_fw', None)
-        if min_fw:
+        if min_fw and not simx_mode:
             if current_fw_ver:
                 cx_type = min_fw.split('.')[0]
                 cx_ver = min_fw[min_fw.index('.')+1:]
@@ -830,6 +830,8 @@ def update_skip_according_to_db(rm, _tests, data):
                     if v == current_nic:
                         ignore_count+=1
                 elif k =='fw':
+                    if simx_mode:
+                        continue
                     if not current_fw_ver or re.search("^%s$" % v, current_fw_ver):
                         ignore_count+=1
                 elif k == 'steering':
