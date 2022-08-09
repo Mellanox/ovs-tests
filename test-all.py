@@ -883,10 +883,6 @@ def update_skip_according_to_db(rm, _tests, data):
                 if key == current_nic or kernel_match(key, current_kernel):
                     bugs_list.extend(ignore_smfs[key])
 
-        if simx_mode:
-            simx_ignore_issues = opts.get('simx_ignore_issue', [])
-            bugs_list.extend(simx_ignore_issues)
-
         for bug in bugs_list:
             try:
                 task = rm.get_issue(bug)
