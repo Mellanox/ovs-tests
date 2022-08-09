@@ -64,6 +64,7 @@ function run() {
     # icmp
     ip netns exec ns0 ping -q -c 1 -w 2 $REMOTE
     if [ $? -ne 0 ]; then
+        ovs-vsctl show
         err "ping failed"
         return
     fi
