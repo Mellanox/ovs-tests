@@ -1824,7 +1824,7 @@ function reload_driver_per_test() {
 }
 
 function dump_ovs_log() {
-    local look="ERR|WARN"
+    local look="ERR|WARN|EMER|assertion"
     local filter="timeval|ioctl|coverage"
 
     if [ -f $ovs_log_path ] && [ "$__ovs_used" == 1 ] && [ "$CLEAR_OVS_LOG" == 1 ]; then
