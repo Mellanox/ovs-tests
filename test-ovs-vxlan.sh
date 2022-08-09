@@ -53,20 +53,12 @@ function config() {
 
     ovs-vsctl add-br br-ovs
     ovs-vsctl add-port br-ovs $REP
-    ovs-vsctl add-port br-ovs vxlan1 -- set interface vxlan1 type=vxlan options:local_ip=$LOCAL_TUN options:remote_ip=$REMOTE_IP options:key=$VXLAN_ID options:dst_port=4789
-}
-
-function add_openflow_rules() {
-#    ovs-ofctl del-flows br-ovs
-#    ovs-ofctl add-flow br-ovs arp,actions=normal
-#    ovs-ofctl add-flow br-ovs icmp,actions=normal
-    ovs-ofctl dump-flows br-ovs --color
+    ovs-vsctl add-port br-ovs vxlan1 -- set interface vxlan1 type=vxlan options:local_ip=$LOCAL_TUN options:remote_ip=$REMOTE_IP options:key=$VXLAN_ID options:dst_port=4789 options:csum=true
 }
 
 function run() {
     config
     config_remote_vxlan
-    add_openflow_rules
     sleep 2
 
     # icmp
