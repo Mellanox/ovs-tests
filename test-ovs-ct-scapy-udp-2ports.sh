@@ -16,8 +16,7 @@ IP3="8.8.8.1"
 IP4="8.8.8.2"
 
 function cleanup() {
-    ip netns del ns0 2> /dev/null
-    ip netns del ns1 2> /dev/null
+    ip -all netns delete
     reset_tc $REP
     reset_tc $REP2
     config_sriov 0 $NIC2
@@ -66,12 +65,10 @@ function config_ovs() {
 
 function run() {
     title "Test OVS CT UDP"
-    ip netns add ns0
-    ip netns add ns1
     config_vf ns0 $VF $REP $IP1
     config_vf ns1 $VF2 $REP2 $IP2
-    config_vf ns0 $VF3 $REP3 $IP3
-    config_vf ns1 $VF4 $REP4 $IP4
+    config_vf ns2 $VF3 $REP3 $IP3
+    config_vf ns3 $VF4 $REP4 $IP4
 
     proto="udp"
     config_ovs $proto
@@ -87,12 +84,12 @@ function run() {
     echo "run traffic for $t seconds"
     ip netns exec ns1 $pktgen -l -i $VF2 --src-ip $IP1 --time $((t+1)) &
     pk1=$!
-    ip netns exec ns1 $pktgen -l -i $VF4 --src-ip $IP3 --time $((t+1)) &
+    ip netns exec ns3 $pktgen -l -i $VF4 --src-ip $IP3 --time $((t+1)) &
     pk2=$!
     sleep 1
     ip netns exec ns0 $pktgen -i $VF1 --src-ip $IP1 --dst-ip $IP2 --time $t &
     pk3=$!
-    ip netns exec ns0 $pktgen -i $VF3 --src-ip $IP3 --dst-ip $IP4 --time $t &
+    ip netns exec ns2 $pktgen -i $VF3 --src-ip $IP3 --dst-ip $IP4 --time $t &
     pk4=$!
 
     verify_ct_udp_have_traffic $pid1 $pid2
