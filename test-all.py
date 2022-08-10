@@ -817,13 +817,13 @@ def update_skip_according_to_db(rm, _tests, data):
         ignore = opts.get("ignore", [])
         if type(ignore) == dict:
             ignore = [ignore]
-        ignore_count = 0
 
         for i in ignore:
             if 'rm' in i and 'reason' in i:
                 t.set_failed("Invalid ignore key rm and reason.")
                 break
 
+            ignore_count = 0
             for k in i:
                 v = i[k]
                 if k == 'nic':
