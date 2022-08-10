@@ -491,6 +491,11 @@ function require_min_kernel_5() {
     fi
 }
 
+function simx_log() {
+    local ip=`ip route get 1 | grep -o "src [0-9.]*" | awk {'print $2'}`
+    echo "/workspace/logs/${ip}_simx.log"
+}
+
 function cloud_fw_reset() {
     local ip=`ip route get 1 | grep -o "src [0-9.]*" | awk {'print $2'}`
     disable_sriov
