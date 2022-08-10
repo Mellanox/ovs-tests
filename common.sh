@@ -761,6 +761,12 @@ function title() {
     kmsg $@
 }
 
+function simx_append_log() {
+    local simx_write_str="/workspace/simx/simx_tools/simx_write_str.py"
+    [ ! -f $simx_write_str ] && return
+    $simx_write_str -d $PCI -s "$*" >/dev/null
+}
+
 function config_vf() {
     local ns=$1
     local vf=$2
