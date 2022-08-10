@@ -81,7 +81,7 @@ function run() {
     echo "run traffic for $t seconds"
     ip netns exec ns1 timeout $((t+1)) iperf3 -s -D
     sleep 0.5
-    ip netns exec ns0 timeout $((t+1)) iperf3 -t $t -c $IP2 -u -b 2G > $TMPFILE &
+    ip netns exec ns0 timeout $((t+1)) iperf3 -t $t -c $IP2 -fm -u -b 2G > $TMPFILE &
 
     sleep 2
     pidof iperf3 &>/dev/null || err "iperf3 failed"
@@ -100,6 +100,7 @@ function run() {
 
     rate=`cat $TMPFILE | grep "receiver" | sed  "s/\[.*Bytes//" | sed "s/ Mbits.*//"`
     [ -z "$rate" ] && err "Missing rate" && return
+    rate=`bc <<< $rate*1000/1000`
     title "verify rate"
     verify_rate $rate $RATE
 }
