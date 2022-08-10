@@ -221,8 +221,9 @@ function __setup_common() {
     clear_warn_once
     kmemleak_scan_per_test && kmemleak_clear
     __set_testpmd
-    check_simx
     set_ovs_debug_logs
+    check_simx
+    simx_append_log "# TEST $TESTNAME #"
 }
 
 ovs_log_path="/var/log/openvswitch/ovs-vswitchd.log"
