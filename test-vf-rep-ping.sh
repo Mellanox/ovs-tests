@@ -43,39 +43,45 @@ ip netns exec ns0 ping -q -c 10 -i 0.2 -w 4 $IP1 && success || err
 
 
 function test_ping_flood() {
+    local count=$1
+    local size=$2
+    local timeout=15
+    local err=0
+
     TMP1=/tmp/ping1
     TMP2=/tmp/ping2
     TMP3=/tmp/ping3
-    COUNT=$1
-    TIMEOUT=10
-    size=$2
+
     title "Test ping flood $size"
+
     if [ -n "$size" ]; then
         size="-s $size"
     fi
-    ping $IP2 -f -c $COUNT $size -w $TIMEOUT > $TMP1 &
-    ping $IP2 -f -c $COUNT $size -w $TIMEOUT > $TMP2 &
-    ping $IP2 -f -c $COUNT $size -w $TIMEOUT > $TMP3 &
+    ping $IP2 -f -c $count $size -w $timeout > $TMP1 &
+    ping $IP2 -f -c $count $size -w $timeout > $TMP2 &
+    ping $IP2 -f -c $count $size -w $timeout > $TMP3 &
     wait
-    err=0
+
     for i in 1 2 3; do
-        count1=`egrep -o "[0-9]+ received" /tmp/ping$i | cut -d" " -f1`
-        if [ -z $count1 ]; then
+        recv=`egrep -o "[0-9]+ received" /tmp/ping$i | cut -d" " -f1`
+        if [ -z $recv ]; then
             err "ping$i: Cannot read ping output"
             err=1
-        elif [[ $count1 -ne $COUNT ]]; then
-            err "ping$i: Received $count1 packets, expected $COUNT"
+        elif [[ $recv -ne $count ]]; then
+            err "ping$i: Received $recv packets, expected $count"
             err=1
         fi
     done
+
+    rm -fr $TMP1 $TMP2 $TMP3
+
     if [[ $err == 0 ]]; then
         success
     fi
-    rm -fr $TMP1 $TMP2 $TMP3
 }
 
 test_ping_flood 10000
-test_ping_flood 1000 32768
+test_ping_flood 600 32768
 
 cleanup
 test_done
