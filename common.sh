@@ -1407,7 +1407,7 @@ function check_simx_errors() {
     local out=`sed -n "$linenum,$p" $log | uniq`
 
     local look="ERR-GENERAL|FATAL"
-    local filter="blabla"
+    local filter="\(MLX5_GET\(flow_table_entry_match_set_misc, misc_parameters_addr, outer_second_cvlan_tag\) != 0 <= ft_field_bitmask_support->outer_second_svlan\): \(0x00000001 <= 0x00000000\)"
 
     local a=`echo "$out" | grep -E "$look" | grep -v -E -i "$filter"`
     if [ "$a" != "" ]; then
