@@ -492,7 +492,7 @@ function require_min_kernel_5() {
 }
 
 function cloud_fw_reset() {
-    local ip=`hostname -i | tr " "  "\n" | grep -v : | tail -1`
+    local ip=`ip route get 1 | grep -o "src [0-9.]*" | awk {'print $2'}`
     disable_sriov
     unload_modules
     /workspace/cloud_tools/cloud_firmware_reset.sh -ips $ip || err "cloud_firmware_reset failed"
