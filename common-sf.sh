@@ -112,7 +112,7 @@ function create_sf() {
 function create_sfs() {
     local count=$1
     local pfnum=0
-    local i
+    local i netdev
 
     title "Create $count SFs"
 
@@ -134,7 +134,10 @@ function create_sfs() {
 
         [ "$sf_disable_netdev" != 1 ] && sleep 0.5
 
-        eval SF$i=`sf_get_netdev $i`
+        netdev=`sf_get_netdev $i`
+        [ -z "$netdev" ] && err "Failed to get sf netdev pfnum $pfnum sfnum $i" && break
+
+        eval SF$i=$netdev
         eval SF_REP$i=$rep
         eval SF_DEV$i=$sf_dev
     done
