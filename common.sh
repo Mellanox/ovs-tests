@@ -1398,6 +1398,24 @@ function check_kasan() {
     return 0
 }
 
+function check_simx_errors() {
+    local log=`simx_log`
+    [ ! -f $log ] && return
+    local linenum=`grep -n "# TEST $TESTNAME #" $log | tail -1 | cut -d: -f1`
+    [ -z "$linenum" ] && return
+    local p='$p'
+    local out=`sed -n "$linenum,$p" $log | uniq`
+
+    local look="ERR-GENERAL|FATAL"
+    local filter="blabla"
+
+    local a=`echo "$out" | grep -E "$look" | grep -v -E -i "$filter"`
+    if [ "$a" != "" ]; then
+        err "Detected errors in simx log"
+        echo "$a"
+    fi
+}
+
 __expected_error_msgs=""
 
 function add_expected_err_for_kernel_issue() {
@@ -1471,6 +1489,8 @@ kvm|pluto.* Warning: kernel has no audit support"
             rc=1
         fi
     fi
+
+    check_simx_errors
 
     return $rc
 }
