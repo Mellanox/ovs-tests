@@ -284,7 +284,7 @@ function set_trusted_vf_mode() {
     local nic=$1
     local pci=$(basename `readlink /sys/class/net/$nic/device`)
 
-    mlxreg -d $pci --reg_id 0xc007 --reg_len 0x40 --indexes "0x0.31:1=1" --yes --set "0x4.0:32=0x1"
+    mlxreg -d $pci --reg_id 0xc007 --reg_len 0x40 --indexes "0x0.31:1=1" --yes --set "0x4.0:32=0x1" || fail "Failed to set trusted vf mode"
 }
 
 function get_flow_steering_mode() {
