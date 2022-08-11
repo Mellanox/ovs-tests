@@ -858,7 +858,8 @@ def update_skip_according_to_db(rm, _tests, data):
                 elif 'reason' in i:
                     t.set_ignore(i['reason'])
                 else:
-                    t.set_ignore("Ignore combination %s" % i.values())
+                    tmp = ['%s=%s' % (k, i[k]) for k in i]
+                    t.set_ignore("Ignore %s" % ' '.join(tmp))
 
         if t.ignore or t.failed:
             continue
