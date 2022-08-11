@@ -688,10 +688,10 @@ def update_skip_according_to_db(rm, _tests, data):
         return
 
     def kernel_match(kernel1, kernel2):
-        if kernel1 in kernel2:
-            return True
         if kernel1 in custom_kernels:
             kernel1 = custom_kernels[kernel1]
+        if kernel1 in kernel2:
+            return True
         # regex issue with strings like "3.10-100+$" so use string compare for exact match.
         if (kernel1.strip('()') == kernel2 or re.search("^%s$" % kernel1, kernel2)):
             return True
