@@ -717,6 +717,9 @@ def update_skip_according_to_db(rm, _tests, data):
 
     custom_kernels = data.get('custom_kernels', {})
     print_newline = False
+    ignore_global = data.get('ignore', [])
+    if type(ignore_global) == dict:
+        ignore_global = [ignore_global]
 
     for t in _tests:
         name = t.name
@@ -817,6 +820,7 @@ def update_skip_according_to_db(rm, _tests, data):
         ignore = opts.get("ignore", [])
         if type(ignore) == dict:
             ignore = [ignore]
+        ignore.extend(ignore_global)
 
         for i in ignore:
             if 'rm' in i and 'reason' in i:
