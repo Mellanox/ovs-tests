@@ -32,7 +32,7 @@ function set_vf_rates_via_dev_vf() {
 
 function set_vf_rates_via_dev_pf() {
     title "Case 2: Set vf min_tx_rate & max_tx_rate via dev pf ($NIC)"
-    ip link set dev $NIC vf 0 min_tx_rate 3 max_tx_rate 7
+    ip link set dev $NIC vf 0 min_tx_rate 3 max_tx_rate 7 || err "Failed to set rate"
 
     echo "  - Verify"
     ip link show dev $NIC | grep "vf 0" | grep "max_tx_rate 7Mbps, min_tx_rate 3Mbps"
