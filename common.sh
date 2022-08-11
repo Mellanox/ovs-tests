@@ -1419,14 +1419,16 @@ assertion failed: inconsistent values for field 'ip_protocol|\
 assertion failed: ethertype \(0x0\) must be \(0x800\) or \(0x86dd\) to use 'ip_ttl_hoplimit'|\
 assertion failed: 'outer_second_svlan_tag' must be set to use 'outer_second_vid'"
 
+    if [ -n "$__expected_error_msgs" ]; then
+        filter+="$__expected_error_msgs"
+    fi
+
     local a=`echo "$out" | grep -E "$look" | grep -v -E -i "$filter"`
     if [ "$a" != "" ]; then
         err "Detected errors in simx log"
         echo "$a"
     fi
 }
-
-__expected_error_msgs=""
 
 function add_expected_err_for_kernel_issue() {
     local kernel=$1
@@ -1444,6 +1446,7 @@ function add_expected_err_for_kernel_issue() {
     fi
 }
 
+__expected_error_msgs=""
 function add_expected_error_msg() {
     local m=$1
     __expected_error_msgs+="|$m"
