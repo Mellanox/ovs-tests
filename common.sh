@@ -1411,7 +1411,8 @@ function check_simx_errors() {
 mlx5_cmdif_flow_table.c:.*:mlx5_flow_counter_esw_fdb_multiple_flows_usage_check: assertion failed: D0:P[0-9]:F0 flow index \(.*\) doesn't exist in table ID \(0x5\)|\
 mlx5_ft_checker.c:.*:mlx5_ft_checker_match_criteria_check_update_layer2_4: assertion failed: inconsistent values for field 'ip_version'|\
 mlx5_ft_checker.c:.*:mlx5_ft_checker_match_criteria_check_update_layer2_4: assertion failed: inconsistent values for field 'ip_protocol|\
-assertion failed: ethertype \(0x0\) must be \(0x800\) or \(0x86dd\) to use 'ip_ttl_hoplimit'"
+assertion failed: ethertype \(0x0\) must be \(0x800\) or \(0x86dd\) to use 'ip_ttl_hoplimit'|\
+mlx5_ft_checker_check_misc: assertion failed: 'outer_second_svlan_tag' must be set to use 'outer_second_vid'"
 
     local a=`echo "$out" | grep -E "$look" | grep -v -E -i "$filter"`
     if [ "$a" != "" ]; then
