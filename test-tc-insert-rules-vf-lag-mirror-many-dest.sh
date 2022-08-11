@@ -6,6 +6,8 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+require_module bonding
+
 function config_shared_block() {
     for i in bond0 $NIC $NIC2 ; do
         tc qdisc del dev $i ingress
@@ -19,16 +21,21 @@ function clean_shared_block() {
     done
 }
 
-disable_sriov_autoprobe
-config_sriov 16
-config_sriov 16 $NIC2
-enable_switchdev
-enable_switchdev $NIC2
-sleep 2
-config_bonding $NIC $NIC2
-config_shared_block
+function config() {
+    disable_sriov_autoprobe
+    config_sriov 16
+    config_sriov 16 $NIC2
+    enable_switchdev
+    enable_switchdev $NIC2
+    sleep 2
+    config_bonding $NIC $NIC2
+    config_shared_block
+}
 
 function cleanup() {
+    clear_bonding
+    config_sriov 2
+    config_sriov 0 $NIC2
     clean_shared_block
     restore_sriov_autoprobe
 }
@@ -53,11 +60,10 @@ function test_32_dest() {
     tc_filter del block 22 ingress
 }
 
+cleanup
+config
 test_32_dest
 check_kasan
-clear_bonding
-config_sriov 2
-config_sriov 0 $NIC2
 trap - EXIT
 cleanup
 test_done
