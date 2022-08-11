@@ -35,6 +35,7 @@ def parse_redmine_time(value):
 class MlxRedmine(object):
     def __init__(self):
         self.fail_all_calls = False
+        self.cache = {}
 
     def get_url(self, url, params=None):
         headers = {
@@ -45,6 +46,9 @@ class MlxRedmine(object):
     def get_issue(self, issue_id, retry=0):
         if self.fail_all_calls:
             raise ConnectionError("Redmine connection issue")
+
+        if issue_id in self.cache:
+            return self.cache[issue_id]
 
         loops = max(1, retry + 1)
 
@@ -60,6 +64,7 @@ class MlxRedmine(object):
 
         j = r.json()
         task = j['issue']
+        self.cache[issue_id] = task
         return task
 
     def is_issue_wont_fix_or_release_notes(self, task):
