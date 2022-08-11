@@ -1406,8 +1406,9 @@ function check_simx_errors() {
     local p='$p'
     local out=`sed -n "$linenum,$p" $log | uniq`
 
-    local look="ERR-GENERAL|FATAL"
-    local filter="\(MLX5_GET\(flow_table_entry_match_set_misc, misc_parameters_addr, outer_second_cvlan_tag\) != 0 <= ft_field_bitmask_support->outer_second_svlan\): \(0x00000001 <= 0x00000000\)"
+    local look="ERR|FATAL"
+    local filter="\(MLX5_GET\(flow_table_entry_match_set_misc, misc_parameters_addr, outer_second_cvlan_tag\) != 0 <= ft_field_bitmask_support->outer_second_svlan\): \(0x00000001 <= 0x00000000\)|\
+mlx5_cmdif_flow_table.c:.*:mlx5_flow_counter_esw_fdb_multiple_flows_usage_check: assertion failed: D0:P1:F0 flow index \(.*\) doesn't exist in table ID \(0x5\)"
 
     local a=`echo "$out" | grep -E "$look" | grep -v -E -i "$filter"`
     if [ "$a" != "" ]; then
