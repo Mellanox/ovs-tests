@@ -43,12 +43,12 @@ function check_bond_xmit_hash_policy() {
 }
 
 trap cleanup EXIT
-fw_ver_lt 33 1048 && set_lag_resource_allocation 1
+is_not_simx && fw_ver_lt 33 1048 && set_lag_resource_allocation 1
 
 config
 check_bond_xmit_hash_policy
 
-fw_ver_lt 33 1048 && set_lag_resource_allocation 0
+is_not_simx && fw_ver_lt 33 1048 && set_lag_resource_allocation 0
 trap - EXIT
 cleanup
 test_done

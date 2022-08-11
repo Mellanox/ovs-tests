@@ -158,6 +158,11 @@ function is_simx() {
     return 1
 }
 
+function is_not_simx() {
+    is_simx && return 1
+    return 0
+}
+
 function ofed_ver_lte() {
     local ver=$1
     if ! is_ofed ; then
