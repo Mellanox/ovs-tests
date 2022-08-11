@@ -909,7 +909,7 @@ def update_skip_according_to_db(rm, _tests, data):
                 days = rm.updated_days_ago(task)
                 tmp = "RM #%s: %s" % (bug, task['subject'])
                 if days > 60:
-                    tmp = "Open for %s days !!!! %s" % (days, tmp)
+                    tmp = "Open for %s days - %s" % (days, tmp)
                 t.set_skip(tmp)
                 break
             sys.stdout.write('.')
