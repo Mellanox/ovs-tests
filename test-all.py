@@ -838,7 +838,7 @@ def update_skip_according_to_db(rm, _tests, data):
                     if not flow_steering_mode or v == flow_steering_mode:
                         ignore_count+=1
                 elif k == 'kernel':
-                    if kernel_match(v, current_kernel):
+                    if kernel_match(str(v), current_kernel):
                         ignore_count+=1
                 elif k == 'rm':
                     ignore_count+=1
