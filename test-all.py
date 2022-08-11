@@ -1191,7 +1191,6 @@ def get_tests():
                 data = read_db(db)
                 if 'tests' in data:
                     _tests = load_tests_from_db(data)
-                    ignore_excluded(data.get('ignore', []))
                     update_skip_according_to_db(rm, _tests, data)
                     TESTS.extend(_tests)
             glob_tests(args.glob)
