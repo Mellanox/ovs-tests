@@ -523,7 +523,7 @@ def format_result(res, out='', html=False):
     }
     color = res_color.get(res, 'yellow')
     if "SHOW STOPPER" in res:
-        color = 'red'
+        color = 'yellow'
     if out and "TEST FAILED" not in out and "TEST PASSED" not in out:
         res += ' (%s)' % out
     return deco(res, color, html)
