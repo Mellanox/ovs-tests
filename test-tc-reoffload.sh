@@ -31,7 +31,7 @@ echo "setup"
 config_sriov 2 $NIC
 enable_switchdev
 config_sriov 2 $NIC2
-enable_switchdev
+enable_switchdev $NIC2
 
 require_interfaces NIC NIC2 REP REP2
 reset_tc $NIC
