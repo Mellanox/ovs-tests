@@ -241,8 +241,8 @@ function ipsec_cleanup_on_both_sides() {
 function ipsec_clear_mode_on_both_sides() {
     local local_dev=${1:-"$NIC"}
     local remote_dev=${2:-"$REMOTE_NIC"}
-    ipsec_set_mode none $nic
-    ipsec_set_mode_on_remote none $nic
+    ipsec_set_mode none $local_dev
+    ipsec_set_mode_on_remote none $remote_dev
 }
 
 function change_mtu_on_both_sides() {
