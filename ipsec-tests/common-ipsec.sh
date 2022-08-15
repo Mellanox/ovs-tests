@@ -271,6 +271,8 @@ function kill_iperf() {
 function ipsec_set_mode() {
     local mode=$1
     local nic=${2:-"$NIC"}
+    # this old mlnx ofed compat
+    [ ! -f /sys/class/net/$nic/compat/devlink/ipsec_mode ] && return
     local old=`cat /sys/class/net/$nic/compat/devlink/ipsec_mode`
     [ "$old" == "$mode" ] && return
     enable_legacy
@@ -282,11 +284,6 @@ function ipsec_set_mode_on_remote() {
     local mode=$1
     local nic=${2:-"$NIC"}
     on_remote_exec "ipsec_set_mode $mode $nic"
-}
-
-function ipsec_get_mode() {
-    local nic=${1:-"NIC"}
-    cat /sys/class/net/$nic/compat/devlink/ipsec_mode
 }
 
 function ipsec_set_trusted_vfs() {
