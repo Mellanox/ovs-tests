@@ -233,8 +233,6 @@ function cleanup_crypto() {
         remote_nic="$VF"
     fi
 
-    ip address flush $nic
-    on_remote ip address flush $remote_nic
     ipsec_cleanup_on_both_sides
     kill_iperf
     change_mtu_on_both_sides $mtu $nic $remote_nic
