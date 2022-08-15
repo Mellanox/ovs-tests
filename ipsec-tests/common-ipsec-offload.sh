@@ -237,6 +237,8 @@ function cleanup_crypto() {
     ipsec_clear_mode_on_both_sides
     kill_iperf
     change_mtu_on_both_sides $mtu $nic $remote_nic
+    enable_switchdev
+    on_remote_exec enable_switchdev
     rm -f $IPERF_FILE $TCPDUMP_FILE
 }
 
