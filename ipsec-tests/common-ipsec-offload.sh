@@ -241,9 +241,7 @@ function cleanup_crypto() {
 }
 
 function cleanup_full() {
-    local mtu=${1:-1500}
-    local trusted_vfs=${2:-"no_trusted_vfs"}
-    cleanup_crypto $mtu $trusted_vfs
+    cleanup_crypto $@
 }
 
 # Usage <mtu> <ip_proto> <ipsec_mode> <net_proto> [trusted_vfs]
