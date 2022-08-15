@@ -304,7 +304,6 @@ function ipsec_set_trusted_vfs_on_remote() {
                     config_sriov
                     enable_legacy
                     unbind_vfs
-                    title "Set vf trusted mode on remote"
                     set_trusted_vf_mode $REMOTE_NIC
                     bind_vfs
                     reset_tc $VF"
