@@ -271,6 +271,8 @@ function kill_iperf() {
 function ipsec_set_mode() {
     local mode=$1
     local nic=${2:-"$NIC"}
+    local old=`cat /sys/class/net/$nic/compat/devlink/ipsec_mode`
+    [ "$old" == "$mode" ] && return
     enable_legacy
     echo $mode > /sys/class/net/$nic/compat/devlink/ipsec_mode || err "Failed to set ipsec mode $mode"
     switch_mode_switchdev
