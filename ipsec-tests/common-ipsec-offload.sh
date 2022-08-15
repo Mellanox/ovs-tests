@@ -234,6 +234,7 @@ function cleanup_crypto() {
     fi
 
     ipsec_cleanup_on_both_sides
+    ipsec_clear_mode_on_both_sides
     kill_iperf
     change_mtu_on_both_sides $mtu $nic $remote_nic
     rm -f $IPERF_FILE $TCPDUMP_FILE
@@ -243,7 +244,6 @@ function cleanup_full() {
     local mtu=${1:-1500}
     local trusted_vfs=${2:-"no_trusted_vfs"}
     cleanup_crypto $mtu $trusted_vfs
-    ipsec_clear_mode_on_both_sides
 }
 
 # Usage <mtu> <ip_proto> <ipsec_mode> <net_proto> [trusted_vfs]
