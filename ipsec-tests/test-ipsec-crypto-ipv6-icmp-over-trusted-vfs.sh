@@ -22,8 +22,7 @@ function run_test() {
 }
 
 trap cleanup EXIT
-ipsec_set_trusted_vfs
-ipsec_set_trusted_vfs_on_remote
+ipsec_set_trusted_vfs_on_both_sides
 run_test
 trap - EXIT
 cleanup
