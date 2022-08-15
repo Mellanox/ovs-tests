@@ -17,19 +17,21 @@ disable_sriov_autoprobe
 config_sriov 0 $NIC
 config_sriov 0 $NIC2
 
-exp=4
+reps_per_port=2
+let exp=reps_per_port+1
 # newer kernels have phys_switch_id readable also when sriov is disabled or in legacy
 if cat /sys/class/net/$NIC2/phys_switch_id &>/dev/null ; then
     let exp+=1
 fi
 
-title "Config 3 VFs on $NIC"
-config_reps 3 $NIC
+title "Config $reps_per_port VFs on $NIC"
+config_reps $reps_per_port $NIC
 count_reps $exp $NIC
 
-title "Config 3 VFs on $NIC2"
-config_reps 3 $NIC2
-count_reps 8 $NIC
+title "Config $reps_per_port VFs on $NIC2"
+config_reps $reps_per_port $NIC2
+let exp=reps_per_port*2+2
+count_reps $exp $NIC
 
 echo "Cleanup"
 config_sriov 0 $NIC2
