@@ -11,12 +11,12 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
-function config(){
+function config() {
     ipsec_set_mode full
     ipsec_set_mode_on_remote full
 }
 
-function cleanup(){
+function cleanup() {
     cleanup_full
 }
 

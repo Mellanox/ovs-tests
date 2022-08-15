@@ -11,7 +11,7 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
-function cleanup(){
+function cleanup() {
     cleanup_crypto
 }
 

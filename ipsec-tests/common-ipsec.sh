@@ -287,7 +287,7 @@ function ipsec_get_mode() {
     cat /sys/class/net/$nic/compat/devlink/ipsec_mode
 }
 
-function ipsec_set_trusted_vfs(){
+function ipsec_set_trusted_vfs() {
     require_mlxreg
     config_sriov
     enable_legacy
@@ -299,7 +299,7 @@ function ipsec_set_trusted_vfs(){
     TRUSTED_VFS="trusted_vfs"
 }
 
-function ipsec_set_trusted_vfs_on_remote(){
+function ipsec_set_trusted_vfs_on_remote() {
     on_remote_exec "require_mlxreg
                     config_sriov
                     enable_legacy
@@ -311,20 +311,20 @@ function ipsec_set_trusted_vfs_on_remote(){
     TRUSTED_VFS="trusted_vfs"
 }
 
-function ipsec_cleanup_trusted_vfs(){
+function ipsec_cleanup_trusted_vfs() {
     reload_modules
 }
 
-function ipsec_cleanup_trusted_vfs_on_remote(){
+function ipsec_cleanup_trusted_vfs_on_remote() {
     on_remote_exec "ipsec_cleanup_trusted_vfs"
 }
 
-function ipsec_set_trusted_vfs_on_both_sides(){
+function ipsec_set_trusted_vfs_on_both_sides() {
     ipsec_set_trusted_vfs
     ipsec_set_trusted_vfs_on_remote
 }
 
-function ipsec_cleanup_trusted_vfs_on_both_sides(){
+function ipsec_cleanup_trusted_vfs_on_both_sides() {
     ipsec_cleanup_trusted_vfs
     ipsec_cleanup_trusted_vfs_on_remote
 }
