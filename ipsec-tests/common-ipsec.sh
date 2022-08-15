@@ -296,17 +296,12 @@ function ipsec_set_trusted_vfs() {
     set_trusted_vf_mode $NIC
     bind_vfs
     reset_tc $VF
+    fail_if_err
     TRUSTED_VFS="trusted_vfs"
 }
 
 function ipsec_set_trusted_vfs_on_remote() {
-    on_remote_exec "require_mlxreg
-                    config_sriov
-                    enable_legacy
-                    unbind_vfs
-                    set_trusted_vf_mode $REMOTE_NIC
-                    bind_vfs
-                    reset_tc $VF"
+    on_remote_exec ipsec_set_trusted_vfs || fail "Remove config trusted_vfs failed"
     TRUSTED_VFS="trusted_vfs"
 }
 
