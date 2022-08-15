@@ -12,10 +12,9 @@ my_dir="$(dirname "$0")"
 require_remote_server
 
 function cleanup() {
-    cleanup_crypto 1500 over_trusted_vfs
+    cleanup_crypto 1500 trusted_vfs
     ipsec_cleanup_trusted_vfs_on_both_sides
 }
-
 
 function run_test() {
     run_test_ipsec_offload 1500 ipv6 transport tcp trusted_vfs
