@@ -221,38 +221,45 @@ function __start_tcpdump_local() {
     local rep=$1
     local tcpdump_filter=$2
     local non_offloaded_packets=$3
-
-    local tdpid=
     local bf_traffic=${TRAFFIC_INFO['bf_traffic']}
+
     if [[ -z "$bf_traffic" ]]; then
         local dump="/tmp/tcpdump-$rep-${tcpdump_filter// /_}"
         rm -f "$dump"
-        tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets -w "$dump" >/dev/null &
+        timeout -k1 $traffic_timeout tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets -w "$dump" >/dev/null &
         tdpid=$!
     else
-        tdpid=$(on_bf "nohup tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets >/dev/null 2>/tmp/tcpdump-$rep-stderr & echo \$!")
+        tdpid=$(on_bf "nohup timeout -k1 $traffic_timeout tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets >/dev/null 2>/tmp/tcpdump-$rep-stderr & echo \$!")
     fi
-
-    echo $tdpid
 }
 
 function __start_tcpdump() {
     local rep=$1
     local tcpdump_filter=$2
     local non_offloaded_packets=$3
-
-    local tdpid=
     local local_traffic=${TRAFFIC_INFO['local_traffic']}
     local bf_traffic=${TRAFFIC_INFO['bf_traffic']}
-    if [[ -n "$local_traffic" ]]; then
-        tdpid=$(__start_tcpdump_local $rep "$tcpdump_filter" $non_offloaded_packets)
-    elif [[ -z "$bf_traffic" ]]; then
-        tdpid=$(on_remote "nohup tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets >/dev/null 2>/tmp/tcpdump-$rep-stderr & echo \$!")
-    else
-        tdpid=$(on_remote_bf "nohup tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets >/dev/null 2>/tmp/tcpdump-$rep-stderr & echo \$!")
-    fi
 
-    echo $tdpid
+    if [[ -n "$local_traffic" ]]; then
+        __start_tcpdump_local $rep "$tcpdump_filter" $non_offloaded_packets
+    elif [[ -z "$bf_traffic" ]]; then
+        tdpid=$(on_remote "nohup timeout -k1 $traffic_timeout tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets >/dev/null 2>/tmp/tcpdump-$rep-stderr & echo \$!")
+    else
+        tdpid=$(on_remote_bf "nohup timeout -k1 $traffic_timeout tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets >/dev/null 2>/tmp/tcpdump-$rep-stderr & echo \$!")
+    fi
+}
+
+function __verify_tcpdump() {
+    local pid=$1
+    wait $pid
+    local rc=$?
+    if [ $rc == 124 ]; then
+        success
+    elif [ $rc == 0 ]; then
+        err "Failed offload"
+    else
+        err "tcpdump rc $rc"
+    fi
 }
 
 function __verify_tcpdump_offload_local() {
@@ -260,11 +267,10 @@ function __verify_tcpdump_offload_local() {
     local bf_traffic=${TRAFFIC_INFO['bf_traffic']}
 
     if [[ -z "$bf_traffic" ]]; then
-        [[ -d /proc/$tdpid ]] && success || err "tcpdump is not running"
-        kill $tdpid && wait $tdpid &>/dev/null
+        __verify_tcpdump $tdpid
     else
         on_bf "[[ -d /proc/$tdpid ]]" && success || err "tcpdump is not running"
-        on_bf "kill $tdpid && wait $tdpid" &>/dev/null
+        on_bf "kill $tdpid && sleep 1 && kill -9 $tdpid &>/dev/null"
     fi
 }
 
@@ -347,12 +353,16 @@ function check_traffic_offload() {
 
     if [[ -n $client_verify_offload ]]; then
         echo "Start sender tcpdump"
-        local tdpid=$(__start_tcpdump_local $client_rep "$tcpdump_filter" $non_offloaded_packets)
+        __start_tcpdump_local $client_rep "$tcpdump_filter" $non_offloaded_packets
+        tdpid=$tdpid
     fi
 
     if [[ -n $server_verify_offload ]]; then
         echo "Start receiver tcpdump"
-        local tdpid_receiver=$(__start_tcpdump $server_rep "$tcpdump_filter" $non_offloaded_packets)
+        tmp=$tdpid
+        __start_tcpdump $server_rep "$tcpdump_filter" $non_offloaded_packets
+        tdpid_receiver=$tdpid
+        tdpid=$tmp
     fi
 
     if [[ -n $client_rule_fields ]]; then
