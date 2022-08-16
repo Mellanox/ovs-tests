@@ -100,4 +100,6 @@ function run() {
 
 
 run
+trap - EXIT
+cleanup
 test_done
