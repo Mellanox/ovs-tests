@@ -2257,6 +2257,7 @@ function __test_help() {
     echo
     echo "KMEMLEAK_SCAN_PER_TEST=1      - Do kmemleak scan per test."
     echo "RELOAD_DRIVER_PER_TEST=1      - Reload driver at the end of the test."
+    echo "USE_OPENIBD=1                 - Use openibd service script (i.e. MLNX OFED) to reload modules. default=1"
     echo "FREEZE_ON_ERROR=1             - Pause test on each error."
     echo "ENABLE_OVS_DEBUG=1            - Set ovs debug level."
     echo "CLEAR_OVS_LOG=1               - Clear ovs log at the start of the test."
