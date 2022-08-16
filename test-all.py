@@ -526,6 +526,8 @@ def format_result(res, out='', html=False):
 
     if "SKIP SHOW STOPPER" in res:
         color = 'yellow'
+    elif "IGNORED SHOW STOPPER" in res:
+        color = 'gray'
     elif "FAILED SHOW STOPPER" in res:
         color = 'red'
 
