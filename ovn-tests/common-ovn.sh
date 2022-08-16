@@ -222,14 +222,15 @@ function __start_tcpdump_local() {
     local tcpdump_filter=$2
     local non_offloaded_packets=$3
     local bf_traffic=${TRAFFIC_INFO['bf_traffic']}
+    local dump="/tmp/tcpdump-$rep-${tcpdump_filter// /_}"
 
     if [[ -z "$bf_traffic" ]]; then
-        local dump="/tmp/tcpdump-$rep-${tcpdump_filter// /_}"
         rm -f "$dump"
         timeout -k1 $traffic_timeout tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets -w "$dump" >/dev/null &
         tdpid=$!
     else
-        tdpid=$(on_bf "nohup timeout -k1 $traffic_timeout tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets >/dev/null 2>/tmp/tcpdump-$rep-stderr & echo \$!")
+        on_bf "rm -f $dump ; timeout -k1 $traffic_timeout tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets -w $dump >/dev/null" &
+        tdpid=$!
     fi
 }
 
@@ -239,13 +240,16 @@ function __start_tcpdump() {
     local non_offloaded_packets=$3
     local local_traffic=${TRAFFIC_INFO['local_traffic']}
     local bf_traffic=${TRAFFIC_INFO['bf_traffic']}
+    local dump="/tmp/tcpdump-$rep-${tcpdump_filter// /_}"
 
     if [[ -n "$local_traffic" ]]; then
         __start_tcpdump_local $rep "$tcpdump_filter" $non_offloaded_packets
     elif [[ -z "$bf_traffic" ]]; then
-        tdpid=$(on_remote "nohup timeout -k1 $traffic_timeout tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets >/dev/null 2>/tmp/tcpdump-$rep-stderr & echo \$!")
+        on_remote "rm -f $dump ; timeout -k1 $traffic_timeout tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets -w $dump >/dev/null" &
+        tdpid=$!
     else
-        tdpid=$(on_remote_bf "nohup timeout -k1 $traffic_timeout tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets >/dev/null 2>/tmp/tcpdump-$rep-stderr & echo \$!")
+        on_remote_bf "rm -f $dump ; timeout -k1 $traffic_timeout tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets -w $dump >/dev/null" &
+        tdpid=$!
     fi
 }
 
@@ -266,29 +270,17 @@ function __verify_tcpdump_offload_local() {
     local tdpid=$1
     local bf_traffic=${TRAFFIC_INFO['bf_traffic']}
 
-    if [[ -z "$bf_traffic" ]]; then
-        __verify_tcpdump $tdpid
-    else
-        on_bf "[[ -d /proc/$tdpid ]]" && success || err "tcpdump is not running"
-        on_bf "kill $tdpid && sleep 1 && kill -9 $tdpid &>/dev/null"
-    fi
+    # tdpid is always local.
+    __verify_tcpdump $tdpid
 }
 
 function __verify_tcpdump_offload() {
     local tdpid=$1
-
     local local_traffic=${TRAFFIC_INFO['local_traffic']}
     local bf_traffic=${TRAFFIC_INFO['bf_traffic']}
 
-    if [[ -n "$local_traffic" ]]; then
-        __verify_tcpdump_offload_local $tdpid
-    elif [[ -z "$bf_traffic" ]]; then
-        on_remote "[[ -d /proc/$tdpid ]]" && success || err "tcpdump is not running"
-        on_remote "killall -q tcpdump"
-    else
-        on_remote_bf "[[ -d /proc/$tdpid ]]" && success || err "tcpdump is not running"
-        on_remote_bf "killall -q tcpdump"
-    fi
+    # doesn't matter if local, bf, remote. because tdpid is always local.
+    __verify_tcpdump_offload_local $tdpid
 }
 
 function check_traffic_offload() {
