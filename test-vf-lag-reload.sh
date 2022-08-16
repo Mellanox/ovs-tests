@@ -43,6 +43,7 @@ cleanup
 config
 fail_if_err
 reload_modules
+trap - exit
 cleanup
 config_sriov
 test_done
