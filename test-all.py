@@ -778,12 +778,9 @@ def update_skip_according_to_db(rm, _tests, data):
         else:
             min_kernel = opts.get('min_kernel', None)
 
-        kernels = opts.get('kernels', [])
-        if kernels and not min_kernel:
-            raise RuntimeError("%s: Specifying kernels without min_kernel is not allowed." % name)
-
         if min_kernel:
             # dont match min_kernel with custom_kernels list.
+            kernels = []
             kernels += custom_kernels.values()
             ok = False
             for kernel in kernels:
