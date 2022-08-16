@@ -7,6 +7,9 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+# [MLNX OFED] BugSW #2854057: [ASAP, OFED 5.5] driver reloading with bonding configured fails due to module mlx5_core is in use
+USE_OPENIBD=0
+
 require_module bonding
 require_interfaces NIC NIC2
 
