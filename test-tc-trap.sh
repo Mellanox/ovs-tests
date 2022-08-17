@@ -69,7 +69,7 @@ function test_trap() {
     tc_filter add dev $REP protocol ip prio 1 root flower skip_sw src_ip 7.7.7.7 action trap
 
     rm -f /tmp/_xx
-    timeout 4 tcpdump -nni $REP src 7.7.7.7 -w /tmp/_xx &
+    timeout 5 tcpdump -nni $REP src 7.7.7.7 -w /tmp/_xx &
     pid=$!
     sleep 1
     ip netns exec ns1 ping -c 3 -w 4 7.7.7.7
