@@ -76,16 +76,9 @@ function config_remote() {
                ip l set dev $in_vlan_dev up"
 }
 
-function add_openflow_rules() {
-#    ovs-ofctl del-flows br-ovs
-#    ovs-ofctl add-flow br-ovs arp,actions=normal
-#    ovs-ofctl add-flow br-ovs icmp,actions=normal
-    ovs-ofctl dump-flows br-ovs --color
-}
-
 function check_offloaded_rules() {
     local count=$1
-    title " - check for $count offloaded rules"
+    title "Check for $count offloaded rules"
     RES="ovs_dump_tc_flows | grep 0x0800 | grep -v drop"
     eval $RES
     RES=`eval $RES | wc -l`
@@ -95,20 +88,15 @@ function check_offloaded_rules() {
 function run() {
     config
     config_remote
-    add_openflow_rules
 
-    # icmp
-    ip netns exec ns0 ping  -c 30 $REMOTE &
-
+    title "Start ping"
+    ip netns exec ns0 ping -w 7 -q -c 5 $REMOTE &
     sleep 1
-
-    ip netns exec ns0 ping  -c 30 $REMOTE2 &
-
+    ip netns exec ns0 ping -w 7 -q -c 5 $REMOTE2 &
     sleep 3
 
     check_offloaded_rules 4
 
-    killall -9 -q ping
     echo "wait for bgs"
     wait
 }
