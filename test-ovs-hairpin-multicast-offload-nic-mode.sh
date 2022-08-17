@@ -30,6 +30,7 @@ function remote_cleanup() {
 
 function cleanup() {
    ovs_clear_bridges
+   reset_tc $NIC $NIC2
    config_sriov 2 $NIC
    enable_switchdev
    remote_cleanup
