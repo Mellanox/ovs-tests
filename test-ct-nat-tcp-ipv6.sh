@@ -89,6 +89,10 @@ function run() {
 
     t=15
     echo "run traffic for $t seconds"
+
+    ip netns exec ns1 timeout $t tcpdump -qnnei $VF2 -c 10 'tcp' &
+    tpid1=$!
+
     ip netns exec ns1 timeout $((t+7)) iperf -s --ipv6_domain &
     sleep 1
     ip netns exec ns0 timeout $((t+2)) iperf --ipv6_domain -t $t -c $IP3 -P 1 -i 1 &
@@ -99,7 +103,7 @@ function run() {
     echo "sniff packets on $REP"
     # first 4 packets not offloaded until conn is in established state.
     timeout $((t-4)) tcpdump -qnnei $REP -c 10 'tcp' &
-    pid=$!
+    tpid2=$!
 
     sleep 4
     pkts1=`get_pkts`
@@ -108,22 +112,16 @@ function run() {
     killall -9 iperf &>/dev/null
     wait $! 2>/dev/null
 
+    title "verify traffic started"
+    verify_have_traffic $tpid1
+    title "verify traffic offloaded"
+    verify_no_traffic $tpid2
+
     title "verify tc stats"
     pkts2=`get_pkts`
     let a=pkts2-pkts1
     if (( a < 100 )); then
         err "TC stats are not updated"
-    fi
-
-    title "verify traffic offloaded"
-    wait $pid
-    rc=$?
-    if [[ $rc -eq 124 ]]; then
-        :
-    elif [[ $rc -eq 0 ]]; then
-        err "Didn't expect to see packets"
-    else
-        err "Tcpdump failed"
     fi
 
     reset_tc $REP
