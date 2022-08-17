@@ -439,11 +439,7 @@ function remote_disable_sriov() {
     local nic1=$REMOTE_NIC
     local nic2=$REMOTE_NIC2
     echo "Disabling sriov in remote server"
-    local cmd="echo 0 > /sys/class/net/$nic1/device/sriov_numvfs"
-    if [ -n "$nic2" ]; then
-        cmd+="; echo 0 > /sys/class/net/$nic2/device/sriov_numvfs"
-    fi
-    on_remote "$cmd" &>/dev/null
+    on_remote_exec disable_sriov
 }
 
 function config_remote_bonding() {
