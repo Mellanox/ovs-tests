@@ -35,6 +35,11 @@ function get_pkts() {
     tc -j -p -s  filter show dev $NIC protocol ip ingress | jq '.[] | select(.options.keys.ct_state == "+trk+est") | .options.actions[0].stats.packets' || 0
 }
 
+function get_hw_pkts() {
+    tc -j -p -s  filter show dev $NIC protocol ip ingress | jq '.[] | select(.options.keys.ct_state == "+trk+est") | .options.actions[0].stats.hw_packets' || 0
+}
+
+
 function add_ct_rules() {
     echo "add ct rules"
 
@@ -130,11 +135,17 @@ function run() {
 
     title "verify tc stats"
     pkts2=`get_pkts`
+    hw_pkts2=`get_hw_pkts`
     let a=pkts2-pkts1
-    echo "pkts $a"
+    let b=hw_pkts2-hw_pkts1
+    echo "TC total pkts $a"
+    echo "TC hw pkts $b"
     if (( a < 50 )); then
         err "TC stats are not updated"
+    elif (( b < 50 )); then
+        err "TC HW stats are not updated"
     fi
+
 
     reset_tc $NIC $NIC2
     # wait for traces as merging & offloading is done in workqueue.
