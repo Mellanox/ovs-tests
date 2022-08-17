@@ -30,9 +30,9 @@ bind_vfs
 
 
 function cleanup_remote() {
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip l del dev $in_vlan_dev &>/dev/null
-    on_remote ip l del dev $out_vlan_dev &>/dev/null
+    on_remote "ip a flush dev $REMOTE_NIC
+               ip l del dev $in_vlan_dev &>/dev/null
+               ip l del dev $out_vlan_dev &>/dev/null"
 }
 
 function cleanup() {
