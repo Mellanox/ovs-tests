@@ -2,7 +2,7 @@
 #
 # Test OVS with vlan traffic and qinq traffic at the same time
 #
-# Bug SW #2599393: Failed to pass offload on server side - packet count is 0 over QinQ
+# BugSW #2599393: Failed to pass offload on server side - packet count is 0 over QinQ
 #
 # Require external server
 #
