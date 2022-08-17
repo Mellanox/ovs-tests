@@ -19,10 +19,10 @@ my_dir="$(dirname "$0")"
 # It is eth1 on Host 1 in the diagram of
 #   http://docs.openvswitch.org/en/latest/_images/sflow.png
 #
-SFLOW_AGENT=${SFLOW_AGENT:-$1}
+SFLOW_AGENT=lo
 
 # IP address of eth0 on Monitoring Host
-SFLOW_TARGET=${REMOTE_SERVER:-$2}
+SFLOW_TARGET=127.0.0.1
 
 # default port number
 SFLOW_PORT=6343
@@ -79,7 +79,7 @@ function run() {
     local t=10
     interval=$1
 
-    ssh2 $SFLOW_TARGET timeout $((t+2)) sflowtool -p $SFLOW_PORT \
+    timeout $((t+2)) sflowtool -p $SFLOW_PORT \
         -L localtime,srcIP,dstIP > $file&
     sleep 1
 
