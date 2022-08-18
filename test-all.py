@@ -1322,8 +1322,8 @@ def __run_test(test):
     name = deco(test.name, 'cyan')
     name += deco(test.tag, TAG_COLOR)
     name_stripped = escape_ansi(name)
-    space = len(name) - len(name_stripped)
-    __col1 = name.ljust(COL_TEST_NAME, ' ') + ' ' * space
+    space = COL_TEST_NAME - len(name_stripped)
+    __col1 = name + ' ' * space
     print(__col1, end=' ')
 
     if args.loops > 1:
