@@ -1364,6 +1364,8 @@ def __run_test(test):
 
     test.run_time = total_seconds
     total_seconds = "%-7s" % total_seconds
+    if test.run_time > 300:
+        total_seconds = deco(total_seconds, 'yellow')
     print("%s " % total_seconds, end=' ')
 
     if (test.name in MINI_REG_LIST) and (test.skip or test.ignore or test.failed):
