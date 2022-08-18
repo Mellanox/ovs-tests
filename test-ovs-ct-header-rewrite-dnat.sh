@@ -54,6 +54,8 @@ function config_ovs() {
     ovs-vsctl add-br br-ovs
     ovs-vsctl add-port br-ovs $REP
     ovs-vsctl add-port br-ovs $NIC
+    ip link set dev $REP up
+    ip link set dev $NIC up
 
     ovs-ofctl add-flow br-ovs "table=0, in_port=$REP, dl_type=0x0806, nw_dst=$ROUTE_IP, actions=load:0x2->NXM_OF_ARP_OP[], move:NXM_OF_ETH_SRC[]->NXM_OF_ETH_DST[], mod_dl_src=${MAC_ROUTE}, move:NXM_NX_ARP_SHA[]->NXM_NX_ARP_THA[], move:NXM_OF_ARP_SPA[]->NXM_OF_ARP_TPA[], load:0x248a07ad7799->NXM_NX_ARP_SHA[], load:0xc0a80001->NXM_OF_ARP_SPA[], in_port"
     ovs-ofctl add-flow br-ovs "table=0, in_port=$NIC, dl_type=0x0806, nw_dst=$DNAT_IP, actions=load:0x2->NXM_OF_ARP_OP[], move:NXM_OF_ETH_SRC[]->NXM_OF_ETH_DST[], mod_dl_src:${MAC_ROUTE}, move:NXM_NX_ARP_SHA[]->NXM_NX_ARP_THA[], move:NXM_OF_ARP_SPA[]->NXM_OF_ARP_TPA[], load:0x248a07ad7799->NXM_NX_ARP_SHA[], load:0x08090a01->NXM_OF_ARP_SPA[], in_port"
@@ -68,7 +70,7 @@ function config() {
     config_vf ns0 $VF $REP $VF_IP
     ip netns exec ns0 ip route add 8.9.10.0/24 via $ROUTE_IP dev $VF
 
-    on_remote "ifconfig $REMOTE_NIC $REMOTE_IP/24"
+    on_remote "ifconfig $REMOTE_NIC $REMOTE_IP/24 up"
 }
 
 function verify_dump() {
