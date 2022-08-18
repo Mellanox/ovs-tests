@@ -141,7 +141,9 @@ MINI_REG_LIST = []
 IGNORE_LIST = []
 TEST_TIMEOUT_MAX = 1200
 KMEMLEAK_SYSFS = "/sys/kernel/debug/kmemleak"
+TAG_COLOR = "yellow"
 RERUN_TAG = "*rerun"
+INJECT_TAG = "*inject"
 
 TIME_DURATION_UNITS = (
     ('h', 60*60),
@@ -261,6 +263,7 @@ class Test(object):
         self.set_logs()
         self.iteration = 0
         self.opts = opts or {}
+        self.tag = ''
 
     def set_logs(self, post=0):
         post_log = '.log' if not post else '.%s.log' % post
@@ -494,10 +497,11 @@ def run_test(test, html=False):
 
 
 def deco(line, color, html=False):
+    if not line or not color:
+        return line
     if html:
         return "<span style='color: %s'>%s</span>" % (color, line)
-    else:
-        return "\033[%dm%s\033[0m" % (COLOURS[color], line)
+    return "\033[%dm%s\033[0m" % (COLOURS[color], line)
 
 
 def strip_color(line):
@@ -1303,6 +1307,11 @@ def pre_quick_status_updates():
         test.status = format_result(res, reason, html=True)
 
 
+def escape_ansi(line):
+    ansi_escape = re.compile(r'(?:\x1B[@-_]|[\x80-\x9F])[0-?]*[ -/]*[@-~]')
+    return ansi_escape.sub('', line)
+
+
 def __run_test(test):
     failed = False
     res = ''
@@ -1310,13 +1319,12 @@ def __run_test(test):
     logname = ''
     total_seconds = 0.0
 
-    name = test.name
-    if args.loops == 1 and test.iteration > 0:
-        # rerun
-        name += RERUN_TAG
-
-    __col1 = name.ljust(COL_TEST_NAME, ' ')
-    print(deco(__col1, 'cyan'), end=' ')
+    name = deco(test.name, 'cyan')
+    name += deco(test.tag, TAG_COLOR)
+    name_stripped = escape_ansi(name)
+    space = len(name) - len(name_stripped)
+    __col1 = name.ljust(COL_TEST_NAME, ' ') + ' ' * space
+    print(__col1, end=' ')
 
     if args.loops > 1:
         print("%-5s" % str(test.iteration+1), end=' ')
@@ -1422,11 +1430,13 @@ def run_tests(iteration):
         if inject_test and not (test.skip or test.ignore) and \
            inject_test.name != test.name:
             test = copy_test(inject_test, 0)
+            test.tag = INJECT_TAG
             __run_test(test)
 
         if test_failed and args.rerun_failed:
             test = copy_test(test, 1)
             rerun_tests.append(test)
+            test.tag = RERUN_TAG
             __run_test(test)
 
         if args.stop and failed:
