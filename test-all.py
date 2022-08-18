@@ -845,25 +845,25 @@ def update_skip_according_to_db(rm, _tests, data):
                 v = i[k]
                 if k == 'nic':
                     if v == current_nic:
-                        ignore_count+=1
-                elif k =='fw':
+                        ignore_count += 1
+                elif k == 'fw':
                     if simx_mode:
                         continue
                     if not current_fw_ver or re.search("^%s$" % v, current_fw_ver):
-                        ignore_count+=1
+                        ignore_count += 1
                 elif k == 'steering':
                     if not flow_steering_mode or v == flow_steering_mode:
-                        ignore_count+=1
+                        ignore_count += 1
                 elif k == 'kernel':
                     if kernel_match(str(v), current_kernel):
-                        ignore_count+=1
+                        ignore_count += 1
                 elif k == 'rm':
-                    ignore_count+=1
+                    ignore_count += 1
                 elif k == 'reason':
-                    ignore_count+=1
+                    ignore_count += 1
                 elif k == 'simx':
                     if (simx_mode and v) or (not simx_mode and not v):
-                        ignore_count+=1
+                        ignore_count += 1
                 else:
                     t.set_failed("Invalid ignore key: %s=%s" % (k, v))
                     break
@@ -1423,9 +1423,9 @@ def run_tests(iteration):
         failed = failed or test_failed
 
         if inject_test and not (test.skip or test.ignore) and \
-            inject_test.name != test.name:
-                test = copy_test(inject_test, 0)
-                __run_test(test)
+           inject_test.name != test.name:
+            test = copy_test(inject_test, 0)
+            __run_test(test)
 
         if test_failed and args.rerun_failed:
             test = copy_test(test, 1)
