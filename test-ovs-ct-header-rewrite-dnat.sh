@@ -106,6 +106,7 @@ function run_ovs() {
     title "Verify actions"
     echo $ovs_actions
     verify_dump $ovs_actions
+    ip netns exec ns0 pkill iperf
 }
 
 function run_ovs_offload() {
@@ -128,6 +129,7 @@ function run_ovs_offload() {
     title "Verify actions"
     echo $tc_actions
     verify_dump $tc_actions
+    ip netns exec ns0 pkill iperf
 }
 
 config
