@@ -222,6 +222,23 @@ function test_tx_off_rx_off() {
     fi
 }
 
+function cleanup_test() {
+    local mtu=${1:-1500}
+    local trusted_vfs=${2:-"no_trusted_vfs"}
+    local nic="$NIC"
+    local remote_nic="$REMOTE_NIC"
+
+    if [[ "$trusted_vfs" == "trusted_vfs" ]]; then
+        nic="$VF"
+        remote_nic="$VF"
+    fi
+
+    kill_iperf
+    ipsec_cleanup_on_both_sides
+    change_mtu_on_both_sides $mtu $nic $remote_nic
+    rm -f $IPERF_FILE $TCPDUMP_FILE
+}
+
 function cleanup_crypto() {
     local mtu=${1:-1500}
     local trusted_vfs=${2:-"no_trusted_vfs"}
@@ -233,13 +250,10 @@ function cleanup_crypto() {
         remote_nic="$VF"
     fi
 
-    ipsec_cleanup_on_both_sides
+    cleanup_test
     ipsec_clear_mode_on_both_sides
-    kill_iperf
-    change_mtu_on_both_sides $mtu $nic $remote_nic
     enable_switchdev
     on_remote_exec enable_switchdev
-    rm -f $IPERF_FILE $TCPDUMP_FILE
 }
 
 function cleanup_full() {
@@ -265,13 +279,16 @@ function run_test_ipsec_offload() {
     for len in 128 256; do
         title "test $ipsec_mode $ip_proto over $net_proto with key length $len MTU $mtu with $trusted_vfs"
 
-        cleanup_crypto $mtu $trusted_vfs
+        cleanup_test $mtu $trusted_vfs
         test_tx_off_rx $ipsec_mode $len $ip_proto $net_proto $trusted_vfs $offload_type
-        cleanup_crypto $mtu $trusted_vfs
+
+        cleanup_test $mtu $trusted_vfs
         test_tx_rx_off $ipsec_mode $len $ip_proto $net_proto $trusted_vfs $offload_type
-        cleanup_crypto $mtu $trusted_vfs
+
+        cleanup_test $mtu $trusted_vfs
         test_tx_off_rx_off $ipsec_mode $len $ip_proto $net_proto $trusted_vfs $offload_type
-        cleanup_crypto $mtu $trusted_vfs
+
+        cleanup_test $mtu $trusted_vfs
     done
 }
 

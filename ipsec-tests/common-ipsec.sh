@@ -218,14 +218,14 @@ function ipsec_config_on_both_sides() {
     ipsec_config_remote $IPSEC_MODE $KEY_LEN $IP_PROTO $SHOULD_OFFLOAD $TRUSTED_VFS
 }
 
-function ipsec_cleanup_local() {
+function ipsec_flush_local() {
     local dev=${1:-"$NIC"}
     ip xfrm state flush
     ip xfrm policy flush
     ip address flush $dev
 }
 
-function ipsec_cleanup_remote() {
+function ipsec_flush_remote() {
     local dev=${1:-"$NIC"}
     on_remote "ip xfrm state flush
                ip xfrm policy flush
@@ -234,8 +234,8 @@ function ipsec_cleanup_remote() {
 
 function ipsec_cleanup_on_both_sides() {
     local dev=${1:-"$NIC"}
-    ipsec_cleanup_local $dev
-    ipsec_cleanup_remote $dev
+    ipsec_flush_local $dev
+    ipsec_flush_remote $dev
 }
 
 function ipsec_clear_mode_on_both_sides() {
