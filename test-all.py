@@ -1459,9 +1459,9 @@ def calc_test_col_len():
     for t in TESTS:
         if len(t.name) > ln:
             ln = len(t.name) + rerun_tag_len
-    ln += 2
-    COL_TEST_NAME = ln
-    return ln
+    if args.inject_test and len(args.inject_test) > ln:
+        ln = len(args.inject_test) + rerun_tag_len
+    COL_TEST_NAME = ln + 2
 
 
 def main():
