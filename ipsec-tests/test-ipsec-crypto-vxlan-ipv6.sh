@@ -31,12 +31,9 @@ function config() {
 }
 
 function cleanup() {
-    kill_iperf
-    ipsec_cleanup_on_both_sides
+    cleanup_test
     ip link del dev vx0 2> /dev/null
     on_remote "ip link del dev vx0 2> /dev/null"
-    change_mtu_on_both_sides 1500
-    rm -f $TCPDUMP_FILE
 }
 
 function run_test() {

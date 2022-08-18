@@ -10,9 +10,7 @@ my_dir="$(dirname "$0")"
 require_remote_server
 
 function cleanup() {
-    ipsec_cleanup_on_both_sides
-    kill_iperf
-    change_mtu_on_both_sides 1500
+    cleanup_test
     rm -f /tmp/offload_results.txt /tmp/results.txt
 }
 

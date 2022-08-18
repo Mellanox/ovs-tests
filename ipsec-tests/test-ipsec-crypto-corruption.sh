@@ -13,13 +13,11 @@ PCAP_FILE="/tmp/corruption-test-pkts.pcap"
 
 
 function config() {
-    ipsec_cleanup_on_both_sides
     ipsec_config_on_both_sides transport 128 ipv4 offload
 }
 
 function cleanup() {
-    ipsec_cleanup_on_both_sides
-    kill_iperf
+    cleanup_test
     rm -f $PCAP_FILE
 }
 

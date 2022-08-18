@@ -17,10 +17,7 @@ function config() {
 }
 
 function cleanup() {
-    ipsec_cleanup_on_both_sides
-    kill_iperf
-    change_mtu_on_both_sides 1500
-    rm -f $TCPDUMP_FILE
+    cleanup_test
 }
 
 function run_test() {
