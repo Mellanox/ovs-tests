@@ -226,10 +226,10 @@ function __start_tcpdump_local() {
 
     if [[ -z "$bf_traffic" ]]; then
         rm -f "$dump"
-        timeout -k1 $traffic_timeout tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets -w "$dump" >/dev/null &
+        timeout -k3 $traffic_timeout tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets -w "$dump" >/dev/null &
         tdpid=$!
     else
-        on_bf "rm -f $dump ; timeout -k1 $traffic_timeout tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets -w $dump >/dev/null" &
+        on_bf "rm -f $dump ; timeout -k3 $traffic_timeout tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets -w $dump >/dev/null" &
         tdpid=$!
     fi
 }
@@ -245,10 +245,10 @@ function __start_tcpdump() {
     if [[ -n "$local_traffic" ]]; then
         __start_tcpdump_local $rep "$tcpdump_filter" $non_offloaded_packets
     elif [[ -z "$bf_traffic" ]]; then
-        on_remote "rm -f $dump ; timeout -k1 $traffic_timeout tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets -w $dump >/dev/null" &
+        on_remote "rm -f $dump ; timeout -k3 $traffic_timeout tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets -w $dump >/dev/null" &
         tdpid=$!
     else
-        on_remote_bf "rm -f $dump ; timeout -k1 $traffic_timeout tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets -w $dump >/dev/null" &
+        on_remote_bf "rm -f $dump ; timeout -k3 $traffic_timeout tcpdump -Unnepi $rep $tcpdump_filter -c $non_offloaded_packets -w $dump >/dev/null" &
         tdpid=$!
     fi
 }
