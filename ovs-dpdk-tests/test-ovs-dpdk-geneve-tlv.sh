@@ -69,8 +69,6 @@ function run() {
 
     generate_traffic "remote" $LOCAL_IP
 
-    # check offloads
-    check_dpdk_offloads $LOCAL_IP
     on_remote ip l del vm &> /dev/null
 }
 

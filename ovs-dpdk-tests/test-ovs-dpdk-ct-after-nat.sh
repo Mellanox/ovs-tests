@@ -29,7 +29,6 @@ function run() {
     ovs_add_ct_after_nat_rules br-phy $LOCAL_IP $DUMMY_IP rep1 rep0
     verify_ping
     generate_traffic local $DUMMY_IP ns1
-    check_dpdk_offloads $LOCAL_IP
 }
 
 run

@@ -51,9 +51,6 @@ function run() {
     verify_ping $LOCAL_IP ns1
 
     generate_traffic "local" $LOCAL_IP ns1
-
-    # check offloads
-    check_dpdk_offloads $LOCAL_IP
 }
 
 run

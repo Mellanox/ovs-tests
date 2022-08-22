@@ -33,8 +33,6 @@ ovs-ofctl add-flow br-phy ip,actions=dec_ttl,normal
 verify_ping
 generate_traffic "remote" $LOCAL_IP
 
-# check offloads
-check_dpdk_offloads $LOCAL_IP
 check_offload_contains "ttl=63" 2
 
 start_clean_openvswitch

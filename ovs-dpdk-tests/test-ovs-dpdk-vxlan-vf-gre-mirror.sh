@@ -41,8 +41,5 @@ verify_ping
 
 generate_traffic "remote" $LOCAL_IP
 
-# check offloads
-check_dpdk_offloads $LOCAL_IP
-
 start_clean_openvswitch
 test_done

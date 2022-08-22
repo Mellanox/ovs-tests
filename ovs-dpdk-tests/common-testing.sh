@@ -5,7 +5,7 @@ p_server=/tmp/perf_server
 p_client=/tmp/perf_client
 p_ping=/tmp/ping_out
 p_scapy=/tmp/tcpdump
-
+num_connections=5
 iperf_cmd=iperf3
 if [ "$USE_IPERF2" == 1 ]; then
    iperf_cmd=iperf
@@ -305,7 +305,7 @@ function verify_iperf_running()
     local num_proc=$(eval $proc_cmd)
     if [[  $num_proc < 1 ]] ; then
        err "no iperf process on $remote"
-       kill_iperf
+       stop_traffic
        return 1
     fi
 }
@@ -314,13 +314,23 @@ function generate_traffic() {
     local remote=$1
     local my_ip=$2
     local namespace=$3
-    local num_connections=5
+
+    initiate_traffic $remote $my_ip $namespace
+    validate_offload
+    validate_actual_traffic
+    stop_traffic
+}
+
+function initiate_traffic() {
+    local remote=$1
+    local my_ip=$2
+    local namespace=$3
 
     local server_dst_execution="ip netns exec ns0"
     local client_dst_execution="ip netns exec $namespace"
 
     if [ -z "$remote" ] || [ -z "$my_ip" ]; then
-        fail "Missing arguments for generate_traffic()"
+        fail "Missing arguments for initiate_traffic()"
         return 1
     fi
     if [ "${VDPA}" == "1" ]; then
@@ -332,7 +342,7 @@ function generate_traffic() {
 
     local t=5
 
-    local sleep_time=$((t+2))
+    sleep_time=$((t+2))
     if [ "$USE_IPERF2" == "1" ]; then
         sleep_time=$((t+4))
     fi
@@ -374,7 +384,7 @@ function generate_traffic() {
     kill -0 $pid2 &>/dev/null
     if [ $? -ne 0 ]; then
        err "$iperf_cmd failed"
-       kill_iperf
+       stop_traffic
        return 1
     fi
 
@@ -382,12 +392,21 @@ function generate_traffic() {
     if [ "$remote" == "remote" ]; then
         verify_iperf_running $remote
     fi
+}
+
+function validate_offload ()
+{
 
     if echo $TESTNAME | grep -q -- "-ct-" ; then
         check_offloaded_connections $num_connections
     fi
+
     sleep $sleep_time
 
+    check_dpdk_offloads $LOCAL_IP
+}
+
+function validate_actual_traffic () {
     if [ "${VDPA}" == "1" ]; then
         scp root@${NESTED_VM_IP1}:${p_server} $p_server &> /dev/null
         if [ -n "$namespace"  ]; then
@@ -410,7 +429,6 @@ function generate_traffic() {
     fi
 
     validate_traffic 1
-    kill_iperf
 }
 
 function validate_traffic() {
@@ -429,7 +447,7 @@ function validate_traffic() {
     fi
 }
 
-function kill_iperf() {
+function stop_traffic() {
    local dst_execution=""
 
    if [ "${VDPA}" == "1" ]; then

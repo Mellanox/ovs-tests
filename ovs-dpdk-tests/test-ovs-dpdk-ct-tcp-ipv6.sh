@@ -8,7 +8,7 @@ my_dir="$(dirname "$0")"
 . $my_dir/common-dpdk.sh
 
 
-IP="2001:db8:0:f101::1"
+LOCAL_IP="2001:db8:0:f101::1"
 IP2="2001:db8:0:f101::2"
 IPV41="8.8.8.1"
 IPV42="8.8.8.2"
@@ -25,7 +25,7 @@ function config() {
     config_simple_bridge_with_rep 2
     start_vdpa_vm
     start_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
-    config_ns ns0 $VF $IPV41 $IP
+    config_ns ns0 $VF $IPV41 $LOCAL_IP
     config_ns ns1 $VF2 $IPV42 $IP2
     # Need to sleep 3 seconds at least for ipv6 address to be added
     sleep 3
@@ -35,11 +35,10 @@ function run() {
     config
     ovs_add_ct_rules br-phy ip6
     title "Sending icmp"
-    verify_ping $IP ns1
+    verify_ping $LOCAL_IP ns1
     # traffic
     title "Sending traffic"
-    generate_traffic "local" $IP ns1
-    check_dpdk_offloads $IP2
+    generate_traffic "local" $LOCAL_IP ns1
 }
 
 run

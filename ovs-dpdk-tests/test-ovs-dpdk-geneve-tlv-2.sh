@@ -40,8 +40,6 @@ function run() {
     verify_ping
 
     generate_traffic "remote" $LOCAL_IP ns0
-    # check offloads
-    check_dpdk_offloads $LOCAL_IP
 }
 
 run

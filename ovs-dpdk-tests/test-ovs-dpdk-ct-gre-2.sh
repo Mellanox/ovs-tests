@@ -26,10 +26,6 @@ verify_ping
 
 generate_traffic "remote" $LOCAL_IP ns0
 
-# check offloads
-check_dpdk_offloads $LOCAL_IP
-
-
 cleanup_test
 remote_ovs_cleanup
 test_done

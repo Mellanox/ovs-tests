@@ -23,8 +23,6 @@ config_2_side_tunnel gre
 verify_ping
 generate_traffic "remote" $LOCAL_IP ns0
 
-check_dpdk_offloads $LOCAL_IP
-
 cleanup_test
 remote_ovs_cleanup
 
