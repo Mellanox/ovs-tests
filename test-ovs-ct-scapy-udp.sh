@@ -13,6 +13,7 @@ require_module act_ct
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
+config_sriov 2
 enable_switchdev
 require_interfaces REP REP2
 unbind_vfs

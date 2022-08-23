@@ -26,6 +26,7 @@ function set_ct_aging() {
 
 
 test_ct_aging
+config_sriov 2
 enable_switchdev
 require_interfaces REP REP2
 unbind_vfs
