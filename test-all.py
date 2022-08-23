@@ -172,6 +172,7 @@ class DeviceType(object):
     CX6_LX = "0x101f"
     CX7 = "0x1021"
     BF2 = "0xa2d6"
+    BF3 = "0xa2dc"
     devices = {
         CX4_LX:    "cx4lx",
         CX5_PCI_3: "cx5",
@@ -181,6 +182,7 @@ class DeviceType(object):
         CX6_LX:    "cx6lx",
         CX7:       "cx7",
         BF2:       "bf2",
+        BF3:       "bf3",
     }
 
     @staticmethod
@@ -199,6 +201,8 @@ class DeviceType(object):
     def __normalize(nic):
         if nic == 'bf2':
             return 'cx6dx'
+        elif nic == 'bf3':
+            return 'cx7'
         return nic
 
     @staticmethod
