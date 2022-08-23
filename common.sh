@@ -138,6 +138,9 @@ function __get_device_name() {
     if [[ "$tmp" == *"BlueField-2"* ]]; then
         device_name="BlueField-2"
         short_device_name="bf2"
+    elif [[ "$tmp" == *"BlueField-3"* ]]; then
+        device_name="BlueField-3"
+        short_device_name="bf3"
     elif [ -n "$tmp" ]; then
         device_name=$tmp
         short_device_name=`echo $device_name | tr "[:upper:]" "[:lower:]" | sed -e 's/connectx-/cx/' -e 's/ //g'`
