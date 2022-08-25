@@ -6,6 +6,11 @@ p_client=/tmp/perf_client
 p_ping=/tmp/ping_out
 p_scapy=/tmp/tcpdump
 
+iperf_cmd=iperf3
+if [ "$USE_IPERF2" == 1 ]; then
+   iperf_cmd=iperf
+fi
+
 function ovs_add_ct_after_nat_rules(){
     local bridge=$1
     local ip=$2
@@ -289,7 +294,7 @@ function verify_ping() {
 function verify_iperf_running()
 {
     local remote=${1:-"local"}
-    local proc_cmd="ps -efww | grep iperf3 | grep -v grep | wc -l"
+    local proc_cmd="ps -efww | grep iperf | grep -v grep | wc -l"
 
     if [ "$remote" == "remote" ]; then
        proc_cmd="on_remote $proc_cmd"
@@ -299,7 +304,7 @@ function verify_iperf_running()
 
     local num_proc=$(eval $proc_cmd)
     if [[  $num_proc < 1 ]] ; then
-       err "no iperf3 process on $remote"
+       err "no iperf process on $remote"
        kill_iperf
        return 1
     fi
@@ -324,11 +329,24 @@ function generate_traffic() {
         client_dst_execution="on_vm2"
         on_vm2 rm -rf $p_client
     fi
+
     local t=5
+
+    local sleep_time=$((t+2))
+    if [ "$USE_IPERF2" == "1" ]; then
+        sleep_time=$((t+4))
+    fi
 
     # server
     rm -rf $p_server
-    local server_cmd="${server_dst_execution} timeout $((t+2)) iperf3 -f Mbits -s -D --logfile $p_server"
+    local server_cmd="${server_dst_execution} timeout $sleep_time $iperf_cmd -f Mbits -s"
+
+    if [ "$USE_IPERF2" == "1" ]; then
+        server_cmd+=" -t $((sleep_time-1)) > $p_server 2>&1 &"
+    else
+        server_cmd+=" -D --logfile $p_server"
+    fi
+
     debug "Executing | $server_cmd"
     eval $server_cmd
     sleep 2
@@ -337,7 +355,8 @@ function generate_traffic() {
 
     # client
     rm -rf $p_client
-    local cmd="iperf3 -f Mbits -c $my_ip -t $t -P $num_connections &> $p_client"
+    local cmd="$iperf_cmd -f Mbits -c $my_ip -t $t -P $num_connections &> $p_client"
+
     if [ -n "$namespace" ]; then
         cmd="${client_dst_execution} $cmd"
     fi
@@ -354,7 +373,7 @@ function generate_traffic() {
     sleep 1
     kill -0 $pid2 &>/dev/null
     if [ $? -ne 0 ]; then
-       err "iperf3 failed"
+       err "$iperf_cmd failed"
        kill_iperf
        return 1
     fi
@@ -367,7 +386,7 @@ function generate_traffic() {
     if echo $TESTNAME | grep -q -- "-ct-" ; then
         check_offloaded_connections $num_connections
     fi
-    sleep $((t+1))
+    sleep $sleep_time
 
     if [ "${VDPA}" == "1" ]; then
         scp root@${NESTED_VM_IP1}:${p_server} $p_server &> /dev/null
@@ -397,8 +416,8 @@ function generate_traffic() {
 function validate_traffic() {
     local min_traffic=$1
 
-    local server_traffic=$(cat $p_server | grep "SUM" | grep "MBytes/sec" | awk '{print $6}' | head -1)
-    local client_traffic=$(cat $p_client | grep "SUM" | grep "MBytes/sec" | awk '{print $6}' | head -1)
+    local server_traffic=$(cat $p_server | grep SUM | grep -o "[0-9.]* MBytes/sec" | cut -d " " -f 1 | head -1)
+    local client_traffic=$(cat $p_client | grep SUM | grep -o "[0-9.]* MBytes/sec" | cut -d " " -f 1 | head -1)
 
     debug "validate traffic server: $server_traffic , client: $client_traffic"
     if [[ -z $server_traffic || $server_traffic < $1 ]]; then
@@ -416,11 +435,11 @@ function kill_iperf() {
    if [ "${VDPA}" == "1" ]; then
       dst_execution="on_vm1 "
    fi
-   local cmd="${dst_execution}killall -9 iperf3"
+   local cmd="${dst_execution}killall -9 $iperf_cmd"
    debug "Executing | $cmd"
    eval $cmd
-   debug "Executing | on_remote killall -9 iperf3"
-   on_remote killall -9 iperf3
+   debug "Executing | on_remote killall -9 $iperf_cmd"
+   on_remote killall -9 $iperf_cmd
    sleep 1
 }
 
