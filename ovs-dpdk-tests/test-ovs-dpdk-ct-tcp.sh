@@ -59,5 +59,8 @@ function run() {
 }
 
 run
+
+check_counters
+
 start_clean_openvswitch
 test_done
