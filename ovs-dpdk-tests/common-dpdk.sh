@@ -389,3 +389,17 @@ function enable_ct_ct_nat_offload {
 function cleanup_ct_ct_nat_offload {
     ovs-vsctl remove open_vswitch . other_config ct-action-on-nat-conns
 }
+
+function check_counters {
+    check_tcp_sequence
+}
+
+function check_tcp_sequence {
+    local cmd="ovs-appctl coverage/read-counter conntrack_tcp_seq_chk_failed"
+    local val=$(eval $cmd)
+
+    if [ $val -ne 0 ]; then
+       err "$cmd value $val is greater than zero"
+    fi
+}
+
