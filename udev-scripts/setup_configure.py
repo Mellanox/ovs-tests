@@ -34,6 +34,11 @@ def runcmd_output(cmd):
     return check_output(cmd, shell=True).decode()
 
 
+def runcmd_output_remote(ip, cmd):
+    ssh_config = '-q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=3'
+    return runcmd_output(f'ssh {ssh_config} {ip} "{cmd}"')
+
+
 def start_kmemleak():
     """Make sure kmemleak thread is running if supported. ignore errors."""
     if os.path.exists('/sys/kernel/debug/kmemleak'):
@@ -135,6 +140,7 @@ class SetupConfigure(object):
                     self.args.bluefield = False
 
             if self.args.bluefield:
+                self.read_cloud_player_bf_ips()
                 self.Configure_BF_OVS()
             else:
                 self.ConfigureSteeringMode()
@@ -434,10 +440,10 @@ class SetupConfigure(object):
 
     def Configure_BF_OVS(self):
         self.Logger.info("Setting [hw-offload=true] configuration to BF OVS")
-        bf_ip, _ = self.get_cloud_player_bf_ips()
-        runcmd_output('ssh %s "systemctl restart openvswitch-switch && '
-                      'ovs-vsctl set Open_vSwitch . other_config:hw-offload=true && '
-                      'systemctl restart openvswitch-switch"' % bf_ip)
+        runcmd_output_remote(self.bf_ip,
+                             "systemctl restart openvswitch-switch &&"
+                             "ovs-vsctl set Open_vSwitch . other_config:hw-offload=true &&"
+                             "systemctl restart openvswitch-switch")
 
     def BindVFs(self):
         for VFInfo in chain.from_iterable(map(lambda PFInfo: PFInfo['vfs'], self.host.PNics)):
@@ -553,7 +559,7 @@ class SetupConfigure(object):
 
         return cloud_player_ip
 
-    def get_cloud_player_bf_ips(self):
+    def read_cloud_player_bf_ips(self):
         cloud_player_1_ip = ''
         cloud_player_1_bf_ip = ''
         cloud_player_2_bf_ip = ''
@@ -570,9 +576,12 @@ class SetupConfigure(object):
             raise RuntimeError('Failed to read cloud_tools/.setup_info')
 
         if cloud_player_1_ip == self.host.name:
-            return cloud_player_1_bf_ip, cloud_player_2_bf_ip
+            self.bf_ip = cloud_player_1_bf_ip
+            self.bf_ip2 = cloud_player_2_bf_ip
+            return
 
-        return cloud_player_2_bf_ip, cloud_player_1_bf_ip
+        self.bf_ip = cloud_player_2_bf_ip
+        self.bf_ip2 = cloud_player_1_bf_ip
 
     def CreateConfFile(self):
         conf = 'PATH="%s:$PATH"' % self.MLNXToolsPath
@@ -630,7 +639,7 @@ class SetupConfigure(object):
             conf += '\nBF_NIC=%s' % "enp3s0f0np0"
             conf += '\nBF_NIC2=%s' % "enp3s0f0np1"
             conf += '\nBF_HOST_NIC=%s' % "eth0"
-            conf += '\nBF_IP=%s\nREMOTE_BF_IP=%s' % self.get_cloud_player_bf_ips()
+            conf += '\nBF_IP=%s\nREMOTE_BF_IP=%s' % (self.bf_ip, self.bf_ip2)
 
         self.Logger.info("Create config file %s" % self.config_file)
         with open(self.config_file, 'w+') as f:
