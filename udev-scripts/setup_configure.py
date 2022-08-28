@@ -49,6 +49,22 @@ def start_kmemleak():
         print("kmemleak not supported")
 
 
+def is_pf(phys_port_name):
+    return re.match(r'^p\d+$', phys_port_name) is not None
+
+
+def is_vf_rep(phys_port_name):
+    return re.match(r'^pf\d+vf\d+$', phys_port_name) is not None
+
+
+def is_pf_rep(phys_port_name):
+    return re.match(r'^pf\d+$', phys_port_name) is not None
+
+
+def get_pf_index(phys_port_name):
+    return int(re.search(r'pf(\d+)', phys_port_name).group(1))
+
+
 class Host(object):
     def __init__(self, name):
         self.name = name
@@ -141,6 +157,7 @@ class SetupConfigure(object):
 
             if self.args.bluefield:
                 self.read_cloud_player_bf_ips()
+                self.Load_BF_Info()
                 self.Configure_BF_OVS()
             else:
                 self.ConfigureSteeringMode()
@@ -163,6 +180,44 @@ class SetupConfigure(object):
             return 1
 
         return 0
+
+    def get_bf_nics(self):
+        nets = runcmd_output_remote(self.bf_ip, '/opt/mellanox/iproute2/sbin/ip -d -j -p l')
+        return json.loads(nets)
+
+    def Load_BF_Info(self):
+        self.Logger.info("Loading BF info")
+        self.arm = []
+        vfs_reps = []
+        pfs_reps = []
+
+        for net in self.get_bf_nics():
+            phys_port_name = net.get('phys_port_name', '')
+
+            if is_pf(phys_port_name) and 'phys_switch_id' in net:
+                net.update({'vfs_reps': [],
+                            'pf_rep': {}})
+                self.arm.append (net)
+
+            elif is_vf_rep(phys_port_name):
+                vfs_reps.append(net)
+            elif is_pf_rep(phys_port_name):
+                pfs_reps.append(net)
+
+        for vf_rep in vfs_reps:
+            pf_index = get_pf_index(vf_rep['phys_port_name'])
+
+            if self.arm[pf_index]['phys_switch_id'] == vf_rep['phys_switch_id']:
+                self.arm[pf_index]['vfs_reps'].append(vf_rep)
+
+        for pf_rep in pfs_reps:
+            pf_index = get_pf_index(pf_rep['phys_port_name'])
+
+            if self.arm[pf_index]['phys_switch_id'] == pf_rep['phys_switch_id']:
+                if self.arm[pf_index]['pf_rep']:
+                    raise RuntimeError("There should be only one PF rep for each host PF")
+
+                self.arm[pf_index]['pf_rep'] = pf_rep
 
     def WA_add_del_ns(self):
         self.Logger.info("WA add/del ns0 to reproduce possible circular locking dependency.")
@@ -592,8 +647,8 @@ class SetupConfigure(object):
         rep2 = nic1['vfs'][1]['rep']
 
         if self.args.bluefield:
-            rep = "eth2"
-            rep2 = "eth3"
+            rep = self.arm[0]['vfs_reps'][0]['ifname']
+            rep2 = self.arm[0]['vfs_reps'][1]['ifname']
 
         if not rep or not rep2:
             raise RuntimeError('Cannot find representors')
@@ -637,9 +692,10 @@ class SetupConfigure(object):
             conf += '\nDPDK=1'
 
         if self.args.bluefield:
-            conf += '\nBF_NIC=%s' % "enp3s0f0np0"
-            conf += '\nBF_NIC2=%s' % "enp3s0f0np1"
-            conf += '\nBF_HOST_NIC=%s' % "eth0"
+            conf += '\nBF_NIC=%s' % self.arm[0]['ifname']
+            conf += '\nBF_NIC2=%s' % self.arm[1]['ifname']
+            conf += '\nBF_HOST_NIC=%s' % self.arm[0]['pf_rep']['ifname']
+            conf += '\nBF_HOST_NIC2=%s' % self.arm[1]['pf_rep']['ifname']
             conf += '\nBF_IP=%s\nREMOTE_BF_IP=%s' % (self.bf_ip, self.bf_ip2)
 
         self.Logger.info("Create config file %s" % self.config_file)
