@@ -337,7 +337,7 @@ function check_traffic_offload() {
     local vf_tx_pkts2=`get_tx_pkts_ns $client_ns $client_vf`
     let tx_diff=vf_tx_pkts2-vf_tx_pkts
     local expected=10
-    if [[ $tx_diff -gt $expected ]]; then
+    if [[ $tx_diff -ge $expected ]]; then
         success
     else
         err "Counter diff $tx_diff < $expected"
