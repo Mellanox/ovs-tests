@@ -443,7 +443,8 @@ class SetupConfigure(object):
         runcmd_output_remote(self.bf_ip,
                              "systemctl restart openvswitch-switch &&"
                              "ovs-vsctl set Open_vSwitch . other_config:hw-offload=true &&"
-                             "systemctl restart openvswitch-switch")
+                             "systemctl restart openvswitch-switch &&"
+                             "ovs-vsctl list-br | xargs -r -L 1 ovs-vsctl del-br")
 
     def BindVFs(self):
         for VFInfo in chain.from_iterable(map(lambda PFInfo: PFInfo['vfs'], self.host.PNics)):
