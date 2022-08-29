@@ -52,7 +52,7 @@ reload_modules_result=$?
 [ -e /sys/class/net/$REP ] && reset_tc $REP
 
 if [ $reload_modules_result != 0 ]; then
-  load_modules
+  reload_modules
 fi
 
 config_sriov

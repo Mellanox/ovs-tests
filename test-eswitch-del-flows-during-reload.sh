@@ -64,7 +64,7 @@ del_rules
 sleep 5
 wait $reload_modules_pid
 if [ $? != 0 ]; then
-  load_modules
+  reload_modules
 fi
 [ -e /sys/class/net/$rep ] && reset_tc $rep
 
