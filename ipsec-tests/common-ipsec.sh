@@ -6,12 +6,6 @@ function require_ip_xfrm() {
     ip xfrm state &>/dev/null || fail "ipsec is not supported"
 }
 
-function require_ipsec_mode() {
-    if [ ! -f "/sys/class/net/$NIC/compat/devlink/ipsec_mode" ]; then
-        fail "Unsupported Kernel for IPsec full offload"
-    fi
-}
-
 require_cmd xxd
 require_ip_xfrm
 
