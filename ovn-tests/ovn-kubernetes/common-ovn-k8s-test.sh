@@ -2,6 +2,17 @@ OVN_K8S_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
 . $OVN_K8S_DIR/../common-ovn-test.sh
 . $OVN_K8S_DIR/common-ovn-k8s.sh
 
+function k8s_start_ovn_crtl() {
+    local central_ip=$1
+    local ctrl_ip=$2
+
+    ovn_set_ovs_config $central_ip $ctrl_ip
+    ovn_start_ovn_controller
+
+    #WA sleep after starting ovn, because rules need time until they are ready
+    sleep 2
+}
+
 function config_ovn_k8s_pf() {
     local ovn_central_ip=$1
     local ovn_controller_ip=$2
@@ -28,8 +39,7 @@ function config_ovn_k8s_pf_ext_server() {
     ip link set $NIC addr $ovn_controller_mac
     ip addr add $ovn_controller_ip/$ovn_controller_ip_mask dev $BRIDGE
 
-    ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
-    ovn_start_ovn_controller
+    k8s_start_ovn_crtl $ovn_central_ip $ovn_controller_ip
 }
 
 function config_ovn_k8s_pf_vlan() {
@@ -53,8 +63,7 @@ function config_ovn_k8s_pf_vlan() {
     ip addr add $ovn_controller_ip/$ovn_controller_ip_mask dev $BRIDGE
     ip addr add $ovn_tunnel_ip/24 dev $OVN_VLAN_INTERFACE
 
-    ovn_set_ovs_config $ovn_central_ip $ovn_tunnel_ip
-    ovn_start_ovn_controller
+    k8s_start_ovn_crtl $ovn_central_ip $ovn_tunnel_ip
 }
 
 function config_ovn_k8s_vf_lag() {
@@ -75,8 +84,7 @@ function config_ovn_k8s_vf_lag() {
     ip link set $OVN_BOND addr $ovn_controller_mac
     ip addr add $ovn_controller_ip/$ovn_controller_ip_mask dev $BRIDGE
 
-    ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
-    ovn_start_ovn_controller
+    k8s_start_ovn_crtl $ovn_central_ip $ovn_controller_ip
 }
 
 function config_ovn_k8s_hairpin() {
@@ -115,6 +123,5 @@ function config_ovn_k8s_vf_lag_vlan() {
     ip addr add $ovn_controller_ip/$ovn_controller_ip_mask dev $BRIDGE
     ip addr add $ovn_tunnel_ip/24 dev $OVN_VLAN_INTERFACE
 
-    ovn_set_ovs_config $ovn_central_ip $ovn_tunnel_ip
-    ovn_start_ovn_controller
+    k8s_start_ovn_crtl $ovn_central_ip $ovn_tunnel_ip
 }
