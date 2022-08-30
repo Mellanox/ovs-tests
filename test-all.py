@@ -1337,9 +1337,8 @@ def __run_test(test):
 
     if not test.exists():
         failed = True
-        test.set_failed()
         res = 'FAILED'
-        reason = 'Cannot find test'
+        test.set_failed('Cannot find test')
     elif test.ignore:
         res = 'IGNORED'
         reason = test.reason
