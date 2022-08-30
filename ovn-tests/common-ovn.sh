@@ -261,6 +261,8 @@ function __verify_tcpdump() {
         success
     elif [ $rc == 0 ]; then
         err "Failed offload"
+    elif [ $rc == 137 ]; then
+        warn "tcpdump terminated rc $rc"
     else
         err "tcpdump rc $rc"
     fi
