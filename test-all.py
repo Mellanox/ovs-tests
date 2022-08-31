@@ -255,6 +255,14 @@ class Test(object):
         self._name = os.path.basename(test_file)
         self._relpath = MYDIR
         self._relname = os.path.relpath(test_file, self._relpath)
+        self.init_state()
+        self.issues = []
+        self.set_logs()
+        self.iteration = 0
+        self.opts = opts or {}
+        self.tag = ''
+
+    def init_state(self):
         self._passed = False
         self._failed = False
         self._skip = False
@@ -263,11 +271,6 @@ class Test(object):
         self._reason = ''
         self.run_time = 0.0
         self.status = "DIDN'T RUN"
-        self.issues = []
-        self.set_logs()
-        self.iteration = 0
-        self.opts = opts or {}
-        self.tag = ''
 
     def set_logs(self, post=0):
         post_log = '.log' if not post else '.%s.log' % post
@@ -1383,8 +1386,8 @@ def __run_test(test):
 def copy_test(test, iteration):
     test = copy(test)
     test.iteration = iteration
+    test.init_state()
     test.set_logs(test.iteration)
-    test.status = 'UNKNOWN'
     return test
 
 
