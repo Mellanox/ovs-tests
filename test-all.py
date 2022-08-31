@@ -1165,6 +1165,7 @@ def load_tests_from_db(data):
     for test in tests:
         if not test.exists():
             warn("Cannot find test %s" % test.name)
+            test.set_failed("Cannot find test load")
     return tests
 
 
@@ -1301,7 +1302,8 @@ def pre_quick_status_updates():
 
         if not test.exists():
             res = 'FAILED'
-            reason = 'Cannot find test'
+            reason = 'Cannot find test pre'
+            test.set_failed(reason)
         elif test.ignore:
             res = 'IGNORED'
             reason = test.reason
@@ -1338,19 +1340,21 @@ def __run_test(test):
 
     sys.stdout.flush()
 
-    if not test.exists():
+    if test.failed:
         failed = True
-        test.set_failed()
         res = 'FAILED'
-        reason = 'Cannot find test'
+        reason = test.reason
+    elif not test.exists():
+        # TODO fix multiple places checking test exists "Cannot find test"
+        failed = True
+        res = 'FAILED'
+        reason = 'Cannot find test run'
+        test.set_failed(reason)
     elif test.ignore:
         res = 'IGNORED'
         reason = test.reason
     elif test.skip:
         res = 'SKIP'
-        reason = test.reason
-    elif test.failed:
-        res = 'FAILED'
         reason = test.reason
     elif args.dry:
         res = 'DRY'
