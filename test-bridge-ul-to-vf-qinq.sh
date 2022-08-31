@@ -81,7 +81,7 @@ function test_trunk_to_trunk_qinq() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF.3.2 $br $REMOTE_IP_VLAN2 $time
+    verify_ping_ns $namespace1 $VF.3.2 $br $REMOTE_IP_VLAN2 $time $time 'vlan and vlan and icmp'
 
     on_remote "
               ip link del link $REMOTE_NIC name ${REMOTE_NIC}.3.2 type vlan id 2 &>/dev/null
