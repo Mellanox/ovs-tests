@@ -5,6 +5,7 @@ from __future__ import print_function
 import os
 import re
 import sys
+import yaml
 import random
 import signal
 import argparse
@@ -16,9 +17,6 @@ from tempfile import mkdtemp
 from datetime import datetime
 from semver import VersionInfo
 from requests.exceptions import ConnectionError
-from requests.exceptions import ReadTimeout
-
-import yaml
 from mlxredmine import MlxRedmine
 from ansi2html import Ansi2HTMLConverter
 
