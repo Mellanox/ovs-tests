@@ -262,15 +262,22 @@ function kill_iperf() {
     killall -9 iperf3 &>/dev/null
 }
 
+
+function ipsec_mode_ofed() {
+    local nic=$1
+    echo "/sys/class/net/$nic/compat/devlink/ipsec_mode"
+}
+
 function ipsec_set_mode() {
     local mode=$1
     local nic=${2:-"$NIC"}
     # this old mlnx ofed compat
-    [ ! -f /sys/class/net/$nic/compat/devlink/ipsec_mode ] && return
-    local old=`cat /sys/class/net/$nic/compat/devlink/ipsec_mode`
+    local sysfs=`ipsec_mode_ofed $nic`
+    [ ! -f $sysfs ] && return
+    local old=`cat $sysfs`
     [ "$old" == "$mode" ] && return
     enable_legacy
-    echo $mode > /sys/class/net/$nic/compat/devlink/ipsec_mode || err "Failed to set ipsec mode $mode"
+    echo $mode > $sysfs || err "Failed to set ipsec mode $mode"
     switch_mode_switchdev
 }
 
