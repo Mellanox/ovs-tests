@@ -58,14 +58,12 @@ function run_traffic() {
 function get_ipsec_counter() {
     local counter_name="$1"
     local dev=${2:-"$NIC"}
-    local res
 
     if [[ "$counter_name" != "tx" &&  "$counter_name" != "rx" ]]; then
         err "Wrong argument for function get_ipsec_counter"
     fi
 
-    res=`ethtool -S $dev | grep "ipsec_full_${counter_name}_pkts:" | awk '{print $2}'`
-    echo $res
+    ethtool -S $dev | grep "ipsec_full_${counter_name}_pkts:" | awk '{print $2}'
 }
 
 function get_ipsec_counter_on_remote() {
