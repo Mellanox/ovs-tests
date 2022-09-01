@@ -1149,21 +1149,23 @@ def read_ignore_list():
             IGNORE_LIST = data['tests']
 
 
-def load_tests_from_(data, deprecated_sub):
+def load_tests_from_(data, sub):
     tests = []
     for key in data:
         if fnmatch(key, 'test-*.sh'):
             opts = data[key]
-            tests.append(Test(os.path.join(MYDIR, deprecated_sub, key), opts))
+            tests.append(Test(os.path.join(MYDIR, sub, key), opts))
+        elif os.path.isdir(os.path.join(MYDIR, key)):
+            tests.extend(load_tests_from_(data[key], key))
         else:
-            items = data[key]
-            tests.extend([Test(os.path.join(MYDIR, key, key2), items[key2]) for key2 in items])
+            # just a group
+            tests.extend(load_tests_from_(data[key], sub))
     return tests
 
 
 def load_tests_from_db(data):
-    subfolder = data.get('tests_subfolder', '')
-    tests = load_tests_from_(data['tests'], subfolder)
+    deprecated_subfolder = data.get('tests_subfolder', '')
+    tests = load_tests_from_(data['tests'], deprecated_subfolder)
 
     for test in tests:
         if not test.exists():
