@@ -53,6 +53,9 @@ function run() {
 
     verify_ping
     generate_traffic "remote" $LOCAL_IP
+
+    export USE_IPERF2=1
+    generate_traffic "remote" $LOCAL_IP
 }
 
 run
