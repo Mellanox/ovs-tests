@@ -1417,8 +1417,7 @@ assertion failed: inconsistent values for field 'ip_version'|\
 assertion failed: inconsistent values for field 'ip_protocol|\
 assertion failed: ethertype \(0x0\) must be \(0x800\) or \(0x86dd\) to use 'ip_ttl_hoplimit'|\
 assertion failed: 'outer_second_svlan_tag' must be set to use 'outer_second_vid'|\
-assertion failed: inconsistent values for field 'dmac_47_16'|\
-Deprecated Driver is detected: iptables will not be maintained in a future major release and may be disabled"
+assertion failed: inconsistent values for field 'dmac_47_16'"
 
     if [ -n "$__expected_error_msgs" ]; then
         filter+="$__expected_error_msgs"
@@ -1476,7 +1475,8 @@ Skipping post send: QP err|memtrack_report: Summary: 0 leak\(s\) detected|\
 systemd.* Requested transaction contradicts existing jobs: Resource deadlock avoided|\
 failed to kill vid 0081/0|\
 Spectre V2 : WARNING: Unprivileged eBPF is enabled with eIBRS on, data leaks possible via Spectre v2 BHB attacks!|\
-kvm|pluto.* Warning: kernel has no audit support"
+kvm|pluto.* Warning: kernel has no audit support|\
+Deprecated Driver is detected: iptables will not be maintained in a future major release and may be disabled"
 
     if [ -n "$__expected_error_msgs" ]; then
         filter+="$__expected_error_msgs"
