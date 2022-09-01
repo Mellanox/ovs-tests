@@ -89,17 +89,27 @@ function ipsec_config() {
     local ALGO_LINE_IN="aead 'rfc4106(gcm(aes))' $key_in 128"
     local ALGO_LINE_OUT="aead 'rfc4106(gcm(aes))' $key_out 128"
 
-    if [[ "$SHOULD_OFFLOAD" == "" || "$SHOULD_OFFLOAD" == "no-offload" ]]; then
+    local ofed_sysfs=`ipsec_mode_ofed $nic`
+    local offload=$SHOULD_OFFLOAD
+    if [ "$offload" == "full_offload" ] && [ -f "$ofed_sysfs" ]; then
+        offload="mlnx_ofed_full_offload"
+    fi
+
+    if [[ "$offload" == "" || "$offload" == "no-offload" ]]; then
         OFFLOAD_IN=""
         OFFLOAD_OUT=""
-    elif [ "$SHOULD_OFFLOAD" == "offload" ]; then
+    elif [ "$offload" == "offload" ] || [ "$offload" == "full_offload" ]; then
         OFFLOAD_IN="offload dev ${nic} dir in"
         OFFLOAD_OUT="offload dev ${nic} dir out"
-    elif [ "$SHOULD_OFFLOAD" == "full_offload" ]; then
+    elif [ "$offload" == "mlnx_ofed_full_offload" ]; then
         OFFLOAD_IN="full_offload dev ${nic} dir in"
         OFFLOAD_OUT="full_offload dev ${nic} dir out"
     else
         fail "Wrong usage, SHOULD_OFFLOAD needs to be set to offload for IPsec crypto offload, full_offload for IPsec full offload, no-offload for SW IPsec"
+    fi
+
+    if [ "$offload" == "full_offload" ]; then
+        fail "upstream ipsec full offload not supported yet"
     fi
 
     cmds="ip address flush $nic"
