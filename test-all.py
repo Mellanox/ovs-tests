@@ -1151,10 +1151,15 @@ def read_ignore_list():
 
 def load_tests_from_(data, sub):
     tests = []
+    opts = data.get('opts', {})
     for key in data:
         if fnmatch(key, 'test-*.sh'):
-            opts = data[key]
-            tests.append(Test(os.path.join(MYDIR, sub, key), opts))
+            test_opts = {}
+            test_opts.update(opts)
+            test_opts.update(data[key] or {})
+            tests.append(Test(os.path.join(MYDIR, sub, key), test_opts))
+        elif key == 'opts':
+            continue
         elif os.path.isdir(os.path.join(MYDIR, key)):
             tests.extend(load_tests_from_(data[key], key))
         else:
