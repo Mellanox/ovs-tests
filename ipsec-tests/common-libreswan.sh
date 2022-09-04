@@ -13,7 +13,7 @@ function require_ipsec() {
 require_ipsec
 
 function ipsec_dump_hostkeys() {
-    ipsec showhostkey --dump | grep -o "RSA keyid: [A-Za-z0-9]*" | awk {'print $3'}
+    ipsec showhostkey --dump | grep -o "RSA keyid: [^ ]*" | awk {'print $3'}
 }
 
 # get the first rsa key
