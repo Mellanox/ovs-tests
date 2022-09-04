@@ -1151,6 +1151,8 @@ def read_ignore_list():
 
 def load_tests_from_(data, sub):
     tests = []
+    if type(data) != dict:
+        return tests
     opts = data.get('opts', {})
     for key in data:
         if fnmatch(key, 'test-*.sh'):
@@ -1162,9 +1164,16 @@ def load_tests_from_(data, sub):
             continue
         elif os.path.isdir(os.path.join(MYDIR, key)):
             tests.extend(load_tests_from_(data[key], key))
+        elif data[key]:
+            # a group.
+            grp_tests = load_tests_from_(data[key], sub)
+            if grp_tests:
+                tests.extend(grp_tests)
+            else:
+                warn("Invalid key %s" % key)
         else:
-            # just a group
-            tests.extend(load_tests_from_(data[key], sub))
+            # empty group. add a test to get a log and a warning about missing test.
+            tests.append(Test(os.path.join(MYDIR, sub, key), opts))
     return tests
 
 
