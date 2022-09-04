@@ -89,6 +89,9 @@ function ipsec_create_conf() {
     echo "left sig: $leftsig"
     echo "right sig: $rightsig"
 
+    [ -z "$leftsig" ] && fail "Missing ipsec left sig"
+    [ -z "$rightsig" ] && fail "Missing ipsec right sig"
+
     echo "
 conn $IPSEC_CONN
     leftid=@west
