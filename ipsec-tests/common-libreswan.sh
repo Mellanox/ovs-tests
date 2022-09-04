@@ -73,8 +73,11 @@ function ipsec_config_conn() {
         fail "Missing ipsec remote host key"
     fi
 
+    echo "key: $key"
+    echo "remote key: $remote_key"
+
     log "Create ipsec config"
-    ipsec_create_conf > $IPSEC_MYTUNNEL_CONF
+    ipsec_create_conf
     log "Copy ipsec config to remote"
     scp2 $IPSEC_MYTUNNEL_CONF $REMOTE_SERVER:$IPSEC_CONFIG_DIR/
 }
@@ -82,6 +85,10 @@ function ipsec_config_conn() {
 function ipsec_create_conf() {
     local leftsig=`ipsec_get_left_key $key`
     local rightsig=`ipsec_get_right_key $remote_key`
+
+    echo "left sig: $leftsig"
+    echo "right sig: $rightsig"
+
     echo "
 conn $IPSEC_CONN
     leftid=@west
@@ -91,7 +98,7 @@ conn $IPSEC_CONN
     right=$RIP
     $rightsig
     authby=rsasig
-    auto=ondemand"
+    auto=ondemand" > $IPSEC_MYTUNNEL_CONF
 }
 
 function ipsec_config_setup() {
