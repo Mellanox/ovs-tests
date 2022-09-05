@@ -259,6 +259,7 @@ class Test(object):
         self.iteration = 0
         self.opts = opts or {}
         self.tag = ''
+        self.group = ''
 
     def init_state(self):
         self._passed = False
@@ -383,6 +384,8 @@ def parse_args():
                         help='Save log files in HTML and a summary')
     parser.add_argument('--randomize', '-r', action='store_true',
                         help='Randomize the order of the tests')
+    parser.add_argument('--group', action='store_true',
+                        help='Sort tests by group')
     parser.add_argument('--loops', default=0, type=int,
                         help='Loop the tests. stop if loop fails.')
     parser.add_argument('--run-skipped', action='store_true',
@@ -557,6 +560,8 @@ def sort_tests(tests, randomize=False):
         random.shuffle(tests)
     elif type(tests[0]) == str:
         tests.sort(key=lambda x: os.path.basename(x).split('.')[0])
+    elif args.group:
+        tests.sort(key=lambda x: x.group + x.name.split('.')[0])
     else:
         tests.sort(key=lambda x: x.name.split('.')[0])
 
@@ -1170,7 +1175,7 @@ def update_opts(opts1, opts2):
     return d
 
 
-def load_tests_from_(data, sub, opts={}):
+def load_tests_from_(data, sub, opts={}, group=''):
     tests = []
     if type(data) != dict:
         return tests
@@ -1178,14 +1183,17 @@ def load_tests_from_(data, sub, opts={}):
     for key in data:
         if fnmatch(key, 'test-*.sh'):
             test_opts = update_opts(opts, data[key])
-            tests.append(Test(os.path.join(MYDIR, sub, key), test_opts))
+            t = Test(os.path.join(MYDIR, sub, key), test_opts)
+            t.group = group
+            tests.append(t)
         elif key == 'opts':
             continue
         elif os.path.isdir(os.path.join(MYDIR, key)):
-            tests.extend(load_tests_from_(data[key], key, opts))
+            tests.extend(load_tests_from_(data[key], key, opts, group))
         elif data[key]:
             # a group.
-            grp_tests = load_tests_from_(data[key], sub, opts)
+            group1 = os.path.join(group, key)
+            grp_tests = load_tests_from_(data[key], sub, opts, group1)
             if grp_tests:
                 tests.extend(grp_tests)
             else:
@@ -1454,6 +1462,7 @@ def run_tests(iteration):
 
     iter_tests = []
     rerun_tests = []
+    group = ""
 
     for test in TESTS:
         # skip copied tests
@@ -1475,6 +1484,10 @@ def run_tests(iteration):
         test.status = 'UNKNOWN'
         if args.html and not args.dry:
             save_summary_html()
+
+        if args.group and group != test.group:
+            print("-- %s --" % test.group)
+            group = test.group
 
         test_failed = __run_test(test)
         failed = failed or test_failed
