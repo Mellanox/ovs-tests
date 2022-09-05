@@ -836,10 +836,9 @@ def update_skip_according_to_db(rm, _tests, data):
             else:
                 t.set_failed("Invalid fw to compare")
 
-        ignore = opts.get('ignore', [])
-        if type(ignore) == dict:
-            ignore = [ignore]
+        ignore = []
         ignore.extend(ignore_global)
+        ignore.extend(opts.get('ignore', []))
 
         for i in ignore:
             if 'rm' in i and 'reason' in i:
