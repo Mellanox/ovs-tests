@@ -836,7 +836,7 @@ def update_skip_according_to_db(rm, _tests, data):
             else:
                 t.set_failed("Invalid fw to compare")
 
-        ignore = opts.get("ignore", [])
+        ignore = opts.get('ignore', [])
         if type(ignore) == dict:
             ignore = [ignore]
         ignore.extend(ignore_global)
@@ -1149,6 +1149,34 @@ def read_ignore_list():
             IGNORE_LIST = data['tests']
 
 
+def update_opts(opts1, opts2):
+    d = {}
+    d.update(opts1)
+    # ignore is special case. can be dict for one item or a list.
+    ignore = d.get('ignore', [])
+    if type(ignore) == dict:
+        ignore = [ignore]
+    d['ignore'] = ignore
+
+    if not opts2:
+        return d
+
+    for k, v in opts2.items():
+        if k == 'ignore':
+            # handle special case ignore.
+            if type(v) == dict:
+                v = [v]
+            d[k].extend(v)
+        elif type(v) == dict:
+            d[k] = d.get(k, {}).update(v)
+        elif type(v) == list:
+            d[k] = d.get(k, []) + v
+        else:
+            d[k] = v
+
+    return d
+
+
 def load_tests_from_(data, sub):
     tests = []
     if type(data) != dict:
@@ -1156,9 +1184,7 @@ def load_tests_from_(data, sub):
     opts = data.get('opts', {})
     for key in data:
         if fnmatch(key, 'test-*.sh'):
-            test_opts = {}
-            test_opts.update(opts)
-            test_opts.update(data[key] or {})
+            test_opts = update_opts(opts, data[key])
             tests.append(Test(os.path.join(MYDIR, sub, key), test_opts))
         elif key == 'opts':
             continue
