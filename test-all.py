@@ -550,7 +550,7 @@ def format_result(res, out='', html=False):
 
 def sort_tests(tests, randomize=False):
     if randomize:
-        print('Randomize temporarily disabled. sort by name.')
+        warn('Randomize temporarily disabled. sort by name.')
         randomize = False
     if randomize:
         print('Randomizing the tests order')
@@ -1204,6 +1204,7 @@ def load_tests_from_db(data):
         if not test.exists():
             warn("Cannot find test %s" % test.name)
             test.set_failed("Cannot find test load")
+
     return tests
 
 
