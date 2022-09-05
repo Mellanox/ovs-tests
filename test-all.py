@@ -1155,7 +1155,7 @@ def update_opts(opts1, opts2):
     ignore = d.get('ignore', [])
     if type(ignore) == dict:
         ignore = [ignore]
-    d['ignore'] = ignore
+    d['ignore'] = ignore + []
 
     if not opts2:
         return d
@@ -1176,11 +1176,11 @@ def update_opts(opts1, opts2):
     return d
 
 
-def load_tests_from_(data, sub):
+def load_tests_from_(data, sub, opts={}):
     tests = []
     if type(data) != dict:
         return tests
-    opts = data.get('opts', {})
+    opts = update_opts(opts, data.get('opts', {}))
     for key in data:
         if fnmatch(key, 'test-*.sh'):
             test_opts = update_opts(opts, data[key])
@@ -1188,10 +1188,10 @@ def load_tests_from_(data, sub):
         elif key == 'opts':
             continue
         elif os.path.isdir(os.path.join(MYDIR, key)):
-            tests.extend(load_tests_from_(data[key], key))
+            tests.extend(load_tests_from_(data[key], key, opts))
         elif data[key]:
             # a group.
-            grp_tests = load_tests_from_(data[key], sub)
+            grp_tests = load_tests_from_(data[key], sub, opts)
             if grp_tests:
                 tests.extend(grp_tests)
             else:
