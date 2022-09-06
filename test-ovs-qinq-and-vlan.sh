@@ -82,7 +82,7 @@ function check_offloaded_rules() {
     RES="ovs_dump_tc_flows | grep 0x0800 | grep -v drop"
     eval $RES
     RES=`eval $RES | wc -l`
-    if (( RES == $count )); then success; else err; fi
+    if (( RES == $count )); then success; else err "Expected $count rules but found $RES rules."; fi
 }
 
 function run() {
@@ -90,10 +90,10 @@ function run() {
     config_remote
 
     title "Start ping"
-    ip netns exec ns0 ping -w 7 -q -c 5 $REMOTE &
+    ip netns exec ns0 ping -w 7 -q -c 5 $REMOTE || err "Ping over vlan $out_vlan failed"
     sleep 1
-    ip netns exec ns0 ping -w 7 -q -c 5 $REMOTE2 &
-    sleep 3
+    ip netns exec ns0 ping -w 7 -q -c 5 $REMOTE2 || err "Ping over vlan $in_vlan failed"
+    sleep 1
 
     check_offloaded_rules 4
 
