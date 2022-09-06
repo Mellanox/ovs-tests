@@ -18,6 +18,7 @@ COUNT=500
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+config_sriov
 enable_switchdev
 rep=`get_rep 0`
 require_interfaces rep
