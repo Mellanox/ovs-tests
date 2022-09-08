@@ -54,14 +54,6 @@ function sf_get_netdev() {
     basename `ls -1 /sys/bus/auxiliary/devices/$dev/net`
 }
 
-function sf_cfg_unbind() {
-    echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf_cfg/unbind || err "$1: Failed to unbind from sf cfg"
-}
-
-function sf_cfg_bind() {
-    echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf_cfg/bind || err "$1: Failed to bind to sf cfg"
-}
-
 function sf_bind() {
     echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf/bind || err "$1: Failed to bind to sf core"
 }
@@ -75,10 +67,6 @@ function sf_set_param() {
     local param_name=$2
     local value=$3
     $sfcmd dev param set auxiliary/$dev name $param_name value $value cmode runtime || err "Failed to set sf $dev param $param_name=$value"
-}
-
-function sf_disable_netdev() {
-    sf_set_param $1 disable_netdev true || err "$1: Failed to disable netdev"
 }
 
 function sf_disable_roce() {
@@ -129,11 +117,7 @@ function create_sfs() {
             break
         fi
 
-        [ "$sf_disable_netdev" == 1 ] && sf_disable_netdev $sf_dev
-        [ "$sf_with_cfg" == 1 ] && sf_cfg_unbind $sf_dev && sf_bind $sf_dev
-
-        [ "$sf_disable_netdev" != 1 ] && sleep 0.5
-
+        sleep 0.5
         netdev=`sf_get_netdev $i`
         [ -z "$netdev" ] && err "Failed to get sf netdev pfnum $pfnum sfnum $i" && break
 
@@ -166,33 +150,6 @@ function remove_sfs() {
     for rep in `sf_get_all_reps`; do
         sf_inactivate $rep
         delete_sf $rep
-    done
-}
-
-function config_sfs_eq() {
-    local max_cmpl_eqs=$1
-    local cmpl_eq_depth=$2
-    local async_eq_depth=$3
-
-    title "Configure SFs EQ"
-
-    echo "max_cmpl_eqs: $max_cmpl_eqs"
-    echo "cmpl_eq_depth: $cmpl_eq_depth"
-    echo "async_eq_depth: $async_eq_depth"
-
-    local sf_dev
-    local dev
-    for sf_dev in `get_aux_sf_devices`; do
-        dev=`basename $sf_dev`
-        sf_unbind $dev
-        sf_cfg_bind $dev
-
-        sf_set_param $dev max_cmpl_eqs $max_cmpl_eqs
-        sf_set_param $dev cmpl_eq_depth $cmpl_eq_depth
-        sf_set_param $dev async_eq_depth $async_eq_depth
-
-        sf_cfg_unbind $dev
-        sf_bind $dev
     done
 }
 
