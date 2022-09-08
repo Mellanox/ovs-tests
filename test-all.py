@@ -1166,7 +1166,8 @@ def update_opts(opts1, opts2):
                 v = [v]
             d[k].extend(v)
         elif type(v) == dict:
-            d[k] = d.get(k, {}).update(v)
+            d[k] = d.get(k, {})
+            d[k].update(v)
         elif type(v) == list:
             d[k] = d.get(k, []) + v
         else:
