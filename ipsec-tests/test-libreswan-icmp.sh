@@ -8,9 +8,11 @@ require_remote_server
 
 function cleanup() {
     ipsec_clear_setup
+    cleanup_crypto
 }
 
 function run_test() {
+    cleanup
     ipsec_config_setup
 
     run_traffic ipv4 icmp
@@ -19,7 +21,9 @@ function run_test() {
 }
 
 trap cleanup EXIT
+
 run_test
+
 trap - EXIT
 cleanup
 test_done
