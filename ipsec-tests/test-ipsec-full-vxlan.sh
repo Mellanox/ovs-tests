@@ -74,11 +74,14 @@ function run_test() {
 }
 
 trap cleanup EXIT
+cleanup
 config 1500
 run_test
+
 cleanup
 config 9000
 run_test
+
 trap - EXIT
 cleanup
 test_done
