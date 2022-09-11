@@ -20,6 +20,14 @@ function devlink_dev_set_param() {
     devlink dev param set $pci_dev name $param_name value $value cmode $cmode || err "Failed to set $dev param $param_name=$value"
 }
 
+function devlink_dev_get_param() {
+    local dev=$1
+    local param_name=$2
+    local pci_dev=`devlink_get_pci_dev $dev`
+
+    devlink dev param show $pci_dev name $param_name | grep "cmode .* value " | awk '{print $4}' || err "Failed to get $dev param $param_name value"
+}
+
 function devlink_dev_reload() {
     local dev=$1
     local pci_dev=`devlink_get_pci_dev $dev`
