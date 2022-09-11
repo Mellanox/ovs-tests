@@ -19,9 +19,13 @@ trap cleanup EXIT
 LOWEST_VALUE=64
 SF_NUM=10
 
+function get_used_mem() {
+    vmstat -s | grep -i "used memory" | awk {'print $1'}
+}
+
 function test_with_default_eq_values() {
-    title "Case with default eq values"
-    local free_mem_before_default_eq_sf=$(get_free_memory)
+    title "Case with default EQ values"
+    local used_mem_start=$(get_used_mem)
 
     create_sfs $SF_NUM
 
@@ -29,32 +33,33 @@ function test_with_default_eq_values() {
     default_io_eq_size=`devlink_dev_get_param $dev io_eq_size`
     default_event_eq_size=`devlink_dev_get_param $dev event_eq_size`
 
-    local free_mem_after_default_eq_sf=$(get_free_memory)
-    total_mem_consumed_default_eq_sf=$(($free_mem_before_default_eq_sf - $free_mem_after_default_eq_sf))
+    local used_mem_end=$(get_used_mem)
+    total_used_mem_default_eq=$(($used_mem_end - $used_mem_start))
 
-    title "FreeMem with default EQ values"
-    echo "Before creating SFs: $free_mem_before_default_eq_sf"
-    echo "After creating SFs: $free_mem_after_default_eq_sf"
-    echo "Total memory consumed: $total_mem_consumed_default_eq_sf"
+    title "Used memory with default EQ values"
+    echo "Before creating SFs: $used_mem_start"
+    echo "After creating SFs: $used_mem_end"
+    echo "Total memory used: $total_used_mem_default_eq"
+
 
     remove_sfs
 }
 
 function test_with_lowest_eq_values() {
-    title "Case with lowest eq values"
-    local free_mem_before_eq_sf=$(get_free_memory)
+    title "Case with lowest EQ values"
+    local used_mem_start=$(get_used_mem)
 
     create_sfs $SF_NUM
 
     devlink_dev_set_eq $LOWEST_VALUE $LOWEST_VALUE `devlink_get_sfs`
 
-    local free_mem_after_eq_sf=$(get_free_memory)
-    total_mem_consumed_lowest_eq_sf=$(($free_mem_before_eq_sf - $free_mem_after_eq_sf))
+    local used_mem_end=$(get_used_mem)
+    total_used_mem_lowest_eq=$(($used_mem_end - $used_mem_start))
 
-    title "FreeMem with lowest EQ values"
-    echo "Before creating SFs: $free_mem_before_eq_sf"
-    echo "After creating SFs: $free_mem_after_eq_sf"
-    echo "Total memory consumed: $total_mem_consumed_lowest_eq_sf"
+    title "Used memory with lowest EQ values"
+    echo "Before creating SFs: $used_mem_start"
+    echo "After creating SFs: $used_mem_end"
+    echo "Total memory used: $total_used_mem_lowest_eq"
 
     remove_sfs
 }
@@ -69,8 +74,8 @@ function run_test() {
     echo "Lowest EQ values: io_eq_size=$LOWEST_VALUE, event_eq_size=$LOWEST_VALUE"
 
     title "Check if memory consumed with lowest EQ values is less than default EQ values"
-    if [[ $total_mem_consumed_lowest_eq_sf -gt $total_mem_consumed_default_eq_sf ]]; then
-        fail "Total memory consumed default values EQ ($total_mem_consumed_default_eq_sf) should be higher ($total_mem_consumed_lowest_eq_sf)"
+    if [[ $total_used_mem_lowest_eq -gt $total_used_mem_default_eq ]]; then
+        fail "Total memory used with default EQ values ($total_used_mem_default_eq) should be higher lowest ($total_used_mem_lowest_eq)"
     fi
 
     success
