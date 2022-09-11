@@ -175,9 +175,9 @@ function ipsec_config() {
     fi
 
     if [ "$run_on_remote" == "1" ]; then
-        on_remote "$cmds" || fail "Failed to config"
+        on_remote "$cmds" || fail "Failed to config ipsec"
     else
-        eval "$cmds" || fail "Failed to config"
+        eval "$cmds" || fail "Failed to config ipsec"
     fi
 }
 
