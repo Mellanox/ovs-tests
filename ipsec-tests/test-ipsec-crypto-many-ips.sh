@@ -17,7 +17,7 @@ function config() {
 }
 
 function cleanup() {
-    cleanup_test
+    cleanup_crypto
 }
 
 function run_test() {
@@ -43,18 +43,23 @@ function run_test() {
     title "Verify traffic on $NIC"
     verify_have_traffic $pid
     sleep 3
+
+    cleanup_test
 }
 
 trap cleanup EXIT
+cleanup
+
 run_test ipv4
-cleanup
+
 run_test ipv6
-cleanup
+
 change_mtu_on_both_sides 9000
 run_test ipv4
-cleanup
+
 change_mtu_on_both_sides 9000
 run_test ipv6
+
 trap - EXIT
 cleanup
 test_done

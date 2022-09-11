@@ -14,10 +14,11 @@ function config() {
 
 function cleanup() {
     ipsec_cleanup_on_both_sides
+    cleanup_crypto
 }
 
 function run_test() {
-    enable_switchdev
+    cleanup
     config
     enable_legacy
 }

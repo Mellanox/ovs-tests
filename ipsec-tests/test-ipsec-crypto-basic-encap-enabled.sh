@@ -5,6 +5,8 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
+eswitch_encap_enable=1
+
 function cleanup() {
     cleanup_crypto
 }
@@ -17,12 +19,12 @@ function run_test_ipsec_crypto_sanity() {
     local net_proto=${4:-"tcp"}
     local trusted_vfs=${5:-"no_trusted_vfs"}
 
-    eswitch_encap_enable=1
-    cleanup_crypto $mtu $trusted_vfs
+    cleanup_test $mtu $trusted_vfs
     test_tx_off_rx_off $ipsec_mode 128 $ip_proto $net_proto $trusted_vfs
 }
 
 function run_test() {
+    cleanup
     run_test_ipsec_crypto_sanity 1500 ipv4 transport tcp
     run_test_ipsec_crypto_sanity 1500 ipv4 transport icmp
 

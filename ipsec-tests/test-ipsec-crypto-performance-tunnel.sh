@@ -10,28 +10,35 @@ my_dir="$(dirname "$0")"
 require_remote_server
 
 function cleanup() {
+    cleanup_case
+    cleanup_crypto
+}
+
+function cleanup() {
     cleanup_test
     rm -f /tmp/offload_results.txt /tmp/results.txt
 }
 
 function run_test() {
     title "Testing IPsec crypto offload performance"
-    #make sure iperf server is down
-    kill_iperf
+    cleanup
     local mtu
     for mtu in 1500 5250 9000; do
         title "Test with mtu = $mtu"
         change_mtu_on_both_sides $mtu
         run_performance_test tunnel ipv4
-        cleanup
+        cleanup_case
+
         change_mtu_on_both_sides $mtu
         run_performance_test tunnel ipv6
-        cleanup
+        cleanup_case
     done
 }
 
 trap cleanup EXIT
+
 run_test
+
 trap - EXIT
 cleanup
 test_done

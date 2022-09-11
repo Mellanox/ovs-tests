@@ -15,6 +15,7 @@ function cleanup() {
 }
 
 function run_test() {
+    cleanup
     run_test_ipsec_offload 1500 ipv4 tunnel tcp
     run_test_ipsec_offload 9000 ipv4 tunnel tcp
 }

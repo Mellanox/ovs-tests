@@ -31,7 +31,7 @@ function config() {
 }
 
 function cleanup() {
-    cleanup_test
+    cleanup_crypto
     ip link del dev vx0 2> /dev/null
     on_remote "ip link del dev vx0 2> /dev/null"
 }
@@ -52,14 +52,21 @@ function run_test() {
     title "Verify traffic on $NIC"
     verify_have_traffic $pid
     check_offloaded_rules both
+
+    cleanup_test
+    ip link del dev vx0 2> /dev/null
+    on_remote "ip link del dev vx0 2> /dev/null"
 }
 
 trap cleanup EXIT
+cleanup
+
 config 1500
 run_test
-cleanup
+
 config 9000
 run_test
+
 trap - EXIT
 cleanup
 test_done
