@@ -16,40 +16,45 @@ function cleanup() {
 }
 trap cleanup EXIT
 
+LOWEST_VALUE=64
 SF_NUM=10
 
-function test_without_eq() {
-    title "Case without eq"
-    local free_mem_before_no_eq_sf=$(get_free_memory)
+function test_with_default_eq_values() {
+    title "Case with default eq values"
+    local free_mem_before_default_eq_sf=$(get_free_memory)
 
     create_sfs $SF_NUM
 
-    local free_mem_after_no_eq_sf=$(get_free_memory)
-    TOTAL_MEM_CONSUMED_NO_EQ_SF=$(($free_mem_before_no_eq_sf - $free_mem_after_no_eq_sf))
+    local dev=`sf_get_netdev 1`
+    default_io_eq_size=`devlink_dev_get_param $dev io_eq_size`
+    default_event_eq_size=`devlink_dev_get_param $dev event_eq_size`
 
-    title "FreeMem without EQ"
-    echo "Before creating SFs: $free_mem_before_no_eq_sf"
-    echo "After creating SFs: $free_mem_after_no_eq_sf"
-    echo "Total memory consumed: $TOTAL_MEM_CONSUMED_NO_EQ_SF"
+    local free_mem_after_default_eq_sf=$(get_free_memory)
+    total_mem_consumed_default_eq_sf=$(($free_mem_before_default_eq_sf - $free_mem_after_default_eq_sf))
+
+    title "FreeMem with default EQ values"
+    echo "Before creating SFs: $free_mem_before_default_eq_sf"
+    echo "After creating SFs: $free_mem_after_default_eq_sf"
+    echo "Total memory consumed: $total_mem_consumed_default_eq_sf"
 
     remove_sfs
 }
 
-function test_with_eq() {
-    title "Case with eq"
+function test_with_lowest_eq_values() {
+    title "Case with lowest eq values"
     local free_mem_before_eq_sf=$(get_free_memory)
 
     create_sfs $SF_NUM
 
-    devlink_dev_set_eq 64 64 `devlink_get_sfs`
+    devlink_dev_set_eq $LOWEST_VALUE $LOWEST_VALUE `devlink_get_sfs`
 
     local free_mem_after_eq_sf=$(get_free_memory)
-    TOTAL_MEM_CONSUMED_EQ_SF=$(($free_mem_before_eq_sf - $free_mem_after_eq_sf))
+    total_mem_consumed_lowest_eq_sf=$(($free_mem_before_eq_sf - $free_mem_after_eq_sf))
 
-    title "FreeMem with EQ"
+    title "FreeMem with lowest EQ values"
     echo "Before creating SFs: $free_mem_before_eq_sf"
     echo "After creating SFs: $free_mem_after_eq_sf"
-    echo "Total memory consumed: $TOTAL_MEM_CONSUMED_EQ_SF"
+    echo "Total memory consumed: $total_mem_consumed_lowest_eq_sf"
 
     remove_sfs
 }
@@ -57,12 +62,15 @@ function test_with_eq() {
 function run_test() {
     config_sriov 0 $NIC
     enable_switchdev $NIC
-    test_without_eq
-    test_with_eq
+    test_with_default_eq_values
+    test_with_lowest_eq_values
 
-    title "Check if memory consumed with EQ sf is less than without EQ"
-    if [[ $TOTAL_MEM_CONSUMED_EQ_SF -gt $TOTAL_MEM_CONSUMED_NO_EQ_SF ]]; then
-        fail "Total memory consumed without EQ sf should be bigger"
+    echo "Default EQ values: io_eq_size=$default_io_eq_size, event_eq_size=$default_event_eq_size"
+    echo "Lowest EQ values: io_eq_size=$LOWEST_VALUE, event_eq_size=$LOWEST_VALUE"
+
+    title "Check if memory consumed with lowest EQ values is less than default EQ values"
+    if [[ $total_mem_consumed_lowest_eq_sf -gt $total_mem_consumed_default_eq_sf ]]; then
+        fail "Total memory consumed default values EQ ($total_mem_consumed_default_eq_sf) should be higher ($total_mem_consumed_lowest_eq_sf)"
     fi
 
     success
