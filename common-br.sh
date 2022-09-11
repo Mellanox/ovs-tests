@@ -23,6 +23,18 @@ function create_bridge_with_interfaces() {
     ip link set name $bridge_name type bridge ageing_time 200
 }
 
+function create_bridge_with_mcast() {
+    sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=0 >/dev/null
+    create_bridge_with_interfaces "$@"
+    ip link set name $1 type bridge mcast_querier 1 mcast_startup_query_count 10
+
+    local i
+    shift
+    for i in $@; do
+        bridge link set dev $i mcast_flood off
+    done
+}
+
 function flush_bridge() {
     local bridge_name=$1
 
@@ -39,11 +51,29 @@ function verify_ping_ns() {
     local filter=${7:-icmp}
 
     echo "sniff packets on $dump_dev"
-    timeout $t tcpdump -qnnei $dump_dev -c $npackets ${filter} &
+    timeout $((t+1)) tcpdump -qnnei $dump_dev -c $npackets ${filter} &
     local tpid=$!
     sleep 0.5
 
     echo "run ping for $t seconds"
     ip netns exec $ns ping -I $from_dev $dst_ip -c $t -w $t -q && success || err "Ping failed"
+    verify_no_traffic $tpid
+}
+
+function verify_ping_remote_mcast() {
+    local from_dev=$1
+    local dump_dev=$2
+    local dst_ip=$3
+    local t=$4
+    local ndupes=$5
+    local npackets=$6
+    local filter=${7:-icmp}
+
+    echo "sniff packets on $dump_dev"
+    timeout $((t+1)) tcpdump -qnnei $dump_dev -c $npackets ${filter} &
+    local tpid=$!
+    sleep 0.5
+
+    on_remote "ping -I $from_dev $dst_ip -c $t -w $t" | grep "+$ndupes duplicates" && success || err "Multicast ping failed"
     verify_no_traffic $tpid
 }

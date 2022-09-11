@@ -887,7 +887,8 @@ function add_vf_vlan() {
     local rep=$3
     local ip=$4
     local vlan=$5
-    local mac=$6 # optional
+    local mac=$6
+    local vlan_proto=${7:-802.1Q}
     local prefix=24
 
     if [[ "$ip" == *":"* ]]; then
@@ -896,8 +897,8 @@ function add_vf_vlan() {
     fi
 
     echo "[$ns] $vf.$vlan (${mac:+$mac/}$ip) -> $rep"
-    ip -netns $ns link add link $vf name $vf.$vlan type vlan id $vlan
-    ${mac:+ip -netns $ns link set $vf.$vlan address $mac}
+    ip -netns $ns link add link $vf name $vf.$vlan type vlan protocol $vlan_proto id $vlan
+    ip -netns $ns link set $vf.$vlan address $mac
     ip -netns $ns address replace dev $vf.$vlan $ip/$prefix
     ip -netns $ns link set $vf.$vlan up
 }
@@ -924,6 +925,17 @@ function add_vf_qinq() {
     ip -netns $ns address replace dev $vf.$vlan_outer.$vlan_inner $ip/$prefix
     ip -netns $ns link set $vf.$vlan_outer up
     ip -netns $ns link set $vf.$vlan_outer.$vlan_inner up
+}
+
+function add_vf_mcast() {
+    local ns=$1
+    local dev=$2
+    local ip=$3
+
+    echo "[$ns] $dev mcast grp $ip"
+    ip netns exec $ns sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=0 >/dev/null
+    ip -netns $ns a add dev $dev $ip/24 autojoin
+    ip -netns $ns link set $dev up
 }
 
 function config_reps() {
