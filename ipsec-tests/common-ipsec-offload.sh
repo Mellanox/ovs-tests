@@ -237,6 +237,36 @@ function cleanup_test() {
     rm -f $IPERF_FILE $TCPDUMP_FILE
 }
 
+function enable_eswitch_encap_mode() {
+    local m=`get_eswitch_encap`
+    if [ "$m" != "basic" ]; then
+        title "Enable eswitch encap mode"
+        enable_legacy
+        set_eswitch_encap basic
+    fi
+    devlink dev eswitch show pci/$PCI
+}
+
+function disable_eswitch_encap_mode() {
+    local m=`get_eswitch_encap`
+    if [ "$m" != "none" ]; then
+        title "Disable eswitch encap mode"
+        enable_legacy
+        set_eswitch_encap none
+    fi
+    devlink dev eswitch show pci/$PCI
+}
+
+function reset_eswitch_encap() {
+    if [ "$eswitch_encap_enable" == 1 ]; then
+        enable_eswitch_encap_mode
+        on_remote_exec enable_eswitch_encap_mode
+    else
+        disable_eswitch_encap_mode
+        on_remote_exec disable_eswitch_encap_mode
+    fi
+}
+
 function cleanup_crypto() {
     local mtu=${1:-1500}
     local trusted_vfs=${2:-"no_trusted_vfs"}
@@ -250,6 +280,8 @@ function cleanup_crypto() {
 
     cleanup_test
     ipsec_clear_mode_on_both_sides
+    reset_eswitch_encap
+
     enable_switchdev
     on_remote_exec enable_switchdev
 }
