@@ -1858,8 +1858,10 @@ function fail_if_err() {
 function kill_all_bgs() {
     local bgs=$(jobs -p)
     if [ -n "$bgs" ]; then
-        kill -9 $(jobs -p) 2>/dev/null
-        kmsg "Wait for bgs"
+        kill $bgs 2>/dev/null
+        sleep 1
+        kill -9 $bgs 2>/dev/null
+        log "Wait for bgs $bgs"
         wait $bgs &>/dev/null
     fi
 }
