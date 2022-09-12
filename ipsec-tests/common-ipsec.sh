@@ -100,8 +100,8 @@ function ipsec_config() {
     if [ -z "$key_in" ]; then
         fail "Wrong usage, KEY_LEN 128|256"
     fi
-    local ALGO_LINE_IN="aead 'rfc4106(gcm(aes))' $key_in 128"
-    local ALGO_LINE_OUT="aead 'rfc4106(gcm(aes))' $key_out 128"
+    local algo_line_in="aead 'rfc4106(gcm(aes))' $key_in 128"
+    local algo_line_out="aead 'rfc4106(gcm(aes))' $key_out 128"
 
     local ofed_sysfs=`ipsec_mode_ofed $nic`
     local offload=$SHOULD_OFFLOAD
@@ -110,14 +110,14 @@ function ipsec_config() {
     fi
 
     if [[ "$offload" == "" || "$offload" == "no-offload" ]]; then
-        OFFLOAD_IN=""
-        OFFLOAD_OUT=""
+        offload_in=""
+        offload_out=""
     elif [ "$offload" == "offload" ] || [ "$offload" == "full_offload" ]; then
-        OFFLOAD_IN="offload dev ${nic} dir in"
-        OFFLOAD_OUT="offload dev ${nic} dir out"
+        offload_in="offload dev ${nic} dir in"
+        offload_out="offload dev ${nic} dir out"
     elif [ "$offload" == "mlnx_ofed_full_offload" ]; then
-        OFFLOAD_IN="full_offload dev ${nic} dir in"
-        OFFLOAD_OUT="full_offload dev ${nic} dir out"
+        offload_in="full_offload dev ${nic} dir in"
+        offload_out="full_offload dev ${nic} dir out"
     else
         fail "Wrong usage, SHOULD_OFFLOAD needs to be set to offload for IPsec crypto offload, full_offload for IPsec full offload, no-offload for SW IPsec"
     fi
@@ -152,39 +152,39 @@ function ipsec_config() {
     if [[ ( "$MODE" == "remote" || "$MODE" == "remote_vf" ) ]]; then
         local spi_out=1001
         local spi_in=1000
-        local tmp=$ALGO_LINE_IN
-        ALGO_LINE_IN=$ALGO_LINE_OUT
-        ALGO_LINE_OUT=$tmp
+        local tmp=$algo_line_in
+        algo_line_in=$algo_line_out
+        algo_line_out=$tmp
     fi
     local run_on_remote
 
     if [[ ( "$MODE" == "local" || "$MODE" == "local_vf" ) && "$IPSEC_MODE" == "transport" ]]; then
         cmds="$cmds
-              ip xfrm state add src $src_ip dst $dst_ip proto esp spi $spi_out reqid $reqid_out $ALGO_LINE_OUT mode $IPSEC_MODE sel src $src_ip dst $dst_ip $OFFLOAD_OUT &&
-              ip xfrm state add src $dst_ip dst $src_ip proto esp spi $spi_in reqid $reqid_in $ALGO_LINE_IN mode $IPSEC_MODE sel src $dst_ip dst $src_ip $OFFLOAD_IN &&
+              ip xfrm state add src $src_ip dst $dst_ip proto esp spi $spi_out reqid $reqid_out $algo_line_out mode $IPSEC_MODE sel src $src_ip dst $dst_ip $offload_out &&
+              ip xfrm state add src $dst_ip dst $src_ip proto esp spi $spi_in reqid $reqid_in $algo_line_in mode $IPSEC_MODE sel src $dst_ip dst $src_ip $offload_in &&
               ip xfrm policy add src $src_ip dst $dst_ip dir out tmpl src $src_ip dst $dst_ip proto esp reqid $reqid_out mode $IPSEC_MODE &&
               ip xfrm policy add src $dst_ip dst $src_ip dir in tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode $IPSEC_MODE &&
               ip xfrm policy add src $dst_ip dst $src_ip dir fwd tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode $IPSEC_MODE"
     elif [[ ( "$MODE" == "remote" || "$MODE" == "remote_vf" ) && "$IPSEC_MODE" == "transport" ]]; then
         run_on_remote=1
         cmds="$cmds
-              ip xfrm state add src $src_ip dst $dst_ip proto esp spi $spi_out reqid $reqid_out $ALGO_LINE_OUT mode $IPSEC_MODE sel src $src_ip dst $dst_ip $OFFLOAD_OUT &&
-              ip xfrm state add src $dst_ip dst $src_ip proto esp spi $spi_in reqid $reqid_in $ALGO_LINE_IN mode $IPSEC_MODE sel src $dst_ip dst $src_ip $OFFLOAD_IN &&
+              ip xfrm state add src $src_ip dst $dst_ip proto esp spi $spi_out reqid $reqid_out $algo_line_out mode $IPSEC_MODE sel src $src_ip dst $dst_ip $offload_out &&
+              ip xfrm state add src $dst_ip dst $src_ip proto esp spi $spi_in reqid $reqid_in $algo_line_in mode $IPSEC_MODE sel src $dst_ip dst $src_ip $offload_in &&
               ip xfrm policy add src $src_ip dst $dst_ip dir out tmpl src $src_ip dst $dst_ip proto esp reqid $reqid_out mode $IPSEC_MODE &&
               ip xfrm policy add src $dst_ip dst $src_ip dir in tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode $IPSEC_MODE &&
               ip xfrm policy add src $dst_ip dst $src_ip dir fwd tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode $IPSEC_MODE"
     elif [[ ( "$MODE" == "local" || "$MODE" == "local_vf" ) && "$IPSEC_MODE" == "tunnel" ]]; then
         cmds="$cmds
-              ip xfrm state add src $src_ip dst $dst_ip proto esp spi $spi_out reqid $reqid_out $ALGO_LINE_OUT mode $IPSEC_MODE $OFFLOAD_OUT &&
-              ip xfrm state add src $dst_ip dst $src_ip proto esp spi $spi_in reqid $reqid_in $ALGO_LINE_IN mode $IPSEC_MODE $OFFLOAD_IN &&
+              ip xfrm state add src $src_ip dst $dst_ip proto esp spi $spi_out reqid $reqid_out $algo_line_out mode $IPSEC_MODE $offload_out &&
+              ip xfrm state add src $dst_ip dst $src_ip proto esp spi $spi_in reqid $reqid_in $algo_line_in mode $IPSEC_MODE $offload_in &&
               ip xfrm policy add src $src_ip dst $dst_ip dir out tmpl src $src_ip dst $dst_ip proto esp reqid $reqid_out mode tunnel &&
               ip xfrm policy add src $dst_ip dst $src_ip dir in  tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode tunnel &&
               ip xfrm policy add src $dst_ip dst $src_ip dir fwd tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode tunnel"
     elif [[ ( "$MODE" == "remote" || "$MODE" == "remote_vf" ) && "$IPSEC_MODE" == "tunnel" ]]; then
         run_on_remote=1
         cmds="$cmds
-              ip xfrm state add src $src_ip dst $dst_ip proto esp spi $spi_out reqid $reqid_out $ALGO_LINE_OUT mode $IPSEC_MODE $OFFLOAD_OUT &&
-              ip xfrm state add src $dst_ip dst $src_ip proto esp spi $spi_in reqid $reqid_in $ALGO_LINE_IN mode $IPSEC_MODE $OFFLOAD_IN &&
+              ip xfrm state add src $src_ip dst $dst_ip proto esp spi $spi_out reqid $reqid_out $algo_line_out mode $IPSEC_MODE $offload_out &&
+              ip xfrm state add src $dst_ip dst $src_ip proto esp spi $spi_in reqid $reqid_in $algo_line_in mode $IPSEC_MODE $offload_in &&
               ip xfrm policy add src $src_ip dst $dst_ip dir out tmpl src $src_ip dst $dst_ip proto esp reqid $reqid_out mode tunnel &&
               ip xfrm policy add src $dst_ip dst $src_ip dir in  tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode tunnel &&
               ip xfrm policy add src $dst_ip dst $src_ip dir fwd tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode tunnel"
