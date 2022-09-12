@@ -109,6 +109,7 @@ function ipsec_config() {
         offload="mlnx_ofed_full_offload"
     fi
 
+    local offload_in offload_out
     if [[ "$offload" == "" || "$offload" == "no-offload" ]]; then
         offload_in=""
         offload_out=""
@@ -126,7 +127,7 @@ function ipsec_config() {
         fail "upstream ipsec full offload not supported yet"
     fi
 
-    cmds="ip address flush $nic"
+    local cmds="ip address flush $nic"
 
     if [[ "$IP_PROTO" == "ipv6" ]]; then
         EFFECTIVE_LIP=$EFFECTIVE_LIP6
