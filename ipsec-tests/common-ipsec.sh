@@ -150,54 +150,33 @@ function ipsec_config() {
     local reqid_in=10001
     local spi_out=1000
     local spi_in=1001
+    local run_on_remote=0
     if [[ ( "$MODE" == "remote" || "$MODE" == "remote_vf" ) ]]; then
         local spi_out=1001
         local spi_in=1000
         local tmp=$algo_line_in
         algo_line_in=$algo_line_out
         algo_line_out=$tmp
+        run_on_remote=1
     fi
-    local run_on_remote
 
-    if [[ ( "$MODE" == "local" || "$MODE" == "local_vf" ) && "$IPSEC_MODE" == "transport" ]]; then
-        cmds="$cmds
-              ip xfrm state add src $src_ip dst $dst_ip proto esp spi $spi_out reqid $reqid_out $algo_line_out mode $IPSEC_MODE sel src $src_ip dst $dst_ip $offload_out &&
-              ip xfrm state add src $dst_ip dst $src_ip proto esp spi $spi_in reqid $reqid_in $algo_line_in mode $IPSEC_MODE sel src $dst_ip dst $src_ip $offload_in &&
-              ip xfrm policy add src $src_ip dst $dst_ip dir out tmpl src $src_ip dst $dst_ip proto esp reqid $reqid_out mode $IPSEC_MODE &&
-              ip xfrm policy add src $dst_ip dst $src_ip dir in tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode $IPSEC_MODE &&
-              ip xfrm policy add src $dst_ip dst $src_ip dir fwd tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode $IPSEC_MODE"
-    elif [[ ( "$MODE" == "remote" || "$MODE" == "remote_vf" ) && "$IPSEC_MODE" == "transport" ]]; then
-        run_on_remote=1
-        cmds="$cmds
-              ip xfrm state add src $src_ip dst $dst_ip proto esp spi $spi_out reqid $reqid_out $algo_line_out mode $IPSEC_MODE sel src $src_ip dst $dst_ip $offload_out &&
-              ip xfrm state add src $dst_ip dst $src_ip proto esp spi $spi_in reqid $reqid_in $algo_line_in mode $IPSEC_MODE sel src $dst_ip dst $src_ip $offload_in &&
-              ip xfrm policy add src $src_ip dst $dst_ip dir out tmpl src $src_ip dst $dst_ip proto esp reqid $reqid_out mode $IPSEC_MODE &&
-              ip xfrm policy add src $dst_ip dst $src_ip dir in tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode $IPSEC_MODE &&
-              ip xfrm policy add src $dst_ip dst $src_ip dir fwd tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode $IPSEC_MODE"
-    elif [[ ( "$MODE" == "local" || "$MODE" == "local_vf" ) && "$IPSEC_MODE" == "tunnel" ]]; then
-        cmds="$cmds
-              ip xfrm state add src $src_ip dst $dst_ip proto esp spi $spi_out reqid $reqid_out $algo_line_out mode $IPSEC_MODE $offload_out &&
-              ip xfrm state add src $dst_ip dst $src_ip proto esp spi $spi_in reqid $reqid_in $algo_line_in mode $IPSEC_MODE $offload_in &&
-              ip xfrm policy add src $src_ip dst $dst_ip dir out tmpl src $src_ip dst $dst_ip proto esp reqid $reqid_out mode tunnel &&
-              ip xfrm policy add src $dst_ip dst $src_ip dir in  tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode tunnel &&
-              ip xfrm policy add src $dst_ip dst $src_ip dir fwd tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode tunnel"
-    elif [[ ( "$MODE" == "remote" || "$MODE" == "remote_vf" ) && "$IPSEC_MODE" == "tunnel" ]]; then
-        run_on_remote=1
-        cmds="$cmds
-              ip xfrm state add src $src_ip dst $dst_ip proto esp spi $spi_out reqid $reqid_out $algo_line_out mode $IPSEC_MODE $offload_out &&
-              ip xfrm state add src $dst_ip dst $src_ip proto esp spi $spi_in reqid $reqid_in $algo_line_in mode $IPSEC_MODE $offload_in &&
-              ip xfrm policy add src $src_ip dst $dst_ip dir out tmpl src $src_ip dst $dst_ip proto esp reqid $reqid_out mode tunnel &&
-              ip xfrm policy add src $dst_ip dst $src_ip dir in  tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode tunnel &&
-              ip xfrm policy add src $dst_ip dst $src_ip dir fwd tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode tunnel"
-    else
-        fail "Cannot config ipsec mode $MODE ipsec_mode $IPSEC_MODE"
-    fi
+    cmds="$cmds
+          `ipxfrm_config_cmds`"
 
     if [ "$run_on_remote" == "1" ]; then
         on_remote "$cmds" || fail "Failed to config ipsec"
     else
         eval "$cmds" || fail "Failed to config ipsec"
     fi
+}
+
+function ipxfrm_config_cmds() {
+    echo "
+        ip xfrm state add src $src_ip dst $dst_ip proto esp spi $spi_out reqid $reqid_out $algo_line_out mode $IPSEC_MODE $offload_out &&
+        ip xfrm state add src $dst_ip dst $src_ip proto esp spi $spi_in reqid $reqid_in $algo_line_in mode $IPSEC_MODE $offload_in &&
+        ip xfrm policy add src $src_ip dst $dst_ip dir out tmpl src $src_ip dst $dst_ip proto esp reqid $reqid_out mode $IPSEC_MODE &&
+        ip xfrm policy add src $dst_ip dst $src_ip dir in  tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode $IPSEC_MODE &&
+        ip xfrm policy add src $dst_ip dst $src_ip dir fwd tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode $IPSEC_MODE"
 }
 
 function ipsec_config_local() {
