@@ -110,21 +110,22 @@ function ipsec_config() {
     fi
 
     local offload_in offload_out
+    local offload_policy=""
     if [[ "$offload" == "" || "$offload" == "no-offload" ]]; then
         offload_in=""
         offload_out=""
-    elif [ "$offload" == "offload" ] || [ "$offload" == "full_offload" ]; then
+    elif [ "$offload" == "offload" ]; then
         offload_in="offload dev ${nic} dir in"
         offload_out="offload dev ${nic} dir out"
+    elif [ "$offload" == "full_offload" ]; then
+        offload_in="offload full dev ${nic} dir in"
+        offload_out="offload full dev ${nic} dir out"
+        offload_policy="offload full dev ${nic}"
     elif [ "$offload" == "mlnx_ofed_full_offload" ]; then
         offload_in="full_offload dev ${nic} dir in"
         offload_out="full_offload dev ${nic} dir out"
     else
         fail "Wrong usage, SHOULD_OFFLOAD needs to be set to offload for IPsec crypto offload, full_offload for IPsec full offload, no-offload for SW IPsec"
-    fi
-
-    if [ "$offload" == "full_offload" ]; then
-        fail "upstream ipsec full offload not supported yet"
     fi
 
     local cmds="ip address flush $nic"
@@ -174,8 +175,8 @@ function ipxfrm_config_cmds() {
     echo "
         ip xfrm state add src $src_ip dst $dst_ip proto esp spi $spi_out reqid $reqid_out $algo_line_out mode $IPSEC_MODE $offload_out &&
         ip xfrm state add src $dst_ip dst $src_ip proto esp spi $spi_in reqid $reqid_in $algo_line_in mode $IPSEC_MODE $offload_in &&
-        ip xfrm policy add src $src_ip dst $dst_ip dir out tmpl src $src_ip dst $dst_ip proto esp reqid $reqid_out mode $IPSEC_MODE &&
-        ip xfrm policy add src $dst_ip dst $src_ip dir in  tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode $IPSEC_MODE &&
+        ip xfrm policy add src $src_ip dst $dst_ip dir out tmpl src $src_ip dst $dst_ip proto esp reqid $reqid_out mode $IPSEC_MODE $offload_policy &&
+        ip xfrm policy add src $dst_ip dst $src_ip dir in  tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode $IPSEC_MODE $offload_policy &&
         ip xfrm policy add src $dst_ip dst $src_ip dir fwd tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode $IPSEC_MODE"
 }
 
