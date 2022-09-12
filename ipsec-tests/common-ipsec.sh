@@ -147,12 +147,12 @@ function ipsec_config() {
               ip xfrm policy add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP dir out tmpl src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp reqid 10001 mode $IPSEC_MODE &&
               ip xfrm policy add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP dir fwd tmpl src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp reqid 10000 mode $IPSEC_MODE"
     elif [[ ( "$MODE" == "local" || "$MODE" == "local_vf" ) && "$IPSEC_MODE" == "tunnel" ]]; then
-            cmds="$cmds
-                  ip xfrm state add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp spi 1000 reqid 10000 $ALGO_LINE_IN mode $IPSEC_MODE $OFFLOAD_OUT &&
-                  ip xfrm state add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp spi 1001 reqid 10001 $ALGO_LINE_IN mode $IPSEC_MODE $OFFLOAD_IN &&
-                  ip xfrm policy add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP dir out tmpl src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp reqid 10000 mode tunnel &&
-                  ip xfrm policy add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP dir in tmpl src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp reqid 10001 mode tunnel &&
-                  ip xfrm policy add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP dir fwd tmpl src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp reqid 10001 mode tunnel"
+        cmds="$cmds
+              ip xfrm state add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp spi 1000 reqid 10000 $ALGO_LINE_IN mode $IPSEC_MODE $OFFLOAD_OUT &&
+              ip xfrm state add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp spi 1001 reqid 10001 $ALGO_LINE_IN mode $IPSEC_MODE $OFFLOAD_IN &&
+              ip xfrm policy add src $EFFECTIVE_LIP dst $EFFECTIVE_RIP dir out tmpl src $EFFECTIVE_LIP dst $EFFECTIVE_RIP proto esp reqid 10000 mode tunnel &&
+              ip xfrm policy add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP dir in tmpl src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp reqid 10001 mode tunnel &&
+              ip xfrm policy add src $EFFECTIVE_RIP dst $EFFECTIVE_LIP dir fwd tmpl src $EFFECTIVE_RIP dst $EFFECTIVE_LIP proto esp reqid 10001 mode tunnel"
     elif [[ ( "$MODE" == "remote" || "$MODE" == "remote_vf" ) && "$IPSEC_MODE" == "tunnel" ]]; then
         run_on_remote=1
         cmds="$cmds
