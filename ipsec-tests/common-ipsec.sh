@@ -173,14 +173,14 @@ function ipsec_config() {
     elif [[ ( "$MODE" == "local" || "$MODE" == "local_vf" ) && "$IPSEC_MODE" == "tunnel" ]]; then
         cmds="$cmds
               ip xfrm state add src $src_ip dst $dst_ip proto esp spi $spi_out reqid $reqid_out $ALGO_LINE_IN mode $IPSEC_MODE $OFFLOAD_OUT &&
-              ip xfrm state add src $dst_ip dst $src_ip proto esp spi $spi_in reqid $reqid_in $ALGO_LINE_IN mode $IPSEC_MODE $OFFLOAD_IN &&
+              ip xfrm state add src $dst_ip dst $src_ip proto esp spi $spi_in reqid $reqid_in $ALGO_LINE_OUT mode $IPSEC_MODE $OFFLOAD_IN &&
               ip xfrm policy add src $src_ip dst $dst_ip dir out tmpl src $src_ip dst $dst_ip proto esp reqid $reqid_out mode tunnel &&
               ip xfrm policy add src $dst_ip dst $src_ip dir in  tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode tunnel &&
               ip xfrm policy add src $dst_ip dst $src_ip dir fwd tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode tunnel"
     elif [[ ( "$MODE" == "remote" || "$MODE" == "remote_vf" ) && "$IPSEC_MODE" == "tunnel" ]]; then
         run_on_remote=1
         cmds="$cmds
-              ip xfrm state add src $src_ip dst $dst_ip proto esp spi $spi_out reqid $reqid_out $ALGO_LINE_IN mode $IPSEC_MODE $OFFLOAD_OUT &&
+              ip xfrm state add src $src_ip dst $dst_ip proto esp spi $spi_out reqid $reqid_out $ALGO_LINE_OUT mode $IPSEC_MODE $OFFLOAD_OUT &&
               ip xfrm state add src $dst_ip dst $src_ip proto esp spi $spi_in reqid $reqid_in $ALGO_LINE_IN mode $IPSEC_MODE $OFFLOAD_IN &&
               ip xfrm policy add src $src_ip dst $dst_ip dir out tmpl src $src_ip dst $dst_ip proto esp reqid $reqid_out mode tunnel &&
               ip xfrm policy add src $dst_ip dst $src_ip dir in  tmpl src $dst_ip dst $src_ip proto esp reqid $reqid_in mode tunnel &&
