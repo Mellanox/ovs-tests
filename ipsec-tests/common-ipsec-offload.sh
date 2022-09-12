@@ -50,6 +50,10 @@ function run_traffic() {
             (on_remote timeout $((t+2)) iperf3 -c $LIP6 $IPERF_EXTRA -b 2G > $IPERF_FILE) || err "iperf3 failed"
         fi
     fi
+    if [ $TEST_FAILED == 1 ]; then
+        kill $upid
+        wait $upid
+    fi
     fail_if_err
     title "Verify $NET_PROTO traffic on $nic"
     verify_have_traffic $upid
