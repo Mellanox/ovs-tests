@@ -110,6 +110,17 @@ function check_offloaded_rules() {
     fi
 }
 
+function check_full_offload_counters() {
+    if [[ "$offload" != "full_offload" ]]; then
+        return
+    fi
+
+    title "Verify full offload counters"
+    if [[ ("$post_test_pkts_tx" -le "$pre_test_pkts_tx" || "$post_test_pkts_rx" -le "$pre_test_pkts_rx") ]]; then
+        fail "IPsec full offload counters didn't increase"
+    fi
+}
+
 #tx offloaded rx not
 function test_tx_off_rx() {
     local IPSEC_MODE="$1"
@@ -140,17 +151,6 @@ function test_tx_off_rx() {
 
     check_offloaded_rules tx
     check_full_offload_counters
-}
-
-function check_full_offload_counters() {
-    if [[ "$offload" != "full_offload" ]]; then
-        return
-    fi
-
-    title "Verify full offload counters"
-    if [[ ("$post_test_pkts_tx" -le "$pre_test_pkts_tx" || "$post_test_pkts_rx" -le "$pre_test_pkts_rx") ]]; then
-        fail "IPsec full offload counters didn't increase"
-    fi
 }
 
 #rx offloaded tx not
