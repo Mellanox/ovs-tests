@@ -67,11 +67,12 @@ function get_ipsec_counter() {
         fail "Wrong argument for function get_ipsec_counter"
     fi
 
-    local c="ipsec_${counter_name}_pkts:"
-    local ofed_sysfs=`ipsec_mode_ofed $nic`
+    local c="ipsec_${counter_name}_pkts"
+    local ofed_sysfs=`ipsec_mode_ofed $dev`
     if [ -f $ofed_sysfs ]; then
-        c="ipsec_full_${counter_name}_pkts:"
+        c="ipsec_full_${counter_name}_pkts"
     fi
+
     ethtool -S $dev | grep -w "$c" | awk '{print $2}'
 }
 
@@ -135,7 +136,8 @@ function check_offloaded_rules() {
 }
 
 function check_full_offload_counters() {
-    if [[ "$offload" != "full_offload" ]]; then
+    # counters only supported in full offload both upstream and mlnx ofed.
+    if [ "$offload" != "full_offload" ]; then
         return
     fi
 
