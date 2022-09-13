@@ -64,7 +64,7 @@ function get_ipsec_counter() {
     local dev=${2:-"$NIC"}
 
     if [[ "$counter_name" != "tx" &&  "$counter_name" != "rx" ]]; then
-        err "Wrong argument for function get_ipsec_counter"
+        fail "Wrong argument for function get_ipsec_counter"
     fi
 
     ethtool -S $dev | grep "ipsec_full_${counter_name}_pkts:" | awk '{print $2}'
