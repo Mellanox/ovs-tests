@@ -1389,7 +1389,8 @@ function get_test_time_elapsed_human() {
 }
 
 function journalctl_for_test() {
-    journalctl --since="$_check_start_ts_full"
+    local since=${1:-$_check_start_ts_full}
+    journalctl --since="$since"
 }
 
 function check_kasan() {
@@ -1454,6 +1455,7 @@ function add_expected_error_msg() {
 
 function check_for_errors_log() {
     journalctl --sync &>/dev/null || sleep 0.5
+    local since=$1
     local rc=0
     local look="DEADLOCK|possible circular locking|possible recursive locking|\
 WARNING:|RIP:|BUG:|refcount > 1|refcount_t|segfault|in_atomic|hw csum failure|\
@@ -1483,8 +1485,8 @@ Deprecated Driver is detected: iptables will not be maintained in a future major
     fi
 
     look="$look|$memtrack|$mlx5_errs|$fw_errs"
-    local a=`journalctl_for_test | grep -E -i "$look" | grep -v -E -i "$filter" || true`
-    local b=`journalctl_for_test | grep -E -A $look_ahead_count -i "$look_ahead" || true`
+    local a=`journalctl_for_test $since | grep -E -i "$look" | grep -v -E -i "$filter" || true`
+    local b=`journalctl_for_test $since | grep -E -A $look_ahead_count -i "$look_ahead" || true`
     if [ "$a" != "" ] || [ "$b" != "" ]; then
         err "Detected errors in the log"
         rc=1
@@ -1492,7 +1494,7 @@ Deprecated Driver is detected: iptables will not be maintained in a future major
     [ "$a" != "" ] && echo "$a"
     [ "$b" != "" ] && echo "$b"
 
-    a=`journalctl_for_test | grep -E -i "$memleak" || true`
+    a=`journalctl_for_test $since | grep -E -i "$memleak" || true`
     if [ "$a" != "" ]; then
         # WA getting 2 "mount.nfs" leaks sometimes in regression VM.
         # WA getting 4 "mount.nfs" leaks sometimes in regression VM BF.

@@ -33,7 +33,7 @@ else
         log "Other tests already running."
     else
         title "Check dmesg"
-        check_for_errors_log ${__uptime_seconds}
+        check_for_errors_log today
     fi
 fi
 
