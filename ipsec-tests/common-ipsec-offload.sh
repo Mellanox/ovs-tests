@@ -67,7 +67,12 @@ function get_ipsec_counter() {
         fail "Wrong argument for function get_ipsec_counter"
     fi
 
-    ethtool -S $dev | grep "ipsec_full_${counter_name}_pkts:" | awk '{print $2}'
+    local c="ipsec_${counter_name}_pkts:"
+    local ofed_sysfs=`ipsec_mode_ofed $nic`
+    if [ -f $ofed_sysfs ]; then
+        c="ipsec_full_${counter_name}_pkts:"
+    fi
+    ethtool -S $dev | grep -w "$c" | awk '{print $2}'
 }
 
 function get_ipsec_counter_on_remote() {
