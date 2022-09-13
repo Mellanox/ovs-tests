@@ -290,9 +290,27 @@ function cleanup_crypto() {
     cleanup_test
     ipsec_clear_mode_on_both_sides
     reset_eswitch_encap
-
     enable_switchdev
     on_remote_exec enable_switchdev
+}
+
+function config_full() {
+    cleanup_test
+
+    ipsec_set_mode full
+    ipsec_set_mode_on_remote full
+
+    local ofed_sysfs=`ipsec_mode_ofed $nic`
+    if [ -f $ofed_sysfs ]; then
+        # ipsec_sec_mode set switchdev and mlnx ofed will continue in switchdev
+        enable_switchdev
+        on_remote_exec enable_switchdev
+        return
+    fi
+
+    # upstream move to legacy
+    enable_legacy
+    on_remote_exec enable_legacy
 }
 
 function cleanup_full() {
