@@ -277,16 +277,6 @@ function reset_eswitch_encap() {
 }
 
 function cleanup_crypto() {
-    local mtu=${1:-1500}
-    local trusted_vfs=${2:-"no_trusted_vfs"}
-    local nic="$NIC"
-    local remote_nic="$REMOTE_NIC"
-
-    if [[ "$trusted_vfs" == "trusted_vfs" ]]; then
-        nic="$VF"
-        remote_nic="$VF"
-    fi
-
     cleanup_test
     ipsec_clear_mode_on_both_sides
     reset_eswitch_encap
@@ -314,7 +304,7 @@ function config_full() {
 }
 
 function cleanup_full() {
-    cleanup_crypto $@
+    cleanup_crypto
 }
 
 # Usage <mtu> <ip_proto> <ipsec_mode> <net_proto> [trusted_vfs]
