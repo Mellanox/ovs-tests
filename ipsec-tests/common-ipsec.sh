@@ -270,7 +270,6 @@ function kill_iperf() {
     killall -9 iperf3 &>/dev/null
 }
 
-
 function ipsec_mode_ofed() {
     local nic=$1
     echo "/sys/class/net/$nic/compat/devlink/ipsec_mode"
