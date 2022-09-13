@@ -93,12 +93,31 @@ function check_offloaded_rules() {
         fail "test issue, wrong usage of check_offloaded_rules"
     fi
 
-    title "Verify offloaded rules"
+    title "Verify $offload rules"
 
-    local tx_off=`on_remote ip x s s | grep -c -w offload`
-    local rx_off=`ip x s s | grep -c -w offload`
+    local ofed_sysfs=`ipsec_mode_ofed $NIC`
+    local chk_policy=0
+    if [[ "$offload" == "full_offload" && ! -f "$ofed_sysfs" ]]; then
+        chk_policy=1
+    fi
 
-    if [[ "$tx_off" != $tx_check_val || "$rx_off" != $rx_check_val ]]; then
+    local g="offload"
+    if [[ "$chk_policy" == 1 ]]; then
+        g="offload.*mode full"
+    fi
+
+    local tx_off=`on_remote ip x s s | grep -c -w "$g"`
+    local rx_off=`ip x s s | grep -c -w "$g"`
+
+    if [[ "$chk_policy" == 1 ]]; then
+        local policy_tx_off=`on_remote ip x policy s | grep -c -w "$g"`
+        local policy_rx_off=`ip x policy s | grep -c -w "$g"`
+    else
+        local policy_tx_off=$tx_check_val
+        local policy_rx_off=$rx_check_val
+    fi
+
+    if [[ "$tx_off" != $tx_check_val || "$rx_off" != $rx_check_val || "$policy_tx_off" != $tx_check_val || "$policy_rx_off" != $rx_check_val ]]; then
         debug "Dumping IPsec rules"
         echo "Local Rules:"
         ip xfrm state show
