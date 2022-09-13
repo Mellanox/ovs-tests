@@ -115,9 +115,15 @@ function check_full_offload_counters() {
         return
     fi
 
+    local pre_tx=$1
+    local pre_rx=$2
+    local post_tx=$3
+    local post_rx=$4
+    local msg=$5
+
     title "Verify full offload counters"
-    if [[ ("$post_test_pkts_tx" -le "$pre_test_pkts_tx" || "$post_test_pkts_rx" -le "$pre_test_pkts_rx") ]]; then
-        fail "IPsec full offload counters didn't increase"
+    if [[ ("$post_tx" -le "$pre_tx" || "$post_rx" -le "$pre_rx") ]]; then
+        fail "IPsec full offload counters didn't increase $msg"
     fi
 }
 
@@ -138,19 +144,19 @@ function test_tx_off_rx() {
     sleep 2
 
     if [[ "$offload" == "full_offload" ]]; then
-        local pre_test_pkts_tx=`get_ipsec_counter_on_remote tx`
-        local pre_test_pkts_rx=`get_ipsec_counter_on_remote rx`
+        local pre_tx=`get_ipsec_counter_on_remote tx`
+        local pre_rx=`get_ipsec_counter_on_remote rx`
     fi
 
     run_traffic $IP_PROTO $NET_PROTO $TRUSTED_VFS
 
     if [[ "$offload" == "full_offload" ]]; then
-        local post_test_pkts_tx=`get_ipsec_counter_on_remote tx`
-        local post_test_pkts_rx=`get_ipsec_counter_on_remote rx`
+        local post_tx=`get_ipsec_counter_on_remote tx`
+        local post_rx=`get_ipsec_counter_on_remote rx`
     fi
 
     check_offloaded_rules tx
-    check_full_offload_counters
+    check_full_offload_counters $pre_tx $pre_rx $post_tx $post_rx
 }
 
 #rx offloaded tx not
@@ -170,19 +176,19 @@ function test_tx_rx_off() {
     sleep 2
 
     if [[ "$offload" == "full_offload" ]]; then
-        local pre_test_pkts_tx=`get_ipsec_counter tx`
-        local pre_test_pkts_rx=`get_ipsec_counter rx`
+        local pre_tx=`get_ipsec_counter tx`
+        local pre_rx=`get_ipsec_counter rx`
     fi
 
     run_traffic $IP_PROTO $NET_PROTO $TRUSTED_VFS
 
     if [[ "$offload" == "full_offload" ]]; then
-        local post_test_pkts_tx=`get_ipsec_counter tx`
-        local post_test_pkts_rx=`get_ipsec_counter rx`
+        local post_tx=`get_ipsec_counter tx`
+        local post_rx=`get_ipsec_counter rx`
     fi
 
     check_offloaded_rules rx
-    check_full_offload_counters
+    check_full_offload_counters $pre_tx $pre_rx $post_tx $post_rx
 }
 
 #tx & rx are offloaded
@@ -202,31 +208,24 @@ function test_tx_off_rx_off() {
     sleep 2
 
     if [[ "$offload" == "full_offload" ]]; then
-        local remote_pre_test_pkts_tx=`get_ipsec_counter_on_remote tx`
-        local remote_pre_test_pkts_rx=`get_ipsec_counter_on_remote rx`
-        local local_pre_test_pkts_tx=`get_ipsec_counter tx`
-        local local_pre_test_pkts_rx=`get_ipsec_counter rx`
+        local remote_pre_tx=`get_ipsec_counter_on_remote tx`
+        local remote_pre_rx=`get_ipsec_counter_on_remote rx`
+        local local_pre_tx=`get_ipsec_counter tx`
+        local local_pre_rx=`get_ipsec_counter rx`
     fi
 
     run_traffic $IP_PROTO $NET_PROTO $TRUSTED_VFS
 
     if [[ "$offload" == "full_offload" ]]; then
-        local remote_post_test_pkts_tx=`get_ipsec_counter_on_remote tx`
-        local remote_post_test_pkts_rx=`get_ipsec_counter_on_remote rx`
-        local local_post_test_pkts_tx=`get_ipsec_counter tx`
-        local local_post_test_pkts_rx=`get_ipsec_counter rx`
+        local remote_post_tx=`get_ipsec_counter_on_remote tx`
+        local remote_post_rx=`get_ipsec_counter_on_remote rx`
+        local local_post_tx=`get_ipsec_counter tx`
+        local local_post_rx=`get_ipsec_counter rx`
     fi
 
     check_offloaded_rules both
-
-    #verify TX side
-    if [[ "$offload" == "full_offload" && ("$remote_post_test_pkts_tx" -le "$remote_pre_test_pkts_tx" || "$remote_post_test_pkts_rx" -le "$remote_pre_test_pkts_rx") ]]; then
-        fail "IPsec full offload counters didn't increase on TX side"
-    fi
-    #verify RX side
-    if [[ "$offload" == "full_offload" && ("$local_post_test_pkts_tx" -le "$local_pre_test_pkts_tx" || "$local_post_test_pkts_rx" -le "$local_pre_test_pkts_rx") ]]; then
-        fail "IPsec full offload counters didn't increase on RX side"
-    fi
+    check_full_offload_counters $remote_pre_tx $remote_pre_rx $remote_post_tx $remote_post_rx "on TX side"
+    check_full_offload_counters $local_pre_tx $local_pre_rx $local_post_tx $local_post_rx "on RX side"
 }
 
 function cleanup_test() {
