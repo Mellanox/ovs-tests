@@ -293,6 +293,7 @@ function config_full() {
     local ofed_sysfs=`ipsec_mode_ofed $nic`
     if [ -f $ofed_sysfs ]; then
         # ipsec_sec_mode set switchdev and mlnx ofed will continue in switchdev
+        reset_eswitch_encap
         enable_switchdev
         on_remote_exec enable_switchdev
         return
