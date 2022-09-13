@@ -305,7 +305,8 @@ function config_full() {
 }
 
 function cleanup_full() {
-    cleanup_crypto
+    cleanup_test
+    ipsec_clear_mode_on_both_sides
 }
 
 # Usage <mtu> <ip_proto> <ipsec_mode> <net_proto> [trusted_vfs]
