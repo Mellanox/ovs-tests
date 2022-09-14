@@ -68,8 +68,7 @@ function get_ipsec_counter() {
     fi
 
     local c="ipsec_${counter_name}_pkts"
-    local ofed_sysfs=`ipsec_mode_ofed $dev`
-    if [ -f $ofed_sysfs ]; then
+    if is_ipsec_ofed; then
         c="ipsec_full_${counter_name}_pkts"
     fi
 
@@ -101,9 +100,8 @@ function check_offloaded_rules() {
 
     title "Verify $offload rules"
 
-    local ofed_sysfs=`ipsec_mode_ofed $NIC`
     local chk_policy=0
-    if [[ "$offload" == "full_offload" && ! -f "$ofed_sysfs" ]]; then
+    if [[ "$offload" == "full_offload" ]] && ! is_ipsec_ofed; then
         chk_policy=1
     fi
 
@@ -315,8 +313,7 @@ function config_full() {
     ipsec_set_mode full
     ipsec_set_mode_on_remote full
 
-    local ofed_sysfs=`ipsec_mode_ofed $NIC`
-    if [ -f $ofed_sysfs ]; then
+    if is_ipsec_ofed; then
         # ipsec_sec_mode set switchdev and mlnx ofed will continue in switchdev
         reset_eswitch_encap
         enable_switchdev

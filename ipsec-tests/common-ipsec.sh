@@ -103,9 +103,8 @@ function ipsec_config() {
     local algo_line_in="aead 'rfc4106(gcm(aes))' $key_in 128"
     local algo_line_out="aead 'rfc4106(gcm(aes))' $key_out 128"
 
-    local ofed_sysfs=`ipsec_mode_ofed $nic`
     local offload=$SHOULD_OFFLOAD
-    if [ "$offload" == "full_offload" ] && [ -f "$ofed_sysfs" ]; then
+    if [ "$offload" == "full_offload" ] && is_ipsec_ofed; then
         offload="mlnx_ofed_full_offload"
     fi
 
@@ -274,6 +273,12 @@ function kill_iperf() {
 function ipsec_mode_ofed() {
     local nic=$1
     echo "/sys/class/net/$nic/compat/devlink/ipsec_mode"
+}
+
+function is_ipsec_ofed() {
+    local sysfs=`ipsec_mode_ofed $NIC`
+    [ -f $sysfs ] && return 0
+    return 1
 }
 
 function ipsec_set_mode() {
