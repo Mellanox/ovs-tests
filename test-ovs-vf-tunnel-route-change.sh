@@ -21,7 +21,9 @@ REMOTE_VF_IP="5.5.5.1"
 
 function cleanup() {
     ip addr flush dev $VF &>/dev/null
-    ip netns del ns0 &>/dev/null
+    ip addr flush dev $VF3 &>/dev/null
+    ip -netns ns0 link set dev $VF2 netns 1
+    ip -all netns delete
     start_clean_openvswitch
     cleanup_remote_vxlan
 }
@@ -43,7 +45,6 @@ function config() {
     ip link set dev $REP2 up
     ip link set dev $REP3 up
 
-    start_clean_openvswitch
     ovs-vsctl add-br ovs-br
     ovs-vsctl add-port ovs-br $NIC
     ovs-vsctl add-port ovs-br $REP
@@ -101,17 +102,17 @@ unbind_vfs
 bind_vfs
 VF3=`get_vf 2`
 remote_disable_sriov
+cleanup
 
 title "Test IPv4 tunnel"
-cleanup
 config $LOCAL_IP $REMOTE_IP 24
 run $LOCAL_IP 24 $VF $VF3
+cleanup
 
 title "Test IPv6 tunnel"
-cleanup
 config $LOCAL_IPV6 $REMOTE_IPV6 64
 run $LOCAL_IPV6 64 $VF $VF3
-
 cleanup
+
 trap - EXIT
 test_done
