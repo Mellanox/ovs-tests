@@ -173,8 +173,7 @@ HEREDOC
     exit $1
 }
 
-function parse_args()
-{
+function parse_args() {
     while [[ $# -gt 0 ]]; do
         key="$1"
         case $key in
@@ -224,15 +223,15 @@ function parse_args()
             ;;
             --offload)
             OFFLOAD="1"
-            shift # pass argument
+            shift
             ;;
             --debug)
             DEBUG="on"
-            shift # pass argument
+            shift
             ;;
             --add-multi-sa)
             MULTI_SA="1"
-            shift # pass argument
+            shift
             ;;
             -d | --delete)
             IF_TO_DELETE="$2"
@@ -312,43 +311,41 @@ function parse_args()
             SSCI_RX="ssci $2"
             shift 2
             ;;
-            -h | --help) # help option
+            -h | --help) # Help option
             usage 0
             ;;
-            *)    # unknown option
+            *)    # Unknown option
             usage 1
             ;;
         esac
     done
 }
 
-function check_xpn()
-{
+function check_xpn() {
     if [[ $CIPHER == "cipher gcm-aes-xpn-128"|| $CIPHER == "cipher gcm-aes-xpn-256" ]]; then
         XPN="on"
     fi
 
     if [[ $XPN == "on" ]]; then
-        #in case cipher not provided use default
+        #In case cipher not provided use default
         if [[ "$CIPHER" == "" ]]; then
             CIPHER="cipher gcm-aes-xpn-128"
         fi
 
-        #in case salt not provided use default
+        #In case salt not provided use default
         if [[ "$SALT" == "" ]]; then
             SALT="salt fc8d7b9a43d5b9a3dfbbf6a3"
         fi
 
-        #in case ssci not provided use default
+        #In case ssci not provided use default
         if [[ "$SSCI" == "" ]]; then
             SSCI="ssci 1"
         fi
     fi
 }
 
-function check_keys()
-{
-    #in case of KEYS not getting passed use default
+function check_keys() {
+    #In case of KEYS not getting passed use default
     if [[ $TX_KEY == "" ]]; then
         if [ "$SIDE" == "server" ]; then
             if [[ $CIPHER == "cipher gcm-aes-256"  || $CIPHER == "cipher gcm-aes-xpn-256" ]]; then
@@ -382,9 +379,8 @@ function check_keys()
     fi
 }
 
-function check_ips()
-{
-    #check for any custom IPS
+function check_ips() {
+    #Check for any custom IPS
     if [[ $CUSTOM_DEV_IP != "" ]]; then
         if [ "$SIDE" == "server" ]; then
             DEV_IP_SERVER="$CUSTOM_DEV_IP"
@@ -402,9 +398,8 @@ function check_ips()
     fi
 }
 
-function check_sci()
-{
-    #if we are using the default RX_SCI and SCI and we are on server side then revert the SCIs
+function check_sci() {
+    #If we are using the default RX_SCI and SCI and we are on server side then revert the SCIs
     if [[ $RX_SCI == "" && $SCI == "" ]]; then
         if [[ $SIDE = "server" ]]; then
             RX_SCI="1"
@@ -415,12 +410,12 @@ function check_sci()
         fi
     fi
 
-    #if only SSCI is passed then use same SSCI for SSCI_RX
+    #If only SSCI is passed then use same SSCI for SSCI_RX
     if [[ "$SSCI" != "" && "$SSCI_RX" == "" ]]; then
             SSCI_RX=$SSCI
     fi
 
-    #if on server swap ssci's
+    #If on server swap ssci's
     if [[ "$SIDE" == "server" ]]; then
             tmp=$SSCI
             SSCI=$SSCI_RX
@@ -428,8 +423,7 @@ function check_sci()
     fi
 }
 
-function main()
-{
+function main() {
     parse_args "$@"
 
     if [[ "$IF_TO_DELETE" != "" ]]; then
@@ -459,11 +453,11 @@ function main()
     check_ips
     #Check if to use default secure channel IDs
     check_sci
-    #delete macsec if exists
+    #Delete macsec if exists
     cleanup_macsec
-    #bring up the device and configure ips
+    #Bring up the device and configure ips
     configure_device
-    #check if device exists, add it otherwise
+    #Check if device exists, add it otherwise
     configure_macsec_interface
     #Enable offload if requested
     if [ "$OFFLOAD" == 1 ]; then
