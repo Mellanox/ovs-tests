@@ -149,252 +149,273 @@ HEREDOC
     exit $1
 }
 
-while [[ $# -gt 0 ]]; do
-    key="$1"
-    case $key in
-        --tx-key)
-        TX_KEY="$2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --rx-key)
-        RX_KEY="$2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --device)
-        DEVICE="$2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --remote)
-        REMOTE_IP="$2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --interface)
-        MACSEC_IF="$2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --side)
-        SIDE="$2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --dev-ip)
-        CUSTOM_DEV_IP="$2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --macsec-ip)
-        CUSTOM_MACSEC_IP="$2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --tx-sa-state)
-        TX_SA_STATE="$2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --enable-sa)
-        TX_SA_TO_ENABLE="$2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --offload)
-        OFFLOAD="1"
-        shift # pass argument
-        ;;
-        --add-multi-sa)
-        MULTI_SA="1"
-        shift # pass argument
-        ;;
-        -d | --delete)
-        IF_TO_DELETE="$2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --cipher)
-        CIPHER="cipher $2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --icvlen)
-        ICVLEN="icvlen $2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --encrypt)
-        ENCRYPT="encrypt $2"
-        shift # pass argument
-        shift #pass value
-        ;;
-        --send-sci)
-        SEND_SCI="send_sci $2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --end-station)
-        END_STATION="end_station $2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --scb)
-        SCB="scb $2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --protect)
-        PROTECT="protect $2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --replay)
-        REPLAY="replay $2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --window)
-        WINDOW="window $2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --validate)
-        VALIDATE="validate $2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --encoding-sa)
-        ENCODINGSA="encodingsa $2"
-        TX_SA="$2"
-        RX_SA="$2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --set-encoding-sa)
-        SET_ENCODINGSA="$2"
-        shift # pass argument
-        shift # pass value
-        ;;
-        --pn)
-        PACKET_NUMBER="$2"
-        shift # pass argument
-        shift # pass first value
-        ;;
-        --sci)
-        SCI="$2"
-        shift # pass argument
-        shift # pass first value
-        ;;
-        --rx-sci)
-        RX_SCI="$2"
-        shift # pass argument
-        shift # pass first value
-        ;;
-        -h | --help) # help option
-        usage 0
-        ;;
-        *)    # unknown option
+function parse_args()
+{
+    while [[ $# -gt 0 ]]; do
+        key="$1"
+        case $key in
+            --tx-key)
+            TX_KEY="$2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --rx-key)
+            RX_KEY="$2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --device)
+            DEVICE="$2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --remote)
+            REMOTE_IP="$2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --interface)
+            MACSEC_IF="$2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --side)
+            SIDE="$2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --dev-ip)
+            CUSTOM_DEV_IP="$2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --macsec-ip)
+            CUSTOM_MACSEC_IP="$2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --tx-sa-state)
+            TX_SA_STATE="$2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --enable-sa)
+            TX_SA_TO_ENABLE="$2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --offload)
+            OFFLOAD="1"
+            shift # pass argument
+            ;;
+            --add-multi-sa)
+            MULTI_SA="1"
+            shift # pass argument
+            ;;
+            -d | --delete)
+            IF_TO_DELETE="$2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --cipher)
+            CIPHER="cipher $2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --icvlen)
+            ICVLEN="icvlen $2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --encrypt)
+            ENCRYPT="encrypt $2"
+            shift # pass argument
+            shift #pass value
+            ;;
+            --send-sci)
+            SEND_SCI="send_sci $2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --end-station)
+            END_STATION="end_station $2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --scb)
+            SCB="scb $2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --protect)
+            PROTECT="protect $2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --replay)
+            REPLAY="replay $2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --window)
+            WINDOW="window $2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --validate)
+            VALIDATE="validate $2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --encoding-sa)
+            ENCODINGSA="encodingsa $2"
+            TX_SA="$2"
+            RX_SA="$2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --set-encoding-sa)
+            SET_ENCODINGSA="$2"
+            shift # pass argument
+            shift # pass value
+            ;;
+            --pn)
+            PACKET_NUMBER="$2"
+            shift # pass argument
+            shift # pass first value
+            ;;
+            --sci)
+            SCI="$2"
+            shift # pass argument
+            shift # pass first value
+            ;;
+            --rx-sci)
+            RX_SCI="$2"
+            shift # pass argument
+            shift # pass first value
+            ;;
+            -h | --help) # help option
+            usage 0
+            ;;
+            *)    # unknown option
+            usage 1
+            ;;
+        esac
+    done
+}
+
+function check_keys()
+{
+    #in case of KEYS not getting passed use default
+    if [[ $TX_KEY == "" ]]; then
+        if [ "$SIDE" == "server" ]; then
+            if [[ $CIPHER == "cipher gcm-aes-256"  || $CIPHER == "cipher gcm-aes-xpn-256" ]]; then
+                TX_KEY="$REMOTE_KEY_256"
+            else
+                TX_KEY="$REMOTE_KEY"
+            fi
+        else
+            if [[ $CIPHER == "cipher gcm-aes-256"  || $CIPHER == "cipher gcm-aes-xpn-256" ]]; then
+                TX_KEY="$LOCAL_KEY_256"
+            else
+                TX_KEY="$LOCAL_KEY"
+            fi
+        fi
+    fi
+
+    if [[ $RX_KEY == "" ]]; then
+        if [ "$SIDE" == "server" ]; then
+            if [[ $CIPHER == "cipher gcm-aes-256"  || $CIPHER == "cipher gcm-aes-xpn-256" ]]; then
+                RX_KEY="$LOCAL_KEY_256"
+            else
+                RX_KEY="$LOCAL_KEY"
+            fi
+        else
+            if [[ $CIPHER == "cipher gcm-aes-256"  || $CIPHER == "cipher gcm-aes-xpn-256" ]]; then
+                RX_KEY="$REMOTE_KEY_256"
+            else
+                RX_KEY="$REMOTE_KEY"
+            fi
+        fi
+    fi
+}
+
+function check_ips()
+{
+    #check for any custom IPS
+    if [[ $CUSTOM_DEV_IP != "" ]]; then
+        if [ "$SIDE" == "server" ]; then
+            DEV_IP_SERVER="$CUSTOM_DEV_IP"
+        else
+            DEV_IP_CLIENT="$CUSTOM_DEV_IP"
+        fi
+    fi
+
+    if [[ $CUSTOM_MACSEC_IP != "" ]]; then
+        if [ "$SIDE" == "server" ]; then
+            MACSEC_IP_SERVER="$CUSTOM_MACSEC_IP"
+        else
+            MACSEC_IP_CLIENT="$CUSTOM_MACSEC_IP"
+        fi
+    fi
+}
+
+function check_sci()
+{
+    #if we are using the default RX_SCI and SCI and we are on server side then revert the SCIs
+    if [[ $RX_SCI == "2" && $SCI == "1" && $SIDE == "server" ]]; then
+        RX_SCI=1
+        SCI=2
+    fi
+}
+
+function main()
+{
+    parse_args "$@"
+
+    if [[ "$IF_TO_DELETE" != "" ]]; then
+        ip link del $IF_TO_DELETE
+        exit 0
+    fi
+
+    if [[ "$TX_SA_TO_ENABLE" != "" ]]; then
+        switch_tx_sa
+        exit 0
+    fi
+
+    if [[ "$DEVICE" == "" ]]; then
         usage 1
-        ;;
-    esac
-done
-
-if [[ "$IF_TO_DELETE" != "" ]]; then
-    ip link del $IF_TO_DELETE
-    exit 0
-fi
-
-if [[ "$TX_SA_TO_ENABLE" != "" ]]; then
-    switch_tx_sa
-    exit 0
-fi
-
-if [[ "$DEVICE" == "" ]]; then
-    usage 1
-fi
-
-if [[ "$SET_ENCODINGSA" != "" ]]; then
-    set_encodingsa
-    exit 0
-fi
-
-#in case of KEYS not getting passed use default
-if [[ $TX_KEY == "" ]]; then
-    if [ "$SIDE" == "server" ]; then
-        if [[ $CIPHER == "cipher gcm-aes-256"  || $CIPHER == "cipher gcm-aes-xpn-256" ]]; then
-            TX_KEY="$REMOTE_KEY_256"
-        else
-            TX_KEY="$REMOTE_KEY"
-        fi
-    else
-        if [[ $CIPHER == "cipher gcm-aes-256"  || $CIPHER == "cipher gcm-aes-xpn-256" ]]; then
-            TX_KEY="$LOCAL_KEY_256"
-        else
-            TX_KEY="$LOCAL_KEY"
-        fi
     fi
-fi
 
-if [[ $RX_KEY == "" ]]; then
-    if [ "$SIDE" == "server" ]; then
-        if [[ $CIPHER == "cipher gcm-aes-256"  || $CIPHER == "cipher gcm-aes-xpn-256" ]]; then
-            RX_KEY="$LOCAL_KEY_256"
-        else
-            RX_KEY="$LOCAL_KEY"
-        fi
-    else
-        if [[ $CIPHER == "cipher gcm-aes-256"  || $CIPHER == "cipher gcm-aes-xpn-256" ]]; then
-            RX_KEY="$REMOTE_KEY_256"
-        else
-            RX_KEY="$REMOTE_KEY"
-        fi
+    if [[ "$SET_ENCODINGSA" != "" ]]; then
+        set_encodingsa
+        exit 0
     fi
-fi
 
-#check for any custom IPS
-if [[ $CUSTOM_DEV_IP != "" ]]; then
-    if [ "$SIDE" == "server" ]; then
-        DEV_IP_SERVER="$CUSTOM_DEV_IP"
-    else
-        DEV_IP_CLIENT="$CUSTOM_DEV_IP"
+    #Check if to use default keys
+    check_keys
+    #Check if to use default IPs
+    check_ips
+    #Check if to use default secure channel IDs
+    check_sci
+    #delete macsec if exists
+    cleanup_macsec
+    #bring up the device and configure ips
+    configure_device
+    #check if device exists, add it otherwise
+    configure_macsec_interface
+    #Enable offload if requested
+    if [ "$OFFLOAD" == 1 ]; then
+        offload_macsec
     fi
-fi
 
-if [[ $CUSTOM_MACSEC_IP != "" ]]; then
-    if [ "$SIDE" == "server" ]; then
-        MACSEC_IP_SERVER="$CUSTOM_MACSEC_IP"
-    else
-        MACSEC_IP_CLIENT="$CUSTOM_MACSEC_IP"
+    configure_macsec_secrets
+    configure_macsec_ips
+
+    #Configure max number of SAs if requested
+    if [ "$MULTI_SA" == 1 ]; then
+        configure_macsec_multi_secrets
     fi
-fi
+}
 
-#if we are using the default RX_SCI and SCI and we are on server side then revert the SCIs
-if [[ $RX_SCI == "2" && $SCI == "1" && $SIDE == "server" ]]; then
-    RX_SCI=1
-    SCI=2
-fi
-
-#delete macsec if exists
-cleanup_macsec
-
-#bring up the device and configure ips
-configure_device
-
-#check if device exists, add it otherwise
-configure_macsec_interface
-
-#Enable offload if requested
-if [ "$OFFLOAD" == 1 ]; then
-    offload_macsec
-fi
-
-configure_macsec_secrets
-
-configure_macsec_ips
-
-#Configure max number of SAs if requested
-if [ "$MULTI_SA" == 1 ]; then
-    configure_macsec_multi_secrets
-fi
+main "$@"
