@@ -219,6 +219,11 @@ function run_traffic() {
     verify_have_traffic $upid
 }
 
+function config_macsec_env() {
+    enable_legacy
+    on_remote_exec enable_legacy
+}
+
 function config_macsec() {
     local encrypt="$1"
     local ip_proto="$2"

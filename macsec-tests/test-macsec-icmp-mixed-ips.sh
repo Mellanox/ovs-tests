@@ -5,6 +5,10 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
+function config() {
+    config_macsec_env
+}
+
 function cleanup() {
     macsec_cleanup
 }
@@ -16,6 +20,7 @@ function run_test() {
 
 trap cleanup EXIT
 cleanup
+config
 run_test
 trap - EXIT
 cleanup
