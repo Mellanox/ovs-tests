@@ -22,7 +22,7 @@ REMOTE_VF_IP="5.5.5.1"
 function cleanup() {
     ip addr flush dev $VF &>/dev/null
     ip addr flush dev $VF3 &>/dev/null
-    ip -netns ns0 link set dev $VF2 netns 1
+    ip -netns ns0 link set dev $VF2 netns 1 2>/dev/null
     ip -all netns delete
     start_clean_openvswitch
     cleanup_remote_vxlan
