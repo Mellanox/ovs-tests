@@ -83,8 +83,6 @@ function test_add_encap_and_disable_sriov() {
     config_sriov 0 $NIC2
     title "- disable sriov $NIC"
     config_sriov 0 $NIC
-    title "- enable sriov $NIC"
-    config_sriov 2 $NIC
     title "- reload modules"
     reload_modules
 }
@@ -92,6 +90,7 @@ function test_add_encap_and_disable_sriov() {
 cleanup
 config
 test_add_encap_and_disable_sriov
+
 echo "cleanup"
 cleanup
 #we disable sriov in the test so no need to call deconfig_ports
