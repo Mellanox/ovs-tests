@@ -24,6 +24,13 @@ MULTI_REMOTE_KEY="ead3664f508eb06c40ac7104cdae4ce"
 MULTI_LOCAL_KEY_256="f8c0b084e8f98d0d9b73f7f6a91e01b107c61c283f04bf931401959db69d615"
 MULTI_REMOTE_KEY_256="e95e4ece4d7584a43e65c445dbc0281183a7cc71c873b066a75b72251beb908"
 
+function ip() {
+    if [ "$DEBUG" = on ]; then
+       echo "+ ip $@"
+    fi
+    command ip $@
+}
+
 function configure_device() {
     ip address flush $DEVICE
     if [ "$SIDE" == "server" ]; then
@@ -145,6 +152,8 @@ function usage() {
                              be used. please dont use this flag with other flags here is a usage e.g:
                              `readlink -f "$0"` --interface macsec0 --enable-sa 2 --sci 2
 
+        --debug              Print the commands
+
 HEREDOC
 
     exit $1
@@ -201,6 +210,10 @@ function parse_args()
             ;;
             --offload)
             OFFLOAD="1"
+            shift # pass argument
+            ;;
+            --debug)
+            DEBUG="on"
             shift # pass argument
             ;;
             --add-multi-sa)
