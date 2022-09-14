@@ -8,6 +8,7 @@ RX_ID="00"
 SCI="1"
 RX_SCI="2"
 TX_SA_STATE="on"
+RX_SA_STATE="on"
 PACKET_NUMBER="1"
 MACSEC_IP_CLIENT="2.2.2.1/24"
 MACSEC_IP_SERVER="2.2.2.2/24"
@@ -44,7 +45,7 @@ function configure_macsec_secrets() {
 
     ip macsec add $MACSEC_IF rx sci $RX_SCI on
 
-    ip macsec add $MACSEC_IF rx sci $RX_SCI sa $RX_SA pn $PACKET_NUMBER on key $RX_ID $RX_KEY
+    ip macsec add $MACSEC_IF rx sci $RX_SCI sa $RX_SA pn $PACKET_NUMBER $RX_SA_STATE key $RX_ID $RX_KEY
 }
 
 function configure_macsec_multi_secrets() {
@@ -115,6 +116,7 @@ function usage() {
         --cipher             <default | gcm-aes-128 | gcm-aes-256 | gcm-aes-xpn-128 | gcm-aes-xpn-256>
         --icvlen             <icv length> , usually 8-16 bytes
         --tx-sa-state        <on|off>, default is on
+        --rx-sa-state        <on|off>, default is on
         --encrypt            <on|off>
         --send-sci           <on|off>
         --end-station        <on|off>
@@ -198,6 +200,10 @@ function parse_args()
             TX_SA_STATE="$2"
             shift # pass argument
             shift # pass value
+            ;;
+            --rx-sa-state)
+            RX_SA_STATE="$2"
+            shift 2
             ;;
             --enable-sa)
             TX_SA_TO_ENABLE="$2"
