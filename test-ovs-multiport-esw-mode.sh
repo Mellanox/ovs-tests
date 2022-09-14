@@ -120,6 +120,7 @@ function run_traffic() {
     verify_have_traffic $pid_remote
 
     set_port_state_down
+    sleep 2
 
     new_sending_dev=$(get_sending_dev)
     title "Current interface that send packets $new_sending_dev"
