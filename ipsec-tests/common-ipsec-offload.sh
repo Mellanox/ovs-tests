@@ -145,7 +145,7 @@ function check_full_offload_counters() {
     local post_rx=$4
     local msg=$5
 
-    title "Verify full offload counters"
+    title "Verify full offload counters $msg"
     if [[ ("$post_tx" -le "$pre_tx" || "$post_rx" -le "$pre_rx") ]]; then
         fail "IPsec full offload counters didn't increase $msg"
     fi
