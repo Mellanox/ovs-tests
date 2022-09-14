@@ -73,8 +73,8 @@ function run() {
     local t=5
     local vxlan_netdev="vxlan_sys_4789"
 
-    echo "run ping for $t seconds"
-    ip netns exec ns0 ping -I $VF2 $REMOTE_VF_IP -w $t || err "Ping failed"
+    title "Test first ping over stack dev $stack_vf1"
+    ip netns exec ns0 ping -I $VF2 $REMOTE_VF_IP -w $t || err "First ping failed"
 
     ip a del $local_ip/$subnet dev $stack_vf1
     ip link set dev $stack_vf2 up
@@ -86,9 +86,10 @@ function run() {
     tpid=$!
     sleep 1
 
-    ip netns exec ns0 ping -I $VF2 $REMOTE_VF_IP -c $t -w $t || err "Ping failed"
+    title "Test second ping over stack dev $stack_vf2"
+    ip netns exec ns0 ping -I $VF2 $REMOTE_VF_IP -c $t -w $t || err "Second ping failed"
 
-    title "test offload on $vxlan_netdev"
+    title "Test offload on $vxlan_netdev"
     verify_no_traffic $tpid
 }
 
