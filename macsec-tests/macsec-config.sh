@@ -158,48 +158,39 @@ function parse_args()
         case $key in
             --tx-key)
             TX_KEY="$2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --rx-key)
             RX_KEY="$2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --device)
             DEVICE="$2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --remote)
             REMOTE_IP="$2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --interface)
             MACSEC_IF="$2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --side)
             SIDE="$2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --dev-ip)
             CUSTOM_DEV_IP="$2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --macsec-ip)
             CUSTOM_MACSEC_IP="$2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --tx-sa-state)
             TX_SA_STATE="$2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --rx-sa-state)
             RX_SA_STATE="$2"
@@ -207,8 +198,7 @@ function parse_args()
             ;;
             --enable-sa)
             TX_SA_TO_ENABLE="$2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --offload)
             OFFLOAD="1"
@@ -220,85 +210,69 @@ function parse_args()
             ;;
             -d | --delete)
             IF_TO_DELETE="$2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --cipher)
             CIPHER="cipher $2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --icvlen)
             ICVLEN="icvlen $2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --encrypt)
             ENCRYPT="encrypt $2"
-            shift # pass argument
-            shift #pass value
+            shift 2
             ;;
             --send-sci)
             SEND_SCI="send_sci $2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --end-station)
             END_STATION="end_station $2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --scb)
             SCB="scb $2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --protect)
             PROTECT="protect $2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --replay)
             REPLAY="replay $2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --window)
             WINDOW="window $2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --validate)
             VALIDATE="validate $2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --encoding-sa)
             ENCODINGSA="encodingsa $2"
             TX_SA="$2"
             RX_SA="$2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --set-encoding-sa)
             SET_ENCODINGSA="$2"
-            shift # pass argument
-            shift # pass value
+            shift 2
             ;;
             --pn)
             PACKET_NUMBER="$2"
-            shift # pass argument
-            shift # pass first value
+            shift 2
             ;;
             --sci)
             SCI="$2"
-            shift # pass argument
-            shift # pass first value
+            shift 2
             ;;
             --rx-sci)
             RX_SCI="$2"
-            shift # pass argument
-            shift # pass first value
+            shift 2
             ;;
             -h | --help) # help option
             usage 0
