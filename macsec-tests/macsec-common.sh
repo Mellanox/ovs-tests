@@ -241,7 +241,7 @@ function config_macsec() {
     local effective_cipher="gcm-aes-128"
     local effective_key_in="$KEY_IN_128"
     local effective_key_out="$KEY_OUT_128"
-set -x
+
     if [ "$offload" == "mac" ]; then
         local_extra="--offload"
         remote_extra="--offload"
@@ -254,7 +254,7 @@ set -x
             local_extra=""
             remote_extra="--offload"
     fi
-set +x
+
     if [ "$multi_sa" == "on" ]; then
         local_extra="$local_extra --add-multi-sa"
         remote_extra="$remote_extra --add-multi-sa"
