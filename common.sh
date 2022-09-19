@@ -1446,6 +1446,13 @@ function add_expected_err_for_kernel_issue() {
         return
     fi
 
+    add_expected_error_for_issue $issue_id $message
+}
+
+function add_expected_error_for_issue() {
+    local issue_id=$1
+    local message=$2
+
     redmine_info $issue_id
 
     if redmine_bug_is_open ; then
