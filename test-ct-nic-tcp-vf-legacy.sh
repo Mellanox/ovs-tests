@@ -32,6 +32,7 @@ net=`getnet $REMOTE_IP2 24`
 
 function cleanup_exit() {
     cleanup
+    reset_tc $VF1 $VF1_NIC2
     config_sriov 0 $NIC2
     reload_modules
  }
@@ -54,7 +55,7 @@ function get_pkts() {
 }
 
 function get_hw_pkts() {
-    tc -j -p -s  filter show dev $NIC protocol ip ingress | jq '.[] | select(.options.keys.ct_state == "+trk+est") | .options.actions[0].stats.hw_packets' || 0
+    tc -j -p -s  filter show dev $VF1 protocol ip ingress | jq '.[] | select(.options.keys.ct_state == "+trk+est") | .options.actions[0].stats.hw_packets' || 0
 }
 
 
