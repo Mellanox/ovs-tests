@@ -331,6 +331,9 @@ function cleanup_full() {
     ipsec_clear_mode_on_both_sides
 }
 
+IPSEC_KEY_LEN_128=128
+IPSEC_KEY_LEN_256=256
+
 # Usage <mtu> <ip_proto> <ipsec_mode> <net_proto> [trusted_vfs]
 # mtu = [0-9]*
 # ip_proto = ipv4/ipv6
@@ -345,22 +348,19 @@ function run_test_ipsec_offload() {
     local net_proto=${4:-"tcp"}
     local trusted_vfs=${5:-"no_trusted_vfs"}
     local offload_type=${6:-"offload"}
-    local len
+    local len=${7:-$IPSEC_KEY_LEN_128}
 
-    for len in 128 256; do
-        title "test $ipsec_mode $ip_proto over $net_proto with key length $len MTU $mtu with $trusted_vfs"
+    title "test $ipsec_mode $ip_proto over $net_proto with key length $len MTU $mtu with $trusted_vfs"
+    cleanup_test $mtu $trusted_vfs
 
-        cleanup_test $mtu $trusted_vfs
-        test_tx_off_rx $ipsec_mode $len $ip_proto $net_proto $trusted_vfs $offload_type
+    test_tx_off_rx $ipsec_mode $len $ip_proto $net_proto $trusted_vfs $offload_type
+    cleanup_test $mtu $trusted_vfs
 
-        cleanup_test $mtu $trusted_vfs
-        test_tx_rx_off $ipsec_mode $len $ip_proto $net_proto $trusted_vfs $offload_type
+    test_tx_rx_off $ipsec_mode $len $ip_proto $net_proto $trusted_vfs $offload_type
+    cleanup_test $mtu $trusted_vfs
 
-        cleanup_test $mtu $trusted_vfs
-        test_tx_off_rx_off $ipsec_mode $len $ip_proto $net_proto $trusted_vfs $offload_type
-
-        cleanup_test $mtu $trusted_vfs
-    done
+    test_tx_off_rx_off $ipsec_mode $len $ip_proto $net_proto $trusted_vfs $offload_type
+    cleanup_test $mtu $trusted_vfs
 }
 
 function performance_config() {
