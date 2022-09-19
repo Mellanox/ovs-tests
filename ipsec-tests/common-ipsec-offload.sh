@@ -51,8 +51,8 @@ function run_traffic() {
         fi
     fi
     if [ $TEST_FAILED == 1 ]; then
-        kill $upid
-        wait $upid
+        kill $upid 2>/dev/null
+        wait $upid 2>/dev/null
     fi
     fail_if_err
     title "Verify $NET_PROTO traffic on $nic"
