@@ -12,6 +12,7 @@ function config_vxlan() {
 }
 
 function config_ports() {
+    set_lag_port_select_mode "queue_affinity"
     config_sriov 2
     config_sriov 2 $NIC2
     enable_switchdev
@@ -25,6 +26,7 @@ function deconfig_ports() {
     # need to unbind vfs to create/destroy vf lag
     unbind_vfs
     unbind_vfs $NIC2
+    restore_lag_port_select_mode
     # disabling sriov will cause a syndrome when destroying vf lag that we need
     # to be lag master. instead just move to legacy.
     enable_legacy $NIC2
