@@ -1414,9 +1414,6 @@ function check_simx_errors() {
     local look="ERR|FATAL"
     local filter="\(MLX5_GET\(flow_table_entry_match_set_misc, misc_parameters_addr, outer_second_cvlan_tag\) != 0 <= ft_field_bitmask_support->outer_second_svlan\): \(0x00000001 <= 0x00000000\)|\
 assertion failed: D0:P[0-9]:F0 flow index \(.*\) doesn't exist in table ID \(0x5\)|\
-assertion failed: inconsistent values for field 'ip_version'|\
-assertion failed: inconsistent values for field 'ip_protocol|\
-assertion failed: ethertype \(0x0\) must be \(0x800\) or \(0x86dd\) to use 'ip_ttl_hoplimit'|\
 assertion failed: 'outer_second_svlan_tag' must be set to use 'outer_second_vid'|\
 assertion failed: inconsistent values for field 'dmac_47_16'"
 
