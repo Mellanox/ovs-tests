@@ -32,6 +32,7 @@ function config() {
 }
 
 function cleanup() {
+    cleanup_case
     cleanup_full
 }
 
