@@ -1412,13 +1412,22 @@ function check_simx_errors() {
     local out=`sed -n "$linenum,$p" $log | uniq`
 
     local look="ERR|FATAL"
-    local filter="\(MLX5_GET\(flow_table_entry_match_set_misc, misc_parameters_addr, outer_second_cvlan_tag\) != 0 <= ft_field_bitmask_support->outer_second_svlan\): \(0x00000001 <= 0x00000000\)|\
+    local filter=""
+    local filter_warn="\(MLX5_GET\(flow_table_entry_match_set_misc, misc_parameters_addr, outer_second_cvlan_tag\) != 0 <= ft_field_bitmask_support->outer_second_svlan\): \(0x00000001 <= 0x00000000\)|\
 assertion failed: D0:P[0-9]:F0 flow index \(.*\) doesn't exist in table ID \(0x5\)|\
 assertion failed: 'outer_second_svlan_tag' must be set to use 'outer_second_vid'|\
 assertion failed: inconsistent values for field 'dmac_47_16'"
 
+    filter+="$filter_warn"
+
     if [ -n "$__expected_error_msgs" ]; then
         filter+="$__expected_error_msgs"
+    fi
+
+    local a=`echo "$out" | grep -E "$look" | grep -E -i "$filter_warn"`
+    if [ "$a" != "" ]; then
+        warn "Detected known issues in simx log"
+        echo "$a"
     fi
 
     local a=`echo "$out" | grep -E "$look" | grep -v -E -i "$filter"`
