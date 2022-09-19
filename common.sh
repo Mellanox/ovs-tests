@@ -2252,17 +2252,42 @@ function restore_lag_resource_allocation_mode() {
     fi
 }
 
+__lag_port_select_mode="hash"
+__lag_port_select_mode_changed=0
 function set_lag_port_select_mode() {
     if [ ! -f /sys/class/net/$NIC/compat/devlink/lag_port_select_mode ]; then
         # MLNX OFED 5.7 needs to enable a compat. verify if exists.
         return
     fi
+
     local mode=$1
+    local current_mode=`get_lag_port_select_mode`
+
+    if [ "$current_mode" == "$mode" ]; then
+        log "Current lag port select mode is $current_mode"
+        return
+    fi
+
+    if (( __lag_port_select_mode_changed == 0 )); then
+        __lag_port_select_mode=$current_mode
+        __lag_port_select_mode_changed=1
+    fi
+
     log "Changing lag port select mode to $mode"
     enable_legacy &>/dev/null
     enable_legacy $NIC2 &>/dev/null
     echo $mode > /sys/class/net/$NIC/compat/devlink/lag_port_select_mode || fail "Failed to set $NIC lag_port_select_mode to $mode"
     echo $mode > /sys/class/net/$NIC2/compat/devlink/lag_port_select_mode || fail "Failed to set $NIC2 lag_port_select_mode to $mode"
+}
+
+function get_lag_port_select_mode() {
+    cat /sys/class/net/$NIC/compat/devlink/lag_port_select_mode || fail "Failed to get $NIC lag_port_select_mode"
+}
+
+function restore_lag_port_select_mode() {
+    if (( __lag_port_select_mode_changed == 1 )); then
+        set_lag_port_select_mode $__lag_port_select_mode
+    fi
 }
 
 function __test_help() {
