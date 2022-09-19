@@ -97,7 +97,7 @@ function ipsec_config() {
 
     eval key_in="\$KEY_IN_$KEY_LEN"
     eval key_out="\$KEY_OUT_$KEY_LEN"
-    if [ -z "$key_in" ]; then
+    if [[ -z "$key_in" || "$key_in" == "$KEY_LEN" ]]; then
         fail "Wrong usage, KEY_LEN 128|256"
     fi
     local algo_line_in="aead 'rfc4106(gcm(aes))' $key_in 128"
