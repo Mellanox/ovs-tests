@@ -31,7 +31,7 @@ function run_test {
 
 function local_cleanup {
     reset_tc $NIC $NIC2 $REP
-    set_lag_port_select_mode "queue_affinity"
+    restore_lag_port_select_mode
     restore_lag_resource_allocation_mode
 }
 

@@ -19,7 +19,7 @@ function config() {
 }
 
 function cleanup() {
-    set_lag_port_select_mode "queue_affinity"
+    restore_lag_port_select_mode
     config_sriov 2
     config_sriov 0 $NIC2
     enable_switchdev
