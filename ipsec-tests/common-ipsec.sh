@@ -314,7 +314,7 @@ function ipsec_set_trusted_vfs() {
 }
 
 function ipsec_set_trusted_vfs_on_remote() {
-    on_remote_exec ipsec_set_trusted_vfs || fail "Remove config trusted_vfs failed"
+    on_remote_exec ipsec_set_trusted_vfs || fail "Remote config trusted_vfs failed"
     TRUSTED_VFS="trusted_vfs"
 }
 
