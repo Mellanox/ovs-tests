@@ -121,12 +121,22 @@ function tst_netdev() {
     ip r r $net nexthop via $r1 dev $p0 nexthop via $r2 dev $p1
     chk "$lag_default" "expected affinity default"
 
-    title "new route single nexthop"
+    title "new route single nexthop to $p0"
     ip r d $net
     ip r a $net nexthop via $r1 dev $p0
     chk "$lag_p0" "expected affinity to $p0"
 
     title "restore"
+    ip r r $net nexthop via $r1 dev $p0 nexthop via $r2 dev $p1
+    chk "$lag_default" "expected affinity default"
+
+    title "link down $p0 + del route"
+    ifconfig $p0 down
+    ip r r $net nexthop via $r2 dev $p1
+    chk "$lag_p1" "expected affinity to $p1"
+
+    title "restore"
+    ifconfig $p0 up
     ip r r $net nexthop via $r1 dev $p0 nexthop via $r2 dev $p1
     chk "$lag_default" "expected affinity default"
 }
