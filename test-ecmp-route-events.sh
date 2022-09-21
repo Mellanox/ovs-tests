@@ -14,6 +14,8 @@ function cleanup() {
     ip l del dev dummy1 &>/dev/null
     ifconfig $NIC 0
     ifconfig $NIC2 0
+    log "deconfig ports"
+    deconfig_ports
 }
 
 function chk() {
@@ -46,7 +48,7 @@ ip l add dev dummy9 type dummy || fail "Failed to create dummy device - cannot c
 ifconfig dummy9 $remote/24 up
 echo ; ip r ; echo
 
-log "set both ports to sriov and switchdev"
+log "config ports"
 config_ports
 
 log "bring up gateways"
@@ -174,7 +176,7 @@ case_single_route
 case_two_routes
 case_dummy_port
 
-title "deactivate multipath"
-deconfig_ports
+trap - EXIT
+cleanup
 
 test_done
