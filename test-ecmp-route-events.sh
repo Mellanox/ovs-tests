@@ -93,7 +93,7 @@ function tst_netdev() {
     local r2=$4
 
     echo
-    log "TEST with $p0"
+    title "Tesing case with $p0"
 
     if [ "$p0" == "$NIC" ]; then
         lag_p0="lag map:* port 1:1 port 2:1"
