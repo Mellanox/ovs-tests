@@ -62,25 +62,28 @@ echo ; ip r ; echo
 
 # disabled because of kernel bug
 # append not working in ipv4 and actually adds 2 route entries
+function case_route_append() {
+    title "Test route append"
+    ## ENTRY_DEL event
+    ## not going out from multipath unless going to legacy again so need to do that.
+    ip r d $net
+    ## no log
+    ## ENTRY_ADD event
+    ip r add $net nexthop via $route1 dev $NIC
+    ip r append $net nexthop via $route2 dev $NIC2
+    ## no log
+}
 
-##title "Test route append"
-## ENTRY_DEL event
-## not going out from multipath unless going to legacy again so need to do that.
-#ip r d $net
-## no log
-## ENTRY_ADD event
-#ip r add $net nexthop via $route1 dev $NIC
-#ip r append $net nexthop via $route2 dev $NIC2
-## no log
-
-title "Test route add"
-# ENTRY_DEL event
-# not going out from multipath unless going to legacy again so need to do that.
-ip r d $net
-# no log
-# ENTRY_ADD event
-ip r add $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
-# no log
+function case_route_add() {
+    title "Test route add"
+    # ENTRY_DEL event
+    # not going out from multipath unless going to legacy again so need to do that.
+    ip r d $net
+    # no log
+    # ENTRY_ADD event
+    ip r add $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
+    # no log
+}
 
 function tst_netdev() {
     local p0=$1
@@ -138,7 +141,7 @@ function tst_netdev() {
 }
 
 function case_single_route() {
-    title "Single route"
+    title "Test single route"
     ip r r $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
     tst_netdev $NIC $route1 $NIC2 $route2
     tst_netdev $NIC2 $route2 $NIC $route1
@@ -147,7 +150,7 @@ function case_single_route() {
 }
 
 function case_two_routes() {
-    title "Two routes"
+    title "Test two routes"
     ip r r $net2 nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
     ip r r $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
     tst_netdev $NIC $route1 $NIC2 $route2
@@ -158,7 +161,7 @@ function case_two_routes() {
 }
 
 function case_dummy_port() {
-    title "Route with a dummy port"
+    title "Test route with a dummy port"
     ip link add dummy9 type dummy
     ifconfig dummy9 8.8.8.1/24 up
     ip r r $net nexthop via $route1 dev $NIC nexthop via 8.8.8.1 dev dummy9
@@ -169,6 +172,7 @@ function case_dummy_port() {
 }
 
 
+case_route_add
 case_single_route
 case_two_routes
 case_dummy_port
