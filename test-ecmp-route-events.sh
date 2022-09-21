@@ -172,11 +172,31 @@ function case_dummy_port() {
     echo
 }
 
+function case_route_metric() {
+    title "Test route metric"
+    ip r r $net metric 20 nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
+    ip r r $net2 metric 1 nexthop via $route1 dev $NIC
+
+    title "net2 is expected to take over because of lower metric"
+    local lag_p0="lag map:* port 1:1 port 2:1"
+    chk "$lag_p0" "expected affinity to $NIC"
+
+    title "restore"
+    ip r r $net2 metric 1 nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
+    local lag_default="lag map:* port 1:1 port 2:2"
+    chk "$lag_default" "expected affinity default"
+
+    ip r d $net
+    ip r d $net2
+    echo
+}
+
 
 case_route_add
 case_single_route
 case_two_routes
 case_dummy_port
+case_route_metric
 
 trap - EXIT
 cleanup
