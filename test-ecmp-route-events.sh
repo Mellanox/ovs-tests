@@ -11,7 +11,6 @@ function cleanup() {
     ip r d $net &>/dev/null
     ip r d $net2 &>/dev/null
     ip l del dev dummy9 &>/dev/null
-    ip l del dev dummy1 &>/dev/null
     ifconfig $NIC 0
     ifconfig $NIC2 0
     log "deconfig ports"
@@ -33,6 +32,9 @@ function chk() {
 }
 
 
+log "create dummy device"
+ip l add dev dummy9 type dummy || fail "Failed to create dummy device - cannot continue."
+
 route1=1.1.1.1
 route2=2.2.2.1
 remote=3.3.3.1
@@ -42,11 +44,6 @@ net2=4.4.4.0/24
 log "cleanup"
 cleanup
 trap cleanup EXIT
-
-log "create dummy device"
-ip l add dev dummy9 type dummy || fail "Failed to create dummy device - cannot continue."
-ifconfig dummy9 $remote/24 up
-echo ; ip r ; echo
 
 log "config ports"
 config_ports
@@ -162,12 +159,12 @@ function case_two_routes() {
 
 function case_dummy_port() {
     title "Route with a dummy port"
-    ip link add dummy1 type dummy
-    ifconfig dummy1 8.8.8.1/24 up
-    ip r r $net nexthop via $route1 dev $NIC nexthop via 8.8.8.1 dev dummy1
+    ip link add dummy9 type dummy
+    ifconfig dummy9 8.8.8.1/24 up
+    ip r r $net nexthop via $route1 dev $NIC nexthop via 8.8.8.1 dev dummy9
     chk "Multipath offload require two ports of the same HCA" "Expected warning"
     ip r d $net
-    ip link del dummy1
+    ip link del dummy9
     echo
 }
 
