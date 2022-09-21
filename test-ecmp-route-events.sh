@@ -9,6 +9,7 @@ my_dir="$(dirname "$0")"
 
 function cleanup() {
     ip r d $net &>/dev/null
+    ip r d $net2 &>/dev/null
     ip l del dev dummy9 &>/dev/null
     ip l del dev dummy1 &>/dev/null
     ifconfig $NIC 0
@@ -30,15 +31,15 @@ function chk() {
 }
 
 
-log "cleanup"
-cleanup
-trap cleanup EXIT
-
 route1=1.1.1.1
 route2=2.2.2.1
 remote=3.3.3.1
 net=3.3.3.0/24
 net2=4.4.4.0/24
+
+log "cleanup"
+cleanup
+trap cleanup EXIT
 
 log "create dummy device"
 ip l add dev dummy9 type dummy || fail "Failed to create dummy device - cannot continue."
