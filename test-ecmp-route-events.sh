@@ -119,7 +119,7 @@ function tst_netdev() {
 
     title "new route single nexthop to $p0"
     ip r d $net
-    ip r a $net nexthop via $r1 dev $p0
+    ip r r $net nexthop via $r1 dev $p0
     chk "$lag_p0" "expected affinity to $p0"
 
     title "restore"
