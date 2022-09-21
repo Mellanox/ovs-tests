@@ -83,6 +83,7 @@ function case_route_add() {
     # ENTRY_ADD event
     ip r add $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
     # no log
+    ip r d $net
 }
 
 function tst_netdev() {
