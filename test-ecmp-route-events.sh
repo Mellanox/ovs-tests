@@ -141,27 +141,40 @@ function tst_netdev() {
     chk "$lag_default" "expected affinity default"
 }
 
-tst_netdev $NIC $route1 $NIC2 $route2
-tst_netdev $NIC2 $route2 $NIC $route1
-echo
+function case_single_route() {
+    title "Single route"
+    tst_netdev $NIC $route1 $NIC2 $route2
+    tst_netdev $NIC2 $route2 $NIC $route1
+    echo
+}
 
-title "multiple routes"
-ip r d $net
-ip r r $net2 nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
-ip r r $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
-tst_netdev $NIC $route1 $NIC2 $route2
-tst_netdev $NIC2 $route2 $NIC $route1
-ip r d $net
-ip r d $net2
-echo
+function case_two_routes() {
+    title "Two routes"
+    ip r d $net
+    ip r r $net2 nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
+    ip r r $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
+    tst_netdev $NIC $route1 $NIC2 $route2
+    tst_netdev $NIC2 $route2 $NIC $route1
+    ip r d $net
+    ip r d $net2
+    echo
+}
 
-title "multipath 1 hca port and 1 dummy port"
-ip link add dummy1 type dummy
-ifconfig dummy1 8.8.8.1/24 up
-ip r r $net nexthop via $route1 dev $NIC nexthop via 8.8.8.1 dev dummy1
-chk "Multipath offload require two ports of the same HCA" "Expected warning"
-ip link del dummy1
-echo
+function case_dummy_port() {
+    title "Route with a dummy port"
+    ip link add dummy1 type dummy
+    ifconfig dummy1 8.8.8.1/24 up
+    ip r r $net nexthop via $route1 dev $NIC nexthop via 8.8.8.1 dev dummy1
+    chk "Multipath offload require two ports of the same HCA" "Expected warning"
+    ip r d $net
+    ip link del dummy1
+    echo
+}
+
+
+case_single_route
+case_two_routes
+case_dummy_port
 
 title "deactivate multipath"
 deconfig_ports
