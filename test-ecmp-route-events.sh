@@ -41,11 +41,7 @@ net=3.3.3.0/24
 net2=4.4.4.0/24
 
 log "create dummy device"
-e=0
-ip l add dev dummy9 type dummy || e=1
-if [ $e -ne 0 ]; then
-    fail "Failed to create dummy device - cannot continue."
-fi
+ip l add dev dummy9 type dummy || fail "Failed to create dummy device - cannot continue."
 ifconfig dummy9 $remote/24 up
 echo ; ip r ; echo
 
