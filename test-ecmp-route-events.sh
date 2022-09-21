@@ -140,6 +140,7 @@ function tst_netdev() {
 
 function case_single_route() {
     title "Single route"
+    ip r r $net nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
     tst_netdev $NIC $route1 $NIC2 $route2
     tst_netdev $NIC2 $route2 $NIC $route1
     ip r d $net
