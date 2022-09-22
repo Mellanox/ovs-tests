@@ -1509,11 +1509,11 @@ Deprecated Driver is detected: iptables will not be maintained in a future major
 
     a=`journalctl_for_test $since | grep -E -i "$memleak" || true`
     if [ "$a" != "" ]; then
-        # WA getting 2 "mount.nfs" leaks sometimes in regression VM.
-        # WA getting 4 "mount.nfs" leaks sometimes in regression VM BF.
+        # WA getting "mount.nfs" leaks sometimes in regression VM.
+        local unref_count=`cat $kmemleak_sysfs | grep -c "unreferenced object"`
         local mount_count=`cat $kmemleak_sysfs | grep -c "mount.nfs"`
-        if [ $mount_count -ne 2  ] && [ $mount_count -ne 4 ]; then
-            err "Detected errors in the log"
+        if [ $unref_count -ne $mount_count ]; then
+            err "Detected memory leaks in the log"
             echo "$a"
             rc=1
         fi

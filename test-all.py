@@ -486,8 +486,9 @@ def run_test(test, html=False):
         status = get_better_status(rc, log)
         memleak = get_kmemleak_info()
         log += memleak
+        unref_count = memleak.count("unreferenced object")
         mount_count = memleak.count("mount.nfs")
-        if memleak and mount_count != 2 and mount_count != 4:
+        if memleak and unref_count != mount_count:
             status = "kmemleak found issues"
             rc = 1
 
