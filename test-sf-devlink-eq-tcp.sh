@@ -68,19 +68,15 @@ function run_traffic() {
 }
 
 function run() {
-    local io_eq_size=256
-    local event_eq_size=1024
+    local sizes="64 512 4096"
     local new_io_eq_size
     local new_event_eq_size
     local i
 
-    for i in 1 2 3; do
-        new_io_eq_size=$(($io_eq_size * $i))
-        new_event_eq_size=$(($event_eq_size * $i))
+    for i in $sizes; do
+        title "Configure SFs EQ io_eq_size $i event_eq_size $i"
 
-        title "Configure SFs EQ io_eq_size $new_io_eq_size event_eq_size $new_event_eq_size"
-
-        devlink_dev_set_eq $new_io_eq_size $new_event_eq_size $SF1 $SF2
+        devlink_dev_set_eq $i $i $SF1 $SF2
         config_iter
         run_traffic
         deconfig_iter
