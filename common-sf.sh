@@ -141,6 +141,9 @@ function unbind_sfs() {
 }
 
 function remove_sfs() {
+    local sfs=`sf_get_all_reps`
+    [ -z "$sfs" ] && return
+
     title "Delete SFs"
 
     # WA Deleting SFs while they are binded is extremly slow need to unbind first to make it faster
