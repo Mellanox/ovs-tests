@@ -10,6 +10,8 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+config_sriov 2
+enable_switchdev
 
 function __test_vxlan() {
     local ip_src=$1
@@ -28,7 +30,6 @@ function __test_vxlan() {
 
     ip a show dev $vx
 
-    enable_switchdev
     ifconfig $NIC up
     ifconfig $REP up
 
