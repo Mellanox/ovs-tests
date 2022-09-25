@@ -54,11 +54,11 @@ def is_pf(phys_port_name):
 
 
 def is_vf_rep(phys_port_name):
-    return re.match(r'^pf\d+vf\d+$', phys_port_name) is not None
+    return re.match(r'^(c\d+)?pf\d+vf\d+$', phys_port_name) is not None
 
 
 def is_pf_rep(phys_port_name):
-    return re.match(r'^pf\d+$', phys_port_name) is not None
+    return re.match(r'^(c\d+)?pf\d+$', phys_port_name) is not None
 
 
 def get_pf_index(phys_port_name):
