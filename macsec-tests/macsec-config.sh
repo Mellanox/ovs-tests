@@ -5,8 +5,6 @@ TX_SA="0"
 RX_SA="0"
 TX_ID="00"
 RX_ID="00"
-SCI="1"
-RX_SCI="2"
 TX_SA_STATE="on"
 RX_SA_STATE="on"
 PACKET_NUMBER="1"
@@ -344,9 +342,14 @@ function check_ips()
 function check_sci()
 {
     #if we are using the default RX_SCI and SCI and we are on server side then revert the SCIs
-    if [[ $RX_SCI == "2" && $SCI == "1" && $SIDE == "server" ]]; then
-        RX_SCI=1
-        SCI=2
+    if [[ $RX_SCI == "" && $SCI == "" ]]; then
+        if [[ $SIDE = "server" ]]; then
+            RX_SCI="1"
+            SCI="2"
+        else
+            RX_SCI="2"
+            SCI="1"
+        fi
     fi
 }
 
