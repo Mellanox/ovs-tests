@@ -290,7 +290,7 @@ function config_macsec() {
                                        --dev-ip $effective_rip --macsec-ip $macsec_effective_rip --side server $remote_extra
 }
 
-# Usage <mtu> <encrypt> <ip_proto> <macsec_ip_proto> <key_len> <net_proto> <offload> [multi_sa] [one_side_offload] [dev] [macsec_dev]
+# Usage <mtu> <encrypt> <ip_proto> <macsec_ip_proto> <key_len> <net_proto> <offload> [multi_sa] [dev] [macsec_dev]
 # mtu = {1500..9000}
 # encrypt = on/off
 # ip_proto = ipv4/ipv6
@@ -299,7 +299,6 @@ function config_macsec() {
 # net_proto = tcp/udp/icmp
 # offload = off/mac
 # multi_sa= = on/off
-# one_side_offload = local/remote/dont_use
 # dev = <interface>
 # macsec_dev = <macsec_interface>
 function test_macsec() {
@@ -311,8 +310,8 @@ function test_macsec() {
     local net_proto="$6"
     local offload="$7"
     local multi_sa=${8:-"off"}
-    local dev=${10:-"$NIC"}
-    local macsec_dev=${11:-"macsec0"}
+    local dev=${9:-"$NIC"}
+    local macsec_dev=${10:-"macsec0"}
     local sa_num="0"
     local client_pn=$(($RANDOM % 10000))
     local server_pn=$(($RANDOM % 10000))
