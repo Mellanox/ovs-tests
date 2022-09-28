@@ -12,9 +12,6 @@ function cleanup() {
 function run_test() {
     run_test_macsec 1500 on ipv4 ipv6 tcp mac
     run_test_macsec 1500 on ipv6 ipv4 tcp mac
-    title "re-run the test with 9000 mtu\n"
-    run_test_macsec 9000 on ipv4 ipv6 tcp mac
-    run_test_macsec 9000 on ipv6 ipv4 tcp mac
 }
 
 trap cleanup EXIT
