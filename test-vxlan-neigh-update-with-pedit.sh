@@ -15,6 +15,7 @@ my_dir="$(dirname "$0")"
 
 not_relevant_for_nic cx4
 
+config_sriov
 enable_switchdev
 REP=`get_rep 0`
 require_interfaces REP
