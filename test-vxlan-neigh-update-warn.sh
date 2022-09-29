@@ -26,6 +26,7 @@ id=98
 
 
 function cleanup() {
+    reset_tc $REP
     ip link del dev vxlan1 2> /dev/null
     ip link add vxlan1 type vxlan id $id dev $NIC dstport $dst_port
     ip link set vxlan1 up
@@ -33,7 +34,6 @@ function cleanup() {
     ip n del ${remote_ip6} dev $NIC 2>/dev/null
     ifconfig $NIC down
     ip addr flush dev $NIC
-    reset_tc $REP
 }
 trap cleanup EXIT
 

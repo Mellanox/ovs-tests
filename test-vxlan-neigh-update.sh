@@ -27,12 +27,12 @@ function config() {
 }
 
 function cleanup() {
+    reset_tc $REP
     ip link del dev vxlan1 2> /dev/null
     ip n del ${remote_ip} dev $NIC 2>/dev/null
     ip n del ${remote_ip6} dev $NIC 2>/dev/null
     ifconfig $NIC down
     ip addr flush dev $NIC
-    reset_tc $REP
 }
 trap cleanup EXIT
 
@@ -79,14 +79,16 @@ function neigh_update_test() {
         action tunnel_key unset \
         action mirred egress redirect dev $REP
 
+    sleep 3
+
     # add change evets
     title "-- forcing addr change 1"
-    sleep 5
     ip n replace ${remote_ip} dev $NIC lladdr 11:22:33:44:55:66
+    sleep 5
 
     title "-- forcing addr change 2"
-    sleep 5
     ip n replace ${remote_ip} dev $NIC lladdr 11:22:33:44:55:99
+    sleep 5
 }
 
 function test_neigh_update_ipv4() {

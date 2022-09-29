@@ -78,15 +78,17 @@ function neigh_update_test() {
         action tunnel_key unset \
         action mirred egress redirect dev $REP
 
+    sleep 1
+
     # add change evets
     for i in `seq 4`; do
         title "-- forcing addr change 1"
-        sleep 1
         ip n replace ${remote_ip} dev $NIC lladdr 11:22:33:44:55:66
+        sleep 1
 
         title "-- forcing addr change 2"
-        sleep 1
         ip n replace ${remote_ip} dev $NIC lladdr 11:22:33:44:55:99
+        sleep 1
     done
 }
 
