@@ -30,10 +30,10 @@ function configure_device() {
     ip address flush $DEVICE
     if [ "$SIDE" == "server" ]; then
         ip address add $DEV_IP_SERVER dev $DEVICE
-        ifconfig $DEVICE up
+        ip link set dev $DEVICE up
     else
         ip address add $DEV_IP_CLIENT dev $DEVICE
-        ifconfig $DEVICE up
+        ip link set dev $DEVICE up
     fi
 }
 
@@ -86,10 +86,10 @@ function set_encodingsa() {
 function configure_macsec_ips() {
     if [ "$SIDE" == "server" ]; then
         ip address add $MACSEC_IP_SERVER dev $MACSEC_IF
-        ifconfig $MACSEC_IF up
+        ip link set dev $MACSEC_IF up
     else
         ip address add $MACSEC_IP_CLIENT dev $MACSEC_IF
-        ifconfig $MACSEC_IF up
+        ip link set dev $MACSEC_IF up
     fi
 }
 
@@ -98,7 +98,7 @@ function offload_macsec() {
 }
 
 function cleanup_macsec() {
-    ip link show | grep $MACSEC_IF > /dev/null && ip link del $MACSEC_IF 
+    ip link show | grep $MACSEC_IF > /dev/null && ip link del $MACSEC_IF
 }
 
 function usage() {
