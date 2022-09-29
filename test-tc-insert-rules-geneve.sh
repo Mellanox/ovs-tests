@@ -27,7 +27,6 @@ function __test_geneve() {
 
     ip a show dev $gv
 
-    enable_switchdev
     ifconfig $NIC up
     ifconfig $REP up
 
