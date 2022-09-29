@@ -9,13 +9,7 @@ my_dir="$(dirname "$0")"
 config_sriov
 enable_switchdev
 
-function __test_geneve() {
-    local ip_src=$1
-    local ip_dst=$2
-    local skip
-
-    tc_test_verbose
-
+function config_geneve() {
     title "- create geneve interface"
     gv=geneve1
     geneve_port=6081
@@ -24,8 +18,17 @@ function __test_geneve() {
     [ $? -ne 0 ] && err "Failed to create geneve interface" && return 1
     ip link set dev $gv up
     tc qdisc add dev $gv ingress
-
     ip a show dev $gv
+}
+
+function __test_geneve() {
+    local ip_src=$1
+    local ip_dst=$2
+    local skip
+
+    tc_test_verbose
+
+    config_geneve
 
     ifconfig $NIC up
     ifconfig $REP up
