@@ -32,13 +32,17 @@ function ip() {
 }
 
 function configure_device() {
-    ip address flush $DEVICE
+    local device=$1
+    local client_ip=$2
+    local server_ip=$3
+
+    ip address flush $device
     if [ "$SIDE" == "server" ]; then
-        ip address add $DEV_IP_SERVER dev $DEVICE
-        ip link set dev $DEVICE up
+        ip address add $server_ip dev $device
+        ip link set dev $device up
     else
-        ip address add $DEV_IP_CLIENT dev $DEVICE
-        ip link set dev $DEVICE up
+        ip address add $client_ip dev $device
+        ip link set dev $device up
     fi
 }
 
@@ -111,7 +115,7 @@ function configure_macsec_ips() {
     fi
 }
 
-function offload_macsec() {
+function ip_macsec_offload() {
     ip macsec offload $MACSEC_IF mac
 }
 
@@ -456,16 +460,16 @@ function main() {
     #Delete macsec if exists
     cleanup_macsec
     #Bring up the device and configure ips
-    configure_device
+    configure_device $DEVICE $DEV_IP_CLIENT $DEV_IP_SERVER
     #Check if device exists, add it otherwise
     configure_macsec_interface
     #Enable offload if requested
     if [ "$OFFLOAD" == 1 ]; then
-        offload_macsec
+        ip_macsec_offload
     fi
 
     configure_macsec_secrets
-    configure_macsec_ips
+    configure_device $MACSEC_IF $MACSEC_IP_CLIENT $MACSEC_IP_SERVER
 
     #Configure max number of SAs if requested
     if [ "$MULTI_SA" == 1 ]; then
