@@ -742,6 +742,17 @@ def update_skip_according_to_db(rm, _tests, data):
                     return True
         return False
 
+    def fw_ignore(min_fw, current_fw_ver, t):
+        if current_fw_ver:
+            cx_type = min_fw.split('.')[0]
+            cx_ver = min_fw[min_fw.index('.')+1:]
+            current_cx_type = current_fw_ver.split('.')[0]
+            current_cx_ver = current_fw_ver[current_fw_ver.index('.')+1:]
+            if cx_type in (current_cx_type, 'xx') and VersionInfo(current_cx_ver) < VersionInfo(cx_ver):
+                t.set_ignore("Unsupported fw version. Minimum %s" % min_fw)
+        else:
+            t.set_failed("Invalid fw to compare")
+
     custom_kernels = data.get('custom_kernels', {})
     print_newline = False
 
@@ -829,15 +840,7 @@ def update_skip_according_to_db(rm, _tests, data):
 
         min_fw = opts.get('min_fw', None)
         if min_fw and not simx_mode:
-            if current_fw_ver:
-                cx_type = min_fw.split('.')[0]
-                cx_ver = min_fw[min_fw.index('.')+1:]
-                current_cx_type = current_fw_ver.split('.')[0]
-                current_cx_ver = current_fw_ver[current_fw_ver.index('.')+1:]
-                if cx_type in (current_cx_type, 'xx') and VersionInfo(current_cx_ver) < VersionInfo(cx_ver):
-                    t.set_ignore("Unsupported fw version. Minimum %s" % min_fw)
-            else:
-                t.set_failed("Invalid fw to compare")
+            fw_ignore(min_fw, current_fw_ver, t)
 
         ignore = opts.get('ignore', [])
         for i in ignore:
