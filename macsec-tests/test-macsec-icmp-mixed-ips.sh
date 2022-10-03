@@ -14,8 +14,8 @@ function cleanup() {
 }
 
 function run_test() {
-    run_test_macsec 1500 ipv4 ipv6 icmp mac
-    run_test_macsec 1500 ipv6 ipv4 icmp mac
+    run_test_macsec 1500 ipv4 ipv6 icmp none
+    run_test_macsec 1500 ipv6 ipv4 icmp both
 }
 
 trap cleanup EXIT

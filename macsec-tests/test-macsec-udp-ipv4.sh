@@ -10,8 +10,8 @@ function cleanup() {
 }
 
 function run_test() {
-    run_test_macsec 1500 ipv4 ipv4 udp off
-    run_test_macsec 1500 ipv4 ipv4 udp mac
+    run_test_macsec 1500 ipv4 ipv4 udp none
+    run_test_macsec 1500 ipv4 ipv4 udp both
 }
 
 trap cleanup EXIT
