@@ -78,9 +78,14 @@ function test_basic_gre_ipv6() {
         2001:0db8:85a3::8a2e:0370:7335
 }
 
+function remove_gre_modules() {
+    local holders=`ls -1r /sys/module/gre/holders`
+    modprobe -r $holders gre
+}
 
 config_sriov
 enable_switchdev
 test_basic_gre_ipv4
 test_basic_gre_ipv6
+remove_gre_modules
 test_done
