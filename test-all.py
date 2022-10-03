@@ -866,6 +866,11 @@ def update_skip_according_to_db(rm, _tests, data):
                     ignore_count += 1
                 elif k == 'reason':
                     ignore_count += 1
+                elif k == 'simx_min_ver':
+                    if not simx_mode:
+                        continue
+                    fw_ignore(v, current_fw_ver, t)
+                    # currently fw_ignore does the ignore so not increasing ignore_count.
                 elif k == 'simx':
                     if (simx_mode and v) or (not simx_mode and not v):
                         ignore_count += 1
