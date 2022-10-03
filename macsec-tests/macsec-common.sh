@@ -225,23 +225,22 @@ function config_macsec_env() {
 }
 
 function config_macsec() {
-    local encrypt="$1"
-    local ip_proto="$2"
-    local macsec_ip_proto="$3"
-    local key_len="$4"
-    local net_proto="$5"
-    local offload="$6"
-    local dev="$7"
-    local macsec_dev="$8"
-    local sa_num="$9"
-    local client_pn="${10}"
-    local server_pn="${11}"
-    local sci="${12}"
-    local rx_sci="${13}"
-    local multi_sa="${14}"
-    local one_offload_side=${15:-"dont_use"} #local/remote/dont_use
-    local xpn=${16:-"off"}
-    local replay=${17-"off"}
+    local ip_proto="$1"
+    local macsec_ip_proto="$2"
+    local key_len="$3"
+    local net_proto="$4"
+    local offload="$5"
+    local dev="$6"
+    local macsec_dev="$7"
+    local sa_num="$8"
+    local client_pn="$9"
+    local server_pn="${10}"
+    local sci="${11}"
+    local rx_sci="${12}"
+    local multi_sa="${13}"
+    local one_offload_side=${14:-"dont_use"} #local/remote/dont_use
+    local xpn=${15:-"off"}
+    local replay=${16-"off"}
     local local_extra=""
     local remote_extra=""
     local effective_lip="$LIP/24"
@@ -302,19 +301,18 @@ function config_macsec() {
     fi
 
     #Config local
-    $TESTDIR/macsec-config.sh --device $dev --interface $macsec_dev --encrypt $encrypt --cipher $effective_cipher \
+    $TESTDIR/macsec-config.sh --device $dev --interface $macsec_dev --cipher $effective_cipher \
     --tx-key $effective_key_in --rx-key $effective_key_out --encoding-sa $sa_num --pn $client_pn --sci $sci --rx-sci $rx_sci\
     --dev-ip "$effective_lip" --macsec-ip $macsec_effective_lip $local_extra --xpn $xpn
 
     #Config remote
-    ssh2 $REMOTE_SERVER "bash -s" -- < $TESTDIR/macsec-config.sh --device $dev --interface $macsec_dev --encrypt $encrypt --cipher $effective_cipher \
+    ssh2 $REMOTE_SERVER "bash -s" -- < $TESTDIR/macsec-config.sh --device $dev --interface $macsec_dev --cipher $effective_cipher \
                                        --tx-key $effective_key_out --rx-key $effective_key_in --encoding-sa $sa_num --pn $server_pn --sci $rx_sci --rx-sci $sci \
                                        --dev-ip $effective_rip --macsec-ip $macsec_effective_rip --side server $remote_extra --xpn $xpn
 }
 
-# Usage <mtu> <encrypt> <ip_proto> <macsec_ip_proto> <key_len> <net_proto> <offload> [multi_sa] [dev] [macsec_dev]
+# Usage <mtu> <ip_proto> <macsec_ip_proto> <key_len> <net_proto> <offload> [multi_sa] [dev] [macsec_dev]
 # mtu = {1500..9000}
-# encrypt = on/off
 # ip_proto = ipv4/ipv6
 # macsec_ip_proto= ipv4/ipv6
 # key_len = 128/256
@@ -325,22 +323,21 @@ function config_macsec() {
 # macsec_dev = <macsec_interface>
 function test_macsec() {
     local mtu="$1"
-    local encrypt="$2"
-    local ip_proto="$3"
-    local macsec_ip_proto="$4"
-    local key_len="$5"
-    local net_proto="$6"
-    local offload="$7"
-    local multi_sa=${8:-"off"}
-    local dev=${9:-"$NIC"}
-    local macsec_dev=${10:-"macsec0"}
+    local ip_proto="$2"
+    local macsec_ip_proto="$3"
+    local key_len="$4"
+    local net_proto="$5"
+    local offload="$6"
+    local multi_sa=${7:-"off"}
+    local dev=${8:-"$NIC"}
+    local macsec_dev=${9:-"macsec0"}
     local sa_num="0"
     local client_pn=$(($RANDOM % 10000))
     local server_pn=$(($RANDOM % 10000))
     local sci="$RANDOM"
     local rx_sci="$RANDOM"
 
-    config_macsec $encrypt $ip_proto $macsec_ip_proto $key_len $net_proto $offload $dev $macsec_dev $sa_num $client_pn $server_pn $sci $rx_sci $multi_sa
+    config_macsec $ip_proto $macsec_ip_proto $key_len $net_proto $offload $dev $macsec_dev $sa_num $client_pn $server_pn $sci $rx_sci $multi_sa
 
     if [[ "$offload" == "mac" ]]; then
         read_pre_test_counters
@@ -357,22 +354,21 @@ function test_macsec() {
 
 function test_macsec_one_side_offload() {
     local mtu="$1"
-    local encrypt="$2"
-    local ip_proto="$3"
-    local macsec_ip_proto="$4"
-    local key_len="$5"
-    local net_proto="$6"
-    local offload="$7"
-    local one_side_offload=${8:-"local"}
-    local dev=${9:-"$NIC"}
-    local macsec_dev=${10:-"macsec0"}
+    local ip_proto="$2"
+    local macsec_ip_proto="$3"
+    local key_len="$4"
+    local net_proto="$5"
+    local offload="$6"
+    local one_side_offload=${7:-"local"}
+    local dev=${8:-"$NIC"}
+    local macsec_dev=${9:-"macsec0"}
     local sa_num="0"
     local client_pn=$(($RANDOM % 10000))
     local server_pn=$(($RANDOM % 10000))
     local sci="$RANDOM"
     local rx_sci="$RANDOM"
 
-    config_macsec $encrypt $ip_proto $macsec_ip_proto $key_len $net_proto $offload $dev $macsec_dev $sa_num $client_pn $server_pn $sci $rx_sci off $one_side_offload
+    config_macsec $ip_proto $macsec_ip_proto $key_len $net_proto $offload $dev $macsec_dev $sa_num $client_pn $server_pn $sci $rx_sci off $one_side_offload
 
     if [[ "$one_side_offload" == "local" ]]; then
         read_pre_test_counters local
@@ -399,20 +395,19 @@ function test_macsec_one_side_offload() {
 
 function test_macsec_multi_sa() {
     local mtu="$1"
-    local encrypt="$2"
-    local ip_proto="$3"
-    local macsec_ip_proto="$4"
-    local key_len="$5"
-    local net_proto="$6"
-    local offload="$7"
-    local dev=${8:-"$NIC"}
-    local macsec_dev=${9:-"macsec0"}
+    local ip_proto="$2"
+    local macsec_ip_proto="$3"
+    local key_len="$4"
+    local net_proto="$5"
+    local offload="$6"
+    local dev=${7:-"$NIC"}
+    local macsec_dev=${8:-"macsec0"}
     local i
 
-    test_macsec $mtu $encrypt $ip_proto $macsec_ip_proto $key_len $net_proto $offload on
+    test_macsec $mtu $ip_proto $macsec_ip_proto $key_len $net_proto $offload on
 
     for i in 0 1 2 3; do
-        title "Test MACSEC with Multi SAs with mtu = $mtu , encrypt = $encrypt , ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len and offload = $offload using SA $i"
+        title "Test MACSEC with Multi SAs with mtu = $mtu , ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len and offload = $offload using SA $i"
         set_tx_sa $dev $macsec_dev $i
         change_mtu_on_both_sides $mtu $dev $macsec_dev
 
@@ -431,13 +426,12 @@ function test_macsec_multi_sa() {
 
 function test_macsec_xpn() {
     local mtu="$1"
-    local encrypt="$2"
-    local ip_proto="$3"
-    local macsec_ip_proto="$4"
-    local net_proto="$5"
-    local offload="$6"
-    local dev=${7:-"$NIC"}
-    local macsec_dev=${8:-"macsec0"}
+    local ip_proto="$2"
+    local macsec_ip_proto="$3"
+    local net_proto="$4"
+    local offload="$5"
+    local dev=${6:-"$NIC"}
+    local macsec_dev=${7:-"macsec0"}
     local multi_sa="off"
     local sa_num="0"
     local client_pn=4294967290
@@ -445,7 +439,7 @@ function test_macsec_xpn() {
     local sci="$RANDOM"
     local rx_sci="$RANDOM"
 
-    config_macsec $encrypt $ip_proto $macsec_ip_proto 128 $net_proto $offload $dev $macsec_dev $sa_num $client_pn $server_pn $sci $rx_sci off dont_use on
+    config_macsec $ip_proto $macsec_ip_proto 128 $net_proto $offload $dev $macsec_dev $sa_num $client_pn $server_pn $sci $rx_sci off dont_use on
 
     if [[ "$offload" == "mac" ]]; then
         read_pre_test_counters
@@ -460,9 +454,8 @@ function test_macsec_xpn() {
     fi
 }
 
-# Usage <mtu> <encrypt> <ip_proto> <macsec_ip_proto> <net_proto> <offload> [multi_sa] [local one_side_offload]
+# Usage <mtu> <ip_proto> <macsec_ip_proto> <net_proto> <offload> [multi_sa] [local one_side_offload]
 # mtu = {1500..9000}
-# encrypt = on/off
 # ip_proto = ipv4/ipv6
 # macsec_ip_proto = ipv4/ipv6
 # net_proto = tcp/udp/icmp
@@ -471,38 +464,37 @@ function test_macsec_xpn() {
 # one_side_offloadd = local/remote/dont_use
 function run_test_macsec() {
     local mtu=$1
-    local encrypt="$2"
-    local ip_proto="$3"
-    local macsec_ip_proto="$4"
-    local net_proto="$5"
-    local offload="$6"
-    local multi_sa=${7:-"off"}
-    local one_side_offload=${8:-"dont_use"}
-    local xpn=${9:-"off"}
+    local ip_proto="$2"
+    local macsec_ip_proto="$3"
+    local net_proto="$4"
+    local offload="$5"
+    local multi_sa=${6:-"off"}
+    local one_side_offload=${7:-"dont_use"}
+    local xpn=${8:-"off"}
     local len
 
     for len in 256 128; do
         macsec_cleanup
         if [[ "$multi_sa" == "on" ]]; then
-            title "Test MACSEC with Multi SAs with mtu = $mtu , encrypt = $encrypt , ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len and offload = $offload"
-            test_macsec_multi_sa $mtu $encrypt $ip_proto $macsec_ip_proto $len $net_proto $offload
+            title "Test MACSEC with Multi SAs with mtu = $mtu , ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len and offload = $offload"
+            test_macsec_multi_sa $mtu $ip_proto $macsec_ip_proto $len $net_proto $offload
             # the following echo is to separate between different iterations prints (by starting a new line) during the test
             echo
         elif [[ "$one_side_offload" = "local" ]]; then
-            title "Test MACSEC with mtu = $mtu , encrypt = $encrypt , ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len and offload = only RX offloaded"
-            test_macsec_one_side_offload $mtu $encrypt $ip_proto $macsec_ip_proto $len $net_proto $offload local
+            title "Test MACSEC with mtu = $mtu , ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len and offload = only RX offloaded"
+            test_macsec_one_side_offload $mtu $ip_proto $macsec_ip_proto $len $net_proto $offload local
             echo
         elif [[ "$one_side_offload" = "remote" ]]; then
-            title "Test MACSEC with mtu = $mtu , encrypt = $encrypt , ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len and offload = only TX offloaded"
-            test_macsec_one_side_offload $mtu $encrypt $ip_proto $macsec_ip_proto $len $net_proto $offload remote
+            title "Test MACSEC with mtu = $mtu , ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len and offload = only TX offloaded"
+            test_macsec_one_side_offload $mtu $ip_proto $macsec_ip_proto $len $net_proto $offload remote
             echo
         elif [[ "$xpn" = "on" ]]; then
-            title "Test MACSEC with encrypt = $encrypt , ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len xpn = on, offload = $offload"
-            test_macsec_xpn $mtu $encrypt $ip_proto $macsec_ip_proto $net_proto $offload
+            title "Test MACSEC with ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len xpn = on, offload = $offload"
+            test_macsec_xpn $mtu $ip_proto $macsec_ip_proto $net_proto $offload
             echo
         else
-            title "Test MACSEC with mtu = $mtu , encrypt = $encrypt , ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len and offload = $offload"
-            test_macsec $mtu $encrypt $ip_proto $macsec_ip_proto $len $net_proto $offload
+            title "Test MACSEC with mtu = $mtu , ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len and offload = $offload"
+            test_macsec $mtu $ip_proto $macsec_ip_proto $len $net_proto $offload
             echo
         fi
     done

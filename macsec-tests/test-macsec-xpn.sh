@@ -14,8 +14,8 @@ function cleanup() {
 }
 
 function run_test() {
-    run_test_macsec 1500 on ipv4 ipv4 icmp off off dont_use on
-    run_test_macsec 1500 on ipv4 ipv4 icmp mac off dont_use on
+    run_test_macsec 1500 ipv4 ipv4 icmp off off dont_use on
+    run_test_macsec 1500 ipv4 ipv4 icmp mac off dont_use on
 }
 
 trap cleanup EXIT
