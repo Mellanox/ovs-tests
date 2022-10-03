@@ -230,17 +230,15 @@ function config_macsec() {
     local key_len="$3"
     local net_proto="$4"
     local offload="$5"
-    local dev="$6"
-    local macsec_dev="$7"
-    local sa_num="$8"
-    local client_pn="$9"
-    local server_pn="${10}"
-    local sci="${11}"
-    local rx_sci="${12}"
-    local multi_sa="${13}"
-    local one_offload_side=${14:-"dont_use"} #local/remote/dont_use
-    local xpn=${15:-"off"}
-    local replay=${16-"off"}
+    local sa_num="$6"
+    local client_pn="$7"
+    local server_pn="$8"
+    local sci="$9"
+    local rx_sci="${10}"
+    local multi_sa="${11}"
+    local one_offload_side=${12:-"dont_use"} #local/remote/dont_use
+    local xpn=${13:-"off"}
+    local replay=${14-"off"}
     local local_extra=""
     local remote_extra=""
     local effective_lip="$LIP/24"
@@ -311,7 +309,7 @@ function config_macsec() {
                                        --dev-ip $effective_rip --macsec-ip $macsec_effective_rip --side server $remote_extra --xpn $xpn
 }
 
-# Usage <mtu> <ip_proto> <macsec_ip_proto> <key_len> <net_proto> <offload> [multi_sa] [dev] [macsec_dev]
+# Usage <mtu> <ip_proto> <macsec_ip_proto> <key_len> <net_proto> <offload> [multi_sa]
 # mtu = {1500..9000}
 # ip_proto = ipv4/ipv6
 # macsec_ip_proto= ipv4/ipv6
@@ -319,8 +317,6 @@ function config_macsec() {
 # net_proto = tcp/udp/icmp
 # offload = off/mac
 # multi_sa= = on/off
-# dev = <interface>
-# macsec_dev = <macsec_interface>
 function test_macsec() {
     local mtu="$1"
     local ip_proto="$2"
@@ -329,15 +325,15 @@ function test_macsec() {
     local net_proto="$5"
     local offload="$6"
     local multi_sa=${7:-"off"}
-    local dev=${8:-"$NIC"}
-    local macsec_dev=${9:-"macsec0"}
+    local dev="$NIC"
+    local macsec_dev="macsec0"
     local sa_num="0"
     local client_pn=$(($RANDOM % 10000))
     local server_pn=$(($RANDOM % 10000))
     local sci="$RANDOM"
     local rx_sci="$RANDOM"
 
-    config_macsec $ip_proto $macsec_ip_proto $key_len $net_proto $offload $dev $macsec_dev $sa_num $client_pn $server_pn $sci $rx_sci $multi_sa
+    config_macsec $ip_proto $macsec_ip_proto $key_len $net_proto $offload $sa_num $client_pn $server_pn $sci $rx_sci $multi_sa
 
     if [[ "$offload" == "mac" ]]; then
         read_pre_test_counters
@@ -360,8 +356,8 @@ function test_macsec_one_side_offload() {
     local net_proto="$5"
     local offload="$6"
     local one_side_offload=${7:-"local"}
-    local dev=${8:-"$NIC"}
-    local macsec_dev=${9:-"macsec0"}
+    local dev="$NIC"
+    local macsec_dev="macsec0"
     local sa_num="0"
     local client_pn=$(($RANDOM % 10000))
     local server_pn=$(($RANDOM % 10000))
@@ -400,8 +396,8 @@ function test_macsec_multi_sa() {
     local key_len="$4"
     local net_proto="$5"
     local offload="$6"
-    local dev=${7:-"$NIC"}
-    local macsec_dev=${8:-"macsec0"}
+    local dev="$NIC"
+    local macsec_dev="macsec0"
     local i
 
     test_macsec $mtu $ip_proto $macsec_ip_proto $key_len $net_proto $offload on
@@ -430,8 +426,8 @@ function test_macsec_xpn() {
     local macsec_ip_proto="$3"
     local net_proto="$4"
     local offload="$5"
-    local dev=${6:-"$NIC"}
-    local macsec_dev=${7:-"macsec0"}
+    local dev="$NIC"
+    local macsec_dev="macsec0"
     local multi_sa="off"
     local sa_num="0"
     local client_pn=4294967290
