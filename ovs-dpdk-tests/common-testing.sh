@@ -7,9 +7,10 @@ p_ping=/tmp/ping_out
 p_scapy=/tmp/tcpdump
 num_connections=5
 iperf_cmd=iperf3
-if [ "$USE_IPERF2" == 1 ]; then
-   iperf_cmd=iperf
-fi
+
+function set_iperf2() {
+       iperf_cmd=iperf
+}
 
 function ovs_add_ct_after_nat_rules(){
     local bridge=$1
@@ -343,7 +344,7 @@ function initiate_traffic() {
     local t=5
 
     sleep_time=$((t+2))
-    if [ "$USE_IPERF2" == "1" ]; then
+    if [ "$iperf_cmd" == "iperf" ]; then
         sleep_time=$((t+4))
     fi
 
@@ -351,7 +352,7 @@ function initiate_traffic() {
     rm -rf $p_server
     local server_cmd="${server_dst_execution} timeout $sleep_time $iperf_cmd -f Mbits -s"
 
-    if [ "$USE_IPERF2" == "1" ]; then
+    if [ "$iperf_cmd" == "iperf" ]; then
         server_cmd+=" -t $((sleep_time-1)) > $p_server 2>&1 &"
     else
         server_cmd+=" -D --logfile $p_server"
