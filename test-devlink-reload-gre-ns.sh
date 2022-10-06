@@ -11,6 +11,7 @@ my_dir="$(dirname "$0")"
 function config() {
     title "Config"
     config_sriov 0
+    enable_legacy
 }
 
 function add_del_ns() {
@@ -39,7 +40,7 @@ function run() {
     add_del_ns
 
     title "Devlink reload $NIC"
-    devlink_dev_reload $NIC
+    devlink_dev_reload $NIC || err "devlink reload failed"
 
     unload_gre_modules
 }
