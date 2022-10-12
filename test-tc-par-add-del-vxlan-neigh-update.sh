@@ -78,12 +78,13 @@ function neigh_update_test() {
     echo "Delete rules in parallel"
     change_neigh $ip_net $ip_host_start $ip_host_end  &
     t1=`get_ms_time`
-    #ls ${TC_OUT}/del.* | xargs -n 1 -P 100 tc $force -b &>/dev/null
-    reset_tc $NIC $REP
+    ls ${TC_OUT}/del.* | xargs -n 1 -P 100 tc $force -b &>/dev/null
     t2=`get_ms_time`
     let t=t2-t1
     echo "Took $t ms"
     check_num_rules 0 $REP
+
+    reset_tc $NIC $REP
 }
 
 function test_neigh_update_multi_neigh_ipv4() {
