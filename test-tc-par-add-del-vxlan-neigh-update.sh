@@ -60,29 +60,35 @@ function neigh_update_test() {
     local ip_net="$1"
     local ip_host_start="$2"
     local ip_host_end="$3"
-    local t t1 t2
+    local t t1 t2 pid
 
     reset_tc $NIC $REP $vxlan_dev
 
     title "Insert rules in parallel"
-    change_neigh $ip_net $ip_host_start $ip_host_end  &
+    change_neigh $ip_net $ip_host_start $ip_host_end &
+    pid=$!
     t1=`get_ms_time`
     ls ${TC_OUT}/add.* | xargs -n 1 -P 100 tc $force -b &>/dev/null
     t2=`get_ms_time`
     let t=t2-t1
     echo "Took $t ms"
     check_num_rules $total $REP
+    kill $pid &>/dev/null
+    wait $pid &>/dev/null
 
     sleep 1
 
     title "Delete rules in parallel"
-    change_neigh $ip_net $ip_host_start $ip_host_end  &
+    change_neigh $ip_net $ip_host_start $ip_host_end &
+    pid=$!
     t1=`get_ms_time`
     ls ${TC_OUT}/del.* | xargs -n 1 -P 100 tc $force -b &>/dev/null
     t2=`get_ms_time`
     let t=t2-t1
     echo "Took $t ms"
     check_num_rules 0 $REP
+    kill $pid &>/dev/null
+    wait $pid &>/dev/null
 
     reset_tc $NIC $REP
 }
