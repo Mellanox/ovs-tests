@@ -297,6 +297,10 @@ function config_keys_and_ips() {
         MACSEC_EFFECTIVE_RIP="$MACSEC_RIP6/112"
     fi
 
+    if [ "$xpn" == "xpn_on" ]; then
+       EFFECTIVE_CIPHER="gcm-aes-xpn-128"
+    fi
+
     if [ "$key_len" == 256 ]; then
         EFFECTIVE_KEY_IN="$KEY_IN_256"
         EFFECTIVE_KEY_OUT="$KEY_OUT_256"
@@ -400,8 +404,9 @@ function test_macsec_xpn() {
     local mtu="$1"
     local ip_proto="$2"
     local macsec_ip_proto="$3"
-    local net_proto="$4"
-    local offload_side="$5"
+    local key_len="$4"
+    local net_proto="$5"
+    local offload_side="$6"
     local dev="$NIC"
     local macsec_dev="macsec0"
     local multi_sa="off"
@@ -464,7 +469,7 @@ function run_test_macsec() {
             echo
         elif [[ "$xpn" = "on" ]]; then
             title "Test MACSEC with ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len xpn = on, offload = $offload_side"
-            test_macsec_xpn $mtu $ip_proto $macsec_ip_proto $net_proto $offload_side
+            test_macsec_xpn $mtu $ip_proto $macsec_ip_proto $len $net_proto $offload_side
             echo
         else
             title "Test MACSEC with mtu = $mtu , ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len and offload = $offload_side"
