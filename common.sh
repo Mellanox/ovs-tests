@@ -1415,8 +1415,7 @@ function check_simx_errors() {
     local filter=""
     local filter_warn="\(MLX5_GET\(flow_table_entry_match_set_misc, misc_parameters_addr, outer_second_cvlan_tag\) != 0 <= ft_field_bitmask_support->outer_second_svlan\): \(0x00000001 <= 0x00000000\)|\
 assertion failed: D0:P[0-9]:F0 flow index \(.*\) doesn't exist in table ID \(0x5\)|\
-assertion failed: 'outer_second_svlan_tag' must be set to use 'outer_second_vid'|\
-assertion failed: inconsistent values for field 'dmac_47_16'"
+assertion failed: 'outer_second_svlan_tag' must be set to use 'outer_second_vid'"
 
     filter+="$filter_warn"
 
