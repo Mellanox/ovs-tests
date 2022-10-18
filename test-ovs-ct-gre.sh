@@ -25,7 +25,7 @@ reset_tc $REP
 reset_tc $REP2
 
 function cleanup() {
-    killall -9 iperf &>/dev/null
+    killall -9 iperf3 &>/dev/null
     conntrack -F &>/dev/null
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
@@ -69,12 +69,12 @@ function run() {
     t=15
 
     echo "run traffic for $t seconds"
-    ip netns exec ns1 timeout $((t+1)) iperf -s &
+    ip netns exec ns1 timeout $((t+1)) iperf3 -s -D
     sleep 0.5
-    ip netns exec ns0 timeout $((t+1)) iperf -t $t -c $INNER2 &
+    ip netns exec ns0 timeout $((t+1)) iperf3 -t $t -c $INNER2 &
 
     sleep 2
-    pidof iperf &>/dev/null || err "iperf failed"
+    pidof iperf3 &>/dev/null || err "iperf3 failed"
 
     sleep 2
 
@@ -98,7 +98,7 @@ function run() {
     echo "$res" | grep -q -i "ct(.*commit.*)" || err "Expected ct commit action"
 
     sleep $t
-    killall -9 iperf &>/dev/null
+    killall -9 iperf3 &>/dev/null
     wait $! 2>/dev/null
 
     title "Verify traffic on $VF2"
