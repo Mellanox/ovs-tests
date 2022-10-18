@@ -22,6 +22,8 @@ out_vlan=10
 out_vlan_dev=${REMOTE_NIC}.$out_vlan
 in_vlan_dev=${out_vlan_dev}.$in_vlan
 
+mac="xxxxxxx"
+
 config_sriov 2
 enable_switchdev
 require_interfaces REP NIC
@@ -56,6 +58,7 @@ function config() {
     ip netns exec ns0 ip link add link $VF name $VF.$in_vlan type vlan id $in_vlan
     ip netns exec ns0 ifconfig $VF $IP/24 up
     ip netns exec ns0 ifconfig $VF.$in_vlan $IP2/24 up
+    mac=`ip netns exec ns0 cat /sys/class/net/$VF/address`
 
     echo "Restarting OVS"
     start_clean_openvswitch
@@ -79,7 +82,7 @@ function config_remote() {
 function check_offloaded_rules() {
     local count=$1
     title "Check for $count offloaded rules"
-    RES="ovs_dump_tc_flows | grep 0x0800 | grep -v drop"
+    RES="ovs_dump_tc_flows --names | grep 0x0800 | grep $mac | grep -v drop"
     eval $RES
     RES=`eval $RES | wc -l`
     if (( RES == $count )); then success; else err "Expected $count rules but found $RES rules."; fi
