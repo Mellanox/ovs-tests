@@ -118,7 +118,7 @@ function read_pre_test_counters() {
     local side=${1:-"both"}
 
     if [ "$side" == "none" ]; then
-	    return
+        return
     fi
 
     if [ "$side" == "remote" ]; then
@@ -139,7 +139,7 @@ function read_post_test_counters() {
     local side=${1:-"both"}
 
     if [ "$side" == "none" ]; then
-	    return
+        return
     fi
 
     if [ "$side" == "remote" ]; then
@@ -174,7 +174,7 @@ function verify_offload() {
     local side=${1:-"both"}
 
     if [ "$side" == "none" ]; then
-	    return
+        return
     fi
 
     title "Verify offload"
