@@ -227,7 +227,7 @@ function cleanup_e2e_cache() {
 }
 
 function query_sw_packets() {
-    local num_of_pkts=100000
+    local num_of_pkts=200000
 
     if [[ "$short_device_name" == "cx5"* ]]; then
         num_of_pkts=350000
