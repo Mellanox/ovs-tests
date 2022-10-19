@@ -44,7 +44,6 @@ function add_rep_tc_fwd_rules() {
 }
 
 function cleanup() {
-    killall -q -9 tcpdump
     reset_tc $REP $REP2
     ovs_clear_bridges
     ovs_conf_set hw-offload true
@@ -99,12 +98,13 @@ function run() {
 
     tdfile=/tmp/tdfile.pcap
     timeout $((n+1)) tcpdump -pqnnei $REP -c $n ip -w $tdfile &
+    local tpid=$!
     sleep 0.5
 
     echo "Run ping for $((n+1)) seconds"
     ip netns exec $namespace1 ping -I $VF $VF2_IP -c $n -w $((n+1)) -q && success || err "Ping failed"
 
-    sleep 1
+    wait $tpid
     npkts=`tcpdump -nne -r $tdfile | grep "$SPECIFIC_MAC" | wc -l`
     other_pkts=`tcpdump -nne -r $tdfile | grep -v "$SPECIFIC_MAC" | wc -l`
 
