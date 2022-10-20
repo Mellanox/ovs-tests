@@ -5,9 +5,9 @@
 # potential bugs and race conditions.
 #
 
-total=${1:-100}
-rules_per_file=10
-encaps_per_file=10
+total=${1:-1000}
+rules_per_file=100
+encaps_per_file=100
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -65,7 +65,7 @@ function run_test() {
     local remote_ip_host="$3"
     local max_rules=$total
 
-    tc_batch_vxlan_multiple_encap_multiple_neigh "dev $NIC" $total $rules_per_file "src_ip 192.168.111.1 dst_ip 192.168.111.2 ip_proto udp dst_port 1 src_port 1" $id $local_ip $remote_ip_net $remote_ip_host $dst_port $vxlan_dev 10 0
+    tc_batch_vxlan_multiple_encap_multiple_neigh "dev $NIC" $total $rules_per_file "src_ip 192.168.111.1 dst_ip 192.168.111.2 ip_proto udp dst_port 1 src_port 1" $id $local_ip $remote_ip_net $remote_ip_host $dst_port $vxlan_dev $encaps_per_file 0
 
     echo "local_ip $local_ip remote_ip_net $remote_ip_net"
     ifconfig $NIC up
