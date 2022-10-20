@@ -137,9 +137,6 @@ class SetupConfigure(object):
             self.ReloadModules()
             self.UpdatePATHEnvironmentVariable()
 
-            if self.args.dpdk or self.args.vdpa:
-                self.configure_hugepages()
-
             self.LoadPFInfo()
             if not self.host.PNics:
                 self.Logger.error("Cannot find PNics")
@@ -167,6 +164,9 @@ class SetupConfigure(object):
                 self.LoadVFInfo()
                 self.LoadRepInfo()
                 self.ConfigureOVS()
+
+            if self.args.dpdk or self.args.vdpa:
+                self.configure_hugepages()
 
             if self.args.second_server:
                 return
@@ -713,6 +713,11 @@ class SetupConfigure(object):
         else:
             nr_hugepages = 2048
         self.Logger.info("Allocating %s hugepages", nr_hugepages)
+
+        if self.args.bluefield:
+            runcmd_output_remote(self.bf_ip, 'echo %s > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages' % nr_hugepages)
+            return
+
         runcmd('echo %s > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages' % nr_hugepages)
 
     @property
