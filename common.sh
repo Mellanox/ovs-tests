@@ -790,7 +790,7 @@ function config_vf() {
         prefix=64
     fi
 
-    echo "[$ns] $vf (${mac:+$mac/}$ip) -> $rep"
+    echo "[$ns] VF $vf (${mac:+$mac/}$ip) -> REP $rep"
     ip address flush dev $rep
     ip link set dev $rep up
     ip netns add $ns
