@@ -29,10 +29,14 @@ id=98
 vxlan_dev="vxlan1"
 
 
-function cleanup() {
-    ip link del dev $vxlan_dev 2> /dev/null
+function config() {
     ip link add $vxlan_dev type vxlan id $id dev $NIC dstport $dst_port
     ip link set $vxlan_dev up
+    ip addr add ${local_ip}/24 dev $NIC
+}
+
+function cleanup() {
+    ip link del dev $vxlan_dev 2> /dev/null
     ip n del ${remote_ip_net}${remote_ip_host} dev $NIC 2>/dev/null
     ifconfig $NIC down
     ip addr flush dev $NIC
@@ -78,14 +82,14 @@ function run_test() {
     check_num_rules 0 $NIC
 
     set_neighs $remote_ip_net $remote_ip_host 1
-    ip l del $vxlan_dev
 }
 
 function test_par_vxlan_ipv4() {
     title "Parallel rule update with multiple encaps"
     cleanup
-    ip addr add ${local_ip}/24 dev $NIC
+    config
     run_test $local_ip $remote_ip_net $remote_ip_host
+    cleanup
 }
 
 
