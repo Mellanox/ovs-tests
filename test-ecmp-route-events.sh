@@ -10,7 +10,6 @@ my_dir="$(dirname "$0")"
 function cleanup() {
     ip r d $net &>/dev/null
     ip r d $net2 &>/dev/null
-    ip l del dev dummy9 &>/dev/null
     ifconfig $NIC 0
     ifconfig $NIC2 0
     log "deconfig ports"
@@ -32,8 +31,6 @@ function chk() {
 }
 
 
-log "create dummy device"
-ip l add dev dummy9 type dummy || fail "Failed to create dummy device - cannot continue."
 
 route1=1.1.1.1
 route2=2.2.2.1
@@ -161,17 +158,6 @@ function case_two_routes() {
     echo
 }
 
-function case_dummy_port() {
-    title "Test route with a dummy port"
-    ip link add dummy9 type dummy
-    ifconfig dummy9 8.8.8.1/24 up
-    ip r r $net nexthop via $route1 dev $NIC nexthop via 8.8.8.1 dev dummy9
-    chk "Multipath offload require two ports of the same HCA" "Expected warning"
-    ip r d $net
-    ip link del dummy9
-    echo
-}
-
 function case_route_metric() {
     title "Test route metric"
     ip r r $net metric 20 nexthop via $route1 dev $NIC nexthop via $route2 dev $NIC2
@@ -195,7 +181,6 @@ function case_route_metric() {
 case_route_add
 case_single_route
 case_two_routes
-case_dummy_port
 case_route_metric
 
 trap - EXIT
