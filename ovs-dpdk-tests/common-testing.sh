@@ -429,7 +429,7 @@ function validate_actual_traffic () {
         err "no $p_client , probably problem with iperf or ssh problem"
     fi
 
-    validate_traffic 1
+    validate_traffic 100
 }
 
 function validate_traffic() {
