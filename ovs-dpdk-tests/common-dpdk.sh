@@ -227,13 +227,13 @@ function cleanup_e2e_cache() {
 }
 
 function query_sw_packets() {
-    local num_of_pkts=200000
+    local expected_num_of_pkts=100000
 
     if [[ "$short_device_name" == "cx5"* ]]; then
-        num_of_pkts=350000
+        expected_num_of_pkts=350000
     fi
 
-    debug "Expecting $num_of_pkts to reach SW"
+    debug "Expecting $expected_num_of_pkts to reach SW"
     local pkts1=$(ovs-appctl dpif-netdev/pmd-stats-show | grep 'packets received:' | sed -n '1p' | awk '{print $3}')
     local pkts2=$(ovs-appctl dpif-netdev/pmd-stats-show | grep 'packets received:' | sed -n '2p' | awk '{print $3}')
 
@@ -247,12 +247,17 @@ function query_sw_packets() {
         return 1
     fi
 
-    local total_pkts=$(($pkts1+$pkts2))
-    debug "Received $total_pkts packets in SW"
-    if [ $total_pkts -gt $num_of_pkts ]; then
-        err "$total_pkts reached SW"
-        return 1
+    local total_sw_pkts=$(($pkts1+$pkts2))
+    debug "Received $total_sw_pkts packets in SW"
+    if [ $total_sw_pkts -gt $expected_num_of_pkts ]; then
+        local all_pkts=$(ovs-ofctl dump-flows br-phy | grep -o "n_packets=[0-9.]*" | awk -F"=" '{print $2}')
+        debug "expected $expected_num_of_pkts, but got $total_sw_pkts, checking that $total_sw_packets is no more than 10% of $all_pkts"
+        if [ $((10*$total_sw_pkts)) -gt $all_pkts ]; then
+            err "$total_sw_pkts packets reached to SW, it is more than 10% of $all_pkts"
+            return 1
+        fi
     fi
+    return 0
 }
 
 function check_offload_contains() {
