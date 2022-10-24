@@ -70,9 +70,9 @@ function config_local_host() {
     bind_vfs
     require_interfaces REP REP2 NIC VF VF2
     setup_ovs
-    reset_tc $REP $REP2
     config_vf $namespace1 $VF $REP $VF1_IP $VF1_MAC
     config_vf $namespace2 $VF2 $REP2 $VF2_IP $VF2_MAC
+    reset_tc $REP $REP2
     add_rep_tc_fwd_rules $REP $REP2 $ARP_PRIO $IP_PRIO_LOW
     add_rep_tc_fwd_rules $REP2 $REP $ARP_PRIO $IP_PRIO_LOW
 }
