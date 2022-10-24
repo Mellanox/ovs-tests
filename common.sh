@@ -150,6 +150,22 @@ function __get_device_name() {
     fi
 }
 
+function __get_pci_device_name() {
+    pci_device_name="NA"
+
+    if [ "$short_device_name" == "cx5" ]; then
+        pci_device_name="galil"
+    elif [ "$short_device_name" == "cx6" ]; then
+        pci_device_name="negev"
+    elif [ "$short_device_name" == "cx6lx" ]; then
+        pci_device_name="tamar"
+    elif [ "$short_device_name" == "cx6dx" ]; then
+        pci_device_name="arava"
+    elif [ "$short_device_name" == "cx7" ]; then
+        pci_device_name="carmel"
+    fi
+}
+
 function check_simx() {
     if lspci -s $PCI -vvv | grep -q SimX ; then
         IS_SIMX=1
@@ -214,9 +230,11 @@ function __setup_common() {
     PCI=$(basename `readlink /sys/class/net/$NIC/device`)
     PCI2=$(basename `readlink /sys/class/net/$NIC2/device`)
     DEVICE=`cat /sys/class/net/$NIC/device/device`
+    PCI_DEVICE_NUM=`printf '%d' $DEVICE`
     FW=`get_nic_fw $NIC`
 
     __get_device_name
+    __get_pci_device_name
 
     status="NIC $NIC FW $FW PCI $PCI DEVICE $DEVICE $device_name"
     log $status
@@ -1459,6 +1477,42 @@ function add_expected_error_for_issue() {
     fi
 }
 
+function dump_fw_basic_debug() {
+    [ -z "$DEVTESTS_LOGDIR" ] && return
+    [ -z "$DEVTESTS_STAMP" ] && return
+    [ "$pci_device_name" == "NA" ] && return
+
+    local basic_debug="/mswg/projects/fw/fw_ver/hca_fw_tools/basic_debug_wrapper_${pci_device_name}.sh"
+    [ ! -e $basic_debug ] && return
+
+    local fw_err="firmware internal error"
+    local a=`journalctl_for_test | grep -E -i "$fw_err" || true`
+    if [ "$a" == "" ]; then
+        return
+    fi
+
+    local logdir="$DEVTESTS_LOGDIR/$TESTNAME"
+    log "Dump fw debug to $logdir"
+    [ ! -e $logdir ] && mkdir $logdir
+    [ ! -e $logdir ] && return
+
+    log "Save dmesg"
+    dmesg -T > $logdir/dmesg.txt
+
+    log "Save basic debug $pci_device_name"
+    $basic_debug &> $logdir/basic_debug_${pci_device_name}.txt
+
+    local dump1="$logdir/mst_dump1.txt"
+    local dump2="$logdir/mst_dump2.txt"
+    local dump3="$logdir/mst_dump3.txt"
+    local i
+
+    log "Save mst dumps"
+    for i in $dump1 $dump2 $dump3; do
+        mstdump $PCI &> $i
+    done
+}
+
 __expected_error_msgs=""
 function add_expected_error_msg() {
     local m=$1
@@ -1519,6 +1573,7 @@ Deprecated Driver is detected: iptables will not be maintained in a future major
     fi
 
     check_simx_errors
+    dump_fw_basic_debug
 
     return $rc
 }
