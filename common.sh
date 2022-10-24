@@ -1511,6 +1511,10 @@ function dump_fw_basic_debug() {
     for i in $dump1 $dump2 $dump3; do
         mstdump $PCI &> $i
     done
+
+    local out2="/swgwork/charliemb/tmp/devtests/$DEVTESTS_STAMP"
+    [ ! -e $out2 ] && mkdir -p $out2
+    [ -e $out2 ] && cp -r $logdir $out2
 }
 
 __expected_error_msgs=""
