@@ -1051,7 +1051,7 @@ def save_summary_html():
     else:
         rerun = ""
 
-    summary_file = "%s/summary.html" % LOGDIR
+    summary_file = os.path.join(LOGDIR, "summary.html")
     with open(summary_file, 'w') as f:
         f.write(HTML.format(style=HTML_CSS, summary=summary, results=results, rerun=rerun))
     return summary_file
