@@ -1070,6 +1070,8 @@ def prepare_logdir():
 
     print("Log dir: " + logdir)
     LOGDIR = logdir
+    os.environ['DEVTESTS_LOGDIR'] = LOGDIR
+    os.environ['DEVTESTS_STAMP'] = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
     return logdir
 
 
