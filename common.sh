@@ -1485,8 +1485,9 @@ function dump_fw_basic_debug() {
     local basic_debug="/mswg/projects/fw/fw_ver/hca_fw_tools/basic_debug_wrapper_${pci_device_name}.sh"
     [ ! -e $basic_debug ] && return
 
-    local fw_err="firmware internal error"
-    local a=`journalctl_for_test | grep -E -i "$fw_err" || true`
+    local fw_errs="health compromised|firmware internal error|assert_var|\
+Command completion arrived after timeout|Error cqe|failed reclaiming pages"
+    local a=`journalctl_for_test | grep -E -i "$fw_errs" || true`
     if [ "$a" == "" ]; then
         return
     fi
