@@ -34,6 +34,22 @@ function require_remote_bf() {
     on_remote_bf true || fail "Remote BF command failed"
 }
 
+function bf_wrap() {
+    if is_bf_host; then
+        on_bf "$@"
+    else
+        eval "$@"
+    fi
+}
+
+function bf_wrap_exec() {
+    if is_bf_host; then
+        on_bf_exec "$@"
+    else
+        eval "$@"
+    fi
+}
+
 function __config_vf() {
     local ns=$1
     local vf=$2
@@ -53,25 +69,6 @@ function __config_vf() {
     ip -netns $ns link set $vf up
 }
 
-function __config_rep() {
-    local rep=$1
-
-    ip address flush dev $rep
-    ip link set dev $rep up
-}
-
-function config_vf() {
-    local ns=$1
-    local vf=$2
-    local rep=$3
-    local ip=$4  # optional
-    local mac=$5 # optional
-
-    echo "[$ns] $vf (${mac:+$mac/}$ip) -> BF $rep"
-    __config_vf $ns $vf $ip $mac
-    on_bf_exec "__config_rep $rep"
-}
-
 function config_remote_bf_vf() {
     local ns=$1
     local vf=$2
@@ -82,6 +79,30 @@ function config_remote_bf_vf() {
     echo "[$ns] $vf (${mac:+$mac/}$ip) -> BF $rep"
     on_remote_exec "__config_vf $ns $vf $ip $mac"
     on_remote_bf_exec "__config_rep $rep"
+}
+
+function ovs-vsctl() {
+    if is_bf_host; then
+        on_bf command ovs-vsctl $@
+    else
+        command ovs-vsctl $@
+    fi
+}
+
+function ovs-ofctl() {
+    if is_bf_host; then
+        on_bf command ovs-ofctl $@
+    else
+        command ovs-ofctl $@
+    fi
+}
+
+function ovs-appctl() {
+    if is_bf_host; then
+        on_bf command ovs-appctl $@
+    else
+        command ovs-appctl $@
+    fi
 }
 
 function __setup_common_bf() {

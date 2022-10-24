@@ -272,6 +272,8 @@ function __setup_common() {
     set_ovs_debug_logs
     check_simx
     simx_append_log "# TEST $TESTNAME #"
+
+    is_bf_host && . $DIR/common-bf.sh
 }
 
 ovs_log_path="/var/log/openvswitch/ovs-vswitchd.log"
@@ -621,6 +623,16 @@ function cloud_fw_reset() {
     load_modules
 }
 
+# BF wrap functions are overridden in common-bf.sh
+
+function bf_wrap() {
+    eval "$@"
+}
+
+function bf_wrap_exec() {
+    eval "$@"
+}
+
 function is_bf() {
     lspci -s 00:00.0 2>/dev/null | grep -wq "PCI bridge: Mellanox Technologies"
 }
@@ -909,6 +921,13 @@ function simx_append_log() {
     $simx_write_str -d $PCI -s "$*" >/dev/null
 }
 
+function __config_rep() {
+    local rep=$1
+
+    bf_wrap "ip address flush dev $rep
+             ip link set dev $rep up"
+}
+
 function config_vf() {
     local ns=$1
     local vf=$2
@@ -923,13 +942,13 @@ function config_vf() {
     fi
 
     echo "[$ns] VF $vf (${mac:+$mac/}$ip) -> REP $rep"
-    ip address flush dev $rep
-    ip link set dev $rep up
     ip netns add $ns
     ${mac:+ip link set $vf address $mac}
     ip link set $vf netns $ns
     ${ip:+ip -netns $ns address replace dev $vf $ip/$prefix}
     ip -netns $ns link set $vf up
+
+    __config_rep $rep
 }
 
 function add_vf_vlan() {
@@ -1820,7 +1839,7 @@ function ovs_dump_ovs_flows() {
 }
 
 function ovs_clear_bridges() {
-    ovs-vsctl list-br | xargs -r -L 1 ovs-vsctl del-br 2>/dev/null
+    bf_wrap "ovs-vsctl list-br | xargs -r -L 1 ovs-vsctl del-br 2>/dev/null"
 }
 
 function service_ovs() {
@@ -1952,8 +1971,8 @@ function restart_openvswitch() {
 __ovs_used=0
 
 function start_clean_openvswitch() {
-    restart_openvswitch
-    ovs_clear_bridges
+    bf_wrap_exec "restart_openvswitch
+                  ovs_clear_bridges"
     __ovs_used=1
 }
 
