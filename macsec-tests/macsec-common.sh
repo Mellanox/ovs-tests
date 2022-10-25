@@ -202,8 +202,10 @@ function run_traffic() {
     local ip_proto="$1"
     local net_proto="$2"
     local nic=${3:-"$NIC"}
+    local expected_traffic=${4:-"have_traffic"}
     local iperf_extra=""
     local tcpdump_exta=""
+    local should_err=""
 
     if [[ "$net_proto" == "tcp" ]]; then
         :
@@ -215,6 +217,16 @@ function run_traffic() {
         err "Wrong arg for function run_traffic"
     fi
 
+    if [[ "$expected_traffic" == "have_traffic" ]]; then
+            should_err="err $net_proto traffic failed"
+    elif [[ "$expected_traffic" == "no_traffic" ]]; then
+            :
+    else
+        err "Wrong arg for function run_traffic"
+    fi
+
+    fail_if_err
+
     local t=10
 
     title "Run $net_proto traffic"
@@ -225,22 +237,26 @@ function run_traffic() {
 
     if [[ "$net_proto" == "icmp" ]]; then
         if [[ "$ip_proto" == "ipv4" ]]; then
-            (on_remote timeout $((t+2)) ping $MACSEC_LIP -c 7 > /dev/null) || err "ping failed"
+            (on_remote timeout $((t+2)) ping $MACSEC_LIP -c 7 > /dev/null) || $should_err
         else
-            (on_remote timeout $((t+2)) ping $MACSEC_LIP6 -c 7 > /dev/null) || err "ping failed"
+            (on_remote timeout $((t+2)) ping $MACSEC_LIP6 -c 7 > /dev/null) || $should_err
         fi
     else
         if [[ "$ip_proto" == "ipv4" ]]; then
-            (on_remote timeout $((t+2)) iperf3 -c $MACSEC_LIP $iperf_extra -b 2G --logfile $IPERF_FILE &) || err "iperf3 failed"
+            (on_remote timeout $((t+2)) iperf3 -c $MACSEC_LIP $iperf_extra -b 2G --logfile $IPERF_FILE &) || $should_err
         else
-            (on_remote timeout $((t+2)) iperf3 -c $MACSEC_LIP6 $iperf_extra -b 2G --logfile $IPERF_FILE &) || err "iperf3 failed"
+            (on_remote timeout $((t+2)) iperf3 -c $MACSEC_LIP6 $iperf_extra -b 2G --logfile $IPERF_FILE &) || $should_err
         fi
     fi
 
     fail_if_err
 
-    title "Verify $net_proto traffic on $nic"
-    verify_have_traffic $upid
+    title "Verify $expected_traffic $net_proto on $nic"
+    if [[ "$expected_traffic" == "have_traffic" ]]; then
+        verify_have_traffic $upid
+    else
+        verify_no_traffic $upid
+    fi
 }
 
 function config_macsec_env() {
