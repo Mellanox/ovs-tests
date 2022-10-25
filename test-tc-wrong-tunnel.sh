@@ -94,6 +94,11 @@ function test_add_encap_rule() {
     reset_tc $REP
 }
 
+function remove_gre_modules() {
+    local holders=`ls -1r /sys/module/gre/holders`
+    modprobe -r $holders gre
+}
+
 function do_test() {
     title $1
     eval $1
@@ -105,6 +110,6 @@ config_vxlan
 config_gre
 ifconfig $NIC $local_ip/24 up
 do_test test_add_encap_rule
-
+remove_gre_modules
 cleanup
 test_done
