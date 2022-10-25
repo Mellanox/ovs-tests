@@ -77,7 +77,7 @@ function verify_different_encap_ids() {
     encap1=`echo $encap_ids | cut -d " " -f2`
 
     if [ "$encap0" == "$encap1" ]; then
-        fail "Both VXLAN and GRE has the same packet_reformat_id ($encap0)"
+        err "Both VXLAN and GRE has the same packet_reformat_id ($encap0)"
     else
         success
     fi
