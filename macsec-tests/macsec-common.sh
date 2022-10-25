@@ -250,30 +250,6 @@ function config_macsec_env() {
 }
 
 function config_macsec() {
-    local ip_proto="$1"
-    local macsec_ip_proto="$2"
-    local key_len="$3"
-    local net_proto="$4"
-    local offload="$5"
-    local sa_num="$6"
-    local client_pn="$7"
-    local server_pn="$8"
-    local sci="$9"
-    local rx_sci="${10}"
-    local multi_sa="${11}"
-    local one_offload_side=${12:-"dont_use"} #local/remote/dont_use
-    local xpn=${13:-"off"}
-    local replay=${14-"off"}
-    local local_extra=""
-    local remote_extra=""
-    local effective_lip="$LIP/24"
-    local effective_rip="$RIP/24"
-    local macsec_effective_lip="$MACSEC_LIP/24"
-    local macsec_effective_rip="$MACSEC_RIP/24"
-    local effective_cipher="gcm-aes-128"
-    local effective_key_in="$KEY_IN_128"
-    local effective_key_out="$KEY_OUT_128"
-
     $TESTDIR/macsec-config.sh $@
 }
 
