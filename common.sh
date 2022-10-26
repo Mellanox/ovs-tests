@@ -489,15 +489,15 @@ function clear_remote_bonding() {
 }
 
 function require_mlxreg() {
-    [[ -e /usr/bin/mlxreg ]] || fail "Missing mlxreg"
+    require_cmd mlxreg
 }
 
 function require_mlxdump() {
-    [[ -e /usr/bin/mlxdump ]] || fail "Missing mlxdump"
+    require_cmd mlxdump
 }
 
 function require_mlxconfig() {
-    [[ -e /usr/bin/mlxconfig ]] || fail "Missing mlxconfig"
+    require_cmd mlxconfig
 }
 
 function require_module() {
