@@ -60,6 +60,7 @@ function test_max_rules() {
     echo "inserting..."
     for i in `seq 0 $(( max_rules_to_test - 1 ))`; do
         eval2 ethtool -U $NIC flow-type tcp4 src-port 1 action -1 loc $i || break
+        is_simx && sleep 0.01
     done
     verify_num_of_rules $max_rules_to_test
     echo "deleting..."
