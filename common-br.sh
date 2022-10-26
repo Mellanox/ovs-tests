@@ -1,5 +1,11 @@
 #!/bin/bash
 
+function no_output() {
+    local a=`$@ 2>&1`
+    [ -n "$a" ] && err $a && return 1
+    return 0
+}
+
 function create_bridge_with_interfaces() {
     local bridge_name=$1
     local i
@@ -10,7 +16,7 @@ function create_bridge_with_interfaces() {
     iptables -A FORWARD -i $bridge_name -j ACCEPT
 
     for i in $@; do
-        ip link set $i master $bridge_name
+        no_output ip link set $i master $bridge_name
     done
 
     ip link set $bridge_name up
