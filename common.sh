@@ -220,7 +220,7 @@ function __setup_common() {
     log `uname -nsrp`
 
     require_interfaces NIC NIC2
-    require_cmd lspci ethtool tc bc
+    require_cmd lspci ethtool tc bc jq
     fail_if_err
 
     sysfs_pci_device=`readlink -f /sys/class/net/$NIC/../../`
