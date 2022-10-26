@@ -1500,7 +1500,7 @@ function dump_fw_basic_debug() {
     local basic_debug="/mswg/projects/fw/fw_ver/hca_fw_tools/basic_debug_wrapper_${pci_device_name}.sh"
     [ ! -e $basic_debug ] && return
 
-    local fw_errs="health compromised|firmware internal error|assert_var|\
+    local fw_errs="firmware internal error|assert_var|\
 Command completion arrived after timeout|Error cqe|failed reclaiming pages"
     local a=`journalctl_for_test | grep -E -i "$fw_errs" || true`
     if [ "$a" == "" ]; then
@@ -1551,8 +1551,8 @@ warning: consoletype is now deprecated|warning: use tty|\
 kfree for unknown address|UBSAN|KASAN"
     local memleak="new suspected memory leaks"
     local memtrack="memtrack_report: Summary: .* leak\(s\) detected"
-    local mlx5_errs="mlx5_core .* err |mlx5_core .* failed |syndrome"
-    local fw_errs="health compromised|firmware internal error|assert_var|\
+    local mlx5_errs="mlx5_core .* err |mlx5_core .* failed |syndrome|health compromised"
+    local fw_errs="firmware internal error|assert_var|\
 Command completion arrived after timeout|Error cqe|failed reclaiming pages"
     local ovs_errs="Kernel flower acknowledgment does not match request"
     local look_ahead="Call Trace:|Allocated by task|Freed by task"
