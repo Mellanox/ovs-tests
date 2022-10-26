@@ -31,11 +31,19 @@ LOCAL_PRE_TEST_PKTS_TX=""
 LOCAL_PRE_TEST_PKTS_RX=""
 LOCAL_POST_TEST_PKTS_TX=""
 LOCAL_POST_TEST_PKTS_RX=""
+LOCAL_PRE_TEST_PKTS_TX_DROP=""
+LOCAL_PRE_TEST_PKTS_RX_DROP=""
+LOCAL_POST_TEST_PKTS_TX_DROP=""
+LOCAL_POST_TEST_PKTS_RX_DROP=""
 
 REMOTE_PRE_TEST_PKTS_TX=""
 REMOTE_PRE_TEST_PKTS_RX=""
 REMOTE_POST_TEST_PKTS_TX=""
 REMOTE_POST_TEST_PKTS_RX=""
+REMOTE_PRE_TEST_PKTS_TX_DROP=""
+REMOTE_PRE_TEST_PKTS_RX_DROP=""
+REMOTE_POST_TEST_PKTS_TX_DROP=""
+REMOTE_POST_TEST_PKTS_RX_DROP=""
 
 function macsec_cleanup_local() {
     local dev=${1:-"$NIC"}
@@ -95,23 +103,20 @@ function change_mtu_on_both_sides() {
 }
 
 function get_macsec_counter() {
-    local counter_name="$1"
-    local dev=${2:-"$NIC"}
-    local res
+  local counter=$1
+  local dev=${2:-$NIC}
 
-    if [[ "$counter_name" != "tx" &&  "$counter_name" != "rx" ]]; then
-        err "Wrong argument for function get_macsec_counter"
-    fi
-
-    res=`ethtool -S $dev | grep "macsec_${counter_name}_pkts:" | awk '{print $2}'`
-    echo $res
+  counter="macsec_${counter}"
+  res=`ethtool -S $dev | grep -w "$counter" | awk '{print $2}'`
+  [ -z "$res" ] && fail "Cannot find counter $counter"
+  echo $res
 }
 
 function get_macsec_counter_on_remote() {
-    local counter_name="$1"
+    local counter="$1"
     local dev=${2:-"$NIC"}
 
-    on_remote_exec "get_macsec_counter $counter_name $dev"
+    on_remote_exec "get_macsec_counter $counter $dev"
 }
 
 function read_pre_test_counters() {
@@ -122,16 +127,24 @@ function read_pre_test_counters() {
     fi
 
     if [ "$side" == "remote" ]; then
-        REMOTE_PRE_TEST_PKTS_TX=`on_remote_exec "get_macsec_counter tx"`
-        REMOTE_PRE_TEST_PKTS_RX=`on_remote_exec "get_macsec_counter rx"`
+        REMOTE_PRE_TEST_PKTS_TX=`on_remote_exec "get_macsec_counter tx_pkts"`
+        REMOTE_PRE_TEST_PKTS_RX=`on_remote_exec "get_macsec_counter rx_pkts"`
+        REMOTE_PRE_TEST_PKTS_TX_DROP=`on_remote_exec "get_macsec_counter tx_pkts_drop"`
+        REMOTE_PRE_TEST_PKTS_RX_DROP=`on_remote_exec "get_macsec_counter rx_pkts_drop"`
     elif [ "$side" == "local" ]; then
-        LOCAL_PRE_TEST_PKTS_TX=`get_macsec_counter tx`
-        LOCAL_PRE_TEST_PKTS_RX=`get_macsec_counter rx`
+        LOCAL_PRE_TEST_PKTS_TX=`get_macsec_counter tx_pkts`
+        LOCAL_PRE_TEST_PKTS_RX=`get_macsec_counter rx_pkts`
+        LOCAL_PRE_TEST_PKTS_TX_DROP=`get_macsec_counter tx_pkts_drop`
+        LOCAL_PRE_TEST_PKTS_RX_DROP=`get_macsec_counter rx_pkts_drop`
     else
-        LOCAL_PRE_TEST_PKTS_TX=`get_macsec_counter tx`
-        LOCAL_PRE_TEST_PKTS_RX=`get_macsec_counter rx`
-        REMOTE_PRE_TEST_PKTS_TX=`on_remote_exec "get_macsec_counter tx"`
-        REMOTE_PRE_TEST_PKTS_RX=`on_remote_exec "get_macsec_counter rx"`
+        LOCAL_PRE_TEST_PKTS_TX=`get_macsec_counter tx_pkts`
+        LOCAL_PRE_TEST_PKTS_RX=`get_macsec_counter rx_pkts`
+        REMOTE_PRE_TEST_PKTS_TX=`on_remote_exec "get_macsec_counter tx_pkts"`
+        REMOTE_PRE_TEST_PKTS_RX=`on_remote_exec "get_macsec_counter rx_pkts"`
+        LOCAL_PRE_TEST_PKTS_TX_DROP=`get_macsec_counter tx_pkts_drop`
+        LOCAL_PRE_TEST_PKTS_RX_DROP=`get_macsec_counter rx_pkts_drop`
+        REMOTE_PRE_TEST_PKTS_TX_DROP=`on_remote_exec "get_macsec_counter tx_pkts_drop"`
+        REMOTE_PRE_TEST_PKTS_RX_DROP=`on_remote_exec "get_macsec_counter rx_pkts_drop"`
     fi
 }
 
@@ -143,16 +156,24 @@ function read_post_test_counters() {
     fi
 
     if [ "$side" == "remote" ]; then
-        REMOTE_POST_TEST_PKTS_TX=`on_remote_exec "get_macsec_counter tx"`
-        REMOTE_POST_TEST_PKTS_RX=`on_remote_exec "get_macsec_counter rx"`
+        REMOTE_POST_TEST_PKTS_TX=`on_remote_exec "get_macsec_counter tx_pkts"`
+        REMOTE_POST_TEST_PKTS_RX=`on_remote_exec "get_macsec_counter rx_pkts"`
+        REMOTE_POST_TEST_PKTS_TX_DROP=`on_remote_exec "get_macsec_counter tx_pkts_drop"`
+        REMOTE_POST_TEST_PKTS_RX_DROP=`on_remote_exec "get_macsec_counter rx_pkts_drop"`
     elif [ "$side" == "local" ]; then
-        LOCAL_POST_TEST_PKTS_TX=`get_macsec_counter tx`
-        LOCAL_POST_TEST_PKTS_RX=`get_macsec_counter rx`
+        LOCAL_POST_TEST_PKTS_TX=`get_macsec_counter tx_pkts`
+        LOCAL_POST_TEST_PKTS_RX=`get_macsec_counter rx_pkts`
+        LOCAL_POST_TEST_PKTS_TX_DROP=`get_macsec_counter tx_pkts_drop`
+        LOCAL_POST_TEST_PKTS_RX_DROP=`get_macsec_counter rx_pkts_drop`
     else
-        LOCAL_POST_TEST_PKTS_TX=`get_macsec_counter tx`
-        LOCAL_POST_TEST_PKTS_RX=`get_macsec_counter rx`
-        REMOTE_POST_TEST_PKTS_TX=`on_remote_exec "get_macsec_counter tx"`
-        REMOTE_POST_TEST_PKTS_RX=`on_remote_exec "get_macsec_counter rx"`
+        LOCAL_POST_TEST_PKTS_TX=`get_macsec_counter tx_pkts`
+        LOCAL_POST_TEST_PKTS_RX=`get_macsec_counter rx_pkts`
+        REMOTE_POST_TEST_PKTS_TX=`on_remote_exec "get_macsec_counter tx_pkts"`
+        REMOTE_POST_TEST_PKTS_RX=`on_remote_exec "get_macsec_counter rx_pkts"`
+        LOCAL_POST_TEST_PKTS_TX_DROP=`get_macsec_counter tx_pkts_drop`
+        LOCAL_POST_TEST_PKTS_RX_DROP=`get_macsec_counter rx_pkts_drop`
+        REMOTE_POST_TEST_PKTS_TX_DROP=`on_remote_exec "get_macsec_counter tx_pkts_drop"`
+        REMOTE_POST_TEST_PKTS_RX_DROP=`on_remote_exec "get_macsec_counter rx_pkts_drop"`
     fi
 }
 
