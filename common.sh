@@ -119,7 +119,7 @@ function require_cmd() {
     local i
     for i in $@ ; do
         if ! `which $i &>/dev/null` ; then
-            err "Missing required command $i"
+            fail "Missing required command $i"
         fi
     done
 }
