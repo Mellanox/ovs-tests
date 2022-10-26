@@ -1552,6 +1552,7 @@ kfree for unknown address|UBSAN|KASAN"
     local memleak="new suspected memory leaks"
     local memtrack="memtrack_report: Summary: .* leak\(s\) detected"
     local mlx5_errs="mlx5_core .* err |mlx5_core .* failed |syndrome|health compromised"
+    local br_errs="FDB entry with specified key not found|Packet reformat .* is not supported"
     local fw_errs="firmware internal error|assert_var|\
 Command completion arrived after timeout|Error cqe|failed reclaiming pages"
     local ovs_errs="Kernel flower acknowledgment does not match request"
@@ -1570,7 +1571,7 @@ Deprecated Driver is detected: iptables will not be maintained in a future major
         filter+="$__expected_error_msgs"
     fi
 
-    look="$look|$memtrack|$mlx5_errs|$fw_errs"
+    look="$look|$memtrack|$mlx5_errs|$br_errs|$fw_errs"
     local a=`journalctl_for_test $since | grep -E -i "$look" | grep -v -E -i "$filter" || true`
     local b=`journalctl_for_test $since | grep -E -A $look_ahead_count -i "$look_ahead" || true`
     if [ "$a" != "" ] || [ "$b" != "" ]; then
