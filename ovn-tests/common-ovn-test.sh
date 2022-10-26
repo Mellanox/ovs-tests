@@ -80,13 +80,20 @@ function config_ovn_pf() {
     local ovn_controller_ip=$2
     local vf_var=$3
     local rep_var=$4
+    local tun_dev=$NIC
 
     config_sriov_switchdev_mode
     require_interfaces $vf_var $rep_var
-
     start_clean_openvswitch
+
+    if [ "$DPDK" == 1 ]; then
+        config_simple_bridge_with_rep 0
+        tun_dev="br-phy"
+    fi
+
+    ip addr add $ovn_controller_ip/24 dev $tun_dev
+    ip link set $tun_dev up
     ovn_config_mtu $NIC
-    ip addr add $ovn_controller_ip/24 dev $NIC
 
     ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
     ovn_start_ovn_controller

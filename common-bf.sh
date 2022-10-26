@@ -83,3 +83,9 @@ function config_remote_bf_vf() {
     on_remote_exec "__config_vf $ns $vf $ip $mac"
     on_remote_bf_exec "__config_rep $rep"
 }
+
+function __setup_common_bf() {
+    BF_PCI=$(on_bf "basename \$(readlink /sys/class/net/${BF_NIC}/device)")
+}
+
+__setup_common_bf

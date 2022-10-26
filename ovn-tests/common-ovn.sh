@@ -1,5 +1,10 @@
 OVN_BRIDGE_INT="br-int"
 OVN_CTL="/usr/share/ovn/scripts/ovn-ctl"
+OVN_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
+
+if [ "$DPDK" == 1 ]; then
+    . $OVN_DIR/../ovs-dpdk-tests/common-dpdk.sh
+fi
 
 # Tunnels
 TUNNEL_GENEVE="geneve"
@@ -82,6 +87,16 @@ function ovn_stop_ovn_controller() {
     ovn_is_controller_running && $OVN_CTL stop_controller
 }
 
+function get_pf_pci() {
+    local pci=$PCI
+
+    if is_bf; then
+        pci=$BF_PCI
+    fi
+
+    echo "$pci"
+}
+
 function ovn_set_ovs_config() {
     local ovn_remote_ip=${1:-$OVN_LOCAL_CENTRAL_IP}
     local encap_ip=${2:-$OVN_LOCAL_CENTRAL_IP}
@@ -90,9 +105,17 @@ function ovn_set_ovs_config() {
     ovs-vsctl set open . external-ids:ovn-remote=tcp:[$ovn_remote_ip]:6642
     ovs-vsctl set open . external-ids:ovn-encap-ip=$encap_ip
     ovs-vsctl set open . external-ids:ovn-encap-type=$encap_type
+
+    if [ "$DPDK" == 1 ]; then
+        ovs-vsctl set open . external-ids:ovn-bridge-datapath-type=netdev
+    fi
 }
 
 function ovn_remove_ovs_config() {
+    if [ "$DPDK" == 1 ]; then
+      ovs-vsctl remove open . external-ids ovn-bridge-datapath-type
+    fi
+
     ovs-vsctl remove open . external-ids ovn-remote
     ovs-vsctl remove open . external-ids ovn-encap-ip
     ovs-vsctl remove open . external-ids ovn-encap-type
@@ -108,8 +131,16 @@ function ovs_add_port_to_switch() {
 function ovn_bind_port() {
     local port=$1
     local ovn_port=$2
+    local dpdk_options
 
-    ovs-vsctl --may-exist add-port $OVN_BRIDGE_INT $port -- set Interface $port external_ids:iface-id=$ovn_port
+    if [ "$DPDK" == 1 ]; then
+        local vf_id=$(cat /sys/class/net/$port/phys_port_name | sed 's/pf.vf//')
+        local pci=$(get_pf_pci)
+
+        dpdk_options="-- set interface $port type=dpdk options:dpdk-devargs=$pci,representor=[$vf_id],$DPDK_PORT_EXTRA_ARGS"
+    fi
+
+    ovs-vsctl --may-exist add-port $OVN_BRIDGE_INT $port -- set Interface $port external_ids:iface-id=$ovn_port $dpdk_options
 }
 
 function check_rules() {
@@ -623,8 +654,18 @@ function ovn_add_network() {
     local br=${1:-$OVN_PF_BRIDGE}
     local network_iface=${2:-$NIC}
     local network=${3:-$OVN_EXTERNAL_NETWORK}
+    local dpdk_bridge_options=""
+    local dpdk_port_options=""
+    local pci
 
-    ovs-vsctl --may-exist add-br $br -- --may-exist add-port $br $network_iface -- set Open_vSwitch . external_ids:ovn-bridge-mappings=$network:$br
+    if [ "$DPDK" == 1 ]; then
+        pci=$(get_pf_pci)
+        dpdk_bridge_options="-- set bridge $br datapath_type=netdev"
+        dpdk_port_options="-- set interface $network_iface type=dpdk options:dpdk-devargs=$pci,$DPDK_PORT_EXTRA_ARGS"
+    fi
+    ovs-vsctl --may-exist add-br $br $dpdk_bridge_options
+    ovs-vsctl add-port $br $network_iface $dpdk_port_options
+    ovs-vsctl set Open_vSwitch . external_ids:ovn-bridge-mappings=$network:$br
 }
 
 function ovn_remove_network() {
