@@ -1552,7 +1552,7 @@ kfree for unknown address|UBSAN|KASAN"
     local memleak="new suspected memory leaks"
     local memtrack="memtrack_report: Summary: .* leak\(s\) detected"
     local mlx5_errs="mlx5_core .* err |mlx5_core .* failed |syndrome|health compromised"
-    local br_errs="FDB entry with specified key not found|Packet reformat .* is not supported"
+    local br_errs="Packet reformat .* is not supported"
     local fw_errs="firmware internal error|assert_var|\
 Command completion arrived after timeout|Error cqe|failed reclaiming pages"
     local ovs_errs="Kernel flower acknowledgment does not match request"
