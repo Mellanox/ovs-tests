@@ -144,7 +144,7 @@ function verify() {
     echo "wait for bgs"
     wait
 
-    rate=`cat $TMPFILE | grep "\[SUM\]  0\.0-10.* Bytes/sec" | awk {'print $6'}`
+    local rate=`cat $TMPFILE | grep "\[SUM\]" | grep "Bytes/sec" | awk '{print $(NF-5)}'`
     if [ -z "$rate" ]; then
 	    err "Cannot find rate"
 	    return 1
@@ -155,7 +155,6 @@ function verify() {
 }
 
 function run2() {
-    let RATE=$RATE+100
     add_arp_rules
 
     echo "add vxlan police rules"
