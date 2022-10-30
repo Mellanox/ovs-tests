@@ -12,7 +12,7 @@ function set_iperf2() {
        iperf_cmd=iperf
 }
 
-function ovs_add_ct_after_nat_rules(){
+function ovs_add_ct_after_nat_rules() {
     local bridge=$1
     local ip=$2
     local dummy_ip=$3

@@ -71,7 +71,7 @@ function config() {
     set_tcp_timeout_param last_ack $TIMEOUT
 }
 
-function config_ovs(){
+function config_ovs() {
     title "Config OvS"
     start_clean_openvswitch
     ovs-vsctl add-br br-ovs
