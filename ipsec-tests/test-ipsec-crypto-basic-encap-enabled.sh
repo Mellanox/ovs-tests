@@ -17,16 +17,17 @@ function run_test_ipsec_crypto_sanity() {
     local ip_proto=$2
     local ipsec_mode=${3:-"transport"}
     local net_proto=${4:-"tcp"}
-    local trusted_vfs=${5:-"no_trusted_vfs"}
+    local len=${5:-$IPSEC_KEY_LEN_128}
+    local trusted_vfs="no_trusted_vfs"
 
     cleanup_test $mtu $trusted_vfs
-    test_tx_off_rx_off $ipsec_mode 128 $ip_proto $net_proto $trusted_vfs
+    test_tx_off_rx_off $ipsec_mode $len $ip_proto $net_proto $trusted_vfs
 }
 
 function run_test() {
     cleanup
     run_test_ipsec_crypto_sanity 1500 ipv4 transport tcp
-    run_test_ipsec_crypto_sanity 1500 ipv4 transport icmp
+    run_test_ipsec_crypto_sanity 1500 ipv4 transport icmp $IPSEC_KEY_LEN_256
 
 }
 
