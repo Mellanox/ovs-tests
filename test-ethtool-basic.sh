@@ -29,8 +29,7 @@ counters=( ["tso"]="tx_tso_"
            ["rx_out_of_buffer"]="rx_out_of_buffer"
            ["rx_if_down_packets"]="rx_if_down_packets" )
 
-function test_stats()
-{
+function test_stats() {
     title "Test uplink representor extended stats groups"
     ip link set $NIC up
     for counter_group in "${!counters[@]}"; do
@@ -38,8 +37,7 @@ function test_stats()
     done
 }
 
-function test_rss()
-{
+function test_rss() {
     local num_rings=4
     local hkey1="00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00"
     local hkey2="00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:ff"

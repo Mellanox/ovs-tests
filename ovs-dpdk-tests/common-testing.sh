@@ -292,8 +292,7 @@ function verify_ping() {
     fi
 }
 
-function verify_iperf_running()
-{
+function verify_iperf_running() {
     local remote=${1:-"local"}
     local proc_cmd="ps -efww | grep iperf | grep -v grep | wc -l"
 
@@ -395,8 +394,7 @@ function initiate_traffic() {
     fi
 }
 
-function validate_offload ()
-{
+function validate_offload() {
 
     if echo $TESTNAME | grep -q -- "-ct-" ; then
         check_offloaded_connections $num_connections
@@ -407,7 +405,7 @@ function validate_offload ()
     check_dpdk_offloads $LOCAL_IP
 }
 
-function validate_actual_traffic () {
+function validate_actual_traffic() {
     if [ "${VDPA}" == "1" ]; then
         scp root@${NESTED_VM_IP1}:${p_server} $p_server &> /dev/null
         if [ -n "$namespace"  ]; then

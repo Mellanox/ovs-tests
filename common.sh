@@ -254,7 +254,7 @@ function __setup_common() {
 
 ovs_log_path="/var/log/openvswitch/ovs-vswitchd.log"
 
-function set_ovs_debug_logs () {
+function set_ovs_debug_logs() {
     if [ "$CLEAR_OVS_LOG" == 1 ]; then
         if [ -f $ovs_log_path ]; then
             echo > $ovs_log_path

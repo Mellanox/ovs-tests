@@ -8,7 +8,7 @@ DPDK_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
 VDPA_DEV_NAME="eth2"
 DPDK_PORT_EXTRA_ARGS="dv_xmeta_en=1"
 
-function set_ovs_dpdk_debug_logs () {
+function set_ovs_dpdk_debug_logs() {
     local log="/var/log/openvswitch/ovs-vswitchd.log"
     if [ "$ENABLE_OVS_DEBUG" != "1" ]; then
         return
