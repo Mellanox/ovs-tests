@@ -31,6 +31,7 @@ function start1() {
 }
 
 config_sriov 0
+enable_legacy
 start1
 config_sriov 2
 
