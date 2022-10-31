@@ -36,6 +36,7 @@ function cleanup() {
     ip netns del $namespace1 &>/dev/null
     ip netns del $namespace2 &>/dev/null
     config_sriov 0 $NIC2
+    enable_legacy $NIC2
 }
 trap cleanup EXIT
 cleanup
