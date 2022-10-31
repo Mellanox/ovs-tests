@@ -26,7 +26,7 @@ trap cleanup EXIT
 function clean_config() {
     ip addr flush dev $SF1 &>/dev/null
     ip netns del ns0 &>/dev/null
-    start_clean_openvswitch
+    ovs_clear_bridges
     cleanup_remote_vxlan
 }
 
@@ -44,7 +44,7 @@ function config() {
     ip addr flush dev $NIC
     ip link set dev $NIC up
 
-    start_clean_openvswitch
+    ovs_clear_bridges
     ovs-vsctl add-br ovs-br
     ovs-vsctl add-port ovs-br $NIC
     ovs-vsctl add-port ovs-br $SF_REP1
@@ -104,6 +104,7 @@ bind_vfs
 remote_disable_sriov
 
 create_sfs 1
+start_clean_openvswitch
 
 title "Test IPv4 tunnel"
 clean_config
