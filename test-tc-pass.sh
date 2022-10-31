@@ -85,11 +85,11 @@ function run() {
 
     title "Test traffic from non-specific MAC is handled exclusively on the HW DP"
     echo "Sniff packets on $REP"
-    timeout $n tcpdump -pqnnei $REP -c $n icmp &
+    timeout $((n+1)) tcpdump -pqnnei $REP -c $n icmp &
     local tpid=$!
-    sleep 0.5
+    sleep 1
 
-    echo "Run ping for $((n+1)) seconds"
+    echo "Run ping for $n seconds"
     ip netns exec $namespace1 ping -I $VF $VF2_IP -c $n -w $((n+1)) -q && success || err "Ping failed"
     verify_no_traffic $tpid
 
@@ -97,9 +97,9 @@ function run() {
     ip -netns $namespace1 link set $VF address $SPECIFIC_MAC
 
     tdfile=/tmp/tdfile.pcap
-    timeout $((n+1)) tcpdump -pqnnei $REP -c $n ip -w $tdfile &
+    timeout $((n+2)) tcpdump -pqnnei $REP icmp -c $n -w $tdfile &
     local tpid=$!
-    sleep 0.5
+    sleep 1
 
     echo "Run ping for $((n+1)) seconds"
     ip netns exec $namespace1 ping -I $VF $VF2_IP -c $n -w $((n+1)) -q && success || err "Ping failed"
