@@ -68,10 +68,11 @@ function check_offloaded_rules() {
     local out_port=$3
 
     title "Checking offload"
-    ovs_dump_flows -m | grep -q "in_port($in_port),.*eth_type($eth_type),.*offloaded:yes,.*actions:$out_port"
+    ovs_dump_flows --names -m | grep -q "in_port($in_port),.*eth_type($eth_type),.*offloaded:yes,.*actions:$out_port"
 
     if [ $? -ne 0 ]; then
         err "Failed to offload"
+        ovs_dump_flows --names -m | grep $eth_type
     else
         success
     fi
