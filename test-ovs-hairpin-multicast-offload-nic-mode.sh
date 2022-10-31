@@ -81,21 +81,13 @@ function run_traffic() {
     local t=3
 
     title "Sending ARP ping from $IP to $IP2"
-    on_remote ip netns exec $NS arping $IP2 -c $t
-
-    if [ $? -ne 0 ]; then
-        err "Arp ping failed"
-    fi
+    on_remote ip netns exec $NS arping $IP2 -c $t || err "Arp ping failed"
 
     check_offloaded_rules 0x0806 $NIC $NIC2
 
     local ipv6=`on_remote ip netns exec $NS ifconfig $NIC | grep inet6 | awk -F' ' '{print $2}' | awk '{print $1}'`
     title "Sending IPv6 ping to $ipv6 from $NIC2"
-    on_remote ip netns exec $NS2 ping6 $ipv6%$NIC2 -c $t
-
-    if [ $? -ne 0 ]; then
-        err "IPv6 ping failed"
-    fi
+    on_remote ip netns exec $NS2 ping6 $ipv6%$NIC2 -c $t || err "IPv6 ping failed"
 
     check_offloaded_rules 0x86dd $NIC2 $NIC
 }
