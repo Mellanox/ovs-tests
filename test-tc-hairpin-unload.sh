@@ -21,7 +21,6 @@ function add_hairpin_rule() {
 disable_sriov
 enable_sriov
 reset_tc $NIC $NIC2
-add_hairpin_rule $NIC $NIC2
 add_hairpin_rule $NIC2 $NIC
 reload_modules
 
@@ -29,5 +28,6 @@ reload_modules
 echo "Wait for syndrome"
 sleep 10
 config_sriov 2
+config_sriov 0 $NIC2
 reset_tc $NIC $NIC2
 test_done
