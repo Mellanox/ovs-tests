@@ -53,13 +53,12 @@ function config() {
 function config_remote() {
     title "Config remote"
     remote_disable_sriov
-    on_remote " ip netns add $NS
-                ip link set dev $NIC netns $NS
-                ip netns exec $NS ifconfig $NIC $IP/24 up
-                ip netns add $NS2
-                ip link set dev $NIC2 netns $NS2
-                ip netns exec $NS2 ifconfig $NIC2 $IP2/24 up
-              "
+    on_remote "ip netns add $NS
+               ip link set dev $NIC netns $NS
+               ip netns exec $NS ifconfig $NIC $IP/24 up
+               ip netns add $NS2
+               ip link set dev $NIC2 netns $NS2
+               ip netns exec $NS2 ifconfig $NIC2 $IP2/24 up" || err "Failed to config remote"
 }
 
 function check_offloaded_rules() {
