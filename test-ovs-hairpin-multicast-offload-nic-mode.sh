@@ -21,11 +21,7 @@ NS=p0ns
 NS2=p1ns
 
 function remote_cleanup() {
-    on_remote_exec " ip netns del $NS &>/dev/null
-                     ip netns del $NS2 &>/dev/null
-                     config_sriov 2 $NIC
-                     enable_switchdev
-                   " &>/dev/null
+    on_remote_exec "ip -all netns delete"
 }
 
 function cleanup() {
