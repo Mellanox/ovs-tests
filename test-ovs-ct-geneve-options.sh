@@ -114,21 +114,7 @@ function run() {
 
     start_traffic || return
 
-    # verify traffic
-    ip netns exec ns0 timeout 12 tcpdump -qnnei $VF -c 30 ip &
-    tpid1=$!
-    timeout 12 tcpdump -qnnei $REP -c 10 ip &
-    tpid2=$!
-    timeout 12 tcpdump -qnnei genev_sys_6081 -c 10 ip &
-    tpid3=$!
-
-    sleep 16
-    title "Verify traffic on $VF"
-    verify_have_traffic $tpid1
-    title "Verify offload on $REP"
-    verify_no_traffic $tpid2
-    title "Verify offload on genev_sys_6081"
-    verify_no_traffic $tpid3
+    verify_traffic "$VF" "$REP genev_sys_6081"
 
     kill_traffic
 }
