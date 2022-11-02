@@ -143,5 +143,5 @@ function run() {
 }
 
 run
-start_clean_openvswitch
+ovs_clear_bridges
 test_done
