@@ -11,21 +11,22 @@ my_dir="$(dirname "$0")"
 require_interfaces NIC NIC2
 require_remote_server
 
-read_osp_topology_vm_ext $PF_VLAN_INT
+read_osp_topology_vm_ext $OVN_BOND.$OVN_VLAN_TAG
 
 function clean_up_test() {
     ovn_clean_up
     ovn_remove_network
-    on_remote_exec "ip link del $PF_VLAN_INT
+    on_remote_exec "ip link del $OVN_BOND.$OVN_VLAN_TAG
+                    clean_vf_lag
                     __reset_nic"
 }
 
 function config_test() {
-    config_ovn_single_node_external_vf_lag $OVN_LOCAL_CENTRAL_IP $OSP_EXTERNAL_NETWORK
+    config_ovn_single_node_external_vf_lag "balance-xor" $OVN_LOCAL_CENTRAL_IP $OSP_EXTERNAL_NETWORK
     ovn_lsp_set_tag $SWITCH_EXT_NETWORK_PORT $OVN_VLAN_TAG
     ovn_config_interface_namespace $CLIENT_VF $CLIENT_REP $CLIENT_NS $CLIENT_PORT $CLIENT_MAC $CLIENT_IPV4 $CLIENT_IPV6 $CLIENT_GATEWAY_IPV4 $CLIENT_GATEWAY_IPV6
 
-    config_ovn_external_server_ip_vlan
+    config_ovn_external_server_vf_lag_ip_vlan "balance-xor" $OVN_VLAN_TAG
 }
 
 function run_test() {

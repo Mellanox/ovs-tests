@@ -16,14 +16,15 @@ read_osp_topology_vm_ext
 function clean_up_test() {
     ovn_clean_up
     ovn_remove_network
-    on_remote_exec "__reset_nic"
+    on_remote_exec "clean_vf_lag
+                    __reset_nic"
 }
 
 function config_test() {
-    config_ovn_single_node_external_vf_lag $OVN_LOCAL_CENTRAL_IP $OSP_EXTERNAL_NETWORK
+    config_ovn_single_node_external_vf_lag "balance-xor" $OVN_LOCAL_CENTRAL_IP $OSP_EXTERNAL_NETWORK
     ovn_config_interface_namespace $CLIENT_VF $CLIENT_REP $CLIENT_NS $CLIENT_PORT $CLIENT_MAC $CLIENT_IPV4 $CLIENT_IPV6 $CLIENT_GATEWAY_IPV4 $CLIENT_GATEWAY_IPV6
 
-    config_ovn_external_server_ip
+    config_ovn_external_server_vf_lag_ip "balance-xor"
 }
 
 function run_test() {

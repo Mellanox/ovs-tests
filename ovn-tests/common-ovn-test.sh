@@ -111,13 +111,14 @@ function ovn_single_node_external_config() {
 }
 
 function config_ovn_single_node_external_vf_lag() {
-    local ovn_ip=${1:-$OVN_LOCAL_CENTRAL_IP}
-    local network=${2:-$OVN_EXTERNAL_NETWORK}
+    local mode=${1:-"802.3ad"}
+    local ovn_ip=${2:-$OVN_LOCAL_CENTRAL_IP}
+    local network=${3:-$OVN_EXTERNAL_NETWORK}
 
     ovn_start_northd_central
     ovn_create_topology
 
-    config_vf_lag
+    config_vf_lag $mode
     require_interfaces CLIENT_VF CLIENT_REP
 
     start_clean_openvswitch
@@ -150,6 +151,15 @@ config_ovn_external_server_ip() {
     on_remote_exec "config_port_ip $server_port $server_ipv4 $server_ipv6"
 }
 
+function config_ovn_external_server_vf_lag_ip() {
+    local mode=${1:-"802.3ad"}
+    local server_ipv4=${2:-$OVN_EXTERNAL_NETWORK_HOST_IP}
+    local server_ipv6=${3:-$OVN_EXTERNAL_NETWORK_HOST_IP_V6}
+
+    on_remote_exec "config_vf_lag $mode
+                    config_port_ip $OVN_BOND $server_ipv4 $server_ipv6"
+}
+
 config_ovn_external_server_ip_vlan() {
     local parent_int=${1:-$NIC}
     local vlan_int=${2:-$PF_VLAN_INT}
@@ -159,6 +169,20 @@ config_ovn_external_server_ip_vlan() {
 
     on_remote_exec "ip link set $parent_int up
                     create_vlan_interface $parent_int $vlan_int $tag
+                    config_port_ip $vlan_int $server_ipv4 $server_ipv6"
+}
+
+function config_ovn_external_server_vf_lag_ip_vlan() {
+    local mode=${1:-"802.3ad"}
+    local tag=${2:-$OVN_VLAN_TAG}
+    local server_ipv4=${3:-$OVN_EXTERNAL_NETWORK_HOST_IP}
+    local server_ipv6=${4:-$OVN_EXTERNAL_NETWORK_HOST_IP_V6}
+
+    local vlan_int=$OVN_BOND.$tag
+
+    on_remote_exec "config_vf_lag $mode
+                    ip link set $OVN_BOND up
+                    create_vlan_interface $OVN_BOND $vlan_int $tag
                     config_port_ip $vlan_int $server_ipv4 $server_ipv6"
 }
 
