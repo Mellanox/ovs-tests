@@ -795,13 +795,36 @@ def update_skip_according_to_db(rm, _tests, data):
             t.set_skip("Test failed and first ignored - check manually")
 
         if re.search(r'\.el[0-9]+[\.|_]', current_kernel):
-            min_kernel = opts.get('min_kernel_rhel', None)
+            min_kernel = opts.get('min_kernel_rhel', '')
         elif 'bluefield' in current_kernel:
-            min_kernel = opts.get('min_kernel_bf', None)
+            min_kernel = opts.get('min_kernel_bf', '')
         else:
-            min_kernel = opts.get('min_kernel', None)
+            min_kernel = opts.get('min_kernel', '')
 
-        if min_kernel:
+        if 'for_upstream' in min_kernel:
+            if 'for_upstream' in current_kernel:
+                try:
+                    d1 = re.search(r'(\d\d\d\d)_(\d\d)_(\d\d)', min_kernel).group()
+                    d1 = datetime.strptime(d1, '%Y_%m_%d')
+                    d2 = re.search(r'(\d\d\d\d)_(\d\d)_(\d\d)', current_kernel).group()
+                    d2 = datetime.strptime(d2, '%Y_%m_%d')
+                    if d1 > d2:
+                        t.set_ignore("Unsupported kernel version. Minimum %s" % min_kernel)
+                except AttributeError as e:
+                    t.set_failed("Failed to parse datetime from kernel")
+        elif 'for_linust' in min_kernel:
+            # assume fix in for-linust is also in for-upstream same build date.
+            if 'for_linust' in current_kernel or 'for_upstream' in current_kernel:
+                try:
+                    d1 = re.search(r'(\d\d\d\d)_(\d\d)_(\d\d)', min_kernel).group()
+                    d1 = datetime.strptime(d1, '%Y_%m_%d')
+                    d2 = re.search(r'(\d\d\d\d)_(\d\d)_(\d\d)', current_kernel).group()
+                    d2 = datetime.strptime(d2, '%Y_%m_%d')
+                    if d1 > d2:
+                        t.set_ignore("Unsupported kernel version. Minimum %s" % min_kernel)
+                except AttributeError as e:
+                    t.set_failed("Failed to parse datetime from kernel")
+        elif min_kernel:
             # dont match min_kernel with custom_kernels list.
             kernels = []
             kernels += custom_kernels.values()
