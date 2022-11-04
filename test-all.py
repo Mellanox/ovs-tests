@@ -1571,9 +1571,6 @@ def main():
     if len(TESTS) == 0:
         err("No tests to run")
         return 1
-    except RuntimeError, e:
-        print "ERROR: %s" % e
-        return 1
 
     prepare_logdir()
 
