@@ -370,9 +370,9 @@ function setup_expected_steering_mode() {
 
 function is_vf_lag_activated() {
     local rc
-    for _ in `seq 6`; do
+    for _ in `seq 10`; do
         sleep 1
-        # noticed up to 6 sec on nic mode and debug kernel.
+        # noticed up to 10 sec on nic mode and debug kernel.
         # look for "lag map" and not "modify lag map".
         # "lag map" print is from create lag.
         # "modify lag map" print is from modify lag.
