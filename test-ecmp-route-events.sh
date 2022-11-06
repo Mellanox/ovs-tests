@@ -19,7 +19,7 @@ function cleanup() {
 function chk() {
     local tst="$1"
     local emsg="$2"
-    sleep 0.5
+    journalctl --sync &>/dev/null || sleep 0.5
     a=`journalctl --since="1 second ago" | grep -m1 -e "$tst"`
     if [ $? -ne 0 ]; then
         err $emsg
