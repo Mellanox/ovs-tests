@@ -9,7 +9,7 @@ my_dir="$(dirname "$0")"
 
 TMPFILE=/tmp/rules-$$
 RUNFILE=/tmp/test-$$
-RULE_COUNT=${RULE_COUNT:-100}
+RULE_COUNT=${RULE_COUNT:-60}
 GROUP_COUNT=${GROUP_COUNT:-50}
 ROUND_COUNT=${ROUND_COUNT:-10}
 
@@ -56,29 +56,35 @@ for j in `seq $c`; do
     echo "tc filter del dev $NIC parent ffff: pref $j handle $j flower 2>/dev/null"
 done >> $TMPFILE
 
-title "- generate script"
+title "- generate script $ROUND_COUNT rounds $RULE_COUNT rules"
 
 for r in `seq $ROUND_COUNT`; do
     echo "function round_$r() {"
-    for p in `seq $RULE_COUNT`; do
-        echo -n "  "; shuf -n 1 $TMPFILE
-        echo "  logf \$1 $p \$?"
-    done
+    echo "  round=$r"
+    echo
+    shuf -n $RULE_COUNT $TMPFILE
+    echo
     echo "  tc qdisc del dev $NIC ingress 2>/dev/null"
-    echo "  logf \$i ingress_del \$?"
     echo "  tc qdisc add dev $NIC ingress 2>/dev/null"
-    echo "  logf \$i ingress_add \$?"
     echo "}"
 done >> $RUNFILE
 
 cat >>$RUNFILE <<EOF
+function tc() {
+  command tc \$@
+  rc=\$?
+#  logf
+}
+
 function logf() {
-  #if [ "\$3" != 0 ]; then
-  #  echo "tc cmd failed at \$2 (round \$1)"
-  #fi
+#  if [ "\$rc" != 0 ]; then
+#    echo "tc cmd failed \$rc at round \$round"
+#    exit 1
+#  fi
   now=\`date +"%s"\`
   sec=\`echo \$now - \$_start_ts + 1 | bc\`
-  journalctl --since="\$sec seconds ago" | grep WARN && echo "failed at \$2 (round \$1)" && exit 1
+  journalctl --since="\$sec seconds ago" | grep WARN && echo "failed at round \$round" && exit 1
+  return 0
 }
 
 sleep 1
@@ -93,7 +99,7 @@ for i in \`seq $ROUND_COUNT\`; do
 done
 EOF
 
-title "- execute"
+title "- execute $ROUND_COUNT loops"
 bash $RUNFILE || fail "script $RUNFILE failed."
 
 rm -f $TMPFILE
