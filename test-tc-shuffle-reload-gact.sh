@@ -91,7 +91,7 @@ journalctl --since="\$sec seconds ago" | grep WARN && echo "failed at round \$ro
 echo "done"
 EOF
 
-title "- execute"
+title "- execute $ROUND_COUNT loops"
 bash $RUNFILE || fail "script $RUNFILE failed."
 
 rm -f $TMPFILE
