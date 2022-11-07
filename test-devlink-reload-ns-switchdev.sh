@@ -25,6 +25,7 @@ function start1() {
     title "devlink reload"
     toggle_ns &
     for i in 1 2; do
+        log "reload $i"
         devlink dev reload pci/$PCI
     done
     echo wait
