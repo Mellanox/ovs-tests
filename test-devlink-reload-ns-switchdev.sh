@@ -1,7 +1,9 @@
 #!/bin/bash
 #
-# Test devlink reload in nic mode while adding/deleting net namespace
+# Test devlink reload in switchdev mode and sriov disable.
+# while adding/deleting net namespace but also reproducing issue without it.
 #
+# Bug SW #3253332: [Upstream] use-after-free doing devlink reload in switchdev mode
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
