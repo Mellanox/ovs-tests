@@ -21,7 +21,7 @@ function config() {
     title "unbind vfs"
     unbind_vfs $NIC $NIC2
     title "config bonding"
-    __config_bonding $NIC $NIC2
+    config_bonding $NIC $NIC2
     fail_if_err
 }
 
