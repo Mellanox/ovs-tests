@@ -13,16 +13,16 @@ require_interfaces NIC NIC2
 
 function config() {
     title "disable sriov"
-    config_sriov 0
-    config_sriov 0 $NIC2
+    disable_sriov
     title "enable sriov"
     config_sriov 2
     config_sriov 2 $NIC2
     title "unbind vfs"
     unbind_vfs $NIC $NIC2
     title "config bonding"
-    config_bonding $NIC $NIC2
+    __config_bonding $NIC $NIC2
     fail_if_err
+    sleep 3
 }
 
 function cleanup() {
