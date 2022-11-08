@@ -2,6 +2,7 @@
 #
 # Test CT and meter with udp traffic
 # Bug SW #2707092, metering doesn't work before version xx.31.0354 xx.32.0114
+# Bug SW #3232445, Multiple flow meters not working on old kernels
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -73,6 +74,11 @@ function run() {
 
     tc_filter add dev $REP2 ingress protocol ip prio 2 chain 1 flower $tc_verbose \
         dst_mac $mac1 ct_state +trk+est \
+        action mirred egress redirect dev $REP
+
+    # add another meter with half rate, to verify Bug SW #3232445
+    tc_filter add dev $REP2 ingress protocol ipv6 prio 3 flower $tc_verbose \
+        action police rate $((RATE/2))mbit burst $BURST conform-exceed drop/pipe \
         action mirred egress redirect dev $REP
 
     fail_if_err
