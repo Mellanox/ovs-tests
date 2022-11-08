@@ -813,8 +813,7 @@ def update_skip_according_to_db(rm, _tests, data):
                 except AttributeError as e:
                     t.set_failed("Failed to parse datetime from kernel")
         elif 'for_linust' in min_kernel:
-            # assume fix in for-linust is also in for-upstream same build date.
-            if 'for_linust' in current_kernel or 'for_upstream' in current_kernel:
+            if 'for_linust' in current_kernel:
                 try:
                     d1 = re.search(r'(\d\d\d\d)_(\d\d)_(\d\d)', min_kernel).group()
                     d1 = datetime.strptime(d1, '%Y_%m_%d')
