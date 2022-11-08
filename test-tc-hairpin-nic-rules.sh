@@ -11,23 +11,21 @@ function test_hairpin() {
     local nic=$1
     local nic2=$2
 
-    reset_tc $nic
-
     title "Add hairpin rule $nic to $nic2"
     tc_filter_success add dev $nic protocol ip parent ffff: \
           prio 1 flower skip_sw ip_proto udp \
           action mirred egress redirect dev $nic2
-
-    reset_tc $nic
 }
 
 
 title "Test hairpin rules in NIC mode"
 disable_sriov
 wait_for_ifaces
+reset_tc $NIC $NIC2
 
 test_hairpin $NIC $NIC2
 test_hairpin $NIC2 $NIC
 
+reset_tc $NIC $NIC2
 config_sriov 2 $NIC
 test_done
