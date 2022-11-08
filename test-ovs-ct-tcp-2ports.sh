@@ -19,8 +19,8 @@ IP4="8.8.8.2"
 function cleanup() {
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
-    reset_tc $REP
-    reset_tc $REP2
+    reset_tc $REP $REP2
+    enable_legacy $NIC2
     config_sriov 0 $NIC2
 }
 trap cleanup EXIT
