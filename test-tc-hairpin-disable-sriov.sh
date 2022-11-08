@@ -21,6 +21,7 @@ function add_hairpin_rule() {
 disable_sriov
 enable_sriov
 reset_tc $NIC $NIC2
+add_hairpin_rule $NIC $NIC2
 add_hairpin_rule $NIC2 $NIC
 config_sriov 0 $NIC2
 
