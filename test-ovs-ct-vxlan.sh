@@ -24,6 +24,7 @@ VXLAN_ID=42
 # to verify with both ports configured.
 enable_legacy $NIC2
 config_sriov 0 $NIC2
+config_sriov 2
 enable_switchdev
 require_interfaces REP NIC
 unbind_vfs
