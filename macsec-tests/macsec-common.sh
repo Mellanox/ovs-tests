@@ -410,6 +410,8 @@ function test_macsec() {
 
     read_post_test_counters $offload_side
     verify_offload $offload_side $net_proto
+
+    kill_iperf
 }
 
 function test_macsec_multi_sa() {
@@ -436,6 +438,8 @@ function test_macsec_multi_sa() {
 
         read_post_test_counters $offload_side
         verify_offload $offload_side $net_proto
+
+        kill_iperf
     done
 }
 
@@ -479,6 +483,8 @@ function test_macsec_xpn() {
 
     read_post_test_counters $offload_side
     verify_offload $offload_side $net_proto
+
+    kill_iperf
 }
 
 # Usage <mtu> <ip_proto> <macsec_ip_proto> <net_proto> <offload> [multi_sa]
