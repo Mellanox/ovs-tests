@@ -193,6 +193,7 @@ function set_tx_sa() {
 
 function verify_offload() {
     local side=${1:-"both"}
+    local net_proto=$2
 
     if [ "$side" == "none" ]; then
         return
@@ -200,20 +201,45 @@ function verify_offload() {
 
     title "Verify offload"
 
+    #In macsec tests we always send traffic from remote side to local.
+    #Since udp is a protocol for data flowing in one direction we can’t
+    #expect all counters to advance hence on local side since it's the receiver
+    #side we expect RX counters to advance where on remote side since it's transmitter
+    #side we expect TX counters to advance.
+    if [ "$net_proto" == "udp" ]; then
+        if [ "$side" == "local" ]; then
+            if [[ "$LOCAL_POST_TEST_PKTS_RX" -le "$LOCAL_PRE_TEST_PKTS_RX" ]]; then
+                fail "Macsec full offload counters didn't increase as expected on local"
+            fi
+        elif [ "$side" == "remote" ]; then
+            if [[ "$REMOTE_POST_TEST_PKTS_TX" -le "$REMOTE_PRE_TEST_PKTS_TX" ]]; then
+                fail "Macsec full offload counters didn't increase as expected on remote"
+            fi
+        else
+            if [[ "$LOCAL_POST_TEST_PKTS_RX" -le "$LOCAL_PRE_TEST_PKTS_RX" ]]; then
+                fail "Macsec full offload counters didn't increase as expected on local"
+            fi
+            if [[ "$REMOTE_POST_TEST_PKTS_TX" -le "$REMOTE_PRE_TEST_PKTS_TX" ]]; then
+                fail "Macsec full offload counters didn't increase as expected on remote"
+            fi
+        fi
+        return
+    fi
+
     if [ "$side" == "local" ]; then
         if [[ "$LOCAL_POST_TEST_PKTS_TX" -le "$LOCAL_PRE_TEST_PKTS_TX" || "$LOCAL_POST_TEST_PKTS_RX" -le "$LOCAL_PRE_TEST_PKTS_RX" ]]; then
-                fail "Macsec full offload counters didn't increase as expected on local"
+            fail "Macsec full offload counters didn't increase as expected on local"
         fi
     elif [ "$side" == "remote" ]; then
         if [[ "$REMOTE_POST_TEST_PKTS_TX" -le "$REMOTE_PRE_TEST_PKTS_TX" || "$REMOTE_POST_TEST_PKTS_RX" -le "$REMOTE_PRE_TEST_PKTS_RX" ]]; then
-                fail "Macsec full offload counters didn't increase as expected on remote"
+            fail "Macsec full offload counters didn't increase as expected on remote"
         fi
     else
         if [[ "$LOCAL_POST_TEST_PKTS_TX" -le "$LOCAL_PRE_TEST_PKTS_TX" || "$LOCAL_POST_TEST_PKTS_RX" -le "$LOCAL_PRE_TEST_PKTS_RX" ]]; then
-                fail "Macsec full offload counters didn't increase as expected on local"
+            fail "Macsec full offload counters didn't increase as expected on local"
         fi
         if [[ "$REMOTE_POST_TEST_PKTS_TX" -le "$REMOTE_PRE_TEST_PKTS_TX" || "$REMOTE_POST_TEST_PKTS_RX" -le "$REMOTE_PRE_TEST_PKTS_RX" ]]; then
-                fail "Macsec full offload counters didn't increase as expected on remote"
+            fail "Macsec full offload counters didn't increase as expected on remote"
         fi
     fi
 }
@@ -383,7 +409,7 @@ function test_macsec() {
     run_traffic $macsec_ip_proto $net_proto
 
     read_post_test_counters $offload_side
-    verify_offload $offload_side
+    verify_offload $offload_side $net_proto
 }
 
 function test_macsec_multi_sa() {
@@ -409,7 +435,7 @@ function test_macsec_multi_sa() {
         run_traffic $macsec_ip_proto $net_proto
 
         read_post_test_counters $offload_side
-        verify_offload $offload_side
+        verify_offload $offload_side $net_proto
     done
 }
 
@@ -452,7 +478,7 @@ function test_macsec_xpn() {
     run_traffic $macsec_ip_proto $net_proto
 
     read_post_test_counters $offload_side
-    verify_offload $offload_side
+    verify_offload $offload_side $net_proto
 }
 
 # Usage <mtu> <ip_proto> <macsec_ip_proto> <net_proto> <offload> [multi_sa]
