@@ -62,6 +62,7 @@ function cleanup() {
     unbind_vfs
     sleep 1
     clear_bonding
+    enable_legacy $NIC2
     config_sriov 0 $NIC2
     ip a flush dev $NIC
 }

@@ -55,6 +55,7 @@ function set_nf_liberal() {
 }
 
 function cleanup() {
+    enable_legacy $NIC2
     config_sriov 0 $NIC2
     ip a flush dev $NIC
     ip netns del ns0 &>/dev/null
