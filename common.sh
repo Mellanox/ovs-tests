@@ -2079,8 +2079,7 @@ function __load_config() {
 }
 
 function __trapped_int_cleanup() {
-    err "Terminate requested"
-    exit 1
+    fail "Terminate requested"
 }
 
 function __setup_clean() {
