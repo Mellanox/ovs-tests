@@ -3,10 +3,14 @@
 # Replay output from tc monitor
 #
 
+from __future__ import print_function
+
+import argparse
+import sys
 import os
 
 
-dump="""
+example_dump = """
 deleted qdisc ingress ffff: dev ens1f0 parent ffff:fff1 ---------------- 
 qdisc ingress ffff: dev ens1f0 parent ffff:fff1 ----------------         
 deleted qdisc ingress ffff: dev ens1f1 parent ffff:fff1 ---------------- 
@@ -77,7 +81,17 @@ filter dev ens1f0_1 ingress protocol ip pref 2 flower handle 0x1
 """
 
 
-def parse_dump():
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--verbose', '-v', action='store_true',
+                        help='verbose output')
+    parser.add_argument('--file', '-f',
+                        help='input file')
+
+    return parser.parse_args()
+
+
+def parse_dump(dump):
     cmds = []
     rule = ""
     for i in dump.splitlines():
@@ -144,7 +158,24 @@ def parse_dump():
     return cmds
 
 
-cmds = parse_dump()
-for cmd in cmds:
-    print cmd
-    #os.system(cmd)
+def start():
+    global args
+
+    args = parse_args()
+    if args.file:
+        with open(args.file, "r") as f:
+            dump = f.read()
+    else:
+        dump = example_dump
+
+    cmds = parse_dump(dump)
+
+    for cmd in cmds:
+        print(cmd)
+        #os.system(cmd)
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(start())
