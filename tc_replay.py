@@ -144,7 +144,6 @@ def parse_dump(dump):
             # remove redundant ct nat src without addr.
             # XXX bug?
             if 'nat src pipe' in i:
-                print(i)
                 i.replace('nat src pipe', 'nat pipe')
         elif i.startswith('deleted filter'):
             i = i.replace('deleted filter', 'filter del ')
