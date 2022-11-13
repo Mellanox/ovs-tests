@@ -175,6 +175,10 @@ def parse_dump(dump):
             i = 'qdisc add dev %s clsact' % dev
         elif i.startswith('qdisc pfifo'):
             continue
+        elif i.startswith('qdisc noqueue'):
+            continue
+        elif i.startswith('qdisc mq'):
+            continue
 
         not_supported = ['icmp_type', 'icmp_code', 'used_hw_stats delayed']
         _skip = False
@@ -205,7 +209,6 @@ def do_cmd(cmd):
     try:
         subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
-        print(e.output)
         if "Cannot find specified filter chain" in str(e.output):
             return
         if "Invalid qdisc name" in str(e.output):
@@ -216,6 +219,7 @@ def do_cmd(cmd):
             return
         if "Cannot find device" in str(e.output):
             return
+        print(e.output.decode())
         print("-------")
         print("Failed: ", cmd)
         if not args.skip_err:
