@@ -220,7 +220,7 @@ def do_cmd(cmd):
         if "Cannot find device" in str(e.output):
             return
         print(e.output.decode())
-        print("-------")
+        print("^")
         print("Failed: ", cmd)
         if not args.skip_err:
             raise
