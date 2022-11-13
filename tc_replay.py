@@ -169,6 +169,10 @@ def parse_dump(dump):
             #i = i.replace('qdisc ', 'qdisc add ')
             dev = s[s.index('dev')+1]
             i = 'qdisc add dev %s ingress' % dev
+        elif i.startswith('qdisc clsact'):
+            #i = i.replace('qdisc ', 'qdisc add ')
+            dev = s[s.index('dev')+1]
+            i = 'qdisc add dev %s clsact' % dev
         elif i.startswith('qdisc pfifo'):
             continue
 
@@ -199,8 +203,19 @@ def parse_dump(dump):
 
 def do_cmd(cmd):
     try:
-        subprocess.check_call(cmd, shell=True)
+        subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
+        print(e.output)
+        if "Cannot find specified filter chain" in str(e.output):
+            return
+        if "Invalid qdisc name" in str(e.output):
+            return
+        if "Qdisc doesn't exists" in str(e.output):
+            return
+        if "Invalid handle" in str(e.output):
+            return
+        if "Cannot find device" in str(e.output):
+            return
         print("-------")
         print("Failed: ", cmd)
         if not args.skip_err:
