@@ -208,17 +208,21 @@ def do_cmd(cmd):
     try:
         subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
-        if "Cannot find specified filter chain" in str(e.output):
+        skip = ["Cannot find specified filter chain",
+                "Invalid qdisc name",
+                "Qdisc doesn't exists",
+                "Invalid handle",
+                "Cannot find device",
+                "Exclusivity flag on, cannot modify",
+                ]
+        _skip = False
+        for i in skip:
+            if i in str(e.output):
+                _skip = True
+                break
+        if _skip:
             return
-        if "Invalid qdisc name" in str(e.output):
-            return
-        if "Qdisc doesn't exists" in str(e.output):
-            return
-        if "Invalid handle" in str(e.output):
-            return
-        if "Cannot find device" in str(e.output):
-            return
-        print(e.output.decode())
+        print(e.output.decode().strip())
         print("^")
         print("Failed: ", cmd)
         if not args.skip_err:
