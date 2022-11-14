@@ -11,6 +11,7 @@ import sys
 import os
 from pprint import pprint
 
+TC = "/usr/sbin/tc"
 
 example_dump = """
 deleted qdisc ingress ffff: dev enp8s0f0 parent ffff:fff1 ---------------- 
@@ -85,6 +86,7 @@ def parse_args():
     parser.add_argument('--file', '-f', help='input file')
     parser.add_argument('--loop', '-l', action='store_true', help='loop cmds')
     parser.add_argument('--skip-err', '-s', action='store_true', help='skip errs')
+    parser.add_argument('--no-warn', '-w', action='store_true', help='hide warns')
     return parser.parse_args()
 
 
@@ -108,13 +110,45 @@ def parse_dump(dump):
             t = i.split()[1]
             if t != 'arp':
                 t = 'ip'
-            rule = rule.replace('protocol all', 'protocol '+t)
+            rule = rule.replace('protocol all', 'protocol %s' % t)
             continue
 
-        if "mirred" in i:
+        elif "mirred" in i:
             s = i.split()
-            dev = s[s.index('device')+1].strip(')')
-            i = "action mirred egress redirect dev " + dev
+            dev = s[s.index('device') + 1].strip(')')
+            rule += " action mirred egress redirect dev %s" % dev
+            continue
+
+        elif "csum" in i:
+            i = i.replace('(', '')
+            i = i.replace(')', '')
+            i = i.replace(',', '')
+            i = i.split()[4:-2]
+            i = ' and '.join(i)
+            rule += " action csum %s" % i
+            continue
+
+        elif "pedit" in i:
+            rule += " action pedit ex"
+            continue
+        elif i.startswith('key #'):
+            i = i.split()
+            val = iter(i[5].zfill(12))
+            hdr = i[3].strip(':').split('+')
+            off = hdr[1]
+            hdr = hdr[0]
+            if off and int(off) <= 4:
+                off = "src"
+            else:
+                off = "dst"
+            if hdr == "ipv4":
+                hdr = "ip"
+                #val = '.'.join(i+j for i,j in zip(val, val))
+                val = "127.0.0.1"
+            elif hdr == "eth":
+                val = ':'.join(i+j for i,j in zip(val, val))
+            rule += " munge %s %s set %s" % (hdr, off, val)
+            continue
 
         if 'ovs-system' in i:
             # ovs probe for tc support
@@ -172,6 +206,9 @@ def parse_dump(dump):
             #i = i.replace('qdisc ', 'qdisc add ')
             dev = s[s.index('dev')+1]
             i = 'qdisc add dev %s clsact' % dev
+        elif i.startswith('key_id'):
+            # tunnel_key id
+            i = i.replace('key_id', 'id')
         elif i.startswith('qdisc pfifo'):
             continue
         elif i.startswith('qdisc noqueue'):
@@ -183,21 +220,23 @@ def parse_dump(dump):
         _skip = False
         for j in not_supported:
             if i.startswith(j):
-                print('WARN: not supported:', i)
+                if not args.no_warn:
+                    print('WARN: not supported: %s' % i)
                 _skip = True
         if _skip:
             continue
 
         if i.startswith('qdisc') or i.startswith('filter'):
             if rule:
-                # split here
-                cmds.append("tc" + rule)
+                # new rule
+                cmds.append(TC + " %s" % rule)
                 rule = ""
 
-        rule += " " + i
+        rule += " %s" % i
 
     if rule:
-        cmds.append("tc" + rule)
+        # last rule
+        cmds.append(TC + " %s" % rule)
         rule = ""
 
 #    pprint(cmds)
@@ -214,19 +253,23 @@ def do_cmd(cmd):
                 "Invalid handle",
                 "Cannot find device",
                 "Exclusivity flag on, cannot modify",
+                "Filter with specified priority/protocol not found",
+                "Specified filter handle not found",
                 ]
-        _skip = False
         for i in skip:
             if i in str(e.output):
-                _skip = True
-                break
-        if _skip:
-            return
+                return
+        skip_cmd = ["arp_sip 10.0.15.21",
+                    "arp_sip 10.0.15.102",
+                    ]
+        for i in skip_cmd:
+            if i in cmd:
+                return
         print(e.output.decode().strip())
         print("^")
-        print("Failed: ", cmd)
+        print("Failed: %s" % cmd)
         if not args.skip_err:
-            raise
+            raise RuntimeError(e)
         print(e)
         print("-------")
 
@@ -253,4 +296,7 @@ def start():
 
 
 if __name__ == "__main__":
-    sys.exit(start())
+    try:
+        sys.exit(start())
+    except RuntimeError as e:
+        sys.exit(1)
