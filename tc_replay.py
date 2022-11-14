@@ -118,13 +118,13 @@ def parse_dump(dump):
             rule = rule.replace('protocol all', 'protocol %s' % t)
             continue
 
-        elif "mirred" in i:
+        elif ": mirred" in i:
             s = i.split()
             dev = s[s.index('device') + 1].strip(')')
             rule += " action mirred egress redirect dev %s" % dev
             continue
 
-        elif "csum" in i:
+        elif ": csum" in i:
             i = i.replace('(', '')
             i = i.replace(')', '')
             i = i.replace(',', '')
@@ -133,7 +133,7 @@ def parse_dump(dump):
             rule += " action csum %s" % i
             continue
 
-        elif "pedit" in i:
+        elif "pedit action" in i:
             rule += " action pedit ex"
             continue
         elif i.startswith('key #'):
