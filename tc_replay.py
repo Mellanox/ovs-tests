@@ -90,6 +90,11 @@ def parse_args():
     return parser.parse_args()
 
 
+def warn(msg):
+    if not args.no_warn:
+        print('WARN: %s' % msg)
+
+
 def parse_dump(dump):
     cmds = []
     rule = ""
@@ -132,6 +137,7 @@ def parse_dump(dump):
             rule += " action pedit ex"
             continue
         elif i.startswith('key #'):
+            warn('fake pedit: %s' % i)
             i = i.split()
             val = iter(i[5].zfill(12))
             hdr = i[3].strip(':').split('+')
@@ -220,8 +226,7 @@ def parse_dump(dump):
         _skip = False
         for j in not_supported:
             if i.startswith(j):
-                if not args.no_warn:
-                    print('WARN: not supported: %s' % i)
+                warn('not supported: %s' % i)
                 _skip = True
         if _skip:
             continue
