@@ -1739,6 +1739,7 @@ function restart_openvswitch() {
     ovs-appctl vlog/set tc:syslog:warn
     if [ "$__ovs_log_levels" != "" ]; then
         ovs-appctl vlog/set $__ovs_log_levels
+        ovs-appctl vlog/disable-rate-limit
     fi
     check_ovs_settings
     sleep 1

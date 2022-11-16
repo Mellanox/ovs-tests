@@ -1,4 +1,5 @@
 CLEAR_OVS_LOG=1
+ENABLE_OVS_DEBUG=1
 
 DPDK_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
 . $DPDK_DIR/../common.sh
@@ -16,7 +17,7 @@ function set_ovs_dpdk_debug_logs() {
     if [ -f $log ]; then
         echo > $log
     fi
-    ovs_set_log_levels ofproto_dpif_upcall:file:DBG netdev_offload_dpdk:file:DBG
+    ovs_set_log_levels dpif_netdev:file:DBG netdev_offload_dpdk:file:DBG
 }
 
 function require_dpdk() {
