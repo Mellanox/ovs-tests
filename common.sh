@@ -1961,8 +1961,8 @@ function reload_driver_per_test() {
 }
 
 function dump_ovs_log() {
-    local look="ERR|WARN|EMER|assertion"
-    local filter="timeval|ioctl|coverage"
+    local look="ERR|WARN|EMER|assertion|DBG"
+    local filter="timeval|ioctl|coverage|flow create.*void|ufid 00000000-0000-0000-0000-000000000000"
 
     if [ -f $ovs_log_path ] && [ "$__ovs_used" == 1 ] && [ "$CLEAR_OVS_LOG" == 1 ]; then
         local a=`cat $ovs_log_path | grep -E "$look" | grep -v -E "$filter"`
