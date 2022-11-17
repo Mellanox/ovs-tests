@@ -1150,16 +1150,16 @@ def read_mini_reg_list():
     if not DB_PATH:
         return
 
-    mini = os.path.join(DB_PATH, 'mini_regression.yaml')
-    if not os.path.exists(mini):
-        return
+    minis = glob(os.path.join(DB_PATH, '*mini_reg*.yaml'))
+    MINI_REG_LIST = []
 
-    with open(mini) as f:
-        data = yaml.safe_load(f)
-        if type(data['tests']) is dict:
-            MINI_REG_LIST = data['tests'].keys()
-        elif type(data['tests']) is list:
-            MINI_REG_LIST = data['tests']
+    for mini in minis:
+        with open(mini) as f:
+            data = yaml.safe_load(f)
+            if type(data['tests']) is dict:
+                MINI_REG_LIST.extend(data['tests'].keys())
+            elif type(data['tests']) is list:
+                MINI_REG_LIST.extend(data['tests'])
 
 
 def read_ignore_list():
