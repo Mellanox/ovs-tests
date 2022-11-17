@@ -1364,6 +1364,11 @@ function get_rep() {
         if [ $i == $nic ]; then continue ; fi
 
         id2=`get_sw_id $i`
+        if [ "$id" != "id2" ]; then continue ; fi
+
+        pn2=`get_port_name $i`
+        if [ "$pn2" == "p0" -o "$pn2" == "p1" ]; then continue ; fi
+
         pn2=`get_parent_port_name $i`
         if [ "$id" = "$id2" ] && [ "$pn" = "$pn2" ]; then
             if [ "$vf" = "$count" ]; then
