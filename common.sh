@@ -977,14 +977,19 @@ function wait_for_reps() {
     local nic=$1
     local count=$2
     local reps=0
+    local found=0
+
+    if [ "$count" == 0 ]; then return ; fi
 
     for i in `seq 4`; do
         reps=`get_reps_count $nic`
         if [ "$reps" = "$count" ]; then
+            found=1
             break
         fi
         sleep 1
     done
+    [ "$found" == 0 ] && warn "Found $reps reps but expected $count reps"
 }
 
 function devlink_compat_dir() {
@@ -1035,6 +1040,9 @@ function switch_mode() {
     local old_mode=`get_eswitch_mode $nic`
     if [ "$old_mode" == "$mode" ]; then
         log "E-Switch mode for $nic is $mode"
+        if [ "$mode" == "switchdev" ]; then
+            wait_for_reps $nic $vf_count
+        fi
         return
     fi
 
@@ -1050,7 +1058,7 @@ function switch_mode() {
         devlink dev eswitch set pci/$pci mode $mode $extra || fail "Failed to set mode $mode"
     fi
 
-    if [ "$mode" == "switchdev" ] && [ "$vf_count" != 0 ]; then
+    if [ "$mode" == "switchdev" ]; then
         wait_for_reps $nic $vf_count
         bring_up_reps $nic
     fi
