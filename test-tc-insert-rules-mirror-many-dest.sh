@@ -22,14 +22,14 @@ vxlan_port=4789
 function test1() {
     title "Add local mirror rule with 16 dst"
     reset_tc $NIC
-    command="tc_filter_success add dev $NIC ingress protocol arp prio 1 flower skip_sw"
+    local cmd="tc_filter_success add dev $NIC ingress protocol arp prio 1 flower skip_sw"
     for i in {0..14}; do
         TMP_REP=`get_rep $i`
-        command+=" action mirred egress mirror dev $TMP_REP pipe"
+        cmd+=" action mirred egress mirror dev $TMP_REP pipe"
     done
     TMP_REP=`get_rep 15`
-    command+=" action mirred egress redirect dev $TMP_REP"
-    eval $command
+    cmd+=" action mirred egress redirect dev $TMP_REP"
+    eval $cmd
     reset_tc $NIC
 }
 
@@ -50,12 +50,12 @@ function test2() {
     ip neigh add $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
 
     reset_tc $REP
-    command="tc_filter_success add dev $REP ingress protocol arp prio 1 flower skip_sw"
+    local cmd="tc_filter_success add dev $REP ingress protocol arp prio 1 flower skip_sw"
     for i in {1..15}; do
-        command+=" action tunnel_key set src_ip $ip_src dst_ip $ip_dst dst_port 4789 id $i ttl 64 nocsum pipe action mirred egress mirror dev $vx pipe"
+        cmd+=" action tunnel_key set src_ip $ip_src dst_ip $ip_dst dst_port 4789 id $i ttl 64 nocsum pipe action mirred egress mirror dev $vx pipe"
     done
-    command+=" action tunnel_key set src_ip $ip_src dst_ip $ip_dst dst_port 4789 id 16 ttl 64 nocsum pipe action mirred egress redirect dev $vx"
-    eval $command
+    cmd+=" action tunnel_key set src_ip $ip_src dst_ip $ip_dst dst_port 4789 id 16 ttl 64 nocsum pipe action mirred egress redirect dev $vx"
+    eval $cmd
 
     ip link del $vx &>/dev/null
     reset_tc $REP
@@ -77,16 +77,16 @@ function test3() {
     ip addr add $ip_src/16 dev $NIC
     ip neigh add $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
 
-    command="tc_filter_success add dev $REP ingress protocol arp prio 1 flower skip_sw"
+    local cmd="tc_filter_success add dev $REP ingress protocol arp prio 1 flower skip_sw"
     for i in {1..7}; do
         TMP_REP=`get_rep $i`
-        command+=" action mirred egress mirror dev $TMP_REP pipe"
-        command+=" action tunnel_key set src_ip $ip_src dst_ip $ip_dst dst_port 4789 id $i ttl 64 nocsum pipe action mirred egress mirror dev $vx pipe"
+        cmd+=" action mirred egress mirror dev $TMP_REP pipe"
+        cmd+=" action tunnel_key set src_ip $ip_src dst_ip $ip_dst dst_port 4789 id $i ttl 64 nocsum pipe action mirred egress mirror dev $vx pipe"
     done
     TMP_REP=`get_rep 8`
-    command+=" action mirred egress mirror dev $TMP_REP pipe"
-    command+=" action tunnel_key set src_ip $ip_src dst_ip $ip_dst dst_port 4789 id 16 ttl 64 nocsum pipe action mirred egress redirect dev $vx"
-    eval $command
+    cmd+=" action mirred egress mirror dev $TMP_REP pipe"
+    cmd+=" action tunnel_key set src_ip $ip_src dst_ip $ip_dst dst_port 4789 id 16 ttl 64 nocsum pipe action mirred egress redirect dev $vx"
+    eval $cmd
 
     ip link del $vx &>/dev/null
     reset_tc $REP
