@@ -130,7 +130,7 @@ function run() {
          verify_no_traffic $pid
     fi
 
-    sleep 5
+    sleep 7
 
     title "Verify tuples are cleared from offload"
     cat /proc/net/nf_conntrack | grep "$IP1" | grep "$IP2" | grep "zone=[57]" | grep -i offload && err "Connections not closed properly"
