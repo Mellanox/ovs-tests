@@ -51,8 +51,7 @@ function run() {
         action mirred egress redirect dev $REP
     verify_in_hw $vlan_dev 11
 
-    mode=`get_flow_steering_mode $NIC`
-    if [ "$mode" == "dmfs" ]; then
+    if is_mlxdump_supported; then
         verify_hw_rules
     fi
 

@@ -32,8 +32,7 @@ reset_tc $UPLSRC
 tc_filter add dev $UPLSRC protocol ip prio 1 root flower enc_dst_ip $DST_IP enc_dst_port 4789 action tunnel_key unset action mirred egress redirect dev $UPLDEST
 verify_in_hw $UPLSRC 1
 
-mode=`get_flow_steering_mode $NIC`
-if [ "$mode" == "dmfs" ]; then
+if is_mlxdump_supported; then
     title "Check hardware tables..."
     mlxdump -d $PCI fsdump --type FT > /tmp/_fsdump
     if cat /tmp/_fsdump | grep -B 44 -A 57 "outer_headers.dst_ip_31_0.*:0x0b0c0d0e" | grep "destination\[0\].destination_type.*:FLOW_TABLE_" > /dev/null; then

@@ -47,8 +47,7 @@ tc_filter add dev bareudp0 protocol mpls_uc prio 1 ingress flower mpls_label $LA
 
 verify_in_hw bareudp0 1
 
-mode=`get_flow_steering_mode $NIC`
-if [ "$mode" == "dmfs" ]; then
+if is_mlxdump_supported; then
     title "Check hardware tables..."
     hexport=$(printf "%x" $UDPPORT)
     mlxdump -d $PCI fsdump --type FT > /tmp/_fsdump

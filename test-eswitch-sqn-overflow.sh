@@ -33,8 +33,7 @@ for i in `seq $needed`; do
 done
 echo
 
-mode=`get_flow_steering_mode $NIC`
-if [ "$mode" == "dmfs" ]; then
+if is_mlxdump_supported; then
     # check source_sqn for rules with destination uplink
     i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
     cat /tmp/port0 | grep "dest.*0xfff" -B 1 | grep sqn | tail -4

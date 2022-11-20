@@ -20,7 +20,11 @@ fi
 ethtool -L $NIC combined $channels || fail "Failed to set $NIC channels to $channels"
 
 needed=150
-mode=`get_flow_steering_mode $NIC`
+if is_mlxdump_supported ; then
+    use_mlxdump=1
+else
+    use_mlxdump=0
+fi
 
 function toggle_link() {
     title "Link down/up $needed times"
@@ -32,7 +36,7 @@ function toggle_link() {
     done
     echo
 
-    if [ "$mode" == "dmfs" ]; then
+    if [ "$use_mlxdump" == 1 ]; then
         # check source_sqn for rules with destination uplink
         i=0 && mlxdump -d $PCI fsdump --type FT --gvmi=$i --no_zero > /tmp/port$i || err "mlxdump failed"
         cat /tmp/port0 | grep "dest.*0xfff" -B 1 | grep sqn | tail -4

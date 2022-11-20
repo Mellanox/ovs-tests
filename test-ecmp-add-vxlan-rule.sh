@@ -90,8 +90,7 @@ function test_add_multipath_rule() {
     ip r show $net
     add_vxlan_rule $local_ip $remote_ip
 
-    mode=`get_flow_steering_mode $NIC`
-    if [ "$mode" == "dmfs" ]; then
+    if is_mlxdump_supported; then
         verify_rules_in_hw
     fi
 
