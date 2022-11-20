@@ -13,12 +13,8 @@ require_interfaces NIC NIC2
 
 vfs=2
 title "Test toggle switchdev mode in parallel for both ports"
-for nic in $NIC $NIC2; do
-    echo " - config sriov for $nic"
-    config_sriov 0 $nic
-    config_sriov $vfs $nic
-    unbind_vfs $nic
-done
+disable_sriov
+enable_sriov
 
 tmp1="/tmp/a$$"
 tmp2="/tmp/b$$"

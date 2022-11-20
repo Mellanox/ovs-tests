@@ -12,7 +12,7 @@ require_interfaces NIC
 vfs=2
 title "Test toggle modes in parallel"
 config_sriov $vfs $NIC
-unbind_vfs $NIC
+enable_legacy $NIC
 
 tmp1="/tmp/a$$"
 tmp2="/tmp/b$$"

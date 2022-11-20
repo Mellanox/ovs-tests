@@ -9,6 +9,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+disable_sriov
 
 for nic in $NIC $NIC2; do
     title "Toggle sriov/switchdev for $nic"
