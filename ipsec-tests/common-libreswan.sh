@@ -22,9 +22,9 @@ function ipsec_get_hostkey() {
 }
 
 function __ipsec_init_keys() {
-    ipsec showhostkey --dump &>/dev/null
-    if [ $? == 1 ]; then
-        ipsec initnss --nssdir /var/lib/ipsec/nss
+    local dump=`ipsec showhostkey --dump 2>/dev/null`
+    if [ $? == 1 ] || [ -z "$dump" ]; then
+        ipsec initnss
         ipsec newhostkey
     fi
 }
