@@ -72,6 +72,19 @@ function config_veth() {
     ip netns exec $ns ifconfig $peer $ip/24 mtu 1400 up
 }
 
+function verify_tuples_are_cleared() {
+    local i
+    local ok=0
+
+    title "Verify tuples are cleared from offload"
+    for i in `seq 4`; do
+        cat /proc/net/nf_conntrack | grep "$IP1" | grep "$IP2" | grep "zone=[57]" | grep -i offload && sleep 2 && continue
+        ok=1
+        break
+    done
+    [ $ok == 0 ] && err "Connections not closed properly"
+}
+
 function run() {
     local ovsdev1=$1
     local ovsdev2=$2
@@ -130,10 +143,7 @@ function run() {
          verify_no_traffic $pid
     fi
 
-    sleep 7
-
-    title "Verify tuples are cleared from offload"
-    cat /proc/net/nf_conntrack | grep "$IP1" | grep "$IP2" | grep "zone=[57]" | grep -i offload && err "Connections not closed properly"
+    verify_tuples_are_cleared
 
     ovs-vsctl del-br ovs-br
 }
