@@ -77,6 +77,10 @@ function do_traffic() {
     ping -q -c 10 -i 0.2 -w 4 $VM2_IP && success || err
 }
 
+function remove_gre_modules() {
+    local holders=`ls -1r /sys/module/gre/holders`
+    modprobe -r $holders gre
+}
 
 title "Test gre tunnel with key $KEY"
 KEY=5
@@ -93,4 +97,5 @@ ovs_clear_bridges
 
 echo "cleanup"
 cleanup
+remove_gre_modules
 test_done
