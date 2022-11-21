@@ -15,6 +15,8 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+require_remote_server
+
 #
 # It is eth1 on Host 1 in the diagram of
 #   http://docs.openvswitch.org/en/latest/_images/sflow.png
