@@ -13,7 +13,6 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 require_remote_server
-relevant_for_nic cx5
 
 IP=1.1.1.6
 REMOTE=1.1.1.7
