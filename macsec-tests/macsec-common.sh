@@ -191,7 +191,7 @@ function set_tx_sa() {
     on_remote $MACSEC_CONFIG --device $dev --interface $macsec_dev --set-encoding-sa $sa_to_enable
 }
 
-function verify_offload() {
+function verify_offload_counters() {
     local side=${1:-"both"}
     local net_proto=$2
 
@@ -409,7 +409,7 @@ function test_macsec() {
     run_traffic $macsec_ip_proto $net_proto
 
     read_post_test_counters $offload_side
-    verify_offload $offload_side $net_proto
+    verify_offload_counters $offload_side $net_proto
 
     kill_iperf
 }
@@ -437,7 +437,7 @@ function test_macsec_multi_sa() {
         run_traffic $macsec_ip_proto $net_proto
 
         read_post_test_counters $offload_side
-        verify_offload $offload_side $net_proto
+        verify_offload_counters $offload_side $net_proto
 
         kill_iperf
     done
@@ -482,7 +482,7 @@ function test_macsec_xpn() {
     run_traffic $macsec_ip_proto $net_proto
 
     read_post_test_counters $offload_side
-    verify_offload $offload_side $net_proto
+    verify_offload_counters $offload_side $net_proto
 
     kill_iperf
 }
