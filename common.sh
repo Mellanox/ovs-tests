@@ -314,7 +314,10 @@ function set_trusted_vf_mode() {
 }
 
 function is_mlxdump_supported() {
+    is_simx && return 1
+
     local mode=`get_flow_steering_mode $NIC`
+
     if [ "$mode" == "dmfs" ]; then
         return 0
     fi
