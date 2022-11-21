@@ -33,12 +33,12 @@ function check_bond_xmit_hash_policy() {
         for policy in layer2 layer2+3 layer3+4 encap2+3 encap3+4; do
             title "Checking bond mode $mode xmit hash policy $policy"
             config_bonding $NIC $NIC2 $mode $policy
-            clear_bonding
             dmesg | tail -n20 | grep -q "mode:hash"
             if [ $? -ne 0 ]; then
                 err "Expected vf lag mode hash"
                 return
             fi
+            clear_bonding
         done
     done
 }
