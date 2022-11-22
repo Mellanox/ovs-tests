@@ -329,6 +329,11 @@ function ovn_config_interface_namespace() {
     if [[ -n "$ipv6_gw" ]]; then
         ip netns exec $ns ip -6 route add default via $ipv6_gw dev $vf
     fi
+
+    # WA system not ready when configured with dpdk.
+    if [ "$DPDK" == 1 ]; then
+        sleep 2
+    fi
 }
 
 require_ovn
