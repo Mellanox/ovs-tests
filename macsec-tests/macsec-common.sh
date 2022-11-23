@@ -409,9 +409,8 @@ function test_macsec() {
     run_traffic $macsec_ip_proto $net_proto
 
     read_post_test_counters $offload_side
-    verify_offload_counters $offload_side $net_proto
 
-    kill_iperf
+    verify_offload_counters $offload_side $net_proto
 }
 
 function test_macsec_multi_sa() {
@@ -437,9 +436,9 @@ function test_macsec_multi_sa() {
         run_traffic $macsec_ip_proto $net_proto
 
         read_post_test_counters $offload_side
+
         verify_offload_counters $offload_side $net_proto
 
-        kill_iperf
     done
 }
 
@@ -482,9 +481,8 @@ function test_macsec_xpn() {
     run_traffic $macsec_ip_proto $net_proto
 
     read_post_test_counters $offload_side
-    verify_offload_counters $offload_side $net_proto
 
-    kill_iperf
+    verify_offload_counters $offload_side $net_proto
 }
 
 # Usage <mtu> <ip_proto> <macsec_ip_proto> <net_proto> <offload> [multi_sa]
