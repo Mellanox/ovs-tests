@@ -278,7 +278,6 @@ function run_traffic() {
 
     title "Run $net_proto traffic"
     rm -f $TCPDUMP_FILE $IPERF_FILE
-    start_iperf_server
     timeout $t tcpdump -qnnei $nic -c 5 -w $TCPDUMP_FILE &
     local upid=$!
 
@@ -406,11 +405,16 @@ function test_macsec() {
     read_pre_test_counters $offload_side
 
     change_mtu_on_both_sides $mtu $dev $macsec_dev
+
+    start_iperf_server
+
     run_traffic $macsec_ip_proto $net_proto
 
     read_post_test_counters $offload_side
 
     verify_offload_counters $offload_side $net_proto
+
+    kill_iperf
 }
 
 function test_macsec_multi_sa() {
@@ -426,6 +430,8 @@ function test_macsec_multi_sa() {
 
     test_macsec $mtu $ip_proto $macsec_ip_proto $key_len $net_proto $offload_side --add-multi-sa
 
+    start_iperf_server
+
     for i in 0 1 2 3; do
         title "Test MACSEC with Multi SAs with mtu = $mtu , ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len and offload = $offload_side using SA $i"
         set_tx_sa $dev $macsec_dev $i
@@ -440,6 +446,8 @@ function test_macsec_multi_sa() {
         verify_offload_counters $offload_side $net_proto
 
     done
+
+    kill_iperf
 }
 
 function test_macsec_xpn() {
@@ -478,11 +486,16 @@ function test_macsec_xpn() {
     read_pre_test_counters $offload_side
 
     change_mtu_on_both_sides $mtu $dev $macsec_dev
+
+    start_iperf_server
+
     run_traffic $macsec_ip_proto $net_proto
 
     read_post_test_counters $offload_side
 
     verify_offload_counters $offload_side $net_proto
+
+    kill_iperf
 }
 
 # Usage <mtu> <ip_proto> <macsec_ip_proto> <net_proto> <offload> [multi_sa]

@@ -29,6 +29,7 @@ function run_test() {
     
     change_mtu_on_both_sides $mtu $dev $macsec_dev
     read_pre_test_counters local
+    start_iperf_server
     run_traffic ipv4 icmp $macsec_dev no_traffic
     read_post_test_counters local
     
@@ -36,6 +37,8 @@ function run_test() {
     if [[ $LOCAL_POST_TEST_PKTS_RX_DROP -le $LOCAL_PRE_TEST_PKTS_RX_DROP ]]; then
         fail "Macsec offload drop counters didn't increase as expected"
     fi
+
+    kill_iperf
 }
 
 trap cleanup EXIT
