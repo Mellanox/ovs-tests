@@ -14,7 +14,9 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 function reload2() {
-    sleep ".$RANDOM"
+    local s=".$RANDOM"
+    echo "sleep $s"
+    sleep $s
     __ignore_errors=1
     reload_modules
     __ignore_errors=0
