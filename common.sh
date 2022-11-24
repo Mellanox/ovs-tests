@@ -1389,7 +1389,7 @@ function get_rep() {
         if [ "$pn2" == "p0" -o "$pn2" == "p1" ]; then continue ; fi
 
         pn2=`get_parent_port_name $i`
-        if [ "$id" = "$id2" ] && [ "$pn" = "$pn2" ]; then
+        if [ "$pn" = "$pn2" ]; then
             if [ "$vf" = "$count" ]; then
                     echo $i
                     echo "Found rep $i" >>/dev/stderr
