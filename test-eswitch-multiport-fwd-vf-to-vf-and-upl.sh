@@ -33,6 +33,8 @@ function local_cleanup {
     reset_tc $NIC $NIC2 $REP
     restore_lag_port_select_mode
     restore_lag_resource_allocation_mode
+    enable_legacy $NIC2
+    config_sriov 0 $NIC2
 }
 
 function start_tcpdump() {

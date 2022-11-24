@@ -39,8 +39,8 @@ function remote_cleanup() {
 function config_local {
     enable_lag_resource_allocation_mode
     set_lag_port_select_mode "multiport_esw"
-    config_sriov 1
-    config_sriov 1 $NIC2
+    config_sriov 2
+    config_sriov 2 $NIC2
     enable_switchdev
     enable_switchdev $NIC2
     reset_tc $REP $NIC $NIC2
@@ -58,6 +58,8 @@ function local_cleanup {
     reset_tc $NIC $NIC2 $REP
     restore_lag_port_select_mode
     restore_lag_resource_allocation_mode
+    enable_legacy $NIC2
+    config_sriov 0 $NIC2
 }
 
 function start_tcpdump() {

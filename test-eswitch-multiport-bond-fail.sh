@@ -22,9 +22,8 @@ function config() {
 function cleanup() {
     clear_bonding
     restore_lag_port_select_mode
-    config_sriov 2
+    enable_legacy $NIC2
     config_sriov 0 $NIC2
-    enable_switchdev
 }
 
 function check_bond_fail() {
