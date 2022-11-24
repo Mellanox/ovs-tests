@@ -2334,17 +2334,21 @@ function set_lag_resource_allocation() {
 }
 
 __lag_res_alloc_mode=0
-__lag_res_alloc_change=0
+__lag_res_alloc_changed=0
 function enable_lag_resource_allocation_mode() {
-    if (( __lag_res_alloc_mode == 0 )); then
-        __lag_res_alloc_mode=`get_lag_resource_allocation_mode`
+    local current_mode=`get_lag_resource_allocation_mode`
+    if [ "$current_mode" == "1" ]; then
+        return
+    fi
+    if (( __lag_res_alloc_changed == 0 )); then
+        __lag_res_alloc_mode=$current_mode
         set_lag_resource_allocation 1
-        __lag_res_alloc_change=1
+        __lag_res_alloc_changed=1
     fi
 }
 
 function restore_lag_resource_allocation_mode() {
-    if (( __lag_res_alloc_change == 1 )); then
+    if (( __lag_res_alloc_changed == 1 )); then
         set_lag_resource_allocation $__lag_res_alloc_mode
     fi
 }
