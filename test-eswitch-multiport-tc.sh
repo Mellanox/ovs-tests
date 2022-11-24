@@ -9,6 +9,7 @@ my_dir="$(dirname "$0")"
 min_nic_cx6dx
 
 function config() {
+    enable_lag_resource_allocation_mode
     set_lag_port_select_mode "multiport_esw"
     config_sriov 2
     config_sriov 2 $NIC2
@@ -20,6 +21,7 @@ function config() {
 
 function cleanup() {
     restore_lag_port_select_mode
+    restore_lag_resource_allocation_mode
     enable_legacy $NIC2
     config_sriov 0 $NIC2
 }
@@ -43,11 +45,9 @@ function add_tc_rules() {
 
 trap cleanup EXIT
 
-set_lag_resource_allocation 1
 config
 add_tc_rules
 reset_tc $NIC $NIC2 $REP $REP2
-set_lag_resource_allocation 0
 trap - EXIT
 cleanup
 test_done

@@ -12,6 +12,7 @@ min_nic_cx6dx
 require_module bonding
 
 function config() {
+    enable_lag_resource_allocation_mode
     config_sriov 2
     config_sriov 2 $NIC2
     set_lag_port_select_mode "multiport_esw"
@@ -22,6 +23,7 @@ function config() {
 function cleanup() {
     clear_bonding
     restore_lag_port_select_mode
+    restore_lag_resource_allocation_mode
     enable_legacy $NIC2
     config_sriov 0 $NIC2
 }
@@ -43,10 +45,8 @@ function check_bond_fail() {
 trap cleanup EXIT
 
 clear_bonding
-set_lag_resource_allocation 1
 config
 check_bond_fail
-set_lag_resource_allocation 0
 trap - EXIT
 cleanup
 test_done
