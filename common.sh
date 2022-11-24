@@ -462,9 +462,6 @@ function clear_bonding() {
     ip link del bond0 &>/dev/null
     ip link set dev $nic1 nomaster &>/dev/null
     ip link set dev $nic2 nomaster &>/dev/null
-    # WA wait for driver to destroy lag
-    # this is so next test steps won't bind vfs and the destroy will fail.
-    sleep 3
 }
 
 function remote_disable_sriov() {
