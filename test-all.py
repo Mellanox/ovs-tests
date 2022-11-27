@@ -693,9 +693,11 @@ def get_current_state():
     global current_kernel
     global flow_steering_mode
     global simx_mode
+    global dpdk_mode
 
     fix_path_from_config()
     nic = get_config_value('NIC')
+    dpdk_mode = get_config_value('DPDK') == '1'
     current_fw_ver = args.test_fw or get_current_fw(nic)
     current_nic = args.test_nic if args.test_nic else DeviceType.get(get_current_nic_type(nic))
     current_kernel = args.test_kernel if args.test_kernel else os.uname()[2]
@@ -900,6 +902,9 @@ def update_skip_according_to_db(rm, _tests, data):
                     # currently fw_ignore does the ignore so not increasing ignore_count.
                 elif k == 'simx':
                     if (simx_mode and v) or (not simx_mode and not v):
+                        ignore_count += 1
+                elif k == 'dpdk':
+                    if v == dpdk_mode:
                         ignore_count += 1
                 else:
                     t.set_failed("Invalid ignore key: %s=%s" % (k, v))
