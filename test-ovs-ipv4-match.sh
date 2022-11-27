@@ -50,7 +50,8 @@ ovs-vsctl add-port brv-1 veth2
 function check_offloaded_rules() {
     local count=$1
     title " - check for $count offloaded rules"
-    RES="ovs_dump_tc_flows | grep 0x0800 | grep \"ipv4(src=7.7.7\""
+    igmp="01:00:5e:00:00:16"
+    RES="ovs_dump_tc_flows --names | grep 0x0800 | grep \"ipv4(src=7.7.7\" | grep -v $igmp"
     eval $RES
     RES=`eval $RES | wc -l`
     if (( RES == $count )); then success; else err; fi

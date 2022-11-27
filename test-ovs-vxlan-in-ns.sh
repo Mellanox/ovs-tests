@@ -33,10 +33,11 @@ cleanup
 function check_offloaded_rules() {
     local count=$1
     title " - check for $count offloaded rules"
+    igmp="01:00:5e:00:00:16"
     if [ "$USE_DPCTL" = 1 ]; then
-        RES="ovs_dpctl_dump_flows | grep 0x0800 | grep -v drop | grep tun_id"
+        RES="ovs_dpctl_dump_flows | grep 0x0800 | grep -v drop | grep -v $igmp | grep tun_id"
     else
-        RES="ovs_dump_tc_flows | grep 0x0800 | grep -v drop | grep tun_id"
+        RES="ovs_dump_tc_flows | grep 0x0800 | grep -v drop | grep -v $igmp | grep tun_id"
     fi
     eval $RES
     RES=`eval $RES | wc -l`

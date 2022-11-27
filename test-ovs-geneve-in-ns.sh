@@ -32,7 +32,8 @@ function cleanup() {
 function check_offloaded_rules() {
     local count=$1
     title " - check for $count offloaded rules"
-    RES="ovs_dump_tc_flows | grep 0x0800 | grep -v drop"
+    igmp="01:00:5e:00:00:16"
+    RES="ovs_dump_tc_flows | grep 0x0800 | grep -v drop | grep -v $igmp"
     eval $RES
     RES=`eval $RES | wc -l`
     if (( RES == $count )); then
