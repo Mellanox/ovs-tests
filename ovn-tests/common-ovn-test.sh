@@ -264,13 +264,20 @@ function config_ovn_vf_lag() {
     local vf_var=$3
     local rep_var=$4
     local mode=${5:-"802.3ad"}
+    local dev=$OVN_BOND
 
     config_vf_lag $mode
     require_interfaces $vf_var $rep_var
 
     start_clean_openvswitch
-    ovn_config_mtu $NIC $NIC2 $OVN_BOND
-    ip addr add $ovn_controller_ip/24 dev $OVN_BOND
+
+    if [ "$DPDK" == 1 ]; then
+        dev="br-phy"
+        config_simple_bridge_with_rep 0
+    fi
+
+    ovn_config_mtu $NIC $NIC2 $dev
+    ip addr add $ovn_controller_ip/24 dev $dev
 
     ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
     ovn_start_ovn_controller
