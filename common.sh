@@ -2409,6 +2409,8 @@ function __common_main() {
     if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
         __test_help
     fi
+    [ "$__COMMON_SH" == 1 ] && return
+    __COMMON_SH=1
     if [ "X${NO_TITLE}" == "X" ]; then
         title2 $TESTNAME
     fi
