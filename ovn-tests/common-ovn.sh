@@ -2,6 +2,8 @@ OVN_BRIDGE_INT="br-int"
 OVN_CTL="/usr/share/ovn/scripts/ovn-ctl"
 OVN_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
 
+. $OVN_DIR/../common.sh
+
 if [ "$DPDK" == 1 ]; then
     . $OVN_DIR/../ovs-dpdk-tests/common-dpdk.sh
 fi
@@ -13,7 +15,8 @@ TUNNEL_GENEVE="geneve"
 ETH_IP="0x0800"
 ETH_IP6="0x86dd"
 
-OVN_BOND="bond0"
+. $OVN_DIR/common-ovn-topology.sh
+. $OVN_DIR/common-ovn-test-utils.sh
 
 # Traffic Filters
 # Ignore IPv6 Neighbor-Advertisement, Neighbor Solicitation and Router Solicitation packets
