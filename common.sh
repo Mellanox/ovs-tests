@@ -115,6 +115,13 @@ function get_tx_pkts_ns() {
     ip netns exec $ns cat /sys/class/net/$dev/statistics/tx_packets
 }
 
+function get_rx_pkts_ns() {
+    local ns=$1
+    local dev=$2
+
+    ip netns exec $ns cat /sys/class/net/$dev/statistics/rx_packets
+}
+
 function require_cmd() {
     local i
     for i in $@ ; do

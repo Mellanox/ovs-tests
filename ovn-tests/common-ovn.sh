@@ -350,6 +350,7 @@ function check_traffic_offload() {
     fi
 
     local vf_tx_pkts=`get_tx_pkts_ns $client_ns $client_vf`
+    local vf_rx_pkts=`get_rx_pkts_ns $client_ns $client_vf`
 
     echo "logfile: $logfile"
     send_background_traffic $traffic_type $client_ns $server_ip $traffic_timeout $logfile
@@ -366,28 +367,42 @@ function check_traffic_offload() {
     sleep $tmp
     head -n5 $logfile
 
-    title "Check vf counter"
+    title "Check vf counters"
     local vf_tx_pkts2=`get_tx_pkts_ns $client_ns $client_vf`
+    local vf_rx_pkts2=`get_rx_pkts_ns $client_ns $client_vf`
     let tx_diff=vf_tx_pkts2-vf_tx_pkts
+    let rx_diff=vf_rx_pkts2-vf_rx_pkts
     local expected=10
+    local counters_ok=1
     if [[ $tx_diff -ge $expected ]]; then
-        success
+        success2 tx_counter
     else
-        err "Counter diff $tx_diff < $expected"
+        counters_ok=0
+        err "TX counter diff $tx_diff < $expected"
+    fi
+    if [[ $rx_diff -ge $expected ]]; then
+        success2 rx_counter
+    else
+        counters_ok=0
+        err "RX counter diff $rx_diff < $expected"
     fi
 
-    if [[ -n $client_verify_offload ]]; then
-        echo "Start sender tcpdump"
-        __start_tcpdump_local $client_rep "$tcpdump_filter" $non_offloaded_packets
-        tdpid=$tdpid
-    fi
+    if [[ $counters_ok == 1 ]]; then
+        if [[ -n $client_verify_offload ]]; then
+            echo "Start sender tcpdump"
+            __start_tcpdump_local $client_rep "$tcpdump_filter" $non_offloaded_packets
+            tdpid=$tdpid
+        fi
 
-    if [[ -n $server_verify_offload ]]; then
-        echo "Start receiver tcpdump"
-        tmp=$tdpid
-        __start_tcpdump $server_rep "$tcpdump_filter" $non_offloaded_packets
-        tdpid_receiver=$tdpid
-        tdpid=$tmp
+        if [[ -n $server_verify_offload ]]; then
+            echo "Start receiver tcpdump"
+            tmp=$tdpid
+            __start_tcpdump $server_rep "$tcpdump_filter" $non_offloaded_packets
+            tdpid_receiver=$tdpid
+            tdpid=$tmp
+        fi
+    else
+        warn "Skipping tcpdump offload check"
     fi
 
     if [[ -n $client_rule_fields ]]; then
@@ -400,17 +415,19 @@ function check_traffic_offload() {
         __verify_server_rules "$server_rule_fields"
     fi
 
-    # If tcpdump finished then it capture more than expected to be offloaded
-    sleep "${TRAFFIC_INFO['offloaded_traffic_time_window']}"
+    if [[ $counters_ok == 1 ]]; then
+        # If tcpdump finished then it capture more than expected to be offloaded
+        sleep "${TRAFFIC_INFO['offloaded_traffic_time_window']}"
 
-    if [[ -n $client_verify_offload ]]; then
-        title "Check ${traffic_type^^} traffic is offloaded on the sender"
-        __verify_tcpdump_offload_local $tdpid
-    fi
+        if [[ -n $client_verify_offload ]]; then
+            title "Check ${traffic_type^^} traffic is offloaded on the sender"
+            __verify_tcpdump_offload_local $tdpid
+        fi
 
-    if [[ -n $server_verify_offload ]]; then
-        title "Check ${traffic_type^^} traffic is offloaded on the receiver"
-        __verify_tcpdump_offload $tdpid_receiver
+        if [[ -n $server_verify_offload ]]; then
+            title "Check ${traffic_type^^} traffic is offloaded on the receiver"
+            __verify_tcpdump_offload $tdpid_receiver
+        fi
     fi
 
     title "Wait ${traffic_type^^} traffic"
