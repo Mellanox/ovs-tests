@@ -640,8 +640,14 @@ function ovs_create_bridge_vlan_interface() {
     local br=${1:-$OVN_PF_BRIDGE}
     local interface=${2:-$OVN_VLAN_INTERFACE}
     local vlan=${3:-$OVN_VLAN_TAG}
+    local dpdk_bridge_options=""
 
-    ovs-vsctl --may-exist add-br $br -- --may-exist add-port $br $interface tag=$vlan -- set Interface $interface type=internal
+    if [ "$DPDK" == 1 ]; then
+        dpdk_bridge_options="-- set bridge $br datapath_type=netdev"
+    fi
+
+    ovs-vsctl --may-exist add-br $br $dpdk_bridge_options
+    ovs-vsctl add-port $br $interface tag=$vlan -- set Interface $interface type=internal
 }
 
 function ovn_clear_switches() {
