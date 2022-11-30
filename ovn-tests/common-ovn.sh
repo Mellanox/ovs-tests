@@ -124,8 +124,9 @@ function ovn_remove_ovs_config() {
 function ovs_add_port_to_switch() {
     local br=$1
     local port=$2
+    local extra_args=$3
 
-    ovs-vsctl add-port $br $port
+    ovs-vsctl add-port $br $port $extra_args
 }
 
 function ovn_bind_port() {
