@@ -211,19 +211,30 @@ function config_ovn_external_server() {
     config_ovn_external_server_route $SERVER_PORT $SERVER_GATEWAY_IPV4 $CLIENT_IPV4 $SERVER_GATEWAY_IPV6 $CLIENT_IPV6
 }
 
+function get_dpdk_pf_port_extra_args() {
+    local args=""
+
+    if [ "$DPDK" == 1 ]; then
+        local pci=$(get_pf_pci)
+        args="-- set Interface $NIC type=dpdk options:dpdk-devargs=$pci,$DPDK_PORT_EXTRA_ARGS"
+    fi
+    echo "$args"
+}
+
 # Config ovn with ovs internal port with vlan
 function config_ovn_pf_vlan() {
     local ovn_central_ip=$1
     local ovn_controller_ip=$2
     local vf_var=$3
     local rep_var=$4
+    local port_extra_args=$(get_dpdk_pf_port_extra_args)
 
     config_sriov_switchdev_mode
     require_interfaces $vf_var $rep_var
 
     start_clean_openvswitch
     ovs_create_bridge_vlan_interface
-    ovs_add_port_to_switch $OVN_PF_BRIDGE $NIC
+    ovs_add_port_to_switch $OVN_PF_BRIDGE $NIC "$port_extra_args"
     ovn_config_mtu $NIC $OVN_PF_BRIDGE $OVN_VLAN_INTERFACE
     ip addr add $ovn_controller_ip/24 dev $OVN_VLAN_INTERFACE
 
@@ -274,13 +285,14 @@ function config_ovn_vf_lag_vlan() {
     local vf_var=$3
     local rep_var=$4
     local mode=${5:-"802.3ad"}
+    local port_extra_args=$(get_dpdk_pf_port_extra_args)
 
     config_vf_lag $mode
     require_interfaces $vf_var $rep_var
 
     start_clean_openvswitch
     ovs_create_bridge_vlan_interface
-    ovs_add_port_to_switch $OVN_PF_BRIDGE $OVN_BOND
+    ovs_add_port_to_switch $OVN_PF_BRIDGE $OVN_BOND "$port_extra_args"
     ovn_config_mtu $NIC $NIC2 $OVN_BOND $OVN_PF_BRIDGE $OVN_VLAN_INTERFACE
     ip addr add $ovn_controller_ip/24 dev $OVN_VLAN_INTERFACE
 
