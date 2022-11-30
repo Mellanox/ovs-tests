@@ -9,6 +9,7 @@ my_dir="$(dirname "$0")"
 
 require_mlxdump
 
+config_sriov
 enable_switchdev
 require_interfaces REP
 unbind_vfs
