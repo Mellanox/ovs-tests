@@ -14,6 +14,14 @@ my_dir="$(dirname "$0")"
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
+function test_cpu_number() {
+    if [[ `grep -c ^processor /proc/cpuinfo` -lt 8 ]]; then
+        fail "Test requires at least 8 cpus"
+    fi
+}
+
+test_cpu_number
+
 function cleanup() {
     deconfig_test
     remove_sfs
