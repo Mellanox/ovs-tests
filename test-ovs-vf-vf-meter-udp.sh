@@ -16,6 +16,9 @@ BR=br-ovs
 RATE=200
 TMPFILE=/tmp/iperf.log
 
+METER_BPS=1
+METER_PPS=2
+
 function cleanup() {
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
@@ -26,11 +29,19 @@ function config_ovs() {
     ovs-vsctl add-port $BR $REP
     ovs-vsctl add-port $BR $REP2
 
+    ovs-ofctl -O OpenFlow13 add-meter $BR meter=${METER_BPS},kbps,burst,band=type=drop,rate=$((RATE*1000)),burst_size=64
+
+    # from tcpdump, the ip len is 1442 when specifying UDP len by "-l 1400" in below iperf command */
+    ovs-ofctl -O OpenFlow13 add-meter $BR meter=${METER_PPS},pktps,band=type=drop,rate=$((RATE*1000*1000/8/1442))
+}
+
+function config_ovs_flows() {
+    local meter_id=$1
+
     ovs-ofctl del-flows $BR
     ovs-ofctl -O OpenFlow13 add-flow $BR "arp,actions=normal"
     ovs-ofctl -O OpenFlow13 add-flow $BR "icmp,actions=normal"
-    ovs-ofctl -O OpenFlow13 add-meter $BR meter=1,kbps,burst,band=type=drop,rate=$((RATE*1000)),burst_size=64
-    ovs-ofctl -O OpenFlow13 add-flow $BR "ip,nw_src=${IP2},actions=meter:1,output:${REP}"
+    ovs-ofctl -O OpenFlow13 add-flow $BR "ip,nw_src=${IP2},actions=meter:${meter_id},output:${REP}"
     ovs-ofctl -O OpenFlow13 add-flow $BR "ip,nw_src=${IP1},actions=output:${REP2}"
 
     ovs-ofctl dump-flows $BR -O OpenFlow13 --color
@@ -84,6 +95,11 @@ config_vf ns1 $VF2 $REP2 $IP2
 
 start_clean_openvswitch
 config_ovs
+
+config_ovs_flows $METER_BPS
+test_udp
+
+config_ovs_flows $METER_PPS
 test_udp
 
 ovs_clear_bridges
