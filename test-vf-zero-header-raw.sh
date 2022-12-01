@@ -32,7 +32,7 @@ function run_test() {
     # verify we have packet with fragment offset > 0
     timeout 5 tcpdump -nnvei $REP -c 1 ether "dst $FAKE_MAC and ip[6:2] & 0x1fff > 0" &
     sleep 2
-    tdpid=$!
+    local tdpid=$!
 
     send_pkt $pkt
 
