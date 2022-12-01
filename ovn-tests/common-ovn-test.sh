@@ -290,13 +290,19 @@ function config_ovn_vf_lag_vlan() {
     local rep_var=$4
     local mode=${5:-"802.3ad"}
     local port_extra_args=$(get_dpdk_pf_port_extra_args)
+    local dev=$OVN_BOND
 
     config_vf_lag $mode
     require_interfaces $vf_var $rep_var
 
     start_clean_openvswitch
     ovs_create_bridge_vlan_interface
-    ovs_add_port_to_switch $OVN_PF_BRIDGE $OVN_BOND "$port_extra_args"
+
+    if [ "$DPDK" == 1 ]; then
+        dev="$NIC"
+    fi
+
+    ovs_add_port_to_switch $OVN_PF_BRIDGE $dev "$port_extra_args"
     ovn_config_mtu $NIC $NIC2 $OVN_BOND $OVN_PF_BRIDGE $OVN_VLAN_INTERFACE
     ip addr add $ovn_controller_ip/24 dev $OVN_VLAN_INTERFACE
 
