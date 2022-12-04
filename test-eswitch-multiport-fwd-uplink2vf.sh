@@ -76,7 +76,8 @@ function start_tcpdump() {
 function stop_tcpdump() {
     title "stop tcpdump"
     kill $tdpid 2>/dev/null
-    lines=$(tcpdump -r $tdpcap | wc -l)
+    wait
+    local lines=$(tcpdump -r $tdpcap | wc -l)
     echo lines $lines
     if (( lines != 0 )); then
         err "traffic not offloaded"
