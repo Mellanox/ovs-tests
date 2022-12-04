@@ -11,7 +11,7 @@ require_remote_server
 local_ip=6.6.6.5
 remote_ip=6.6.6.6
 
-function get_mac {
+function get_mac() {
     cat /sys/class/net/$1/address
 }
 
@@ -22,7 +22,7 @@ function cleanup() {
 
 trap cleanup EXIT
 
-function config_remote {
+function config_remote() {
     local vfmaic=$1
     on_remote "
         ip link set up dev $REMOTE_NIC
@@ -36,7 +36,7 @@ function remote_cleanup() {
     on_remote "ip a flush dev $REMOTE_NIC2"
 }
 
-function config_local {
+function config_local() {
     enable_lag_resource_allocation_mode
     set_lag_port_select_mode "multiport_esw"
     config_sriov 2
@@ -54,7 +54,7 @@ function config_local {
     tc_filter add dev $REP prot ip root flower dst_ip $remote_ip action mirred egress redirect dev $NIC2
 }
 
-function local_cleanup {
+function local_cleanup() {
     reset_tc $NIC $NIC2 $REP
     restore_lag_port_select_mode
     restore_lag_resource_allocation_mode
