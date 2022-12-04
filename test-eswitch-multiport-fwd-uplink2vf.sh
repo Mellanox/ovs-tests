@@ -23,13 +23,11 @@ function cleanup() {
 trap cleanup EXIT
 
 function config_remote() {
-    local vfmac=$1
-    on_remote "
-        ip link set up dev $REMOTE_NIC
-        ip link set up dev $REMOTE_NIC2
-        ip neigh add $local_ip lladdr $vfmac dev $REMOTE_NIC2
-        ip a add ${remote_ip}/24 dev $REMOTE_NIC2
-    "
+    local vfmac=$(get_mac $VF)
+    on_remote "ip link set up dev $REMOTE_NIC
+               ip link set up dev $REMOTE_NIC2
+               ip neigh add $local_ip lladdr $vfmac dev $REMOTE_NIC2
+               ip a add ${remote_ip}/24 dev $REMOTE_NIC2"
 }
 
 function remote_cleanup() {
@@ -50,8 +48,13 @@ function config_local() {
     bind_vfs
     ip link set up dev $VF
     ip a add ${local_ip}/24 dev $VF
-    tc_filter add dev $NIC2 prot ip root flower dst_ip $local_ip action mirred egress redirect dev $REP
-    tc_filter add dev $REP prot ip root flower dst_ip $remote_ip action mirred egress redirect dev $NIC2
+
+    local remote_mac=$(on_remote cat /sys/class/net/$REMOTE_NIC2/address)
+    ip n add $remote_ip lladdr $remote_mac dev $VF
+
+    title "config rules"
+    tc_filter add dev $NIC2 prot ip ingress flower skip_sw dst_ip $local_ip action mirred egress redirect dev $REP
+    tc_filter add dev $REP prot ip ingress flower skip_sw dst_ip $remote_ip action mirred egress redirect dev $NIC2
 }
 
 function local_cleanup() {
@@ -63,6 +66,7 @@ function local_cleanup() {
 }
 
 function start_tcpdump() {
+    title "start tcpdump"
     tdpcap=/tmp/$$.pcap
     tcpdump -ni $NIC2 -c 1 -w $tdpcap icmp &
     tdpid=$!
@@ -70,6 +74,7 @@ function start_tcpdump() {
 }
 
 function stop_tcpdump() {
+    title "stop tcpdump"
     kill $tdpid 2>/dev/null
     lines=$(tcpdump -r $tdpcap | wc -l)
     echo lines $lines
@@ -80,11 +85,9 @@ function stop_tcpdump() {
 }
 
 config_local
-vfmac=$(get_mac $VF)
-config_remote $vfmac
-remote_mac=$(on_remote cat /sys/class/net/$REMOTE_NIC2/address)
-ip n add $remote_ip lladdr $remote_mac dev $VF
+config_remote
 start_tcpdump
+title "test ping"
 ping -c 2 $remote_ip || err "ping failed"
 stop_tcpdump
 cleanup
