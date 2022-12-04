@@ -37,23 +37,6 @@ function local_cleanup() {
     config_sriov 0 $NIC2
 }
 
-function start_tcpdump() {
-    tdpcap=/tmp/$$.pcap
-    tcpdump -ni $NIC2 -c 1 -w $tdpcap icmp &
-    tdpid=$!
-    sleep 1
-}
-
-function stop_tcpdump() {
-    kill $tdpid 2>/dev/null
-    lines=$(tcpdump -r $tdpcap | wc -l)
-    echo lines $lines
-    if (( lines != 0 )); then
-        err "traffic not offloaded"
-    fi
-    rm $tdpcap
-}
-
 run_test
 cleanup
 trap - EXIT
