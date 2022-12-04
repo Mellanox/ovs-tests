@@ -14,7 +14,7 @@ function cleanup() {
 
 trap cleanup EXIT
 
-function run_test {
+function run_test() {
     enable_lag_resource_allocation_mode
     set_lag_port_select_mode "multiport_esw"
     config_sriov 2
@@ -22,14 +22,14 @@ function run_test {
     enable_switchdev
     enable_switchdev $NIC2
     reset_tc $REP $NIC $NIC2
-    REP1=$(get_rep 1 $NIC)
-    ip link set up dev $REP
     ip link set up dev $NIC
     ip link set up dev $NIC2
-    tc_filter add dev $REP prot all root flower skip_sw action mirred egress redirect dev $NIC action mirred egress redirect dev $REP1
+    ip link set up dev $REP
+    ip link set up dev $REP2
+    tc_filter add dev $REP prot all root flower skip_sw action mirred egress redirect dev $NIC action mirred egress redirect dev $REP2
 }
 
-function local_cleanup {
+function local_cleanup() {
     reset_tc $NIC $NIC2 $REP
     restore_lag_port_select_mode
     restore_lag_resource_allocation_mode
