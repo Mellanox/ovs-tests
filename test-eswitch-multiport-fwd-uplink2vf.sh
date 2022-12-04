@@ -47,7 +47,7 @@ function config_local() {
     ip link set up dev $REP
     ip link set up dev $NIC
     ip link set up dev $NIC2
-    bind_vfs $NIC0
+    bind_vfs
     ip link set up dev $VF
     ip a add ${local_ip}/24 dev $VF
     tc_filter add dev $NIC2 prot ip root flower dst_ip $local_ip action mirred egress redirect dev $REP
