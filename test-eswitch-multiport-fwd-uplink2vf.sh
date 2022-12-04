@@ -23,7 +23,7 @@ function cleanup() {
 trap cleanup EXIT
 
 function config_remote() {
-    local vfmaic=$1
+    local vfmac=$1
     on_remote "
         ip link set up dev $REMOTE_NIC
         ip link set up dev $REMOTE_NIC2
