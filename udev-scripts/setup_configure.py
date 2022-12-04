@@ -155,7 +155,6 @@ class SetupConfigure(object):
             if self.args.bluefield:
                 self.read_cloud_player_bf_ips()
                 self.Load_BF_Info()
-                self.Configure_BF_OVS()
             else:
                 self.ConfigureSteeringMode()
                 self.UnbindVFs()
@@ -163,10 +162,11 @@ class SetupConfigure(object):
                 self.BindVFs()
                 self.LoadVFInfo()
                 self.LoadRepInfo()
-                self.ConfigureOVS()
 
             if self.args.dpdk or self.args.vdpa:
                 self.configure_hugepages()
+
+            self.ConfigureOVS()
 
             if self.args.second_server:
                 return
@@ -488,13 +488,15 @@ class SetupConfigure(object):
         runcmd_output("systemctl restart %s" % self.ovs_service)
 
     def ConfigureOVS(self):
-        self.Logger.info("Setting [hw-offload=true] configuration to OVS")
+        self.Logger.info("Configure OVS hw-offload=true")
+        if self.args.bluefield:
+            self.Configure_BF_OVS()
+            return
         self.RestartOVS()
         runcmd_output('ovs-vsctl set Open_vSwitch . other_config:hw-offload=true')
         self.RestartOVS()
 
     def Configure_BF_OVS(self):
-        self.Logger.info("Setting [hw-offload=true] configuration to BF OVS")
         runcmd_output_remote(self.bf_ip,
                              "systemctl restart openvswitch-switch &&"
                              "ovs-vsctl set Open_vSwitch . other_config:hw-offload=true &&"
