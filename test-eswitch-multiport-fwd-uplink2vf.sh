@@ -47,6 +47,9 @@ function config_local() {
     ip link set up dev $NIC2
     bind_vfs
     ip link set up dev $VF
+}
+
+function config_test() {
     ip a add ${local_ip}/24 dev $VF
 
     local remote_mac=$(on_remote cat /sys/class/net/$REMOTE_NIC2/address)
@@ -85,12 +88,17 @@ function stop_tcpdump() {
     rm $tdpcap
 }
 
+function test_ping() {
+    start_tcpdump
+    title "test ping"
+    ping -c 2 $remote_ip || err "ping failed"
+    stop_tcpdump
+}
+
 config_local
 config_remote
-start_tcpdump
-title "test ping"
-ping -c 2 $remote_ip || err "ping failed"
-stop_tcpdump
-cleanup
+config_test
+test_ping
 trap - EXIT
+cleanup
 test_done
