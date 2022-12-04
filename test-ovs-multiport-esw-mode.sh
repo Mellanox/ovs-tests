@@ -7,7 +7,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
+min_nic_cx6dx
 require_remote_server
 
 IP="7.7.7.1"
@@ -17,11 +17,11 @@ MAC="e4:11:22:11:4a:51"
 function cleanup() {
     title "Cleanup"
     ip netns del ns0 &> /dev/null
-    set_port_state_up &>/dev/null
+    set_port_state_up &> /dev/null
     restore_lag_port_select_mode
-    config_sriov 2
+    restore_lag_resource_allocation_mode
+    enable_legacy $NIC2
     config_sriov 0 $NIC2
-    enable_switchdev
     clear_remote_bonding
 }
 
@@ -33,11 +33,12 @@ function config_remote() {
     title "Config remote"
     remote_disable_sriov
     config_remote_bonding
-    on_remote ip a add $REMOTE/24 dev bond0
+    on_remote "ip a add $REMOTE/24 dev bond0"
 }
 
 function config() {
     title "Config"
+    enable_lag_resource_allocation_mode
     set_lag_port_select_mode "multiport_esw"
     config_sriov 2
     config_sriov 2 $NIC2
@@ -58,14 +59,6 @@ function set_interfaces_up() {
     ip link set $NIC2 up
     ip link set $VF up
     wait_for_linkup $NIC
-}
-
-function config_fw() {
-    local value=$1
-    local opposite=$((1-$value))
-    title "Configuring FW"
-    fw_config LAG_RESOURCE_ALLOCATION=$value KEEP_ETH_LINK_UP_P1=$opposite || fail "Failed to configure FW"
-    fw_reset
 }
 
 function config_ovs() {
@@ -110,7 +103,7 @@ function run_traffic() {
     timeout $((t-1)) tcpdump -qnnei $REP -c 15 'icmp' &
     pid_offload=$!
 
-    on_remote timeout $t tcpdump -qnnei bond0 -c 5 'icmp' &
+    on_remote "timeout $t tcpdump -qnnei bond0 -c 5 'icmp'" &
     pid_remote=$!
 
     current_sending_dev=$(get_sending_dev)
@@ -125,7 +118,7 @@ function run_traffic() {
     new_sending_dev=$(get_sending_dev)
     title "Current interface that send packets $new_sending_dev"
 
-    on_remote timeout $t tcpdump -qnnei bond0 -c 5 'icmp' &
+    on_remote "timeout $t tcpdump -qnnei bond0 -c 5 'icmp'" &
     pid_remote=$!
 
     title "Verify traffic on remote port1 down"
@@ -153,10 +146,8 @@ function run_traffic() {
 
 trap cleanup EXIT
 
-config_fw 1
 config
 run_traffic
-config_fw 0
 trap - EXIT
 cleanup
 test_done
