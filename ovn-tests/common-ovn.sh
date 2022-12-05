@@ -197,6 +197,13 @@ function send_background_traffic() {
     local logfile=$5
 
     if [[ $traffic_type == "icmp" ]]; then
+        if [ "$DPDK" == 1 ]; then
+            # WA some tests require initial traffic + flush to start working. RM #3287703.
+            echo "init ping"
+            ip netns exec $ns ping -w 1 $dst_ip >$logfile
+            ovs_flush_rules
+            echo "start real ping"
+        fi
         ip netns exec $ns ping -w $timeout -i 0.1 $dst_ip >$logfile &
     elif [[ $traffic_type == "icmp6" ]]; then
         ip netns exec $ns ping -6 -w $timeout -i 0.1 $dst_ip >$logfile &
