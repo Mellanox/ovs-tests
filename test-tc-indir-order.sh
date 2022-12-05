@@ -11,8 +11,7 @@ my_dir="$(dirname "$0")"
 
 trap cleanup EXIT
 
-function cleanup
-{
+function cleanup() {
     ip link del dev vxlan0 > /dev/null 2>&1
 }
 

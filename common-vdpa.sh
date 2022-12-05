@@ -1,10 +1,7 @@
-#! /bin/bash
-
 # find the vitio netdevice associated with a vdpa device
 # @1 - the vdpa device name
 # return: the netdevice or epmty string if not found
-function vdpa_find_netdev
-{
+function vdpa_find_netdev() {
     local vdpa=$1
     local ndevs=$(ls /sys/class/net/ 2>/dev/null)
 
@@ -17,8 +14,7 @@ function vdpa_find_netdev
     return 1
 }
 
-function vdpa_wait_mgtdev
-{
+function vdpa_wait_mgtdev() {
     local mgtdev=$1
     local i
 
@@ -30,4 +26,3 @@ function vdpa_wait_mgtdev
     done
     fail "$mgtdev not seen on management bus"
 }
-

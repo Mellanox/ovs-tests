@@ -24,8 +24,7 @@ SVID=1000
 
 tmpfile=/tmp/$$.pcap
 
-function cleanup
-{
+function cleanup() {
     ip netns del $NS1 &> /dev/null
     ip netns del $NS2 &> /dev/null
     sleep 1
@@ -37,8 +36,7 @@ function cleanup
     rm -f $tmpfile
 }
 
-function create_ns_vlan
-{
+function create_ns_vlan() {
     local link=$1 vid=$2 ip=$3 vlan=vlan$2 ns=$4
 
     ip netns exec $ns ip link set $link up
@@ -47,8 +45,7 @@ function create_ns_vlan
     ip netns exec $ns ip addr add $ip/24 dev $vlan
 }
 
-function setup
-{
+function setup() {
     config_sriov
     enable_switchdev
     bind_vfs
@@ -86,8 +83,7 @@ function setup
     ovs-vsctl add-port $BR2 $REP2 $tag
 }
 
-function do_test
-{
+function do_test() {
     title "Test OVS QinQ with qinq-ethtype=802.1ad"
     rm -f $tmpfile
     timeout 5 tcpdump -enn -i $VETH1 -w $tmpfile &

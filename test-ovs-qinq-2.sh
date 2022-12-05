@@ -28,8 +28,7 @@ SVID=1000
 
 tmpfile=/tmp/$$.pcap
 
-function cleanup
-{
+function cleanup() {
     ip netns del $NS1 &> /dev/null
     ip netns del $NS2 &> /dev/null
     sleep 1
@@ -41,16 +40,14 @@ function cleanup
     rm -f $tmpfile
 }
 
-function create_ip
-{
+function create_ip() {
     local link=$1 ip=$2 ns=$3
 
     ip netns exec $ns ip link set $link up
     ip netns exec $ns ip addr add $ip/24 dev $link
 }
 
-function setup
-{
+function setup() {
     config_sriov
     enable_switchdev
     bind_vfs
@@ -101,8 +98,7 @@ function setup
     ovs-vsctl add-port $BR22 $VETH2
 }
 
-function add_rules
-{
+function add_rules() {
     MAC1=$(ip netns exec $NS1 cat /sys/class/net/$VF1/address)
     MAC2=$(ip netns exec $NS2 cat /sys/class/net/$VF2/address)
 
@@ -122,8 +118,7 @@ function add_rules
     ovs-ofctl -O Openflow13 add-flow $BR21 in_port=$REP2,ipv4,actions=push_vlan:0x8100,mod_vlan_vid=$CVID,output=patch21
 }
 
-function do_test
-{
+function do_test() {
     timeout 5 tcpdump -enn -i $VETH1 -w $tmpfile &
     pid=$!
     ip netns exec $NS1 ping 1.1.1.2 -i 0.5 -c 10 && success || err
