@@ -45,10 +45,10 @@ function config() {
 
 function background_update() {
     for i in `seq 10 50` ; do
-	for j in `seq 10 99` ; do
-		ip n replace ${remote_ip} dev veth0 lladdr e4:22:33:44:${j}:${i}
-		sleep 0.005
-	done
+        for j in `seq 10 99` ; do
+            ip n replace ${remote_ip} dev veth0 lladdr e4:22:33:44:${j}:${i}
+            sleep 0.005
+        done
     done
 }
 
@@ -67,13 +67,13 @@ function neigh_update_test() {
     echo "running.."
     # 1000 iterations as sometimes it takes a long time to crash.
     for i in `seq 1000`; do
-	tc_filter add dev $REP protocol ip parent ffff: prio 1 \
-		flower dst_mac e4:22:33:44:55:66 skip_sw \
-		action tunnel_key set \
-		id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
-		action mirred egress redirect dev vxlan1
-	sleep 0.02
-	tc filter del dev $REP prio 1 ingress
+        tc_filter add dev $REP protocol ip parent ffff: prio 1 \
+            flower dst_mac e4:22:33:44:55:66 skip_sw \
+            action tunnel_key set \
+            id $id src_ip ${local_ip} dst_ip ${remote_ip} dst_port ${dst_port} \
+            action mirred egress redirect dev vxlan1
+        sleep 0.02
+        tc filter del dev $REP prio 1 ingress
     done
     echo "done"
     killpid

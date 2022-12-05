@@ -82,16 +82,16 @@ function setup
     ovs-vsctl add-br $BR21
     ovs-vsctl add-br $BR22
 
-    ovs-vsctl				\
-        -- add-port $BR11 patch11	\
+    ovs-vsctl \
+        -- add-port $BR11 patch11 \
         -- set interface patch11 type=patch options:peer=patch12  \
-        -- add-port $BR12 patch12	\
+        -- add-port $BR12 patch12 \
         -- set interface patch12 type=patch options:peer=patch11  \
 
-    ovs-vsctl				\
-        -- add-port $BR21 patch21	\
+    ovs-vsctl \
+        -- add-port $BR21 patch21 \
         -- set interface patch21 type=patch options:peer=patch22  \
-        -- add-port $BR22 patch22	\
+        -- add-port $BR22 patch22 \
         -- set interface patch22 type=patch options:peer=patch21  \
 
     ovs-vsctl add-port $BR11 $REP

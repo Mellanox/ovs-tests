@@ -70,11 +70,11 @@ function config_ovs() {
     ovs-vsctl add-port br-phy $NIC
     ovs-vsctl add-br br-int
     ovs-vsctl add-port br-int $REP
-    ovs-vsctl                           \
-	    -- add-port br-int br-int-patch \
-	    -- set interface br-int-patch type=patch options:peer=br-phy-patch  \
-	    -- add-port br-phy br-phy-patch       \
-	    -- set interface br-phy-patch type=patch options:peer=br-int-patch  \
+    ovs-vsctl \
+        -- add-port br-int br-int-patch \
+        -- set interface br-int-patch type=patch options:peer=br-phy-patch  \
+        -- add-port br-phy br-phy-patch \
+        -- set interface br-phy-patch type=patch options:peer=br-int-patch  \
 
     # Setting the internal port as the tunnel underlay interface #
     ifconfig br-phy $LOCAL_TUN/24 up
@@ -89,9 +89,8 @@ function config_ovs() {
             options:local_ip=$LOCAL_TUN options:remote_ip=$REMOTE_IP \
             options:key=$VXLAN_ID options:dst_port=4789
     ovs-vsctl -- --id=@p1 get port $REP -- --id=@p2 get port vxlan2 -- \
-	         --id=@m create mirror name=m1 select_src_port=@p1 select_dst_port=@p1 \
-                 output-port=@p2 -- set bridge br-int mirrors=@m
-
+              --id=@m create mirror name=m1 select_src_port=@p1 select_dst_port=@p1 \
+              output-port=@p2 -- set bridge br-int mirrors=@m
 }
 
 function config_remote() {

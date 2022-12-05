@@ -146,8 +146,8 @@ function verify() {
 
     local rate=`cat $TMPFILE | grep "\[SUM\]" | grep "Bytes/sec" | awk '{print $(NF-5)}'`
     if [ -z "$rate" ]; then
-	    err "Cannot find rate"
-	    return 1
+        err "Cannot find rate"
+        return 1
     fi
     rate=`bc <<< 8*$rate/1000/1000`
 

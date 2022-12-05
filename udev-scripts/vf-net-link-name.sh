@@ -14,8 +14,8 @@ fi
 
 is_bf=`lspci -s 00:00.0 2> /dev/null | grep -wq "PCI bridge: Mellanox Technologies" && echo 1 || echo 0`
 if [ $is_bf -eq 1 ]; then
-	echo NAME=`echo ${1} | sed -e "s/\(pf[[:digit:]]\+\)$/\1hpf/"`
-	exit 0
+    echo NAME=`echo ${1} | sed -e "s/\(pf[[:digit:]]\+\)$/\1hpf/"`
+    exit 0
 fi
 
 # for pf and uplink rep fall to slot or path.
@@ -28,18 +28,18 @@ if [ "$ID_NET_DRIVER" == "mlx5e_rep" ]; then
 fi
 
 if [ "$skip" == "0" ]; then
-	if [ -n "$ID_NET_NAME_SLOT" ]; then
-	    NAME="${ID_NET_NAME_SLOT%%np[[:digit:]]}"
-	elif [ -n "$ID_NET_NAME_PATH" ]; then
-	    NAME="${ID_NET_NAME_PATH%%np[[:digit:]]}"
-	fi
+    if [ -n "$ID_NET_NAME_SLOT" ]; then
+        NAME="${ID_NET_NAME_SLOT%%np[[:digit:]]}"
+    elif [ -n "$ID_NET_NAME_PATH" ]; then
+        NAME="${ID_NET_NAME_PATH%%np[[:digit:]]}"
+    fi
 
-	if [ -n "$NAME" ]; then
-	    NAME=`echo $NAME | sed 's/npf.vf/_/'`
-	    NAME=`echo $NAME | sed 's/np.v/v/'`
-	    echo NAME=$NAME
-	    exit
-	fi
+    if [ -n "$NAME" ]; then
+        NAME=`echo $NAME | sed 's/npf.vf/_/'`
+        NAME=`echo $NAME | sed 's/np.v/v/'`
+        echo NAME=$NAME
+        exit
+    fi
 fi
 
 if [ -z "$SWID" ]; then
