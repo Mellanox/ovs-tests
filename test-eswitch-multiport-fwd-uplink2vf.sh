@@ -99,6 +99,7 @@ function test_ping() {
     ping -c 2 $remote_ip || err "ping failed"
     stop_tcpdump
     cleanup_remote $nic
+    reset_tc $nic $REP
 }
 
 config_local
