@@ -67,6 +67,8 @@ function run() {
         action mirred egress mirror dev $mirror pipe \
         action mirred egress redirect dev $REP
 
+    fail_if_err
+
     echo $REP
     tc filter show dev $REP ingress
 
