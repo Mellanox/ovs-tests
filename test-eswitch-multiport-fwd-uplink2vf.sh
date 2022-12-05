@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Verify that we can add rule that forwards traffic from uplink port to a VF of any PF.
+# Verify that we can add rule that forwards traffic from VF to uplink1 and uplink2.
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
@@ -16,22 +16,22 @@ function get_mac() {
 }
 
 function cleanup() {
-    remote_cleanup
     local_cleanup
 }
 
 trap cleanup EXIT
 
 function config_remote() {
+    local nic=$1
     local vfmac=$(get_mac $VF)
-    on_remote "ip link set up dev $REMOTE_NIC
-               ip link set up dev $REMOTE_NIC2
-               ip neigh add $local_ip lladdr $vfmac dev $REMOTE_NIC2
-               ip a add ${remote_ip}/24 dev $REMOTE_NIC2"
+    on_remote "ip link set up dev $nic
+               ip neigh r $local_ip dev $nic lladdr $vfmac
+               ip a r ${remote_ip}/24 dev $nic"
 }
 
-function remote_cleanup() {
-    on_remote "ip a flush dev $REMOTE_NIC2"
+function cleanup_remote() {
+    local nic=$1
+    on_remote "ip a flush dev $nic"
 }
 
 function config_local() {
@@ -42,22 +42,12 @@ function config_local() {
     enable_switchdev
     enable_switchdev $NIC2
     reset_tc $REP $NIC $NIC2
+
     ip link set up dev $REP
     ip link set up dev $NIC
     ip link set up dev $NIC2
     bind_vfs
     ip link set up dev $VF
-}
-
-function config_test() {
-    ip a add ${local_ip}/24 dev $VF
-
-    local remote_mac=$(on_remote cat /sys/class/net/$REMOTE_NIC2/address)
-    ip n add $remote_ip lladdr $remote_mac dev $VF
-
-    title "config rules"
-    tc_filter add dev $NIC2 prot ip ingress flower skip_sw dst_ip $local_ip action mirred egress redirect dev $REP
-    tc_filter add dev $REP prot ip ingress flower skip_sw dst_ip $remote_ip action mirred egress redirect dev $NIC2
 }
 
 function local_cleanup() {
@@ -88,17 +78,32 @@ function stop_tcpdump() {
     rm $tdpcap
 }
 
+function config_test() {
+    local nic=$1
+
+    config_remote $nic
+    ip a r ${local_ip}/24 dev $VF
+    local remote_mac=$(on_remote cat /sys/class/net/$nic/address)
+    ip neigh r $remote_ip lladdr $remote_mac dev $VF
+
+    title "config rules"
+    tc_filter add dev $nic prot ip ingress flower skip_sw dst_ip $local_ip action mirred egress redirect dev $REP
+    tc_filter add dev $REP prot ip ingress flower skip_sw dst_ip $remote_ip action mirred egress redirect dev $nic
+}
+
 function test_ping() {
+    local nic=$1
+    config_test $nic
     start_tcpdump
-    title "test ping"
+    title "test ping $nic"
     ping -c 2 $remote_ip || err "ping failed"
     stop_tcpdump
+    cleanup_remote $nic
 }
 
 config_local
-config_remote
-config_test
-test_ping
+test_ping $NIC
+test_ping $NIC2
 trap - EXIT
 cleanup
 test_done
