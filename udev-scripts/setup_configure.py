@@ -172,7 +172,6 @@ class SetupConfigure(object):
                 return
 
             self.CreateConfFile()
-            self.WA_add_del_ns()
             self.print_notes()
 
         except Exception:
@@ -218,10 +217,6 @@ class SetupConfigure(object):
                     raise RuntimeError("There should be only one PF rep for each host PF")
 
                 self.arm[pf_index]['pf_rep'] = pf_rep
-
-    def WA_add_del_ns(self):
-        self.Logger.info("WA add/del ns0 to reproduce possible circular locking dependency.")
-        runcmd2("ip netns add ns0 && ip netns del ns0")
 
     def ReloadModules(self):
         self.Logger.info("Reload modules")
