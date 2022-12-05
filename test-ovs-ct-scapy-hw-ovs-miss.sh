@@ -98,19 +98,19 @@ function scpyudp() {
     # This will not change the test methodology of the test for other ofed version or upstream.
     sleep 2
 
-    #------------------ DATA --->  --------------------
-
-    echo "packet, orig"
-    run_python_ns ns0 "from scapy.all import *; send(IP(src=\"$IP1\",dst=\"$IP2\")/UDP(sport=$sport,dport=$dport)/\"C1\")"
-    echo "packet, orig"
-    run_python_ns ns0 "from scapy.all import *; send(IP(src=\"$IP1\",dst=\"$IP2\")/UDP(sport=$sport,dport=$dport)/\"C2\")"
-
     #------------------ DATA <---  --------------------
 
     echo "packet, reply"
     run_python_ns ns1 "from scapy.all import *; send(IP(src=\"$IP2\",dst=\"$IP1\")/UDP(sport=$dport,dport=$sport)/\"D1\")"
     echo "packet, reply"
     run_python_ns ns1 "from scapy.all import *; send(IP(src=\"$IP2\",dst=\"$IP1\")/UDP(sport=$dport,dport=$sport)/\"D2\")"
+
+    #------------------ DATA --->  --------------------
+
+    echo "packet, orig"
+    run_python_ns ns0 "from scapy.all import *; send(IP(src=\"$IP1\",dst=\"$IP2\")/UDP(sport=$sport,dport=$dport)/\"C1\")"
+    echo "packet, orig"
+    run_python_ns ns0 "from scapy.all import *; send(IP(src=\"$IP1\",dst=\"$IP2\")/UDP(sport=$sport,dport=$dport)/\"C2\")"
 
     #------------------ END ---------------------------
 }
