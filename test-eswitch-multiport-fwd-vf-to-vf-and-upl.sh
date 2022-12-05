@@ -26,7 +26,7 @@ function run_test() {
     ip link set up dev $NIC2
     ip link set up dev $REP
     ip link set up dev $REP2
-    tc_filter add dev $REP prot all root flower skip_sw action mirred egress redirect dev $NIC action mirred egress redirect dev $REP2
+    tc_filter add dev $REP prot all ingress flower skip_sw action mirred egress redirect dev $NIC action mirred egress redirect dev $REP2
 }
 
 function local_cleanup() {
