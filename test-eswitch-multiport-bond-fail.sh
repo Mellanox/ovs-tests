@@ -13,9 +13,9 @@ require_module bonding
 
 function config() {
     enable_lag_resource_allocation_mode
+    set_lag_port_select_mode "multiport_esw"
     config_sriov 2
     config_sriov 2 $NIC2
-    set_lag_port_select_mode "multiport_esw"
     enable_switchdev
     enable_switchdev $NIC2
 }
