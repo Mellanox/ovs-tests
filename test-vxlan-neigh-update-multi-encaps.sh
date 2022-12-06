@@ -2,7 +2,8 @@
 #
 # Test vxlan neigh update in parallel to rule add
 #
-# Scrum Task #3271508: deadlock with multiple encapsulations
+# Bug SW #3271508: deadlock with multiple encapsulations
+# Bug SW #3277131: [Upstream] Timeout adding rule with multiple encapsulations
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
