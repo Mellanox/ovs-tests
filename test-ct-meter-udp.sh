@@ -89,7 +89,7 @@ function run() {
     sleep 0.5
     ip netns exec ns0 timeout $((t+1)) iperf3 -t $t -c $IP2 -fm -u -b 2G > $TMPFILE &
 
-    sleep 2
+    sleep 2.5
     pidof iperf3 &>/dev/null || err "iperf3 failed"
 
     echo "sniff packets on $REP"
