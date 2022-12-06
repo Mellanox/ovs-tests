@@ -44,6 +44,10 @@ function config_test() {
     ovn_config_interface_namespace $CLIENT_VF $CLIENT_REP $CLIENT_NS $CLIENT_PORT $CLIENT_MAC $CLIENT_IPV4 $CLIENT_IPV6 $CLIENT_GATEWAY_IPV4 $CLIENT_GATEWAY_IPV6
 
     on_remote_exec "config_ovn_k8s_pf_ext_server $CLIENT_NODE_IP $SERVER_NODE_IP $SERVER_NODE_IP_MASK $SERVER_NODE_MAC"
+
+    # WA remove the ip on the bridge.
+    # There should be single ovn k8s yaml and config is done with all settings in it.
+    ip addr del $CLIENT_NODE_IP/$CLIENT_NODE_IP_MASK dev $BRIDGE
 }
 
 function run_test() {
