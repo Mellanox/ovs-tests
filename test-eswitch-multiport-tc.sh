@@ -17,9 +17,11 @@ function config() {
     enable_switchdev $NIC2
     REP2=`get_rep 0 $NIC2`
     reset_tc $NIC $REP $NIC2 $REP2
+    enable_esw_multiport
 }
 
 function cleanup() {
+    disable_esw_multiport
     restore_lag_port_select_mode
     restore_lag_resource_allocation_mode
     enable_legacy $NIC2

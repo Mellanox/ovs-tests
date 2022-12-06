@@ -21,6 +21,7 @@ function run_test() {
     config_sriov 2 $NIC2
     enable_switchdev
     enable_switchdev $NIC2
+    enable_esw_multiport
     reset_tc $REP $NIC $NIC2
     ip link set up dev $NIC
     ip link set up dev $NIC2
@@ -31,6 +32,7 @@ function run_test() {
 
 function local_cleanup() {
     reset_tc $NIC $NIC2 $REP
+    disable_esw_multiport
     restore_lag_port_select_mode
     restore_lag_resource_allocation_mode
     enable_legacy $NIC2
