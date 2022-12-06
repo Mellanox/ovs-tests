@@ -390,6 +390,26 @@ function setup_expected_steering_mode() {
     show_current_steering_mode
 }
 
+function enable_esw_multiport() {
+    local nic=$NIC
+    devlink dev param show pci/$PCI name esw_multiport &>/dev/null
+    if [ $? -ne 0 ]; then
+        return
+    fi
+    log "Enable multiport eswitch"
+    devlink dev param set pci/$PCI name esw_multiport value 1 cmode runtime || fail "Failed to enable multiport eswitch"
+}
+
+function disable_esw_multiport() {
+    local nic=$NIC
+    devlink dev param show pci/$PCI name esw_multiport &>/dev/null
+    if [ $? -ne 0 ]; then
+        return
+    fi
+    log "Disable multiport eswitch"
+    devlink dev param set pci/$PCI name esw_multiport value 0 cmode runtime
+}
+
 function is_vf_lag_activated() {
     local rc
     for _ in `seq 10`; do

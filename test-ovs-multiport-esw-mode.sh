@@ -26,6 +26,7 @@ function cleanup() {
     ovs_clear_bridges
     ip netns del ns0 &> /dev/null
     set_port_state_up &> /dev/null
+    disable_esw_multiport
     restore_lag_port_select_mode
     restore_lag_resource_allocation_mode
     keep_link_up 1
@@ -54,6 +55,7 @@ function config() {
     config_sriov 2 $NIC2
     enable_switchdev
     enable_switchdev $NIC2
+    enable_esw_multiport
     bind_vfs $NIC
     bind_vfs $NIC2
     set_interfaces_up
