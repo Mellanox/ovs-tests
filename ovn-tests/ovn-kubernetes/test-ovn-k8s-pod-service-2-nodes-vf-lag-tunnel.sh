@@ -35,6 +35,7 @@ function clean_up_test() {
     ovn_start_clean
     ovn_stop_northd_central
 }
+
 function config_test() {
     ovn_start_northd_central $CLIENT_NODE_IP
     ovn_create_topology

@@ -101,6 +101,7 @@ function read_k8s_topology_pod_service_same_node() {
 
     read_k8s_service
 }
+
 function read_k8s_topology_pod_service_hairpin() {
     CLIENT_SWITCH=$NODE2_SWITCH
     CLIENT_PORT=$NODE2_SWITCH_PORT2
