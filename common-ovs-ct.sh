@@ -50,18 +50,19 @@ function verify_traffic() {
 
     local nic
     declare -A tpids
+    local tcpdump_timeout=$((t-4))
 
     for nic in $have_traffic; do
         if [ -e /sys/class/net/$nic ]; then
-            tcpdump -qnnei $nic -c 30 tcp &
+            timeout $tcpdump_timeout tcpdump -qnnei $nic -c 30 tcp &
         else
-            ip netns exec ns0 timeout $((t-4)) tcpdump -qnnei $nic -c 30 tcp &
+            ip netns exec ns0 timeout $tcpdump_timeout tcpdump -qnnei $nic -c 30 tcp &
         fi
         tpids[$nic]=$!
     done
 
     for nic in $no_traffic; do
-        timeout $((t-4)) tcpdump -qnnei $nic -c 10 tcp &
+        timeout $tcpdump_timeout tcpdump -qnnei $nic -c 10 tcp &
         tpids[$nic]=$!
     done
 
