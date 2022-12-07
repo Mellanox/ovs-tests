@@ -18,7 +18,7 @@ function initial_traffic() {
     # (i.e. restoring reg_0 correctly)
     ip netns exec ns0 iperf3 -s -D
     on_remote timeout -k1 3 iperf3 -c $IP -t 2
-    killall -9 iperf3
+    killall -q iperf3
 }
 
 function start_traffic() {
@@ -50,7 +50,7 @@ function verify_traffic() {
 
     local nic
     declare -A tpids
-    local tcpdump_timeout=$((t-4))
+    local tcpdump_timeout=$((t-5))
 
     for nic in $have_traffic; do
         echo "start sniff on $nic"
@@ -82,8 +82,8 @@ function verify_traffic() {
 }
 
 function kill_traffic() {
-    killall -9 -q iperf3
-    on_remote killall -9 -q iperf3
+    killall -q iperf3
+    on_remote killall -q iperf3
     echo "wait for bgs"
     wait &>/dev/null
 }
