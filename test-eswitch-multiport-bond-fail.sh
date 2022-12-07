@@ -18,12 +18,10 @@ function config() {
     config_sriov 2 $NIC2
     enable_switchdev
     enable_switchdev $NIC2
-    enable_esw_multiport
 }
 
 function cleanup() {
     clear_bonding
-    disable_esw_multiport
     restore_lag_port_select_mode
     restore_lag_resource_allocation_mode
     enable_legacy $NIC2

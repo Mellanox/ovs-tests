@@ -42,7 +42,6 @@ function config_local() {
     enable_switchdev
     enable_switchdev $NIC2
     reset_tc $REP $NIC $NIC2
-    enable_esw_multiport
 
     ip link set up dev $REP
     ip link set up dev $NIC
@@ -53,7 +52,6 @@ function config_local() {
 
 function local_cleanup() {
     reset_tc $NIC $NIC2 $REP
-    disable_esw_multiport
     restore_lag_port_select_mode
     restore_lag_resource_allocation_mode
     enable_legacy $NIC2
