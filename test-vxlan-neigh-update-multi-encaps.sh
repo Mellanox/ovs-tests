@@ -35,7 +35,7 @@ function neigh() {
 function test_tunnel() {
     local ip_src="20.12.11.1"
     local ip_dst="20.12.12.1"
-    local ip_dst2="20.12.13.1"
+    ip_dst2="20.12.13.1"
     local ip_dst3="20.12.14.1"
     local ip_dst4="20.12.15.1"
 
