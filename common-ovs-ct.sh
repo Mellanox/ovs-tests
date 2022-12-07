@@ -53,6 +53,7 @@ function verify_traffic() {
     local tcpdump_timeout=$((t-4))
 
     for nic in $have_traffic; do
+        echo "start sniff on $nic"
         if [ -e /sys/class/net/$nic ]; then
             timeout $tcpdump_timeout tcpdump -qnnei $nic -c 30 tcp &
         else
@@ -62,6 +63,7 @@ function verify_traffic() {
     done
 
     for nic in $no_traffic; do
+        echo "start sniff on $nic"
         timeout $tcpdump_timeout tcpdump -qnnei $nic -c 10 tcp &
         tpids[$nic]=$!
     done
