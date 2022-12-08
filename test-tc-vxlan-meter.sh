@@ -144,7 +144,7 @@ function verify() {
     echo "wait for bgs"
     wait
 
-    local rate=`cat $TMPFILE | grep "\[SUM\]" | grep "Bytes/sec" | awk '{print $(NF-5)}'`
+    local rate=`cat $TMPFILE | grep "SUM.*Bytes/sec" | awk '{match($0, /([0-9]+) Bytes\/sec/, m); print m[1]}'`
     if [ -z "$rate" ]; then
         err "Cannot find rate"
         return 1
