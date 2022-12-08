@@ -81,7 +81,7 @@ function config_ovs() {
     ovs-ofctl add-flow br-int "priority=100,in_port=vxlan0,ip,tcp,actions=ct(table=202,zone=201,nat)"
     ovs-ofctl add-flow br-int "table=202,priority=100,in_port=vxlan0,ip,tcp,ct_state=+est+trk,actions=normal"
     ovs-vsctl -- --id=@p1 get port $REP -- --id=@p2 get port $REP2 -- \
-              --id=@m create mirror name=m1 select_src_port=@p1  \
+              --id=@m create mirror name=m1 select_dst_port=@p1 select_src_port=@p1  \
               output-port=@p2 -- set bridge br-int mirrors=@m
 }
 
