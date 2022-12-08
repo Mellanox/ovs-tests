@@ -1914,7 +1914,9 @@ function verify_rate() {
     local rate=$1
     local expected_rate=$2
 
-    [ -z "$rate" ] && err "Missing rate" && return
+    if [ -z "$rate" ] || [ -z "$expected_rate" ]; then
+        err "Missing rate" && return
+    fi
 
     [ "$rate" -eq "$rate" ] 2>/dev/null
     if [ $? -ne 0 ]; then

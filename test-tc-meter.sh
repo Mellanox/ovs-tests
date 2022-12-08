@@ -65,30 +65,10 @@ function config_police() {
 
 function check_bw() {
     title "Check iperf bandwidth"
-    SUM=`cat $TMPFILE | grep ",-1,0.0-10." | tail -n1`
-    BW=${SUM##*,}
+    local BW=$(cat $TMPFILE | grep -E ",(-1|1|2),0.0-10." | awk -F',' '{sum+=$(NF)} END {print sum}')
+    BW=`bc <<< $BW/1000/1000`
 
-    if [ -z "$SUM" ]; then
-        cat $TMPFILE
-        fail "Missing sum line"
-    fi
-
-    if [ -z "$BW" ]; then
-        fail "Missing bw"
-    fi
-
-    MIN_EXPECTED=$(($RATE*1024*1024*95/100))
-    MAX_EXPECTED=$(($RATE*1024*1024*105/100))
-
-    if (( $BW < $MIN_EXPECTED )); then
-        fail "Expected minimum BW of $MIN_EXPECTED and got $BW"
-    fi
-
-    if (( $BW > $MAX_EXPECTED )); then
-        fail "Expected maximum BW of $MAX_EXPECTED and got $BW"
-    fi
-
-    success
+    verify_rate $BW $RATE
 }
 
 function test_tcp() {
