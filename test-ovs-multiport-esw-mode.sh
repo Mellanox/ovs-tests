@@ -19,6 +19,7 @@ function cleanup() {
     ip netns del ns0 &> /dev/null
     set_port_state_up &> /dev/null
     restore_lag_port_select_mode
+    fw_config KEEP_ETH_LINK_UP_P1=1 || warn "Failed to configure FW"
     restore_lag_resource_allocation_mode
     enable_legacy $NIC2
     config_sriov 0 $NIC2
@@ -38,6 +39,7 @@ function config_remote() {
 
 function config() {
     title "Config"
+    fw_config KEEP_ETH_LINK_UP_P1=0 || fail "Failed to configure FW"
     enable_lag_resource_allocation_mode
     set_lag_port_select_mode "multiport_esw"
     config_sriov 2
