@@ -83,13 +83,13 @@ function configure_macsec_multi_secrets() {
 
     for i in 2 3 4; do
         if [ "$SIDE" == "server" ]; then
-            ip macsec add $MACSEC_IF tx sa $((i-1)) $pn_cmd $PACKET_NUMBER off key "0$i" "$effective_remote_key$i"
+            ip macsec add $MACSEC_IF tx sa $((i-1)) $pn_cmd $PACKET_NUMBER off $SALT $SSCI key "0$i" "$effective_remote_key$i"
 
-            ip macsec add $MACSEC_IF rx sci $RX_SCI sa $((i-1)) $pn_cmd $PACKET_NUMBER on key "0$i" "$effective_local_key$i"
+            ip macsec add $MACSEC_IF rx sci $RX_SCI sa $((i-1)) $pn_cmd $PACKET_NUMBER on $SALT $SSCI_RX key "0$i" "$effective_local_key$i"
         else
-            ip macsec add $MACSEC_IF tx sa $((i-1)) $pn_cmd $PACKET_NUMBER off key "0$i" "$effective_local_key$i"
+            ip macsec add $MACSEC_IF tx sa $((i-1)) $pn_cmd $PACKET_NUMBER off $SALT $SSCI key "0$i" "$effective_local_key$i"
 
-            ip macsec add $MACSEC_IF rx sci $RX_SCI sa $((i-1)) $pn_cmd $PACKET_NUMBER on key "0$i" "$effective_remote_key$i"
+            ip macsec add $MACSEC_IF rx sci $RX_SCI sa $((i-1)) $pn_cmd $PACKET_NUMBER on $SALT $SSCI_RX key "0$i" "$effective_remote_key$i"
         fi
     done
 }
