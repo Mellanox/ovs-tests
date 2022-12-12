@@ -69,19 +69,26 @@ sleep 0.5
 title "Test ping $VM1_IP -> $VM2_IP - expect to pass"
 ping -q -f -w 7 $VM2_IP && success || err "ping failed"
 
+title "dump"
+ovs_dump_tc_flows --names
+tc -s filter show dev $REP ingress
+
 title "Test lastused"
-for i in `ovs_dump_tc_flows | grep 0x0800 | grep -o "used:[^s]*" | cut -d: -f2 `; do
+for i in `ovs_dump_tc_flows | grep 0x0800 | grep -o "used:[^s,]*" | cut -d: -f2`; do
+    if [ "$i" == "never" ]; then
+        err "lastuse is never"
+        continue
+    fi
     # round number down or up.
     c=`printf "%.0f\n" $i`
+    if [ $? -ne 0 ]; then
+        err "Failed converting used to float"
+    fi
     echo "lastused $i -> $c"
     if [ $c -gt 1 ]; then
         err "lastused is $i"
     fi
 done
-
-echo "dump"
-ovs_dump_tc_flows --names
-tc -s filter show dev $REP ingress
 
 title "Verify we have 2 rules"
 check_offloaded_rules 2
