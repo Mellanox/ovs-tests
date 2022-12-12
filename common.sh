@@ -224,6 +224,7 @@ function __setup_common() {
         kmsg $PRETTY_NAME
         echo -e "${ANSI_COLOR0}$PRETTY_NAME$NOCOLOR"
     fi
+    date
     log `uname -nsrp`
 
     require_interfaces NIC NIC2
