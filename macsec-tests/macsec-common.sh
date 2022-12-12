@@ -424,11 +424,16 @@ function test_macsec_multi_sa() {
     local key_len="$4"
     local net_proto="$5"
     local offload_side="$6"
+    local xpn="$7"
     local dev="$NIC"
     local macsec_dev="macsec0"
     local i
 
-    test_macsec $mtu $ip_proto $macsec_ip_proto $key_len $net_proto $offload_side --add-multi-sa
+    if [[ "$xpn" == "on" ]]; then
+        xpn="--xpn on"
+    fi
+
+    test_macsec $mtu $ip_proto $macsec_ip_proto $key_len $net_proto $offload_side --add-multi-sa $xpn
 
     start_iperf_server
 
@@ -519,8 +524,8 @@ function run_test_macsec() {
     for len in 256 128; do
         macsec_cleanup
         if [[ "$multi_sa" == "on" ]]; then
-            title "Test MACSEC with Multi SAs with mtu = $mtu , ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len and offload = $offload_side"
-            test_macsec_multi_sa $mtu $ip_proto $macsec_ip_proto $len $net_proto $offload_side
+            title "Test MACSEC with Multi SAs with mtu = $mtu , ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len and offload = $offload_side , xpn = $xpn"
+            test_macsec_multi_sa $mtu $ip_proto $macsec_ip_proto $len $net_proto $offload_side $xpn
             # the following echo is to separate between different iterations prints (by starting a new line) during the test
             echo
         elif [[ "$xpn" = "on" ]]; then
