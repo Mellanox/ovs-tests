@@ -334,6 +334,10 @@ function check_xpn() {
         #In case cipher not provided use default
         if [[ "$CIPHER" == "" ]]; then
             CIPHER="cipher gcm-aes-xpn-128"
+        elif [[ "$CIPHER" == "cipher gcm-aes-128" ]]; then
+            CIPHER="cipher gcm-aes-xpn-128"
+        elif [[ "$CIPHER" == "cipher gcm-aes-256" ]]; then
+            CIPHER="cipher gcm-aes-xpn-256"
         fi
 
         #In case salt not provided use default
