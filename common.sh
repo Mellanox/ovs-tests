@@ -1577,7 +1577,7 @@ warning: consoletype is now deprecated|warning: use tty|\
 kfree for unknown address|UBSAN|KASAN"
     local memleak="new suspected memory leaks"
     local memtrack="memtrack_report: Summary: .* leak\(s\) detected"
-    local mlx5_errs="mlx5_core .* err |mlx5_core .* failed |syndrome|health compromised"
+    local mlx5_errs="mlx5_core .* err |mlx5_core .* failed |syndrome|health compromised|wait_func_handle_exec_timeout"
     local br_errs="Packet reformat .* is not supported"
     local fw_errs="firmware internal error|assert_var|\
 Command completion arrived after timeout|Error cqe|failed reclaiming pages"
