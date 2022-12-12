@@ -9,4 +9,4 @@ my_dir="$(dirname "$0")"
 NO_TITLE=1
 
 ovn_set_ipv6_ips
-. $my_dir/test-ovn-osp-vm-vm-same-subnet-2-nodes-vf-lag-tunnel-vlan.sh
+. $my_dir/test-ovn-osp-vm-vm-same-subnet-2-nodes-vf-lag-tunnel-vlan-int.sh
