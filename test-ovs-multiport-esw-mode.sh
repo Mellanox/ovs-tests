@@ -16,6 +16,7 @@ MAC="e4:11:22:11:4a:51"
 
 function cleanup() {
     title "Cleanup"
+    ovs_clear_bridges
     ip netns del ns0 &> /dev/null
     set_port_state_up &> /dev/null
     restore_lag_port_select_mode
