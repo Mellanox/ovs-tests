@@ -47,17 +47,17 @@ function config_police() {
 
     echo "add vf meter rules"
     tc_filter add dev $REP prio 2 protocol ip parent ffff: \
-        flower ip_proto tcp dst_ip $IP2 \
+        flower verbose ip_proto tcp dst_ip $IP2 \
         action police index 1 \
         action pedit ex munge eth src set 20:22:33:44:55:77 pipe \
-        action drop \
+        action mirred egress redirect dev $NIC \
         mirred egress redirect dev $REP2
 
     tc_filter add dev $REP2 prio 2 protocol ip parent ffff: \
-        flower ip_proto tcp dst_ip $IP1 \
+        flower verbose ip_proto tcp dst_ip $IP1 \
         action police index 1 \
         action pedit ex munge eth src set 20:22:33:44:55:88 pipe \
-        action drop \
+        action mirred egress redirect dev $NIC \
         mirred egress redirect dev $REP
 
     fail_if_err
