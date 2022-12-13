@@ -593,7 +593,7 @@ function fw_query_val() {
 function set_port_state() {
     local state=${1:-UP}
     title "Set $NIC port state $state"
-    mlxlink -d $PCI --port_state $state &>/tmp/mlxlink.log || fail "Failed to set port state\n`cat /tmp/mlxlink.log`"
+    mlxlink -d $PCI --port_state $state &>/tmp/mlxlink.log || err "Failed to set port state\n`cat /tmp/mlxlink.log`"
 }
 
 function set_port_state_up() {
