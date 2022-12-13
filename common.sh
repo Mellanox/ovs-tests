@@ -1964,6 +1964,24 @@ function verify_rate() {
     fi
 }
 
+function verify_iperf3_bw() {
+    local iperf_out_file=$1
+    local rate=$2
+
+    local proto=$(cat $iperf_out_file | jq -r ".start.test_start.protocol | select(.)")
+
+    title "Check iperf3 $proto bandwidth"
+    if [ "$proto" = "TCP" ]; then
+        local bw=$(cat $iperf_out_file | jq ".end.sum_received.bits_per_second | select(.)")
+    else
+        local bw=$(cat $iperf_out_file | jq ".intervals[1].sum.bits_per_second | select(.)")
+    fi
+
+    bw=`bc <<< $bw/1000/1000`
+
+    verify_rate $bw $rate
+}
+
 function wait_for_linkup() {
     local i
     local net=$1

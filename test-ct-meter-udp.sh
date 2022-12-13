@@ -28,7 +28,7 @@ test "$mac2" || fail "no mac2"
 
 RATE=200
 BURST=65536
-TMPFILE=/tmp/meter.log
+TMPFILE=/tmp/iperf3.log
 
 function cleanup() {
     ip netns del ns0 2> /dev/null
@@ -85,9 +85,9 @@ function run() {
 
     t=12
     echo "run traffic for $t seconds"
-    ip netns exec ns1 timeout $((t+1)) iperf3 -s -D
+    ip netns exec ns1 timeout $((t+1)) iperf3 -s -J > $TMPFILE &
     sleep 0.5
-    ip netns exec ns0 timeout $((t+1)) iperf3 -t $t -c $IP2 -fm -u -b 2G > $TMPFILE &
+    ip netns exec ns0 timeout $((t+1)) iperf3 -t $t -c $IP2 -u -b 1G &
 
     sleep 2.5
     pidof iperf3 &>/dev/null || err "iperf3 failed"
@@ -104,11 +104,7 @@ function run() {
     title "verify traffic offloaded"
     verify_no_traffic $pid
 
-    rate=`cat $TMPFILE | grep "receiver" | sed  "s/\[.*Bytes//" | sed "s/ Mbits.*//"`
-    [ -z "$rate" ] && err "Missing rate" && return
-    rate=`bc <<< $rate*1000/1000`
-    title "verify rate"
-    verify_rate $rate $RATE
+    verify_iperf3_bw $TMPFILE $RATE
 }
 
 

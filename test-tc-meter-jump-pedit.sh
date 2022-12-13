@@ -14,6 +14,8 @@ IP1="7.7.7.1"
 IP2="7.7.7.2"
 RATE=5
 
+TMPFILE=/tmp/iperf3.log
+
 min_nic_cx6
 config_sriov 2
 enable_switchdev
@@ -68,42 +70,13 @@ function config_police() {
     tc filter show dev $REP2 ingress
 }
 
-function check_bw() {
-    title "Check iperf bandwidth"
-    SUM=`cat $TMPFILE | grep ",-1,0.0-20." | tail -n1`
-    BW=${SUM##*,}
-
-    if [ -z "$SUM" ]; then
-        cat $TMPFILE
-        fail "Missing sum line"
-    fi
-
-    if [ -z "$BW" ]; then
-        fail "Missing bw"
-    fi
-
-    MIN_EXPECTED=$(($RATE*1024*1024*95/100))
-    MAX_EXPECTED=$(($RATE*1024*1024*105/100))
-
-    if (( $BW < $MIN_EXPECTED )); then
-        fail "Expected minimum BW of $MIN_EXPECTED and got $BW"
-    fi
-
-    if (( $BW > $MAX_EXPECTED )); then
-        fail "Expected maximum BW of $MAX_EXPECTED and got $BW"
-    fi
-
-    success
-}
-
 function test_tcp() {
     title "Test iperf tcp $VF($IP1) -> $VF2($IP2)"
-    TMPFILE=/tmp/iperf.log
-    ip netns exec ns1 timeout 22 iperf -s &
+    ip netns exec ns1 timeout 11 iperf3 -s &
     sleep 0.5
-    ip netns exec ns0 timeout 22 iperf -c $IP2 -i 5 -t 20 -y c -P2 > $TMPFILE &
-    sleep 22
-    killall -9 iperf &>/dev/null
+    ip netns exec ns0 timeout 11 iperf3 -c $IP2 -t 10 -J c -P2 > $TMPFILE &
+    sleep 11
+    killall -9 iperf3 &>/dev/null
     sleep 0.5
 }
 
@@ -113,7 +86,7 @@ function run() {
     config_police
     test_tcp
 
-    check_bw
+    verify_iperf3_bw $TMPFILE $RATE
 }
 
 run

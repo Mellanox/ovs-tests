@@ -14,7 +14,7 @@ IP2="7.7.7.2"
 
 BR=br-ovs
 RATE=200
-TMPFILE=/tmp/iperf.log
+TMPFILE=/tmp/iperf3.log
 
 METER_BPS=1
 METER_PPS=2
@@ -51,17 +51,17 @@ function test_udp() {
     title "Test ping"
     ip netns exec ns1 ping -q -c 1 -w 1 $IP1 || err "Ping failed"
 
-    title "Test iperf udp $VF($IP1) -> $VF2($IP2)"
+    title "Test iperf3 udp $VF($IP1) -> $VF2($IP2)"
     t=10
-    ip netns exec ns0 timeout -k 1 $((t+5)) iperf -f Bytes -s -u > $TMPFILE &
+    ip netns exec ns0 timeout -k 1 $((t+5)) iperf3 -s -J > $TMPFILE &
     sleep 2
-    ip netns exec ns1 timeout -k 1 $((t+2)) iperf -u -c $IP1 -t $t -u -l 1400 -b2G -P4 &
+    ip netns exec ns1 timeout -k 1 $((t+2)) iperf3 -u -c $IP1 -t $t -l 1400 -b2G -P 4 &
     pid1=$!
 
     sleep 2
     kill -0 $pid1 &>/dev/null
     if [ $? -ne 0 ]; then
-        err "iperf failed"
+        err "iperf3 failed"
         return
     fi
 
@@ -71,18 +71,11 @@ function test_udp() {
     sleep $t
     verify_no_traffic $tpid
 
-    killall -9 iperf &>/dev/null
+    killall -9 iperf3 &>/dev/null
     echo "wait for bgs"
     wait &>/dev/null
 
-    local rate=`cat $TMPFILE | grep "SUM.*Bytes/sec" | awk '{match($0, /([0-9]+) Bytes\/sec/, m); print m[1]}'`
-    if [ -z "$rate" ]; then
-        err "Cannot find rate"
-        return
-    fi
-    rate=`bc <<< 8*$rate/1000/1000`
-
-    verify_rate $rate $RATE
+    verify_iperf3_bw $TMPFILE $RATE
 }
 
 enable_switchdev

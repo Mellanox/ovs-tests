@@ -117,10 +117,10 @@ function run() {
 
     t=10
     # traffic
-    ip netns exec ns0 timeout -k 1 $((t+4)) iperf -f Bytes -s -u > $TMPFILE &
+    ip netns exec ns0 timeout -k 1 $((t+4)) iperf3  -s -J > $TMPFILE &
     pid2=$!
     sleep 2
-    on_remote timeout -k 1 $t iperf -c $IP -t $t -u -l 1400 -b 2G -P2 &
+    on_remote timeout -k 1 $t iperf3 -c $IP -t $t -u -l 1400 -b 2G -P2 &
     pid1=$!
 
     verify
@@ -131,7 +131,7 @@ function verify() {
     sleep 2
     kill -0 $pid1 &>/dev/null
     if [ $? -ne 0 ]; then
-        err "iperf failed"
+        err "iperf3 failed"
         return
     fi
 
@@ -140,18 +140,11 @@ function verify() {
     sleep $t
     verify_no_traffic $tpid
 
-    killall -9 iperf &>/dev/null
+    killall -9 iperf3 &>/dev/null
     echo "wait for bgs"
     wait
 
-    local rate=`cat $TMPFILE | grep "SUM.*Bytes/sec" | awk '{match($0, /([0-9]+) Bytes\/sec/, m); print m[1]}'`
-    if [ -z "$rate" ]; then
-        err "Cannot find rate"
-        return 1
-    fi
-    rate=`bc <<< 8*$rate/1000/1000`
-
-    verify_rate $rate $RATE
+    verify_iperf3_bw $TMPFILE $RATE
 }
 
 function run2() {
@@ -184,10 +177,10 @@ function run2() {
 
     t=10
     # traffic
-    on_remote timeout -k 1 $((t+5)) iperf -f Bytes -s -u > $TMPFILE &
+    on_remote timeout -k 1 $((t+5)) iperf3  -s -J > $TMPFILE &
     pid2=$!
     sleep 2
-    ip netns exec ns0 timeout -k 1 $((t+2)) iperf -u -c $REMOTE -t $t -l 1400 -b 2G -P2 &
+    ip netns exec ns0 timeout -k 1 $((t+2)) iperf3 -u -c $REMOTE -t $t -l 1400 -b 2G -P2 &
     pid1=$!
 
     verify

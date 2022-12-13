@@ -14,6 +14,8 @@ IP1="7.7.7.1"
 IP2="7.7.7.2"
 RATE=500
 
+TMPFILE=/tmp/iperf3.log
+
 config_sriov 2
 enable_switchdev
 require_interfaces REP REP2
@@ -63,22 +65,13 @@ function config_police() {
     tc filter show dev $REP2 ingress
 }
 
-function check_bw() {
-    title "Check iperf bandwidth"
-    local BW=$(cat $TMPFILE | grep -E ",(-1|1|2),0.0-10." | awk -F',' '{sum+=$(NF)} END {print sum}')
-    BW=`bc <<< $BW/1000/1000`
-
-    verify_rate $BW $RATE
-}
-
 function test_tcp() {
     title "Test iperf tcp $VF($IP1) -> $VF2($IP2)"
-    TMPFILE=/tmp/iperf.log
-    ip netns exec ns1 timeout 11 iperf -s &
+    ip netns exec ns1 timeout 11 iperf3 -s &
     sleep 0.5
-    ip netns exec ns0 timeout 11 iperf -c $IP2 -i 5 -t 10 -y c -P2 > $TMPFILE &
+    ip netns exec ns0 timeout 11 iperf3 -c $IP2 -t 10 -J c -P2 > $TMPFILE &
     sleep 11
-    killall -9 iperf &>/dev/null
+    killall -9 iperf3 &>/dev/null
     sleep 0.5
 }
 
@@ -88,7 +81,7 @@ function run() {
     config_police
     test_tcp
 
-    check_bw
+    verify_iperf3_bw $TMPFILE $RATE
 }
 
 run
