@@ -14,6 +14,12 @@ IP="7.7.7.1"
 REMOTE="7.7.7.2"
 MAC="e4:11:22:11:4a:51"
 
+function keep_link_up() {
+    local val=$1
+    local conf="KEEP_ETH_LINK_UP_P1"
+    fw_config $conf=$val || err "Failed to configure $conf=$val"
+}
+
 function cleanup() {
     title "Cleanup"
     ovs_clear_bridges
@@ -21,7 +27,7 @@ function cleanup() {
     set_port_state_up &> /dev/null
     restore_lag_port_select_mode
     restore_lag_resource_allocation_mode
-    fw_config KEEP_ETH_LINK_UP_P1=1 || err "Failed to configure FW"
+    keep_link_up 1
     enable_legacy $NIC2
     config_sriov 0 $NIC2
     clear_remote_bonding
@@ -40,7 +46,7 @@ function config_remote() {
 
 function config() {
     title "Config"
-    fw_config KEEP_ETH_LINK_UP_P1=0 || fail "Failed to configure FW"
+    keep_link_up 0
     enable_lag_resource_allocation_mode
     set_lag_port_select_mode "multiport_esw"
     config_sriov 2
