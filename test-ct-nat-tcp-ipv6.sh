@@ -93,12 +93,12 @@ function run() {
     ip netns exec ns1 timeout $t tcpdump -qnnei $VF2 -c 10 'tcp' &
     tpid1=$!
 
-    ip netns exec ns1 timeout $((t+7)) iperf -s --ipv6_domain &
+    ip netns exec ns1 timeout $((t+7)) iperf3 -s -D
     sleep 1
-    ip netns exec ns0 timeout $((t+2)) iperf --ipv6_domain -t $t -c $IP3 -P 1 -i 1 &
+    ip netns exec ns0 timeout $((t+2)) iperf3 -6 -t $t -c $IP3 -P 1 -i 1 &
 
     sleep 2
-    pidof iperf &>/dev/null || err "iperf failed"
+    pidof iperf3 &>/dev/null || err "iperf failed"
 
     echo "sniff packets on $REP"
     # first 4 packets not offloaded until conn is in established state.
@@ -109,7 +109,7 @@ function run() {
     pkts1=`get_pkts`
 
     sleep $t
-    killall -9 iperf &>/dev/null
+    killall -q -9 iperf3
     wait $! 2>/dev/null
 
     title "verify traffic started"

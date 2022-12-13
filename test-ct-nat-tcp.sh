@@ -87,12 +87,12 @@ function run() {
 
     t=15
     echo "run traffic for $t seconds"
-    ip netns exec ns1 timeout $((t+2)) iperf -s &
-    sleep 2
+    ip netns exec ns1 timeout $((t+2)) iperf3 -s -D
+    sleep 1
 
-    ip netns exec ns0 timeout $t iperf -t $t -c $IP3 -P 1 -i 1 &
+    ip netns exec ns0 timeout $t iperf3 -t $t -c $IP3 -P 1 -i 1 &
     sleep 2
-    pidof iperf &>/dev/null || err "iperf failed"
+    pidof iperf3 &>/dev/null || err "iperf failed"
 
     echo "sniff packets on $REP"
     # first 4 packets not offloaded until conn is in established state.
@@ -103,7 +103,7 @@ function run() {
     pkts1=`get_pkts`
 
     sleep $((t-6))
-    killall -9 iperf &>/dev/null
+    killall -q -9 iperf3
     wait $! 2>/dev/null
 
     title "verify tc stats"
