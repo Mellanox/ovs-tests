@@ -228,6 +228,61 @@ function cleanup_e2e_cache() {
     ovs-vsctl --no-wait remove Open_vSwitch . other_config e2e-enable
 }
 
+function clear_pmd_stats() {
+    ovs-appctl dpif-netdev/pmd-stats-clear
+}
+
+function get_total_packets_passed_in_sw() {
+    local pkts1=$(ovs-appctl dpif-netdev/pmd-stats-show | grep 'packets received:' | sed -n '1p' | awk '{print $3}')
+    local pkts2=$(ovs-appctl dpif-netdev/pmd-stats-show | grep 'packets received:' | sed -n '2p' | awk '{print $3}')
+
+    if [ -z "$pkts1" ]; then
+        echo "ERROR: Cannot get pkts1" >> /dev/stderr
+        return
+    fi
+
+    if [ -z "$pkts2" ]; then
+        echo "ERROR: Cannot get pkts2" >> /dev/stderr
+        return
+    fi
+
+    echo $(($pkts1+$pkts2))
+}
+
+function get_total_packets_passed() {
+    local bridge=$1
+
+    local pkts=$(ovs-ofctl dump-flows $bridge | grep -o "n_packets=[0-9.]*" | awk -F"=" '{print $2}')
+
+    if [ -z "$pkts" ]; then
+        echo "ERROR: Cannot get pkts" >> /dev/stderr
+        return
+    fi
+
+    echo $pkts
+}
+
+function query_sw_packets_in_sent_packets_percentage() {
+    local bridge=$1
+    local valid_percetange_passed_in_sw=${2:-10}
+
+    local total_packets_passed_in_sw=$(get_total_packets_passed_in_sw)
+    local all_packets_passed=$(get_total_packets_passed)
+
+    if [ -z "$total_packets_passed_in_sw" ]; then
+        err  "ERROR: Cannot get total_packets_passed_in_sw"
+        return 1
+    fi
+
+    title "Checking that $total_packets_passed_in_sw is no more than $valid_percetange_passed_in_sw% of $all_packets_passed"
+    if [ $(($valid_percetange_passed_in_sw*$total_packets_passed_in_sw)) -gt $all_packets_passed ]; then
+        err "$total_packets_passed_in_sw packets passed in SW, it is more than $valid_percetange_passed_in_sw% of $all_packets_passed"
+        return 1
+    fi
+
+    return 0
+}
+
 function query_sw_packets() {
     local expected_num_of_pkts=100000
 
@@ -236,28 +291,19 @@ function query_sw_packets() {
     fi
 
     debug "Expecting $expected_num_of_pkts to reach SW"
-    local pkts1=$(ovs-appctl dpif-netdev/pmd-stats-show | grep 'packets received:' | sed -n '1p' | awk '{print $3}')
-    local pkts2=$(ovs-appctl dpif-netdev/pmd-stats-show | grep 'packets received:' | sed -n '2p' | awk '{print $3}')
 
-    if [ -z "$pkts1" ]; then
-        err "Cannot get pkts1"
+    local total_packets_passed_in_sw=$(get_total_packets_passed_in_sw)
+
+    if [ -z "$total_packets_passed_in_sw" ]; then
+        err "ERROR: Cannot get total_packets_passed_in_sw"
         return 1
     fi
 
-    if [ -z "$pkts2" ]; then
-        err "Cannot get pkts2"
-        return 1
-    fi
+    debug "Received $total_packets_passed_in_sw packets in SW"
 
-    local total_sw_pkts=$(($pkts1+$pkts2))
-    debug "Received $total_sw_pkts packets in SW"
-    if [ $total_sw_pkts -gt $expected_num_of_pkts ]; then
-        local all_pkts=$(ovs-ofctl dump-flows br-phy | grep -o "n_packets=[0-9.]*" | awk -F"=" '{print $2}')
-        debug "expected $expected_num_of_pkts, but got $total_sw_pkts, checking that $total_sw_packets is no more than 10% of $all_pkts"
-        if [ $((10*$total_sw_pkts)) -gt $all_pkts ]; then
-            err "$total_sw_pkts packets reached to SW, it is more than 10% of $all_pkts"
-            return 1
-        fi
+    if [ $total_packets_passed_in_sw -gt $expected_num_of_pkts ]; then
+        query_sw_packets_in_sent_packets_percentage br-phy 10
+        return $?
     fi
     return 0
 }
