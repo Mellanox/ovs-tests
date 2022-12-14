@@ -81,10 +81,13 @@ function __test_for_devlink_compat() {
     elif [ -e /sys/class/net/$NIC/compat/devlink ]; then
         __devlink_compat_dir="/sys/class/net/\$nic/compat/devlink"
     fi
-    if devlink dev param show pci/$PCI name flow_steering_mode &>/dev/null ; then
+    if [ -n "$DEVLINK_COMPAT" ]; then
+        devlink_compat=$DEVLINK_COMPAT
+    elif devlink dev param show pci/$PCI name flow_steering_mode &>/dev/null ; then
         return
+    else
+        devlink_compat=${DEVLINK_COMPAT:-1}
     fi
-    devlink_compat=${DEVLINK_COMPAT:-1}
     log "Using devlink compat $devlink_compat"
 }
 
@@ -2406,6 +2409,7 @@ function __test_help() {
     echo
     echo "Available exports:"
     echo
+    echo "DEVLINK_COMPAT=0|1|2          - Force to use or not use ofed devlink compat."
     echo "KMEMLEAK_SCAN_PER_TEST=1      - Do kmemleak scan per test."
     echo "RELOAD_DRIVER_PER_TEST=1      - Reload driver at the end of the test."
     echo "USE_OPENIBD=1                 - Use openibd service script (i.e. MLNX OFED) to reload modules. default=1"
