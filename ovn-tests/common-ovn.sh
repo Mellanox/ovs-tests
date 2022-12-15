@@ -371,27 +371,11 @@ function check_traffic_offload() {
     sleep $tmp
     head -n5 $logfile
 
-    title "Check vf counters"
-    local vf_tx_pkts2=`get_tx_pkts_ns $client_ns $client_vf`
-    local vf_rx_pkts2=`get_rx_pkts_ns $client_ns $client_vf`
-    let tx_diff=vf_tx_pkts2-vf_tx_pkts
-    let rx_diff=vf_rx_pkts2-vf_rx_pkts
-    local expected=10
-    local counters_ok=1
-    if [[ $tx_diff -ge $expected ]]; then
-        success2 tx_counter
-    else
-        counters_ok=0
-        err "TX counter diff $tx_diff < $expected"
-    fi
-    if [[ $rx_diff -ge $expected ]]; then
-        success2 rx_counter
-    else
-        counters_ok=0
-        err "RX counter diff $rx_diff < $expected"
-    fi
+    __check_vf_counters
+    local counters_ok=$?
 
     if [[ $counters_ok == 1 ]]; then
+        ### start_tcpdump
         if [[ -n $client_verify_offload ]]; then
             echo "Start sender tcpdump"
             __start_tcpdump_local $client_rep "$tcpdump_filter" $non_offloaded_packets
@@ -405,6 +389,7 @@ function check_traffic_offload() {
             tdpid_receiver=$tdpid
             tdpid=$tmp
         fi
+        ####
     else
         warn "Skipping tcpdump offload check"
     fi
@@ -420,6 +405,7 @@ function check_traffic_offload() {
     fi
 
     if [[ $counters_ok == 1 ]]; then
+        ### veirfy_tcpdump
         # If tcpdump finished then it capture more than expected to be offloaded
         sleep "${TRAFFIC_INFO['offloaded_traffic_time_window']}"
 
@@ -432,10 +418,63 @@ function check_traffic_offload() {
             title "Check ${traffic_type^^} traffic is offloaded on the receiver"
             __verify_tcpdump_offload $tdpid_receiver
         fi
+        #####
     fi
 
     title "Wait ${traffic_type^^} traffic"
-    wait $traffic_pid
+    verify_traffic_pid $traffic_pid
+
+    if [[ -z "$bf_traffic" ]]; then
+        __ovs_flush_rules_both
+    else
+        __bf_ovs_flush_rules_both
+    fi
+}
+
+function __check_vf_counters() {
+    title "Check vf counters"
+
+    local vf_tx_pkts2=`get_tx_pkts_ns $client_ns $client_vf`
+    local vf_rx_pkts2=`get_rx_pkts_ns $client_ns $client_vf`
+    let tx_diff=vf_tx_pkts2-vf_tx_pkts
+    let rx_diff=vf_rx_pkts2-vf_rx_pkts
+    local expected=10
+    local counters_ok=1
+
+    if [[ $tx_diff -ge $expected ]]; then
+        success2 tx_counter
+    else
+        counters_ok=0
+        err "TX counter diff $tx_diff < $expected"
+    fi
+
+    if [[ $rx_diff -ge $expected ]]; then
+        success2 rx_counter
+    else
+        counters_ok=0
+        err "RX counter diff $rx_diff < $expected"
+    fi
+
+    return $counters_ok
+}
+
+function __ovs_flush_rules_both() {
+    ovs_flush_rules
+    if [[ -z "$local_traffic" ]]; then
+        on_remote_exec "ovs_flush_rules"
+    fi
+}
+
+function __bf_ovs_flush_rules_both() {
+    on_bf_exec "ovs_flush_rules"
+    if [[ -z "$local_traffic" ]]; then
+        on_remote_bf_exec "ovs_flush_rules"
+    fi
+}
+
+function verify_traffic_pid() {
+    local pid=$1
+    wait $pid
     local rc=$?
     echo "check traffic time `date`"
     if [[ $rc -eq 124 ]]; then
@@ -445,18 +484,6 @@ function check_traffic_offload() {
     else
         tail -n5 $logfile
         err "Failed with rc $rc"
-    fi
-
-    if [[ -z "$bf_traffic" ]]; then
-        ovs_flush_rules
-        if [[ -z "$local_traffic" ]]; then
-            on_remote_exec "ovs_flush_rules"
-        fi
-    else
-        on_bf_exec "ovs_flush_rules"
-        if [[ -z "$local_traffic" ]]; then
-            on_remote_bf_exec "ovs_flush_rules"
-        fi
     fi
 }
 
