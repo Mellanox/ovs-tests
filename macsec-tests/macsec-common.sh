@@ -472,9 +472,17 @@ function test_macsec_xpn() {
 
     config_keys_and_ips $ip_proto $macsec_ip_proto $key_len xpn_on
 
-    if [ "$offload_side" == "both" ]; then
-        local_extra="$local_extra --offload"
-        remote_extra="$remote_extra --offload"
+    if [ "$offload_side" == "local" ]; then
+        local_extra="--offload"
+    elif [ "$offload_side" == "remote" ]; then
+        remote_extra="--offload"
+    elif [ "$offload_side" == "both" ]; then
+        local_extra="--offload"
+        remote_extra="--offload"
+    elif [ "$offload_side" == "none" ]; then
+        :
+    else
+        err "$offload_side is not a valid value for offload_side parameter"
     fi
 
     config_macsec --device $dev --interface $macsec_dev --cipher $EFFECTIVE_CIPHER \
