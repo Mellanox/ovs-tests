@@ -24,6 +24,7 @@ function keep_link_up() {
 function cleanup() {
     title "Cleanup"
     ovs_clear_bridges
+    clear_remote_bonding
     ip netns del ns0 &> /dev/null
     set_port_state_up &> /dev/null
     disable_esw_multiport
@@ -32,7 +33,6 @@ function cleanup() {
     keep_link_up 1
     enable_legacy $NIC2
     config_sriov 0 $NIC2
-    clear_remote_bonding
 }
 
 function get_sending_dev() {
