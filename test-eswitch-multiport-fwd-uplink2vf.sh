@@ -97,6 +97,8 @@ function test_ping() {
     local nic=$1
     config_test $nic
     start_tcpdump
+    sleep 0.5
+
     title "test ping $nic"
     ping -c 2 $remote_ip || err "ping failed"
     stop_tcpdump
