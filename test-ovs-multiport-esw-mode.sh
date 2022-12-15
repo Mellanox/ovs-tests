@@ -18,6 +18,7 @@ function keep_link_up() {
     local val=$1
     local conf="KEEP_ETH_LINK_UP_P1"
     fw_config $conf=$val || err "Failed to configure $conf=$val"
+    fw_reset
 }
 
 function cleanup() {
