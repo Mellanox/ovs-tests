@@ -82,11 +82,17 @@ function config_bf_ovn_single_node() {
 function config_bf_ovn_pf() {
     local ovn_central_ip=$1
     local ovn_controller_ip=$2
+    local tun_dev=$BF_NIC
 
     start_clean_openvswitch
-    ovn_config_mtu $BF_NIC
-    ip addr add $ovn_controller_ip/24 dev $BF_NIC
-    ip link set $BF_NIC up
+
+    if [ "$DPDK" == 1 ]; then
+        config_simple_bridge_with_rep 0
+        tun_dev="br-phy"
+    fi
+
+    ip addr add $ovn_controller_ip/24 dev $tun_dev
+    ovn_config_mtu $tun_dev
 
     ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
     ovn_start_ovn_controller
@@ -95,10 +101,11 @@ function config_bf_ovn_pf() {
 function config_bf_ovn_pf_vlan() {
     local ovn_central_ip=$1
     local ovn_controller_ip=$2
+    local port_extra_args=$(get_dpdk_pf_port_extra_args)
 
     start_clean_openvswitch
     ovs_create_bridge_vlan_interface
-    ovs_add_port_to_switch $OVN_PF_BRIDGE $BF_NIC
+    ovs_add_port_to_switch $OVN_PF_BRIDGE $BF_NIC "$port_extra_args"
 
     ovn_config_mtu $BF_NIC $OVN_PF_BRIDGE $OVN_VLAN_INTERFACE
     ip addr add $ovn_controller_ip/24 dev $OVN_VLAN_INTERFACE
