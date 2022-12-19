@@ -90,16 +90,6 @@ function ovn_stop_ovn_controller() {
     ovn_is_controller_running && $OVN_CTL stop_controller
 }
 
-function get_pf_pci() {
-    local pci=$PCI
-
-    if is_bf; then
-        pci=$BF_PCI
-    fi
-
-    echo "$pci"
-}
-
 function ovn_set_ovs_config() {
     local ovn_remote_ip=${1:-$OVN_LOCAL_CENTRAL_IP}
     local encap_ip=${2:-$OVN_LOCAL_CENTRAL_IP}

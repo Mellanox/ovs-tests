@@ -1288,6 +1288,16 @@ function get_vf_pci() {
     echo $(basename `readlink /sys/class/net/${vf}/device`)
 }
 
+function get_pf_pci() {
+    local pci=$PCI
+
+    if is_bf; then
+        pci=$BF_PCI
+    fi
+
+    echo "$pci"
+}
+
 function unbind_vfs() {
     local nics=${@:-$NIC}
     local vfpci

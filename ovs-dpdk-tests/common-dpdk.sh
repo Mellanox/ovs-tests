@@ -78,10 +78,11 @@ function config_remote_bridge_tunnel() {
 
 function config_simple_bridge_with_rep() {
     local reps=$1
+    local pci=$(get_pf_pci)
 
     debug "configuring simple bridge with $reps reps"
     ovs-vsctl --may-exist add-br br-phy -- set Bridge br-phy datapath_type=netdev -- br-set-external-id br-phy bridge-id br-phy -- set bridge br-phy fail-mode=standalone
-    ovs-vsctl add-port br-phy pf -- set Interface pf type=dpdk options:dpdk-devargs=$PCI,$DPDK_PORT_EXTRA_ARGS
+    ovs-vsctl add-port br-phy pf -- set Interface pf type=dpdk options:dpdk-devargs=$pci,$DPDK_PORT_EXTRA_ARGS
 
     configure_dpdk_rep_ports $reps "br-phy"
 }
