@@ -692,9 +692,19 @@ function check_fragmented_traffic() {
         tcpdump_filter=$TCPDUMP_IGNORE_IPV6_NEIGH
     fi
 
-    # Listen to traffic on representor
-    timeout 10 tcpdump -Unnepi $rep $tcpdump_filter -c 8 &
-    local tdpid=$!
+    if [[ "$DPDK" == 1 ]]; then
+      echo "clearing pmd stats in client"
+      clear_pmd_stats
+
+      echo "clearing pmd stats in server"
+      on_remote_exec "clear_pmd_stats"
+
+    else
+      # Listen to traffic on representor
+      timeout 10 tcpdump -Unnepi $rep $tcpdump_filter -c 8 &
+      local tdpid=$!
+    fi
+
     sleep 0.5
 
     title "Check sending traffic"
@@ -705,13 +715,20 @@ function check_fragmented_traffic() {
     fi
 
     title "Check OVS Rules"
-    # Offloading fragmented traffic is not supported
+
     ovs_dump_flows --names filter="$rules_filter"
     check_fragmented_rules $traffic_filter
 
     title "Check captured packets count"
-    # Wait tcpdump to finish and verify traffic is not offloaded
-    verify_have_traffic $tdpid
+    if [[ "$DPDK" == 1 ]]; then
+        __verify_testpmd_offload_local 4
+        on_remote_exec "__verify_testpmd_offload_local 4"
+
+    else
+        # Offloading fragmented traffic is not supported in upstream
+        # Wait tcpdump to finish and verify traffic is not offloaded
+        verify_have_traffic $tdpid
+    fi
 
     ovs_flush_rules
 }
