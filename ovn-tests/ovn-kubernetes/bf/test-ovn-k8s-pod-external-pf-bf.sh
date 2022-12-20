@@ -43,27 +43,29 @@ function config_test() {
     fail_if_err
     config_bf_ovn_interface_namespace $CLIENT_VF $CLIENT_REP $CLIENT_NS $CLIENT_PORT $CLIENT_MAC $CLIENT_IPV4 $CLIENT_IPV6 $CLIENT_GATEWAY_IPV4 $CLIENT_GATEWAY_IPV6
 
-    on_remote "ip addr add $EXTERNAL_SERVER_IP/$SERVER_NODE_IP_MASK dev $NIC
-               ip link set $NIC up"
     on_remote_bf_exec "config_bf_ovn_k8s_pf $CLIENT_NODE_IP $SERVER_NODE_IP $SERVER_NODE_IP_MASK $SERVER_NODE_MAC
                        ovs-vsctl add-port $BRIDGE $BF_HOST_NIC
                        ip link set $BF_HOST_NIC up"
+
+    # WA remove the ip on the bridge.
+    on_bf "ip addr del $CLIENT_NODE_IP/$CLIENT_NODE_IP_MASK dev $BRIDGE"
 }
 
 function run_test() {
     # Offloading ICMP with connection tracking is not supported
-    title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $NIC($SERVER_IPV4)"
+    title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $BRIDGE($SERVER_IPV4)"
     ip netns exec $CLIENT_NS ping -w 4 $SERVER_IPV4 && success || err
 
-    title "Test TCP traffic between $CLIENT_VF($CLIENT_IPV4) -> $NIC($SERVER_IPV4) offloaded"
+    title "Test TCP traffic between $CLIENT_VF($CLIENT_IPV4) -> $BRIDGE($SERVER_IPV4) offloaded"
     check_remote_tcp_traffic_offload $SERVER_IPV4
 
-    title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $NIC($SERVER_IPV4) offloaded"
+    title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $BRIDGE($SERVER_IPV4) offloaded"
     check_remote_udp_traffic_offload $SERVER_IPV4
 }
 
 TRAFFIC_INFO['server_ns']=""
 TRAFFIC_INFO['server_verify_offload']=""
+TRAFFIC_INFO['bf_external']=1
 
 clean_up_test
 trap clean_up_test EXIT
