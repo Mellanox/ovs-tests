@@ -89,10 +89,11 @@ function config_bf_ovn_pf() {
     if [ "$DPDK" == 1 ]; then
         config_simple_bridge_with_rep 0
         tun_dev="br-phy"
+        ip link set $tun_dev up
     fi
 
     ip addr add $ovn_controller_ip/24 dev $tun_dev
-    ovn_config_mtu $tun_dev
+    ovn_config_mtu $BF_NIC
 
     ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
     ovn_start_ovn_controller
