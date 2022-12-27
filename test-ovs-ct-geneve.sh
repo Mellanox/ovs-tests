@@ -19,6 +19,7 @@ REMOTE_IP=7.7.7.8
 TUN_ID=42
 geneve_port=6081
 
+config_sriov 2
 enable_switchdev
 require_interfaces REP NIC
 unbind_vfs

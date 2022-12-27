@@ -27,6 +27,7 @@ VXLAN_ID=42
 # both ports configured. we have test-ovs-ct-vxlan-2.sh and test-ovs-ct-vxlan-3.sh
 # to verify with both ports configured.
 config_sriov 0 $NIC2
+config_sriov 2
 enable_switchdev
 require_interfaces REP NIC
 unbind_vfs
