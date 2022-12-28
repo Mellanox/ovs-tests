@@ -32,11 +32,11 @@ function cleanup() {
 trap cleanup EXIT
 
 function get_pkts() {
-    tc -j -p -s  filter show dev $NIC protocol ip ingress | jq '.[] | select(.options.keys.ct_state == "+trk+est") | .options.actions[0].stats.packets' || 0
+    tc -j -p -s  filter show dev $NIC protocol ip ingress | jq '.[] | select(.options.keys.ct_state == "+trk+est") | .options.actions[3].stats.packets' || 0
 }
 
 function get_hw_pkts() {
-    tc -j -p -s  filter show dev $NIC protocol ip ingress | jq '.[] | select(.options.keys.ct_state == "+trk+est") | .options.actions[0].stats.hw_packets' || 0
+    tc -j -p -s  filter show dev $NIC protocol ip ingress | jq '.[] | select(.options.keys.ct_state == "+trk+est") | .options.actions[3].stats.hw_packets' || 0
 }
 
 
