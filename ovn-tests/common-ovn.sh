@@ -25,6 +25,8 @@ TCPDUMP_IGNORE_IPV6_NEIGH="icmp6 and ip6[40] != 133 and ip6[40] != 135 and ip6[4
 declare -A TRAFFIC_INFO=(
     ['offloaded_traffic_timeout']=15
     ['offloaded_traffic_verification_delay']=5
+    ['offloaded_traffic_timeout_tcp']=40
+    ['offloaded_traffic_verification_delay_tcp']=30
     ['offloaded_traffic_time_window']=3
     ['non_offloaded_traffic_timeout']=5
     ['non_offloaded_packets']=40
@@ -191,9 +193,9 @@ function send_background_traffic() {
     elif [[ $traffic_type == "icmp6" ]]; then
         ip netns exec $ns ping -6 -w $timeout -i 0.1 $dst_ip >$logfile &
     elif [[ $traffic_type == "tcp" ]]; then
-        ip netns exec $ns timeout $((timeout+3)) iperf3 -t $timeout -c $dst_ip --logfile $logfile &
+        ip netns exec $ns timeout $((timeout+3)) iperf3 -t $timeout -c $dst_ip --logfile $logfile --bitrate 1G &
     elif [[ $traffic_type == "tcp6" ]]; then
-        ip netns exec $ns timeout $((timeout+3)) iperf3 -6 -t $timeout -c $dst_ip --logfile $logfile &
+        ip netns exec $ns timeout $((timeout+3)) iperf3 -6 -t $timeout -c $dst_ip --logfile $logfile --bitrate 1G &
     elif [[ $traffic_type == "udp" ]]; then
         local packets=$((timeout * 10))
         ip netns exec $ns timeout $((timeout+3)) $OVN_DIR/udp-perf.py -c $dst_ip --packets $packets --pass-rate 0.7 --logfile $logfile &
@@ -339,6 +341,9 @@ function check_traffic_offload() {
     title "Sending ${traffic_type^^} traffic"
     local logfile=$(mktemp)
     local traffic_timeout=${TRAFFIC_INFO['offloaded_traffic_timeout']}
+    if [[ "$traffic_type" == "tcp" || "$traffic_type" == "tcp6" ]]; then
+         traffic_timeout=${TRAFFIC_INFO['offloaded_traffic_timeout_tcp']}
+    fi
     if [[ -n "$skip_offload" ]]; then
         traffic_timeout=${TRAFFIC_INFO['non_offloaded_traffic_timeout']}
     fi
@@ -357,6 +362,9 @@ function check_traffic_offload() {
     fi
 
     tmp=${TRAFFIC_INFO['offloaded_traffic_verification_delay']}
+    if [[ "$traffic_type" == "tcp" || "$traffic_type" == "tcp6" ]]; then
+        tmp=${TRAFFIC_INFO['offloaded_traffic_verification_delay_tcp']}
+    fi
     echo "Sleep for $tmp seconds initial traffic"
     sleep $tmp
     head -n5 $logfile
