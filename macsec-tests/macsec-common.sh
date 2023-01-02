@@ -524,17 +524,17 @@ function run_test_macsec() {
 
     for len in 256 128; do
         macsec_cleanup
+
+        title "Test MACSEC multi_sa=$multi_sa, mtu=$mtu, ip_protocol=$ip_proto, macsec_ip_protocol=$macsec_ip_proto, network_protocol=$net_proto, key_length=$len, offload_side=$offload_side, xpn=$xpn"
+
         if [[ "$multi_sa" == "on" ]]; then
-            title "Test MACSEC with Multi SAs with mtu = $mtu , ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len and offload = $offload_side , xpn = $xpn"
             test_macsec_multi_sa $mtu $ip_proto $macsec_ip_proto $len $net_proto $offload_side $xpn
             # the following echo is to separate between different iterations prints (by starting a new line) during the test
             echo
         elif [[ "$xpn" = "on" ]]; then
-            title "Test MACSEC with ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len xpn = on, offload = $offload_side"
             test_macsec_xpn $mtu $ip_proto $macsec_ip_proto $len $net_proto $offload_side
             echo
         else
-            title "Test MACSEC with mtu = $mtu , ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len and offload = $offload_side"
             test_macsec $mtu $ip_proto $macsec_ip_proto $len $net_proto $offload_side
             echo
         fi
