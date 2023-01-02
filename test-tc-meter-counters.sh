@@ -61,13 +61,13 @@ function config_police() {
 }
 
 function test_tcp() {
-    title "Test iperf tcp $VF($IP1) -> $VF2($IP2)"
-    TMPFILE=/tmp/iperf.log
-    ip netns exec ns1 timeout 11 iperf -s &
+    title "Test iperf3 tcp $VF($IP1) -> $VF2($IP2)"
+    TMPFILE=/tmp/iperf3.log
+    ip netns exec ns1 timeout 11 iperf3 -s -D
     sleep 0.5
-    ip netns exec ns0 timeout 11 iperf -c $IP2 -i 5 -t 10 -y c -P2 > $TMPFILE &
+    ip netns exec ns0 timeout 11 iperf3 -c $IP2 -i 5 -t 10 -P2 -J > $TMPFILE &
     sleep 11
-    killall -9 iperf &>/dev/null
+    killall -q -9 iperf3
     sleep 0.5
 }
 
