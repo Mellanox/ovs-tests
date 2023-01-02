@@ -117,7 +117,7 @@ function run() {
 
     t=10
     # traffic
-    ip netns exec ns0 timeout -k 1 $((t+4)) iperf3  -s -J > $TMPFILE &
+    ip netns exec ns0 timeout -k 1 $((t+4)) iperf3 -s -J > $TMPFILE &
     pid2=$!
     sleep 2
     on_remote timeout -k 1 $t iperf3 -c $IP -t $t -u -l 1400 -b 2G -P2 &

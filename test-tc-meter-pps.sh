@@ -66,7 +66,7 @@ function config_police() {
 
 function test_tcp() {
     title "Test iperf3 tcp $VF($IP1) -> $VF2($IP2)"
-    ip netns exec ns1 timeout 11 iperf3 -s &
+    ip netns exec ns1 timeout 11 iperf3 -s -D
     sleep 0.5
     ip netns exec ns0 timeout 11 iperf3 -c $IP2 -i 5 -t 10 -J -P2 > $TMPFILE &
     sleep 11
