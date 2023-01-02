@@ -374,9 +374,8 @@ function test_macsec() {
     local local_extra=""
     local remote_extra=""
 
-    config_keys_and_ips $ip_proto $macsec_ip_proto $key_len
-
-    shift 6 #Allow passing all params after the 6th param
+    # Pass rest of the args as params.
+    shift 6
 
     if [ "$offload_side" == "local" ]; then
         local_extra="$local_extra --offload $@"
@@ -393,6 +392,8 @@ function test_macsec() {
     else
         err "$offload_side is not a valid value for offload_side parameter"
     fi
+
+    config_keys_and_ips $ip_proto $macsec_ip_proto $key_len
 
     config_macsec --device $dev --interface $macsec_dev --cipher $EFFECTIVE_CIPHER \
     --tx-key $EFFECTIVE_KEY_IN --rx-key $EFFECTIVE_KEY_OUT --encoding-sa $sa_num --pn $client_pn --sci $sci --rx-sci $rx_sci\
