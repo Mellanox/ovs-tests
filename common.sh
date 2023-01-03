@@ -1314,9 +1314,10 @@ function unbind_vfs() {
     local vfpci
     local nic
     local i
-    local sysfs="/sys/bus/pci/devices/${PCI_MAP[$nic]}"
 
     for nic in $nics; do
+        local sysfs="/sys/bus/pci/devices/${PCI_MAP[$nic]}"
+
         for i in `ls -1d $sysfs/virt* 2>/dev/null`; do
             vfpci=$(basename `readlink $i`)
             if [ -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
@@ -1355,10 +1356,11 @@ function bind_vfs() {
     local nics=${@:-$NIC}
     local i vfpci
     local nic
-    local sysfs="/sys/bus/pci/devices/${PCI_MAP[$nic]}"
     local err=0
 
     for nic in $nics; do
+        local sysfs="/sys/bus/pci/devices/${PCI_MAP[$nic]}"
+
         for i in `ls -1d $sysfs/virt*`; do
             vfpci=$(basename `readlink $i`)
             if [ ! -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
