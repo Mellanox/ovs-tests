@@ -59,6 +59,7 @@ devlink_compat=0
 
 # Special variables
 __ignore_errors=0
+PF_IN_NS=""
 
 
 function get_mlx_iface() {
@@ -959,13 +960,14 @@ function get_reps() {
     local nic=${1:-$NIC}
     local sid1=`get_sw_id $nic`
     local pn1=`get_port_name $nic`
+    local exec_ns=`get_exec_pf_in_ns`
 
     if [ -z "$sid1" ]; then
         echo "get_reps: Failed to get sw id for $nic" >> /dev/stderr
         return
     fi
 
-    for i in `ls -1 /sys/class/net`; do
+    for i in `$exec_ns ls -1 /sys/class/net`; do
         local sid2=`get_sw_id $i`
         local pn2=`get_port_name $i`
         if [ "$pn2" != "p0" ] && [ "$pn2" != "p1" ]; then
@@ -1386,16 +1388,23 @@ function bind_vfs() {
     return $err
 }
 
+function get_exec_pf_in_ns() {
+    get_exec_ns $PF_IN_NS
+}
+
 function get_sw_id() {
-    cat /sys/class/net/$1/phys_switch_id 2>/dev/null
+    local exec_ns=`get_exec_pf_in_ns`
+    $exec_ns cat /sys/class/net/$1/phys_switch_id 2>/dev/null
 }
 
 function get_port_name() {
-    cat /sys/class/net/$1/phys_port_name 2>/dev/null
+    local exec_ns=`get_exec_pf_in_ns`
+    $exec_ns cat /sys/class/net/$1/phys_port_name 2>/dev/null
 }
 
 function get_parent_port_name() {
-    local a=`cat /sys/class/net/$1/phys_port_name 2>/dev/null`
+    local exec_ns=`get_exec_pf_in_ns`
+    local a=`$exec_ns cat /sys/class/net/$1/phys_port_name 2>/dev/null`
     a=${a%vf*}
     a=${a//pf}
     ((a&=0x7))
@@ -2369,6 +2378,17 @@ function ns_wrap() {
         cmd="ip netns exec $ns $cmd"
     fi
     echo $cmd
+}
+
+function get_exec_ns() {
+    local ns=$1
+    local exec_ns
+
+    if [ -n "$ns" ]; then
+        exec_ns="ip netns exec $ns"
+    fi
+
+    echo $exec_ns
 }
 
 function is_ipv6() {
