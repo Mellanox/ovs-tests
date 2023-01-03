@@ -52,6 +52,8 @@ VENDOR_MELLANOX="0x15b3"
         { PCI_VDEVICE(MELLANOX, 0x1021) },                      /* ConnectX-7 */
 EOT
 
+declare -A PCI_MAP
+
 # set in __test_for_devlink_compat()
 devlink_compat=0
 
@@ -241,7 +243,7 @@ function __setup_common() {
 
     PCI=$(basename `readlink /sys/class/net/$NIC/device`)
     PCI2=$(basename `readlink /sys/class/net/$NIC2/device`)
-    declare -A PCI_MAP=( [$NIC]=$PCI [$NIC2]=$PCI2 )
+    PCI_MAP=( [$NIC]=$PCI [$NIC2]=$PCI2 )
 
     DEVICE=`cat /sys/class/net/$NIC/device/device`
     PCI_DEVICE_NUM=`printf '%d' $DEVICE`
