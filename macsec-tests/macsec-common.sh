@@ -430,11 +430,7 @@ function test_macsec_multi_sa() {
     local macsec_dev="macsec0"
     local i
 
-    if [[ "$xpn" == "on" ]]; then
-        xpn="--xpn on"
-    fi
-
-    test_macsec $mtu $ip_proto $macsec_ip_proto $key_len $net_proto $offload_side --add-multi-sa $xpn
+    test_macsec $mtu $ip_proto $macsec_ip_proto $key_len $net_proto $offload_side --add-multi-sa --xpn $xpn
 
     start_iperf_server
 
