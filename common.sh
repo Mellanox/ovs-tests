@@ -238,8 +238,11 @@ function __setup_common() {
     SRIOV_NUMVFS_NIC=$sysfs_pci_device/sriov_numvfs
     sysfs_pci_device2=`readlink -f /sys/class/net/$NIC2/../../`
     SRIOV_NUMVFS_NIC2=$sysfs_pci_device2/sriov_numvfs
+
     PCI=$(basename `readlink /sys/class/net/$NIC/device`)
     PCI2=$(basename `readlink /sys/class/net/$NIC2/device`)
+    declare -A PCI_MAP=( [$NIC]=$PCI [$NIC2]=$PCI2 )
+
     DEVICE=`cat /sys/class/net/$NIC/device/device`
     PCI_DEVICE_NUM=`printf '%d' $DEVICE`
     FW=`get_nic_fw $NIC`
@@ -982,6 +985,8 @@ function bring_up_reps() {
     local nic=${1:-$NIC}
     local ifs
 
+    if [ ! -e "/sys/class/net/$nic" ]; then return ; fi
+
     # XXX: we might miss reps if not using the udev rule
     ifs=`__get_vf_reps $nic`
 
@@ -1022,6 +1027,7 @@ function wait_for_reps() {
     local found=0
 
     if [ "$count" == 0 ]; then return ; fi
+    if [ ! -e "/sys/class/net/$nic" ]; then return ; fi
 
     for i in `seq 4`; do
         reps=`__get_vf_reps_count $nic`
@@ -1075,7 +1081,7 @@ function wait_switch_mode_compat() {
 function switch_mode() {
     local mode=$1
     local nic=${2:-$NIC}
-    local pci=$(basename `readlink /sys/class/net/$nic/device`)
+    local pci=${PCI_MAP[$nic]}
     local extra="$extra_mode"
     local vf_count=`get_vfs_count $nic`
 
@@ -1122,7 +1128,7 @@ function get_eswitch_mode() {
     if [ "$devlink_compat" = 1 ]; then
         cat `devlink_compat_dir $nic`/mode 2>/dev/null
     else
-        local pci=$(basename `readlink /sys/class/net/$nic/device`)
+        local pci=${PCI_MAP[$nic]}
         devlink dev eswitch show pci/$pci 2>/dev/null | grep -o " mode [a-z]\+" | awk {'print $2'}
     fi
 }
@@ -1306,9 +1312,10 @@ function unbind_vfs() {
     local vfpci
     local nic
     local i
+    local sysfs="/sys/bus/pci/devices/${PCI_MAP[$nic]}"
 
     for nic in $nics; do
-        for i in `ls -1d /sys/class/net/$nic/device/virt* 2>/dev/null`; do
+        for i in `ls -1d $sysfs/virt* 2>/dev/null`; do
             vfpci=$(basename `readlink $i`)
             if [ -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
                 log_once __once_unbind_vfs "Unbind vfs of $nic"
@@ -1346,10 +1353,11 @@ function bind_vfs() {
     local nics=${@:-$NIC}
     local i vfpci
     local nic
+    local sysfs="/sys/bus/pci/devices/${PCI_MAP[$nic]}"
     local err=0
 
     for nic in $nics; do
-        for i in `ls -1d /sys/class/net/$nic/device/virt*`; do
+        for i in `ls -1d $sysfs/virt*`; do
             vfpci=$(basename `readlink $i`)
             if [ ! -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
                 log_once __once_bind_vfs "Bind vfs of $nic"
