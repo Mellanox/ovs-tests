@@ -947,29 +947,28 @@ function count_reps() {
     fi
 }
 
+# get uplink and vf reps.
 function get_reps() {
     local i
     local nic=${1:-$NIC}
-    local out=""
     local sid1=`get_sw_id $nic`
-    local sid2
+    local pn1=`get_port_name $nic`
 
     if [ -z "$sid1" ]; then
-        echo "get_reps: Failed to get sw id for $nic"
+        echo "get_reps: Failed to get sw id for $nic" >> /dev/stderr
         return
     fi
 
     for i in `ls -1 /sys/class/net`; do
-        if [ $i == $nic ]; then continue ; fi
-        sid2=`get_sw_id $i`
-        if [ "$sid1" == "$sid2" ]; then
-            out+=" $i"
+        local sid2=`get_sw_id $i`
+        local pn2=`get_port_name $i`
+        if [ "$pn2" != "p0" ] && [ "$pn2" != "p1" ]; then
+            pn2=`get_parent_port_name $i`
+        fi
+        if [ "$sid1" == "$sid2" ] && [ "$pn1" == "$pn2" ]; then
+            echo $i
         fi
     done
-    echo $out
-    # usage example:
-    #        local reps=`get_reps`
-    #        cmd="echo -n $reps | xargs -I {} -d ' ' ip link set dev {} up"
 }
 
 function __get_reps() {
