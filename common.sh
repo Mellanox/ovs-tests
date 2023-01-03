@@ -971,7 +971,8 @@ function get_reps() {
     done
 }
 
-function __get_reps() {
+# get vf reps.
+function __get_vf_reps() {
     local nic=$1
     # XXX: we might miss reps if not using the udev rule
     ls -1 /sys/class/net/ | grep ${nic}_[0-9]
@@ -982,7 +983,7 @@ function bring_up_reps() {
     local ifs
 
     # XXX: we might miss reps if not using the udev rule
-    ifs=`__get_reps $nic`
+    ifs=`__get_vf_reps $nic`
 
     if [ -z "$ifs" ]; then
         warn "bring_up_reps: cannot find reps for $nic"
@@ -1006,8 +1007,11 @@ function get_vfs_count() {
 }
 
 function get_reps_count() {
-    local nic=$1
-    __get_reps $nic | wc -l
+    get_reps $1 | wc -l
+}
+
+function __get_vf_reps_count() {
+    __get_vf_reps $1 | wc -l
 }
 
 function wait_for_reps() {
@@ -1020,7 +1024,7 @@ function wait_for_reps() {
     if [ "$count" == 0 ]; then return ; fi
 
     for i in `seq 4`; do
-        reps=`get_reps_count $nic`
+        reps=`__get_vf_reps_count $nic`
         if [ "$reps" = "$count" ]; then
             found=1
             break
