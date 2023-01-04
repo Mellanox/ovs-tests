@@ -171,18 +171,17 @@ function get_macsec_counter_on_remote() {
 }
 
 function read_pre_test_counters() {
-    local side=${1:-"both"}
 
-    if [ "$side" == "none" ]; then
+    if [ "$OFFLOAD_SIDE" == "none" ]; then
         return
     fi
 
-    if [ "$side" == "remote" ]; then
+    if [ "$OFFLOAD_SIDE" == "remote" ]; then
         REMOTE_PRE_TEST_PKTS_TX=`on_remote_exec "get_macsec_counter tx_pkts"`
         REMOTE_PRE_TEST_PKTS_RX=`on_remote_exec "get_macsec_counter rx_pkts"`
         REMOTE_PRE_TEST_PKTS_TX_DROP=`on_remote_exec "get_macsec_counter tx_pkts_drop"`
         REMOTE_PRE_TEST_PKTS_RX_DROP=`on_remote_exec "get_macsec_counter rx_pkts_drop"`
-    elif [ "$side" == "local" ]; then
+    elif [ "$OFFLOAD_SIDE" == "local" ]; then
         LOCAL_PRE_TEST_PKTS_TX=`get_macsec_counter tx_pkts`
         LOCAL_PRE_TEST_PKTS_RX=`get_macsec_counter rx_pkts`
         LOCAL_PRE_TEST_PKTS_TX_DROP=`get_macsec_counter tx_pkts_drop`
@@ -200,18 +199,17 @@ function read_pre_test_counters() {
 }
 
 function read_post_test_counters() {
-    local side=${1:-"both"}
 
-    if [ "$side" == "none" ]; then
+    if [ "$OFFLOAD_SIDE" == "none" ]; then
         return
     fi
 
-    if [ "$side" == "remote" ]; then
+    if [ "$OFFLOAD_SIDE" == "remote" ]; then
         REMOTE_POST_TEST_PKTS_TX=`on_remote_exec "get_macsec_counter tx_pkts"`
         REMOTE_POST_TEST_PKTS_RX=`on_remote_exec "get_macsec_counter rx_pkts"`
         REMOTE_POST_TEST_PKTS_TX_DROP=`on_remote_exec "get_macsec_counter tx_pkts_drop"`
         REMOTE_POST_TEST_PKTS_RX_DROP=`on_remote_exec "get_macsec_counter rx_pkts_drop"`
-    elif [ "$side" == "local" ]; then
+    elif [ "$OFFLOAD_SIDE" == "local" ]; then
         LOCAL_POST_TEST_PKTS_TX=`get_macsec_counter tx_pkts`
         LOCAL_POST_TEST_PKTS_RX=`get_macsec_counter rx_pkts`
         LOCAL_POST_TEST_PKTS_TX_DROP=`get_macsec_counter tx_pkts_drop`
@@ -243,10 +241,8 @@ function set_tx_sa() {
 }
 
 function verify_offload_counters() {
-    local side=${1:-"both"}
-    local net_proto=$2
 
-    if [ "$side" == "none" ]; then
+    if [ "$OFFLOAD_SIDE" == "none" ]; then
         return
     fi
 
@@ -257,12 +253,12 @@ function verify_offload_counters() {
     #expect all counters to advance hence on local side since it's the receiver
     #side we expect RX counters to advance where on remote side since it's transmitter
     #side we expect TX counters to advance.
-    if [ "$net_proto" == "udp" ]; then
-        if [ "$side" == "local" ]; then
+    if [ "$NET_PROTO" == "udp" ]; then
+        if [ "$OFFLOAD_SIDE" == "local" ]; then
             if [[ "$LOCAL_POST_TEST_PKTS_RX" -le "$LOCAL_PRE_TEST_PKTS_RX" ]]; then
                 fail "Macsec full offload counters didn't increase as expected on local"
             fi
-        elif [ "$side" == "remote" ]; then
+        elif [ "$OFFLOAD_SIDE" == "remote" ]; then
             if [[ "$REMOTE_POST_TEST_PKTS_TX" -le "$REMOTE_PRE_TEST_PKTS_TX" ]]; then
                 fail "Macsec full offload counters didn't increase as expected on remote"
             fi
@@ -277,11 +273,11 @@ function verify_offload_counters() {
         return
     fi
 
-    if [ "$side" == "local" ]; then
+    if [ "$OFFLOAD_SIDE" == "local" ]; then
         if [[ "$LOCAL_POST_TEST_PKTS_TX" -le "$LOCAL_PRE_TEST_PKTS_TX" || "$LOCAL_POST_TEST_PKTS_RX" -le "$LOCAL_PRE_TEST_PKTS_RX" ]]; then
             fail "Macsec full offload counters didn't increase as expected on local"
         fi
-    elif [ "$side" == "remote" ]; then
+    elif [ "$OFFLOAD_SIDE" == "remote" ]; then
         if [[ "$REMOTE_POST_TEST_PKTS_TX" -le "$REMOTE_PRE_TEST_PKTS_TX" || "$REMOTE_POST_TEST_PKTS_RX" -le "$REMOTE_PRE_TEST_PKTS_RX" ]]; then
             fail "Macsec full offload counters didn't increase as expected on remote"
         fi
@@ -421,7 +417,7 @@ function test_macsec() {
                                        --tx-key $EFFECTIVE_KEY_OUT --rx-key $EFFECTIVE_KEY_IN --encoding-sa $sa_num --pn $server_pn --sci $rx_sci --rx-sci $sci \
                                        --dev-ip $EFFECTIVE_RIP --macsec-ip $MACSEC_EFFECTIVE_RIP $REMOTE_EXTRA
 
-    read_pre_test_counters $OFFLOAD_SIDE
+    read_pre_test_counters
 
     change_mtu_on_both_sides $MTU $dev $macsec_dev
 
@@ -429,9 +425,9 @@ function test_macsec() {
 
     run_traffic $MACSEC_IP_PROTO $NET_PROTO
 
-    read_post_test_counters $OFFLOAD_SIDE
+    read_post_test_counters
 
-    verify_offload_counters $OFFLOAD_SIDE $NET_PROTO
+    verify_offload_counters
 
     kill_iperf
 }
@@ -450,13 +446,13 @@ function test_macsec_multi_sa() {
         set_tx_sa $dev $macsec_dev $i
         change_mtu_on_both_sides $MTU $dev $macsec_dev
 
-        read_pre_test_counters $OFFLOAD_SIDE
+        read_pre_test_counters
 
         run_traffic $MACSEC_IP_PROTO $NET_PROTO
 
-        read_post_test_counters $OFFLOAD_SIDE
+        read_post_test_counters
 
-        verify_offload_counters $OFFLOAD_SIDE $NET_PROTO
+        verify_offload_counters
 
     done
 
@@ -485,7 +481,7 @@ function test_macsec_xpn() {
                                        --tx-key $EFFECTIVE_KEY_OUT --rx-key $EFFECTIVE_KEY_IN --encoding-sa $sa_num --pn $server_pn --sci $rx_sci --rx-sci $sci \
                                        --dev-ip $EFFECTIVE_RIP --macsec-ip $MACSEC_EFFECTIVE_RIP $REMOTE_EXTRA --xpn on --replay on --window 32
 
-    read_pre_test_counters $OFFLOAD_SIDE
+    read_pre_test_counters
 
     change_mtu_on_both_sides $MTU $dev $macsec_dev
 
@@ -493,9 +489,9 @@ function test_macsec_xpn() {
 
     run_traffic $MACSEC_IP_PROTO $NET_PROTO
 
-    read_post_test_counters $OFFLOAD_SIDE
+    read_post_test_counters
 
-    verify_offload_counters $OFFLOAD_SIDE $NET_PROTO
+    verify_offload_counters
 
     kill_iperf
 }
