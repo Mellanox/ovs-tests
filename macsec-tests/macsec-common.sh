@@ -77,6 +77,22 @@ function macsec_set_key_len() {
     KEY_LEN=$1
 }
 
+function macsec_set_config_extras() {
+    if [ "$OFFLOAD_SIDE" == "local" ]; then
+        LOCAL_EXTRA="--offload $@"
+    elif [ "$OFFLOAD_SIDE" == "remote" ]; then
+        REMOTE_EXTRA="--offload $@"
+    elif [ "$OFFLOAD_SIDE" == "both" ]; then
+        LOCAL_EXTRA="--offload $@"
+        REMOTE_EXTRA="--offload $@"
+    elif [ "$OFFLOAD_SIDE" == "none" ]; then
+        LOCAL_EXTRA="$@"
+        REMOTE_EXTRA="$@"
+    else
+        err "$OFFLOAD_SIDE is not a valid value for offload_side parameter"
+    fi
+}
+
 function macsec_cleanup_local() {
     local dev=${1:-"$NIC"}
     local macsec_dev=${2:-"macsec0"}
@@ -390,34 +406,20 @@ function test_macsec() {
     local server_pn=$(($RANDOM % 10000))
     local sci="$RANDOM"
     local rx_sci="$RANDOM"
-    local local_extra=""
-    local remote_extra=""
-
-    if [ "$OFFLOAD_SIDE" == "local" ]; then
-        local_extra="$local_extra --offload $@"
-        remote_extra="$remote_extra $@"
-    elif [ "$OFFLOAD_SIDE" == "remote" ]; then
-        local_extra="$local_extra $@"
-        remote_extra="$remote_extra --offload $@"
-    elif [ "$OFFLOAD_SIDE" == "both" ]; then
-        local_extra="$local_extra --offload $@"
-        remote_extra="$remote_extra --offload $@"
-    elif [ "$OFFLOAD_SIDE" == "none" ]; then
-        local_extra="$local_extra $@"
-        remote_extra="$remote_extra $@"
-    else
-        err "$OFFLOAD_SIDE is not a valid value for offload_side parameter"
-    fi
+    LOCAL_EXTRA=""
+    REMOTE_EXTRA=""
 
     config_keys_and_ips $IP_PROTO $MACSEC_IP_PROTO
 
+    macsec_set_config_extras $@
+
     config_macsec --device $dev --interface $macsec_dev --cipher $EFFECTIVE_CIPHER \
     --tx-key $EFFECTIVE_KEY_IN --rx-key $EFFECTIVE_KEY_OUT --encoding-sa $sa_num --pn $client_pn --sci $sci --rx-sci $rx_sci\
-    --dev-ip "$EFFECTIVE_LIP" --macsec-ip $MACSEC_EFFECTIVE_LIP $local_extra
+    --dev-ip "$EFFECTIVE_LIP" --macsec-ip $MACSEC_EFFECTIVE_LIP $LOCAL_EXTRA
 
     config_macsec_remote --device $dev --interface $macsec_dev --cipher $EFFECTIVE_CIPHER \
                                        --tx-key $EFFECTIVE_KEY_OUT --rx-key $EFFECTIVE_KEY_IN --encoding-sa $sa_num --pn $server_pn --sci $rx_sci --rx-sci $sci \
-                                       --dev-ip $EFFECTIVE_RIP --macsec-ip $MACSEC_EFFECTIVE_RIP $remote_extra
+                                       --dev-ip $EFFECTIVE_RIP --macsec-ip $MACSEC_EFFECTIVE_RIP $REMOTE_EXTRA
 
     read_pre_test_counters $OFFLOAD_SIDE
 
@@ -470,31 +472,20 @@ function test_macsec_xpn() {
     local server_pn=4294967290
     local sci="$RANDOM"
     local rx_sci="$RANDOM"
-    local local_extra=""
-    local remote_extra=""
+    LOCAL_EXTRA=""
+    REMOTE_EXTRA=""
 
     config_keys_and_ips $IP_PROTO $MACSEC_IP_PROTO xpn_on
 
-    if [ "$OFFLOAD_SIDE" == "local" ]; then
-        local_extra="--offload"
-    elif [ "$OFFLOAD_SIDE" == "remote" ]; then
-        remote_extra="--offload"
-    elif [ "$OFFLOAD_SIDE" == "both" ]; then
-        local_extra="--offload"
-        remote_extra="--offload"
-    elif [ "$OFFLOAD_SIDE" == "none" ]; then
-        :
-    else
-        err "$OFFLOAD_SIDE is not a valid value for offload_side parameter"
-    fi
+    macsec_set_config_extras $@
 
     config_macsec --device $dev --interface $macsec_dev --cipher $EFFECTIVE_CIPHER \
     --tx-key $EFFECTIVE_KEY_IN --rx-key $EFFECTIVE_KEY_OUT --encoding-sa $sa_num --pn $client_pn --sci $sci --rx-sci $rx_sci\
-    --dev-ip "$EFFECTIVE_LIP" --macsec-ip $MACSEC_EFFECTIVE_LIP $local_extra --xpn on --replay on --window 32
+    --dev-ip "$EFFECTIVE_LIP" --macsec-ip $MACSEC_EFFECTIVE_LIP $LOCAL_EXTRA --xpn on --replay on --window 32
 
     config_macsec_remote --device $dev --interface $macsec_dev --cipher $EFFECTIVE_CIPHER \
                                        --tx-key $EFFECTIVE_KEY_OUT --rx-key $EFFECTIVE_KEY_IN --encoding-sa $sa_num --pn $server_pn --sci $rx_sci --rx-sci $sci \
-                                       --dev-ip $EFFECTIVE_RIP --macsec-ip $MACSEC_EFFECTIVE_RIP $remote_extra --xpn on --replay on --window 32
+                                       --dev-ip $EFFECTIVE_RIP --macsec-ip $MACSEC_EFFECTIVE_RIP $REMOTE_EXTRA --xpn on --replay on --window 32
 
     read_pre_test_counters $OFFLOAD_SIDE
 
