@@ -660,7 +660,8 @@ function __foo_copy() {
     fi
     local i
     for i in _longopt _parse_help _parse_usage; do unset -f $i ; done
-    set | grep -Ev "^(BASH|SHELLOPTS|UID|EUID|PPID|_OVS_VSCTL)" > $__FOO
+    declare -p PCI_MAP > $__FOO
+    set | grep -Ev "^(BASH|SHELLOPTS|UID|EUID|PPID|_OVS_VSCTL)" >> $__FOO
     echo ". /etc/os-release" >> $__FOO
     scp2 $__FOO $remote:/tmp/
     __foo_copied+=($remote)
