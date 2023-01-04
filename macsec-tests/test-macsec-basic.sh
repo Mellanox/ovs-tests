@@ -14,11 +14,11 @@ function cleanup() {
 }
 
 function run_test() {
-    run_test_macsec 1500 ipv4 ipv4 icmp both
-    run_test_macsec 1500 ipv4 ipv4 tcp both
+    run_test_macsec --mtu 1500 --ip-proto ipv4 --macsec-ip-proto ipv4 --net-proto icmp --offload-side both
+    run_test_macsec --mtu 1500 --ip-proto ipv4 --macsec-ip-proto ipv4 --net-proto tcp --offload-side both
     title "re-run the test with 9000 mtu\n"
-    run_test_macsec 9000 ipv4 ipv4 icmp both
-    run_test_macsec 9000 ipv4 ipv4 tcp both
+    run_test_macsec --mtu 9000 --ip-proto ipv4 --macsec-ip-proto ipv4 --net-proto icmp --offload-side both
+    run_test_macsec --mtu 9000 --ip-proto ipv4 --macsec-ip-proto ipv4 --net-proto tcp --offload-side both
 }
 
 trap cleanup EXIT

@@ -10,8 +10,8 @@ function cleanup() {
 }
 
 function run_test() {
-    run_test_macsec 1500 ipv4 ipv4 udp none
-    run_test_macsec 1500 ipv4 ipv4 udp both
+    run_test_macsec --mtu 1500 --ip-proto ipv4 --macsec-ip-proto ipv4 --net-proto udp --offload-side none
+    run_test_macsec --mtu 1500 --ip-proto ipv4 --macsec-ip-proto ipv4 --net-proto udp --offload-side both
 }
 
 trap cleanup EXIT

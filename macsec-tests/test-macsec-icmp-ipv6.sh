@@ -14,8 +14,8 @@ function cleanup() {
 }
 
 function run_test() {
-    run_test_macsec 1500 ipv6 ipv6 icmp none
-    run_test_macsec 1500 ipv6 ipv6 icmp both
+    run_test_macsec --mtu 1500 --ip-proto ipv6 --macsec-ip-proto ipv6 --net-proto icmp --offload-side none
+    run_test_macsec --mtu 1500 --ip-proto ipv6 --macsec-ip-proto ipv6 --net-proto icmp --offload-side both
 }
 
 trap cleanup EXIT
