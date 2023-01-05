@@ -48,12 +48,11 @@ function run_traffic() {
     done
 }
 
-function add_ct_rules() {
-    local filter_actions="
-        action pedit ex munge udp dport set 2048 pipe \
-        action csum ip udp pipe \
-        action ct action goto chain 1"
+filter_actions="action pedit ex munge udp dport set 2048 pipe \
+                action csum ip udp pipe \
+                action ct action goto chain 1"
 
+function add_ct_rules() {
     #this tests deleting just a single handle, as prio 2 is held by another "handle 6" rule
     tc_filter add dev $REP ingress protocol ip prio 2 handle 5 flower $tc_verbose \
         dst_mac $mac2 ct_state -trk \
@@ -105,6 +104,15 @@ function run() {
     tc_test_verbose
     config_vf ns0 $VF $REP $IP1
     config_vf ns1 $VF2 $REP2 $IP2
+
+    #verify we support the tc ct + tuple rewrite rule type
+    tc_filter add dev $REP ingress protocol ip prio 2 flower $tc_verbose \
+        skip_sw \
+        dst_mac $mac2 ct_state -trk \
+        ip_proto udp \
+        $filter_actions || fail "Failed adding tc ct rule"
+
+    tc_filter del dev $REP ingress protocol ip prio 2 flower
 
     echo "add arp rules"
     tc_filter add dev $REP ingress protocol arp prio 1 flower $tc_verbose \
