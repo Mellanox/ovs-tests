@@ -14,6 +14,7 @@ compile_psample
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
+min_nic_cx6
 config_sriov 2
 enable_switchdev
 require_interfaces REP REP2
