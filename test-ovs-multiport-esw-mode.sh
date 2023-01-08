@@ -102,7 +102,7 @@ function run_traffic() {
         return
     fi
 
-    local t=10
+    local t=15
     local pid_remote
     local pid_offload
     local pid_ping
