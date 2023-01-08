@@ -27,6 +27,52 @@ KEY_OUT_256=`dd if=/dev/urandom count=32 bs=1 2>/dev/null | xxd -p -c 72`
 IPERF_FILE="/tmp/iperf.log"
 TCPDUMP_FILE="/tmp/tcpdump.log"
 
+function macsec_parse_test() {
+    MTU=""
+    IP_PROTO=""
+    MACSEC_IP_PROTO=""
+    NET_PROTO=""
+    OFFLOAD_SIDE=""
+    XPN="off"
+    MULTI_SA="off"
+    while [[ $# -gt 0 ]]; do
+        local key="$1"
+        case $key in
+            --mtu)
+            MTU="$2"
+            shift 2
+            ;;
+            --ip-proto)
+            IP_PROTO="$2"
+            shift 2
+            ;;
+            --macsec-ip-proto)
+            MACSEC_IP_PROTO="$2"
+            shift 2
+            ;;
+            --net-proto)
+            NET_PROTO="$2"
+            shift 2
+            ;;
+            --offload-side)
+            OFFLOAD_SIDE="$2"
+            shift 2
+            ;;
+            --multi-sa)
+            MULTI_SA="$2"
+            shift 2
+            ;;
+            --xpn)
+            XPN="$2"
+            shift 2
+            ;;
+            *)    # Unknown option
+            fail "Unknown arg for macsec test parser"
+            ;;
+        esac
+    done
+}
+
 function macsec_set_key_len() {
     KEY_LEN=$1
 }
@@ -336,18 +382,7 @@ function config_keys_and_ips() {
     fi
 }
 
-# Usage <mtu> <ip_proto> <macsec_ip_proto> <net_proto> <offload_side> [--add-multi-sa]
-# mtu = {1500..9000}
-# ip_proto = ipv4/ipv6
-# macsec_ip_proto= ipv4/ipv6
-# net_proto = tcp/udp/icmp
-# offload_side = local/remote/both/none
 function test_macsec() {
-    local mtu="$1"
-    local ip_proto="$2"
-    local macsec_ip_proto="$3"
-    local net_proto="$4"
-    local offload_side=$5
     local dev="$NIC"
     local macsec_dev="macsec0"
     local sa_num="0"
@@ -358,26 +393,23 @@ function test_macsec() {
     local local_extra=""
     local remote_extra=""
 
-    # Pass rest of the args as params.
-    shift 5
-
-    if [ "$offload_side" == "local" ]; then
+    if [ "$OFFLOAD_SIDE" == "local" ]; then
         local_extra="$local_extra --offload $@"
         remote_extra="$remote_extra $@"
-    elif [ "$offload_side" == "remote" ]; then
+    elif [ "$OFFLOAD_SIDE" == "remote" ]; then
         local_extra="$local_extra $@"
         remote_extra="$remote_extra --offload $@"
-    elif [ "$offload_side" == "both" ]; then
+    elif [ "$OFFLOAD_SIDE" == "both" ]; then
         local_extra="$local_extra --offload $@"
         remote_extra="$remote_extra --offload $@"
-    elif [ "$offload_side" == "none" ]; then
+    elif [ "$OFFLOAD_SIDE" == "none" ]; then
         local_extra="$local_extra $@"
         remote_extra="$remote_extra $@"
     else
-        err "$offload_side is not a valid value for offload_side parameter"
+        err "$OFFLOAD_SIDE is not a valid value for offload_side parameter"
     fi
 
-    config_keys_and_ips $ip_proto $macsec_ip_proto
+    config_keys_and_ips $IP_PROTO $MACSEC_IP_PROTO
 
     config_macsec --device $dev --interface $macsec_dev --cipher $EFFECTIVE_CIPHER \
     --tx-key $EFFECTIVE_KEY_IN --rx-key $EFFECTIVE_KEY_OUT --encoding-sa $sa_num --pn $client_pn --sci $sci --rx-sci $rx_sci\
@@ -387,48 +419,42 @@ function test_macsec() {
                                        --tx-key $EFFECTIVE_KEY_OUT --rx-key $EFFECTIVE_KEY_IN --encoding-sa $sa_num --pn $server_pn --sci $rx_sci --rx-sci $sci \
                                        --dev-ip $EFFECTIVE_RIP --macsec-ip $MACSEC_EFFECTIVE_RIP $remote_extra
 
-    read_pre_test_counters $offload_side
+    read_pre_test_counters $OFFLOAD_SIDE
 
-    change_mtu_on_both_sides $mtu $dev $macsec_dev
+    change_mtu_on_both_sides $MTU $dev $macsec_dev
 
     start_iperf_server
 
-    run_traffic $macsec_ip_proto $net_proto
+    run_traffic $MACSEC_IP_PROTO $NET_PROTO
 
-    read_post_test_counters $offload_side
+    read_post_test_counters $OFFLOAD_SIDE
 
-    verify_offload_counters $offload_side $net_proto
+    verify_offload_counters $OFFLOAD_SIDE $NET_PROTO
 
     kill_iperf
 }
 
 function test_macsec_multi_sa() {
-    local mtu="$1"
-    local ip_proto="$2"
-    local macsec_ip_proto="$3"
-    local net_proto="$4"
-    local offload_side="$5"
-    local xpn="$6"
     local dev="$NIC"
     local macsec_dev="macsec0"
     local i
 
-    test_macsec $mtu $ip_proto $macsec_ip_proto $net_proto $offload_side --add-multi-sa --xpn $xpn
+    test_macsec --add-multi-sa --xpn $XPN
 
     start_iperf_server
 
     for i in 0 1 2 3; do
-        title "Test MACSEC with Multi SAs with mtu = $mtu , ip_protocol = $ip_proto ,  macsec_ip_protocol = $macsec_ip_proto ,network_protocol = $net_proto , key length = $len and offload = $offload_side using SA $i"
+        title "Multi SA $i"
         set_tx_sa $dev $macsec_dev $i
-        change_mtu_on_both_sides $mtu $dev $macsec_dev
+        change_mtu_on_both_sides $MTU $dev $macsec_dev
 
-        read_pre_test_counters $offload_side
+        read_pre_test_counters $OFFLOAD_SIDE
 
-        run_traffic $macsec_ip_proto $net_proto
+        run_traffic $MACSEC_IP_PROTO $NET_PROTO
 
-        read_post_test_counters $offload_side
+        read_post_test_counters $OFFLOAD_SIDE
 
-        verify_offload_counters $offload_side $net_proto
+        verify_offload_counters $OFFLOAD_SIDE $NET_PROTO
 
     done
 
@@ -436,11 +462,6 @@ function test_macsec_multi_sa() {
 }
 
 function test_macsec_xpn() {
-    local mtu="$1"
-    local ip_proto="$2"
-    local macsec_ip_proto="$3"
-    local net_proto="$4"
-    local offload_side="$5"
     local dev="$NIC"
     local macsec_dev="macsec0"
     local multi_sa="off"
@@ -452,19 +473,19 @@ function test_macsec_xpn() {
     local local_extra=""
     local remote_extra=""
 
-    config_keys_and_ips $ip_proto $macsec_ip_proto xpn_on
+    config_keys_and_ips $IP_PROTO $MACSEC_IP_PROTO xpn_on
 
-    if [ "$offload_side" == "local" ]; then
+    if [ "$OFFLOAD_SIDE" == "local" ]; then
         local_extra="--offload"
-    elif [ "$offload_side" == "remote" ]; then
+    elif [ "$OFFLOAD_SIDE" == "remote" ]; then
         remote_extra="--offload"
-    elif [ "$offload_side" == "both" ]; then
+    elif [ "$OFFLOAD_SIDE" == "both" ]; then
         local_extra="--offload"
         remote_extra="--offload"
-    elif [ "$offload_side" == "none" ]; then
+    elif [ "$OFFLOAD_SIDE" == "none" ]; then
         :
     else
-        err "$offload_side is not a valid value for offload_side parameter"
+        err "$OFFLOAD_SIDE is not a valid value for offload_side parameter"
     fi
 
     config_macsec --device $dev --interface $macsec_dev --cipher $EFFECTIVE_CIPHER \
@@ -475,22 +496,22 @@ function test_macsec_xpn() {
                                        --tx-key $EFFECTIVE_KEY_OUT --rx-key $EFFECTIVE_KEY_IN --encoding-sa $sa_num --pn $server_pn --sci $rx_sci --rx-sci $sci \
                                        --dev-ip $EFFECTIVE_RIP --macsec-ip $MACSEC_EFFECTIVE_RIP $remote_extra --xpn on --replay on --window 32
 
-    read_pre_test_counters $offload_side
+    read_pre_test_counters $OFFLOAD_SIDE
 
-    change_mtu_on_both_sides $mtu $dev $macsec_dev
+    change_mtu_on_both_sides $MTU $dev $macsec_dev
 
     start_iperf_server
 
-    run_traffic $macsec_ip_proto $net_proto
+    run_traffic $MACSEC_IP_PROTO $NET_PROTO
 
-    read_post_test_counters $offload_side
+    read_post_test_counters $OFFLOAD_SIDE
 
-    verify_offload_counters $offload_side $net_proto
+    verify_offload_counters $OFFLOAD_SIDE $NET_PROTO
 
     kill_iperf
 }
 
-# Usage <mtu> <ip_proto> <macsec_ip_proto> <net_proto> <offload> [multi_sa]
+# Usage --mtu <mtu> --ip-proto <ip_proto> --macsec-ip-proto <macsec_ip_proto> --net-proto <net_proto> --offload-side <offload> --multi-sa [multi_sa] --xpn [xpn]
 # mtu = {1500..9000}
 # ip_proto = ipv4/ipv6
 # macsec_ip_proto = ipv4/ipv6
@@ -499,30 +520,25 @@ function test_macsec_xpn() {
 # multi_sa = on/off
 # xpn = on/off
 function run_test_macsec() {
-    local mtu=$1
-    local ip_proto="$2"
-    local macsec_ip_proto="$3"
-    local net_proto="$4"
-    local offload_side="$5"
-    local multi_sa=${6:-"off"}
-    local xpn=${7:-"off"}
     local len
+
+    macsec_parse_test $@
 
     for len in 256 128; do
         macsec_cleanup
         macsec_set_key_len $len
 
-        title "Test MACSEC multi_sa=$multi_sa, mtu=$mtu, ip_protocol=$ip_proto, macsec_ip_protocol=$macsec_ip_proto, network_protocol=$net_proto, key_length=$len, offload_side=$offload_side, xpn=$xpn"
+        title "Test MACSEC multi_sa=$MULTI_SA, mtu=$MTU, ip_protocol=$IP_PROTO, macsec_ip_protocol=$MACSEC_IP_PROTO, network_protocol=$NET_PROTO, key_length=$len, offload_side=$OFFLOAD_SIDE, xpn=$XPN"
 
-        if [[ "$multi_sa" == "on" ]]; then
-            test_macsec_multi_sa $mtu $ip_proto $macsec_ip_proto $net_proto $offload_side $xpn
+        if [[ "$MULTI_SA" == "on" ]]; then
+            test_macsec_multi_sa
             # the following echo is to separate between different iterations prints (by starting a new line) during the test
             echo
-        elif [[ "$xpn" = "on" ]]; then
-            test_macsec_xpn $mtu $ip_proto $macsec_ip_proto $net_proto $offload_side
+        elif [[ "$XPN" = "on" ]]; then
+            test_macsec_xpn
             echo
         else
-            test_macsec $mtu $ip_proto $macsec_ip_proto $net_proto $offload_side
+            test_macsec
             echo
         fi
     done
