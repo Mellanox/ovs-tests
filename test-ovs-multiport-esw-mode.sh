@@ -118,8 +118,8 @@ function run_traffic() {
     on_remote "timeout $t tcpdump -qnnei bond0 -c 5 'icmp'" &
     pid_remote=$!
 
-    current_sending_dev=$(get_sending_dev)
-    title "Current interface that send packets $current_sending_dev"
+    sending_dev1=$(get_sending_dev)
+    title "Current interface sending packets $sending_dev1"
 
     title "Verify traffic on remote"
     verify_have_traffic $pid_remote
@@ -127,13 +127,13 @@ function run_traffic() {
     set_port_state_down
     sleep 2
 
-    new_sending_dev=$(get_sending_dev)
-    title "Current interface that send packets $new_sending_dev"
+    sending_dev2=$(get_sending_dev)
+    title "Current interface sending packets $sending_dev2"
 
     on_remote "timeout $t tcpdump -qnnei bond0 -c 5 'icmp'" &
     pid_remote=$!
 
-    title "Verify traffic on remote port1 down"
+    title "Verify traffic on remote after nic $sending_dev1 is down"
     verify_have_traffic $pid_remote
 
     wait $pid_ping
@@ -143,9 +143,7 @@ function run_traffic() {
         err "ICMP traffic failed"
     fi
 
-    title "Verify that the sending nic is changed after setting $NIC down"
-
-    if [[ $current_sending_dev == $new_sending_dev ]]; then
+    if [[ $sending_dev1 == $sending_dev2 ]]; then
         err "Expected traffic to be sent on different nic"
     fi
 
