@@ -11,9 +11,9 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 . $my_dir/common-ovs-ct.sh
 
-not_relevant_for_nic cx5 cx6 cx6lx
-require_module act_ct
+min_nic_cx6dx
 require_remote_server
+require_module act_ct
 
 IP=1.1.1.7
 REMOTE=1.1.1.8

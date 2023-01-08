@@ -17,8 +17,10 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 . $my_dir/common-br.sh
 
-br=tst1
+min_nic_cx6dx
+require_remote_server
 
+br=tst1
 LOCAL_IP="7.7.1.7"
 LOCAL_MAC="e4:0a:05:08:00:02"
 LOCAL_IP_VLAN2="7.7.2.7"
@@ -32,9 +34,6 @@ REMOTE_MAC_VLAN2="0c:42:a1:58:ac:29"
 REMOTE_IP_UNTAGGED="7.7.3.1"
 namespace1=ns1
 time=5
-
-require_remote_server
-not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
 
 function cleanup() {
 

@@ -7,7 +7,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
+min_nic_cx6dx
 require_remote_server
 
 IP=1.1.1.7

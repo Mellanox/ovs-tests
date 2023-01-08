@@ -9,8 +9,8 @@ my_dir="$(dirname "$0")"
 . $my_dir/common-sf.sh
 . $my_dir/common-vdpa.sh
 
+min_nic_cx6dx
 require_module mlx5_vdpa virtio_vdpa
-not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
 
 SFNUM1=88
 SFNUM2=89

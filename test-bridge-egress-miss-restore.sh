@@ -12,6 +12,8 @@ my_dir="$(dirname "$0")"
 . $my_dir/common-br.sh
 . $my_dir/common-br-helpers.sh
 
+min_nic_cx6dx
+
 br=tst1
 VF1_IP="7.7.1.7"
 VF1_MAC="e4:0a:05:08:00:02"
@@ -22,8 +24,6 @@ MAC_BOGUS="e4:0a:05:08:00:06"
 namespace1=ns1
 namespace2=ns2
 time=5
-
-not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
 
 function cleanup() {
     ip link del name $br type bridge 2>/dev/null

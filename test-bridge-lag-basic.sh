@@ -11,6 +11,8 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 . $my_dir/common-br.sh
 
+min_nic_cx6dx
+require_remote_server
 require_module bonding
 
 br=tst1
@@ -25,9 +27,6 @@ REMOTE_MAC="0c:42:a1:58:ac:28"
 namespace1=ns1
 namespace2=ns2
 time=5
-
-require_remote_server
-not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
 
 function cleanup() {
     clear_remote_bonding

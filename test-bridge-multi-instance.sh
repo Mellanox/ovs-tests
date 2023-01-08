@@ -12,6 +12,8 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 . $my_dir/common-br.sh
 
+min_nic_cx6dx
+
 br1=tst1
 br2=tst2
 
@@ -24,8 +26,6 @@ namespace2=ns2
 namespace3=ns3
 namespace4=ns4
 time=5
-
-not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
 
 function cleanup() {
     ip link del name $br1 type bridge 2>/dev/null

@@ -8,11 +8,10 @@ CONFIG_REMOTE=1
 my_dir="$(dirname "$0")"
 . $my_dir/common-ovn-basic-test.sh
 
-not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
-
-require_interfaces NIC
+min_nic_cx6dx
 require_remote_server
 
+require_interfaces NIC
 read_single_router_two_switches_topology
 ovn_set_ips
 
