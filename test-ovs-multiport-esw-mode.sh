@@ -24,6 +24,7 @@ function keep_link_up() {
 function cleanup() {
     title "Cleanup"
     ovs_clear_bridges
+    reset_tc $NIC $NIC2 $REP
     clear_remote_bonding
     ip netns del ns0 &> /dev/null
     set_port_state_up &> /dev/null
