@@ -1243,7 +1243,8 @@ function config_sriov() {
         numvfs_sysfs=$SRIOV_NUMVFS_NIC2
     fi
 
-    [ -z "$numvfs_sysfs" ] && fail "Cannot config sriov for $nic"
+    [ -z "$numvfs_sysfs" ] && fail "Invalid numvfs sysfs for $nic"
+    [ ! -e "$numvfs_sysfs" ] && fail "Cannot find numvfs sysfs for $nic"
 
     local cur=`cat $numvfs_sysfs`
     if [ $cur -eq $num ]; then
