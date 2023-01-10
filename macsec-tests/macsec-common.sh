@@ -80,7 +80,9 @@ function macsec_set_key_len() {
 function macsec_set_config_extras() {
     if [ "$OFFLOAD_SIDE" == "local" ]; then
         LOCAL_EXTRA="--offload $@"
+        REMOTE_EXTRA=""
     elif [ "$OFFLOAD_SIDE" == "remote" ]; then
+        LOCAL_EXTRA=""
         REMOTE_EXTRA="--offload $@"
     elif [ "$OFFLOAD_SIDE" == "both" ]; then
         LOCAL_EXTRA="--offload $@"
@@ -89,7 +91,7 @@ function macsec_set_config_extras() {
         LOCAL_EXTRA="$@"
         REMOTE_EXTRA="$@"
     else
-        err "$OFFLOAD_SIDE is not a valid value for offload_side parameter"
+        fail "OFFLOAD_SIDE=$OFFLOAD_SIDE is not a valid value"
     fi
 }
 
@@ -406,8 +408,6 @@ function test_macsec() {
     local server_pn=$(($RANDOM % 10000))
     local sci="$RANDOM"
     local rx_sci="$RANDOM"
-    LOCAL_EXTRA=""
-    REMOTE_EXTRA=""
 
     config_keys_and_ips $IP_PROTO $MACSEC_IP_PROTO
 
@@ -472,8 +472,6 @@ function test_macsec_xpn() {
     local server_pn=4294967290
     local sci="$RANDOM"
     local rx_sci="$RANDOM"
-    LOCAL_EXTRA=""
-    REMOTE_EXTRA=""
 
     config_keys_and_ips $IP_PROTO $MACSEC_IP_PROTO xpn_on
 
