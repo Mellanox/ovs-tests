@@ -105,6 +105,8 @@ def send(server_address, port, packets, retries, pass_rate, is_ipv6):
             udp_socket.sendto(bytes([0]), (server_address, port))
             udp_socket.recvfrom(10)
             received_packets += 1
+            if received_packets % 10 == 0:
+                logger.info(f'Client: sent %d packets' % received_packets)
         except Exception as ex:
             logger.error(ex)
 

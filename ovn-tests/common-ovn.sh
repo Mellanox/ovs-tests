@@ -187,21 +187,23 @@ function send_background_traffic() {
     local dst_ip=$3
     local timeout=$4
     local logfile=$5
+    local t=20
 
+    echo "send traffic start `date`"
     if [[ $traffic_type == "icmp" ]]; then
         ip netns exec $ns ping -w $timeout -i 0.1 $dst_ip >$logfile &
     elif [[ $traffic_type == "icmp6" ]]; then
         ip netns exec $ns ping -6 -w $timeout -i 0.1 $dst_ip >$logfile &
     elif [[ $traffic_type == "tcp" ]]; then
-        ip netns exec $ns timeout $((timeout+3)) iperf3 -t $timeout -c $dst_ip --logfile $logfile --bitrate 1G &
+        ip netns exec $ns timeout $((timeout+t)) iperf3 -t $timeout -c $dst_ip --logfile $logfile --bitrate 1G &
     elif [[ $traffic_type == "tcp6" ]]; then
-        ip netns exec $ns timeout $((timeout+3)) iperf3 -6 -t $timeout -c $dst_ip --logfile $logfile --bitrate 1G &
+        ip netns exec $ns timeout $((timeout+t)) iperf3 -6 -t $timeout -c $dst_ip --logfile $logfile --bitrate 1G &
     elif [[ $traffic_type == "udp" ]]; then
         local packets=$((timeout * 10))
-        ip netns exec $ns timeout $((timeout+3)) $OVN_DIR/udp-perf.py -c $dst_ip --packets $packets --pass-rate 0.7 --logfile $logfile &
+        ip netns exec $ns timeout $((timeout+t)) $OVN_DIR/udp-perf.py -c $dst_ip --packets $packets --pass-rate 0.7 --logfile $logfile &
     elif [[ $traffic_type == "udp6" ]]; then
         local packets=$((timeout * 10))
-        ip netns exec $ns timeout $((timeout+3)) $OVN_DIR/udp-perf.py -6 -c $dst_ip --packets $packets --pass-rate 0.7 --logfile $logfile &
+        ip netns exec $ns timeout $((timeout+t)) $OVN_DIR/udp-perf.py -6 -c $dst_ip --packets $packets --pass-rate 0.7 --logfile $logfile &
     else
         fail "Unknown traffic $traffic_type"
     fi
@@ -434,6 +436,7 @@ function check_traffic_offload() {
 
     title "Wait ${traffic_type^^} traffic"
     wait $traffic_pid
+    echo "check traffic time `date`"
     local rc=$?
     if [[ $rc -eq 124 ]]; then
         err "Failed for process timeout"
