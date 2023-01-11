@@ -43,7 +43,7 @@ function verify_ping_ns() {
     local tpid=$!
     sleep 0.5
 
-    echo "run ping for $time seconds"
+    echo "run ping for $t seconds"
     ip netns exec $ns ping -I $from_dev $dst_ip -c $t -w $t -q && success || err "Ping failed"
     verify_no_traffic $tpid
 }
