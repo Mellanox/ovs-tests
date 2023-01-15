@@ -119,8 +119,12 @@ function run_traffic() {
     on_remote "timeout $t tcpdump -qnnei bond0 -c 5 'icmp'" &
     pid_remote=$!
 
+    title "ovs dump flows"
+    ovs_dump_flows --names | grep "0x0800"
+
     sending_dev1=$(get_sending_dev)
     title "Current interface sending packets $sending_dev1"
+    [ -z "$sending_dev1" ] && "Invalid sending dev"
 
     title "Verify traffic on remote"
     verify_have_traffic $pid_remote
@@ -128,8 +132,12 @@ function run_traffic() {
     set_port_state_down
     sleep 2
 
+    title "ovs dump flows"
+    ovs_dump_flows --names | grep "0x0800"
+
     sending_dev2=$(get_sending_dev)
     title "Current interface sending packets $sending_dev2"
+    [ -z "$sending_dev2" ] && "Invalid sending dev"
 
     on_remote "timeout $t tcpdump -qnnei bond0 -c 5 'icmp'" &
     pid_remote=$!
