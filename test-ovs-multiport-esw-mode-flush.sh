@@ -131,7 +131,7 @@ function run_traffic() {
 
     sending_dev1=$(get_sending_dev)
     title "Current interface sending packets $sending_dev1"
-    [ -z "$sending_dev1" ] && "Invalid sending dev"
+    [ -z "$sending_dev1" ] && err "Invalid sending dev"
 
     title "Verify traffic on remote"
     verify_have_traffic $pid_remote
@@ -149,7 +149,7 @@ function run_traffic() {
 
     sending_dev2=$(get_sending_dev)
     title "Current interface sending packets $sending_dev2"
-    [ -z "$sending_dev2" ] && "Invalid sending dev"
+    [ -z "$sending_dev2" ] && err "Invalid sending dev"
 
     on_remote "timeout $t tcpdump -qnnei bond0 -c 5 'icmp'" &
     pid_remote=$!
