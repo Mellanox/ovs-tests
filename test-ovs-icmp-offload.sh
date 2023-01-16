@@ -37,11 +37,11 @@ ovs-vsctl add-br brv-1
 ovs-vsctl add-port brv-1 $REP
 ovs-vsctl add-port brv-1 $REP2
 
+igmp="01:00:5e:00:00:16"
 
 function check_offloaded_rules() {
     local count=$1
     title " - check for $count offloaded rules"
-    igmp="01:00:5e:00:00:16"
     local cmd="ovs_dump_tc_flows | grep 0x0800 | grep -v drop | grep -v $igmp"
     eval $cmd
     RES=`eval $cmd | wc -l`
@@ -74,7 +74,7 @@ ovs_dump_tc_flows --names
 tc -s filter show dev $REP ingress
 
 title "Test lastused"
-for i in `ovs_dump_tc_flows | grep 0x0800 | grep -o "used:[^s,]*" | cut -d: -f2`; do
+for i in `ovs_dump_tc_flows | grep 0x0800 | grep -v $igmp | grep -o "used:[^s,]*" | cut -d: -f2`; do
     if [ "$i" == "never" ]; then
         err "lastuse is never"
         continue
