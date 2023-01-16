@@ -9,7 +9,6 @@ my_dir="$(dirname "$0")"
 
 config_sriov
 enable_switchdev
-echo 1 > /sys/bus/pci/devices/$PCI/reset
-sleep 10 # wait for the reset
+pci_reset
 enable_switchdev
 test_done

@@ -1653,7 +1653,8 @@ systemd.* Requested transaction contradicts existing jobs: Resource deadlock avo
 failed to kill vid 0081/0|\
 Spectre V2 : WARNING: Unprivileged eBPF is enabled with eIBRS on, data leaks possible via Spectre v2 BHB attacks!|\
 kvm|pluto.* Warning: kernel has no audit support|\
-Deprecated Driver is detected: iptables will not be maintained in a future major release and may be disabled"
+Deprecated Driver is detected: iptables will not be maintained in a future major release and may be disabled|\
+mlx5_pci_slot_reset Device state = 2 pci_status: 1. Exit, err = 0, result = 5, recovered"
 
     if [ -n "$__expected_error_msgs" ]; then
         filter+="$__expected_error_msgs"
@@ -2478,6 +2479,24 @@ function restore_lag_port_select_mode() {
     if (( __lag_port_select_mode_changed == 1 )); then
         set_lag_port_select_mode $__lag_port_select_mode
     fi
+}
+
+function grace_period_after_pci_reset() {
+    local sleep=60
+    local output=`devlink health show pci/${PCI} reporter fw_fatal 2>/dev/null | grep -Eo "grace_period [0-9]+" | awk {'print $2'}`
+
+    if [ -n "$output" ]; then
+        let sleep=$output/1000
+    fi
+
+    echo "Waiting $sleep sec for pci reset grace period"
+    sleep $sleep
+
+}
+
+function pci_reset() {
+    echo 1 > /sys/bus/pci/devices/$PCI/reset
+    grace_period_after_pci_reset
 }
 
 function __test_help() {
