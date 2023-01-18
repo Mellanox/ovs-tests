@@ -13,7 +13,7 @@ function cleanup() {
 
 function run_test() {
     cleanup
-    ipsec_config_setup
+    ipsec_config_setup "crypto" "crypto"
 
     run_traffic ipv4 icmp
 

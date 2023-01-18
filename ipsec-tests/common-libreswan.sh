@@ -4,6 +4,7 @@ IPSEC_LIBRESWAN_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
 IPSEC_CONFIG_DIR="/etc/ipsec.d"
 IPSEC_CONN="mytunnel"
 IPSEC_MYTUNNEL_CONF="$IPSEC_CONFIG_DIR/${IPSEC_CONN}.conf"
+IPSEC_TMP_CONF="/tmp/${IPSEC_CONN}.conf"
 
 function require_ipsec() {
     require_cmd ipsec
@@ -59,6 +60,8 @@ function ipsec_trafficstatus() {
 }
 
 function ipsec_config_conn() {
+    local local_offload_mode=${1:-"no-offload"}
+    local remote_offload_mode=${2:-"no-offload"}
     __ipsec_init_keys
     local key=`ipsec_get_hostkey`
 
@@ -77,12 +80,15 @@ function ipsec_config_conn() {
     echo "remote key: $remote_key"
 
     log "Create ipsec config"
-    ipsec_create_conf
+    ipsec_create_conf $local_offload_mode $remote_offload_mode
     log "Copy ipsec config to remote"
-    scp2 $IPSEC_MYTUNNEL_CONF $REMOTE_SERVER:$IPSEC_CONFIG_DIR/
+    scp2 $IPSEC_TMP_CONF $REMOTE_SERVER:$IPSEC_MYTUNNEL_CONF
 }
 
 function ipsec_create_conf() {
+    local local_offload="$1"
+    local remote_offload="$2"
+    local nic_offload="no"
     local leftsig=`ipsec_get_left_key $key`
     local rightsig=`ipsec_get_right_key $remote_key`
 
@@ -91,6 +97,12 @@ function ipsec_create_conf() {
 
     [ -z "$leftsig" ] && fail "Missing ipsec left sig"
     [ -z "$rightsig" ] && fail "Missing ipsec right sig"
+
+    if [ "$local_offload" == "crypto" ]; then
+        nic_offload="yes"
+    elif [ "$local_offload" == "packet" ]; then
+        nic_offload="packet"
+    fi
 
     echo "
 conn $IPSEC_CONN
@@ -101,16 +113,41 @@ conn $IPSEC_CONN
     right=$RIP
     $rightsig
     authby=rsasig
-    auto=ondemand" > $IPSEC_MYTUNNEL_CONF
+    auto=ondemand
+    type=transport
+    nic-offload=$nic_offload" > $IPSEC_MYTUNNEL_CONF
+
+    nic_offload="no"
+    if [ "$remote_offload" == "crypto" ]; then
+        nic_offload="yes"
+    elif [ "$remote_offload" == "packet" ]; then
+        nic_offload="packet"
+    fi
+    echo "
+
+conn $IPSEC_CONN
+    leftid=@west
+    left=$LIP
+    $leftsig
+    rightid=@east
+    right=$RIP
+    $rightsig
+    authby=rsasig
+    auto=ondemand
+    type=transport
+    nic-offload=$nic_offload" > $IPSEC_TMP_CONF
+
 }
 
 function ipsec_config_setup() {
+    local local_offload_mode=${1:-"no-offload"}
+    local remote_offload_mode=${2:-"no-offload"}
     ipsec_setup_stop
     ip a r dev $NIC $LIP/24
     ip l s dev $NIC up
     on_remote "ip a r dev $NIC $RIP/24
                ip l s dev $NIC up"
-    ipsec_config_conn
+    ipsec_config_conn $local_offload_mode $remote_offload_mode
     ipsec_setup_start
     ipsec auto --add $IPSEC_CONN || fail "Failed to add ipsec tunnel"
     ipsec auto --start $IPSEC_CONN || fail "Failed to start ipsec tunnel"

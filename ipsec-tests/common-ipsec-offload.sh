@@ -134,8 +134,8 @@ function check_offloaded_rules() {
 }
 
 function check_full_offload_counters() {
-    # counters only supported in full offload both upstream and mlnx ofed.
-    if [ "$offload" != "full_offload" ]; then
+    # counters only supported in full offload/packet offload both upstream and mlnx ofed.
+    if [[ ("$offload" != "full_offload" && "$offload" != "packet") ]]; then
         return
     fi
 
@@ -145,9 +145,9 @@ function check_full_offload_counters() {
     local post_rx=$4
     local msg=$5
 
-    title "Verify full offload counters $msg"
+    title "Verify offload counters $msg"
     if [[ ("$post_tx" -le "$pre_tx" || "$post_rx" -le "$pre_rx") ]]; then
-        fail "IPsec full offload counters didn't increase $msg"
+        fail "IPsec offload counters didn't increase $msg"
     fi
 }
 
