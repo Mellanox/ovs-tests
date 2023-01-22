@@ -436,8 +436,8 @@ function check_traffic_offload() {
 
     title "Wait ${traffic_type^^} traffic"
     wait $traffic_pid
-    echo "check traffic time `date`"
     local rc=$?
+    echo "check traffic time `date`"
     if [[ $rc -eq 124 ]]; then
         err "Failed for process timeout"
     elif [[ $rc -eq 0 ]]; then
