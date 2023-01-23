@@ -54,26 +54,35 @@ function run() {
     ip l set dev $NIC netns ns0 || err "Failed to add $NIC to ns0."
     config_sriov 2
     enable_switchdev
+    local reps_in_ns=1
     declare -A role_map=( [$NIC]="Uplink rep" ["eth0"]="VF rep0" ["eth1"]="VF rep1" )
     for dev in $NIC eth0 eth1; do
-        ip netns exec ns0 test -e /sys/class/net/$dev || err "${role_map[$dev]}($dev) is not found in netns ns0."
+        if ! ip netns exec ns0 test -e /sys/class/net/$dev ; then
+            err "${role_map[$dev]}($dev) is not found in netns ns0."
+            reps_in_ns=0
+        fi
     done
 
-    title "Verify VF reps are cleaned up from within a net namespace when SRIOV is disabled."
-    config_sriov 0
-    for dev in eth0 eth1; do
-        ip netns exec ns0 test -e /sys/class/net/$dev && err "${role_map[$dev]}($dev) is not destroyed."
-    done
+    if [ "$reps_in_ns" == 1 ]; then
+        title "Verify VF reps are cleaned up from within a net namespace when SRIOV is disabled."
+        config_sriov 0
+        for dev in eth0 eth1; do
+            ip netns exec ns0 test -e /sys/class/net/$dev && err "${role_map[$dev]}($dev) is not destroyed."
+        done
 
-    title "Verify VF reps would be evacuated from the ns upon ns deletion."
-    config_sriov 2
-    enable_switchdev
-    local num_devs_in_ns=`PF_IN_NS=ns0 get_reps_count $NIC`
-    ip netns del ns0
-    sleep 1
-    local num_devs_post_evacuation=`get_reps_count $NIC`
-    if [ $num_devs_post_evacuation -ne $num_devs_in_ns ]; then
-        err "Failed to evacuate all reps from ns"
+        title "Verify VF reps would be evacuated from the ns upon ns deletion."
+        config_sriov 2
+        enable_switchdev
+        local num_devs_in_ns=`PF_IN_NS=ns0 get_reps_count $NIC`
+        if [ "$num_devs_in_ns" == 0 ]; then
+            err "Got 0 reps in ns0"
+        fi
+        ip netns del ns0
+        sleep 1
+        local num_devs_post_evacuation=`get_reps_count $NIC`
+        if [ $num_devs_post_evacuation -ne $num_devs_in_ns ]; then
+            err "Failed to evacuate all reps from ns"
+        fi
     fi
 }
 
