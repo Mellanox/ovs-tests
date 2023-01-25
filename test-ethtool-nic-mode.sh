@@ -10,7 +10,7 @@ my_dir="$(dirname "$0")"
 function chk_lro() {
     local failed=0
     ethtool -K $NIC2 lro on || failed=1
-    [ $failed == 1 ] && err "Failed to enable lro" && return
+    [ $failed == 1 ] && err "Failed to enable LRO" && return
     ethtool -K $NIC2 lro off
     success
 }
@@ -18,7 +18,7 @@ function chk_lro() {
 function do_test() {
     title "Verify nic ethtool features"
 
-    title "test lro"
+    title "Test LRO"
     chk_lro
 }
 
