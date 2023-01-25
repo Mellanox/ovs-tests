@@ -24,5 +24,6 @@ function do_test() {
 
 
 config_sriov 0 $NIC2
+enable_legacy $NIC2
 do_test
 test_done
