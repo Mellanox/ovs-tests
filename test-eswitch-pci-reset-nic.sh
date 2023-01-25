@@ -9,6 +9,7 @@ my_dir="$(dirname "$0")"
 
 
 config_sriov 0
+enable_legacy
 echo 1 > /sys/bus/pci/devices/$PCI/reset
 sleep 10 # wait for the reset
 config_sriov
