@@ -761,6 +761,9 @@ def update_skip_according_to_db(rm, _tests, data):
     print_newline = False
 
     for t in _tests:
+        if t.ignore:
+            continue
+
         name = t.name
         opts = t.opts
         bugs_list = []
@@ -989,6 +992,8 @@ def update_skip_according_to_rm():
     print("Check redmine for open issues")
     rm = MlxRedmine()
     for t in TESTS:
+        if t.ignore:
+            continue
         data = get_test_header(t.fname)
         name = t.name
         bugs = re.findall(r"#\s*Bug SW #([0-9]+):", data)
@@ -1008,7 +1013,7 @@ def update_skip_according_to_rm():
     print()
 
 
-def ignore_excluded(exclude):
+def ignore_excluded(tests, exclude):
     if not exclude:
         return
 
@@ -1018,7 +1023,7 @@ def ignore_excluded(exclude):
             exclude.extend(item.split(','))
 
     for item in exclude:
-        for t in TESTS:
+        for t in tests:
             if t.name == item or fnmatch(t.name, item):
                 t.set_ignore('excluded')
 
@@ -1305,6 +1310,7 @@ def get_tests():
                 data = read_db(db)
                 if 'tests' in data:
                     _tests = load_tests_from_db(data)
+                    ignore_excluded(_tests, args.exclude)
                     update_skip_according_to_db(rm, _tests, data)
                     TESTS.extend(_tests)
             glob_tests(args.glob)
@@ -1316,6 +1322,7 @@ def get_tests():
             TESTS = [Test(t) for t in tmp]
             glob_tests(args.glob)
             TESTS.extend(_added)
+            ignore_excluded(TESTS, args.exclude)
             update_skip_according_to_rm()
             revert_skip_if_needed()
 
@@ -1579,8 +1586,6 @@ def main():
         return 1
 
     prepare_logdir()
-
-    ignore_excluded(args.exclude)
     calc_test_col_len()
 
     if not args.db_check:
