@@ -1598,15 +1598,13 @@ def main():
     if not args.loops:
         args.loops = 1
 
-    failed = False
-
     for iteration in range(args.loops):
         failed = run_tests(iteration)
         if failed:
-            break
+            return 1
     # end loops
 
-    return failed
+    return 0
 
 
 def cleanup():
