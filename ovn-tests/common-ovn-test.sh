@@ -68,6 +68,11 @@ function config_ovn_single_node() {
     require_interfaces CLIENT_VF CLIENT_REP SERVER_VF SERVER_REP
 
     start_clean_openvswitch
+
+    if [ "$DPDK" == 1 ]; then
+        config_simple_bridge_with_rep 0
+    fi
+
     ovn_set_ovs_config $ovn_ip $ovn_ip
     ovn_start_ovn_controller
 }
