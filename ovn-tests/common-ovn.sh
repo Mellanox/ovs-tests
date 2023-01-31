@@ -43,6 +43,7 @@ declare -A TRAFFIC_INFO=(
     ['skip_offload']=""
     ['local_traffic']=""
     ['bf_traffic']=""
+    ['bf_external']=""
 )
 
 function require_ovn() {
