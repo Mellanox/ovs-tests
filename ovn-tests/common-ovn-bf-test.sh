@@ -77,6 +77,11 @@ function config_bf_ovn_single_node() {
                 ovn_set_ovs_config $ovn_ip $ovn_ip
                 ip link set $BF_NIC up
                 ovn_start_ovn_controller"
+
+    if [ "$DPDK" == 1 ]; then
+        on_bf_exec "config_simple_bridge_with_rep 0"
+    fi
+
 }
 
 function config_bf_ovn_pf() {
