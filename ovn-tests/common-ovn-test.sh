@@ -213,16 +213,6 @@ function config_ovn_external_server() {
     config_ovn_external_server_route $SERVER_PORT $SERVER_GATEWAY_IPV4 $CLIENT_IPV4 $SERVER_GATEWAY_IPV6 $CLIENT_IPV6
 }
 
-function get_dpdk_pf_port_extra_args() {
-    local args=""
-
-    if [ "$DPDK" == 1 ]; then
-        local pci=$(get_pf_pci)
-        args="-- set Interface $NIC type=dpdk options:dpdk-devargs=$pci,$DPDK_PORT_EXTRA_ARGS"
-    fi
-    echo "$args"
-}
-
 # Config ovn with ovs internal port with vlan
 function config_ovn_pf_vlan() {
     local ovn_central_ip=$1

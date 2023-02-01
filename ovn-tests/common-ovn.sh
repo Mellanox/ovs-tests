@@ -856,6 +856,22 @@ function ovn_lsp_set_tag() {
     ovn-nbctl set LOGICAL_SWITCH_PORT $port tag=$tag
 }
 
+function get_dpdk_pf_port_extra_args() {
+    local args=""
+
+    if [ "$DPDK" == 1 ]; then
+        local pci=$(get_pf_pci)
+        local nic=$NIC
+
+        if is_bf; then
+            nic=$BF_NIC
+        fi
+
+        args="-- set Interface $nic type=dpdk options:dpdk-devargs=$pci,$DPDK_PORT_EXTRA_ARGS"
+    fi
+    echo "$args"
+}
+
 function WA_dpdk_initial_ping_and_flush() {
     if [[ "$DPDK" == 1 ]]; then
         # WA RM #3287703 require initial traffic + flush to start working.
