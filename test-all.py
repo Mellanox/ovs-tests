@@ -1126,7 +1126,8 @@ def get_dbs():
     if len(args.db) == 1 and '*' in args.db[0]:
         dbs = glob(args.db[0]) or glob(os.path.join(MYDIR, 'databases', args.db[0]))
         for db in dbs[:]:
-            if os.path.basename(db) not in ('first_db.yaml', 'second_db.yaml', 'ct_db.yaml'):
+            if os.path.basename(db) not in ('first_db.yaml', 'second_db.yaml', 'ct_db.yaml',
+                                            'db_local1.yaml', 'db_local2.yaml', 'db_local_ct.yaml'):
                 dbs.remove(db)
     elif len(args.db) == 1 and os.path.isdir(args.db[0]):
         dbs = glob(args.db[0]+'/*') or glob(os.path.join(MYDIR, 'databases', args.db[0]+'/*'))
