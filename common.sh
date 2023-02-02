@@ -425,7 +425,7 @@ function is_vf_lag_activated() {
         # "lag map" print is from create lag.
         # "modify lag map" print is from modify lag.
         # In later kernel only printing shared_fdb and mode.
-        dmesg | tail -n10 | grep "shared_fdb" | grep -v "modify lag map"
+        dmesg | grep -v -E -i "(disagrees about version of symbol|Unknown symbol)" | tail -n10 | grep "shared_fdb" | grep -v "modify lag map"
         rc=$?
         if [ $rc -eq 0 ]; then
             # wait for driver to actually create the lag and check for error.
