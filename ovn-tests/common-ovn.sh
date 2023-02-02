@@ -334,39 +334,59 @@ function __verify_tcpdump_offload() {
 }
 
 function __verify_testpmd_offload_local() {
-    local traffic_timeout=${1:-$traffic_timeout}
-    echo "query the stats of packets passed in SW"
+    local ns=$1
+    local vf=$2
+    local prev_tx_vf_pkts=$3
+    local prev_rx_vf_pkts=$4
+    local bf_traffic=${TRAFFIC_INFO[bf_traffic]}
 
+    local valid_percentage_passed_in_sw=10
+
+    local total_packets_passed_in_sw
+    local all_packets_passed
+
+    echo "query the stats of packets passed in SW"
     if [[ -z "$bf_traffic" ]]; then
-        local total_packets_passed_in_sw=$(get_total_packets_passed_in_sw)
+        total_packets_passed_in_sw=$(get_total_packets_passed_in_sw)
     else
-        local total_packets_passed_in_sw=$(on_bf_exec "get_total_packets_passed_in_sw")
+        total_packets_passed_in_sw=$(on_bf_exec "get_total_packets_passed_in_sw")
     fi
 
     if [ -z "$total_packets_passed_in_sw" ]; then
-      echo "ERROR: Cannot get total_packets_passed_in_sw" >> /dev/stderr
+      err "ERROR: Cannot get total_packets_passed_in_sw"
       return 1
     fi
 
-    local max_management_pkts_allowed=$((traffic_timeout*4))
-    title "Checking number of packets passed in SW - expected: up to $max_management_pkts_allowed - actual: $total_packets_passed_in_sw"
-    # in dpdk we are allowing up to 4 management packets to pass in SW each second
-    if [ $total_packets_passed_in_sw -gt $max_management_pkts_allowed ]; then
-        err "$total_packets_passed_in_sw packets passed in SW, it is more than $max_management_pkts_allowed"
+    all_tx_packets_passed=$(get_tx_pkts_ns $ns $vf)
+    all_rx_packets_passed=$(get_rx_pkts_ns $ns $vf)
+
+    if [ -z "$all_tx_packets_passed" ]; then
+        err "ERROR: Cannot get all_tx_packets_passed"
         return 1
     fi
+
+    if [ -z "$all_rx_packets_passed" ]; then
+        err "ERROR: Cannot get all_rx_packets_passed"
+        return 1
+    fi
+
+    all_tx_packets_passed=$((all_tx_packets_passed-prev_tx_vf_pkts))
+    all_rx_packets_passed=$((all_rx_packets_passed-prev_rx_vf_pkts))
+
+    title "Checking $total_packets_passed_in_sw is no more than $valid_percentage_passed_in_sw% of $all_tx_packets_passed (sent packets)"
+    if [ $(($valid_percentage_passed_in_sw*$total_packets_passed_in_sw)) -gt $all_tx_packets_passed ]; then
+        err "$total_packets_passed_in_sw packets passed in SW, it is more than $valid_percentage_passed_in_sw% of $all_tx_packets_passed"
+        return 1
+    fi
+
+    title "Checking $total_packets_passed_in_sw is no more than $valid_percentage_passed_in_sw% of $all_rx_packets_passed (received packets)"
+    if [ $(($valid_percentage_passed_in_sw*$total_packets_passed_in_sw)) -gt $all_rx_packets_passed ]; then
+        err "$total_packets_passed_in_sw packets passed in SW, it is more than $valid_percentage_passed_in_sw% of $all_rx_packets_passed"
+        return 1
+    fi
+
     return 0
 }
-
-function __verify_testpmd_offload() {
-    local traffic_timeout=${1:-$traffic_timeout}
-    if [[ -z "$bf_traffic" ]]; then
-      on_remote_exec "__verify_testpmd_offload_local $traffic_timeout"
-    else
-      on_remote_bf_exec "__verify_testpmd_offload_local $traffic_timeout"
-    fi
-}
-
 
 
 function check_traffic_offload() {
@@ -380,6 +400,7 @@ function check_traffic_offload() {
     local client_verify_offload=${TRAFFIC_INFO['client_verify_offload']}
 
     local server_ns=${TRAFFIC_INFO['server_ns']}
+    local server_vf=${TRAFFIC_INFO['server_vf']}
     local server_rep=${TRAFFIC_INFO['server_rep']}
     local server_rule_fields=${TRAFFIC_INFO['server_rule_fields']}
     local server_verify_offload=${TRAFFIC_INFO['server_verify_offload']}
@@ -389,6 +410,11 @@ function check_traffic_offload() {
     local local_traffic=${TRAFFIC_INFO['local_traffic']}
     local bf_traffic=${TRAFFIC_INFO['bf_traffic']}
     local tcpdump_filter=$(__tcpdump_filter $traffic_type)
+
+    local client_vf_tx_pkts
+    local client_vf_rx_pkts
+    local server_vf_tx_pkts
+    local server_vf_rx_pkts
 
     if [[ -z $client_verify_offload ]] && [[ -z $server_verify_offload ]]; then
         skip_offload=1
@@ -433,12 +459,7 @@ function check_traffic_offload() {
         ### start_tcpdump
         if [[ -n $client_verify_offload ]]; then
             if [ "$DPDK" == 1 ]; then
-                echo "clearing pmd stats in client"
-                if [[ -z "$bf_traffic" ]]; then
-                    clear_pmd_stats
-                else
-                    on_bf_exec "clear_pmd_stats"
-                fi
+                __start_testpmd_offload_client
             else
                 echo "Start sender tcpdump"
                 __start_tcpdump_local $client_rep "$tcpdump_filter" $non_offloaded_packets
@@ -448,12 +469,7 @@ function check_traffic_offload() {
 
         if [[ -n $server_verify_offload ]]; then
             if [ "$DPDK" == 1 ]; then
-                echo "clearing pmd stats in server"
-                if [[ -z "$bf_traffic" ]]; then
-                  on_remote_exec "clear_pmd_stats"
-                else
-                  on_remote_bf_exec "clear_pmd_stats"
-                fi
+                __start_testpmd_offload_server
             else
                 echo "Start receiver tcpdump"
                 tmp=$tdpid
@@ -467,12 +483,6 @@ function check_traffic_offload() {
         warn "Skipping tcpdump offload check"
     fi
 
-    if [ "$DPDK" == 1 ]; then
-      local remaining_traffic_timeout=$(($traffic_timeout - ${TRAFFIC_INFO['offloaded_traffic_verification_delay']}))
-      echo "sleeping for $remaining_traffic_timeout seconds until the traffic is finished"
-      sleep $remaining_traffic_timeout
-    fi
-
     if [[ -n $client_rule_fields ]]; then
         title "Check ${traffic_type^^} OVS offload rules on the sender"
         __verify_client_rules "$client_rule_fields"
@@ -483,6 +493,11 @@ function check_traffic_offload() {
         __verify_server_rules "$server_rule_fields"
     fi
 
+    if [ "$DPDK" == 1 ]; then
+      echo "sleep until the traffic is finished"
+      wait $traffic_pid
+    fi
+
     if [[ $counters_ok == 1 ]]; then
         ### veirfy_tcpdump
         # If tcpdump finished then it capture more than expected to be offloaded
@@ -490,12 +505,22 @@ function check_traffic_offload() {
 
         if [[ -n $client_verify_offload ]]; then
             title "Check ${traffic_type^^} traffic is offloaded on the sender"
-            verify_offload_local $traffic_timeout
+            if [ "$DPDK" == 1 ]; then
+               __verify_testpmd_offload_local "$CLIENT_NS" "$CLIENT_VF" "$client_vf_tx_pkts" "$client_vf_rx_pkts"
+            else
+               __verify_tcpdump_offload_local $tdpid
+            fi
         fi
 
         if [[ -n $server_verify_offload ]]; then
+
             title "Check ${traffic_type^^} traffic is offloaded on the receiver"
-            verify_offload $traffic_timeout
+            if [ "$DPDK" == 1 ]; then
+              __verify_offload_testpmd $SERVER_NS $SERVER_VF $server_vf_tx_pkts $server_vf_rx_pkts
+            else
+              __verify_offload_tcpdump $tdpid_receiver
+            fi
+
         fi
         #####
     fi
@@ -566,23 +591,56 @@ function verify_traffic_pid() {
     fi
 }
 
-function verify_offload_local() {
-  local traffic_timeout=${1:-$traffic_timeout}
+function __start_testpmd_offload_client() {
+  client_vf_tx_pkts=$(get_tx_pkts_ns $client_ns $client_vf)
+  client_vf_rx_pkts=$(get_rx_pkts_ns $client_ns $client_vf)
 
-  if [ "$DPDK" == 1 ]; then
-      __verify_testpmd_offload_local $traffic_timeout
+  echo "clearing pmd stats in client"
+  if [[ -z "$bf_traffic" ]]; then
+      clear_pmd_stats
   else
-      __verify_tcpdump_offload_local $tdpid
+      on_bf_exec "clear_pmd_stats"
   fi
 }
 
-function verify_offload() {
-  local traffic_timeout=${1:-$traffic_timeout}
+function __start_testpmd_offload_server() {
+  echo "clearing pmd stats in server"
+  if [[ -z "$local_traffic" ]]; then
+    server_vf_tx_pkts=$(on_remote_exec "get_tx_pkts_ns $server_ns $server_vf")
+    server_vf_rx_pkts=$(on_remote_exec "get_rx_pkts_ns $server_ns $server_vf")
 
-  if [ "$DPDK" == 1 ]; then
-      __verify_testpmd_offload $traffic_timeout
+    if [[ -z "$bf_traffic" ]]; then
+      on_remote_exec "clear_pmd_stats"
+    else
+      on_remote_bf_exec "clear_pmd_stats"
+    fi
+
   else
-      __verify_tcpdump_offload $tdpid_receiver
+    server_vf_tx_pkts=$(get_tx_pkts_ns $server_ns $server_vf)
+    server_vf_rx_pkts=$(get_rx_pkts_ns $server_ns $server_vf)
+  fi
+}
+
+function __verify_offload_testpmd() {
+  local ns=$1
+  local vf=$2
+  local prev_tx_vf_pkts=$3
+  local prev_rx_vf_pkts=$4
+
+  if [[ -z "$local_traffic" ]]; then
+      on_remote_exec "__verify_testpmd_offload_local $ns $vf $prev_tx_vf_pkts $prev_rx_vf_pkts" || err "verify remote offload failed"
+  else
+     __verify_testpmd_offload_local "$ns" "$vf" "$prev_tx_vf_pkts" "$prev_rx_vf_pkts"
+  fi
+}
+
+function __verify_offload_tcpdump() {
+  local tcpdump_pid=$1
+
+  if [[ -z "$local_traffic" ]]; then
+      __verify_tcpdump_offload $tcpdump_pid
+  else
+      __verify_tcpdump_offload_local $tcpdump_pid
   fi
 }
 
@@ -722,9 +780,21 @@ function check_fragmented_traffic() {
     local size=$4
     local is_ipv6=$5
 
+    local client_ns=${TRAFFIC_INFO['client_ns']}
+    local client_vf=${TRAFFIC_INFO['client_vf']}
+
+    local server_ns=${TRAFFIC_INFO['server_ns']}
+    local server_vf=${TRAFFIC_INFO['server_vf']}
+
+    local local_traffic=${TRAFFIC_INFO['local_traffic']}
     local traffic_filter=$ETH_IP
     local rules_filter=ip
     local tcpdump_filter=icmp
+
+    local client_vf_tx_pkts
+    local client_vf_rx_pkts
+    local server_vf_tx_pkts
+    local server_vf_rx_pkts
 
     if [[ -n "$is_ipv6" ]]; then
         traffic_filter=$ETH_IP6
@@ -732,12 +802,23 @@ function check_fragmented_traffic() {
         tcpdump_filter=$TCPDUMP_IGNORE_IPV6_NEIGH
     fi
 
-    if [[ "$DPDK" == 1 ]]; then
-      echo "clearing pmd stats in client"
-      clear_pmd_stats
+    title "Sending traffic"
+    local logfile=$(mktemp)
+    local traffic_timeout=${TRAFFIC_INFO['offloaded_traffic_timeout']}
+    if [[ -z "$is_ipv6" ]]; then
+        ip netns exec $ns ping -s $size -w $traffic_timeout $dst_ip -i 0 >$logfile &
+    else
+        ip netns exec $ns ping -6 -s $size -w $traffic_timeout $dst_ip -i 0 >$logfile &
+    fi
+    local traffic_pid=$!
 
-      echo "clearing pmd stats in server"
-      on_remote_exec "clear_pmd_stats"
+    echo "Sleep for ${TRAFFIC_INFO['offloaded_traffic_verification_delay']} seconds initial traffic"
+    sleep ${TRAFFIC_INFO['offloaded_traffic_verification_delay']}
+    head -n5 $logfile
+
+    if [[ "$DPDK" == 1 ]]; then
+      __start_testpmd_offload_client
+      __start_testpmd_offload_server
 
     else
       # Listen to traffic on representor
@@ -745,24 +826,23 @@ function check_fragmented_traffic() {
       local tdpid=$!
     fi
 
-    sleep 0.5
-
-    title "Check sending traffic"
-    if [[ -z "$is_ipv6" ]]; then
-        ip netns exec $ns ping -s $size -w 4 $dst_ip && success || err
-    else
-        ip netns exec $ns ping -6 -s $size -w 4 $dst_ip && success || err
-    fi
-
     title "Check OVS Rules"
-
     ovs_dump_flows --names filter="$rules_filter"
     check_fragmented_rules $traffic_filter
 
+    if [ "$DPDK" == 1 ]; then
+      echo "sleep until the traffic is finished"
+      wait $traffic_pid
+    fi
+
     title "Check captured packets count"
     if [[ "$DPDK" == 1 ]]; then
-        __verify_testpmd_offload_local 4
-        on_remote_exec "__verify_testpmd_offload_local 4"
+        title "Check ${traffic_type^^} traffic is offloaded on the sender"
+        __verify_testpmd_offload_local "$CLIENT_NS" "$CLIENT_VF" "$client_vf_tx_pkts" "$client_vf_rx_pkts"
+
+        if [[ -z "$local_traffic" ]]; then
+            __verify_offload_testpmd $SERVER_NS $SERVER_VF $server_vf_tx_pkts $server_vf_rx_pkts
+        fi
 
     else
         # Offloading fragmented traffic is not supported in upstream
