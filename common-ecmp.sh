@@ -76,6 +76,9 @@ function config_multipath_route() {
     ip n del $remote_ip dev $dev2 &>/dev/null
     ip n add $n1 dev $dev1 lladdr $n_mac
     ip n add $n2 dev $dev2 lladdr $n_mac
+
+    is_vf_lag_active || return 1
+    return 0
 }
 
 function cleanup_multipath() {

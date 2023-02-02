@@ -45,8 +45,7 @@ function config() {
 }
 
 function test_restore_rule() {
-    config_multipath_route
-    is_vf_lag_active || return 1
+    config_multipath_route || return 1
 
     reset_tc $REP
 

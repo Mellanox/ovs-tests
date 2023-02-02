@@ -50,8 +50,7 @@ function config() {
 
 function test_add_encap_and_reload_modules() {
     title "Add multipath vxlan encap rule and disable sriov"
-    config_multipath_route
-    is_vf_lag_active || return 1
+    config_multipath_route || return 1
     ip r show $net
     add_vxlan_rule $local_ip $remote_ip
     reload_modules
