@@ -70,7 +70,6 @@ function config_shared_block() {
 }
 
 function config() {
-    echo "- Config"
     config_sriov 2
     config_sriov 2 $NIC2
     enable_switchdev
