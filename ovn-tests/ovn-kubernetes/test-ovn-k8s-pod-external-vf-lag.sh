@@ -12,7 +12,6 @@ require_remote_server
 read_k8s_topology_pod_ext
 
 nic=$OVN_BOND
-BRIDGE=$(nic_to_bridge $nic)
 export REMOTE_CHASSIS=$(on_remote_exec "get_ovs_id")
 
 function clean_up_test() {

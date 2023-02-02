@@ -11,7 +11,6 @@ require_interfaces NIC
 read_k8s_topology_pod_ext
 SERVER_IPV4=$EXTERNAL_SERVER_IP
 
-BRIDGE=$(nic_to_bridge $BF_NIC)
 
 function clean_up_test() {
     ip -all netns del

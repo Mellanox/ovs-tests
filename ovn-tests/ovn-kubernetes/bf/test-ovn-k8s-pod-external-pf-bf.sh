@@ -12,7 +12,6 @@ require_remote_server
 read_k8s_topology_pod_ext
 SERVER_IPV4=$EXTERNAL_SERVER_IP
 
-BRIDGE=$(nic_to_bridge $BF_NIC)
 export REMOTE_CHASSIS=$(on_remote_bf_exec "get_ovs_id")
 
 function clean_up_test() {

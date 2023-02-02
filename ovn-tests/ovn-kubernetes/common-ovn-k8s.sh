@@ -28,12 +28,7 @@ OVN_KUBERNETES_NETWORK="physnet"
 OVN_K8S_VLAN_NODE1_TUNNEL_IP="192.168.110.100"
 OVN_K8S_VLAN_NODE2_TUNNEL_IP="192.168.110.101"
 
-# OVN-Kubernetes uses br<nic> naming schema for bridges
-function nic_to_bridge() {
-    local nic=$1
-
-    echo "br$nic"
-}
+BRIDGE="br-phy"
 
 function read_k8s_topology_pod_pod_same_node() {
     CLIENT_SWITCH=$NODE1_SWITCH

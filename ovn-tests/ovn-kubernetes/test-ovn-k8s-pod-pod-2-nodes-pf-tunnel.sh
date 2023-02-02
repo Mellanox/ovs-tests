@@ -12,7 +12,6 @@ require_remote_server
 read_k8s_topology_pod_pod_different_nodes
 
 nic=$NIC
-BRIDGE=$(nic_to_bridge $nic)
 
 function __clean_up_test() {
     ovn_stop_ovn_controller

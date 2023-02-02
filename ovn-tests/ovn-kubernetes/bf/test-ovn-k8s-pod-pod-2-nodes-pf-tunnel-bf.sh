@@ -11,7 +11,6 @@ require_remote_server
 
 read_k8s_topology_pod_pod_different_nodes
 
-BRIDGE=$(nic_to_bridge $BF_NIC)
 
 function clean_up_test() {
     ip -all netns del
