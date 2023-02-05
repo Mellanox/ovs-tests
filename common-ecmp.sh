@@ -36,7 +36,7 @@ function dmesg_chk() {
     local tst="$1"
     local emsg="$2"
     sleep 0.7
-    a=`dmesg | tail -n6 | grep -m1 -e "$tst"`
+    local a=`dmesg | tail -n6 | grep -m1 -e "$tst"`
     if [ $? -ne 0 ]; then
         err $emsg
         return 1
