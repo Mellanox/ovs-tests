@@ -35,8 +35,9 @@ function deconfig_ports() {
 function dmesg_chk() {
     local tst="$1"
     local emsg="$2"
+    local a
     sleep 0.7
-    local a=`dmesg | tail -n6 | grep -m1 -e "$tst"`
+    a=`dmesg | tail -n6 | grep -m1 -e "$tst"`
     if [ $? -ne 0 ]; then
         err $emsg
         return 1
