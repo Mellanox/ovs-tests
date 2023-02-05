@@ -133,7 +133,5 @@ echo "cleanup"
 ip link set dev $dev1 up
 ip link set dev $dev2 up
 cleanup
-config_multipath_route
-cleanup
 deconfig_ports
 test_done
