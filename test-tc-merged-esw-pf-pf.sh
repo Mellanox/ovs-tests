@@ -25,5 +25,6 @@ function run() {
 
 run
 reset_tc $NIC
+enable_legacy $NIC2
 config_sriov 0 $NIC2
 test_done

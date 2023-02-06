@@ -24,6 +24,6 @@ reset_tc $REP2
 tc_filter add dev $REP2 protocol ip ingress prio 1 flower skip_sw dst_mac e4:11:22:11:4a:51 action mirred egress redirect dev $REP
 reset_tc $REP2
 
+enable_legacy $NIC2
 config_sriov 0 $NIC2
-
 test_done
