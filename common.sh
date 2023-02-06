@@ -2326,7 +2326,7 @@ function config_remote_vxlan() {
     fi
     on_remote "ip link del vxlan1 &>/dev/null
                ip a flush dev $REMOTE_NIC
-               ip link add vxlan1 type vxlan id $VXLAN_ID dev $REMOTE_NIC dstport $DSTPORT
+               ip link add vxlan1 type vxlan id $VXLAN_ID dev $REMOTE_NIC dstport $DSTPORT $VXLAN_OPTIONS
                ip a add $REMOTE_IP/24 dev $REMOTE_NIC
                ip a add $REMOTE/24 dev vxlan1
                ip l set dev vxlan1 up
