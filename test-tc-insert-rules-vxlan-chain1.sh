@@ -60,7 +60,7 @@ function __test_basic_vxlan() {
                         enc_key_id 100 \
                 action tunnel_key unset \
                 action mirred egress redirect dev $REP
-    tc_filter_success show dev $vx ingress prio 2 | grep -q -w in_hw || err "Decap rule not in hw"
+    verify_in_hw $vx 2
 
     reset_tc $REP $vx
     ip neigh del $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
