@@ -1110,14 +1110,12 @@ def prepare_logdir():
 
 
 def get_db_path(db):
-    db2 = os.path.join(MYDIR, 'databases', db)
-    if not os.path.exists(db):
-        if os.path.exists(db2):
-            db = db2
-        else:
-            err("Cannot find db %s" % db)
-            return
-    return db
+    db2 = os.path.join('databases', db)
+    db3 = os.path.join(MYDIR, 'databases', db)
+    for i in (db, db2, db3):
+        if os.path.exists(i):
+            return i
+    err("Cannot find db %s" % db)
 
 
 def get_dbs():
