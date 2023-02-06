@@ -8,6 +8,7 @@ my_dir="$(dirname "$0")"
 
 
 title "Test redirect rule from vf on esw0 to vf on esw1"
+config_sriov 2
 enable_switchdev
 config_sriov 2 $NIC2
 enable_switchdev $NIC2

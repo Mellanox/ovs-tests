@@ -10,6 +10,7 @@ my_dir="$(dirname "$0")"
 
 
 function run() {
+    config_sriov 2
     enable_switchdev
     config_sriov 2 $NIC2
     enable_switchdev $NIC2
