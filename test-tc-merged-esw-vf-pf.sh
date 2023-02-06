@@ -24,7 +24,7 @@ title "add redirect rule $NIC2 -> $REP - expect to fail as we don't support this
 tc filter add dev $NIC2 protocol ip ingress prio 1 flower skip_sw action \
     mirred egress redirect dev $REP &>/dev/null && err "Expected to fail"
 
-reset_tc $REP
+reset_tc $REP $NIC2
 enable_legacy $NIC2
 config_sriov 0 $NIC2
 test_done
