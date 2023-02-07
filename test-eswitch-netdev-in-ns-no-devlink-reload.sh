@@ -10,9 +10,9 @@
 #
 # The test cases are mainly to verify the rules:
 # 1. PF/uplink REP can be moved in/out of a network namespace if
-#    either SRIOV is not enabled or eswitch is not in switchdev mode
-# 2. Any REP, uplink or VF's, can not be moved to another network
-#    namespace if SRIOV is enabled and eswitch is in switchdev mode
+#    eswitch is not in switchdev mode
+# 2. Uplink REP can not be moved to another network namespace if
+#    eswitch is in switchdev mode
 # 3. Representors are not lost/leaked if they were in a network
 #    namespace that is deleted, instead, they are evacuated to the
 #    root namespace.
@@ -22,8 +22,8 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
 function cleanup() {
-    config_sriov 0
     enable_legacy
+    config_sriov 0
     ip netns del ns0 &>/dev/null
     sleep 1
 }
@@ -32,18 +32,10 @@ trap cleanup EXIT
 
 function run() {
     cleanup
-    title "Verify uplink rep $NIC cannot be added to ns if sriov is enabled and in switchdev mode."
-    config_sriov 2
+    title "Verify uplink rep $NIC cannot be added to ns if in switchdev mode."
     enable_switchdev
     ip netns add ns0
     ip l set dev $NIC netns ns0 && err "Expected to fail adding $NIC to ns0."
-    cleanup
-
-    title "Verify uplink rep $NIC can be moved among network namespaces if sriov is disabled and in switchdev mode."
-    ip netns add ns0
-    config_sriov 0
-    enable_switchdev
-    ip l set dev $NIC netns ns0 2>/dev/null || err "Failed to add $NIC to ns0."
     cleanup
 
     title "Verify PF $NIC can be moved among network namespaces if sriov is enabled and in legacy mode."
