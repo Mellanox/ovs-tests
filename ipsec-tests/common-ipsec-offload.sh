@@ -107,7 +107,7 @@ function check_offloaded_rules() {
 
     local g="offload"
     if [[ "$chk_policy" == 1 ]]; then
-        g="offload.*mode full"
+        g="offload.*mode packet"
     fi
 
     local tx_off=`on_remote ip x s s | grep -c -w "$g"`

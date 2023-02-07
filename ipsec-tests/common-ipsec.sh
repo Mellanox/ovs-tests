@@ -117,9 +117,9 @@ function ipsec_config() {
         offload_in="offload dev ${nic} dir in"
         offload_out="offload dev ${nic} dir out"
     elif [ "$offload" == "full_offload" ]; then
-        offload_in="offload full dev ${nic} dir in"
-        offload_out="offload full dev ${nic} dir out"
-        offload_policy="offload full dev ${nic}"
+        offload_in="offload packet dev ${nic} dir in"
+        offload_out="offload packet dev ${nic} dir out"
+        offload_policy="offload packet dev ${nic}"
     elif [ "$offload" == "mlnx_ofed_full_offload" ]; then
         offload_in="full_offload dev ${nic} dir in"
         offload_out="full_offload dev ${nic} dir out"
