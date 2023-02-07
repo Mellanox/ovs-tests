@@ -4,6 +4,10 @@
 #
 # [MLNX OFED] RM #3253350: CX6DX Container offload: support PF/Rep inside namespace
 #
+# This test is for a custom OFED version which supports loading reps in a ns
+# via a WA in the driver which allows the reps to be spawned in the NS that
+# the uplink netdev is in, rather than the devlink NS.
+#
 # Enable SRIOV after PF/uplink rep is moved to a NS. All VF REPs will be created in the NS.
 # Then, config VxLAN rules for both fast path and slow path in the NS and use traffic to verify
 # that traffic works correctly both in fast and slow path

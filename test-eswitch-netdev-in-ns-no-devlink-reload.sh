@@ -4,6 +4,10 @@
 #
 # [MLNX OFED] RM #3253350: CX6DX Container offload: support PF/Rep inside namespace
 #
+# This test is for a custom OFED version which supports loading reps in a ns
+# via a WA in the driver which allows the reps to be spawned in the NS that
+# the uplink netdev is in, rather than the devlink NS.
+#
 # The test cases are mainly to verify the rules:
 # 1. PF/uplink REP can be moved in/out of a network namespace if
 #    either SRIOV is not enabled or eswitch is not in switchdev mode
