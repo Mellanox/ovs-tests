@@ -4,7 +4,7 @@ function check_num_rules() {
     local num=$1
     local itf=$2
 
-    title " - check for $num rules"
+    title "- Verify $num rules"
     RES=`tc -s filter show dev $itf ingress | grep handle | wc -l`
     if (( RES == $num )); then success; else err "Found $RES rules but expected $num"; fi
 }
@@ -14,7 +14,7 @@ function check_num_offloaded_rules() {
     local offload_count=$2
     local block=$3
 
-    title " - check for $num rules with in_hw_count=$offload_count"
+    title "- Verify $num rules with in_hw_count=$offload_count"
     RES=`tc -s filter show block $block ingress | grep "in_hw in_hw_count $offload_count" | wc -l`
     if (( RES == $num )); then
         success
@@ -27,7 +27,7 @@ function check_num_actions() {
     local count=$1
     local type=$2
 
-    title " - check for $count actions"
+    title "- Verify $count actions"
     RES=`tc -s actions ls action $type | grep order | wc -l`
     if (( RES == $count )); then success; else err "Found $RES actions but expected $count"; fi
 }
