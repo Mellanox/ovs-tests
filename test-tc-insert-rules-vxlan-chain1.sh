@@ -77,5 +77,15 @@ function test_basic_vxlan_ipv6() {
                             $vxlan_port
 }
 
+# make sure port2 in legacy. second case will check switchdev.
+enable_legacy $NIC2
 test_basic_vxlan_ipv6
+
+title "Test with second port in switchdev"
+config_sriov 1 $NIC2
+enable_switchdev $NIC2
+test_basic_vxlan_ipv6
+enable_legacy $NIC2
+config_sriov 0 $NIC2
+
 test_done
