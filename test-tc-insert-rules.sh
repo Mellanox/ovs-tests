@@ -106,8 +106,7 @@ function __test_basic_vlan() {
     local nic2=$2
     local skip=$3
     title "- nic1:$nic1 nic2:$nic2 skip:$skip"
-    reset_tc $nic1
-    reset_tc $nic2
+    reset_tc $nic1 $nic2
 
     title "    - vlan push"
     tc_filter_success add dev $nic1 protocol ip parent ffff: `prio` \
@@ -130,8 +129,7 @@ function __test_basic_vlan() {
                 action vlan pop \
                 action mirred egress redirect dev $nic1
 
-    reset_tc $nic1
-    reset_tc $nic2
+    reset_tc $nic1 $nic2
 
     title "    - vlan drop on $nic2"
     tc_filter_success add dev $nic2 protocol 802.1Q parent ffff: `prio` \
@@ -144,8 +142,7 @@ function __test_basic_vlan() {
                         vlan_prio 0 \
                 action drop
 
-    reset_tc $nic1
-    reset_tc $nic2
+    reset_tc $nic1 $nic2
 }
 
 function test_basic_vlan() {
@@ -181,14 +178,11 @@ function __test_basic_vxlan() {
     ip addr add $ip_src/16 dev $NIC
     ifconfig $NIC up
     ip neigh replace $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
-
     reset_tc $NIC
-    reset_tc $REP
 
     for skip in "" skip_hw skip_sw ; do
         title "- skip:$skip dst_port:$vxlan_port"
-        reset_tc $REP
-        reset_tc $vx
+        reset_tc $REP $vx
         title "    - encap"
         tc_filter_success add dev $REP protocol 0x806 parent ffff: `prio` \
                     flower \
@@ -223,9 +217,7 @@ function __test_basic_vxlan() {
         tc_filter_success show dev $vx ingress prio 2 | grep -q -w in_hw || err "Decap rule not in hw"
     done
 
-    reset_tc $NIC
-    reset_tc $REP
-    reset_tc $vx
+    reset_tc $NIC $REP $vx
     ip neigh del $ip_dst lladdr e4:11:22:11:55:55 dev $NIC
     ip addr flush dev $NIC
     ip link del $vx
