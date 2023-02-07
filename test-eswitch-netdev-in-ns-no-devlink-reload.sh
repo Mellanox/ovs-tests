@@ -15,7 +15,9 @@
 #    eswitch is in switchdev mode
 # 3. Representors are not lost/leaked if they were in a network
 #    namespace that is deleted, instead, they are evacuated to the
-#    root namespace.
+#    root namespace. Verify no resources are leaked in such a case,
+#    ensuring afterwards that switchdev mode and SRIOV can be
+#    disabled, and that the driver can be reloaded.
 #
 
 my_dir="$(dirname "$0")"
@@ -79,6 +81,8 @@ function run() {
         if [ $num_devs_post_evacuation -ne $num_devs_in_ns ]; then
             err "Failed to evacuate all reps from ns"
         fi
+        cleanup
+        reload_modules
     fi
 }
 
