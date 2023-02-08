@@ -79,9 +79,11 @@ function config() {
 
     for inter in $VXLAN $REP_NS $REP2_NS; do
         $EXEC_NS $NS tc qdisc del dev $inter ingress 2>/dev/null
-        $EXEC_NS $NS tc qdisc add dev $inter ingress
+        $EXEC_NS $NS tc qdisc add dev $inter ingress || err "Cannot find interface $inter in ns $NS"
         $EXEC_NS $NS ip link set $inter up
     done
+
+    fail_if_err
 
     config_tc_fastpath_vxlan_rules $REP_NS $VF_MAC $LOCAL_TUN_IP $REMOTE_TUN_IP $VXLAN
     config_tc_slowpath_vxlan_rules $REP2_NS $VF2_MAC $LOCAL_TUN_IP $REMOTE_TUN_IP $VXLAN
