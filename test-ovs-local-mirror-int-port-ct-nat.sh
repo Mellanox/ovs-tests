@@ -103,6 +103,8 @@ function run() {
     config
     config_remote
 
+    mac1=`ip netns exec ns0 cat /sys/class/net/$VF/address`
+
     sleep 2
     title "test ping"
     ip netns exec ns0 ping -q -c 1 -w 1 $REMOTE
@@ -130,16 +132,20 @@ function run() {
     tpid1=$!
     timeout $((t-4)) tcpdump -qnnei $REP -c 10 port $FAKE_PORT &
     tpid2=$!
-    timeout $((t-4)) tcpdump -qnnei $VF2 -c 10 port $FAKE_PORT &
+    timeout $((t-4)) tcpdump -qnnei $VF2 -c 10 ether src $mac1  &
     tpid3=$!
+    timeout $((t-4)) tcpdump -qnnei $VF2 -c 10 ether dst $mac1  &
+    tpid4=$!
 
     sleep $t
     title "Verify traffic on $VF"
     verify_have_traffic $tpid1
     title "Verify offload on $REP"
     verify_no_traffic $tpid2
-    title "Verify mirror traffic on $VF2"
+    title "Verify transmit mirror traffic on $VF2"
     verify_have_traffic $tpid3
+    title "Verify receive mirror traffic on $VF2"
+    verify_have_traffic $tpid4
 
 
     kill -9 $pid1 &>/dev/null
