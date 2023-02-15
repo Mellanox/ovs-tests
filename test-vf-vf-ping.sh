@@ -20,6 +20,7 @@ function cleanup() {
     done
 }
 
+config_sriov 2
 enable_switchdev
 unbind_vfs
 bind_vfs
