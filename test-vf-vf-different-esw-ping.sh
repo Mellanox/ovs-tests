@@ -12,7 +12,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-test -z "$NIC2" && fail "Missing NIC2"
+require_interfaces NIC2
 
 IP1="7.7.7.1"
 IP2="7.7.7.2"
