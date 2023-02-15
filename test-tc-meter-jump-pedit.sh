@@ -49,14 +49,14 @@ function config_police() {
 
     echo "add vf meter rules"
     tc_filter add dev $REP prio 2 protocol ip parent ffff: \
-        flower verbose ip_proto tcp dst_ip $IP2 \
+        flower verbose dst_ip $IP2 \
         action police index 1 \
         action pedit ex munge eth src set 20:22:33:44:55:77 pipe \
         action mirred egress redirect dev $NIC \
         mirred egress redirect dev $REP2
 
     tc_filter add dev $REP2 prio 2 protocol ip parent ffff: \
-        flower verbose ip_proto tcp dst_ip $IP1 \
+        flower verbose dst_ip $IP1 \
         action police index 1 \
         action pedit ex munge eth src set 20:22:33:44:55:88 pipe \
         action mirred egress redirect dev $NIC \
@@ -68,6 +68,23 @@ function config_police() {
     tc filter show dev $REP ingress
     ip link show dev $REP2
     tc filter show dev $REP2 ingress
+}
+
+function test_ping() {
+    local t=10
+    timeout $((t-2)) tcpdump -qnnei $REP -c 1 icmp &
+    local tpid=$!
+
+
+    ip netns exec ns0 ping -c 3 -s 200  $IP2
+    if [ $? -ne 0 ]; then
+        echo $?
+        err "ping failed"
+        return
+    fi
+
+    verify_no_traffic $tpid
+    fail_if_err
 }
 
 function test_tcp() {
@@ -84,6 +101,7 @@ function run() {
     title "Test act_police action"
 
     config_police
+    test_ping
     test_tcp
 
     verify_iperf3_bw $TMPFILE $RATE
