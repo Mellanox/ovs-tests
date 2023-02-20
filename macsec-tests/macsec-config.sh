@@ -17,6 +17,10 @@ VLAN_IP_SERVER="3.3.3.2/24"
 DEV_IP_CLIENT="1.1.1.1/24"
 DEV_IP_SERVER="1.1.1.2/24"
 ENCRYPT="encrypt on"
+MACSEC_MAC_ADDRESS_CLIENT="00:11:22:33:44:66"
+MACSEC_MAC_ADDRESS_SERVER="00:11:22:33:44:77"
+VLAN_MAC_ADDRESS_CLIENT="00:11:22:33:44:88"
+VLAN_MAC_ADDRESS_SERVER="00:11:22:33:44:99"
 
 #Keys
 LOCAL_KEY="dffafc8d7b9a43d5b9a3dfbbf6a30c16"
@@ -50,11 +54,26 @@ function configure_device() {
     fi
 }
 
+function configure_mac_address() {
+    local device=$1
+    local mac_address=$2
+
+    ip link set dev $device address $mac_address
+}
+
 function configure_macsec_interface() {
     if [ "$VLAN" == "outer" ]; then
         ip link add link $VLAN_IF $MACSEC_IF type macsec sci $SCI $CIPHER $ICVLEN $ENCRYPT $SEND_SCI $END_STATION $SCB $PROTECT $REPLAY $WINDOW $VALIDATE $ENCODINGSA || exit 1
     else
         ip link add link $DEVICE $MACSEC_IF type macsec sci $SCI $CIPHER $ICVLEN $ENCRYPT $SEND_SCI $END_STATION $SCB $PROTECT $REPLAY $WINDOW $VALIDATE $ENCODINGSA || exit 1
+    fi
+
+    if [ "$UNIQUE_MAC" == "on" ];then
+        if [ "$SIDE" == "server" ]; then
+            configure_mac_address $MACSEC_IF $MACSEC_MAC_ADDRESS_SERVER
+        else
+            configure_mac_address $MACSEC_IF $MACSEC_MAC_ADDRESS_CLIENT
+        fi
     fi
 }
 
@@ -172,8 +191,9 @@ function usage() {
         --outer-vlan         Configure Macsec with vlan as an outer header
         --vlan-interface     Use a specific Vlan interface
         --vlan-id            Use a specific Vlan id, default is 1
+        --unique-mac         Use a unique mac address for macsec and vlan interfaces.
         --dev-ip             Use a specific ip for the local device,
-                            default ips - client 1.1.1.1 , server 1.1.1.2
+                             default ips - client 1.1.1.1 , server 1.1.1.2
                              you need to provide a subnet too, e.g 3.3.3.1/24
 
         --macsec-ip          Use a specific ip for the local macsec interface,
@@ -249,6 +269,10 @@ function parse_args() {
             ;;
             --offload)
             OFFLOAD="on"
+            shift
+            ;;
+            --unique-mac)
+            UNIQUE_MAC="on"
             shift
             ;;
             --inner-vlan)
@@ -489,6 +513,14 @@ function configure_inner_vlan() {
     fi
 
     ip link add link $MACSEC_IF name $VLAN_IF type vlan id $VLAN_ID
+
+    if [ "$UNIQUE_MAC" == "on" ];then
+        if [ "$SIDE" == "server" ]; then
+            configure_mac_address $VLAN_IF $VLAN_MAC_ADDRESS_SERVER
+        else
+            configure_mac_address $VLAN_IF $VLAN_MAC_ADDRESS_CLIENT
+        fi
+    fi
 }
 
 function configure_outer_vlan() {
@@ -497,6 +529,14 @@ function configure_outer_vlan() {
     fi
 
     ip link add link $DEVICE name $VLAN_IF type vlan id $VLAN_ID
+
+    if [ "$UNIQUE_MAC" == "on" ];then
+        if [ "$SIDE" == "server" ]; then
+            configure_mac_address $VLAN_IF $VLAN_MAC_ADDRESS_SERVER
+        else
+            configure_mac_address $VLAN_IF $VLAN_MAC_ADDRESS_CLIENT
+        fi
+    fi
 }
 
 function main() {
