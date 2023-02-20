@@ -13,6 +13,9 @@ MACSEC_LIP6="2001:192:168:200::64"
 MACSEC_RIP6="2001:192:168:200::65"
 LIP6="2001:192:168:211::64"
 RIP6="2001:192:168:211::65"
+CLIENT_PN=$(($RANDOM % 10000))
+SERVER_PN=$(($RANDOM % 10000))
+
 
 # KEYMAT 20 octets = KEY 16ocets, SALT 4octets
 # 128 refers to the KEY without the SALT.
@@ -64,6 +67,14 @@ function macsec_parse_test() {
             ;;
             --xpn)
             XPN="$2"
+            shift 2
+            ;;
+            --client_pn)
+            CLIENT_PN="$2"
+            shift 2
+            ;;
+            --server_pn)
+            SERVER_PN="$2"
             shift 2
             ;;
             *)    # Unknown option
@@ -400,8 +411,6 @@ function test_macsec() {
     local dev="$NIC"
     local macsec_dev="macsec0"
     local sa_num="0"
-    local client_pn=$(($RANDOM % 10000))
-    local server_pn=$(($RANDOM % 10000))
     local sci="$RANDOM"
     local rx_sci="$RANDOM"
 
@@ -410,11 +419,11 @@ function test_macsec() {
     macsec_set_config_extras $@
 
     config_macsec --device $dev --interface $macsec_dev --cipher $EFFECTIVE_CIPHER \
-    --tx-key $EFFECTIVE_KEY_IN --rx-key $EFFECTIVE_KEY_OUT --encoding-sa $sa_num --pn $client_pn --sci $sci --rx-sci $rx_sci\
+    --tx-key $EFFECTIVE_KEY_IN --rx-key $EFFECTIVE_KEY_OUT --encoding-sa $sa_num --pn $CLIENT_PN --sci $sci --rx-sci $rx_sci\
     --dev-ip "$EFFECTIVE_LIP" --macsec-ip $MACSEC_EFFECTIVE_LIP $LOCAL_EXTRA
 
     config_macsec_remote --device $dev --interface $macsec_dev --cipher $EFFECTIVE_CIPHER \
-                                       --tx-key $EFFECTIVE_KEY_OUT --rx-key $EFFECTIVE_KEY_IN --encoding-sa $sa_num --pn $server_pn --sci $rx_sci --rx-sci $sci \
+                                       --tx-key $EFFECTIVE_KEY_OUT --rx-key $EFFECTIVE_KEY_IN --encoding-sa $sa_num --pn $SERVER_PN --sci $rx_sci --rx-sci $sci \
                                        --dev-ip $EFFECTIVE_RIP --macsec-ip $MACSEC_EFFECTIVE_RIP $REMOTE_EXTRA
 
     read_pre_test_counters
@@ -464,8 +473,6 @@ function test_macsec_xpn() {
     local macsec_dev="macsec0"
     local multi_sa="off"
     local sa_num="0"
-    local client_pn=4294967290
-    local server_pn=4294967290
     local sci="$RANDOM"
     local rx_sci="$RANDOM"
 
@@ -474,11 +481,11 @@ function test_macsec_xpn() {
     macsec_set_config_extras $@
 
     config_macsec --device $dev --interface $macsec_dev --cipher $EFFECTIVE_CIPHER \
-    --tx-key $EFFECTIVE_KEY_IN --rx-key $EFFECTIVE_KEY_OUT --encoding-sa $sa_num --pn $client_pn --sci $sci --rx-sci $rx_sci\
+    --tx-key $EFFECTIVE_KEY_IN --rx-key $EFFECTIVE_KEY_OUT --encoding-sa $sa_num --pn $CLIENT_PN --sci $sci --rx-sci $rx_sci\
     --dev-ip "$EFFECTIVE_LIP" --macsec-ip $MACSEC_EFFECTIVE_LIP $LOCAL_EXTRA --xpn on --replay on --window 32
 
     config_macsec_remote --device $dev --interface $macsec_dev --cipher $EFFECTIVE_CIPHER \
-                                       --tx-key $EFFECTIVE_KEY_OUT --rx-key $EFFECTIVE_KEY_IN --encoding-sa $sa_num --pn $server_pn --sci $rx_sci --rx-sci $sci \
+                                       --tx-key $EFFECTIVE_KEY_OUT --rx-key $EFFECTIVE_KEY_IN --encoding-sa $sa_num --pn $SERVER_PN --sci $rx_sci --rx-sci $sci \
                                        --dev-ip $EFFECTIVE_RIP --macsec-ip $MACSEC_EFFECTIVE_RIP $REMOTE_EXTRA --xpn on --replay on --window 32
 
     read_pre_test_counters
