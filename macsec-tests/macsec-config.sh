@@ -1,6 +1,8 @@
 #!/bin/bash
 
 MACSEC_IF="macsec0"
+VLAN_IF="macsec_vlan"
+VLAN_ID="1"
 TX_SA="0"
 RX_SA="0"
 TX_ID="00"
@@ -47,7 +49,11 @@ function configure_device() {
 }
 
 function configure_macsec_interface() {
-    ip link add link $DEVICE $MACSEC_IF type macsec sci $SCI $CIPHER $ICVLEN $ENCRYPT $SEND_SCI $END_STATION $SCB $PROTECT $REPLAY $WINDOW $VALIDATE $ENCODINGSA || exit 1
+    if [ "$VLAN" == "outer" ]; then
+        ip link add link $VLAN_IF $MACSEC_IF type macsec sci $SCI $CIPHER $ICVLEN $ENCRYPT $SEND_SCI $END_STATION $SCB $PROTECT $REPLAY $WINDOW $VALIDATE $ENCODINGSA || exit 1
+    else
+        ip link add link $DEVICE $MACSEC_IF type macsec sci $SCI $CIPHER $ICVLEN $ENCRYPT $SEND_SCI $END_STATION $SCB $PROTECT $REPLAY $WINDOW $VALIDATE $ENCODINGSA || exit 1
+    fi
 }
 
 function configure_macsec_secrets() {
@@ -119,8 +125,9 @@ function ip_macsec_offload() {
     ip macsec offload $MACSEC_IF mac
 }
 
-function cleanup_macsec() {
+function cleanup() {
     ip link show | grep $MACSEC_IF > /dev/null && ip link del $MACSEC_IF
+    ip link show | grep $VLAN_IF > /dev/null && ip link del $VLAN_IF
 }
 
 function usage() {
@@ -157,6 +164,10 @@ function usage() {
         --side               <client|server> configuration side, default is client
         --offload            Enable mac offload
         -d, --delete         <MACSec interface> Delete a MACSec interface
+        --inner-vlan         Configure Macsec with vlan as an inner header
+        --outer-vlan         Configure Macsec with vlan as an outer header
+        --vlan-interface     Use a specific Vlan interface
+        --vlan-id            Use a specific Vlan id, default is 1
         --dev-ip             Use a specific ip for the local device,
                             default ips - client 1.1.1.1 , server 1.1.1.2
                              you need to provide a subnet too, e.g 3.3.3.1/24
@@ -227,6 +238,22 @@ function parse_args() {
             ;;
             --offload)
             OFFLOAD="on"
+            shift
+            ;;
+            --inner-vlan)
+            VLAN="inner"
+            shift
+            ;;
+            --vlan-interface)
+            VLAN_IF="$2"
+            shift 2
+            ;;
+            --vlan-id)
+            VLAN_ID="$2"
+            shift 2
+            ;;
+            --outer-vlan)
+            VLAN="outer"
             shift
             ;;
             --debug)
@@ -437,6 +464,24 @@ function check_sci() {
     fi
 }
 
+function configure_inner_vlan() {
+    if [ "$VLAN" != "inner" ]; then
+        return;
+    fi
+
+    debug_msg
+    ip link add link $MACSEC_IF name $VLAN_IF type vlan id $VLAN_ID
+}
+
+function configure_outer_vlan() {
+    if [ "$VLAN" != "outer" ]; then
+        return;
+    fi
+
+    debug_msg
+    ip link add link $DEVICE name $VLAN_IF type vlan id $VLAN_ID
+}
+
 function main() {
     parse_args "$@"
 
@@ -467,8 +512,10 @@ function main() {
     check_ips
     #Check if to use default secure channel IDs
     check_sci
-    #Delete macsec if exists
-    cleanup_macsec
+    #Delete interfaces if exist
+    cleanup
+    #Outer vlan
+    configure_outer_vlan
     #Bring up the device and configure ips
     configure_device $DEVICE $DEV_IP_CLIENT $DEV_IP_SERVER
     #Check if device exists, add it otherwise
@@ -485,6 +532,9 @@ function main() {
     if [ "$MULTI_SA" == "on" ]; then
         configure_macsec_multi_secrets
     fi
+
+    #Inner vlan
+    configure_inner_vlan
 }
 
 main "$@"
