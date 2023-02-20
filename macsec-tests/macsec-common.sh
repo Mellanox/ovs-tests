@@ -11,6 +11,10 @@ MACSEC_LIP="2.2.2.1"
 MACSEC_RIP="2.2.2.2"
 MACSEC_LIP6="2001:192:168:200::64"
 MACSEC_RIP6="2001:192:168:200::65"
+VLAN_LIP="3.3.3.1"
+VLAN_RIP="3.3.3.2"
+VLAN_LIP6="2001:192:168:222::64"
+VLAN_RIP6="2001:192:168:222::65"
 LIP6="2001:192:168:211::64"
 RIP6="2001:192:168:211::65"
 CLIENT_PN=$(($RANDOM % 10000))
@@ -38,6 +42,8 @@ function macsec_parse_test() {
     OFFLOAD_SIDE=""
     XPN="off"
     MULTI_SA="off"
+    INNER_VLAN="off"
+    OUTER_VLAN="off"
     while [[ $# -gt 0 ]]; do
         local key="$1"
         case $key in
@@ -51,6 +57,10 @@ function macsec_parse_test() {
             ;;
             --macsec-ip-proto)
             MACSEC_IP_PROTO="$2"
+            shift 2
+            ;;
+            --vlan-ip-proto)
+            VLAN_IP_PROTO="$2"
             shift 2
             ;;
             --net-proto)
@@ -76,6 +86,14 @@ function macsec_parse_test() {
             --server_pn)
             SERVER_PN="$2"
             shift 2
+            ;;
+            --inner-vlan)
+            INNER_VLAN="on"
+            shift
+            ;;
+            --outer-vlan)
+            OUTER_VLAN="on"
+            shift
             ;;
             *)    # Unknown option
             fail "Unknown arg for macsec test parser"
@@ -103,6 +121,16 @@ function macsec_set_config_extras() {
         REMOTE_EXTRA="$@"
     else
         fail "OFFLOAD_SIDE=$OFFLOAD_SIDE is not a valid value"
+    fi
+
+    if [ "$INNER_VLAN" == "on" ]; then
+        LOCAL_EXTRA="$LOCAL_EXTRA --inner-vlan --unique-mac"
+        REMOTE_EXTRA="$REMOTE_EXTRA --inner-vlan --unique-mac"
+    fi
+
+    if [ "$OUTER_VLAN" == "on" ]; then
+        LOCAL_EXTRA="$LOCAL_EXTRA --outer-vlan --unique-mac"
+        REMOTE_EXTRA="$REMOTE_EXTRA --outer-vlan --unique-mac"
     fi
 }
 
@@ -405,6 +433,18 @@ function config_keys_and_ips() {
             EFFECTIVE_CIPHER="gcm-aes-256"
         fi
     fi
+
+    if [[ "$INNER_VLAN" == "on" || "$OUTER_VLAN" == "on" ]]; then
+        if [[ "$VLAN_IP_PROTO" == "ipv4" ]]; then
+            LOCAL_EXTRA="$LOCAL_EXTRA --vlan-ip $VLAN_LIP/24"
+            REMOTE_EXTRA="$REMOTE_EXTRA --vlan-ip $VLAN_RIP/24"
+        fi
+
+        if [[ "$VLAN_IP_PROTO" == "ipv6" ]]; then
+            LOCAL_EXTRA="$LOCAL_EXTRA --vlan-ip $VLAN_LIP6/112"
+            REMOTE_EXTRA="$REMOTE_EXTRA --vlan-ip $VLAN_RIP6/112"
+        fi
+    fi
 }
 
 function test_macsec() {
@@ -513,14 +553,21 @@ function test_macsec_xpn() {
 # xpn = on/off
 function run_test_macsec() {
     local len
+    local vlan_print=""
 
     macsec_parse_test $@
+
+    if [ $INNER_VLAN == "on" ]; then
+        vlan_print=", inner_vlan=$INNER_VLAN, vlan_ip_protocol=$VLAN_IP_PROTO"
+    elif [ $OUTER_VLAN == "on" ]; then
+        vlan_print=", outer_vlan=$OUTER_VLAN, vlan_ip_protocol=$VLAN_IP_PROTO"
+    fi
 
     for len in 256 128; do
         macsec_cleanup
         macsec_set_key_len $len
 
-        title "Test MACSEC multi_sa=$MULTI_SA, mtu=$MTU, ip_protocol=$IP_PROTO, macsec_ip_protocol=$MACSEC_IP_PROTO, network_protocol=$NET_PROTO, key_length=$len, offload_side=$OFFLOAD_SIDE, xpn=$XPN"
+        title "Test MACSEC multi_sa=$MULTI_SA, mtu=$MTU, ip_protocol=$IP_PROTO, macsec_ip_protocol=$MACSEC_IP_PROTO, network_protocol=$NET_PROTO, key_length=$len, offload_side=$OFFLOAD_SIDE, xpn=$XPN$vlan_print"
 
         if [[ "$MULTI_SA" == "on" ]]; then
             test_macsec_multi_sa
