@@ -3,7 +3,7 @@ MACSEC_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
 
 require_cmd xxd
 
-MACSEC_CONFIG="$TESTDIR/macsec-config.sh"
+MACSEC_CONFIG="$MACSEC_DIR/macsec-config.sh"
 
 LIP="1.1.1.1"
 RIP="1.1.1.2"
@@ -434,7 +434,7 @@ function config_macsec_env() {
 }
 
 function config_macsec() {
-    $TESTDIR/macsec-config.sh $@
+    $MACSEC_CONFIG $@
 }
 
 function config_macsec_remote() {
