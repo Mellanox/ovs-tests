@@ -408,12 +408,18 @@ function check_ips() {
 
 function check_sci() {
     #If we are using the default RX_SCI and SCI and we are on server side then revert the SCIs
-    if [[ $RX_SCI == "" && $SCI == "" ]]; then
+    if [[ $RX_SCI == "" ]]; then
         if [[ $SIDE = "server" ]]; then
             RX_SCI="1"
-            SCI="2"
         else
             RX_SCI="2"
+        fi
+    fi
+
+    if [[ $SCI == "" ]]; then
+        if [[ $SIDE = "server" ]]; then
+            SCI="2"
+        else
             SCI="1"
         fi
     fi
