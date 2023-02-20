@@ -12,6 +12,8 @@ RX_SA_STATE="on"
 PACKET_NUMBER="1"
 MACSEC_IP_CLIENT="2.2.2.1/24"
 MACSEC_IP_SERVER="2.2.2.2/24"
+VLAN_IP_CLIENT="3.3.3.1/24"
+VLAN_IP_SERVER="3.3.3.2/24"
 DEV_IP_CLIENT="1.1.1.1/24"
 DEV_IP_SERVER="1.1.1.2/24"
 ENCRYPT="encrypt on"
@@ -121,6 +123,14 @@ function configure_macsec_ips() {
     fi
 }
 
+function configure_vlan_ips() {
+    if [[ "$VLAN" != "outer" && "$VLAN" != "inner" ]]; then
+        return;
+    fi
+    configure_device $VLAN_IF $VLAN_IP_CLIENT $VLAN_IP_SERVER
+}
+
+
 function ip_macsec_offload() {
     ip macsec offload $MACSEC_IF mac
 }
@@ -174,7 +184,10 @@ function usage() {
 
         --macsec-ip          Use a specific ip for the local macsec interface,
                              default ips - client 2.2.2.1 , server 2.2.2.2
-                             you need to provide a subnet too, e.g 3.3.3.2/24
+                             you need to provide a subnet too, e.g 4.4.4.2/24
+        --vlan-ip            Use a specific ip for the local macsec interface,
+                             default ips - client 3.3.3.1 , server 3.3.3.2
+                             you need to provide a subnet too, e.g 4.4.4.2/24
 
         --enable-sa          {0..3} , enables specific TX sa, macsec interface needs to be
                              provided using --interface , if not provided default interface will
@@ -222,6 +235,10 @@ function parse_args() {
             ;;
             --macsec-ip)
             CUSTOM_MACSEC_IP="$2"
+            shift 2
+            ;;
+            --vlan-ip)
+            CUSTOM_VLAN_IP="$2"
             shift 2
             ;;
             --tx-sa-state)
@@ -431,6 +448,14 @@ function check_ips() {
             MACSEC_IP_CLIENT="$CUSTOM_MACSEC_IP"
         fi
     fi
+
+    if [[ $CUSTOM_VLAN_IP != "" ]]; then
+        if [ "$SIDE" == "server" ]; then
+            VLAN_IP_SERVER="$CUSTOM_VLAN_IP"
+        else
+            VLAN_IP_CLIENT="$CUSTOM_VLAN_IP"
+        fi
+    fi
 }
 
 function check_sci() {
@@ -535,6 +560,9 @@ function main() {
 
     #Inner vlan
     configure_inner_vlan
+
+    #Bring up the vlan device and configure ips
+    configure_vlan_ips
 }
 
 main "$@"
