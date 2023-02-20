@@ -102,6 +102,36 @@ function macsec_parse_test() {
     done
 }
 
+function macsec_verify_test_args() {
+    local re='^[0-9]+$'
+
+    if ! [[ $MTU =~ $re ]] ; then
+        fail "Bad value for test arg --mtu"
+    fi
+
+    if [[ "$IP_PROTO" != "ipv4" &&  "$IP_PROTO" != "ipv6" ]]; then
+        fail "Bad value for test arg --ip-proto"
+    fi
+
+    if [[ "$MACSEC_IP_PROTO" != "ipv4" && "$MACSEC_IP_PROTO" != "ipv6" ]]; then
+        fail "Bad value for test arg --macsec-ip-proto"
+    fi
+
+    if [[ "$NET_PROTO" != "tcp" && "$NET_PROTO" != "udp" && "$NET_PROTO" != "icmp" ]]; then
+        fail "Bad value for test arg --net-proto"
+    fi
+
+    if [[ "$OFFLOAD_SIDE" != "none" && "$OFFLOAD_SIDE" != "local" && "$OFFLOAD_SIDE" != "remote" &&  "$OFFLOAD_SIDE" != "both" ]]; then
+        fail "Bad value for test arg --offload-side"
+    fi
+
+    if [[ "$INNER_VLAN" == "on" || "$OUTER_VLAN" == "on" ]]; then
+        if [[ "$VLAN_IP_PROTO" != "ipv4" && "$VLAN_IP_PROTO" != "ipv6" ]]; then
+            fail "Bad value for test arg --vlan-ip-proto"
+        fi
+    fi
+}
+
 function macsec_set_key_len() {
     KEY_LEN=$1
 }
@@ -562,6 +592,8 @@ function run_test_macsec() {
     local vlan_print=""
 
     macsec_parse_test $@
+
+    macsec_verify_test_args
 
     if [ $INNER_VLAN == "on" ]; then
         vlan_print=", inner_vlan=$INNER_VLAN, vlan_ip_protocol=$VLAN_IP_PROTO"
