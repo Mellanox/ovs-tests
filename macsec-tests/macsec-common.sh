@@ -144,9 +144,7 @@ function macsec_set_key_len() {
 function macsec_set_config_extras() {
     if [ "$OFFLOAD_SIDE" == "local" ]; then
         LOCAL_EXTRA="--offload $@"
-        REMOTE_EXTRA=""
     elif [ "$OFFLOAD_SIDE" == "remote" ]; then
-        LOCAL_EXTRA=""
         REMOTE_EXTRA="--offload $@"
     elif [ "$OFFLOAD_SIDE" == "both" ]; then
         LOCAL_EXTRA="--offload $@"
@@ -188,6 +186,8 @@ function macsec_reset_defaults() {
     EFFECTIVE_CIPHER="gcm-aes-128"
     EFFECTIVE_KEY_IN="$KEY_IN_128"
     EFFECTIVE_KEY_OUT="$KEY_OUT_128"
+    LOCAL_EXTRA=""
+    REMOTE_EXTRA=""
     KEY_LEN=128
 }
 
