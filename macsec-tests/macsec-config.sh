@@ -226,7 +226,7 @@ function parse_args() {
             shift 2
             ;;
             --offload)
-            OFFLOAD="1"
+            OFFLOAD="on"
             shift
             ;;
             --debug)
@@ -234,7 +234,7 @@ function parse_args() {
             shift
             ;;
             --add-multi-sa)
-            MULTI_SA="1"
+            MULTI_SA="on"
             shift
             ;;
             -d | --delete)
@@ -474,7 +474,7 @@ function main() {
     #Check if device exists, add it otherwise
     configure_macsec_interface
     #Enable offload if requested
-    if [ "$OFFLOAD" == 1 ]; then
+    if [ "$OFFLOAD" == "on" ]; then
         ip_macsec_offload
     fi
 
@@ -482,7 +482,7 @@ function main() {
     configure_device $MACSEC_IF $MACSEC_IP_CLIENT $MACSEC_IP_SERVER
 
     #Configure max number of SAs if requested
-    if [ "$MULTI_SA" == 1 ]; then
+    if [ "$MULTI_SA" == "on" ]; then
         configure_macsec_multi_secrets
     fi
 }
