@@ -337,8 +337,8 @@ function run_traffic() {
     local nic=${3:-"$NIC"}
     local expected_traffic=${4:-"have_traffic"}
     local iperf_extra=""
-    local tcpdump_exta=""
     local should_err=""
+    local traffic_ip=""
 
     if [[ "$net_proto" == "tcp" ]]; then
         :
@@ -358,6 +358,20 @@ function run_traffic() {
         err "Wrong arg for function run_traffic"
     fi
 
+    if [[ "$ip_proto" == "ipv4" ]]; then
+        traffic_ip=$MACSEC_LIP
+    else
+        traffic_ip=$MACSEC_LIP6
+    fi
+
+    if [[ "$INNER_VLAN" == "on" ]]; then
+        if [[ "$VLAN_IP_PROTO" == "ipv4" ]]; then
+            traffic_ip="$VLAN_LIP"
+        else
+            traffic_ip="$VLAN_LIP6"
+        fi
+    fi
+
     fail_if_err
 
     local t=10
@@ -368,17 +382,9 @@ function run_traffic() {
     local upid=$!
 
     if [[ "$net_proto" == "icmp" ]]; then
-        if [[ "$ip_proto" == "ipv4" ]]; then
-            (on_remote timeout $((t+2)) ping $MACSEC_LIP -c 7 > /dev/null) || $should_err
-        else
-            (on_remote timeout $((t+2)) ping $MACSEC_LIP6 -c 7 > /dev/null) || $should_err
-        fi
+        (on_remote timeout $((t+2)) ping $traffic_ip -c 7 > /dev/null) || $should_err
     else
-        if [[ "$ip_proto" == "ipv4" ]]; then
-            (on_remote timeout $((t+2)) iperf3 -c $MACSEC_LIP $iperf_extra -b 2G --logfile $IPERF_FILE &) || $should_err
-        else
-            (on_remote timeout $((t+2)) iperf3 -c $MACSEC_LIP6 $iperf_extra -b 2G --logfile $IPERF_FILE &) || $should_err
-        fi
+        (on_remote timeout $((t+2)) iperf3 -c $traffic_ip $iperf_extra -b 2G --logfile $IPERF_FILE &) || $should_err
     fi
 
     fail_if_err
