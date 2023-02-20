@@ -114,13 +114,7 @@ function set_encodingsa() {
 }
 
 function configure_macsec_ips() {
-    if [ "$SIDE" == "server" ]; then
-        ip address add $MACSEC_IP_SERVER dev $MACSEC_IF
-        ip link set dev $MACSEC_IF up
-    else
-        ip address add $MACSEC_IP_CLIENT dev $MACSEC_IF
-        ip link set dev $MACSEC_IF up
-    fi
+    configure_device $MACSEC_IF $MACSEC_IP_CLIENT $MACSEC_IP_SERVER
 }
 
 function configure_vlan_ips() {
@@ -549,7 +543,9 @@ function main() {
     fi
 
     configure_macsec_secrets
-    configure_device $MACSEC_IF $MACSEC_IP_CLIENT $MACSEC_IP_SERVER
+
+    #Bring up the macsec device and configure ips
+    configure_macsec_ips
 
     #Configure max number of SAs if requested
     if [ "$MULTI_SA" == "on" ]; then
