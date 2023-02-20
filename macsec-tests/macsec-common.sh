@@ -369,7 +369,7 @@ function config_macsec_remote() {
 function config_keys_and_ips() {
     local ip_proto="$1"
     local macsec_ip_proto="$2"
-    local xpn=${4:-"xpn_off"}
+    local xpn=${3:-"xpn_off"}
 
     if [ "$ip_proto" == "ipv6" ]; then
         EFFECTIVE_LIP="$LIP6/112"
