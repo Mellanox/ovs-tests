@@ -18,6 +18,8 @@ add_expected_error_msg "0x98afbb"
 #simx
 add_expected_error_msg "CREATE_FLOW_TABLE\(0x930\) op_mod\(0x0\) failed, status bad parameter\(0x3\), syndrome \(0x0\), err\(-22\)"
 add_expected_error_msg "CREATE_FLOW_TABLE: creating a flow table when reformat_en/decap_en bit set while VF 0x1 is up isn't allowed"
+#from simx
+add_expected_error_msg "CREATE_FLOW_TABLE: reformat_en/decap_en is set while VF 0x1 is up"
 switch_mode_switchdev
 __ignore_errors=0
 
