@@ -28,6 +28,21 @@ function config() {
     enable_switchdev $NIC2
     config_bonding $NIC $NIC2
     config_shared_block
+    reset_tc $REP
+}
+
+function test_add_redirect_rule() {
+    title "- bond0 -> $REP"
+    tc_filter_success add block 22 protocol arp parent ffff: prio 3 \
+        flower dst_mac $dst_mac \
+        action mirred egress redirect dev $REP
+    verify_in_hw $NIC 3
+    verify_in_hw $NIC2 3
+
+    title "- $REP -> bond0"
+    tc_filter_success add dev $REP protocol arp parent ffff: prio 3 \
+        flower dst_mac $dst_mac skip_sw \
+        action mirred egress redirect dev bond0
 }
 
 function clean_shared_block() {
@@ -44,6 +59,7 @@ function cleanup() {
 trap cleanup EXIT
 cleanup
 config
+test_add_redirect_rule
 fail_if_err
 reload_modules
 trap - exit
