@@ -44,6 +44,7 @@ function macsec_parse_test() {
     MULTI_SA="off"
     INNER_VLAN="off"
     OUTER_VLAN="off"
+    REPLAY="off"
     while [[ $# -gt 0 ]]; do
         local key="$1"
         case $key in
@@ -94,6 +95,10 @@ function macsec_parse_test() {
             --outer-vlan)
             OUTER_VLAN="on"
             shift
+            ;;
+            --replay)
+            REPLAY="$2"
+            shift 2
             ;;
             *)    # Unknown option
             fail "Unknown arg for macsec test parser"
@@ -316,6 +321,17 @@ function verify_offload_counters() {
     fi
 
     title "Verify offload"
+
+    if [ "$REPLAY" == "on" ]; then
+        # Function run_traffic sends packets from remote to local.
+        # Since we expect the packet to get dropped we won't get any
+        # traffic sent from local to remote hence we expect the drop
+        # counters to increase only on local side.
+        if [[ $LOCAL_POST_TEST_PKTS_RX_DROP -le $LOCAL_PRE_TEST_PKTS_RX_DROP ]]; then
+            fail "Macsec offload drop counters didn't increase as expected"
+        fi
+        return
+    fi
 
     #In macsec tests we always send traffic from remote side to local.
     #Since udp is a protocol for data flowing in one direction we can’t
@@ -544,6 +560,42 @@ function test_macsec_multi_sa() {
     kill_iperf
 }
 
+function test_macsec_replay() {
+    local dev="$NIC"
+    local macsec_dev="macsec0"
+    local client_pn=5000
+    local server_pn=1000
+    local window_size=32
+    local sci="$RANDOM"
+    local rx_sci="$RANDOM"
+
+    config_keys_and_ips ipv4 ipv4
+
+    macsec_set_config_extras $@
+
+    config_macsec --device $dev --interface $macsec_dev --cipher $EFFECTIVE_CIPHER \
+                                --tx-key $EFFECTIVE_KEY_IN --rx-key $EFFECTIVE_KEY_OUT --pn $client_pn --sci $sci --rx-sci $rx_sci\
+                                --dev-ip "$EFFECTIVE_LIP" --macsec-ip $MACSEC_EFFECTIVE_LIP $LOCAL_EXTRA --replay on --window $window_size
+
+    config_macsec_remote --device $dev --interface $macsec_dev --cipher $EFFECTIVE_CIPHER \
+                                       --tx-key $EFFECTIVE_KEY_OUT --rx-key $EFFECTIVE_KEY_IN --pn $server_pn --sci $rx_sci --rx-sci $sci \
+                                       --dev-ip $EFFECTIVE_RIP --macsec-ip $MACSEC_EFFECTIVE_RIP $REMOTE_EXTRA --replay on --window $window_size
+
+    read_pre_test_counters
+
+    change_mtu_on_both_sides $MTU $dev $macsec_dev
+
+    start_iperf_server
+
+    run_traffic $MACSEC_IP_PROTO $NET_PROTO $macsec_dev no_traffic
+
+    read_post_test_counters
+
+    verify_offload_counters
+
+    kill_iperf
+}
+
 function test_macsec_xpn() {
     local dev="$NIC"
     local macsec_dev="macsec0"
@@ -605,7 +657,7 @@ function run_test_macsec() {
         macsec_cleanup
         macsec_set_key_len $len
 
-        title "Test MACSEC multi_sa=$MULTI_SA, mtu=$MTU, ip_protocol=$IP_PROTO, macsec_ip_protocol=$MACSEC_IP_PROTO, network_protocol=$NET_PROTO, key_length=$len, offload_side=$OFFLOAD_SIDE, xpn=$XPN$vlan_print"
+        title "Test MACSEC multi_sa=$MULTI_SA, mtu=$MTU, ip_protocol=$IP_PROTO, macsec_ip_protocol=$MACSEC_IP_PROTO, network_protocol=$NET_PROTO, key_length=$len, offload_side=$OFFLOAD_SIDE, xpn=$XPN, replay=$REPLAY$vlan_print"
 
         if [[ "$MULTI_SA" == "on" ]]; then
             test_macsec_multi_sa
@@ -613,6 +665,9 @@ function run_test_macsec() {
             echo
         elif [[ "$XPN" = "on" ]]; then
             test_macsec_xpn
+            echo
+        elif [[ "$REPLAY" = "on" ]]; then
+            test_macsec_replay
             echo
         else
             test_macsec
