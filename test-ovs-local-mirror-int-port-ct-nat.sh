@@ -132,9 +132,9 @@ function run() {
     tpid1=$!
     timeout $((t-4)) tcpdump -qnnei $REP -c 10 port $FAKE_PORT &
     tpid2=$!
-    timeout $((t-4)) tcpdump -qnnei $VF2 -c 10 ether src $mac1  &
+    timeout $((t-4)) tcpdump -qnnei $VF2 -c 10 ether src $mac1 and port $FAKE_PORT &
     tpid3=$!
-    timeout $((t-4)) tcpdump -qnnei $VF2 -c 10 ether dst $mac1  &
+    timeout $((t-4)) tcpdump -qnnei $VF2 -c 10 ether dst $mac1 and port $FAKE_PORT &
     tpid4=$!
 
     sleep $t
