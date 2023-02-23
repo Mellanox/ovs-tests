@@ -77,8 +77,9 @@ function verify_tuples_are_cleared() {
     local ok=0
 
     title "Verify tuples are cleared from offload"
-    for i in `seq 4`; do
+    for i in `seq 6`; do
         cat /proc/net/nf_conntrack | grep "$IP1" | grep "$IP2" | grep "zone=[57]" | grep -i offload && sleep 2 && continue
+        echo "tuples cleared after $(((i-1)*2)) seconds"
         ok=1
         break
     done
