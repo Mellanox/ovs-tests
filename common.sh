@@ -53,6 +53,7 @@ VENDOR_MELLANOX="0x15b3"
 EOT
 
 declare -A PCI_MAP
+declare -A TRAFFIC_INFO
 
 # set in __test_for_devlink_compat()
 devlink_compat=0
