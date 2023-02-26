@@ -147,4 +147,7 @@ config_remote_vxlan
 run "Test act_sample action with skip_hw" skip_hw
 run "Test act_sample action" ""
 
+trap - EXIT
+echo "cleanup"
+cleanup
 test_done
