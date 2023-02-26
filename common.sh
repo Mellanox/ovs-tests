@@ -708,6 +708,7 @@ function print_remote_test_separator() {
     __on_remote $remote "echo -e \"$sep\n$tmp\n$sep\" >> /dev/kmsg"
 }
 
+__USING_REMOTE_SERVER=0
 function require_remote_server() {
     if [ -z "$REMOTE_SERVER" ]; then
         fail "Remote server is not configured"
@@ -718,6 +719,7 @@ function require_remote_server() {
     log "Remote server $REMOTE_SERVER"
     on_remote true || fail "Remote command failed"
     print_remote_test_separator $REMOTE_SERVER
+    __USING_REMOTE_SERVER=1
 }
 
 function kmsg() {
@@ -1704,6 +1706,13 @@ mlx5_pci_slot_reset Device state = 2 pci_status: 1. Exit, err = 0, result = 5, r
     return $rc
 }
 
+function check_for_errors_log_remote() {
+    if [ "$__USING_REMOTE_SERVER" != 1 ]; then
+        return
+    fi
+    on_remote_exec check_for_errors_log || err "Detected errors on remote"
+}
+
 function check_for_err() {
     local look="$1"
     local a=`journalctl_for_test | grep -E -i "$look" || true`
@@ -2092,6 +2101,7 @@ function fail_if_err() {
     if [ $TEST_FAILED != 0 ]; then
         kill_all_bgs
         check_for_errors_log
+        check_for_errors_log_remote
         log "runtime: `get_test_time_elapsed_human`"
         fail $m
     fi
@@ -2132,6 +2142,7 @@ function test_done() {
     reload_driver_per_test && reload_modules
     kmemleak_scan_per_test && kmemleak_scan
     check_for_errors_log
+    check_for_errors_log_remote
     log "runtime: `get_test_time_elapsed_human`"
     if [ $TEST_FAILED == 0 ]; then
         success "TEST PASSED"
