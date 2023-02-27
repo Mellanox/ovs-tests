@@ -980,14 +980,13 @@ function get_reps() {
     local nic=${1:-$NIC}
     local sid1=`get_sw_id $nic`
     local pn1=`get_port_name $nic`
-    local exec_ns=`get_exec_pf_in_ns`
 
     if [ -z "$sid1" ]; then
         echo "get_reps: Failed to get sw id for $nic" >> /dev/stderr
         return
     fi
 
-    for i in `$exec_ns ls -1 /sys/class/net`; do
+    for i in `exec_pf_in_ns ls -1 /sys/class/net`; do
         local sid2=`get_sw_id $i`
         local pn2=`get_port_name $i`
         if [ "$pn2" != "p0" ] && [ "$pn2" != "p1" ]; then
@@ -1003,14 +1002,14 @@ function get_reps() {
 function __get_vf_reps() {
     local nic=$1
     # XXX: we might miss reps if not using the udev rule
-    ls -1 /sys/class/net/ | grep ${nic}_[0-9]
+    exec_pf_in_ns ls -1 /sys/class/net/ | grep ${nic}_[0-9]
 }
 
 function bring_up_reps() {
     local nic=${1:-$NIC}
     local ifs
 
-    if [ ! -e "/sys/class/net/$nic" ]; then return ; fi
+    if ! exec_pf_in_ns test -e "/sys/class/net/$nic"; then return ; fi
 
     # XXX: we might miss reps if not using the udev rule
     ifs=`__get_vf_reps $nic`
@@ -1018,6 +1017,10 @@ function bring_up_reps() {
     if [ -z "$ifs" ]; then
         warn "bring_up_reps: cannot find reps for $nic"
         return
+    fi
+
+    if [ "$PF_IN_NS" != "" ]; then
+        warn "TODO bring_up_reps: update ip link set up"
     fi
 
     local cmd="echo -n '$ifs' | xargs -I {} ip link set dev {} up"
@@ -1033,7 +1036,7 @@ function bring_up_reps() {
 
 function get_vfs_count() {
     local nic=$1
-    ls -1d /sys/class/net/$nic/device/virtfn* 2>/dev/null | wc -l
+    exec_pf_in_ns ls -1d /sys/class/net/$nic/device/virtfn* 2>/dev/null | wc -l
 }
 
 function get_reps_count() {
@@ -1052,7 +1055,7 @@ function wait_for_reps() {
     local found=0
 
     if [ "$count" == 0 ]; then return ; fi
-    if [ ! -e "/sys/class/net/$nic" ]; then return ; fi
+    if ! exec_pf_in_ns test -e "/sys/class/net/$nic"; then return ; fi
 
     for i in `seq 4`; do
         reps=`__get_vf_reps_count $nic`
@@ -1103,6 +1106,10 @@ function wait_switch_mode_compat() {
     fi
 }
 
+function __devlink() {
+    exec_pf_in_ns devlink $@
+}
+
 function switch_mode() {
     local mode=$1
     local nic=${2:-$NIC}
@@ -1128,7 +1135,7 @@ function switch_mode() {
             wait_switch_mode_compat $nic $mode $vf_count
         fi
     else
-        devlink dev eswitch set pci/$pci mode $mode $extra || fail "Failed to set mode $mode"
+        __devlink dev eswitch set pci/$pci mode $mode $extra || fail "Failed to set mode $mode"
     fi
 
     if [ "$mode" == "switchdev" ]; then
@@ -1154,7 +1161,7 @@ function get_eswitch_mode() {
         cat `devlink_compat_dir $nic`/mode 2>/dev/null
     else
         local pci=${PCI_MAP[$nic]}
-        devlink dev eswitch show pci/$pci 2>/dev/null | grep -o " mode [a-z]\+" | awk {'print $2'}
+        __devlink dev eswitch show pci/$pci 2>/dev/null | grep -o " mode [a-z]\+" | awk {'print $2'}
     fi
 }
 
@@ -1274,8 +1281,8 @@ function config_sriov() {
     fi
 
     log "Config $num VFs for $nic"
-    echo 0 > $numvfs_sysfs
-    echo $num > $numvfs_sysfs || fail "Failed to config $num VFs on $nic"
+    exec_pf_in_ns echo 0 > $numvfs_sysfs
+    exec_pf_in_ns echo $num > $numvfs_sysfs || fail "Failed to config $num VFs on $nic"
     sleep 0.5
     udevadm trigger -c add -s net &>/dev/null
 }
@@ -1346,7 +1353,7 @@ function unbind_vfs() {
             vfpci=$(basename `readlink $i`)
             if [ -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
                 log_once __once_unbind_vfs "Unbind vfs of $nic"
-                echo $vfpci > /sys/bus/pci/drivers/mlx5_core/unbind
+                exec_pf_in_ns echo $vfpci > /sys/bus/pci/drivers/mlx5_core/unbind
             fi
         done
         unset __once_unbind_vfs
@@ -1355,16 +1362,13 @@ function unbind_vfs() {
 
 function get_bound_vfs_count() {
     local nic=$1
-    local vfs=(/sys/class/net/*/device/physfn/net/$nic)
-    local count=${#vfs[@]}
-
-    echo $count
+    exec_pf_in_ns ls -1 /sys/class/net/*/device/physfn/net/$nic 2>/dev/null | wc -l
 }
 
 function wait_for_vfs() {
     local nic=$1
     local vfs=0
-    local count=`get_vfs_count $nic`
+    local cmax=`get_vfs_count $nic`
     local i
 
     for i in `seq 10`; do
@@ -1389,7 +1393,7 @@ function bind_vfs() {
             vfpci=$(basename `readlink $i`)
             if [ ! -e /sys/bus/pci/drivers/mlx5_core/$vfpci ]; then
                 log_once __once_bind_vfs "Bind vfs of $nic"
-                echo $vfpci > /sys/bus/pci/drivers/mlx5_core/bind
+                exec_pf_in_ns echo $vfpci > /sys/bus/pci/drivers/mlx5_core/bind
                 if [ $? -ne 0 ]; then
                     log "Cannot bind VF $vfpci"
                     err=1
@@ -1412,19 +1416,21 @@ function get_exec_pf_in_ns() {
     get_exec_ns $PF_IN_NS
 }
 
-function get_sw_id() {
+function exec_pf_in_ns() {
     local exec_ns=`get_exec_pf_in_ns`
-    $exec_ns cat /sys/class/net/$1/phys_switch_id 2>/dev/null
+    $exec_ns $@
+}
+
+function get_sw_id() {
+    exec_pf_in_ns cat /sys/class/net/$1/phys_switch_id 2>/dev/null
 }
 
 function get_port_name() {
-    local exec_ns=`get_exec_pf_in_ns`
-    $exec_ns cat /sys/class/net/$1/phys_port_name 2>/dev/null
+    exec_pf_in_ns cat /sys/class/net/$1/phys_port_name 2>/dev/null
 }
 
 function get_parent_port_name() {
-    local exec_ns=`get_exec_pf_in_ns`
-    local a=`$exec_ns cat /sys/class/net/$1/phys_port_name 2>/dev/null`
+    local a=`exec_pf_in_ns cat /sys/class/net/$1/phys_port_name 2>/dev/null`
     a=${a%vf*}
     a=${a//pf}
     ((a&=0x7))
