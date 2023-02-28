@@ -44,6 +44,11 @@ function remove_ns() {
 
 function run_traffic() {
     t=15
+
+    echo "sniff packets on $SF1"
+    ip netns exec ns0 timeout $t tcpdump -qnnei $SF1 -c 10 'tcp' &
+    pid1=$!
+
     echo "run traffic for $((t-2)) seconds"
     ip netns exec ns1 timeout $((t+1)) iperf -s &
     sleep 2
@@ -54,14 +59,16 @@ function run_traffic() {
 
     echo "sniff packets on $SF_REP1"
     timeout $((t-5)) tcpdump -qnnei $SF_REP1 -c 10 'tcp' &
-    pid1=$!
+    pid2=$!
 
     sleep $t
     killall -9 iperf &>/dev/null
     wait $! 2>/dev/null
 
+    title "test traffic"
+    verify_have_traffic $pid1
     title "test traffic offload"
-    verify_no_traffic $pid1
+    verify_no_traffic $pid2
 }
 
 enable_switchdev $NIC
