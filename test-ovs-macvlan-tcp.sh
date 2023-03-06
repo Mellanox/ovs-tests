@@ -46,6 +46,7 @@ trap cleanup EXIT
 function config() {
     ip link add mymacvlan1 link $NIC type macvlan mode passthru
     ip link set mymacvlan1 up
+    ip link set $NIC up
     reset_tc $REP mymacvlan1
     config_vf ns0 $VF $REP $IP
     config_ovs
