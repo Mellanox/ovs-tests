@@ -93,26 +93,6 @@ slave1=$NIC
 slave2=$NIC2
 active_slave=$NIC
 remote_active=$REMOTE_NIC
-function change_slaves() {
-    echo "change active slave from $slave1 to $slave2"
-    local tmpslave=$slave1
-    slave1=$slave2
-    slave2=$tmpslave
-    ifconfig $tmpslave down
-
-    if [ "$B2B" == 1 ]; then
-        if [ "$remote_active" == $REMOTE_NIC ]; then
-            remote_active=$REMOTE_NIC2
-        else
-            remote_active=$REMOTE_NIC
-        fi
-        on_remote "echo $remote_active > /sys/class/net/bond0/bonding/active_slave"
-    fi
-
-    sleep 2
-    ifconfig $tmpslave up
-}
-
 
 title "test ping esw0->esw1"
 change_slaves
