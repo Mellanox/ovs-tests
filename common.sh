@@ -2303,14 +2303,6 @@ function fw_dump() {
     fi
 }
 
-function indir_table_used() {
-    local dump="/tmp/indir_dump"
-    local gvmi=${1:-0}
-
-    mlxdump -d $PCI fsdump --type FT --gvmi=$gvmi --no_zero > $dump || err "mlxdump failed"
-    grep -A5 ip_version $dump | grep -A3 dst_ip_31_0 | grep -A3 vxlan_vni | grep metadata_reg_c_0 >/dev/null
-}
-
 function config_remote_vxlan() {
     if [ -z "$VXLAN_ID" ] || [ -z "$REMOTE_IP" ]; then
         err "Cannot config remote vxlan"

@@ -57,9 +57,9 @@ fi
 
 count=`diff -u /tmp/fsdump_before_add /tmp/fsdump_after_add | grep "+- FTE" | wc -l`
 
-if indir_table_used
-then expected_count=3
-else expected_count=2
+if [ "$short_device_name" == "cx5" ]
+then expected_count=2
+else expected_count=3
 fi
 
 if [[ $count -eq $expected_count ]]; then
