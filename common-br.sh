@@ -80,6 +80,26 @@ function verify_ping_ns() {
     verify_no_traffic $tpid
 }
 
+function verify_ping_ns_mcast() {
+    local ns=$1
+    local from_dev=$2
+    local dump_dev=$3
+    local dst_ip=$4
+    local t=$5
+    local ndupes=$6
+    local npackets=$7
+    local filter=${8:-icmp}
+
+    echo "sniff packets on $dump_dev"
+    timeout $((t+1)) tcpdump -qnnei $dump_dev -c $npackets ${filter} &
+    local tpid=$!
+    sleep 0.5
+
+    echo "run ping for $t seconds"
+    ip netns exec $ns ping -I $from_dev $dst_ip -c $t -w $t | grep "+$ndupes duplicates" && success || err "Multicast ping failed"
+    verify_no_traffic $tpid
+}
+
 function verify_ping_remote_mcast() {
     local from_dev=$1
     local dump_dev=$2
