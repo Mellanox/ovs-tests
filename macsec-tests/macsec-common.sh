@@ -151,11 +151,9 @@ function macsec_set_config_extras() {
     elif [ "$OFFLOAD_SIDE" == "both" ]; then
         LOCAL_EXTRA="--offload $@"
         REMOTE_EXTRA="--offload $@"
-    elif [ "$OFFLOAD_SIDE" == "none" ]; then
+    else
         LOCAL_EXTRA="$@"
         REMOTE_EXTRA="$@"
-    else
-        fail "OFFLOAD_SIDE=$OFFLOAD_SIDE is not a valid value"
     fi
 
     if [ "$INNER_VLAN" == "on" ]; then
