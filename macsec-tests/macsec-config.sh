@@ -494,7 +494,6 @@ function configure_inner_vlan() {
         return;
     fi
 
-    debug_msg
     ip link add link $MACSEC_IF name $VLAN_IF type vlan id $VLAN_ID
 }
 
@@ -503,7 +502,6 @@ function configure_outer_vlan() {
         return;
     fi
 
-    debug_msg
     ip link add link $DEVICE name $VLAN_IF type vlan id $VLAN_ID
 }
 
