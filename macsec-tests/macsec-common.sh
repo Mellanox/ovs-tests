@@ -163,6 +163,18 @@ function macsec_set_config_extras() {
         LOCAL_EXTRA="$LOCAL_EXTRA --outer-vlan --unique-mac"
         REMOTE_EXTRA="$REMOTE_EXTRA --outer-vlan --unique-mac"
     fi
+
+    if [[ "$INNER_VLAN" == "on" || "$OUTER_VLAN" == "on" ]]; then
+        if [[ "$VLAN_IP_PROTO" == "ipv4" ]]; then
+            LOCAL_EXTRA="$LOCAL_EXTRA --vlan-ip $VLAN_LIP/24"
+            REMOTE_EXTRA="$REMOTE_EXTRA --vlan-ip $VLAN_RIP/24"
+        fi
+
+        if [[ "$VLAN_IP_PROTO" == "ipv6" ]]; then
+            LOCAL_EXTRA="$LOCAL_EXTRA --vlan-ip $VLAN_LIP6/112"
+            REMOTE_EXTRA="$REMOTE_EXTRA --vlan-ip $VLAN_RIP6/112"
+        fi
+    fi
 }
 
 function macsec_cleanup_local() {
@@ -481,18 +493,6 @@ function config_keys_and_ips() {
             EFFECTIVE_CIPHER="gcm-aes-xpn-256"
         else
             EFFECTIVE_CIPHER="gcm-aes-256"
-        fi
-    fi
-
-    if [[ "$INNER_VLAN" == "on" || "$OUTER_VLAN" == "on" ]]; then
-        if [[ "$VLAN_IP_PROTO" == "ipv4" ]]; then
-            LOCAL_EXTRA="$LOCAL_EXTRA --vlan-ip $VLAN_LIP/24"
-            REMOTE_EXTRA="$REMOTE_EXTRA --vlan-ip $VLAN_RIP/24"
-        fi
-
-        if [[ "$VLAN_IP_PROTO" == "ipv6" ]]; then
-            LOCAL_EXTRA="$LOCAL_EXTRA --vlan-ip $VLAN_LIP6/112"
-            REMOTE_EXTRA="$REMOTE_EXTRA --vlan-ip $VLAN_RIP6/112"
         fi
     fi
 }
