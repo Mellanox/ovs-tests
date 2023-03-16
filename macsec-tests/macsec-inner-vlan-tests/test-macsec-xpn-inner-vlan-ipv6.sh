@@ -14,9 +14,9 @@ function cleanup() {
 }
 
 function run_test() {
-    run_test_macsec --mtu 1500 --ip-proto ipv4 --macsec-ip-proto ipv4 --net-proto icmp --offload-side none --multi-sa off --xpn on --inner-vlan --vlan-ip-proto ipv6
-    run_test_macsec --mtu 1500 --ip-proto ipv4 --macsec-ip-proto ipv4 --net-proto icmp --offload-side both --multi-sa off --xpn on --inner-vlan --vlan-ip-proto ipv6
-    run_test_macsec --mtu 1500 --ip-proto ipv4 --macsec-ip-proto ipv4 --net-proto icmp --offload-side both --multi-sa off --xpn on --pn 2147483638 --inner-vlan --vlan-ip-proto ipv6
+    run_test_macsec --mtu 1500 --ip-proto ipv4 --macsec-ip-proto ipv4 --net-proto icmp --offload-side none --multi-sa off --xpn on --client_pn 4294967290 --server_pn 4294967290 --inner-vlan --vlan-ip-proto ipv6
+    run_test_macsec --mtu 1500 --ip-proto ipv4 --macsec-ip-proto ipv4 --net-proto icmp --offload-side both --multi-sa off --xpn on --client_pn 4294967290 --server_pn 4294967290 --inner-vlan --vlan-ip-proto ipv6
+    run_test_macsec --mtu 1500 --ip-proto ipv4 --macsec-ip-proto ipv4 --net-proto icmp --offload-side both --multi-sa off --xpn on --client_pn 2147483638 --server_pn 2147483638 --inner-vlan --vlan-ip-proto ipv6
 }
 
 trap cleanup EXIT
