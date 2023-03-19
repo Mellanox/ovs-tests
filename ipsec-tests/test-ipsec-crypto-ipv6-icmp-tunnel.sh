@@ -15,6 +15,7 @@ function cleanup() {
 }
 
 function run_test() {
+    cleanup
     run_test_ipsec_offload 1500 ipv6 tunnel icmp
     run_test_ipsec_offload 9000 ipv6 tunnel icmp
 }
