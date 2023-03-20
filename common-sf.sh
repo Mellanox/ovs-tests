@@ -133,6 +133,13 @@ function create_sfs() {
     fail_if_err "Failed to create sfs"
 }
 
+function bind_sfs() {
+    local sf_dev
+    for sf_dev in `get_aux_sf_devices`; do
+        sf_bind `basename $sf_dev`
+    done
+}
+
 function unbind_sfs() {
     local sf_dev
     for sf_dev in `get_aux_sf_devices`; do
