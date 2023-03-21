@@ -447,6 +447,7 @@ function cleanup_mirrors() {
 
 function check_e2e_stats() {
     local expected_add_hw_messages=$1
+    local appctl_cmd=$2
 
     local x=$(ovs-appctl dpctl/offload-stats-show -m | grep 'Total' | grep 'HW add e2e flows:' | awk '{print $6}')
     debug "Number of offload messages: $x"
@@ -455,13 +456,20 @@ function check_e2e_stats() {
         err "offloads failed"
     fi
 
-    debug "Sleeping for 15 seconds to age the flows"
-    sleep 15
+    if [ -z "$appctl_cmd" ]; then
+        debug "Sleeping for 15 seconds to age the flows"
+        sleep 15
+    else
+        exec_dbg "ovs-appctl $appctl_cmd" || err "ovs-appctl $appctl_cmd failed"
+        sleep 1
+    fi
+
     # check deletion from DB
     local y=$(ovs-appctl dpctl/offload-stats-show -m | grep 'Total' | grep 'Merged e2e flows:' | awk '{print $5}')
     debug "Number of DB entries: $y"
 
     if [ $y -ge 2 ]; then
+        ovs-appctl dpctl/offload-stats-show -m
         err "deletion from DB failed"
     fi
 
@@ -469,6 +477,7 @@ function check_e2e_stats() {
     debug "Number of delete HW messages: $z"
 
     if [ $z -lt $((expected_add_hw_messages)) ]; then
+        ovs-appctl dpctl/offload-stats-show -m
         err "offloads failed"
     fi
 }
