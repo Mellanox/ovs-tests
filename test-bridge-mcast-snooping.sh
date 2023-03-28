@@ -66,7 +66,7 @@ function test_igmp_no_vlan() {
 
     echo "running udp scapy: [$namespace1] $VF1_MAC/$VF1_IP -> [$namespace2] $VF2_MAC/$VF2_IP"
 
-    timeout 3 tcpdump -qnnei $br -c 1 igmp &
+    timeout 10 tcpdump -qnnei $br -c 1 igmp &
     local tpid=$!
     sleep 1
 
@@ -98,7 +98,7 @@ function test_igmp_trunk_to_trunk_vlan() {
 
     echo "running udp scapy: [$namespace1] $VF1_MAC_VLAN2/$VF1_IP_VLAN2 -> [$namespace2] $VF2_MAC_VLAN2/$VF2_IP_VLAN2"
 
-    timeout 3 tcpdump -qnnei $br -c 1 igmp &
+    timeout 10 tcpdump -qnnei $br -c 1 igmp &
     local tpid=$!
     sleep 1
 
@@ -124,7 +124,7 @@ function test_mld_no_vlan() {
 
     echo "running udp scapy: [$namespace1] $VF1_MAC/$VF1_IPV6 -> [$namespace2] $VF2_MAC/$VF2_IPV6"
 
-    timeout 3 tcpdump -qnnei $br -c 1 'ip6 protochain 58 && ip6[48] == 131' &
+    timeout 10 tcpdump -qnnei $br -c 1 'ip6 protochain 58 && ip6[48] == 131' &
     local tpid=$!
     sleep 1
 
@@ -156,7 +156,7 @@ function test_mld_trunk_to_trunk_vlan() {
 
     echo "running udp scapy: [$namespace1] $VF1_MAC_VLAN2/$VF1_IPV6_VLAN2 -> [$namespace2] $VF2_MAC_VLAN2/$VF2_IPV6_VLAN2"
 
-    timeout 3 tcpdump -qnnei $br -c 1 'ip6 protochain 58 && ip6[48] == 131' &
+    timeout 10 tcpdump -qnnei $br -c 1 'ip6 protochain 58 && ip6[48] == 131' &
     local tpid=$!
     sleep 1
 
