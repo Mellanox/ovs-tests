@@ -2560,7 +2560,7 @@ function __common_eval() {
     fi
     NO_TITLE=1
     __common_main
-    echo "Evaluate: $@"
+    log "Evaluate: $@"
     eval $@
     exit $?
 }
