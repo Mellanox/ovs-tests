@@ -80,6 +80,7 @@ class SetupConfigure(object):
         parser = ArgumentParser(prog=self.__class__.__name__)
         parser.add_argument('--second-server', '-s', help='Second server config', action='store_true')
         parser.add_argument('--dpdk', help='Add DPDK=1 to configuration file', action='store_true')
+        parser.add_argument('--doca', help='Add DOCA=1 to configuration file', action='store_true')
         parser.add_argument('--sw-steering-mode', help='Configure software steering mode', action='store_true')
         parser.add_argument('--bluefield', help='Setup configuration for bluefield host', action='store_true')
         parser.add_argument('--vdpa', help='Setup configuration for vdpa host', action='store_true')
@@ -163,7 +164,7 @@ class SetupConfigure(object):
                 self.LoadVFInfo()
                 self.LoadRepInfo()
 
-            if self.args.dpdk or self.args.vdpa:
+            if self.args.dpdk or self.args.vdpa or self.args.doca:
                 self.configure_hugepages()
 
             self.ConfigureOVS()
@@ -687,6 +688,9 @@ class SetupConfigure(object):
 
         if self.args.dpdk:
             conf += '\nDPDK=1'
+
+        if self.args.doca:
+            conf += '\nDOCA=1'
 
         if self.args.bluefield:
             conf += '\nBF_NIC=%s' % self.arm[0]['ifname']
