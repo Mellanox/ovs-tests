@@ -7,7 +7,14 @@ DPDK_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
 . $DPDK_DIR/common-testing.sh
 
 VDPA_DEV_NAME="eth2"
-DPDK_PORT_EXTRA_ARGS="dv_xmeta_en=1"
+
+if [ "$DPDK" == "1" ]; then
+    DPDK_PORT_EXTRA_ARGS="dv_xmeta_en=1"
+fi
+
+if [ "$DOCA" == "1" ]; then
+    DPDK_PORT_EXTRA_ARGS="dv_xmeta_en=4,dv_flow_en=2"
+fi
 
 function set_ovs_dpdk_debug_logs() {
     local log="/var/log/openvswitch/ovs-vswitchd.log"
