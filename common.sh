@@ -238,6 +238,10 @@ function __setup_common() {
     require_cmd lspci ethtool tc bc jq
     fail_if_err
 
+    if [ "$DOCA" == 1 ]; then
+        DPDK=1
+    fi
+
     sysfs_pci_device=`readlink -f /sys/class/net/$NIC/../../`
     SRIOV_NUMVFS_NIC=$sysfs_pci_device/sriov_numvfs
     sysfs_pci_device2=`readlink -f /sys/class/net/$NIC2/../../`
@@ -1785,7 +1789,14 @@ function check_ovs_settings() {
         ovs-vsctl remove Open_vSwitch . other_config max-idle
     fi
 
+    __restart_ovs=0
+
     check_dpdk_init
+    check_doca_init
+
+    if [ "$__restart_ovs" == 1 ];then
+        restart_openvswitch
+    fi
 }
 
 function check_dpdk_init() {
@@ -1814,8 +1825,27 @@ function check_dpdk_init() {
            ovs-vsctl remove Open_vSwitch . other_config dpdk-init
            ovs-vsctl remove Open_vSwitch . other_config dpdk-extra
         fi
-        stop_openvswitch
-        service_ovs start
+        __restart_ovs=1
+    fi
+}
+
+function check_doca_init() {
+    local want=""
+
+    if [ "${DOCA}" == 1 ]; then
+        want="true"
+    fi
+
+    local init1=`ovs-vsctl get Open_vSwitch . other_config:doca-init 2>/dev/null | tr -d '"'`
+
+    if [ "$init1" != "$want" ]; then
+        warn "OVS reset doca-init=$want"
+        if [ "$want" == "true" ]; then
+           ovs-vsctl set Open_vSwitch . other_config:doca-init=true
+        else
+           ovs-vsctl remove Open_vSwitch . other_config doca-init
+        fi
+        __restart_ovs=1
     fi
 }
 
