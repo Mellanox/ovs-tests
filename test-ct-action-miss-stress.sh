@@ -8,7 +8,6 @@
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
-pktgen=$my_dir/scapy-traffic-tester.py
 
 require_module act_ct
 
