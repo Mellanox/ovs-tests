@@ -42,7 +42,7 @@ function run_traffic() {
         local runtime=$((rounds-i+1))
 
         echo "round: $i/$rounds, per_round: $per_round, runtime: $runtime"
-        ip netns exec ns0 ./scapy-traffic-tester.py -i $VF1 --src-ip 7.7.7.1 --dst-ip 7.7.7.2 \
+        ip netns exec ns0 $pktgen -i $VF1 --src-ip 7.7.7.1 --dst-ip 7.7.7.2 \
             --time $runtime --src-port $((sport+per_round*i)) --src-port-count $per_round --dst-port 5201 --dst-port-count 1 --pkt-count 1 --inter 0 &>/dev/null &
         sleep 1
     done
