@@ -13,9 +13,14 @@ require_interfaces REP NIC
 unbind_vfs
 bind_vfs
 
-trap cleanup_test EXIT
+trap cleanup EXIT
 
 DUMMY_IP_ADDR="1.1.1.111"
+
+function cleanup() {
+    cleanup_test
+    ovs_conf_set hw-offload true
+}
 
 function config() {
     cleanup_test

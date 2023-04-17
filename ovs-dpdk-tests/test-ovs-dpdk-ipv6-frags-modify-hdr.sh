@@ -11,11 +11,16 @@ require_interfaces REP NIC
 unbind_vfs
 bind_vfs
 
-trap cleanup_test EXIT
+trap cleanup EXIT
 
 IP6_ADDR1="10:0:1::1"
 IP6_ADDR2="10:0:1::2"
 DUMMY_IP6_ADDR="10:0:1::3"
+
+function cleanup() {
+    cleanup_test
+    ovs_conf_set hw-offload true
+}
 
 function config() {
     cleanup_test
