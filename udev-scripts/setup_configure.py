@@ -709,7 +709,7 @@ class SetupConfigure(object):
         self.Logger.info("Notes:\n%s" % '\n'.join(notes))
 
     def configure_hugepages(self):
-        if self.args.vdpa:
+        if self.args.vdpa or self.args.doca:
             nr_hugepages = 4096
         else:
             nr_hugepages = 2048
