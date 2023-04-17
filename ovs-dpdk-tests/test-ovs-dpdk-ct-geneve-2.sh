@@ -12,8 +12,12 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
-cleanup_test
-remote_ovs_cleanup
+trap clean_up EXIT
+
+function clean_up() {
+    cleanup_test
+    remote_ovs_cleanup
+}
 
 function run() {
     config_2_side_tunnel geneve
@@ -24,7 +28,7 @@ function run() {
     generate_traffic "remote" $LOCAL_IP ns0
 }
 
+clean_up
 run
-cleanup_test
-remote_ovs_cleanup
+clean_up
 test_done
