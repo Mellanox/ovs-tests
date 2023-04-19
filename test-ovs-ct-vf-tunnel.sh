@@ -123,10 +123,10 @@ function run() {
     ovs-ofctl dump-flows ovs-br --color
 
     # traffic
-    on_remote timeout $((t+2)) iperf -s -t $t &
+    on_remote timeout $((t+2)) iperf3 -s -D
     pid1=$!
     sleep 2
-    ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE_VXLAN_DEV_IP -t $t -P3 &
+    ip netns exec ns0 timeout $((t+2)) iperf3 -c $REMOTE_VXLAN_DEV_IP -t $t -P3 &
     pid2=$!
 
     # verify pid
@@ -153,7 +153,7 @@ function run() {
     verify_have_traffic $tpid2
 
     kill -9 $pid1 &>/dev/null
-    killall iperf &>/dev/null
+    killall iperf3 &>/dev/null
     echo "wait for bgs"
     wait
 }
