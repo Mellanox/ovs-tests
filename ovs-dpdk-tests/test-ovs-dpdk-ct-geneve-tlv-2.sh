@@ -13,7 +13,7 @@ my_dir="$(dirname "$0")"
 require_remote_server
 
 cleanup_test
-remote_ovs_cleanup
+remote_cleanup_test
 
 function config_openflow_rules() {
     local exec_on_remote=${1:-false}
@@ -48,5 +48,5 @@ function run() {
 
 run
 cleanup_test
-remote_ovs_cleanup
+remote_cleanup_test
 test_done

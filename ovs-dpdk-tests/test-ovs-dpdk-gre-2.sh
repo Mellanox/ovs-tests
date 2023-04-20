@@ -13,7 +13,7 @@ my_dir="$(dirname "$0")"
 require_remote_server
 
 cleanup_test
-remote_ovs_cleanup
+remote_cleanup_test
 
 gre_set_entropy
 gre_set_entropy_on_remote
@@ -24,6 +24,6 @@ verify_ping
 generate_traffic "remote" $LOCAL_IP ns0
 
 cleanup_test
-remote_ovs_cleanup
+remote_cleanup_test
 
 test_done

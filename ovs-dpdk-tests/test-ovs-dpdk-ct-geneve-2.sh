@@ -16,7 +16,7 @@ trap clean_up EXIT
 
 function clean_up() {
     cleanup_test
-    remote_ovs_cleanup
+    remote_cleanup_test
 }
 
 function run() {

@@ -460,18 +460,20 @@ function stop_traffic() {
    sleep 1
 }
 
-function remote_ovs_cleanup() {
+function __cleanup() {
+    ip a flush dev $NIC
+    ip -all netns delete &>/dev/null
+    start_clean_openvswitch
+}
+
+function remote_cleanup_test() {
     title "Cleaning up remote"
-    on_remote_exec "ip a flush dev $NIC
-                    ip -all netns delete &>/dev/null
-                    start_clean_openvswitch"
+    on_remote_exec __cleanup
 }
 
 function cleanup_test() {
     local tunnel_device_name=$1
-    ip a flush dev $NIC
-    ip -all netns delete &>/dev/null
-    start_clean_openvswitch
+    __cleanup
     cleanup_e2e_cache
     cleanup_ct_ct_nat_offload
     cleanup_remote_tunnel $tunnel_device_name
