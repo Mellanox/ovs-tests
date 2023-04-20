@@ -234,9 +234,7 @@ class SetupConfigure(object):
     def UpdatePATHEnvironmentVariable(self):
         os.environ['PATH'] = self.MLNXToolsPath + os.pathsep + os.environ['PATH']
         with open(self.profile_sh, 'w') as f:
-            f.write('if [[ ! "$PATH" =~ "/opt/mellanox" ]]; then\n')
-            f.write('    PATH="%s:$PATH"\n' % self.MLNXToolsPath)
-            f.write('fi\n')
+            f.write('PATH="%s:$PATH"\n' % self.MLNXToolsPath)
 
     def LoadPFInfo(self):
         pnics = []
