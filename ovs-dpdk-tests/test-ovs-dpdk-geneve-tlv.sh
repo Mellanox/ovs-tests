@@ -74,4 +74,6 @@ function run() {
 
 run
 start_clean_openvswitch
+trap - EXIT
+cleanup_test
 test_done

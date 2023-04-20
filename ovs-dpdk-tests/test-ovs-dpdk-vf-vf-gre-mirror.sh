@@ -49,4 +49,6 @@ verify_ping $LOCAL_IP ns1
 generate_traffic "local" $LOCAL_IP ns1
 
 start_clean_openvswitch
+trap - EXIT
+cleanup_test
 test_done

@@ -59,4 +59,6 @@ function run() {
 test_pre_config
 run
 start_clean_openvswitch
+trap - EXIT
+cleanup_test
 test_done

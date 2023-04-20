@@ -44,4 +44,6 @@ verify_ping
 generate_traffic "remote" $LOCAL_IP
 
 start_clean_openvswitch
+trap - EXIT
+cleanup_test
 test_done
