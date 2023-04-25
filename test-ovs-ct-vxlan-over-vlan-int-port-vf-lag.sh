@@ -33,11 +33,11 @@ bind_vfs
 
 
 function cleanup_remote() {
-    clear_remote_bonding
-    on_remote "ip a flush dev $REMOTE_NIC
-               ip a flush dev $REMOTE_NIC2
+    on_remote "ip a flush dev vxlan1
+               ip a flush dev $vlandev
                ip l del dev vxlan1 &>/dev/null
                ip l del dev $vlandev &>/dev/null"
+    clear_remote_bonding
 }
 
 function cleanup() {
@@ -65,6 +65,7 @@ function config() {
     ip netns add ns0
     ip link set dev $VF netns ns0
     ip netns exec ns0 ifconfig $VF $IP/24 up
+    echo $NIC > /sys/class/net/bond0/bonding/active_slave
 
     config_ovs
 }
@@ -103,6 +104,7 @@ function config_remote() {
                ip a add $REMOTE/24 dev vxlan1
                ip l set dev vxlan1 up
                ip l set dev bond0 up
+               echo $REMOTE_NIC > /sys/class/net/bond0/bonding/active_slave
                ip l set dev $vlandev up"
 }
 
