@@ -46,6 +46,7 @@ function cleanup() {
     ip netns del ns1 &>/dev/null
     unbind_vfs
     clear_bonding
+    reset_tc $NIC $NIC2
     enable_legacy $NIC2
     config_sriov 0 $NIC2
     cleanup_remote
