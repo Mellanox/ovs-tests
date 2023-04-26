@@ -87,6 +87,11 @@ function setup_topo1() {
     local remote=$8
     local dstmac=$9
     local srcmac=$10
+    local skip_hw=""
+
+    if [ "$remote" == "remote" ]; then
+        skip_hw="skip_hw"
+    fi
 
     ip link add dev bareudp0 type bareudp dstport 6635 ethertype mpls_uc
     ip link set up dev bareudp0
@@ -97,9 +102,9 @@ function setup_topo1() {
     ip addr add $vfip/24 dev $vf
     ip neigh add $vfdest lladdr 00:11:22:33:44:55 dev $vf
 
-    tc filter add dev $rep protocol ip prio 1 root flower src_ip $vfip dst_ip $vfdest action tunnel_key set src_ip $tunip dst_ip $tundest  dst_port $UDPPORT tos 4 ttl 6 action mpls push protocol mpls_uc label $LABEL tc 3 action mirred egress redirect dev bareudp0
+    tc filter add dev $rep protocol ip prio 1 root flower $skip_hw src_ip $vfip dst_ip $vfdest action tunnel_key set src_ip $tunip dst_ip $tundest  dst_port $UDPPORT tos 4 ttl 6 action mpls push protocol mpls_uc label $LABEL tc 3 action mirred egress redirect dev bareudp0
     tc qdisc add dev bareudp0 ingress
-    tc filter add dev bareudp0 protocol mpls_uc prio 1 ingress flower enc_dst_port $UDPPORT mpls_label  $LABEL action mpls pop protocol ip pipe action vlan push_eth dst_mac $dstmac src_mac $srcmac pipe action mirred egress redirect dev $rep
+    tc filter add dev bareudp0 protocol mpls_uc prio 1 ingress flower $skip_hw enc_dst_port $UDPPORT mpls_label  $LABEL action mpls pop protocol ip pipe action vlan push_eth dst_mac $dstmac src_mac $srcmac pipe action mirred egress redirect dev $rep
 }
 
 function setup_topo() {
