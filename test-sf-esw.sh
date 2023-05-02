@@ -11,6 +11,7 @@ IP1="7.7.7.1"
 IP2="7.7.7.2"
 
 function cleanup() {
+    ip netns exec ns0 devlink dev reload auxiliary/mlx5_core.sf.2 netns 1
     ip -all netns delete
     remove_sfs
 }
@@ -26,10 +27,15 @@ function config() {
     ~roid/SWS/gerrit2/iproute2/devlink/devlink port function set pci/0000:08:00.0/32768 sw_id aaa || fail "Failed to set sf switch id"
     bind_sfs
 
-    title "Set SF switchdev"
-    devlink dev eswitch set auxiliary/mlx5_core.sf.2 mode switchdev || fail "Failed to config sf switchdev"
+    title "Reload SF into ns0"
+    ip netns add ns0
+    devlink dev reload auxiliary/mlx5_core.sf.2 netns ns0 || fail "Failed to reload sf"
+    SF1="eth0"
 
-    config_vf ns0 $SF1 $SF_REP1 $IP1
+    title "Set SF switchdev"
+    ip netns exec ns0 devlink dev eswitch set auxiliary/mlx5_core.sf.2 mode switchdev || fail "Failed to config sf switchdev"
+
+    ip netns exec ns0 ifconfig $SF1 $IP1/24 up
     ifconfig $SF_REP1 $IP2 up
 }
 
