@@ -330,7 +330,7 @@ def parse_args():
 def run_command(cmd, print_cmd=True, *args, **kwargs):
     if print_cmd:
         print(f"Running command: {cmd}")
-    return subprocess.run(cmd, *args, capture_output=True, shell=True, **kwargs)
+    return subprocess.run(cmd, *args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, **kwargs)
 
 
 def run_ovn_nbctl(arguments):
