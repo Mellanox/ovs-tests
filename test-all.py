@@ -1118,18 +1118,23 @@ def get_db_path(db):
     err("Cannot find db %s" % db)
 
 
+def default_filter_dbs(dbs):
+    for db in dbs[:]:
+        if os.path.basename(db) not in ('first_db.yaml', 'second_db.yaml', 'ct_db.yaml',
+                                        'db_local1.yaml', 'db_local2.yaml', 'db_local_ct.yaml'):
+            dbs.remove(db)
+
+
 def get_dbs():
     global DB_PATH
 
     if len(args.db) == 1 and '*' in args.db[0]:
         dbs = glob(args.db[0]) or glob(os.path.join(MYDIR, 'databases', args.db[0]))
         if os.path.basename(args.db[0]) == '*':
-            for db in dbs[:]:
-                if os.path.basename(db) not in ('first_db.yaml', 'second_db.yaml', 'ct_db.yaml',
-                                                'db_local1.yaml', 'db_local2.yaml', 'db_local_ct.yaml'):
-                    dbs.remove(db)
+            default_filter_dbs(dbs)
     elif len(args.db) == 1 and os.path.isdir(args.db[0]):
         dbs = glob(args.db[0]+'/*') or glob(os.path.join(MYDIR, 'databases', args.db[0]+'/*'))
+        default_filter_dbs(dbs)
     elif len(args.db) == 1 and ',' in args.db[0]:
         dbs = args.db[0].split(',')
     else:
