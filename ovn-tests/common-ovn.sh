@@ -1001,14 +1001,20 @@ function ovn_config_mtu() {
     done
 }
 
-function ovn_set_ips() {
-    ovn_central_ip=${ovn_central_ip:-$OVN_CENTRAL_IP}
-    ovn_controller_ip=${ovn_controller_ip:-$OVN_CENTRAL_IP}
-    ovn_remote_controller_ip=${ovn_remote_controller_ip:-$OVN_REMOTE_CONTROLLER_IP}
+function __ovn_set_ipv6_ips() {
+    title "Config OVN controller IPv6"
+    ovn_central_ip=$OVN_CENTRAL_IPV6
+    ovn_controller_ip=$OVN_CENTRAL_IPV6
+    ovn_remote_controller_ip=$OVN_REMOTE_CONTROLLER_IPV6
 }
 
-function ovn_set_ipv6_ips() {
-    ovn_central_ip=${ovn_central_ip:-$OVN_CENTRAL_IPV6}
-    ovn_controller_ip=${ovn_controller_ip:-$OVN_CENTRAL_IPV6}
-    ovn_remote_controller_ip=${ovn_remote_controller_ip:-$OVN_REMOTE_CONTROLLER_IPV6}
+function ovn_set_ips() {
+    if [ "$OVN_SET_CONTROLLER_IPV6" == 1 ]; then
+        __ovn_set_ipv6_ips
+        return
+    fi
+    title "Config OVN controller IPv4"
+    ovn_central_ip=$OVN_CENTRAL_IP
+    ovn_controller_ip=$OVN_CENTRAL_IP
+    ovn_remote_controller_ip=$OVN_REMOTE_CONTROLLER_IP
 }

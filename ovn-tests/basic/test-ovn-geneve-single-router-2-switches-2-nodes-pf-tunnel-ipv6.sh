@@ -8,5 +8,5 @@ my_dir="$(dirname "$0")"
 
 NO_TITLE=1
 
-ovn_set_ipv6_ips
+OVN_SET_CONTROLLER_IPV6=1
 . $my_dir/test-ovn-geneve-single-router-2-switches-2-nodes-pf-tunnel.sh
