@@ -448,6 +448,10 @@ def get_kmemleak_info():
 
 def run_test(test, html=False):
     cmd = test.fname
+
+    env = os.environ
+    env.update(test.opts.get('env', {}))
+
     logname = os.path.join(LOGDIR, test.test_log)
     logname_html = os.path.join(LOGDIR, test.test_log_html)
     # piping stdout to file seems to miss stderr msgs to we use pipe
@@ -455,7 +459,7 @@ def run_test(test, html=False):
     timedout = False
     terminated = False
     subp = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT, close_fds=True)
+                            stderr=subprocess.STDOUT, close_fds=True, env=env)
     try:
         try:
             out, _ = subp.communicate(timeout=TEST_TIMEOUT_MAX)
