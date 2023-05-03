@@ -90,7 +90,6 @@ bridge vlan add dev bond0 vid 2
 
 slave1=$NIC
 slave2=$NIC2
-active_slave=$NIC
 remote_active=$REMOTE_NIC
 
 title "test ping esw0->esw1"

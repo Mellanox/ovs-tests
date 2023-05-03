@@ -131,7 +131,7 @@ function run() {
 
     if [ "$B2B" == 1 ]; then
         # set local and remote to the same port
-        echo $active_slave > /sys/class/net/bond0/bonding/active_slave
+        echo $slave1 > /sys/class/net/bond0/bonding/active_slave
         on_remote "echo $remote_active > /sys/class/net/bond0/bonding/active_slave"
     fi
 
@@ -195,7 +195,6 @@ function iterate_bond_slaves() {
 
 slave1=$NIC
 slave2=$NIC2
-active_slave=$NIC
 remote_active=$REMOTE_NIC
 function change_slaves() {
     title "change active slave from $slave1 to $slave2"

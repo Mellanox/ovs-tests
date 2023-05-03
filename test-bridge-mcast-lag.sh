@@ -140,7 +140,6 @@ function test_lag_remote_trunk_to_mixed_qinq_mcast() {
 
 slave1=$NIC
 slave2=$NIC2
-active_slave=$NIC
 remote_active=$REMOTE_NIC
 
 title "test ping (no VLAN)"

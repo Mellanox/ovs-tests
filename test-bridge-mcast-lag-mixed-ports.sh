@@ -116,7 +116,6 @@ sleep 10
 bridge mdb show
 slave1=$NIC
 slave2=$NIC2
-active_slave=$NIC
 remote_active=$REMOTE_NIC
 
 title "test ping"
