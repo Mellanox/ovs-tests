@@ -477,3 +477,17 @@ function exec_dbg() {
     debug "Executing | $@"
     eval "$@"
 }
+
+function config_vlan_device_ns() {
+    local dev=$1
+    local vlan_dev=$2
+    local vlan_id=$3
+    local ip=$4
+    local vlan_dev_ip=$5
+    local ns=$6
+
+    config_ns $ns $dev $ip
+    ip netns exec $ns ip link add link $dev name $vlan_dev type vlan id $vlan_id
+    ip netns exec $ns ip a add $vlan_dev_ip/24 dev $vlan_dev
+    ip netns exec $ns ip l set $vlan_dev up
+}
