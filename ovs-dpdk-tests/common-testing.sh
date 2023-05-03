@@ -124,19 +124,14 @@ function ovs_add_meter() {
         burst_size=",burst_size=$burst_size"
     fi
 
-    local cmd="ovs-ofctl -O openflow13 add-meter $bridge meter=${meter_id},${type}${burst},band=type=drop,rate=${rate}${burst_size}"
-
-    debug "Executing | $cmd"
-    eval $cmd
+    exec_dbg "ovs-ofctl -O openflow13 add-meter $bridge meter=${meter_id},${type}${burst},band=type=drop,rate=${rate}${burst_size}"
 }
 
 function ovs_del_meter() {
     local bridge=${1:-"br-phy"}
     local meter_id=${2:-1}
 
-    local cmd="ovs-ofctl -O openflow13 del-meter $bridge meter=${meter_id}"
-    debug "Executing | $cmd"
-    eval $cmd
+    exec_dbg "ovs-ofctl -O openflow13 del-meter $bridge meter=${meter_id}"
     sleep 2
 }
 
@@ -169,9 +164,7 @@ function ovs_add_simple_meter_rule() {
     local bridge=${1:-"br-phy"}
     local meter_id=${2:-1}
 
-    local cmd="ovs-ofctl -O openflow13 add-flow $bridge "priority=100,table=0,actions=meter:${meter_id},normal""
-    debug "Executing | $cmd"
-    eval $cmd
+    exec_dbg "ovs-ofctl -O openflow13 add-flow $bridge "priority=100,table=0,actions=meter:${meter_id},normal""
 }
 
 function ovs_add_bidir_meter_rules() {
@@ -182,12 +175,8 @@ function ovs_add_bidir_meter_rules() {
     local in_port2=${5:-"rep1"}
 
     ovs-ofctl del-flows $bridge
-    local cmd1="ovs-ofctl -O openflow13 add-flow br-phy "table=0,in_port=${in_port1},actions=meter:${meter_id1},${in_port2}""
-    local cmd2="ovs-ofctl -O openflow13 add-flow br-phy "table=0,in_port=${in_port2},actions=meter:${meter_id2},${in_port1}""
-    debug "Executing | $cmd1"
-    debug "Executing | $cmd2"
-    eval $cmd1
-    eval $cmd2
+    exec_dbg "ovs-ofctl -O openflow13 add-flow br-phy "table=0,in_port=${in_port1},actions=meter:${meter_id1},${in_port2}""
+    exec_dbg "ovs-ofctl -O openflow13 add-flow br-phy "table=0,in_port=${in_port2},actions=meter:${meter_id2},${in_port1}""
 }
 
 function send_metered_ping() {
@@ -199,9 +188,7 @@ function send_metered_ping() {
     local expected_received=${6:-10}
 
     rm -rf $p_ping
-    local cmd="ip netns exec $namespace ping -c $count -W $wait -i $interval $ip_addr &> $p_ping"
-    debug "Executing | $cmd"
-    eval $cmd
+    exec_dbg "ip netns exec $namespace ping -c $count -W $wait -i $interval $ip_addr &> $p_ping"
     local pkts=$(grep 'received' $p_ping | awk '{ print $4 }')
 
     if [ $pkts -gt $expected_received ]; then
@@ -243,23 +230,13 @@ function ovs_send_scapy_packets() {
     local scapy_src_cmd="timeout $((time+5)) $tgen -i $dev1 --src-ip $src_ip --dst-ip $dst_ip --time $time --pkt-count $pkt_count --inter 0.01 &"
 
     if [ -n "$src_ns" ]; then
-        local dst_cmd1="ip netns exec $dst_ns $tcpdump_cmd"
-        local dst_cmd2="ip netns exec $dst_ns $scapy_dst_cmd"
-        local src_cmd1="ip netns exec $src_ns $scapy_src_cmd"
-
-        debug "Executing | $dst_cmd1"
-        eval $dst_cmd1
-        debug "Executing | $dst_cmd2"
-        eval $dst_cmd2
-        debug "Executing | $src_cmd1"
-        eval $src_cmd1
+        exec_dbg "ip netns exec $dst_ns $tcpdump_cmd"
+        exec_dbg "ip netns exec $dst_ns $scapy_dst_cmd"
+        exec_dbg "ip netns exec $src_ns $scapy_src_cmd"
     else
-        debug "Executing | $tcpdump_cmd"
-        eval $tcpdump_cmd
-        debug "Executing | $scapy_dst_cmd"
-        eval $scapy_dst_cmd
-        debug "Executing | $scapy_src_cmd"
-        eval $scapy_src_cmd
+        exec_dbg "$tcpdump_cmd"
+        exec_dbg "$scapy_dst_cmd"
+        exec_dbg "$scapy_src_cmd"
     fi
     sleep 3
 }
@@ -283,8 +260,7 @@ function verify_ping() {
        cmd+=" -6"
     fi
 
-    debug "Executing | $cmd"
-    eval $cmd
+    exec_dbg "$cmd"
 
     if [ $? -ne 0 ]; then
         err "ping failed"
@@ -357,8 +333,7 @@ function initiate_traffic() {
         server_cmd+=" -D --logfile $p_server"
     fi
 
-    debug "Executing | $server_cmd"
-    eval $server_cmd
+    exec_dbg "$server_cmd"
     sleep 2
 
     verify_iperf_running
@@ -453,11 +428,8 @@ function stop_traffic() {
    if [ "${VDPA}" == "1" ]; then
       dst_execution="on_vm1 "
    fi
-   local cmd="${dst_execution}killall -9 $iperf_cmd"
-   debug "Executing | $cmd"
-   eval $cmd
-   debug "Executing | on_remote killall -9 $iperf_cmd"
-   on_remote killall -9 $iperf_cmd
+   exec_dbg "${dst_execution}killall -9 $iperf_cmd"
+   exec_dbg "on_remote killall -9 $iperf_cmd"
    sleep 1
 }
 
@@ -499,4 +471,9 @@ function config_remote_nic() {
     on_remote ip a flush dev $REMOTE_NIC
     on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
     on_remote ip l set dev $REMOTE_NIC up
+}
+
+function exec_dbg() {
+    debug "Executing | $@"
+    eval "$@"
 }
