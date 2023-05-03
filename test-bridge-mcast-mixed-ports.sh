@@ -75,12 +75,11 @@ sleep 1
 create_bridge_with_mcast $br $NIC $REP $REP2 $REP3
 ip addr flush dev $NIC
 ip link set dev $NIC up
-on_remote "
-        ip link add link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2
-        ip link set ${REMOTE_NIC}.2 address $REMOTE_MAC_VLAN2
-        ip address replace dev ${REMOTE_NIC}.2 $REMOTE_IP_VLAN2/24
-        ip link set $REMOTE_NIC up
-        ip link set ${REMOTE_NIC}.2 up"
+on_remote "ip link add link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2
+           ip link set ${REMOTE_NIC}.2 address $REMOTE_MAC_VLAN2
+           ip address replace dev ${REMOTE_NIC}.2 $REMOTE_IP_VLAN2/24
+           ip link set $REMOTE_NIC up
+           ip link set ${REMOTE_NIC}.2 up"
 
 ip link set $br type bridge vlan_filtering 1 mcast_vlan_snooping 1
 bridge vlan add dev $REP vid 2 pvid untagged
@@ -97,8 +96,8 @@ add_vf_mcast $namespace2 ${VF2}.2 $MCAST_IP
 config_vf $namespace3 $VF3 $REP3 $VF3_IP_VLAN2 $VF3_MAC
 add_vf_mcast $namespace3 $VF3 $MCAST_IP
 
-on_remote sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=0 >/dev/null
-on_remote ip a add dev ${REMOTE_NIC}.2 $MCAST_IP/24 autojoin
+on_remote "sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=0 >/dev/null
+           ip a add dev ${REMOTE_NIC}.2 $MCAST_IP/24 autojoin"
 
 flush_bridge $br
 sleep 10

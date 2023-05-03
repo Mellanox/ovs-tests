@@ -73,12 +73,11 @@ add_vf_vlan $namespace2 $VF2 $REP2 $VF2_IP 2 $VF2_MAC
 title "Config remote host"
 remote_disable_sriov
 config_remote_bonding
-on_remote ip l set dev bond0 up
-
-on_remote ip link add link bond0 name bond0.2 type vlan id 2
-on_remote ip link set bond0.2 address $REMOTE_MAC
-on_remote ip address replace dev bond0.2 $REMOTE_IP/24
-on_remote ip link set bond0.2 up
+on_remote "ip l set dev bond0 up
+           ip link add link bond0 name bond0.2 type vlan id 2
+           ip link set bond0.2 address $REMOTE_MAC
+           ip address replace dev bond0.2 $REMOTE_IP/24
+           ip link set bond0.2 up"
 
 sleep 1
 

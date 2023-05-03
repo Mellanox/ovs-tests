@@ -81,8 +81,8 @@ require_interfaces REP REP2 REP3 NIC NIC2
 
 remote_disable_sriov
 config_remote_bonding
-on_remote ip address replace dev bond0 $REMOTE_IP/24
-on_remote ip l set dev bond0 up
+on_remote "ip address replace dev bond0 $REMOTE_IP/24
+           ip l set dev bond0 up"
 
 ovs_clear_bridges
 sleep 1
@@ -96,10 +96,11 @@ bridge vlan add dev $REP3 vid 2 pvid untagged
 bridge vlan add dev $bond vid 2
 bridge vlan global set dev $br vid 2 mcast_querier 1
 
-on_remote ip link add link bond0 name bond0.2 type vlan id 2
-on_remote ip link set bond0.2 address $REMOTE_MAC_VLAN2
-on_remote ip address replace dev bond0.2 $REMOTE_IP_VLAN2/24
-on_remote ip link set bond0.2 up
+on_remote "ip link add link bond0 name bond0.2 type vlan id 2
+           ip link set bond0.2 address $REMOTE_MAC_VLAN2
+           ip address replace dev bond0.2 $REMOTE_IP_VLAN2/24
+           ip link set bond0.2 up"
+
 config_vf $namespace1 $VF $REP $VF1_IP_VLAN2 $VF1_MAC
 config_vf $namespace2 $VF2 $REP2
 add_vf_vlan $namespace2 $VF2 $REP2 $VF2_IP_VLAN2 2 $VF2_MAC_VLAN2 $vlan_proto
@@ -107,8 +108,8 @@ add_vf_mcast $namespace2 ${VF2}.2 $MCAST_IP
 config_vf $namespace3 $VF3 $REP3 $VF3_IP_VLAN2 $VF3_MAC
 add_vf_mcast $namespace3 $VF3 $MCAST_IP
 
-on_remote sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=0 >/dev/null
-on_remote ip a add dev bond0.2 $MCAST_IP/24 autojoin
+on_remote "sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=0 >/dev/null
+           ip a add dev bond0.2 $MCAST_IP/24 autojoin"
 
 flush_bridge $br
 sleep 10
