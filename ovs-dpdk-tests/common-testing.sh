@@ -316,7 +316,7 @@ function generate_traffic() {
     local namespace=$3
 
     initiate_traffic $remote $my_ip $namespace
-    validate_offload
+    validate_offload $my_ip
     validate_actual_traffic
     stop_traffic
 }
@@ -395,6 +395,7 @@ function initiate_traffic() {
 }
 
 function validate_offload() {
+    local ip=$1
 
     if echo $TESTNAME | grep -q -- "-ct-" ; then
         check_offloaded_connections $num_connections
@@ -402,7 +403,7 @@ function validate_offload() {
 
     sleep $sleep_time
 
-    check_dpdk_offloads $LOCAL_IP
+    check_dpdk_offloads $ip
 }
 
 function validate_actual_traffic() {
