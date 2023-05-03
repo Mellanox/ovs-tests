@@ -391,6 +391,30 @@ function check_offloaded_connections() {
     fi
 }
 
+function check_offloaded_connections_marks() {
+    local expected=$1
+    local proto=$2
+    local actual
+    local result
+
+    for (( i=0; i<3; i++ )); do
+        actual=$(ovs-appctl dpctl/dump-flows -m --names | grep $proto | grep "offloaded:yes" | wc -l)
+        if [ "$actual" != "$expected" ]; then
+            result="0"
+            debug "Unexpected number of connections marked as offloaded, actual $actual vs expected $expected - recheck"
+            sleep 0.7
+        else
+            result="1"
+            debug "Number of connections marked as offloaded: $actual is as expected $expected"
+            break
+        fi
+    done
+
+    if [ "$result" == "0" ] ; then
+        err "Unexpected number of connections marked as offloaded, actual $actual vs expected $expected"
+    fi
+}
+
 function add_local_mirror() {
     local port=${1:-local-mirror}
     local rep_num=$2
