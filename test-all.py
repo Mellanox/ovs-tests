@@ -149,6 +149,12 @@ TIME_DURATION_UNITS = (
     ('s', 1)
 )
 
+try:
+    with open('/labhome/roid/scripts/redmine/redmine_key.txt') as f:
+        RM_API_KEY = f.read().strip()
+except:
+    RM_API_KEY = None
+
 
 def human_time_duration(seconds):
     if seconds == 0:
@@ -949,6 +955,9 @@ def update_skip_according_to_db(rm, _tests, data):
                 if key == current_nic or kernel_match(key, current_kernel):
                     bugs_list.extend(ignore_smfs[key])
 
+        if not rm:
+            continue
+
         for bug in bugs_list:
             try:
                 task = rm.get_issue(bug)
@@ -989,8 +998,10 @@ def get_test_header(fname):
 
 
 def update_skip_according_to_rm():
+    if not RM_API_KEY:
+        return
     print("Check redmine for open issues")
-    rm = MlxRedmine()
+    rm = MlxRedmine(RM_API_KEY)
     for t in TESTS:
         if t.ignore:
             continue
@@ -1312,7 +1323,10 @@ def get_tests():
         if args.db:
             TESTS = []
             get_current_state()
-            rm = MlxRedmine()
+            if RM_API_KEY:
+                rm = MlxRedmine(RM_API_KEY)
+            else:
+                rm = None
             for db in get_dbs():
                 data = read_db(db)
                 if 'tests' in data:
@@ -1345,7 +1359,10 @@ def print_test_line(name, reason):
 
 
 def db_check():
-    rm = MlxRedmine()
+    if not RM_API_KEY:
+        err('Cannot do db check without a redmine key')
+        return 1
+    rm = MlxRedmine(RM_API_KEY)
     all_tests = get_all_tests(include_subfolders=True)
     all_tests = [os.path.basename(t) for t in all_tests]
     sort_tests(all_tests)

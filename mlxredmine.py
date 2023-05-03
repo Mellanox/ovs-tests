@@ -9,7 +9,6 @@ from requests.exceptions import ReadTimeout
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 REDMINE_URL = 'http://redmine.mellanox.com'
-API_KEY = "1c438dfd8cf008a527ad72f01bd5e1bac24deca5"
 
 # tracker ids
 TRACKER_BUG_SW = 28
@@ -33,13 +32,14 @@ def parse_redmine_time(value):
 
 
 class MlxRedmine(object):
-    def __init__(self):
+    def __init__(self, api_key=''):
         self.fail_all_calls = False
         self.cache = {}
+        self.api_key = api_key
 
     def get_url(self, url, params=None):
         headers = {
-            'X-Redmine-API-Key': API_KEY
+            'X-Redmine-API-Key': self.api_key
         }
         return requests.get(url, headers=headers, params=params, verify=False, timeout=1)
 

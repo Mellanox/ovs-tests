@@ -2328,7 +2328,9 @@ function redmine_bug_is_open() {
 
 function redmine_info() {
     local id=$1
-    local key="1c438dfd8cf008a527ad72f01bd5e1bac24deca5"
+    local rm_key_path='/labhome/roid/scripts/redmine/redmine_key.txt'
+    [ ! -f $rm_key_path ] && return
+    local key=`cat $rm_key_path 2>/dev/null`
     local url="https://redmine.mellanox.com/issues/${id}.json?key=$key"
     RM_STATUS_ID=""
     RM_STATUS=""
