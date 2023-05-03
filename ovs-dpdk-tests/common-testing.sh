@@ -9,7 +9,7 @@ num_connections=5
 iperf_cmd=iperf3
 
 function set_iperf2() {
-       iperf_cmd=iperf
+    iperf_cmd=iperf
 }
 
 function ovs_add_ct_after_nat_rules() {
