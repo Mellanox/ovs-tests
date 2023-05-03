@@ -506,6 +506,32 @@ function clear_bonding() {
     ip link set dev $nic2 nomaster &>/dev/null
 }
 
+function change_slaves() {
+    title "Change active lag slave from $slave1 to $slave2"
+
+    if [[ -z "$slave1" || -z  "$slave2" || -z "$remote_active" ]]; then
+        err "change_slaves: Missing variables"
+        return
+    fi
+
+    local tmpslave=$slave1
+    slave1=$slave2
+    slave2=$tmpslave
+    ifconfig $tmpslave down
+
+    if [ "$B2B" == 1 ]; then
+        if [ "$remote_active" == $REMOTE_NIC ]; then
+            remote_active=$REMOTE_NIC2
+        else
+            remote_active=$REMOTE_NIC
+        fi
+        on_remote "echo $remote_active > /sys/class/net/bond0/bonding/active_slave"
+    fi
+
+    sleep 2
+    ifconfig $tmpslave up
+}
+
 function remote_disable_sriov() {
     local nic1=$REMOTE_NIC
     local nic2=$REMOTE_NIC2
