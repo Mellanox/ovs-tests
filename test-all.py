@@ -1120,9 +1120,11 @@ def get_db_path(db):
 
 def default_filter_dbs(dbs):
     for db in dbs[:]:
-        if os.path.basename(db) not in ('first_db.yaml', 'second_db.yaml', 'ct_db.yaml',
-                                        'db_local1.yaml', 'db_local2.yaml', 'db_local_ct.yaml'):
-            dbs.remove(db)
+        base = os.path.basename(db)
+        if (base.startswith('db_local') or base.startswith('db_remote') or
+            base in ('first_db.yaml', 'second_db.yaml', 'ct_db.yaml')):
+            continue
+        dbs.remove(db)
 
 
 def get_dbs():
