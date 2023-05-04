@@ -597,12 +597,12 @@ def glob_tests(glob_filter):
 
 
 def get_config():
-    if "CONFIG" not in os.environ:
+    if 'CONFIG' not in os.environ:
         if not args.dry:
             raise RuntimeError("CONFIG environment variable is missing.")
         return
 
-    config = os.environ.get('CONFIG')
+    config = os.environ['CONFIG']
     if os.path.exists(config):
         return config
     elif os.path.exists(os.path.join(MYDIR, config)):
