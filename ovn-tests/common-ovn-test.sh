@@ -353,4 +353,34 @@ function ovn_config_interface_namespace() {
     fi
 }
 
+function run_local_traffic() {
+    local icmp6_offload=${1:-"icmp6_is_offloaded"}
+
+    title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
+    check_icmp_traffic_offload $SERVER_IPV4
+
+    title "Test TCP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
+    check_local_tcp_traffic_offload $SERVER_IPV4
+
+    title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
+    check_local_udp_traffic_offload $SERVER_IPV4
+
+    if [ "$icmp6_offload" == "icmp6_is_offloaded" ]; then
+        title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
+        check_icmp6_traffic_offload $SERVER_IPV6
+    else
+        # ICMP6 offloading is not supported because IPv6 packet header doesn't contain checksum header
+        # which cause offloading to fail
+        title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) (not checking offloaded)"
+        ip netns exec $CLIENT_NS ping -6 -w 4 $SERVER_IPV6 && success || err
+    fi
+
+    title "Test TCP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
+    check_local_tcp6_traffic_offload $SERVER_IPV6
+
+    title "Test UDP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
+    check_local_udp6_traffic_offload $SERVER_IPV6
+}
+
+
 require_ovn
