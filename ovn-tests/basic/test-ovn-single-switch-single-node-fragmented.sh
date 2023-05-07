@@ -23,6 +23,11 @@ function run_test() {
     title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4)"
     check_fragmented_ipv4_traffic $CLIENT_REP $CLIENT_NS $SERVER_IPV4 2000
 
+    if [ -n "$IGNORE_IPV6_TRAFFIC" ]; then
+        warn "$IGNORE_IPV6_TRAFFIC"
+        return
+    fi
+
     title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6)"
     check_fragmented_ipv6_traffic $CLIENT_REP $CLIENT_NS $SERVER_IPV6 2000
 }

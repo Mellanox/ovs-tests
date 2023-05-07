@@ -365,6 +365,11 @@ function run_local_traffic() {
     title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
     check_local_udp_traffic_offload $SERVER_IPV4
 
+    if [ -n "$IGNORE_IPV6_TRAFFIC" ]; then
+        warn "$IGNORE_IPV6_TRAFFIC"
+        return
+    fi
+
     if [ "$icmp6_offload" == "icmp6_is_offloaded" ]; then
         title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
         check_icmp6_traffic_offload $SERVER_IPV6
@@ -394,6 +399,11 @@ function run_remote_traffic() {
 
     title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $receiver_dev($SERVER_IPV4) offloaded"
     check_remote_udp_traffic_offload $SERVER_IPV4
+
+    if [ -n "$IGNORE_IPV6_TRAFFIC" ]; then
+        warn "$IGNORE_IPV6_TRAFFIC"
+        return
+    fi
 
     if [ "$icmp6_offload" == "icmp6_is_offloaded" ]; then
         title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $receiver_dev($SERVER_IPV6) offloaded"
