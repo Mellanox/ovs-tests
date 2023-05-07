@@ -1246,6 +1246,7 @@ def load_tests_from_(data, sub, opts={}, group=''):
     opts = update_opts(opts, data.get('opts', {}))
     for key in data:
         if fnmatch(key, 'test-*.sh'):
+            # every key under test is in opts.
             test_opts = update_opts(opts, data[key])
             t = Test(os.path.join(MYDIR, sub, key), test_opts)
             t.group = group
