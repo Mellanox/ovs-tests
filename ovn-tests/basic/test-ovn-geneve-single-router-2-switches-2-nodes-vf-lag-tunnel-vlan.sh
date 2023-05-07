@@ -32,26 +32,7 @@ function run_test() {
     ovn-sbctl show
 
     WA_dpdk_initial_ping_and_flush
-
-    title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
-    check_icmp_traffic_offload $SERVER_IPV4
-
-    title "Test TCP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
-    check_remote_tcp_traffic_offload $SERVER_IPV4
-
-    title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
-    check_remote_udp_traffic_offload $SERVER_IPV4
-
-    # ICMP6 offloading is not supported because IPv6 packet header doesn't contain checksum header
-    # which cause offloading to fail
-    title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6)"
-    ip netns exec $CLIENT_NS ping -6 -w 4 $SERVER_IPV6 && success || err
-
-    title "Test TCP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
-    check_remote_tcp6_traffic_offload $SERVER_IPV6
-
-    title "Test UDP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
-    check_remote_udp6_traffic_offload $SERVER_IPV6
+    run_remote_traffic "icmp6_is_not_offloaded"
 }
 
 ovn_clean_up
