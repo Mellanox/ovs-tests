@@ -683,10 +683,12 @@ function check_local_tcp6_traffic_offload() {
 function on_remote_wrap() {
     local cmd=$1
 
-    if [[ -z "${TRAFFIC_INFO['bf_external']}" ]]; then
-        on_remote "$cmd"
-    else
+    if [[ -n "${TRAFFIC_INFO['local_traffic']}" ]]; then
+        eval $cmd
+    elif [[ -n "${TRAFFIC_INFO['bf_external']}" ]]; then
         on_remote_bf "$cmd"
+    else
+        on_remote "$cmd"
     fi
 }
 
