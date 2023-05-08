@@ -680,7 +680,7 @@ function check_local_tcp6_traffic_offload() {
     killall -q iperf3
 }
 
-function start_server_remote() {
+function on_remote_wrap() {
     local cmd=$1
 
     if [[ -z "${TRAFFIC_INFO['bf_external']}" ]]; then
@@ -688,17 +688,6 @@ function start_server_remote() {
     else
         on_remote_bf "$cmd"
     fi
-}
-
-function stop_server_remote() {
-    local cmd=$1
-
-    if [[ -z "${TRAFFIC_INFO['bf_external']}" ]]; then
-        on_remote "$cmd"
-    else
-        on_remote_bf "$cmd"
-    fi
-
 }
 
 function check_remote_tcp_traffic_offload() {
@@ -706,11 +695,11 @@ function check_remote_tcp_traffic_offload() {
 
     local server_ns=${TRAFFIC_INFO['server_ns']}
     local cmd=$(ns_wrap "iperf3 -s -D" $server_ns)
-    start_server_remote "$cmd"
+    on_remote_wrap "$cmd"
     sleep 0.5
 
     check_traffic_offload $server_ip tcp
-    stop_server_remote "killall -q iperf3"
+    on_remote_wrap "killall -q iperf3"
 }
 
 function check_remote_tcp6_traffic_offload() {
@@ -718,11 +707,11 @@ function check_remote_tcp6_traffic_offload() {
 
     local server_ns=${TRAFFIC_INFO['server_ns']}
     local cmd=$(ns_wrap "iperf3 -6 -s -D" $server_ns)
-    start_server_remote "$cmd"
+    on_remote_wrap "$cmd"
     sleep 0.5
 
     check_traffic_offload $server_ip tcp6
-    stop_server_remote "killall -q iperf3"
+    on_remote_wrap "killall -q iperf3"
 }
 
 function check_local_udp_traffic_offload() {
@@ -754,11 +743,11 @@ function check_remote_udp_traffic_offload() {
 
     local server_ns=${TRAFFIC_INFO['server_ns']}
     local cmd=$(ns_wrap "timeout 15 $OVN_DIR/udp-perf.py -s -D" $server_ns)
-    start_server_remote "$cmd"
+    on_remote_wrap "$cmd"
     sleep 0.5
 
     check_traffic_offload $server_ip udp
-    stop_server_remote "killall -q udp-perf.py"
+    on_remote_wrap "killall -q udp-perf.py"
 }
 
 function check_remote_udp6_traffic_offload() {
@@ -766,11 +755,11 @@ function check_remote_udp6_traffic_offload() {
 
     local server_ns=${TRAFFIC_INFO['server_ns']}
     local cmd=$(ns_wrap "timeout 15 $OVN_DIR/udp-perf.py -6 -s -D" $server_ns)
-    start_server_remote "$cmd"
+    on_remote_wrap "$cmd"
     sleep 0.5
 
     check_traffic_offload $server_ip udp6
-    stop_server_remote "killall -q udp-perf.py"
+    on_remote_wrap "killall -q udp-perf.py"
 }
 
 function check_fragmented_traffic() {
