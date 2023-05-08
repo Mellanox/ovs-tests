@@ -656,30 +656,6 @@ function check_icmp6_traffic_offload() {
     check_traffic_offload $dst_ip icmp6
 }
 
-function check_local_tcp_traffic_offload() {
-    local server_ip=$1
-
-    local server_ns=${TRAFFIC_INFO['server_ns']}
-    local cmd=$(ns_wrap "iperf3 -s -D" $server_ns)
-    eval $cmd
-    sleep 0.5
-
-    check_traffic_offload $server_ip tcp
-    killall -q iperf3
-}
-
-function check_local_tcp6_traffic_offload() {
-    local server_ip=$1
-
-    local server_ns=${TRAFFIC_INFO['server_ns']}
-    local cmd=$(ns_wrap "iperf3 -6 -s -D" $server_ns)
-    eval $cmd
-    sleep 0.5
-
-    check_traffic_offload $server_ip tcp6
-    killall -q iperf3
-}
-
 function on_remote_wrap() {
     local cmd=$1
 
@@ -690,6 +666,14 @@ function on_remote_wrap() {
     else
         on_remote "$cmd"
     fi
+}
+
+function check_local_tcp_traffic_offload() {
+    check_remote_tcp_traffic_offload $@
+}
+
+function check_local_tcp6_traffic_offload() {
+    check_remote_tcp6_traffic_offload $@
 }
 
 function check_remote_tcp_traffic_offload() {
@@ -717,27 +701,11 @@ function check_remote_tcp6_traffic_offload() {
 }
 
 function check_local_udp_traffic_offload() {
-    local server_ip=$1
-
-    local server_ns=${TRAFFIC_INFO['server_ns']}
-    local cmd=$(ns_wrap "$OVN_DIR/udp-perf.py -s -D" $server_ns)
-    eval $cmd
-    sleep 0.5
-
-    check_traffic_offload $server_ip udp
-    killall -q udp-perf.py
+    check_remote_udp_traffic_offload $@
 }
 
 function check_local_udp6_traffic_offload() {
-    local server_ip=$1
-
-    local server_ns=${TRAFFIC_INFO['server_ns']}
-    local cmd=$(ns_wrap "timeout 10 $OVN_DIR/udp-perf.py -6 -s -D" $server_ns)
-    eval $cmd
-    sleep 0.5
-
-    check_traffic_offload $server_ip udp6
-    killall -q udp-perf.py
+    check_remote_udp6_traffic_offload $@
 }
 
 function check_remote_udp_traffic_offload() {
