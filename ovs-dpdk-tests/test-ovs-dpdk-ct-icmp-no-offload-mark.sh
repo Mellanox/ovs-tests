@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Test OVS-DPDK TCP traffic with CT
+# Test OVS-DPDK CT + ICMP traffic is not marked as offloaded, since ct icmp offload is not supported.
 #
 # Require external server
 #
