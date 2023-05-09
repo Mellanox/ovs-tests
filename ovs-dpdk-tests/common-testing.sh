@@ -484,10 +484,25 @@ function config_vlan_device_ns() {
     local vlan_id=$3
     local ip=$4
     local vlan_dev_ip=$5
-    local ns=$6
+    local ns=${6:-"ns0"}
+
+    local dst_execution="ip netns exec $ns"
+
+    if [ "${VDPA}" == "1" ]; then
+        dst_execution="on_vm1"
+
+        if [ "${ns}" != "ns0" ]; then
+            dst_execution="on_vm2"
+        fi
+    fi
+
 
     config_ns $ns $dev $ip
-    ip netns exec $ns ip link add link $dev name $vlan_dev type vlan id $vlan_id
-    ip netns exec $ns ip a add $vlan_dev_ip/24 dev $vlan_dev
-    ip netns exec $ns ip l set $vlan_dev up
+
+    local cmd='${dst_execution} ip link add link $dev name $vlan_dev type vlan id $vlan_id'
+    eval $cmd
+    cmd='${dst_execution} ip a add $vlan_dev_ip/24 dev $vlan_dev'
+    eval $cmd
+    cmd='${dst_execution} ip l set $vlan_dev up'
+    eval $cmd
 }
