@@ -1581,6 +1581,15 @@ def run_tests(iteration):
             test.tag = RERUN_TAG
             __run_test(test)
 
+        for __env_key in test.opts.get('env', {}):
+            if __env_key.lower().startswith('ignore'):
+                reason = test.opts['env'][__env_key]
+                test = copy_test(test, 0)
+                test.tag = 'IGNORE'
+                test.set_skip(reason)
+                iter_tests.append(test)
+                __run_test(test)
+
         if args.stop and failed:
             return 1
 
