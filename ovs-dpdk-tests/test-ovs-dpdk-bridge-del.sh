@@ -36,8 +36,8 @@ function config() {
 }
 
 function run() {
-    debug "creating bridges without e2e-enabled"
-    config true
+    title "Test creating bridges without e2e-enabled"
+    config false
     ovs-vsctl show
 
     debug "deleting bridges"
@@ -50,7 +50,7 @@ function run() {
         err "Timed out deleting bridge"
     fi
 
-    debug "creating bridges with e2e-enabled"
+    title "Test creating bridges with e2e-enabled"
     config true
     ovs-vsctl show
 
