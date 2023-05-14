@@ -810,6 +810,7 @@ function reset_tc_block_index() {
 
 function debug() {
     echo -e "${CYAN}`get_time_short` | $NOCOLOR$@"
+    kmsg "DEBUG: $@"
 }
 
 function log() {
