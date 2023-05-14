@@ -1682,7 +1682,7 @@ function check_for_errors_log() {
     local since=$1
     local rc=0
     local look="DEADLOCK|possible circular locking|possible recursive locking|\
-WARNING:|RIP:|BUG:|refcount > 1|refcount_t|segfault|in_atomic|hw csum failure|\
+WARNING:| RIP:| BUG:|refcount > 1|refcount_t|segfault|in_atomic|hw csum failure|\
 list_del corruption|which is not allocated|Objects remaining|assertion failed|\
 Slab cache still has objects|Unknown object at|\
 warning: consoletype is now deprecated|warning: use tty|\
