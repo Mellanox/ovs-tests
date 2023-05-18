@@ -24,7 +24,7 @@ function config() {
 
     unbind_sfs
     title "Set SF switch id"
-    ~roid/SWS/gerrit2/iproute2/devlink/devlink port function set pci/0000:08:00.0/32768 switchid d0f9090003f6ceb8 || fail "Failed to set sf switch id"
+    ~roid/SWS/gerrit2/iproute2/devlink/devlink port function set pci/0000:08:00.0/32768 esw_enable enable || err "Failed to set sf esw_enable"
     ~roid/SWS/gerrit2/iproute2/devlink/devlink port show pci/0000:08:00.0/32768
     bind_sfs
 
