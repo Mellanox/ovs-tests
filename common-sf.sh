@@ -74,12 +74,12 @@ function sf_disable_roce() {
 }
 
 function sf_activate() {
-    $sfcmd port function set $1 state active || err "$1: Failed to set active state"
+    $sfcmd port function set $1 state active || err "$1: Failed to activate state"
     sleep 1
 }
 
 function sf_inactivate() {
-    $sfcmd port function set $1 state inactive || err "$1: Failed to set inactive state"
+    $sfcmd port function set $1 state inactive || err "$1: Failed to inactivate state"
 }
 
 function delete_sf() {
