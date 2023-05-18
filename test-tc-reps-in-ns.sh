@@ -2,15 +2,6 @@
 #
 # Test a device in switchdev mode in a namespace can process traffic on both the HW and SW DPs
 #
-# [MLNX OFED] RM #3253350: CX6DX Container offload: support PF/Rep inside namespace
-#
-# This test is for a custom OFED version which supports loading reps in a ns
-# via a WA in the driver which allows the reps to be spawned in the NS that
-# the uplink netdev is in, rather than the devlink NS.
-#
-# This test is similar to test test-tc-reps-in-ns.sh but uses ip link command
-# to move the device to a network namespace.
-#
 # Enable SRIOV after PF/uplink rep is moved to a NS. All VF REPs will be created in the NS.
 # Then, config VxLAN rules for both fast path and slow path in the NS and use traffic to verify
 # that traffic works correctly both in fast and slow path
@@ -23,8 +14,10 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
-REP_NS="eth0"
-REP2_NS="eth1"
+NIC_PCI=${PCI_MAP[$NIC]}
+UPLINK_IN_NS="eth0"
+REP_IN_NS="eth1"
+REP2_IN_NS="eth2"
 NS="ns0"
 VF_NS1="vf_ns1"
 VF_NS2="vf_ns2"
@@ -46,15 +39,19 @@ function cleanup_remote() {
                ip l del dev $VXLAN &>/dev/null"
 }
 
-function cleanup() {
-    config_sriov 0
+function cleanup_local() {
     enable_legacy
+    config_sriov 0
     for ns in $NS $VF_NS1 $VF_NS2; do
         ip netns del $ns &>/dev/null
     done
     ip a flush dev $NIC 2>/dev/null
     ip l del $VXLAN 2>/dev/null
+}
+
+function cleanup() {
     cleanup_remote
+    cleanup_local
 }
 trap cleanup EXIT
 
@@ -64,23 +61,22 @@ function config() {
     for ns in $NS $VF_NS1 $VF_NS2; do
         ip netns add $ns &>/dev/null
     done
-    ip l set dev $NIC netns ns0
+    devlink dev reload pci/$NIC_PCI netns $NS
+    PF_IN_NS=$NS
     config_sriov 2
     enable_switchdev
-    unbind_vfs
     bind_vfs
+    PF_IN_NS=""
     ip link set dev $VF netns $VF_NS1
     ip link set dev $VF2 netns $VF_NS2
     $EXEC_NS $VF_NS1 ifconfig $VF $VF_IP/24 up
     $EXEC_NS $VF_NS2 ifconfig $VF2 $VF_IP2/24 up
 
-    VF_MAC=$($EXEC_NS $VF_NS1 cat /sys/class/net/$VF/address)
-    VF2_MAC=$($EXEC_NS $VF_NS2 cat /sys/class/net/$VF2/address)
-    $EXEC_NS $NS ifconfig $NIC $LOCAL_TUN_IP up
+    $EXEC_NS $NS ifconfig $UPLINK_IN_NS $LOCAL_TUN_IP up
     $EXEC_NS $NS ip link add name $VXLAN type vxlan \
-        id $VXLAN_ID dev $NIC remote $REMOTE_TUN_IP dstport $VXLAN_PORT
+        id $VXLAN_ID dev $UPLINK_IN_NS remote $REMOTE_TUN_IP dstport $VXLAN_PORT
 
-    for inter in $VXLAN $REP_NS $REP2_NS; do
+    for inter in $VXLAN $REP_IN_NS $REP2_IN_NS; do
         $EXEC_NS $NS tc qdisc del dev $inter ingress 2>/dev/null
         $EXEC_NS $NS tc qdisc add dev $inter ingress || err "Cannot find interface $inter in ns $NS"
         $EXEC_NS $NS ip link set $inter up
@@ -88,8 +84,10 @@ function config() {
 
     fail_if_err
 
-    config_tc_fastpath_vxlan_rules $REP_NS $VF_MAC $LOCAL_TUN_IP $REMOTE_TUN_IP $VXLAN
-    config_tc_slowpath_vxlan_rules $REP2_NS $VF2_MAC $LOCAL_TUN_IP $REMOTE_TUN_IP $VXLAN
+    VF_MAC=$($EXEC_NS $VF_NS1 cat /sys/class/net/$VF/address)
+    VF2_MAC=$($EXEC_NS $VF_NS2 cat /sys/class/net/$VF2/address)
+    config_tc_fastpath_vxlan_rules $REP_IN_NS $VF_MAC $LOCAL_TUN_IP $REMOTE_TUN_IP $VXLAN
+    config_tc_slowpath_vxlan_rules $REP2_IN_NS $VF2_MAC $LOCAL_TUN_IP $REMOTE_TUN_IP $VXLAN
 }
 
 function config_tc_vxlan_encap_rules() {
@@ -188,13 +186,13 @@ function run() {
 
     timeout $((t-4)) $EXEC_NS $VF_NS1 tcpdump -qnnei $VF -c 60 'tcp' &
     tpid1=$!
-    timeout $((t-4)) $EXEC_NS $NS tcpdump -qnnei $REP_NS -c 10 'tcp' &
+    timeout $((t-4)) $EXEC_NS $NS tcpdump -qnnei $REP_IN_NS -c 10 'tcp' &
     tpid2=$!
 
     sleep $t
     title "Verify traffic on $VF1 in netns $VF_NS1"
     verify_have_traffic $tpid1
-    title "Verify offload on $REP_NS in netns $NS"
+    title "Verify offload on $REP_IN_NS in netns $NS"
     verify_no_traffic $tpid2
 
     kill -9 $pid1 &>/dev/null
@@ -213,17 +211,22 @@ function run() {
     sleep 2
     timeout $t $EXEC_NS $VF_NS2 tcpdump -qnnei $VF2 -c 10 'ip' &
     tpid1=$!
-    timeout $t $EXEC_NS $NS tcpdump -qnnei $REP2_NS -c 10 'ip' &
+    timeout $t $EXEC_NS $NS tcpdump -qnnei $REP2_IN_NS -c 10 'ip' &
     tpid2=$!
     sleep $((t+1))
     title "Verify traffic on $VF2 in netns $VF_NS2"
     verify_have_traffic $tpid1
-    title "Verify not offload on $REP2_NS in netns $NS"
+    title "Verify not offload on $REP2_IN_NS in netns $NS"
     verify_have_traffic $tpid2
+    for inter in $VXLAN $REP_IN_NS $REP2_IN_NS; do
+        $EXEC_NS $NS tc qdisc del dev $inter ingress 2>/dev/null
+        $EXEC_NS $NS tc qdisc add dev $inter ingress || err "Cannot find interface $inter in ns $NS"
+    done
 }
 
 run
 
 trap - EXIT
+PF_IN_NS=$NS
 cleanup
 test_done
