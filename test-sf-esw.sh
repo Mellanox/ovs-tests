@@ -11,7 +11,7 @@ IP1="7.7.7.1"
 IP2="7.7.7.2"
 
 function cleanup() {
-    ip netns exec ns0 devlink dev reload auxiliary/mlx5_core.sf.2 netns 1
+    ip netns ls | grep -q ns0 && ip netns exec ns0 devlink dev reload auxiliary/mlx5_core.sf.2 netns 1
     ip -all netns delete
     remove_sfs
 }
