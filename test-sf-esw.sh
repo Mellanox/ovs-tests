@@ -22,13 +22,13 @@ function config() {
     title "Config"
     create_sfs 1
 
-    title "Set SF esw enable"
+    title "Set SF eswitch"
 
     # Failing to change fw with sf inactive but works with unbind.
 #    sf_inactivate pci/0000:08:00.0/32768
     unbind_sfs
 
-    ~roid/SWS/gerrit2/iproute2/devlink/devlink port function set pci/0000:08:00.0/32768 esw_enable enable || err "Failed to set sf esw_enable"
+    ~roid/SWS/gerrit2/iproute2/devlink/devlink port function set pci/0000:08:00.0/32768 eswitch enable || err "Failed to set sf eswitch"
     ~roid/SWS/gerrit2/iproute2/devlink/devlink port show pci/0000:08:00.0/32768
 
 #    sf_activate pci/0000:08:00.0/32768
