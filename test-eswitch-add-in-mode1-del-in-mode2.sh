@@ -121,7 +121,7 @@ function test_switchdev_legacy() {
     success
 }
 
-
+config_sriov 2 $NIC
 test_legacy_switchdev
 sleep 2
 test_switchdev_legacy
