@@ -21,27 +21,27 @@ trap cleanup EXIT
 function config() {
     title "Config"
     create_sfs 1
+    ~roid/SWS/gerrit2/iproute2/devlink/devlink port show pci/0000:08:00.0/32768
 
     title "Set SF eswitch"
 
     # Failing to change fw with sf inactive but works with unbind.
 #    sf_inactivate pci/0000:08:00.0/32768
     unbind_sfs
-
-    ~roid/SWS/gerrit2/iproute2/devlink/devlink port function set pci/0000:08:00.0/32768 eswitch enable || err "Failed to set sf eswitch"
+    ~roid/SWS/gerrit2/iproute2/devlink/devlink port function set pci/0000:08:00.0/32768 eswitch enable || err "Failed to set SF eswitch"
     ~roid/SWS/gerrit2/iproute2/devlink/devlink port show pci/0000:08:00.0/32768
-
 #    sf_activate pci/0000:08:00.0/32768
     bind_sfs
+    echo "SF phys_switch_id `cat /sys/class/net/$SF1/phys_switch_id`" || err "Failed to get SF switch id"
     fail_if_err
 
     title "Reload SF into ns0"
     ip netns add ns0
-    devlink dev reload auxiliary/mlx5_core.sf.2 netns ns0 || fail "Failed to reload sf"
+    devlink dev reload auxiliary/mlx5_core.sf.2 netns ns0 || fail "Failed to reload SF"
     SF1="eth0"
 
     title "Set SF switchdev"
-    ip netns exec ns0 devlink dev eswitch set auxiliary/mlx5_core.sf.2 mode switchdev || fail "Failed to config sf switchdev"
+    ip netns exec ns0 devlink dev eswitch set auxiliary/mlx5_core.sf.2 mode switchdev || fail "Failed to config SF switchdev"
 
     ip netns exec ns0 ifconfig $SF1 $IP1/24 up
     ifconfig $SF_REP1 $IP2 up
