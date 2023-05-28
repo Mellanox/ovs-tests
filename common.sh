@@ -2332,7 +2332,7 @@ function redmine_info() {
     local rm_key_path='/labhome/roid/scripts/redmine/redmine_key.txt'
     [ ! -f $rm_key_path ] && return
     local key=`cat $rm_key_path 2>/dev/null`
-    local url="https://redmine.mellanox.com/issues/${id}.json?key=$key"
+    local url="https://redmine.mtl.com/issues/${id}.json?key=$key"
     RM_STATUS_ID=""
     RM_STATUS=""
     RM_SUBJ=""
