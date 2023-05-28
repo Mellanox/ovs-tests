@@ -8,7 +8,7 @@ from requests.exceptions import ReadTimeout
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-REDMINE_URL = 'http://redmine.mellanox.com'
+REDMINE_URL = 'http://redmine.mtl.com'
 
 # tracker ids
 TRACKER_BUG_SW = 28
