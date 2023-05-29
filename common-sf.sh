@@ -66,7 +66,8 @@ function sf_set_param() {
     local dev=$1
     local param_name=$2
     local value=$3
-    $sfcmd dev param set auxiliary/$dev name $param_name value $value cmode runtime || err "Failed to set sf $dev param $param_name=$value"
+    local cmode=$4
+    $sfcmd dev param set auxiliary/$dev name $param_name value $value cmode $cmode || err "Failed to set sf $dev param $param_name=$value"
 }
 
 function sf_disable_roce() {
@@ -97,6 +98,12 @@ function create_sf() {
     sleep 1
 }
 
+function sf_reload_eth() {
+    local sf_dev=$1
+    sf_set_param $sf_dev enable_eth true driverinit
+    $sfcmd dev reload auxiliary/$sf_dev
+}
+
 function create_sfs() {
     local count=$1
     local pfnum=0
@@ -116,6 +123,8 @@ function create_sfs() {
             err "Failed to get sf dev for pfnum $pfnum sfnum $i"
             break
         fi
+
+        sf_reload_eth $sf_dev
 
         sleep 0.5
         netdev=`sf_get_netdev $i`
