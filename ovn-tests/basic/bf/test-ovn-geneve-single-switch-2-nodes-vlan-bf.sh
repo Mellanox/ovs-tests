@@ -45,8 +45,6 @@ function config_test() {
 
 function run_test() {
 
-    WA_dpdk_initial_ping_and_flush
-
     title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
     check_icmp_traffic_offload $SERVER_IPV4
 
