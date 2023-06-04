@@ -398,7 +398,7 @@ function check_offloaded_connections_marks() {
     local result
 
     for (( i=0; i<3; i++ )); do
-        actual=$(ovs-appctl dpctl/dump-flows -m --names | grep $proto | grep "offloaded:yes" | wc -l)
+        actual=$(ovs-appctl dpctl/dump-flows -m --names | grep -w $proto | grep "offloaded:yes" | wc -l)
         if [ "$actual" != "$expected" ]; then
             result="0"
             debug "Unexpected number of connections marked as offloaded, actual $actual vs expected $expected - recheck"
@@ -493,4 +493,3 @@ function check_tcp_sequence {
        err "$cmd value $val is greater than zero"
     fi
 }
-
