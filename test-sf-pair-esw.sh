@@ -51,6 +51,15 @@ function config() {
     for i in 2 3 4; do
         ip netns exec ns0 devlink dev eswitch set auxiliary/mlx5_core.sf.$i mode switchdev || fail "Failed to config SF switchdev"
     done
+
+    title "Verify single IB device with multiple ports"
+    rdma link show | grep -w mlx5_0
+    local count=`rdma link show | grep -w mlx5_0 | wc -l`
+    if [ "$count" -ne 6 ]; then
+        err "Expected 6 ports"
+    else
+        success
+    fi
 }
 
 enable_switchdev
