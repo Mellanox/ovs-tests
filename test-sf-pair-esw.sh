@@ -62,8 +62,21 @@ function config() {
     fi
 }
 
+function test_ping() {
+    title "Verify ping SF1"
+    ip netns exec ns0 ifconfig eth0 1.1.1.1/24 up
+    ifconfig $SF_REP1 1.1.1.2/24 up
+    ping -w 3 -c 2 1.1.1.1 && success || err "Ping failed for SF1 eth0<->$SF_REP0"
+
+    title "Verify ping SF2"
+    ip netns exec ns0 ifconfig eth1 2.2.2.1/24 up
+    ifconfig $SF_REP1 2.2.2.2/24 up
+    ping -w 3 -c 2 2.2.2.1 && success || err "Ping failed for SF2 eth1<->$SF_REP1"
+}
+
 enable_switchdev
 config
+test_ping
 trap - EXIT
 cleanup
 test_done
