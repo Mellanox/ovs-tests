@@ -63,15 +63,20 @@ function config() {
 }
 
 function test_ping() {
-    title "Verify ping SF1"
+    title "Verify ping SF1 eth0<->$SF_REP1"
     ip netns exec ns0 ifconfig eth0 1.1.1.1/24 up
     ifconfig $SF_REP1 1.1.1.2/24 up
-    ping -w 3 -c 2 1.1.1.1 && success || err "Ping failed for SF1 eth0<->$SF_REP0"
+    ping -w 3 -c 2 1.1.1.1 && success || err "Ping failed for SF1 eth0<->$SF_REP1"
 
-    title "Verify ping SF2"
+    title "Verify ping SF2 eth1<->$SF_REP2"
     ip netns exec ns0 ifconfig eth1 2.2.2.1/24 up
-    ifconfig $SF_REP1 2.2.2.2/24 up
-    ping -w 3 -c 2 2.2.2.1 && success || err "Ping failed for SF2 eth1<->$SF_REP1"
+    ifconfig $SF_REP2 2.2.2.2/24 up
+    ping -w 3 -c 2 2.2.2.1 && success || err "Ping failed for SF2 eth1<->$SF_REP2"
+
+    title "Verify ping SF3 eth2<->$SF_REP3"
+    ip netns exec ns0 ifconfig eth2 3.3.3.1/24 up
+    ifconfig $SF_REP3 3.3.3.2/24 up
+    ping -w 3 -c 2 3.3.3.1 && success || err "Ping failed for SF3 eth2<->$SF_REP3"
 }
 
 enable_switchdev
