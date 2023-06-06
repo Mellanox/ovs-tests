@@ -53,6 +53,7 @@ function config_tunnel() {
     local tnl_type=$1
     local reps=${2:-1}
     local dev=$VF
+    local br=$3
 
     local dst_execution="ip netns exec ns0"
     if [ "${VDPA}" == "1" ]; then
@@ -60,7 +61,7 @@ function config_tunnel() {
         dev=$VDPA_DEV_NAME
     fi
     config_simple_bridge_with_rep 0
-    config_remote_bridge_tunnel $TUNNEL_ID $REMOTE_TUNNEL_IP $tnl_type $reps
+    config_remote_bridge_tunnel $TUNNEL_ID $REMOTE_TUNNEL_IP $tnl_type $reps $br
     start_vdpa_vm
     config_ns ns0 $VF $LOCAL_IP
     local cmd="${dst_execution} ip link set dev $dev mtu 1400"

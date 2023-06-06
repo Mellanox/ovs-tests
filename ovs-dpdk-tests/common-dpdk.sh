@@ -85,12 +85,13 @@ function config_remote_bridge_tunnel() {
     local remote_ip=$2
     local tnl_type=${3:-vxlan}
     local reps=${4:-1}
+    local br=${5:-br-int}
 
-    debug "configuring remote bridge tunnel type $tnl_type key $vni remote_ip $2 with $reps reps"
-    ovs_add_bridge "br-int"
-    ovs-vsctl add-port br-int ${tnl_type}0   -- set interface ${tnl_type}0 type=${tnl_type} options:key=${vni} options:remote_ip=${remote_ip}
+    debug "configuring remote bridge tunnel type $tnl_type key $vni remote_ip $2 with $reps reps on bridge $br"
+    ovs_add_bridge $br
+    ovs-vsctl add-port $br ${tnl_type}0   -- set interface ${tnl_type}0 type=${tnl_type} options:key=${vni} options:remote_ip=${remote_ip}
 
-    configure_dpdk_rep_ports $reps "br-int"
+    configure_dpdk_rep_ports $reps "$br"
 
 }
 
