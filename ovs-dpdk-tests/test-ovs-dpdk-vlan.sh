@@ -35,9 +35,17 @@ cleanup_test $vlan_dev
 config
 config_remote_vlan $vlan $vlan_dev
 
-# icmp
+title "Testing traffic before removing and adding the vlan tag"
 verify_ping $REMOTE_IP
+generate_traffic "remote" $LOCAL_IP
 
+debug "Removing the vlan tag, purging the rules and re-adding the tag"
+ovs-vsctl remove port rep0 tag $vlan
+ovs-appctl revalidator/purge
+ovs-vsctl set port rep0 tag=$vlan
+
+title "Testing traffic after removing and adding the vlan tag"
+verify_ping $REMOTE_IP
 generate_traffic "remote" $LOCAL_IP
 
 start_clean_openvswitch
