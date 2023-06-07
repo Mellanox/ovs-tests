@@ -96,12 +96,15 @@ function config_remote_bridge_tunnel() {
 
 function config_simple_bridge_with_rep() {
     local reps=$1
+    local should_add_pf=${2:-"true"}
     local pci=$(get_pf_pci)
 
     debug "configuring simple bridge with $reps reps"
     ovs_add_bridge "br-phy"
-    ovs_add_pf "br-phy"
 
+    if [ "$should_add_pf" == "true" ]; then
+        ovs_add_pf "br-phy"
+    fi
     configure_dpdk_rep_ports $reps "br-phy"
 }
 
