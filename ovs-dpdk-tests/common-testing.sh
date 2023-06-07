@@ -507,3 +507,21 @@ function config_vlan_device_ns() {
     cmd='${dst_execution} ip l set $vlan_dev up'
     eval $cmd
 }
+
+function verify_ovs_expected_msg() {
+    local msg=$1
+    local timeout=${2:-10}
+
+    title "Verifying \"$msg\" expected message."
+
+    local end=$((SECONDS+$timeout))
+    while [ $SECONDS -lt $end ]; do
+        ovs-vsctl show | grep "$msg"
+        if [ "$?" == 0 ]; then
+            return 0
+        fi
+            :
+    done
+
+    fail "Did not get expected message \"$msg\""
+}
