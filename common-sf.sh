@@ -165,16 +165,22 @@ function remove_sfs() {
 
 function sf_reload_aux() {
     local sf_dev=$1
+
+    devlink dev reload auxiliary/$sf_dev
+    if [ $? -ne 0 ]; then
+        err "$sf_dev: Failed to reload auxiliary device"
+        return 1
+    fi
+    return 0
+}
+
+function sf_reload_aux_check_cpu_irq() {
+    local sf_dev=$1
     local cpus=$2
 
     start_cpu_irq_check
-    devlink dev reload auxiliary/$sf_dev
-    if [ $? -ne 0 ]; then
-        err "$sf_dev: Failed to reload auxiliary device $sf_dev"
-        return 1
-    fi
+    sf_reload_aux $sf_dev || return 1
     check_cpu_irq $sf_dev $cpus
-    return $?
 }
 
 function sf_set_cpu_affinity() {
@@ -188,8 +194,7 @@ function sf_set_cpu_affinity() {
         return 1
     fi
 
-    sf_reload_aux $sf_dev $cpus
-    return $?
+    sf_reload_aux_check_cpu_irq $sf_dev $cpus
 }
 
 function enbale_irq_reguest_debug() {
