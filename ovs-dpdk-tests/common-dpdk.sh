@@ -69,6 +69,17 @@ function ignore_expected_dpdk_err_msg() {
 
 ignore_expected_dpdk_err_msg
 
+function ovs_add_bridge() {
+    local bridge=${1:-br-phy}
+    ovs-vsctl --may-exist add-br $bridge -- set Bridge $bridge datapath_type=netdev -- br-set-external-id $bridge bridge-id $bridge -- set bridge $bridge fail-mode=standalone
+}
+
+function ovs_add_pf() {
+    local bridge=${1:-br-phy}
+    local pci=$(get_pf_pci)
+    ovs-vsctl add-port $bridge pf -- set Interface pf type=dpdk options:dpdk-devargs=$pci,$DPDK_PORT_EXTRA_ARGS
+}
+
 function config_remote_bridge_tunnel() {
     local vni=$1
     local remote_ip=$2
@@ -76,7 +87,7 @@ function config_remote_bridge_tunnel() {
     local reps=${4:-1}
 
     debug "configuring remote bridge tunnel type $tnl_type key $vni remote_ip $2 with $reps reps"
-    ovs-vsctl --may-exist add-br br-int   -- set Bridge br-int datapath_type=netdev   -- br-set-external-id br-int bridge-id br-int   -- set bridge br-int fail-mode=standalone
+    ovs_add_bridge "br-int"
     ovs-vsctl add-port br-int ${tnl_type}0   -- set interface ${tnl_type}0 type=${tnl_type} options:key=${vni} options:remote_ip=${remote_ip}
 
     configure_dpdk_rep_ports $reps "br-int"
@@ -88,8 +99,8 @@ function config_simple_bridge_with_rep() {
     local pci=$(get_pf_pci)
 
     debug "configuring simple bridge with $reps reps"
-    ovs-vsctl --may-exist add-br br-phy -- set Bridge br-phy datapath_type=netdev -- br-set-external-id br-phy bridge-id br-phy -- set bridge br-phy fail-mode=standalone
-    ovs-vsctl add-port br-phy pf -- set Interface pf type=dpdk options:dpdk-devargs=$pci,$DPDK_PORT_EXTRA_ARGS
+    ovs_add_bridge "br-phy"
+    ovs_add_pf "br-phy"
 
     configure_dpdk_rep_ports $reps "br-phy"
 }
