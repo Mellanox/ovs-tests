@@ -36,10 +36,12 @@ function config() {
         ~roid/SWS/gerrit2/iproute2/devlink/devlink port show pci/0000:08:00.0/327$i
     done
     bind_sfs
-    for i in $SF1 $SF2 $SF3; do
-        echo "SF $i phys_switch_id `cat /sys/class/net/$i/phys_switch_id`" || err "Failed to get SF switch id"
-    done
+
     fail_if_err
+
+    for i in $SF1 $SF2 $SF3; do
+        echo "SF $i phys_switch_id `cat /sys/class/net/$i/phys_switch_id`" || fail "Failed to get SF switch id"
+    done
 
     title "Reload SF into ns0"
     ip netns add ns0
