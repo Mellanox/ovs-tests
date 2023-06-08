@@ -144,6 +144,7 @@ function run_traffic() {
     ip netns exec ns0 ping -w $t -i 0.2 -q $REMOTE &
     pid_ping=$!
 
+    sleep 2
     title "ovs dump flows"
     ovs_dump_flows --names | grep "0x0800"
 
