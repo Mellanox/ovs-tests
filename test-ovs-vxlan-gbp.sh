@@ -85,6 +85,18 @@ function config_local() {
     ovs-ofctl add-flow br-ovs "table=0, priority=260, in_port=vxlan1, tun_gbp_id=$GBP_OPT_IN actions=output:$REP"
 }
 
+function ovs_check_gbp_dp_rules() {
+    local dp_rules=`ovs-appctl dpctl/dump-flows -m type=tc,offloaded | grep "eth_type(0x0800)"`
+    local gbp_action_rule_cnt=`echo $dp_rules | grep "actions:set(tunnel(" | grep -E ",vxlan\(gbp\(id=[[:digit:]]+,flags=[[:digit:]]+\)\)" | wc -l`
+    if [ $gbp_action_rule_cnt -ne 1 ]; then
+        err "Failed to offload vxlan gbp action rule"
+    fi
+    local gbp_match_rule_cnt=`echo $dp_rules | grep -E "tp_dst=[[:digit:]]+,vxlan\(gbp\(id=[[:digit:]]+,flags=[[:digit:]]+/[[:digit:]]+\)\)" | wc -l`
+    if [ $gbp_match_rule_cnt -ne 1 ]; then
+        err "Failed to offload vxlan gbp match rule"
+    fi
+
+}
 function run() {
     # icmp
     ip netns exec ns0 ping -q -c 1 -w 2 $REMOTE
@@ -116,6 +128,7 @@ function run() {
     timeout $((t-4)) tcpdump -qnnei $REP -c 10 'tcp' &
     tpid=$!
 
+    ovs_check_gbp_dp_rules
     sleep $t
 
     title "Verify traffic on $VF"
