@@ -99,6 +99,11 @@ function create_sf() {
 }
 
 function sf_reload_eth() {
+
+    if is_ofed ; then
+        return
+    fi
+
     local sf_dev=$1
     sf_set_param $sf_dev enable_eth true driverinit
     $sfcmd dev reload auxiliary/$sf_dev
