@@ -81,6 +81,10 @@ function config_local() {
     tc filter add dev $REP protocol ip ingress flower \
         action tunnel_key set src_ip $LOCAL_TUN dst_ip $REMOTE_IP dst_port $DSTPORT id $VXLAN_ID vxlan_opts $GBP_OPT_OUT \
         action mirred egress redirect dev $VXLAN
+    local gbp_action_rule_cnt=`tc -s filter show dev $REP ingress | grep -E "vxlan_opts [[:digit:]]+" | wc -l`
+    if [ $gbp_action_rule_cnt -ne 1 ]; then
+        fail "Failed to offload vxlan gbp action rule"
+    fi
     tc filter add dev $REP protocol arp ingress flower \
         action tunnel_key set src_ip $LOCAL_TUN dst_ip $REMOTE_IP dst_port $DSTPORT id $VXLAN_ID \
         action mirred egress redirect dev $VXLAN
@@ -88,6 +92,10 @@ function config_local() {
     # decap rules for packets from remote to local
     tc filter add dev $VXLAN protocol ip ingress flower enc_key_id $VXLAN_ID enc_dst_port $DSTPORT vxlan_opts $GBP_OPT_IN \
         action tunnel_key unset action mirred egress redirect dev $REP
+    local gbp_match_rule_cnt=`tc -s filter show dev $VXLAN ingress | grep -E "vxlan_opts [[:digit:]]+/[[:digit:]]+" | wc -l`
+    if [ $gbp_match_rule_cnt -ne 1 ]; then
+        fail "Failed to offload vxlan gbp match rule"
+    fi
     tc filter add dev $VXLAN protocol arp ingress flower enc_key_id $VXLAN_ID enc_dst_port $DSTPORT \
         action tunnel_key unset action mirred egress redirect dev $REP
 }
