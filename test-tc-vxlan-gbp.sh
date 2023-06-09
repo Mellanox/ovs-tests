@@ -51,7 +51,6 @@ function cleanup_local() {
     ip link del $VXLAN &>/dev/null
     ip a flush dev $NIC
     ip netns del ns0 &>/dev/null
-    ip netns del ns1 &>/dev/null
     reset_tc $REP
 }
 
