@@ -2336,7 +2336,7 @@ function redmine_info() {
     RM_STATUS_ID=""
     RM_STATUS=""
     RM_SUBJ=""
-    eval `curl -m 1 -s "$url" | python -c "from __future__ import print_function; import sys, json; i=json.load(sys.stdin)['issue']; print(\"RM_STATUS_ID=%s\nRM_STATUS=%s\nRM_SUBJ=%s\" % (json.dumps(i['status']['id']), json.dumps(i['status']['name']), json.dumps(i['subject'])))" 2>/dev/null`
+    eval `curl -k -L -m 1 -s "$url" | python -c "from __future__ import print_function; import sys, json; i=json.load(sys.stdin)['issue']; print(\"RM_STATUS_ID=%s\nRM_STATUS=%s\nRM_SUBJ=%s\" % (json.dumps(i['status']['id']), json.dumps(i['status']['name']), json.dumps(i['subject'])))" 2>/dev/null`
     if [ -z "$RM_STATUS_ID" ]; then
         warn "Failed to fetch #$id redmine info"
     fi
