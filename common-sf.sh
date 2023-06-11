@@ -67,7 +67,7 @@ function sf_set_param() {
     local param_name=$2
     local value=$3
     local cmode=$4
-    $sfcmd dev param set auxiliary/$dev name $param_name value $value cmode $cmode || err "Failed to set sf $dev param $param_name=$value"
+    devlink dev param set auxiliary/$dev name $param_name value $value cmode $cmode || err "Failed to set sf $dev param $param_name=$value"
 }
 
 function sf_disable_roce() {
@@ -99,14 +99,9 @@ function create_sf() {
 }
 
 function sf_reload_eth() {
-
-    if is_ofed ; then
-        return
-    fi
-
     local sf_dev=$1
     sf_set_param $sf_dev enable_eth true driverinit
-    $sfcmd dev reload auxiliary/$sf_dev
+    sf_reload_aux $sf_dev
 }
 
 function create_sfs() {
