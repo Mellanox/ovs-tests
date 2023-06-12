@@ -44,7 +44,9 @@ function set_sf_switchdev() {
     for i in 2 3 4; do
         ip netns exec ns0 devlink dev eswitch set auxiliary/mlx5_core.sf.$i mode switchdev || fail "Failed to config SF switchdev"
     done
+}
 
+function verify_single_ib_device() {
     title "Verify single IB device with multiple ports"
     rdma link show | grep -w mlx5_0
     local count=`rdma link show | grep -w mlx5_0 | wc -l`
@@ -71,6 +73,7 @@ function config() {
     done
 
     set_sf_switchdev
+    verify_single_ib_device
 }
 
 function test_ping() {
