@@ -37,7 +37,9 @@ function set_sf_esw() {
     for i in $SF1 $SF2 $SF3; do
         echo "SF $i phys_switch_id `cat /sys/class/net/$i/phys_switch_id`" || fail "Failed to get SF switch id"
     done
+}
 
+function set_sf_switchdev() {
     title "Set SF switchdev"
     for i in 2 3 4; do
         ip netns exec ns0 devlink dev eswitch set auxiliary/mlx5_core.sf.$i mode switchdev || fail "Failed to config SF switchdev"
@@ -60,6 +62,7 @@ function config() {
     ~roid/SWS/gerrit2/iproute2/devlink/devlink port show pci/0000:08:00.0/32769
     ~roid/SWS/gerrit2/iproute2/devlink/devlink port show pci/0000:08:00.0/32770
 
+    set_sf_esw
 
     title "Reload SF into ns0"
     ip netns add ns0
@@ -67,7 +70,7 @@ function config() {
         devlink dev reload auxiliary/mlx5_core.sf.$i netns ns0 || fail "Failed to reload SF"
     done
 
-    set_sf_esw
+    set_sf_switchdev
 }
 
 function test_ping() {
