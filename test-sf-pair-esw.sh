@@ -21,12 +21,7 @@ function cleanup() {
 
 trap cleanup EXIT
 
-function config() {
-    title "Config"
-    create_sfs 3
-    ~roid/SWS/gerrit2/iproute2/devlink/devlink port show pci/0000:08:00.0/32768
-    ~roid/SWS/gerrit2/iproute2/devlink/devlink port show pci/0000:08:00.0/32769
-
+function set_sf_esw() {
     title "Set SF eswitch"
 
     # Failing to change fw with sf inactive but works with unbind.
@@ -43,12 +38,6 @@ function config() {
         echo "SF $i phys_switch_id `cat /sys/class/net/$i/phys_switch_id`" || fail "Failed to get SF switch id"
     done
 
-    title "Reload SF into ns0"
-    ip netns add ns0
-    for i in 2 3 4; do
-        devlink dev reload auxiliary/mlx5_core.sf.$i netns ns0 || fail "Failed to reload SF"
-    done
-
     title "Set SF switchdev"
     for i in 2 3 4; do
         ip netns exec ns0 devlink dev eswitch set auxiliary/mlx5_core.sf.$i mode switchdev || fail "Failed to config SF switchdev"
@@ -62,6 +51,23 @@ function config() {
     else
         success
     fi
+}
+
+function config() {
+    title "Config"
+    create_sfs 3
+    ~roid/SWS/gerrit2/iproute2/devlink/devlink port show pci/0000:08:00.0/32768
+    ~roid/SWS/gerrit2/iproute2/devlink/devlink port show pci/0000:08:00.0/32769
+    ~roid/SWS/gerrit2/iproute2/devlink/devlink port show pci/0000:08:00.0/32770
+
+
+    title "Reload SF into ns0"
+    ip netns add ns0
+    for i in 2 3 4; do
+        devlink dev reload auxiliary/mlx5_core.sf.$i netns ns0 || fail "Failed to reload SF"
+    done
+
+    set_sf_esw
 }
 
 function test_ping() {
