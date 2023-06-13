@@ -108,7 +108,7 @@ function test_ping_single() {
 
     ip netns exec ns0 ifconfig $sf $ip1/24 up
     ifconfig $sf_rep $ip2/24 up
-    ping -w 3 -c 2 $ip1 && success || err "Ping failed for SF$id $sf<->$sf_rep"
+    ping -w 2 -c 1 $ip1 && success || err "Ping failed for SF$id $sf<->$sf_rep"
 }
 
 function test_ping() {
