@@ -2577,6 +2577,9 @@ function grace_period_after_pci_reset() {
         let sleep=$output/1000
     fi
 
+    # the grace period should start after pci recovers.
+    timeout 20 grep -m1 "health recovery succeeded" <(dmesg -W)
+
     echo "Waiting $sleep sec for pci reset grace period"
     sleep $sleep
 
