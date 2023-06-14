@@ -86,6 +86,7 @@ function config_remote_bf_vf() {
 
 function __setup_common_bf() {
     BF_PCI=$(on_bf "basename \$(readlink /sys/class/net/${BF_NIC}/device)")
+    BF_PCI2=$(on_bf "basename \$(readlink /sys/class/net/${BF_NIC2}/device)")
 }
 
 __setup_common_bf

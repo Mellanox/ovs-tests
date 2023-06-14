@@ -1385,6 +1385,16 @@ function get_pf_pci() {
     echo "$pci"
 }
 
+function get_pf_pci2() {
+    local pci=$PCI2
+
+    if is_bf; then
+        pci=$BF_PCI2
+    fi
+
+    echo "$pci"
+}
+
 function unbind_vfs() {
     local nics=${@:-$NIC}
     local vfpci
