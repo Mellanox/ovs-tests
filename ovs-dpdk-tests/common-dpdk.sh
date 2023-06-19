@@ -237,8 +237,11 @@ function config_ns() {
         return
     fi
 
-    debug "adding namespace $ns and attaching $dev"
-    ip netns add $ns
+    if ip netns ls | grep -w $ns >/dev/null; then
+        debug "adding namespace $ns"
+        ip netns add $ns
+    fi
+    debug "attaching $dev to namespace $ns"
     ip link set $dev netns $ns
     ip netns exec $ns ifconfig $dev $ip_addr/24 up
     ip netns exec $ns ip -6 address add $ipv6_addr/64 dev $dev
