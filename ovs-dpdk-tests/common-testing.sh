@@ -144,7 +144,7 @@ function ovs_wait_until_ipv6_done() {
         dst_execution="on_vm1"
     fi
 
-    local cmd="${dst_execution} ping -c1 -W 1 $remote_ip"
+    local cmd="${dst_execution} ping -c1 -w 1 $remote_ip"
     if [[ $remote_ip = *":"* ]]; then
        cmd+=" -6"
     fi
@@ -188,7 +188,7 @@ function send_metered_ping() {
     local expected_received=${6:-10}
 
     rm -rf $p_ping
-    exec_dbg "ip netns exec $namespace ping -c $count -W $wait -i $interval $ip_addr &> $p_ping"
+    exec_dbg "ip netns exec $namespace ping -c $count -w $wait -i $interval $ip_addr &> $p_ping"
     local pkts=$(grep 'received' $p_ping | awk '{ print $4 }')
 
     if [ $pkts -gt $expected_received ]; then
@@ -255,7 +255,7 @@ function verify_ping() {
         fi
     fi
 
-    cmd="${dst_execution} ping -q -c $packet_num -W 2 -i 0.01 $remote_ip -s $size"
+    cmd="${dst_execution} ping -q -c $packet_num -w 2 -i 0.01 $remote_ip -s $size"
 
     if [[ $remote_ip = *":"* ]]; then
        cmd+=" -6"
