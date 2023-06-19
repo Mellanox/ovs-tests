@@ -463,15 +463,15 @@ function config_remote_vlan() {
     local vlan_dev=$2
     local ip=${3:-$REMOTE_IP}
     on_remote "ip a flush dev $REMOTE_NIC
-           ip link add link $REMOTE_NIC name $vlan_dev type vlan id $vlan
-           ip a add $ip/24 dev $vlan_dev
-           ip l set dev $vlan_dev up"
+               ip link add link $REMOTE_NIC name $vlan_dev type vlan id $vlan
+               ip a add $ip/24 dev $vlan_dev
+               ip l set dev $vlan_dev up"
 }
 
 function config_remote_nic() {
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
-    on_remote ip l set dev $REMOTE_NIC up
+    on_remote "ip a flush dev $REMOTE_NIC
+               ip a add $REMOTE_IP/24 dev $REMOTE_NIC
+               ip l set dev $REMOTE_NIC up"
 }
 
 function exec_dbg() {
