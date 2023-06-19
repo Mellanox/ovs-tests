@@ -100,15 +100,21 @@ function config_remote_bridge_tunnel() {
 function config_simple_bridge_with_rep() {
     local reps=$1
     local should_add_pf=${2:-"true"}
+    local bridge=${3:-"br-phy"}
+    local nic=${4:-"$NIC"}
     local pci=$(get_pf_pci)
 
-    debug "configuring simple bridge with $reps reps"
-    ovs_add_bridge "br-phy"
+    if [ $nic == $NIC2 ]; then
+        pci=$(get_pf_pci2)
+    fi
+
+    debug "configuring simple bridge \"$bridge\" with $reps reps"
+    ovs_add_bridge $bridge
 
     if [ "$should_add_pf" == "true" ]; then
-        ovs_add_pf "br-phy"
+        ovs_add_pf $bridge $pci
     fi
-    configure_dpdk_rep_ports $reps "br-phy"
+    configure_dpdk_rep_ports $reps $bridge $pci
 }
 
 function start_vdpa_vm() {
