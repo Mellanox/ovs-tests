@@ -1,5 +1,7 @@
 LOCAL_IP=1.1.1.7
 REMOTE_IP=1.1.1.8
+LOCAL_IP2=2.2.2.7
+REMOTE_IP2=2.2.2.8
 
 p_server=/tmp/perf_server
 p_client=/tmp/perf_client
