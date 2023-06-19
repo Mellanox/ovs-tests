@@ -32,8 +32,9 @@ function set_sf_esw() {
     # Failing to change fw with sf inactive but works with unbind.
     unbind_sfs
     for i in `seq 68 $((68-1+$count))`; do
-        ~roid/SWS/gerrit2/iproute2/devlink/devlink port function set pci/0000:08:00.0/327$i eswitch enable || err "Failed to set SF eswitch"
-        ~roid/SWS/gerrit2/iproute2/devlink/devlink port show pci/0000:08:00.0/327$i
+        local port="pci/0000:08:00.0/327$i"
+        devlink_port_eswitch_enable $port
+        devlink_port_show $port
     done
     bind_sfs
 

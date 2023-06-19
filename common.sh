@@ -421,6 +421,24 @@ function disable_esw_multiport() {
     devlink dev param set pci/$PCI name esw_multiport value 0 cmode runtime
 }
 
+function devlink_port_eswitch_enable() {
+    local port=$1
+    if is_ofed ; then
+        /.autodirect/swgwork/shayd/devel/OFED_iproute2/iproute2/mlxdevm/mlxdevm port function cap set $port eswitch true || err "Failed to set port $port eswitch"
+    else
+        ~roid/SWS/gerrit2/iproute2/devlink/devlink port function set $port eswitch enable || err "Failed to set port $port eswitch"
+    fi
+}
+
+function devlink_port_show() {
+    local port=$1
+    if is_ofed ; then
+        /.autodirect/swgwork/shayd/devel/OFED_iproute2/iproute2/mlxdevm/mlxdevm port show $port
+    else
+        ~roid/SWS/gerrit2/iproute2/devlink/devlink port show $port
+    fi
+}
+
 function is_vf_lag_activated() {
     local rc
     for _ in `seq 10`; do
