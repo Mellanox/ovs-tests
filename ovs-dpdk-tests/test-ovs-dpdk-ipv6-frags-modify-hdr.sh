@@ -24,7 +24,6 @@ function cleanup() {
 
 function config() {
     cleanup_test
-    set_e2e_cache_enable false
     debug "Restarting OVS"
     ovs_conf_set hw-offload false
     start_clean_openvswitch

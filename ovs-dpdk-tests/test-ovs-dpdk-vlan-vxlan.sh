@@ -22,7 +22,6 @@ bind_vfs
 
 cleanup_test $vlan_dev
 
-set_e2e_cache_enable false
 
 debug "Restarting OVS"
 start_clean_openvswitch

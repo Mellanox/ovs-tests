@@ -13,7 +13,6 @@ function config() {
     enable_switchdev
     bind_vfs
     cleanup_test
-    set_e2e_cache_enable false
     debug "Restarting OVS"
     start_clean_openvswitch
     config_simple_bridge_with_rep 2

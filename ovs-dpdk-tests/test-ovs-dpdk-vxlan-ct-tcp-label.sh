@@ -25,7 +25,6 @@ function test_cleanup_local() {
 
 function config() {
     cleanup_test
-    set_e2e_cache_enable false
     debug "Restarting OVS"
     ovs_conf_set ct-labels-mapping true
     start_clean_openvswitch

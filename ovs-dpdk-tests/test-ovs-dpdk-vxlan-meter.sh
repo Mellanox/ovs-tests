@@ -18,7 +18,6 @@ function test_pre_config() {
     unbind_vfs
     bind_vfs
     cleanup_test
-    set_e2e_cache_enable false
     debug "Restarting OVS"
     start_clean_openvswitch
 }

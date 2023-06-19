@@ -24,7 +24,6 @@ cleanup_test $vlan_dev
 
 gre_set_entropy
 
-set_e2e_cache_enable false
 
 debug "Restarting OVS"
 start_clean_openvswitch

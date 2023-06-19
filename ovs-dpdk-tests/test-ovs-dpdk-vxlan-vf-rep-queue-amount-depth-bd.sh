@@ -79,7 +79,6 @@ function config() {
     bind_vfs
     cleanup
     set_queue_amount_depth ${queue_config_min['vf_channels']} ${queue_config_min['vf_rq_size']} ${queue_config_min['vf_sq_size']} ${queue_config_min['rep_channels']} ${queue_config_min['rep_rq_size']} ${queue_config_min['rep_sq_size']}
-    set_e2e_cache_enable false
     debug "Restarting OVS"
     start_clean_openvswitch
 
