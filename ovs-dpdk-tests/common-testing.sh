@@ -429,8 +429,8 @@ function stop_traffic() {
    if [ "${VDPA}" == "1" ]; then
       dst_execution="on_vm1 "
    fi
-   exec_dbg "${dst_execution}killall -9 $iperf_cmd"
-   exec_dbg "on_remote killall -9 $iperf_cmd"
+   exec_dbg "${dst_execution}killall -9 -q $iperf_cmd"
+   exec_dbg "on_remote killall -9 -q $iperf_cmd"
    sleep 1
 }
 
