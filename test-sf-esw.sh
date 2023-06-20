@@ -21,15 +21,15 @@ trap cleanup EXIT
 function config() {
     title "Config"
     create_sfs 1
-    ~roid/SWS/gerrit2/iproute2/devlink/devlink port show pci/0000:08:00.0/32768
 
     title "Set SF eswitch"
 
     # Failing to change fw with sf inactive but works with unbind.
 #    sf_inactivate pci/0000:08:00.0/32768
     unbind_sfs
-    ~roid/SWS/gerrit2/iproute2/devlink/devlink port function set pci/0000:08:00.0/32768 eswitch enable || err "Failed to set SF eswitch"
-    ~roid/SWS/gerrit2/iproute2/devlink/devlink port show pci/0000:08:00.0/32768
+    local port="pci/0000:08:00.0/32768"
+    devlink_port_eswitch_enable $port
+    devlink_port_show $port
 #    sf_activate pci/0000:08:00.0/32768
     bind_sfs
     echo "SF phys_switch_id `cat /sys/class/net/$SF1/phys_switch_id`" || err "Failed to get SF switch id"
