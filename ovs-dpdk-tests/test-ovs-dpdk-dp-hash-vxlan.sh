@@ -24,7 +24,7 @@ function config() {
     debug "Restarting OVS"
     start_clean_openvswitch
 
-    config_tunnel "vxlan" 1 br-phy
+    config_tunnel "vxlan" 1 br-phy br-phy
     config_local_tunnel_ip $LOCAL_TUN_IP br-phy
     ip link add dev dummy type veth peer name rep-dummy
     ovs-vsctl add-port br-phy rep-dummy
@@ -35,8 +35,8 @@ function add_openflow_rules() {
     ovs-ofctl del-flows br-phy
     ovs-ofctl add-group br-phy group_id=1,type=select,bucket=watch_port=pf,output:pf,bucket=watch_port=rep-dummy,output:rep-dummy
 
-    ovs-ofctl add-flow br-phy in_port=$REP,actions=vxlan0
-    ovs-ofctl add-flow br-phy in_port=vxlan0,actions=$REP
+    ovs-ofctl add-flow br-phy in_port=$REP,actions=vxlan_br-phy
+    ovs-ofctl add-flow br-phy in_port=vxlan_br-phy,actions=$REP
 
     ovs-ofctl add-flow br-phy in_port=LOCAL,actions=group:1
     ovs-ofctl add-flow br-phy in_port=pf,actions=LOCAL

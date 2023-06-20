@@ -36,8 +36,8 @@ function config() {
 function add_openflow_rules() {
     debug "Adding openflow rules"
     ovs-ofctl del-flows br-int
-    ovs-ofctl add-flow br-int "in_port=vxlan0,actions=push_vlan:0x8100,mod_vlan_vid:7, output:$REP" -O OpenFlow11
-    ovs-ofctl add-flow br-int "in_port=$REP,dl_vlan=7,actions=pop_vlan, output:vxlan0" -O OpenFlow11
+    ovs-ofctl add-flow br-int "in_port=vxlan_br-int,actions=push_vlan:0x8100,mod_vlan_vid:7, output:$REP" -O OpenFlow11
+    ovs-ofctl add-flow br-int "in_port=$REP,dl_vlan=7,actions=pop_vlan, output:vxlan_br-int" -O OpenFlow11
     ovs-ofctl dump-flows br-int --color
 }
 

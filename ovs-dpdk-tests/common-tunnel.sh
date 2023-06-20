@@ -56,18 +56,28 @@ function config_remote_tunnel() {
 function config_tunnel() {
     local tnl_type=$1
     local reps=${2:-1}
-    local dev=$VF
-    local br=$3
+    local br=${3:-"br-phy"}
+    local remote_br=${4:-"br-int"}
+    local tnl_id=${5:-"$TUNNEL_ID"}
+    local local_ip=${6:-"$LOCAL_IP"}
+    local remote_tnl_ip=${7:-"$REMOTE_TUNNEL_IP"}
+    local dev=${8:-"$VF"}
+    local nic=${9:-"$NIC"}
+    local pci=$(get_pf_pci)
+
+    if [ $nic == $NIC2 ]; then
+        pci=$(get_pf_pci2)
+    fi
 
     local dst_execution="ip netns exec ns0"
     if [ "${VDPA}" == "1" ]; then
         dst_execution="on_vm1"
         dev=$VDPA_DEV_NAME
     fi
-    config_simple_bridge_with_rep 0
-    config_remote_bridge_tunnel $TUNNEL_ID $REMOTE_TUNNEL_IP $tnl_type $reps $br
+    config_simple_bridge_with_rep 0 true $br $nic
+    config_remote_bridge_tunnel $tnl_id $remote_tnl_ip $tnl_type $reps $remote_br $pci
     start_vdpa_vm
-    config_ns ns0 $VF $LOCAL_IP
+    config_ns ns0 $dev $local_ip
     local cmd="${dst_execution} ip link set dev $dev mtu 1400"
     eval $cmd
 }
