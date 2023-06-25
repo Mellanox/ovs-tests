@@ -1993,8 +1993,15 @@ function restart_openvswitch() {
 __ovs_used=0
 
 function start_clean_openvswitch() {
-    bf_wrap_exec "restart_openvswitch
-                  ovs_clear_bridges"
+    if is_bf_host; then
+        on_bf_exec "restart_openvswitch
+                    ovs_clear_bridges"
+        on_remote_bf_exec "restart_openvswitch
+                           ovs_clear_bridges"
+    else
+        restart_openvswitch
+        ovs_clear_bridges
+    fi
     __ovs_used=1
 }
 
