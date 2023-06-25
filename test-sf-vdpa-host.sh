@@ -38,7 +38,9 @@ function create_vdpa_netdev {
     ip link set up dev $rep
     devlink port function set $rep hw_addr 00:00:00:00:00:$sfnum
     devlink port function set $rep state active
+    sleep 0.5
     auxdev=$(sf_get_dev $sfnum)
+    sf_reload_auxiliary_devices $auxdev
     vdpa_wait_mgtdev $auxdev
     vdpa dev add name $vdpadevname mgmtdev auxiliary/$auxdev
     sleep 4
