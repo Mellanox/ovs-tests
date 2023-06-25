@@ -437,8 +437,8 @@ function stop_traffic() {
 }
 
 function __cleanup() {
-    ip a flush dev $NIC
-    ip a flush dev $NIC2
+    ip a flush dev $NIC &>/dev/null
+    ip a flush dev $NIC2 &>/dev/null
     ip -all netns delete &>/dev/null
     start_clean_openvswitch
 }
