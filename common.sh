@@ -1288,6 +1288,11 @@ function require_interfaces() {
     for i in $@; do
         net=${!i}
         [ -z $net ] && fail "Var $i is empty"
+
+        if is_bf_host; then
+            on_bf_exec "[ -e /sys/class/net/$net ]" && continue
+        fi
+
         [ ! -e /sys/class/net/$net ] && fail "Cannot find interface $net"
     done
 }
