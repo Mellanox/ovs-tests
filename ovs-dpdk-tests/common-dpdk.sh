@@ -157,6 +157,18 @@ function config_simple_bridge_with_rep() {
     configure_dpdk_rep_ports $reps $bridge $pci
 }
 
+function ovs_add_host_pf_rep_port() {
+    if ! (is_bf || is_bf_host); then
+        return
+    fi
+
+    local bridge=${1:-"br-phy"}
+    local pci=${2:-$BF_PCI}
+    local port=`get_port_from_pci $pci hpf`
+
+    ovs-vsctl add-port $bridge $port -- set Interface $port type=dpdk options:dpdk-devargs=$pci,representor=[-1],$DPDK_PORT_EXTRA_ARGS
+}
+
 function start_vdpa_vm() {
     local vm_name=${1:-$NESTED_VM_NAME1}
     local vm_ip=${2:-$NESTED_VM_IP1}
