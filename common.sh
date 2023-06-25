@@ -1298,12 +1298,22 @@ function require_interfaces() {
 }
 
 function enable_switchdev() {
+    if is_bf_host; then
+        warn "Changing eswitch mode to switchdev is not supported over bf host"
+        return
+    fi
+
     local nic=${1:-$NIC}
     unbind_vfs $nic
     switch_mode_switchdev $nic
 }
 
 function enable_legacy() {
+    if is_bf_host; then
+        warn "Changing eswitch mode to legacy is not supported over bf host"
+        return
+    fi
+
     local nic=${1:-$NIC}
     unbind_vfs $nic
     switch_mode_legacy $nic
