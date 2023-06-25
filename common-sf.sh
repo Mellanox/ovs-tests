@@ -98,9 +98,11 @@ function create_sf() {
     sleep 1
 }
 
-function sf_reload_eth() {
+function sf_reload_auxiliary_devices() {
     local sf_dev=$1
     sf_set_param $sf_dev enable_eth true driverinit
+    sf_set_param $sf_dev enable_vnet true driverinit
+    sf_set_param $sf_dev enable_rdma true driverinit
     sf_reload_aux $sf_dev
 }
 
@@ -124,7 +126,7 @@ function create_sfs() {
             break
         fi
 
-        sf_reload_eth $sf_dev
+        sf_reload_auxiliary_devices $sf_dev
 
         sleep 0.5
         netdev=`sf_get_netdev $i`
