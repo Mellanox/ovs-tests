@@ -1419,7 +1419,7 @@ function get_vf_pci() {
 function get_pf_pci() {
     local pci=$PCI
 
-    if is_bf; then
+    if is_bf || is_bf_host; then
         pci=$BF_PCI
     fi
 
@@ -1429,7 +1429,7 @@ function get_pf_pci() {
 function get_pf_pci2() {
     local pci=$PCI2
 
-    if is_bf; then
+    if is_bf || is_bf_host; then
         pci=$BF_PCI2
     fi
 
