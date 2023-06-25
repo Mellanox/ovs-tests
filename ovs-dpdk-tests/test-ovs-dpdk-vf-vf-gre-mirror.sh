@@ -34,14 +34,7 @@ start_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
 add_remote_mirror gre br-int 150 $DUMMY_IP $MIRROR_IP
 config_ns ns1 $VF2 $REMOTE_IP
 
-
-function config_remote() {
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip a add $DUMMY_IP/24 dev $REMOTE_NIC
-    on_remote ip l set dev $REMOTE_NIC up
-}
-
-config_remote
+config_remote_nic $DUMMY_IP
 
 verify_ping $LOCAL_IP ns1
 

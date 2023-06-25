@@ -33,15 +33,9 @@ function config() {
     config_ns ns1 $VF2 $IP2
 }
 
-function config_remote() {
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
-    on_remote ip l set dev $REMOTE_NIC up
-}
-
 function run() {
     config
-    config_remote
+    config_remote_nic
 
     t=5
     verify_ping $REMOTE_IP ns0

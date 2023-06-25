@@ -475,8 +475,21 @@ function config_remote_vlan() {
 }
 
 function config_remote_nic() {
+    local ip=${1:-$REMOTE_IP}
+
+    title "Configuring remote nic"
+
+    if is_bf_host; then
+        on_remote_bf_exec "config_simple_bridge_with_rep 1"
+    fi
+
+    __config_remote_nic $ip
+}
+
+function __config_remote_nic() {
+    local ip=$1
     on_remote "ip a flush dev $REMOTE_NIC
-               ip a add $REMOTE_IP/24 dev $REMOTE_NIC
+               ip a add $ip/24 dev $REMOTE_NIC
                ip l set dev $REMOTE_NIC up"
 }
 

@@ -27,12 +27,6 @@ function config() {
     config_ns ns0 $VF $LOCAL_IP
 }
 
-function config_remote() {
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
-    on_remote ip l set dev $REMOTE_NIC up
-}
-
 function add_openflow_rules() {
     ovs-ofctl del-flows br-phy
     ovs-ofctl add-flow br-phy "arp,actions=NORMAL"
@@ -45,7 +39,7 @@ function add_openflow_rules() {
 
 function run() {
     config
-    config_remote
+    config_remote_nic
     add_openflow_rules
 
     verify_ping

@@ -22,16 +22,9 @@ function config() {
     cleanup_test
     debug "Restarting OVS"
     start_clean_openvswitch
-
     config_simple_bridge_with_rep 1
     start_vdpa_vm
     config_ns ns0 $VF $LOCAL_IP
-}
-
-function config_remote() {
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
-    on_remote ip l set dev $REMOTE_NIC up
 }
 
 function add_openflow_rules() {
@@ -47,7 +40,7 @@ function add_openflow_rules() {
 
 function run() {
     config
-    config_remote
+    config_remote_nic
     add_openflow_rules
 
     verify_ping

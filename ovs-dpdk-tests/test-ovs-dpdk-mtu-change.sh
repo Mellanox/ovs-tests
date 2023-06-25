@@ -29,12 +29,6 @@ function config() {
     config_ns ns0 $VF $LOCAL_IP
 }
 
-function config_remote() {
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip a add $REMOTE_IP/24 dev $REMOTE_NIC
-    on_remote ip l set dev $REMOTE_NIC up
-}
-
 function change_mtu_request() {
     local mtu=$1
     local interface=$2
@@ -48,7 +42,7 @@ function run() {
     local ib_pf=`get_port_from_pci`
 
     config
-    config_remote
+    config_remote_nic
     local mtu=$(ovs-vsctl list interface $ib_pf | grep -w mtu | awk '{ print $3 }')
     if (( $mtu == $mtu_request )); then
         let "mtu_request=mtu_request+100"
