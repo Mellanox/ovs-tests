@@ -23,7 +23,7 @@ function config() {
     echo "Restarting OVS"
     start_clean_openvswitch
 
-    config_tunnel geneve 1 $VF
+    config_tunnel geneve 1
     config_local_tunnel_ip $LOCAL_TUN_IP br-phy
 }
 
