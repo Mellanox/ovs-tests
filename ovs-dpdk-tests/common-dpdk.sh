@@ -581,3 +581,21 @@ function check_tcp_sequence {
        err "$cmd value $val is greater than zero"
     fi
 }
+
+function set_flex_parser() {
+    local val=$1
+
+    # ovs-dpdk takes module refcount. stop it first.
+    stop_openvswitch
+    fw_config "FLEX_PARSER_PROFILE_ENABLE=$val" || fail "could not set flex parser profile"
+    fw_reset
+}
+
+function config_devices() {
+    config_sriov 2
+    config_sriov 2 $NIC2
+    enable_switchdev
+    enable_switchdev $NIC2
+    bind_vfs
+    bind_vfs $NIC2
+}

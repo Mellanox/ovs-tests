@@ -11,12 +11,25 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
-config_sriov 2
+if [ "$DOCA" == "1" ]; then
+    set_flex_parser 8
+    config_devices
+else
+    config_sriov 2
+fi
 require_interfaces REP NIC
 unbind_vfs
 bind_vfs
 
-trap cleanup_test EXIT
+trap cleanup EXIT
+
+function cleanup() {
+    if [ "$DOCA" == "1" ]; then
+        set_flex_parser 0
+        config_devices
+    fi
+    cleanup_test
+}
 
 function config() {
     cleanup_test
@@ -76,5 +89,5 @@ function run() {
 
 run
 trap - EXIT
-cleanup_test
+cleanup
 test_done
