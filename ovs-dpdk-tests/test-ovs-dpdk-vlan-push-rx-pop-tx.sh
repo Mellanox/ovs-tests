@@ -22,9 +22,6 @@ trap cleanup_test EXIT
 
 function config() {
     cleanup_test
-    debug "Restarting OVS"
-    start_clean_openvswitch
-
     config_simple_bridge_with_rep 0
     config_remote_bridge_tunnel $TUNNEL_ID $REMOTE_TUNNEL_IP
     config_vlan_device_ns $VF $VLAN_DEV $VLAN_ID $LOCAL_IP $LOCAL_IP "ns0"

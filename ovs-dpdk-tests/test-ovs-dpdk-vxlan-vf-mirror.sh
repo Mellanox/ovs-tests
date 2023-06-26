@@ -20,8 +20,6 @@ trap cleanup_test EXIT
 
 function config() {
     cleanup_test
-    debug "Restarting OVS"
-    start_clean_openvswitch
 
     config_tunnel "vxlan"
     config_remote_tunnel "vxlan"
@@ -39,7 +37,6 @@ function run() {
 }
 
 run
-start_clean_openvswitch
 trap - EXIT
 cleanup_test
 test_done

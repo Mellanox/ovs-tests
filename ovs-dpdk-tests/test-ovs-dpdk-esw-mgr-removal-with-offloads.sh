@@ -23,8 +23,6 @@ function cleanup() {
 
 function config() {
     cleanup_test
-    debug "Restarting OVS"
-    start_clean_openvswitch
 
     config_simple_bridge_with_rep 2
     config_ns ns0 $VF $LOCAL_IP

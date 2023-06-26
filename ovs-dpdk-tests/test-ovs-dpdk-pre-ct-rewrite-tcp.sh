@@ -20,8 +20,6 @@ trap cleanup_test EXIT
 
 function config() {
     cleanup_test
-    debug "Restarting OVS"
-    start_clean_openvswitch
 
     config_simple_bridge_with_rep 2
     start_vdpa_vm
@@ -55,7 +53,6 @@ function run() {
 }
 
 run
-start_clean_openvswitch
 trap - EXIT
 cleanup_test
 test_done

@@ -48,5 +48,4 @@ title "Testing traffic after removing and adding the vlan tag"
 verify_ping $REMOTE_IP
 generate_traffic "remote" $LOCAL_IP
 
-start_clean_openvswitch
 test_done

@@ -24,8 +24,6 @@ trap cleanup_test EXIT
 
 function config() {
     cleanup_test
-    debug "Restarting OVS"
-    start_clean_openvswitch
 
     config_tunnel "vxlan" 2
     add_remote_mirror vxlan br-int 150 $DUMMY_IP $MIRROR_IP
@@ -43,7 +41,6 @@ function run() {
 }
 
 run
-start_clean_openvswitch
 trap - EXIT
 cleanup_test
 test_done

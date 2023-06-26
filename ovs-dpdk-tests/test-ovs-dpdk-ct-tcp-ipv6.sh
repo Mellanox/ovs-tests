@@ -21,7 +21,6 @@ function config() {
     unbind_vfs
     bind_vfs
     cleanup_test
-    start_clean_openvswitch
     config_simple_bridge_with_rep 2
     start_vdpa_vm
     start_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
@@ -42,7 +41,6 @@ function run() {
 }
 
 run
-start_clean_openvswitch
 trap - EXIT
 cleanup_test
 test_done

@@ -20,8 +20,6 @@ unbind_vfs
 bind_vfs
 
 cleanup_test
-debug "Restarting OVS"
-start_clean_openvswitch
 
 config_tunnel gre
 config_local_tunnel_ip $LOCAL_TUN_IP br-phy
@@ -32,7 +30,6 @@ generate_traffic "remote" $LOCAL_IP
 
 check_offload_contains "ttl=63" 2
 
-start_clean_openvswitch
 trap - EXIT
 cleanup_test
 test_done
