@@ -91,6 +91,8 @@ function config() {
     set_sf_esw $count
     reload_sfs_into_ns $count
     set_sf_switchdev $count
+    log "Wait for shared fdb wq"
+    sleep 3
     verify_single_ib_device $((count*2))
 }
 
