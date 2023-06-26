@@ -25,7 +25,7 @@ function config() {
     cleanup_test
     enable_ct_ct_nat_offload
     debug "Restarting OVS"
-    start_clean_openvswitch
+    restart_openvswitch
 
     config_tunnel "vxlan"
     config_remote_tunnel "vxlan"
