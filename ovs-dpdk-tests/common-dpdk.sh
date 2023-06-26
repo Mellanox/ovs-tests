@@ -485,8 +485,9 @@ function add_local_mirror() {
     local port=${1:-local-mirror}
     local rep_num=$2
     local bridge=$3
+    local pci=$(get_pf_pci)
 
-    ovs-vsctl add-port $bridge $port -- set interface $port type=dpdk options:dpdk-devargs=$PCI,representor=[${rep_num}] \
+    ovs-vsctl add-port $bridge $port -- set interface $port type=dpdk options:dpdk-devargs=$pci,representor=[${rep_num}],$DPDK_PORT_EXTRA_ARGS \
     -- --id=@p get port $port -- --id=@m create mirror name=m0 select-all=true output-port=@p \
     -- set bridge $bridge mirrors=@m
 }
