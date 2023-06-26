@@ -77,9 +77,9 @@ function ovs_add_ct_nat_nop_rules() {
     debug "Adding ct_nat_nop rules"
     ovs-ofctl del-flows $bridge
     ovs-ofctl add-flow $bridge "arp,actions=normal"
-    ovs-ofctl add-flow $bridge "table=0, ip,ct_state=-trk actions=ct(table=1,nat)"
-    ovs-ofctl add-flow $bridge "table=1, ip,ct_state=+trk+new actions=ct(commit),normal"
-    ovs-ofctl add-flow $bridge "table=1, ip,ct_state=+trk+est actions=normal"
+    ovs-ofctl add-flow $bridge "table=0, ip,ct_state=-trk, actions=ct(table=1,nat)"
+    ovs-ofctl add-flow $bridge "table=1, ip,ct_state=+trk+new, actions=ct(commit),normal"
+    ovs-ofctl add-flow $bridge "table=1, ip,ct_state=+trk+est, actions=normal"
     debug "OVS flow rules:"
     ovs-ofctl dump-flows $bridge --color
 }
