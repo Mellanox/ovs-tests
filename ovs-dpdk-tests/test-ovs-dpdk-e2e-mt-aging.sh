@@ -20,7 +20,7 @@ function config() {
     cleanup_test
     set_e2e_cache_enable
     debug "Restarting OVS"
-    start_clean_openvswitch
+    restart_openvswitch
 
     config_simple_bridge_with_rep 2
     start_vdpa_vm

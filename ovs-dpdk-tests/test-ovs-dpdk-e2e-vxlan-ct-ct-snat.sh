@@ -29,7 +29,7 @@ function config() {
     cleanup_test
     set_e2e_cache_enable
     debug "Restarting OVS"
-    start_clean_openvswitch
+    restart_openvswitch
 
     config_tunnel "vxlan"
     config_local_tunnel_ip $LOCAL_TUN_IP br-phy
