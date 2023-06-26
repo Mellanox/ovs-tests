@@ -101,8 +101,9 @@ function create_sf() {
 function sf_reload_auxiliary_devices() {
     local sf_dev=$1
     sf_set_param $sf_dev enable_eth true driverinit
-    sf_set_param $sf_dev enable_vnet true driverinit
-    sf_set_param $sf_dev enable_rdma true driverinit
+# currently breaking mlnx ofed. need to check its supported before enabling or skip err
+#    sf_set_param $sf_dev enable_vnet true driverinit
+#    sf_set_param $sf_dev enable_rdma true driverinit
     sf_reload_aux $sf_dev
 }
 
