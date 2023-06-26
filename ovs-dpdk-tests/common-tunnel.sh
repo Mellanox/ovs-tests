@@ -11,9 +11,10 @@ TUNNEL_DEV2="tunnel2"
 TCGRE="${DIR}/ovs-dpdk-tests/tcgre.sh"
 
 function gre_set_entropy() {
-    local cmd="$TCGRE $PCI"
+    local pci=$(get_pf_pci)
+    local cmd="$TCGRE $pci"
     debug "Run $cmd"
-    eval "$cmd"
+    bf_wrap "$cmd"
 }
 
 function gre_set_entropy_on_remote() {
