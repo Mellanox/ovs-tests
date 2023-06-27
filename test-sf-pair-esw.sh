@@ -23,16 +23,20 @@ function cleanup() {
 
 trap cleanup EXIT
 
+function get_all_sf_pci() {
+    devlink port show | grep sfnum | awk {'print $1'}
+}
+
 function set_sf_esw() {
     local count=$1
-    local i ids a sf
+    local i ids a sf port
 
     title "Set SF eswitch"
 
     # Failing to change fw with sf inactive but works with unbind.
     unbind_sfs
-    for i in `seq 68 $((68-1+$count))`; do
-        local port="pci/0000:08:00.0/327$i"
+    for port in `get_all_sf_pci`; do
+        port=${port%:}
         devlink_port_eswitch_enable $port
         devlink_port_show $port
     done
