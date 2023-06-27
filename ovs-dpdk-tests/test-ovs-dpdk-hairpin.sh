@@ -30,7 +30,7 @@ function config() {
 function add_openflow_rules() {
     ovs-ofctl del-flows br-phy
     ovs-ofctl add-flow br-phy "arp,actions=normal"
-    ovs-ofctl add-flow br-phy "in_port=rep0,ip,actions=mod_nw_src=$FAKE_IP,in_port"
+    ovs-ofctl add-flow br-phy "in_port=$REP,ip,actions=mod_nw_src=$FAKE_IP,in_port"
     debug "OVS flow rules:"
     ovs-ofctl dump-flows br-phy --color
 }

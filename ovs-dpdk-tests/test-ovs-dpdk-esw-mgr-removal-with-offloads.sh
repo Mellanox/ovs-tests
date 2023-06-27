@@ -35,9 +35,9 @@ function config() {
 function del_and_add_pf() {
     local pci=$(get_pf_pci)
 
-    debug "Del port pf"
-    ovs-vsctl del-port pf
-    debug "Add port pf"
+    debug "Del port $NIC"
+    ovs-vsctl del-port $NIC
+    debug "Add port $NIC"
     ovs_add_pf
 }
 

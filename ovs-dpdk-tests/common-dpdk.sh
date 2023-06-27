@@ -41,24 +41,31 @@ function configure_dpdk_rep_ports() {
     local reps=$1
     local bridge=$2
     local pci=${3-$PCI}
+    local nic=$NIC
+    local rep
+
+    if [ "$pci" == "$PCI2" ]; then
+        nic=$NIC2
+    fi
 
     for (( i=0; i<$reps; i++ )); do
+        rep=`get_rep $i $nic`
         if [ "${VDPA}" != "1" ]; then
-            ovs-vsctl add-port $bridge rep$i -- set Interface rep$i type=dpdk options:dpdk-devargs=$pci,representor=[$i],$DPDK_PORT_EXTRA_ARGS
+            ovs-vsctl add-port $bridge "$rep" -- set Interface "$rep" type=dpdk options:dpdk-devargs=$pci,representor=[$i],$DPDK_PORT_EXTRA_ARGS
         else
             local vf_num="VF"
             vf_num+=$((i+1))
             local vfpci=$(get_vf_pci ${!vf_num})
             if [ "$i" == "0" ]; then
-                ovs-vsctl add-port $bridge rep$i -- \
-                    set Interface rep$i type=dpdkvdpa options:vdpa-socket-path=/tmp/sock$(($i+1)) \
+                ovs-vsctl add-port $bridge "$rep" -- \
+                    set Interface "$rep" type=dpdkvdpa options:vdpa-socket-path=/tmp/sock$(($i+1)) \
                     options:vdpa-accelerator-devargs=$vfpci \
                     options:dpdk-devargs=$pci,representor=[$i],$DPDK_PORT_EXTRA_ARGS
             else
-                ovs-vsctl add-port $bridge rep${i}_vdpa -- \
-                    set Interface rep${i}_vdpa type=dpdkvdpa options:vdpa-socket-path=/tmp/sock$(($i+1)) \
+                ovs-vsctl add-port $bridge "$rep"_vdpa -- \
+                    set Interface "$rep"_vdpa type=dpdkvdpa options:vdpa-socket-path=/tmp/sock$(($i+1)) \
                     options:vdpa-accelerator-devargs=$vfpci
-                ovs-vsctl add-port $bridge rep$i -- set Interface rep$i type=dpdk options:dpdk-devargs=$pci,representor=[$i],$DPDK_PORT_EXTRA_ARGS
+                ovs-vsctl add-port $bridge "$rep" -- set Interface "$rep" type=dpdk options:dpdk-devargs=$pci,representor=[$i],$DPDK_PORT_EXTRA_ARGS
             fi
         fi
     done
@@ -78,8 +85,14 @@ function ovs_add_bridge() {
 
 function ovs_add_pf() {
     local bridge=${1:-br-phy}
-    local pci=$(get_pf_pci)
-    ovs-vsctl add-port $bridge pf -- set Interface pf type=dpdk options:dpdk-devargs=$pci,$DPDK_PORT_EXTRA_ARGS
+    local pci=${2:-`get_pf_pci`}
+    local nic=$NIC
+
+    if [ "$pci" == "$PCI2" ];then
+        nic=$NIC2
+    fi
+
+    ovs-vsctl add-port $bridge $nic -- set Interface $nic type=dpdk options:dpdk-devargs=$pci,$DPDK_PORT_EXTRA_ARGS
 }
 
 function config_remote_bridge_tunnel() {

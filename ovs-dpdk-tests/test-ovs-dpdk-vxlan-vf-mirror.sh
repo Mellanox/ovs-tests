@@ -26,7 +26,7 @@ function config() {
     config_tunnel "vxlan"
     config_remote_tunnel "vxlan"
     config_local_tunnel_ip $LOCAL_TUN_IP br-phy
-    add_local_mirror rep1 1 br-int
+    add_local_mirror $REP2 1 br-int
 }
 
 function run() {

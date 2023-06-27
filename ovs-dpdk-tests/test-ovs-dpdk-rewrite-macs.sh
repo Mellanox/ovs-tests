@@ -42,8 +42,8 @@ function add_openflow_rules() {
     debug "Adding mac-rewrite openflow rules"
     ovs-ofctl del-flows br-phy
     ovs-ofctl add-flow br-phy "arp,actions=normal"
-    ovs-ofctl add-flow br-phy "table=0,in_port=rep0,ip,dl_dst=$FAKE_MAC1,actions=mod_dl_dst=$vf2_mac,rep1"
-    ovs-ofctl add-flow br-phy "table=0,in_port=rep1,ip,dl_dst=$FAKE_MAC2,actions=mod_dl_dst=$vf1_mac,rep0"
+    ovs-ofctl add-flow br-phy "table=0,in_port=$REP,ip,dl_dst=$FAKE_MAC1,actions=mod_dl_dst=$vf2_mac,$REP2"
+    ovs-ofctl add-flow br-phy "table=0,in_port=$REP2,ip,dl_dst=$FAKE_MAC2,actions=mod_dl_dst=$vf1_mac,$REP"
     debug "OVS flow rules:"
     ovs-ofctl dump-flows br-phy --color
 }

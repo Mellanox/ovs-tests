@@ -24,9 +24,9 @@ function config_openflow_rules() {
                ovs-ofctl add-flow br-int \"table=0,in_port=geneve0,ip,tun_metadata0=0x1234,ct_state=-trk actions=ct(table=1)\";
                ovs-ofctl add-flow br-int \"table=1,in_port=geneve0,ip,tun_metadata0=0x1234,ct_state=+trk+new actions=ct(commit),normal\";
                ovs-ofctl add-flow br-int \"table=1,in_port=geneve0,ip,tun_metadata0=0x1234,ct_state=+trk+est actions=normal\";
-               ovs-ofctl add-flow br-int \"table=0,in_port=rep0,ip,ct_state=-trk actions=ct(table=1)\";
-               ovs-ofctl add-flow br-int \"table=1,in_port=rep0,ip,ct_state=+trk+new actions=set_field:0x1234->tun_metadata0,ct(commit),normal\";
-               ovs-ofctl add-flow br-int \"table=1,in_port=rep0,ip,ct_state=+trk+est actions=set_field:0x1234->tun_metadata0,normal\";
+               ovs-ofctl add-flow br-int \"table=0,in_port=$REP,ip,ct_state=-trk actions=ct(table=1)\";
+               ovs-ofctl add-flow br-int \"table=1,in_port=$REP,ip,ct_state=+trk+new actions=set_field:0x1234->tun_metadata0,ct(commit),normal\";
+               ovs-ofctl add-flow br-int \"table=1,in_port=$REP,ip,ct_state=+trk+est actions=set_field:0x1234->tun_metadata0,normal\";
                ovs-ofctl dump-flows br-int --color"
 
     if [ "$exec_on_remote" = true ]; then

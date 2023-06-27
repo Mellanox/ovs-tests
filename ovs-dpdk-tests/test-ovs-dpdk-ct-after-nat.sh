@@ -25,7 +25,7 @@ function config() {
 
 function run() {
     config
-    ovs_add_ct_after_nat_rules br-phy $LOCAL_IP $DUMMY_IP rep1 rep0
+    ovs_add_ct_after_nat_rules br-phy $LOCAL_IP $DUMMY_IP $REP2 $REP
     verify_ping
     generate_traffic local $DUMMY_IP ns1
 }

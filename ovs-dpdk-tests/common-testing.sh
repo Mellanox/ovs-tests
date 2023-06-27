@@ -18,8 +18,8 @@ function ovs_add_ct_after_nat_rules() {
     local bridge=$1
     local ip=$2
     local dummy_ip=$3
-    local rep=${4:-"rep0"}
-    local rep2=${5:-"rep1"}
+    local rep=${4:-"$REP"}
+    local rep2=${5:-"$REP2"}
 
    ovs-ofctl del-flows $bridge
    ovs-ofctl add-flow $bridge "table=0,priority=1,actions=drop"
@@ -38,8 +38,8 @@ function ovs_add_ipv6_mod_hdr_rules() {
     local peer_ipv6=$2
     local dummy_peer_ipv6=$3
     local bridge=${4:-"br-phy"}
-    local rep0=${5:-"rep0"}
-    local rep1=${6:-"rep1"}
+    local rep0=${5:-"$REP"}
+    local rep1=${6:-"$REP2"}
 
     debug "Adding ipv6_mod_hdr rules"
     ovs-ofctl del-flows $bridge
@@ -173,8 +173,8 @@ function ovs_add_bidir_meter_rules() {
     local bridge=${1:-"br-phy"}
     local meter_id1=${2:-1}
     local meter_id2=${3:-2}
-    local in_port1=${4:-"rep0"}
-    local in_port2=${5:-"rep1"}
+    local in_port1=${4:-"$REP"}
+    local in_port2=${5:-"$REP2"}
 
     ovs-ofctl del-flows $bridge
     exec_dbg "ovs-ofctl -O openflow13 add-flow br-phy "table=0,in_port=${in_port1},actions=meter:${meter_id1},${in_port2}""

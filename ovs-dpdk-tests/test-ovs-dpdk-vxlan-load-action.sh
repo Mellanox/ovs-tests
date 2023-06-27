@@ -52,7 +52,7 @@ function add_openflow_rules() {
     ovs-ofctl del-flows br-int
     ovs-ofctl add-flow br-int "arp,actions=NORMAL"
     ovs-ofctl add-flow br-int "table=0, idle_age=0, priority=200,tun_id=$TUNNNEL_ID,in_port=vxlan0 actions=load:0x1->OXM_OF_METADATA[],resubmit(,100)"
-    ovs-ofctl add-flow br-int "table=0, priority=100,idle_age=0,in_port=rep0 actions=load:0x4f6->NXM_NX_REG6[],load:0x1->OXM_OF_METADATA[],load:0->OXM_OF_IN_PORT[],resubmit(,0)"
+    ovs-ofctl add-flow br-int "table=0, priority=100,idle_age=0,in_port=$REP actions=load:0x4f6->NXM_NX_REG6[],load:0x1->OXM_OF_METADATA[],load:0->OXM_OF_IN_PORT[],resubmit(,0)"
     ovs-ofctl add-flow br-int "table=0, priority=1,idle_age=0,actions=resubmit(,5)"
     ovs-ofctl add-flow br-int "table=5, priority=1,idle_age=0,actions=resubmit(,10)"
     ovs-ofctl add-flow br-int "table=10, priority=1,idle_age=0,actions=resubmit(,17)"
@@ -66,7 +66,7 @@ function add_openflow_rules() {
     ovs-ofctl add-flow br-int "table=105, idle_age=0, priority=1 actions=resubmit(,112)"
     ovs-ofctl add-flow br-int "table=112, idle_age=0, priority=1 actions=resubmit(,114)"
     ovs-ofctl add-flow br-int "table=114, idle_age=0, priority=1 actions=resubmit(,115)"
-    ovs-ofctl add-flow br-int "table=115, idle_age=0, priority=100,reg7=0x4f6 actions=output:rep0"
+    ovs-ofctl add-flow br-int "table=115, idle_age=0, priority=100,reg7=0x4f6 actions=output:$REP"
 
     ovs-ofctl dump-flows br-int --color
 }

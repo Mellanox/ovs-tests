@@ -34,9 +34,9 @@ function config() {
 
 function add_openflow_rules() {
     ovs-ofctl del-flows br-phy
-    ovs-ofctl add-group br-phy group_id=1,type=select,bucket=watch_port=rep1,output:rep1,bucket=watch_port=rep-dummy,output:rep-dummy
-    ovs-ofctl add-flow br-phy "in_port=rep0,actions=group=1"
-    ovs-ofctl add-flow br-phy "in_port=rep1,actions=rep0"
+    ovs-ofctl add-group br-phy group_id=1,type=select,bucket=watch_port=$REP2,output:$REP2,bucket=watch_port=rep-dummy,output:rep-dummy
+    ovs-ofctl add-flow br-phy "in_port=$REP,actions=group=1"
+    ovs-ofctl add-flow br-phy "in_port=$REP2,actions=$REP"
 
     debug "OVS groups:"
     ovs-ofctl dump-groups br-phy --color

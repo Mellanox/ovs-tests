@@ -35,8 +35,8 @@ function add_openflow_rules() {
     ovs-ofctl del-flows br-phy
     ovs-ofctl add-group br-phy group_id=1,type=select,bucket=watch_port=pf,output:pf,bucket=watch_port=rep-dummy,output:rep-dummy
 
-    ovs-ofctl add-flow br-phy in_port=rep0,actions=vxlan0
-    ovs-ofctl add-flow br-phy in_port=vxlan0,actions=rep0
+    ovs-ofctl add-flow br-phy in_port=$REP,actions=vxlan0
+    ovs-ofctl add-flow br-phy in_port=vxlan0,actions=$REP
 
     ovs-ofctl add-flow br-phy in_port=LOCAL,actions=group:1
     ovs-ofctl add-flow br-phy in_port=pf,actions=LOCAL
