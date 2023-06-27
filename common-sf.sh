@@ -22,7 +22,7 @@ __irq_reguest_debug_func
 function sf_get_rep() {
     local sfnum=$1
     local pfnum=${2:-0}
-    [ -z "$sfnum" ] && err "sf_get_rep: Expected sfnum" && return
+    [ -z "$sfnum" ] && return
     $sfcmd port show | grep "pfnum $pfnum sfnum $sfnum" | grep -E -o "netdev [a-z0-9]+" | awk {'print $2'}
 }
 
@@ -142,6 +142,10 @@ function __create_sfs() {
         create_sf $pfnum $i || break
 
         local rep=$(sf_get_rep $i)
+        if [ -z "$rep" ]; then
+            err "Failed to get sf rep for pfnum $pfnum sfnum $i"
+            break
+        fi
         [ "$sf_disable_roce" == 1 ] && sf_disable_roce $rep
 
         sf_activate $rep
