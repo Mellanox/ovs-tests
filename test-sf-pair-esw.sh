@@ -85,9 +85,18 @@ function verify_single_ib_device() {
 
 function config() {
     local count=$1
+    local direction=${2:-""}
 
     title "Config"
-    create_sfs $count
+
+    if [ -z $direction ]; then
+        create_sfs $count
+    elif [ "$direction" == "network" ]; then
+        create_network_direction_sfs $count
+    elif [ "$direction" == "host" ]; then
+        create_host_direction_sfs $count
+    fi
+
     set_sf_esw $count
     reload_sfs_into_ns
     set_sf_switchdev
@@ -125,8 +134,18 @@ function test_ping() {
 
 enable_switchdev
 test_count=3
+
 config $test_count
 test_ping $test_count
+
+cleanup
+config $test_count "network"
+test_ping $test_count
+
+cleanup
+config $test_count "host"
+test_ping $test_count
+
 trap - EXIT
 cleanup
 test_done
