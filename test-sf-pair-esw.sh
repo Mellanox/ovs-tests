@@ -40,32 +40,28 @@ function set_sf_esw() {
 
     fail_if_err
 
-    for i in `seq $count`; do
-        a="SF$i"
-        sf=${!a}
-        echo "SF $sf phys_switch_id `cat /sys/class/net/$sf/phys_switch_id`" || fail "Failed to get SF switch id"
+    for sf_dev in `get_aux_sf_devices`; do
+        sf=`basename $sf_dev/net/*`
+        echo "SF $sf phys_switch_id `cat $sf_dev/net/*/phys_switch_id`" || fail "Failed to get SF switch id"
     done
 }
 
 function set_sf_switchdev() {
-    local count=$1
-    local i
-
     title "Set SF switchdev"
 
-    for i in `seq 2 $((1+$count))`; do
-        ip netns exec ns0 devlink dev eswitch set auxiliary/mlx5_core.sf.$i mode switchdev || fail "Failed to config SF switchdev"
+    for sf_dev in `get_aux_sf_devices`; do
+        local i=`basename $sf_dev`
+        ip netns exec ns0 devlink dev eswitch set auxiliary/$i mode switchdev || fail "Failed to config SF switchdev"
     done
 }
 
 function reload_sfs_into_ns() {
-    local count=$1
-
     title "Reload SF into ns0"
 
     ip netns add ns0
-    for i in `seq 2 $((1+$count))`; do
-        devlink dev reload auxiliary/mlx5_core.sf.$i netns ns0 || fail "Failed to reload SF"
+    for sf_dev in `get_aux_sf_devices`; do
+        local i=`basename $sf_dev`
+        devlink dev reload auxiliary/$i netns ns0 || fail "Failed to reload SF"
     done
 }
 
@@ -89,8 +85,8 @@ function config() {
     title "Config"
     create_sfs $count
     set_sf_esw $count
-    reload_sfs_into_ns $count
-    set_sf_switchdev $count
+    reload_sfs_into_ns
+    set_sf_switchdev
     log "Wait for shared fdb wq"
     sleep 3
     verify_single_ib_device $((count*2))
