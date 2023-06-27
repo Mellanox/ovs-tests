@@ -36,26 +36,32 @@ function cleanup_remote_tunnel() {
 
 function config_remote_tunnel() {
     local tnl_type=$1
+    local tunnel_dev=${2:-"$TUNNEL_DEV"}
+    local tunnel_id=${3:-"$TUNNEL_ID"}
+    local local_tunnel_ip=${4:-"$LOCAL_TUN_IP"}
+    local remote_tunnel_ip=${5:-"$REMOTE_TUNNEL_IP"}
+    local remote_nic=${6:-"$REMOTE_NIC"}
+    local remote_ip=${7:-"$REMOTE_IP"}
 
-    on_remote ip link del $TUNNEL_DEV &>/dev/null
+    on_remote ip link del $tunnel_dev &>/dev/null
 
     if [ "$tnl_type" == "geneve" ]; then
-         on_remote ip link add $TUNNEL_DEV type geneve id $TUNNEL_ID remote $LOCAL_TUN_IP dstport 6081
+         on_remote ip link add $tunnel_dev type geneve id $tunnel_id remote $local_tunnel_ip dstport 6081
     elif [ "$tnl_type" == "gre" ]; then
-         on_remote ip link add $TUNNEL_DEV type gretap key $TUNNEL_ID remote $LOCAL_TUN_IP
+         on_remote ip link add $tunnel_dev type gretap key $tunnel_id remote $local_tunnel_ip
     elif [ "$tnl_type" == "vxlan" ]; then
-         on_remote ip link add $TUNNEL_DEV type vxlan id $TUNNEL_ID remote $LOCAL_TUN_IP dstport 4789
+         on_remote ip link add $tunnel_dev type vxlan id $tunnel_id remote $local_tunnel_ip dstport 4789
     else
          err "Unknown tunnel $tnl_type"
          return 1
     fi
 
-    on_remote "ip a flush dev $REMOTE_NIC
-               ip a add $REMOTE_TUNNEL_IP/24 dev $REMOTE_NIC
-               ip a add $REMOTE_IP/24 dev $TUNNEL_DEV
-               ip l set dev $TUNNEL_DEV up
-               ip link set dev $TUNNEL_DEV mtu 1400
-               ip l set dev $REMOTE_NIC up"
+    on_remote "ip a flush dev $remote_nic
+               ip a add $remote_tunnel_ip/24 dev $remote_nic
+               ip a add $remote_ip/24 dev $tunnel_dev
+               ip l set dev $tunnel_dev up
+               ip link set dev $tunnel_dev mtu 1400
+               ip l set dev $remote_nic up"
 }
 
 function config_tunnel() {
