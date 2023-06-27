@@ -108,7 +108,7 @@ function create_sf() {
 function create_host_direction_sfs() {
     local count=$1
     local start=$SF_DIRECTION_HOST
-    local end=$((start+count))
+    local end=$((start+count-1))
 
     __create_sfs $start $end
 }
@@ -116,7 +116,7 @@ function create_host_direction_sfs() {
 function create_network_direction_sfs() {
     local count=$1
     local start=$SF_DIRECTION_NETWORK
-    local end=$((start+count))
+    local end=$((start+count-1))
 
     __create_sfs $start $end
 }
@@ -124,7 +124,7 @@ function create_network_direction_sfs() {
 function create_sfs() {
     local count=$1
     local start=1
-    local end=$((start+count))
+    local end=$count
 
     __create_sfs $start $end
 }
@@ -132,7 +132,7 @@ function create_sfs() {
 function __create_sfs() {
     local start=$1
     local end=$2
-    local count=$((end-start))
+    local count=$((end-start+1))
     local pfnum=0
     local i netdev
 
