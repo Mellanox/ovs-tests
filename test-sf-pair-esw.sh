@@ -23,12 +23,7 @@ function cleanup() {
 
 trap cleanup EXIT
 
-function get_all_sf_pci() {
-    devlink port show | grep sfnum | awk {'print $1'}
-}
-
 function set_sf_esw() {
-    local count=$1
     local i ids a sf port
 
     title "Set SF eswitch"
@@ -47,25 +42,6 @@ function set_sf_esw() {
     for sf_dev in `get_aux_sf_devices`; do
         sf=`basename $sf_dev/net/*`
         echo "SF $sf phys_switch_id `cat $sf_dev/net/*/phys_switch_id`" || fail "Failed to get SF switch id"
-    done
-}
-
-function set_sf_switchdev() {
-    title "Set SF switchdev"
-
-    for sf_dev in `get_aux_sf_devices`; do
-        local i=`basename $sf_dev`
-        ip netns exec ns0 devlink dev eswitch set auxiliary/$i mode switchdev || fail "Failed to config SF switchdev"
-    done
-}
-
-function reload_sfs_into_ns() {
-    title "Reload SF into ns0"
-
-    ip netns add ns0
-    for sf_dev in `get_aux_sf_devices`; do
-        local i=`basename $sf_dev`
-        devlink dev reload auxiliary/$i netns ns0 || fail "Failed to reload SF"
     done
 }
 

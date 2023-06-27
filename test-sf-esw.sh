@@ -25,24 +25,21 @@ function config() {
     title "Set SF eswitch"
 
     # Failing to change fw with sf inactive but works with unbind.
-#    sf_inactivate pci/0000:08:00.0/32768
     unbind_sfs
-    local port="pci/0000:08:00.0/32768"
-    devlink_port_eswitch_enable $port
-    devlink_port_show $port
-#    sf_activate pci/0000:08:00.0/32768
+    local port
+    for port in `get_all_sf_pci`; do
+        port=${port%:}
+        devlink_port_eswitch_enable $port
+        devlink_port_show $port
+    done
     bind_sfs
     echo "SF phys_switch_id `cat /sys/class/net/$SF1/phys_switch_id`" || err "Failed to get SF switch id"
     fail_if_err
 
-    title "Reload SF into ns0"
-    ip netns add ns0
-    devlink dev reload auxiliary/mlx5_core.sf.2 netns ns0 || fail "Failed to reload SF"
+    reload_sfs_into_ns
+    set_sf_switchdev
+
     SF1="eth0"
-
-    title "Set SF switchdev"
-    ip netns exec ns0 devlink dev eswitch set auxiliary/mlx5_core.sf.2 mode switchdev || fail "Failed to config SF switchdev"
-
     ip netns exec ns0 ifconfig $SF1 $IP1/24 up
     ifconfig $SF_REP1 $IP2 up
 }
