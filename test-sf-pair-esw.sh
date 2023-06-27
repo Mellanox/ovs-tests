@@ -87,10 +87,12 @@ function config() {
 function test_ping_single() {
     local id=$1
     local a sf sf_rep ip1 ip2
+    local num=$((-1+$id))
 
-    sf="eth$((-1+$id))"
-    a="SF_REP$id"
-    sf_rep=${!a}
+    sf="eth$num"
+
+    local reps=`sf_get_all_reps`
+    sf_rep=$(echo $reps | cut -d" " -f$id)
 
     ip1="$id.$id.$id.1"
     ip2="$id.$id.$id.2"
