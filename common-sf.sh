@@ -89,10 +89,10 @@ function delete_sf() {
 
 # For SF direction
 # 1-65535 (0xffff) no direction
-# 65536-131071 (0x1ffff) - Host SF
-# 131072 (0x20000) and up - Network SF
-SF_DIRECTION_HOST=65536
-SF_DIRECTION_NETWORK=131072
+# 65536-131071 (0x1ffff) - Network SF
+# 131072 (0x20000) and up - Host SF
+SF_DIRECTION_NETWORK=65536
+SF_DIRECTION_HOST=131072
 
 function create_sf() {
     local pfnum=$1
