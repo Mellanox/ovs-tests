@@ -87,6 +87,13 @@ function delete_sf() {
     $sfcmd port del $1 || err "Failed to delete sf $1"
 }
 
+# For SF direction
+# 1-65535 (0xffff) no direction
+# 65536-131071 (0x1ffff) - Host SF
+# 131072 (0x20000) and up - Network SF
+SF_DIRECTION_HOST=65536
+SF_DIRECTION_NETWORK=131072
+
 function create_sf() {
     local pfnum=$1
     local sfnum=$2
@@ -98,23 +105,40 @@ function create_sf() {
     sleep 1
 }
 
-function sf_reload_auxiliary_devices() {
-    local sf_dev=$1
-    sf_set_param $sf_dev enable_eth true driverinit
-# currently breaking mlnx ofed. need to check its supported before enabling or skip err
-#    sf_set_param $sf_dev enable_vnet true driverinit
-#    sf_set_param $sf_dev enable_rdma true driverinit
-    sf_reload_aux $sf_dev
+function create_host_direction_sfs() {
+    local count=$1
+    local start=$SF_DIRECTION_HOST
+    local end=$((start+count))
+
+    __create_sfs $start $end
+}
+
+function create_network_direction_sfs() {
+    local count=$1
+    local start=$SF_DIRECTION_NETWORK
+    local end=$((start+count))
+
+    __create_sfs $start $end
 }
 
 function create_sfs() {
     local count=$1
+    local start=1
+    local end=$((start+count))
+
+    __create_sfs $start $end
+}
+
+function __create_sfs() {
+    local start=$1
+    local end=$2
+    local count=$((end-start))
     local pfnum=0
     local i netdev
 
-    title "Create $count SFs"
+    title "Create $count SFs start sfnum $start"
 
-    for i in `seq $count`; do
+    for i in `seq $start $end`; do
         create_sf $pfnum $i || break
 
         local rep=$(sf_get_rep $i)
@@ -143,6 +167,15 @@ function create_sfs() {
     fi
 
     fail_if_err "Failed to create sfs"
+}
+
+function sf_reload_auxiliary_devices() {
+    local sf_dev=$1
+    sf_set_param $sf_dev enable_eth true driverinit
+# currently breaking mlnx ofed. need to check its supported before enabling or skip err
+#    sf_set_param $sf_dev enable_vnet true driverinit
+#    sf_set_param $sf_dev enable_rdma true driverinit
+    sf_reload_aux $sf_dev
 }
 
 function bind_sfs() {
