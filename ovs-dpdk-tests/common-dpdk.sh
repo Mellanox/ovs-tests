@@ -7,13 +7,14 @@ DPDK_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
 . $DPDK_DIR/common-testing.sh
 
 VDPA_DEV_NAME="eth2"
-
-if [ "$DPDK" == "1" ]; then
-    DPDK_PORT_EXTRA_ARGS="dv_xmeta_en=1"
-fi
+OFFLOAD_FILTER="offloaded:yes"
 
 if [ "$DOCA" == "1" ]; then
     DPDK_PORT_EXTRA_ARGS="dv_xmeta_en=4,dv_flow_en=2"
+    OFFLOAD_FILTER="$OFFLOAD_FILTER.*dp:doca"
+elif [ "$DPDK" == "1" ]; then
+    DPDK_PORT_EXTRA_ARGS="dv_xmeta_en=1"
+    OFFLOAD_FILTER="$OFFLOAD_FILTER.*dp:dpdk"
 fi
 
 function set_ovs_dpdk_debug_logs() {
@@ -355,7 +356,7 @@ function check_dpdk_offloads() {
     local x=$(cat /tmp/filtered.txt | wc -l)
     debug "Number of filtered rules: $x"
 
-    cat /tmp/filtered.txt | grep 'offloaded:yes' &> /tmp/offloaded.txt
+    cat /tmp/filtered.txt | grep -E "$OFFLOAD_FILTER" &> /tmp/offloaded.txt
     local y=$(cat /tmp/offloaded.txt | wc -l)
     debug "Number of offloaded rules: $y"
 
