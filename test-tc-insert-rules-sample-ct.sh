@@ -37,7 +37,7 @@ function run() {
     tc filter show dev $REP ingress
 
     verify_in_hw $REP 2
-    verify_not_in_hw $REP 3
+    verify_in_hw $REP 3
 
     reset_tc $REP
 }
