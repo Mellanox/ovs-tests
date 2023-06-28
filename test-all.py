@@ -1638,7 +1638,7 @@ def main():
 
     for iteration in range(args.loops):
         failed = run_tests(iteration)
-        if failed:
+        if args.stop and failed:
             return 1
     # end loops
 
