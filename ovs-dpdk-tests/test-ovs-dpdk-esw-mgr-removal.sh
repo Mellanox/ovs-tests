@@ -42,6 +42,8 @@ function run() {
 
     del_and_add_pf
 
+    sleep 5
+
     verify_ping
 
     generate_traffic "local" $LOCAL_IP ns1
