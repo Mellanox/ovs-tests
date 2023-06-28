@@ -23,17 +23,8 @@ function config() {
     start_clean_openvswitch
 
     config_tunnel "geneve"
+    config_remote_tunnel "geneve"
     config_local_tunnel_ip $LOCAL_TUN_IP br-phy
-}
-
-function config_remote() {
-    on_remote ip link del $TUNNEL_DEV &>/dev/null
-    on_remote ip link add $TUNNEL_DEV type geneve id $TUNNEL_ID remote $LOCAL_TUN_IP dstport 6081
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip a add $REMOTE_TUNNEL_IP/24 dev $REMOTE_NIC
-    on_remote ip a add $REMOTE_IP/24 dev $TUNNEL_DEV
-    on_remote ip l set dev $TUNNEL_DEV up
-    on_remote ip l set dev $REMOTE_NIC up
 }
 
 function add_openflow_rules() {
@@ -48,7 +39,6 @@ function add_openflow_rules() {
 
 function run() {
     config
-    config_remote
     add_openflow_rules
 
     verify_ping $REMOTE_IP ns0

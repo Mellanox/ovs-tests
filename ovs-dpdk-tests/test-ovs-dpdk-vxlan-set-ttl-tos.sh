@@ -26,22 +26,12 @@ function config() {
     config_tunnel "vxlan"
     ovs-vsctl set interface vxlan0 options:ttl=22 options:tos=0x24
     config_local_tunnel_ip $LOCAL_TUN_IP br-phy
+    config_remote_tunnel "vxlan"
     ovs-vsctl show
-}
-
-function config_remote() {
-    on_remote ip link del $TUNNEL_DEV &>/dev/null
-    on_remote ip link add $TUNNEL_DEV type vxlan id $TUNNEL_ID remote $LOCAL_TUN_IP dstport 4789
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip a add $REMOTE_TUNNEL_IP/24 dev $REMOTE_NIC
-    on_remote ip a add $REMOTE_IP/24 dev $TUNNEL_DEV
-    on_remote ip l set dev $TUNNEL_DEV up
-    on_remote ip l set dev $REMOTE_NIC up
 }
 
 function run() {
     config
-    config_remote
 
     on_remote "timeout 3 tcpdump -qnnei $REMOTE_NIC -c 10 \"ip and ip[8]=22 and ip[1]=0x24\" -vvv -Q in" &
     pid_remote=$!
