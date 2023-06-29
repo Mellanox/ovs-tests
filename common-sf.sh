@@ -110,6 +110,7 @@ function create_host_direction_sfs() {
     local start=$SF_DIRECTION_HOST
     local end=$((start+count-1))
 
+    title "Create host direction SFs"
     __create_sfs $start $end
 }
 
@@ -118,6 +119,7 @@ function create_network_direction_sfs() {
     local start=$SF_DIRECTION_NETWORK
     local end=$((start+count-1))
 
+    title "Create network direction SFs"
     __create_sfs $start $end
 }
 
