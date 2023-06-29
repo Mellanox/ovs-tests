@@ -126,11 +126,11 @@ function run() {
 
     title "run iperf"
     t=5
-    on_remote timeout $((t+2)) iperf -s -t $t &
+    on_remote timeout $((t+2)) iperf3 -s -D -J
     sleep 2
-    ip netns exec ns0 timeout $((t+2)) iperf -c $REMOTE -t $t -i 1 -y c -b 1G | tee $file2
+    ip netns exec ns0 timeout $((t+2)) iperf3 -c $REMOTE -t $t -i 1 -J --get-server-output -b 1G | tee $file2
     # bandwidth is 1G, expect bigger than 0.5G.
-    c=$(awk -F, '$NF>500000000 {print $NF}' $file2 | wc -l)
+    c=$(cat $file2 | jq '.intervals[].sum.bits_per_second' | awk '$NF>500000000.0 {print $NF}' |  wc -l)
     (( c < t )) && err "iperf failed, no traffic"
 }
 
