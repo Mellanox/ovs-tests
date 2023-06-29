@@ -120,7 +120,12 @@ function test_ping() {
 enable_switchdev
 test_count=2
 
-config $test_count
+cleanup
+config $test_count "network"
+test_ping $test_count
+
+cleanup
+config $test_count "host"
 test_ping $test_count
 
 trap - EXIT
