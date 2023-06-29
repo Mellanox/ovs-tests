@@ -74,6 +74,10 @@ function config() {
         create_network_direction_sfs $count
     elif [ "$direction" == "host" ]; then
         create_host_direction_sfs $count
+    elif [ "$direction" == "both" ]; then
+        create_network_direction_sfs $count
+        create_host_direction_sfs $count
+        ((count+=count))
     fi
 
     set_sf_esw $count
@@ -114,9 +118,14 @@ function test_ping() {
 }
 
 enable_switchdev
-test_count=3
+test_count=2
 
 config $test_count
+test_ping $test_count
+
+cleanup
+config $test_count "both"
+((test_count+=test_count))
 test_ping $test_count
 
 cleanup
