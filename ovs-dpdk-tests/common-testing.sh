@@ -453,6 +453,9 @@ function cleanup_test() {
     __cleanup
     cleanup_e2e_cache
     cleanup_ct_ct_nat_offload
+    if [ "$tunnel_device_name" != "" ]; then
+        cleanup_remote_tunnel
+    fi
     cleanup_remote_tunnel $tunnel_device_name
     if [ "${VDPA}" == "1" ]; then
         on_vm1 ip a flush dev $VDPA_DEV_NAME
