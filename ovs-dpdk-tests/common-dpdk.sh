@@ -37,26 +37,30 @@ function require_dpdk() {
 require_dpdk
 set_ovs_dpdk_debug_logs
 
-function get_nic_from_pci() {
+function get_port_from_pci() {
     local pci=${1-$PCI}
-    local nic=$NIC
+    local rep=$2
+    local port=pf0
 
     if [ "$pci" == "$PCI2" ]; then
-        nic=$NIC2
+        port=pf1
     fi
 
-    echo $nic
+    if [ -n "$rep" ]; then
+        port+="_$rep"
+    fi
+
+    echo "ib_$port"
 }
 
 function configure_dpdk_rep_ports() {
     local reps=$1
     local bridge=$2
     local pci=${3-$PCI}
-    local nic=`get_nic_from_pci $pci`
-    local rep
 
     for (( i=0; i<$reps; i++ )); do
-        rep=`get_rep $i $nic`
+        local rep=`get_port_from_pci $pci $i`
+
         if [ "${VDPA}" != "1" ]; then
             ovs-vsctl add-port $bridge "$rep" -- set Interface "$rep" type=dpdk options:dpdk-devargs=$pci,representor=[$i],$DPDK_PORT_EXTRA_ARGS
         else
@@ -93,19 +97,19 @@ function ovs_add_bridge() {
 function ovs_add_pf() {
     local bridge=${1:-br-phy}
     local pci=${2:-`get_pf_pci`}
-    local nic=`get_nic_from_pci $pci`
+    local port=`get_port_from_pci $pci`
 
-    debug "Add ovs pf port $nic"
-    ovs-vsctl add-port $bridge $nic -- set Interface $nic type=dpdk options:dpdk-devargs=$pci,$DPDK_PORT_EXTRA_ARGS
+    debug "Add ovs pf port $port"
+    ovs-vsctl add-port $bridge $port -- set Interface $port type=dpdk options:dpdk-devargs=$pci,$DPDK_PORT_EXTRA_ARGS
 }
 
 function ovs_del_pf() {
     local bridge=${1:-br-phy}
     local pci=${2:-`get_pf_pci`}
-    local nic=`get_nic_from_pci $pci`
+    local port=`get_port_from_pci $pci`
 
-    debug "Del ovs pf port $nic"
-    ovs-vsctl del-port $bridge $nic
+    debug "Del ovs pf port $port"
+    ovs-vsctl del-port $bridge $port
 }
 
 function config_remote_bridge_tunnel() {
