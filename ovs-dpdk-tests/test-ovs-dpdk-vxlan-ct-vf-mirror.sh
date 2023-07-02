@@ -26,7 +26,7 @@ function config() {
     config_tunnel "vxlan"
     config_remote_tunnel "vxlan"
     config_local_tunnel_ip $LOCAL_TUN_IP br-phy
-    add_local_mirror $REP2 1 br-int
+    add_local_mirror $IB_PF0_PORT1 1 br-int
 }
 
 function add_openflow_rules() {

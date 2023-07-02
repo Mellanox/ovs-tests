@@ -38,7 +38,7 @@ function config() {
 
 function run() {
     config
-    ovs_add_ct_dnat_rules "$REP" "$REP2" $REMOTE_IP "ip"
+    ovs_add_ct_dnat_rules "$IB_PF0_PORT0" "$IB_PF0_PORT1" $REMOTE_IP "ip"
 
     # icmp
     verify_ping $DUMMY_IP_ADDR ns0 1700

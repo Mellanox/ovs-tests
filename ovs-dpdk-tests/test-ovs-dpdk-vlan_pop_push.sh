@@ -36,8 +36,8 @@ function config() {
     ip netns exec ns0 ip link add $VF.$local_vlan link $VF type vlan id $local_vlan
     ip netns exec ns0 ifconfig $VF.$local_vlan $LOCAL_IP/24
 
-    ovs-ofctl -O OpenFlow13 add-flow br-phy in_port=$NIC,dl_vlan=$remote_vlan,actions=strip_vlan,push_vlan:0x8100,mod_vlan_vid:$local_vlan,$REP
-    ovs-ofctl -O OpenFlow13 add-flow br-phy in_port=$REP,dl_vlan=$local_vlan,actions=strip_vlan,push_vlan:0x8100,mod_vlan_vid:$remote_vlan,$NIC
+    ovs-ofctl -O OpenFlow13 add-flow br-phy in_port=`get_port_from_pci`,dl_vlan=$remote_vlan,actions=strip_vlan,push_vlan:0x8100,mod_vlan_vid:$local_vlan,$IB_PF0_PORT0
+    ovs-ofctl -O OpenFlow13 add-flow br-phy in_port=$IB_PF0_PORT0,dl_vlan=$local_vlan,actions=strip_vlan,push_vlan:0x8100,mod_vlan_vid:$remote_vlan,`get_port_from_pci`
 
 }
 

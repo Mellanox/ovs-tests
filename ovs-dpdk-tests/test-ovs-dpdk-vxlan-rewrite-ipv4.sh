@@ -40,8 +40,8 @@ function add_openflow_rules() {
     ovs-ofctl del-flows br-int
     ovs-ofctl add-flow br-int "arp,actions=normal"
     ovs-ofctl add-flow br-int "icmp,actions=normal"
-    ovs-ofctl add-flow br-int "table=0,in_port=vxlan_br-int,ip,actions=mod_nw_src=$FAKE_IP,$REP"
-    ovs-ofctl add-flow br-int "table=0,in_port=$REP,ip,actions=mod_nw_dst=$REMOTE_IP,vxlan_br-int"
+    ovs-ofctl add-flow br-int "table=0,in_port=vxlan_br-int,ip,actions=mod_nw_src=$FAKE_IP,$IB_PF0_PORT0"
+    ovs-ofctl add-flow br-int "table=0,in_port=$IB_PF0_PORT0,ip,actions=mod_nw_dst=$REMOTE_IP,vxlan_br-int"
     debug "openflow rules:"
     ovs-ofctl dump-flows br-int --color
 }

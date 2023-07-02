@@ -37,8 +37,8 @@ function add_openflow_rules() {
     ovs-ofctl add-flow br-phy "arp,actions=normal"
     ovs-ofctl add-flow br-phy "icmp,actions=normal"
     ovs-ofctl add-flow br-phy "table=0,tcp,ct_state=-trk actions=ct(zone=2, table=1, nat)"
-    ovs-ofctl add-flow br-phy "table=1,in_port=$REP2,tcp,ct_state=+trk+new actions=ct(zone=2, commit, nat(dst=${LOCAL_IP}:5201)),$REP"
-    ovs-ofctl add-flow br-phy "table=1,in_port=$REP,tcp,ct_state=+trk+new actions=ct(zone=2, commit, nat),$REP2"
+    ovs-ofctl add-flow br-phy "table=1,in_port=$IB_PF0_PORT1,tcp,ct_state=+trk+new actions=ct(zone=2, commit, nat(dst=${LOCAL_IP}:5201)),$IB_PF0_PORT0"
+    ovs-ofctl add-flow br-phy "table=1,in_port=$IB_PF0_PORT0,tcp,ct_state=+trk+new actions=ct(zone=2, commit, nat),$IB_PF0_PORT1"
     ovs-ofctl add-flow br-phy "table=1,tcp,ct_state=+trk+est actions=normal"
     debug "OVS flow rules:"
     ovs-ofctl dump-flows br-phy --color

@@ -54,7 +54,7 @@ function config_openflow_rules() {
     ovs-ofctl del-flows br-int
     ovs-ofctl add-flow br-int arp,actions=normal
     ovs-ofctl add-flow br-int "priority=1,arp,actions=normal"
-    ovs-ofctl add-flow br-int "in_port=$REP,actions=set_field:0x1234->tun_metadata0,normal"
+    ovs-ofctl add-flow br-int "in_port=$IB_PF0_PORT0,actions=set_field:0x1234->tun_metadata0,normal"
     ovs-ofctl add-flow br-int "tun_metadata0=0x1234,actions=normal"
     ovs-ofctl dump-flows br-int --color
 }
