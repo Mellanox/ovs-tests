@@ -10,6 +10,10 @@ if [ -z $PCI ]; then
     exit 1
 fi
 
+function is_bf() {
+    lspci -s 00:00.0 2>/dev/null | grep -wq "PCI bridge: Mellanox Technologies"
+}
+
 # The argument can be mst device or PCI. Determine and get the full PCI.
 echo $PCI | grep mst > /dev/null
 if [ "$?" == "0" ]; then
@@ -56,7 +60,15 @@ for dev in `ls -1 /sys/class/net/`; do
         continue
     fi
     port_name=`cat /sys/class/net/${dev}/phys_port_name 2>/dev/null`
-    if [ "${port_name:0:3}" == "pf$PF_INDEX" ]; then
+
+    # In arm side, vf reps portname is pf[number]vf[number].
+    if is_bf; then
+        pn="pf${PF_INDEX//p}vf0"
+        if [ "$pn" == "$port_name" ]; then
+            VF_REP_DEV=$dev
+            break
+        fi
+    elif [ "${port_name:0:3}" == "pf$PF_INDEX" ]; then
         VF_REP_DEV=$dev
         break
     fi
@@ -67,7 +79,7 @@ if [ -z $VF_REP_DEV ]; then
     exit 1
 fi
 
-echo "VF $VF_REP_DEV"
+echo "VF REP $VF_REP_DEV"
 
 # Set fake GRE encap rule and remove it.
 GRE_DEV=gre_sys
