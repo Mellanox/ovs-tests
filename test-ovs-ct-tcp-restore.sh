@@ -90,7 +90,7 @@ function run() {
 
     echo "sleep before traffic"
     sleep 2
-    t=6
+    t=10
     pkts=200
 
     title "start tcpdump to sniff syn and ack packets"
@@ -98,13 +98,13 @@ function run() {
     pid=$!
 
     title "run traffic for $t seconds"
-    ip netns exec ns1 timeout $((t+2)) iperf -s -i 1 -p 21845 &
-#    ip netns exec ns1 timeout $((t+1)) iperf3 -s -i 1 -D
+#    ip netns exec ns1 timeout $((t+2)) iperf -s -i 1 -p 21845 &
+    ip netns exec ns1 timeout $((t+2)) iperf3 -s -i 1 -D
 #    ip netns exec ns1 $pktgen -l -i $VETH_VF --src-ip $ip --time $((t+1)) &
 #    ip netns exec ns1 timeout $t ./py-server.py $ip_remote 7000 &
     sleep 1
-    ip netns exec ns0 timeout $((t+1)) iperf -t $t -c $ip_remote -p 21845 &
-#    ip netns exec ns0 timeout $((t+1)) iperf3 -u -t $t -c $ip_remote &
+#    ip netns exec ns0 timeout $((t+1)) iperf -t $t -c $ip_remote -p 21845 &
+    ip netns exec ns0 timeout $((t+1)) iperf3 -t $t -c $ip_remote &
 #    ip netns exec ns0 $pktgen -i $VF1 --src-ip $ip --dst-ip $ip_remote --time $t &
 #    ip netns exec ns0 timeout $t ./py-client.py $ip_remote 7000
 
@@ -115,7 +115,7 @@ function run() {
         err "fail to capture tcp handshake"
     fi
 
-    pidof iperf &>/dev/null || err "iperf failed"
+    pidof iperf3 &>/dev/null || err "iperf failed"
 
     echo "sleep to wait for offload"
     sleep 2
