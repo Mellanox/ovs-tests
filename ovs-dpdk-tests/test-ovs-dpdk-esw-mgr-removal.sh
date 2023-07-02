@@ -29,11 +29,8 @@ function del_and_add_pf() {
     local pci=$(get_pf_pci)
     local msg="Resource temporarily unavailable"
 
-    debug "Del port $NIC"
-    ovs-vsctl del-port $NIC
-
+    ovs_del_pf
     verify_ovs_expected_msg "$msg"
-    debug "Add port $NIC back"
     ovs_add_pf
 }
 

@@ -92,7 +92,21 @@ function ovs_add_pf() {
         nic=$NIC2
     fi
 
+    debug "Add ovs pf port $nic"
     ovs-vsctl add-port $bridge $nic -- set Interface $nic type=dpdk options:dpdk-devargs=$pci,$DPDK_PORT_EXTRA_ARGS
+}
+
+function ovs_del_pf() {
+    local bridge=${1:-br-phy}
+    local pci=${2:-`get_pf_pci`}
+    local nic=$NIC
+
+    if [ "$pci" == "$PCI2" ];then
+        nic=$NIC2
+    fi
+
+    debug "Del ovs pf port $nic"
+    ovs-vsctl del-port $bridge $nic
 }
 
 function config_remote_bridge_tunnel() {

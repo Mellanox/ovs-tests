@@ -31,7 +31,6 @@ function verify_err_and_add_pf() {
     local msg="Resource temporarily unavailable"
 
     verify_ovs_expected_msg "$msg"
-    debug "Add port pf to bridge"
     ovs_add_pf
 }
 
