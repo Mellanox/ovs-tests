@@ -237,7 +237,7 @@ function config_ns() {
         return
     fi
 
-    if ip netns ls | grep -w $ns >/dev/null; then
+    if ! ip netns ls | grep -w $ns >/dev/null; then
         debug "adding namespace $ns"
         ip netns add $ns
     fi
