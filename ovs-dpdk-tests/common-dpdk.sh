@@ -34,9 +34,6 @@ function require_dpdk() {
     fi
 }
 
-require_dpdk
-set_ovs_dpdk_debug_logs
-
 function get_port_from_pci() {
     local pci=${1-$PCI}
     local rep=$2
@@ -52,6 +49,19 @@ function get_port_from_pci() {
 
     echo "ib_$port"
 }
+
+function __setup_common_dpdk() {
+    if [ "$DOCA" == 1 ]; then
+        DPDK=1
+    fi
+
+    IB_PF0_PORT0=`get_port_from_pci $PCI 0`
+    IB_PF0_PORT1=`get_port_from_pci $PCI 1`
+}
+
+require_dpdk
+set_ovs_dpdk_debug_logs
+__setup_common_dpdk
 
 function configure_dpdk_rep_ports() {
     local reps=$1

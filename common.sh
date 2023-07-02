@@ -238,10 +238,6 @@ function __setup_common() {
     require_cmd lspci ethtool tc bc jq
     fail_if_err
 
-    if [ "$DOCA" == 1 ]; then
-        DPDK=1
-    fi
-
     sysfs_pci_device=`readlink -f /sys/class/net/$NIC/../../`
     SRIOV_NUMVFS_NIC=$sysfs_pci_device/sriov_numvfs
     sysfs_pci_device2=`readlink -f /sys/class/net/$NIC2/../../`
