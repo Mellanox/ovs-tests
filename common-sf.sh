@@ -352,6 +352,7 @@ function verify_single_ib_device() {
     title "Verify single IB device with multiple ports"
 
     local sf_dev=`$sfcmd dev | grep -w sf | head -1`
+    sf_dev=${sf_dev#*/}
     local sf_ib_dev=`basename /sys/bus/auxiliary/devices/$sf_dev/infiniband/*`
     rdma link show | grep -w $sf_ib_dev
 
