@@ -212,8 +212,8 @@ function config_local_tunnel_ip() {
     local ip_addr=$1
     local dev=$2
 
-    ip addr add $ip_addr/24 dev $dev
-    ip link set $dev up
+    bf_wrap "ip addr add $ip_addr/24 dev $dev
+             ip link set $dev up"
 }
 
 function config_static_ipv6_neigh_ns() {
