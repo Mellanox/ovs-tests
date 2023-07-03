@@ -7,6 +7,8 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 . $my_dir/common-sf.sh
 
+require_remote_server
+
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
