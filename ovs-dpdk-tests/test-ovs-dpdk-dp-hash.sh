@@ -19,7 +19,7 @@ trap cleanup_test EXIT
 function config() {
     cleanup_test
     config_simple_bridge_with_rep 2
-    ip link add dev dummy type veth peer name rep-dummy
+    bf_wrap "ip link add dev dummy type veth peer name rep-dummy"
     ovs-vsctl add-port br-phy rep-dummy
     start_vdpa_vm
     start_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
@@ -51,7 +51,7 @@ function run() {
 
 run
 start_clean_openvswitch
-ip link del dummy
+bf_wrap "ip link del dummy"
 trap - EXIT
 cleanup_test
 test_done
