@@ -45,23 +45,6 @@ function set_sf_esw() {
     done
 }
 
-function verify_single_ib_device() {
-    local expected=$1
-
-    title "Verify single IB device with multiple ports"
-
-    local sf_ib_dev=`basename /sys/bus/auxiliary/devices/mlx5_core.sf.2/infiniband/*`
-    rdma link show | grep -w $sf_ib_dev
-
-    local count=`rdma link show | grep -w $sf_ib_dev | wc -l`
-
-    if [ "$count" -ne $expected ]; then
-        err "Expected $expected ports"
-    else
-        success
-    fi
-}
-
 function config() {
     local count=$1
     local direction=${2:-""}
