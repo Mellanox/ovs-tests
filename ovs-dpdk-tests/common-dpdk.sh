@@ -39,7 +39,7 @@ function get_port_from_pci() {
     local rep=$2
     local port=pf0
 
-    if [ "$pci" == "$PCI2" ]; then
+    if [ "$pci" == "$PCI2" ] || [ "$pci" == "$BF_PCI2" ]; then
         port=pf1
     fi
 
