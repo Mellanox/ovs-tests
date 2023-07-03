@@ -31,10 +31,7 @@ config_tunnel gre
 config_local_tunnel_ip $LOCAL_TUN_IP br-phy
 config_remote_tunnel gre
 config_remote_vlan $vlan $vlan_dev $REMOTE_TUNNEL_IP
-
-ovs-vsctl add-port br-phy pf.$vlan tag=$vlan -- set interface pf.$vlan type=internal
-ifconfig pf.$vlan $LOCAL_TUN_IP/24 up
-ifconfig br-phy 0
+config_local_vlan $vlan $LOCAL_TUN_IP
 
 verify_ping $REMOTE_IP
 

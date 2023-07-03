@@ -464,6 +464,15 @@ function cleanup_test() {
     sleep 0.5
 }
 
+function config_local_vlan() {
+    local vlan=$1
+    local ip=${2:-$LOCAL_TUN_IP}
+
+    ovs-vsctl add-port br-phy pf.$vlan tag=$vlan -- set interface pf.$vlan type=internal
+    bf_wrap "ifconfig pf.$vlan $ip/24 up
+             ifconfig br-phy 0"
+}
+
 function config_remote_vlan() {
     local vlan=$1
     local vlan_dev=$2
