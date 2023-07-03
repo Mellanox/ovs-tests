@@ -137,8 +137,7 @@ enable_switchdev
 test_count=2
 
 cleanup
-config $test_count "both"
-((test_count+=test_count))
+config $test_count "network"
 test_ping $test_count
 
 trap - EXIT
