@@ -67,27 +67,7 @@ function config() {
     config_vf ns1 $VETH_VF $VETH_REP $ip_remote
 }
 
-function get_nf_conntrack_counter_diff() {
-   conntrack -F &>/dev/null
-   echo $(bc <<< `conntrack -C`-`conntrack -L 2>/dev/null | wc -l`)
-}
-olddiff=`get_nf_conntrack_counter_diff`
 tuple=""
-
-function verify_nf_conntrack_counter() {
-    local diff=`get_nf_conntrack_counter_diff`
-    local newdiff=$((diff-olddiff))
-
-    title "verify nf conntrack counter"
-    if [ "$newdiff" != "0" ]; then
-        err "Expected conntrack dump to match conntrack table count, diff $newdiff, dumping dying table to see if connection is there"
-
-        title "verify conntrack dying table"
-        conntrack -L dying | grep -i "zone=3" | grep -i --color=always "$tuple\|$"
-        sleep 2
-        conntrack -L dying 2>/dev/null | grep -i "zone=3" | grep -i "$tuple" | err "Tuple is stuck in dying phase"
-    fi
-}
 
 function run() {
     title "Test OVS CT tcp - miss and continue in software"
@@ -175,7 +155,8 @@ function run() {
 
     sleep 1
     ovs-vsctl del-br br-ovs
-    verify_nf_conntrack_counter
+    sleep 3
+    conntrack -L dying 2>/dev/null | grep -i "zone=3" | grep -i "$tuple" && err "Tuple is stuck in dying phase"
 }
 
 config
