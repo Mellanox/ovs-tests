@@ -83,25 +83,25 @@ function config_remote_bf_vf() {
 
 function ovs-vsctl() {
     if is_bf_host; then
-        on_bf command ovs-vsctl $@
+        on_bf command ovs-vsctl "$@"
     else
-        command ovs-vsctl $@
+        command ovs-vsctl "$@"
     fi
 }
 
 function ovs-ofctl() {
     if is_bf_host; then
-        on_bf command ovs-ofctl $@
+        on_bf command ovs-ofctl "$@"
     else
-        command ovs-ofctl $@
+        command ovs-ofctl "$@"
     fi
 }
 
 function ovs-appctl() {
     if is_bf_host; then
-        on_bf command ovs-appctl $@
+        on_bf command ovs-appctl "$@"
     else
-        command ovs-appctl $@
+        command ovs-appctl "$@"
     fi
 }
 
