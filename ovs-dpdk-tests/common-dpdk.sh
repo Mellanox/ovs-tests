@@ -59,9 +59,9 @@ function __setup_common_dpdk() {
     IB_PF0_PORT1=`get_port_from_pci $PCI 1`
 }
 
+__setup_common_dpdk
 require_dpdk
 set_ovs_dpdk_debug_logs
-__setup_common_dpdk
 
 function configure_dpdk_rep_ports() {
     local reps=$1
