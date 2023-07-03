@@ -32,6 +32,7 @@ function config() {
     start_clean_openvswitch
 
     config_simple_bridge_with_rep 1
+    config_remote_arm_bridge
 
     ip netns exec ns0 ip link add $VF.$local_vlan link $VF type vlan id $local_vlan
     ip netns exec ns0 ifconfig $VF.$local_vlan $LOCAL_IP/24

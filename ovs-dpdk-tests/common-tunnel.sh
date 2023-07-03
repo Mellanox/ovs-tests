@@ -45,6 +45,7 @@ function config_remote_tunnel() {
     local remote_ip=${7:-"$REMOTE_IP"}
 
     on_remote ip link del $tunnel_dev &>/dev/null
+    config_remote_arm_bridge
 
     if [ "$tnl_type" == "geneve" ]; then
          on_remote ip link add $tunnel_dev type geneve id $tunnel_id remote $local_tunnel_ip dstport 6081

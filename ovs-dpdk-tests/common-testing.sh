@@ -483,15 +483,20 @@ function config_remote_vlan() {
                ip l set dev $vlan_dev up"
 }
 
+function config_remote_arm_bridge() {
+    if is_bf_host; then
+        title "Configuring simple bridge over remote arm side"
+        on_remote_bf_exec "config_simple_bridge_with_rep 0
+                           ovs_add_host_pf_rep_port"
+    fi
+}
+
 function config_remote_nic() {
     local ip=${1:-$REMOTE_IP}
 
     title "Configuring remote nic"
 
-    if is_bf_host; then
-        on_remote_bf_exec "config_simple_bridge_with_rep 1"
-    fi
-
+    config_remote_arm_bridge
     __config_remote_nic $ip
 }
 
