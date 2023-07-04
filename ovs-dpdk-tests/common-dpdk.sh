@@ -128,7 +128,7 @@ function config_remote_bridge_tunnel() {
     local tnl_type=${3:-vxlan}
     local reps=${4:-1}
     local bridge=${5:-"br-int"}
-    local pci=${6:-$PCI}
+    local pci=${6:-`get_pf_pci`}
 
     debug "configuring remote bridge tunnel type $tnl_type key $vni remote_ip $2 with $reps reps"
     ovs_add_bridge $bridge
