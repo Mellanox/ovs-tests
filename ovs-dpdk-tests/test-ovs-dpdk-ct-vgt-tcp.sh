@@ -68,5 +68,6 @@ ovs_add_ct_rules "br-phy"
 verify_ping $VLAN_IP2
 generate_traffic "local" $VLAN_IP1 "ns1"
 
-ovs_clear_bridges
+trap - EXIT
+cleanup
 test_done

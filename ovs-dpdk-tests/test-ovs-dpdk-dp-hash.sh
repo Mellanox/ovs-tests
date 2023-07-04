@@ -18,9 +18,6 @@ trap cleanup_test EXIT
 
 function config() {
     cleanup_test
-    debug "Restarting OVS"
-    start_clean_openvswitch
-
     config_simple_bridge_with_rep 2
     ip link add dev dummy type veth peer name rep-dummy
     ovs-vsctl add-port br-phy rep-dummy

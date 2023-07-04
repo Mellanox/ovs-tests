@@ -25,9 +25,6 @@ trap 'cleanup_test $TUNNEL_DEV2' EXIT
 
 function config() {
     cleanup_test
-    debug "Restarting OVS"
-    start_clean_openvswitch
-
     config_tunnel "vxlan" 1 br-phy br-int $TUNNEL_ID $LOCAL_IP $REMOTE_TUNNEL_IP $VF $NIC
     config_tunnel "vxlan" 1 br-phy-2 br-int2 $TUNNEL_ID2 $LOCAL_IP2 $REMOTE_TUNNEL_IP2 `get_vf 0 $NIC2` $NIC2
     config_local_tunnel_ip $LOCAL_TUN_IP br-phy

@@ -46,5 +46,6 @@ function run() {
 
 run
 ovs_conf_set hw-offload true
-start_clean_openvswitch
+trap - EXIT
+cleanup
 test_done

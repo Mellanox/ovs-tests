@@ -21,9 +21,6 @@ trap cleanup_test EXIT
 
 function config() {
     cleanup_test
-    debug "Restarting OVS"
-    start_clean_openvswitch
-
     config_tunnel "vxlan" 1 br-phy br-phy
     config_local_tunnel_ip $LOCAL_TUN_IP br-phy
     ip link add dev dummy type veth peer name rep-dummy
@@ -58,7 +55,6 @@ function run() {
 }
 
 run
-start_clean_openvswitch
 ip link del dummy
 trap - EXIT
 cleanup_test
