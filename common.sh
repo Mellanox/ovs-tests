@@ -633,15 +633,26 @@ function is_bf() {
     lspci -s 00:00.0 2>/dev/null | grep -wq "PCI bridge: Mellanox Technologies"
 }
 
+IS_BF_HOST=""
+
 function is_bf_host() {
+    [ -n "$IS_BF_HOST" ] && return $IS_BF_HOST
+
     # BF NIC mode should not have BF vars.
     if [ -z "$BF_NIC" ] || [ -z "$BF_IP" ]; then
+        IS_BF_HOST=1
         return 1
     fi
 
     # Same $PCI could appear in arm so return if arm.
-    lspci -s 00:00.0 2>/dev/null | grep -wq "PCI bridge: Mellanox Technologies" && return 1
+    if lspci -s 00:00.0 2>/dev/null | grep -wq "PCI bridge: Mellanox Technologies"; then
+        IS_BF_HOST=1
+        return 1
+    fi
+
     lspci -s $PCI 2>/dev/null | grep -wq "Mellanox .* BlueField.* integrated"
+    IS_BF_HOST=$?
+    return $IS_BF_HOST
 }
 
 function is_ofed() {
