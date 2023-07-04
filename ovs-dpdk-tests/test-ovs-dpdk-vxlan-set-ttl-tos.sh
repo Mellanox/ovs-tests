@@ -24,7 +24,7 @@ function config() {
     start_clean_openvswitch
 
     config_tunnel "vxlan"
-    ovs-vsctl set interface vxlan0 options:ttl=22 options:tos=0x24
+    ovs-vsctl set interface vxlan_br-int options:ttl=22 options:tos=0x24
     config_local_tunnel_ip $LOCAL_TUN_IP br-phy
     config_remote_tunnel "vxlan"
     ovs-vsctl show
