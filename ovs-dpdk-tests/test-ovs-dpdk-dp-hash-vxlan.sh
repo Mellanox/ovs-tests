@@ -21,7 +21,6 @@ trap cleanup_test EXIT
 
 function config() {
     cleanup_test
-    set_e2e_cache_enable false
     debug "Restarting OVS"
     start_clean_openvswitch
 
