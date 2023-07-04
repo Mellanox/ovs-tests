@@ -148,7 +148,7 @@ function config_simple_bridge_with_rep() {
         pci=$(get_pf_pci2)
     fi
 
-    debug "configuring simple bridge \"$bridge\" with $reps reps"
+    debug "configuring simple bridge $bridge with $reps reps"
     ovs_add_bridge $bridge
 
     if [ "$should_add_pf" == "true" ]; then
