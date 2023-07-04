@@ -22,16 +22,13 @@ bind_vfs
 trap 'cleanup_test $vlan_dev' EXIT
 
 function config() {
-    debug "Restarting OVS"
-    start_clean_openvswitch
-
+    cleanup_test $vlan_dev
     config_simple_bridge_with_rep 1
     start_vdpa_vm
     ovs-vsctl set port $IB_PF0_PORT0 tag=$vlan
     config_ns ns0 $VF $LOCAL_IP
 }
 
-cleanup_test $vlan_dev
 config
 config_remote_vlan $vlan $vlan_dev
 
@@ -48,4 +45,6 @@ title "Testing traffic after removing and adding the vlan tag"
 verify_ping $REMOTE_IP
 generate_traffic "remote" $LOCAL_IP
 
+trap - EXIT
+cleanup_test $vlan_dev
 test_done

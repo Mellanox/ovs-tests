@@ -50,4 +50,6 @@ verify_ping $REMOTE_IP
 
 generate_traffic "remote" $LOCAL_IP
 
+trap - EXIT
+cleanup_test $remote_vlan_dev
 test_done

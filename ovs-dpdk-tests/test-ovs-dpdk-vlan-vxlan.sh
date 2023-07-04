@@ -21,11 +21,6 @@ unbind_vfs
 bind_vfs
 
 cleanup_test $vlan_dev
-
-
-debug "Restarting OVS"
-start_clean_openvswitch
-
 config_tunnel vxlan
 config_local_tunnel_ip $LOCAL_TUN_IP br-phy
 config_remote_tunnel vxlan
@@ -39,4 +34,6 @@ verify_ping $REMOTE_IP
 
 generate_traffic "remote" $LOCAL_IP
 
+trap - EXIT
+cleanup_test $vlan_dev
 test_done

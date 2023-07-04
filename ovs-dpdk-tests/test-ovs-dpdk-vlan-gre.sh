@@ -24,7 +24,6 @@ cleanup_test $vlan_dev
 
 gre_set_entropy
 
-
 debug "Restarting OVS"
 start_clean_openvswitch
 
@@ -41,4 +40,6 @@ verify_ping $REMOTE_IP
 
 generate_traffic "remote" $LOCAL_IP
 
+trap - EXIT
+cleanup_test $vlan_dev
 test_done
