@@ -6,7 +6,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common-ovn-k8s-bf-test.sh
 
-require_interfaces NIC
 
 read_k8s_topology_pod_ext
 SERVER_IPV4=$EXTERNAL_SERVER_IP

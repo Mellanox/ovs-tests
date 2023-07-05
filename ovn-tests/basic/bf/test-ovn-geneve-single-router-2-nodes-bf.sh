@@ -6,7 +6,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common-ovn-basic-bf-test.sh
 
-require_interfaces NIC
 require_remote_server
 
 read_single_router_two_switches_topology

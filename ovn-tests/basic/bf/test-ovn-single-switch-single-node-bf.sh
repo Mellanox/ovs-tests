@@ -6,7 +6,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common-ovn-basic-bf-test.sh
 
-require_interfaces NIC
 
 read_single_switch_topology
 
