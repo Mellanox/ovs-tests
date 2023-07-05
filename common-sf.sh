@@ -65,8 +65,8 @@ function sf_unbind() {
 function sf_set_param() {
     local dev=$1
     local param_name=$2
-    local value=$3
-    local cmode=$4
+    local value=${3:-true}
+    local cmode=${4:-driverinit}
     devlink dev param set auxiliary/$dev name $param_name value $value cmode $cmode || err "Failed to set sf $dev param $param_name=$value"
 }
 
@@ -181,7 +181,7 @@ function sf_enable_features() {
     local feature
 
     for feature in $features ; do
-        sf_set_param $sf_dev enable_$feature true driverinit
+        sf_set_param $sf_dev enable_$feature
     done
 
     sf_reload_aux $sf_dev
