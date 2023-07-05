@@ -38,14 +38,14 @@ function config() {
 }
 
 function config_remote() {
-    on_remote ip link del $TUNNEL_DEV &>/dev/null
-    on_remote ip link add $TUNNEL_DEV type vxlan id $TUNNEL_ID remote $LOCAL_TUN_IP dstport 4789
-    on_remote ip a flush dev $REMOTE_NIC
-    on_remote ip a add $REMOTE_TUNNEL_IP/24 dev $REMOTE_NIC
-    on_remote ip a add $REMOTE_IP/24 dev $TUNNEL_DEV
-    on_remote ip l set dev $TUNNEL_DEV address $VXLAN_MAC
-    on_remote ip l set dev $TUNNEL_DEV up
-    on_remote ip l set dev $REMOTE_NIC up
+    on_remote "ip link del $TUNNEL_DEV &>/dev/null
+               ip link add $TUNNEL_DEV type vxlan id $TUNNEL_ID remote $LOCAL_TUN_IP dstport 4789
+               ip a flush dev $REMOTE_NIC
+               ip a add $REMOTE_TUNNEL_IP/24 dev $REMOTE_NIC
+               ip a add $REMOTE_IP/24 dev $TUNNEL_DEV
+               ip l set dev $TUNNEL_DEV address $VXLAN_MAC
+               ip l set dev $TUNNEL_DEV up
+               ip l set dev $REMOTE_NIC up"
 }
 
 function add_openflow_rules() {
