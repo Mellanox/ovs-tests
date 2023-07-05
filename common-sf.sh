@@ -1,11 +1,11 @@
 #!/bin/bash
 
-sfcmd='devlink'
+devlink='devlink'
 irq_reguest_debug_func='mlx5_irq_request'
 
 function __set_sf_cmd() {
     if which mlxdevm &>/dev/null ; then
-        sfcmd='mlxdevm'
+        devlink='mlxdevm'
     fi
 }
 
@@ -23,11 +23,11 @@ function sf_get_rep() {
     local sfnum=$1
     local pfnum=${2:-0}
     [ -z "$sfnum" ] && return
-    $sfcmd port show | grep "pfnum $pfnum sfnum $sfnum" | grep -E -o "netdev [a-z0-9]+" | awk {'print $2'}
+    $devlink port show | grep "pfnum $pfnum sfnum $sfnum" | grep -E -o "netdev [a-z0-9]+" | awk {'print $2'}
 }
 
 function sf_get_all_reps() {
-    $sfcmd port show | grep sfnum | grep -E -o "netdev [a-z0-9]+" | awk {'print $2'}
+    $devlink port show | grep sfnum | grep -E -o "netdev [a-z0-9]+" | awk {'print $2'}
 }
 
 function get_aux_sf_devices() {
@@ -71,20 +71,20 @@ function sf_set_param() {
 }
 
 function sf_disable_roce() {
-    $sfcmd port function cap set $1 roce false || err "$1: Failed to disable roce"
+    $devlink port function cap set $1 roce false || err "$1: Failed to disable roce"
 }
 
 function sf_activate() {
-    $sfcmd port function set $1 state active || err "$1: Failed to activate state"
+    $devlink port function set $1 state active || err "$1: Failed to activate state"
     sleep 1
 }
 
 function sf_inactivate() {
-    $sfcmd port function set $1 state inactive || err "$1: Failed to inactivate state"
+    $devlink port function set $1 state inactive || err "$1: Failed to inactivate state"
 }
 
 function delete_sf() {
-    $sfcmd port del $1 || err "Failed to delete sf $1"
+    $devlink port del $1 || err "Failed to delete sf $1"
 }
 
 # For SF direction
@@ -97,7 +97,7 @@ SF_DIRECTION_HOST=131072
 function create_sf() {
     local pfnum=$1
     local sfnum=$2
-    $sfcmd port add pci/$PCI flavour pcisf pfnum $pfnum sfnum $sfnum >/dev/null
+    $devlink port add pci/$PCI flavour pcisf pfnum $pfnum sfnum $sfnum >/dev/null
     if [ $? -ne 0 ] ; then
         err "Failed to create sf on pfnum $pfnum sfnum $sfnum"
         return 1
@@ -242,7 +242,7 @@ function sf_set_cpu_affinity() {
     local cpus=$2
 
     log "Setting cpu affinity with value $cpus to $sf_dev"
-    $sfcmd dev param set auxiliary/$sf_dev name cpu_affinity value $cpus cmode driverinit
+    $devlink dev param set auxiliary/$sf_dev name cpu_affinity value $cpus cmode driverinit
     if [ $? -ne 0 ]; then
         err "$sf_dev: Failed to set cpu affinity"
         return 1
@@ -319,11 +319,11 @@ function check_cpu_irq() {
 }
 
 function sf_show_port() {
-    $sfcmd port show $1 || err "Failed to show sf $1"
+    $devlink port show $1 || err "Failed to show sf $1"
 }
 
 function sf_port_rate() {
-    $sfcmd port func rate $@
+    $devlink port func rate $@
 }
 
 function get_all_sf_pci() {
@@ -354,7 +354,7 @@ function verify_single_ib_device() {
 
     title "Verify single IB device with multiple ports"
 
-    local sf_dev=`$sfcmd dev | grep -w sf | head -1`
+    local sf_dev=`$devlink dev | grep -w sf | head -1`
     sf_dev=${sf_dev#*/}
     local sf_ib_dev=`basename /sys/bus/auxiliary/devices/$sf_dev/infiniband/*`
     rdma link show | grep -w $sf_ib_dev
