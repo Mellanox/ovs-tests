@@ -82,6 +82,8 @@ function devlink_ct_action_on_nat() {
 }
 
 function run() {
+    local file=/tmp/iperf.txt
+
     title "setup ovs with ct hops: $hops"
 
     start_clean_openvswitch
@@ -115,28 +117,32 @@ function run() {
     echo "sleep before traffic"
     sleep 2
 
-    ip netns exec ns0 ping -c 10 -i 0.1 -w 4 $ip_remote || err "Ping failed"
-
     echo "run traffic"
     t=15
-    echo "run traffic for $t seconds"
-    ip netns exec ns1 timeout $((t+2)) iperf -s &
-    sleep 1
-    ip netns exec ns0 timeout $t iperf -t $t -c $ip_remote -P 3 &
 
+    echo "run traffic for $t seconds"
+    ip netns exec ns1 timeout $((t+2)) iperf3 -s -D -J
+
+    ip netns exec ns0 ping -c 10 -i 0.1 -w 4 $ip_remote || err "Ping failed"
+    ip netns exec ns0 timeout $((t+2)) iperf3 -c $ip_remote -t $t -i 1 -J --get-server-output -b 1G | tee $file &
     sleep 2
-    pidof iperf &>/dev/null || err "iperf failed"
+
+    pidof iperf3 &>/dev/null || err "iperf failed"
 
     echo "sniff packets on $REP"
-    timeout $((t-4)) tcpdump -qnnei $REP -c 10 'tcp' &
+    timeout $t tcpdump -qnnei $REP -c 10 'tcp' &
     pid=$!
 
     title "verify ct commit action"
     ddumpct
-    ovs_dump_tc_flows --names | grep -q -P "ct(.*commit.*)" || err "Expected ct commit action"
-
+    ddumpct --names | grep -q -P "ct(.*commit.*)" || err "Expected ct commit action"
     sleep $t
-    killall -9 iperf &>/dev/null
+
+    # bandwidth is 1G, expect bigger than 0.5G.
+    c=$(cat $file | jq '.intervals[].sum.bits_per_second' | awk '$NF>500000000.0 {print $NF}' |  wc -l)
+    (( c < t )) && err "iperf failed, no traffic"
+
+    killall -9 iperf3 &>/dev/null
     wait $! 2>/dev/null
 
     verify_no_traffic $pid
