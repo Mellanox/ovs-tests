@@ -25,7 +25,7 @@ function config() {
     set_e2e_cache_enable
     enable_ct_ct_nat_offload
     debug "Restarting OVS"
-    start_clean_openvswitch
+    restart_openvswitch
 
     config_simple_bridge_with_rep 2
     start_vdpa_vm
