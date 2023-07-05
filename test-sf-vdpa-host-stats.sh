@@ -41,7 +41,7 @@ function create_vdpa_netdev {
     devlink port function set $rep state active
     sleep 0.5
     auxdev=$(sf_get_dev $sfnum)
-    sf_reload_auxiliary_devices $auxdev
+    sf_enable_features $auxdev "rdma vnet"
     vdpa_wait_mgtdev $auxdev
     vdpa dev add name $vdpadevname mgmtdev auxiliary/$auxdev
     sleep 4
