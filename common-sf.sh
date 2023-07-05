@@ -71,6 +71,15 @@ function sf_set_param() {
     devlink dev param set auxiliary/$dev name $param_name value $value cmode $cmode || err "Failed to set sf $dev param $param_name=$value"
 }
 
+function sf_set_param_if_supported() {
+    local dev=$1
+    local param_name=$2
+    devlink dev param show auxiliary/$dev name $param_name &>/dev/null
+    if [ $? -eq 0 ] ; then
+        sf_set_param $dev $param_name
+    fi
+}
+
 function sf_disable_roce() {
     $devlink port function cap set $1 roce false || err "$1: Failed to disable roce"
 }
@@ -182,7 +191,7 @@ function sf_enable_features() {
     local feature
 
     for feature in $features ; do
-        sf_set_param $sf_dev enable_$feature
+        sf_set_param_if_supported $sf_dev enable_$feature
     done
 
     sf_reload_aux $sf_dev
