@@ -50,7 +50,6 @@ function run() {
 }
 
 run
-start_clean_openvswitch
 bf_wrap "ip link del dummy"
 trap - EXIT
 cleanup_test
