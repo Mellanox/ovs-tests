@@ -157,7 +157,7 @@ function __create_sfs() {
             break
         fi
 
-        sf_reload_auxiliary_devices $sf_dev
+        sf_enable_features $sf_dev "eth"
 
         sleep 0.5
         netdev=`sf_get_netdev $i`
@@ -175,12 +175,15 @@ function __create_sfs() {
     fail_if_err "Failed to create sfs"
 }
 
-function sf_reload_auxiliary_devices() {
+function sf_enable_features() {
     local sf_dev=$1
-    sf_set_param $sf_dev enable_eth true driverinit
-# currently breaking mlnx ofed. need to check its supported before enabling or skip err
-#    sf_set_param $sf_dev enable_vnet true driverinit
-#    sf_set_param $sf_dev enable_rdma true driverinit
+    local features=$2
+    local feature
+
+    for feature in $features ; do
+        sf_set_param $sf_dev enable_$feature true driverinit
+    done
+
     sf_reload_aux $sf_dev
 }
 
