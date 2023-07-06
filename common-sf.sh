@@ -358,7 +358,7 @@ function verify_single_ib_device() {
 
     title "Verify single IB device with multiple ports"
 
-    local sf_dev=`$devlink dev | grep -w sf | head -1`
+    local sf_dev=`ls -1 /sys/bus/auxiliary/devices/ | grep -w sf | head -1`
     sf_dev=${sf_dev#*/}
     if [ -z "$sf_dev" ]; then
         err "Failed to get SF device"
