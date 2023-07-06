@@ -334,6 +334,7 @@ function reload_sfs_into_ns() {
     title "Reload SF into ns0"
 
     ip netns add ns0
+    local sf_dev
     for sf_dev in `get_aux_sf_devices`; do
         local i=`basename $sf_dev`
         devlink dev reload auxiliary/$i netns ns0 || fail "Failed to reload SF"
@@ -343,6 +344,7 @@ function reload_sfs_into_ns() {
 function set_sf_switchdev() {
     title "Set SF switchdev"
 
+    local sf_dev
     for sf_dev in `get_aux_sf_devices`; do
         local i=`basename $sf_dev`
         ip netns exec ns0 devlink dev eswitch set auxiliary/$i mode switchdev || fail "Failed to config SF switchdev"
