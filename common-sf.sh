@@ -67,6 +67,7 @@ function sf_set_param() {
     local param_name=$2
     local value=${3:-true}
     local cmode=${4:-driverinit}
+    # Enabling params not supported in mlxdevm and only done through devlink.
     devlink dev param set auxiliary/$dev name $param_name value $value cmode $cmode || err "Failed to set sf $dev param $param_name=$value"
 }
 
