@@ -27,6 +27,7 @@ trap cleanup_test EXIT
 
 function config() {
     cleanup_test
+    enable_ct_ct_nat_offload
     set_e2e_cache_enable
     debug "Restarting OVS"
     restart_openvswitch
@@ -38,6 +39,7 @@ function config() {
 }
 
 function config_remote() {
+    config_remote_arm_bridge
     on_remote "ip link del $TUNNEL_DEV &>/dev/null
                ip link add $TUNNEL_DEV type vxlan id $TUNNEL_ID remote $LOCAL_TUN_IP dstport 4789
                ip a flush dev $REMOTE_NIC
