@@ -253,6 +253,7 @@ function __setup_common() {
 
     __get_device_name
     __get_pci_device_name
+    reset_is_bf_host
 
     status="NIC $NIC FW $FW PCI $PCI DEVICE $DEVICE $device_name"
     log $status
@@ -653,6 +654,10 @@ function is_bf_host() {
     lspci -s $PCI 2>/dev/null | grep -wq "Mellanox .* BlueField.* integrated"
     IS_BF_HOST=$?
     return $IS_BF_HOST
+}
+
+function reset_is_bf_host() {
+    IS_BF_HOST=""
 }
 
 function is_ofed() {
