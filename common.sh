@@ -619,13 +619,13 @@ function cloud_fw_reset() {
     load_modules
 }
 
-# BF wrap functions are overridden in common-bf.sh
-
 function bf_wrap() {
+    # overriden in common-bf.sh
     eval "$@"
 }
 
 function bf_wrap_exec() {
+    # overriden in common-bf.sh
     eval "$@"
 }
 
