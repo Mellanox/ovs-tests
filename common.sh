@@ -1968,7 +1968,7 @@ function check_doca_init() {
 
 __ovs_version_printed=0
 function __print_ovs_version_once() {
-    [ $__ovs_version_printed == 0 ] && __ovs_version_printed=1 && ovs-vswitchd -V
+    [ $__ovs_version_printed == 0 ] && __ovs_version_printed=1 && echo "[`hostname -s`] `ovs-vswitchd -V`"
 }
 
 function restart_openvswitch_nocheck() {
