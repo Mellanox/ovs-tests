@@ -356,6 +356,11 @@ function verify_single_ib_device() {
 
     local sf_dev=`$devlink dev | grep -w sf | head -1`
     sf_dev=${sf_dev#*/}
+    if [ -z "$sf_dev" ]; then
+        err "Failed to get SF device"
+        return
+    fi
+
     local sf_ib_dev=`basename /sys/bus/auxiliary/devices/$sf_dev/infiniband/*`
     rdma link show | grep -w $sf_ib_dev
 
