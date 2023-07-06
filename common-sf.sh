@@ -349,6 +349,8 @@ function set_sf_switchdev() {
         local i=`basename $sf_dev`
         ip netns exec ns0 devlink dev eswitch set auxiliary/$i mode switchdev || fail "Failed to config SF switchdev"
     done
+    log "Wait for shared fdb wq"
+    sleep 3
 }
 
 function verify_single_ib_device() {
