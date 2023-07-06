@@ -2647,11 +2647,15 @@ function restore_lag_port_select_mode() {
 }
 
 function grace_period_after_pci_reset() {
-    local sleep=60
+    local sleep=70
     local output=`devlink health show pci/${PCI} reporter fw_fatal 2>/dev/null | grep -Eo "grace_period [0-9]+" | awk {'print $2'}`
 
     if [ -n "$output" ]; then
-        let sleep=$output/1000
+        local devlink_grace=$((output/1000))
+
+        if [[ $devlink_grace -gt $sleep ]]; then
+            sleep=$devlink_grace
+        fi
     fi
 
     # the grace period should start after pci recovers.
