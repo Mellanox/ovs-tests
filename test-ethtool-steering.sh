@@ -100,7 +100,7 @@ function eth_scs() {
 }
 
 function eth_fail() {
-    local output=$(ethtool -U $@ 2>&1)
+    local output=$(ethtool -U $@ 2>&1 | head -1)
 
     if [ -z "$output" ]; then
         err "Expected error message '$expected_error'"
