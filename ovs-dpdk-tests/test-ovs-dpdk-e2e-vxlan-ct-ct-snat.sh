@@ -33,21 +33,11 @@ function config() {
     restart_openvswitch
 
     config_tunnel "vxlan"
+    config_remote_tunnel "vxlan"
+    on_remote ip l set dev $TUNNEL_DEV address $VXLAN_MAC
     config_local_tunnel_ip $LOCAL_TUN_IP br-phy
     ip netns exec ns0 ip r a $SNAT_ROUTE/24 dev $VF
     ip netns exec ns0 arp -s $SNAT_IP $VXLAN_MAC
-}
-
-function config_remote() {
-    config_remote_arm_bridge
-    on_remote "ip link del $TUNNEL_DEV &>/dev/null
-               ip link add $TUNNEL_DEV type vxlan id $TUNNEL_ID remote $LOCAL_TUN_IP dstport 4789
-               ip a flush dev $REMOTE_NIC
-               ip a add $REMOTE_TUNNEL_IP/24 dev $REMOTE_NIC
-               ip a add $REMOTE_IP/24 dev $TUNNEL_DEV
-               ip l set dev $TUNNEL_DEV address $VXLAN_MAC
-               ip l set dev $TUNNEL_DEV up
-               ip l set dev $REMOTE_NIC up"
 }
 
 function add_openflow_rules() {
@@ -61,7 +51,6 @@ function add_openflow_rules() {
 
 function run() {
     config
-    config_remote
     add_openflow_rules
 
     # icmp
