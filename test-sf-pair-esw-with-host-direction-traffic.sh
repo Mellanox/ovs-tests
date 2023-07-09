@@ -2,7 +2,6 @@
 #
 # Test host direction SF fast path traffic from SF to VF.
 
-
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 . $my_dir/common-sf.sh

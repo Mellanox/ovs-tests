@@ -2,7 +2,6 @@
 #
 # Test traffic from SF to SF REP when SF in switchdev mode.
 
-
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 . $my_dir/common-sf.sh

@@ -1,7 +1,6 @@
 #!/bin/bash
 #
-# Test traffic from SF to SF REP when SF in switchdev mode.
-
+# Test traffic from SF to uplink.
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
