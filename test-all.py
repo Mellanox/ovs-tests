@@ -1585,7 +1585,7 @@ def run_tests(iteration):
             if __env_key.lower().startswith('ignore'):
                 reason = test.opts['env'][__env_key]
                 test = copy_test(test, 0)
-                test.tag = 'IGNORE'
+                test.tag = '*' + __env_key.lower()
                 test.set_ignore(reason)
                 iter_tests.append(test)
                 __run_test(test)
