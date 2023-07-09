@@ -93,7 +93,7 @@ function ovs-ofctl() {
     if is_bf_host; then
         local cmd="$@"
         # Note: Escape special character and remove any extra space after comma.
-        cmd=$(echo $cmd | sed -e 's/)/\\)/g' -e 's/(/\\(/g' -e 's/->/\\-\\>/g' -e 's/\]/\\]/g' -e 's/\[/\\[/g' -e 's/, /,/g')
+        cmd=$(echo $cmd | sed -e 's/)/\\)/g' -e 's/(/\\(/g' -e 's/->/\\-\\>/g' -e 's/\]/\\]/g' -e 's/\[/\\[/g' -e 's/}/\\}/g' -e 's/{/\\{/g' -e 's/, /,/g')
         on_bf command ovs-ofctl "$cmd"
     else
         command ovs-ofctl "$@"
