@@ -26,6 +26,7 @@ function config() {
 }
 
 function config_remote() {
+    config_remote_arm_bridge
     local geneve_opts="geneve_opts ffff:80:00001234"
     on_remote ip link del $TUNNEL_DEV &>/dev/null
     on_remote ip l del vm &> /dev/null
@@ -34,6 +35,7 @@ function config_remote() {
     on_remote ip a add $REMOTE_TUNNEL_IP/24 dev $REMOTE_NIC
     on_remote ip l set dev $TUNNEL_DEV up
     on_remote ip l set dev $REMOTE_NIC up
+    on_remote ip link set dev $TUNNEL_DEV mtu 1400
     on_remote tc qdisc add dev $TUNNEL_DEV ingress
 
     title "Setup remote geneve + opts"
