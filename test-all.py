@@ -1081,7 +1081,10 @@ def prep_html_results(tests):
                 test_log=t.test_log_html,
                 status=status)
 
-        test_results += RESULT_ROW.format(test=t.name, run_time=t.run_time, status=status)
+        name = t.name
+        if t.tag:
+            name += t.tag
+        test_results += RESULT_ROW.format(test=name, run_time=t.run_time, status=status)
 
     return test_results
 
