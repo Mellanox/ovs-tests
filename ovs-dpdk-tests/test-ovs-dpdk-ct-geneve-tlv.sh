@@ -25,6 +25,7 @@ function config() {
 }
 
 function config_remote() {
+    config_remote_arm_bridge
     local geneve_opts="geneve_opts ffff:80:00001234"
     on_remote ip link del $TUNNEL_DEV &>/dev/null
     on_remote ip l del vm &> /dev/null
@@ -33,6 +34,7 @@ function config_remote() {
     on_remote ip a add $REMOTE_TUNNEL_IP/24 dev $REMOTE_NIC
     on_remote ip l set dev $TUNNEL_DEV up
     on_remote ip l set dev $REMOTE_NIC up
+    on_remote ip link set dev $TUNNEL_DEV mtu 1400
     on_remote tc qdisc add dev $TUNNEL_DEV ingress
 
     title "Setup remote geneve + opts"
@@ -51,12 +53,12 @@ function config_openflow_rules() {
     ovs-ofctl add-flow br-int arp,actions=normal
     ovs-ofctl add-flow br-int icmp,actions=normal
     ovs-ofctl add-tlv-map br-int "{class=0xffff,type=0x80,len=4}->tun_metadata0"
-    ovs-ofctl add-flow br-int "table=0,in_port=geneve_br-int,ip,tun_metadata0=0x1234,ct_state=-trk actions=ct(table=1)"
-    ovs-ofctl add-flow br-int "table=1,in_port=geneve_br-int,ip,tun_metadata0=0x1234,ct_state=+trk+new actions=ct(commit),normal"
-    ovs-ofctl add-flow br-int "table=1,in_port=geneve_br-int,ip,tun_metadata0=0x1234,ct_state=+trk+est actions=normal"
-    ovs-ofctl add-flow br-int "table=0,in_port=$IB_PF0_PORT0,ip,ct_state=-trk actions=ct(table=1)"
-    ovs-ofctl add-flow br-int "table=1,in_port=$IB_PF0_PORT0,ip,ct_state=+trk+new actions=set_field:0x1234->tun_metadata0,ct(commit),normal"
-    ovs-ofctl add-flow br-int "table=1,in_port=$IB_PF0_PORT0,ip,ct_state=+trk+est actions=set_field:0x1234->tun_metadata0,normal"
+    ovs-ofctl add-flow br-int "table=0,in_port=geneve_br-int,ip,tun_metadata0=0x1234,ct_state=-trk, actions=ct(table=1)"
+    ovs-ofctl add-flow br-int "table=1,in_port=geneve_br-int,ip,tun_metadata0=0x1234,ct_state=+trk+new, actions=ct(commit),normal"
+    ovs-ofctl add-flow br-int "table=1,in_port=geneve_br-int,ip,tun_metadata0=0x1234,ct_state=+trk+est, actions=normal"
+    ovs-ofctl add-flow br-int "table=0,in_port=$IB_PF0_PORT0,ip,ct_state=-trk, actions=ct(table=1)"
+    ovs-ofctl add-flow br-int "table=1,in_port=$IB_PF0_PORT0,ip,ct_state=+trk+new, actions=set_field:0x1234->tun_metadata0,ct(commit),normal"
+    ovs-ofctl add-flow br-int "table=1,in_port=$IB_PF0_PORT0,ip,ct_state=+trk+est, actions=set_field:0x1234->tun_metadata0,normal"
     ovs-ofctl dump-flows br-int --color
 }
 
