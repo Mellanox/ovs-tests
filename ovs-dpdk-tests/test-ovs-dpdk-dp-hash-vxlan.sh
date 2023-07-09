@@ -22,8 +22,7 @@ trap cleanup_test EXIT
 function config() {
     cleanup_test
     config_tunnel "vxlan" 1 br-phy br-phy
-    config_local_tunnel_ip $LOCAL_TUN_IP br-phy
-    ip link add dev dummy type veth peer name rep-dummy
+    bf_wrap "ip link add dev dummy type veth peer name rep-dummy"
     ovs-vsctl add-port br-phy rep-dummy
     ovs-vsctl show
 }
@@ -55,7 +54,7 @@ function run() {
 }
 
 run
-ip link del dummy
+bf_wrap "ip link del dummy"
 trap - EXIT
 cleanup_test
 test_done
