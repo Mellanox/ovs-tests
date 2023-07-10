@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# Test OVS-DPDK bridge creation and deletion multiple times without restarting openvswitch.
+# Test OVS-DPDK bridge creation and deletion without e2e config first then do the same but with e2e config enabled.
 #
-# Such test is needed after catching this bug
+# Such test is needed after catching this bug which caused the ovs to get stuck.
 # Bug SW #2644904: [ovs-dpdk, e2e-enable] Failed deleting ovs from bridge when we try to cleanup the setup
 
 my_dir="$(dirname "$0")"
