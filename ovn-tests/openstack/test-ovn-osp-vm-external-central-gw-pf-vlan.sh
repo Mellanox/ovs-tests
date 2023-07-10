@@ -75,6 +75,7 @@ function run_test() {
 
 TRAFFIC_INFO['server_ns']=""
 TRAFFIC_INFO['server_verify_offload']=""
+TRAFFIC_INFO['local_traffic']=1
 
 clean_up_test
 trap clean_up_test EXIT
