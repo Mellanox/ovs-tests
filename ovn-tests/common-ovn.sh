@@ -4,7 +4,7 @@ OVN_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
 
 . $OVN_DIR/../common.sh
 
-if [ "$DPDK" == 1 ]; then
+if [ "$DPDK" == 1 ] || [ "$DOCA" == 1 ]; then
     . $OVN_DIR/../ovs-dpdk-tests/common-dpdk.sh
 fi
 
