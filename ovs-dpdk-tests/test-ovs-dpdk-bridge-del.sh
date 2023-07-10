@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Test OVS-DPDK bridge creation and deletion
+# Test OVS-DPDK bridge creation and deletion multiple times without restarting openvswitch.
 #
 # Such test is needed after catching this bug
 # Bug SW #2644904: [ovs-dpdk, e2e-enable] Failed deleting ovs from bridge when we try to cleanup the setup
@@ -41,11 +41,11 @@ function run() {
     ovs-vsctl show
 
     debug "deleting bridges"
-    timeout 10 ovs-vsctl del-br br-int
+    bf_wrap "timeout 10 ovs-vsctl del-br br-int"
     if [ $? -eq 124 ]; then
         err "Timed out deleting bridge"
     fi
-    timeout 10 ovs-vsctl del-br br-phy
+    bf_wrap "timeout 10 ovs-vsctl del-br br-phy"
     if [ $? -eq 124 ]; then
         err "Timed out deleting bridge"
     fi
@@ -55,11 +55,11 @@ function run() {
     ovs-vsctl show
 
     debug "deleting bridges"
-    timeout 10 ovs-vsctl del-br br-int
+    bf_wrap "timeout 10 ovs-vsctl del-br br-int"
     if [ $? -eq 124 ]; then
         err "Timed out deleting bridge"
     fi
-    timeout 10 ovs-vsctl del-br br-phy
+    bf_wrap "timeout 10 ovs-vsctl del-br br-phy"
     if [ $? -eq 124 ]; then
         err "Timed out deleting bridge"
     fi
