@@ -35,34 +35,29 @@ function config() {
     config_local_tunnel_ip $LOCAL_TUN br-phy
 }
 
+function timeout_ovs-vsctl() {
+    local cmd="ovs-vsctl $@"
+
+    bf_wrap "timeout 10 $cmd"
+    [ $? -eq 124 ] && err "Timed out command $cmd"
+}
+
 function run() {
     title "Test creating bridges without e2e-enabled"
     config false
     ovs-vsctl show
 
     debug "deleting bridges"
-    bf_wrap "timeout 10 ovs-vsctl del-br br-int"
-    if [ $? -eq 124 ]; then
-        err "Timed out deleting bridge"
-    fi
-    bf_wrap "timeout 10 ovs-vsctl del-br br-phy"
-    if [ $? -eq 124 ]; then
-        err "Timed out deleting bridge"
-    fi
+    timeout_ovs-vsctl del-br br-int
+    timeout_ovs-vsctl del-br br-phy
 
     title "Test creating bridges with e2e-enabled"
     config true
     ovs-vsctl show
 
     debug "deleting bridges"
-    bf_wrap "timeout 10 ovs-vsctl del-br br-int"
-    if [ $? -eq 124 ]; then
-        err "Timed out deleting bridge"
-    fi
-    bf_wrap "timeout 10 ovs-vsctl del-br br-phy"
-    if [ $? -eq 124 ]; then
-        err "Timed out deleting bridge"
-    fi
+    timeout_ovs-vsctl del-br br-int
+    timeout_ovs-vsctl del-br br-phy
 }
 
 run
