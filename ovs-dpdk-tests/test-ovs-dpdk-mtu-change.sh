@@ -22,9 +22,6 @@ trap cleanup_test EXIT
 
 function config() {
     cleanup_test
-    debug "Restarting OVS"
-    start_clean_openvswitch
-
     config_simple_bridge_with_rep 1 true br-phy $NIC
     config_ns ns0 $VF $LOCAL_IP
 }
