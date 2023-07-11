@@ -29,21 +29,9 @@ function cleanup() {
 trap cleanup EXIT
 
 function set_sf_esw() {
-    local i ids a sf port
+    set_sf_eswitch
 
-    title "Set SF eswitch"
-
-    # Failing to change fw with sf inactive but works with unbind.
-    unbind_sfs
-    for port in `get_all_sf_pci`; do
-        port=${port%:}
-        devlink_port_eswitch_enable $port
-        devlink_port_show $port
-    done
-    bind_sfs
-
-    fail_if_err
-
+    local sf_dev sf
     for sf_dev in `get_aux_sf_devices`; do
         sf=`basename $sf_dev/net/*`
         echo "SF $sf phys_switch_id `cat $sf_dev/net/*/phys_switch_id`" || fail "Failed to get SF switch id"

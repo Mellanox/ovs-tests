@@ -340,6 +340,20 @@ function get_all_sf_pci() {
     devlink port show | grep sfnum | awk {'print $1'}
 }
 
+function set_sf_eswitch() {
+    title "Set SF eswitch"
+    # Failing to change fw bit with sf inactive but works with unbind.
+    unbind_sfs
+    local port
+    for port in `get_all_sf_pci`; do
+        port=${port%:}
+        devlink_port_eswitch_enable $port
+        devlink_port_show $port
+    done
+    bind_sfs
+    fail_if_err
+}
+
 function reload_sfs_into_ns() {
     title "Reload SF into ns0"
 
