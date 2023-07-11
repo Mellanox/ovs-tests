@@ -34,6 +34,8 @@ function config() {
 }
 
 function config_remote() {
+    config_remote_arm_bridge
+    config_remote_arm_bridge "br-phy-2" $NIC2
     on_remote "ip a flush dev $REMOTE_NIC
                ip a add $REMOTE_IP/24 dev $REMOTE_NIC
                ip l set dev $REMOTE_NIC up
@@ -54,7 +56,11 @@ function run() {
     generate_traffic "remote" $LOCAL_IP
     generate_traffic "remote" $LOCAL_IP2
 
-    ovs-vsctl del-port $NIC2
+    local pci=$(get_pf_pci2)
+    local port=`get_port_from_pci $pci`
+
+    debug "Removing $port"
+    ovs-vsctl del-port $port
 
     generate_traffic "remote" $LOCAL_IP
 }
