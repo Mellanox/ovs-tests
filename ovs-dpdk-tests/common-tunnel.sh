@@ -18,9 +18,10 @@ function gre_set_entropy() {
 }
 
 function gre_set_entropy_on_remote() {
-    local cmd="$TCGRE $PCI"
+    local pci=$(get_pf_pci)
+    local cmd="$TCGRE $pci"
     debug "Run on remote $cmd"
-    on_remote "$cmd"
+    remote_bf_wrap "$cmd"
 }
 
 function cleanup_remote_tunnel() {
