@@ -114,20 +114,20 @@ function create_tunnel_config() {
                require_interfaces REP NIC
                unbind_vfs
                bind_vfs
-               set_e2e_cache_enable false
-               start_clean_openvswitch
-               config_simple_bridge_with_rep 0
-               config_remote_bridge_tunnel $TUNNEL_ID $wanted_remote_ip $tnl_type
-               config_local_tunnel_ip $wanted_local_ip br-phy
                config_ns ns0 $VF $vf_ip
                ip netns exec ns0 ifconfig $VF mtu 1400"
 
+    local bridge_create_cmd="config_simple_bridge_with_rep 0
+                             config_remote_bridge_tunnel $TUNNEL_ID $wanted_remote_ip $tnl_type
+                             config_local_tunnel_ip $wanted_local_ip br-phy"
+
      if [ "$remote" == "remote" ]; then
         title "Configuring remote server"
-        on_remote_exec "$cmd
-                        ovs_conf_set hw-offload false"
+        on_remote_exec "$cmd"
+        remote_bf_wrap_exec "$bridge_create_cmd"
      else
          title "Configuring local server"
          eval "$cmd"
+         bf_wrap_exec "$bridge_create_cmd"
      fi
 }
