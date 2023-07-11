@@ -34,6 +34,22 @@ function require_remote_bf() {
     on_remote_bf true || fail "Remote BF command failed"
 }
 
+function remote_bf_wrap() {
+    if is_bf_host; then
+        on_remote_bf "$@"
+    else
+        on_remote "$@"
+    fi
+}
+
+function remote_bf_wrap_exec() {
+    if is_bf_host; then
+        on_remote_bf_exec "$@"
+    else
+        on_remote_exec "$@"
+    fi
+}
+
 function bf_wrap() {
     if is_bf_host; then
         on_bf "$@"

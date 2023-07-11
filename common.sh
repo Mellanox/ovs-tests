@@ -620,13 +620,23 @@ function cloud_fw_reset() {
     load_modules
 }
 
+function remote_bf_wrap() {
+    # overridden in common-bf.sh
+    on_remote "$@"
+}
+
+function remote_bf_wrap_exec() {
+    # overridden in common-bf.sh
+    on_remote_exec "$@"
+}
+
 function bf_wrap() {
-    # overriden in common-bf.sh
+    # overridden in common-bf.sh
     eval "$@"
 }
 
 function bf_wrap_exec() {
-    # overriden in common-bf.sh
+    # overridden in common-bf.sh
     eval "$@"
 }
 
