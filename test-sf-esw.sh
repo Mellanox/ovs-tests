@@ -27,20 +27,7 @@ function config() {
     title "Config"
     create_sfs 1
 
-    title "Set SF eswitch"
-
-    # Failing to change fw with sf inactive but works with unbind.
-    unbind_sfs
-    local port
-    for port in `get_all_sf_pci`; do
-        port=${port%:}
-        devlink_port_eswitch_enable $port
-        devlink_port_show $port
-    done
-    bind_sfs
-    echo "SF phys_switch_id `cat /sys/class/net/$SF1/phys_switch_id`" || err "Failed to get SF switch id"
-    fail_if_err
-
+    set_sf_eswitch
     reload_sfs_into_ns
     set_sf_switchdev
 
