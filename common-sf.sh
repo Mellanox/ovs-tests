@@ -374,6 +374,17 @@ function reload_sfs_into_ns() {
     done
 }
 
+function reset_sfs_ns() {
+    title "Reload SF into default ns"
+
+    local i sfs
+    ip netns ls | grep -q ns0 && sfs=`ip netns exec ns0 devlink dev | grep -w sf`
+    for i in $sfs; do
+        ip netns exec ns0 devlink dev reload $i netns 1
+    done
+    ip -all netns delete
+}
+
 function set_sf_switchdev() {
     title "Set SF switchdev"
 

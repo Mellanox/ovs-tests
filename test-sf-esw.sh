@@ -12,12 +12,7 @@ IP2="7.7.7.2"
 
 function cleanup() {
     log "cleanup"
-    local i sfs
-    ip netns ls | grep -q ns0 && sfs=`ip netns exec ns0 devlink dev | grep -w sf`
-    for i in $sfs; do
-        ip netns exec ns0 devlink dev reload $i netns 1
-    done
-    ip -all netns delete
+    reset_sfs_ns
     remove_sfs
 }
 
