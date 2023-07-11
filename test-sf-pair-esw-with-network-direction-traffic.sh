@@ -27,16 +27,6 @@ function cleanup() {
 
 trap cleanup EXIT
 
-function set_sf_esw() {
-    set_sf_eswitch
-
-    local sf_dev sf
-    for sf_dev in `get_aux_sf_devices`; do
-        sf=`basename $sf_dev/net/*`
-        echo "SF $sf phys_switch_id `cat $sf_dev/net/*/phys_switch_id`" || fail "Failed to get SF switch id"
-    done
-}
-
 function config() {
     local count=$1
     local direction=${2:-""}
@@ -55,7 +45,7 @@ function config() {
         ((count+=count))
     fi
 
-    set_sf_esw $count
+    set_sf_eswitch
     reload_sfs_into_ns
     set_sf_switchdev
     verify_single_ib_device $((count*2))

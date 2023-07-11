@@ -352,6 +352,15 @@ function set_sf_eswitch() {
     done
     bind_sfs
     fail_if_err
+    print_sf_esw_phys_switch_id
+}
+
+function print_sf_esw_phys_switch_id() {
+    local sf_dev sf
+    for sf_dev in `get_aux_sf_devices`; do
+        sf=`basename $sf_dev/net/*`
+        echo "SF $sf phys_switch_id `cat $sf_dev/net/*/phys_switch_id`" || fail "Failed to get SF switch id"
+    done
 }
 
 function reload_sfs_into_ns() {
