@@ -44,6 +44,8 @@ function config_remote_tunnel() {
     local remote_tunnel_ip=${5:-"$REMOTE_TUNNEL_IP"}
     local remote_nic=${6:-"$REMOTE_NIC"}
     local remote_ip=${7:-"$REMOTE_IP"}
+    local bridge=${8:-br-phy}
+    local port=${9:-$NIC}
     local cmd
 
     if [ "$tnl_type" == "geneve" ]; then
@@ -66,7 +68,7 @@ function config_remote_tunnel() {
                ip link set dev $tunnel_dev mtu 1400
                ip l set dev $remote_nic up"
 
-    config_remote_arm_bridge
+    config_remote_arm_bridge $bridge $port
 }
 
 function config_tunnel() {

@@ -31,6 +31,8 @@ function config() {
 }
 
 function config_remote() {
+    config_remote_arm_bridge
+    config_remote_arm_bridge "br-phy-2" $NIC2
     on_remote "ip a flush dev $REMOTE_NIC
                ip a add $REMOTE_IP/24 dev $REMOTE_NIC
                ip l set dev $REMOTE_NIC up

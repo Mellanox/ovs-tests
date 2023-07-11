@@ -36,7 +36,7 @@ function config() {
 
 function config_remote() {
     config_remote_tunnel vxlan $TUNNEL_DEV $TUNNEL_ID $LOCAL_TUN_IP $REMOTE_TUNNEL_IP $REMOTE_NIC $REMOTE_IP
-    config_remote_tunnel vxlan $TUNNEL_DEV2 $TUNNEL_ID2 $LOCAL_TUN_IP2 $REMOTE_TUNNEL_IP2 $REMOTE_NIC2 $REMOTE_IP2
+    config_remote_tunnel vxlan $TUNNEL_DEV2 $TUNNEL_ID2 $LOCAL_TUN_IP2 $REMOTE_TUNNEL_IP2 $REMOTE_NIC2 $REMOTE_IP2 "br-phy-2" $NIC2
 }
 
 function run() {
