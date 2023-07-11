@@ -2676,6 +2676,18 @@ function pci_reset() {
     grace_period_after_pci_reset
 }
 
+function enable_ftrace() {
+    local ftrace_filter=$1
+    echo function_graph > /sys/kernel/debug/tracing/current_tracer
+    echo $ftrace_filter > /sys/kernel/debug/tracing/set_ftrace_filter
+    echo 1 > /sys/kernel/debug/tracing/tracing_on
+    echo > /sys/kernel/debug/tracing/trace
+}
+
+function disable_ftrace() {
+    echo 0 > /sys/kernel/debug/tracing/tracing_on
+}
+
 function __test_help() {
     echo "To run a test export a config and run the test script as so:"
     echo
