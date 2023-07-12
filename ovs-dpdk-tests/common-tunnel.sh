@@ -111,8 +111,7 @@ function create_tunnel_config() {
     local vf_ip=$4
     local tnl_type=$5
 
-    local cmd="config_sriov 2
-               require_interfaces REP NIC
+    local cmd="require_interfaces REP NIC
                unbind_vfs
                bind_vfs
                config_ns ns0 $VF $vf_ip
