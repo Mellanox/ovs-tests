@@ -26,7 +26,7 @@ function config_openflow_rules() {
                ovs-ofctl dump-flows br-int --color"
 
     if [ "$exec_on_remote" = true ]; then
-        on_remote "$cmd"
+        remote_bf_wrap "$cmd"
     else
         eval "$cmd"
     fi
