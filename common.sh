@@ -963,7 +963,8 @@ function config_vf() {
         prefix=64
     fi
 
-    echo "[$ns] VF $vf (${mac:+$mac/}$ip) -> REP $rep"
+    local info=${mac:+$mac }${ip:+$ip}
+    echo "[$ns] VF $vf ${info:+($info)} -> REP $rep"
     ip netns add $ns
     ${mac:+ip link set $vf address $mac}
     ip link set $vf netns $ns
