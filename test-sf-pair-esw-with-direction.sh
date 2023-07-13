@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Test host direction SF fast path traffic from SF to VF.
-# After cleanup first SF test network direction SF fast path traffic from SF to uplink.
+# Test first SF network direction to SF REP.
+# after cleanup test SF host direction to SF REP.
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
