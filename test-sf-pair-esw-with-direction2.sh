@@ -14,6 +14,7 @@ function cleanup() {
     log "cleanup"
     reset_sfs_ns
     remove_sfs
+    sleep 10 # WA wait for fw assert that was spotted up to 10 seconds after cleanup.
 }
 
 trap cleanup EXIT
@@ -76,11 +77,11 @@ enable_switchdev
 test_count=2
 
 cleanup
-config $test_count "network"
+config $test_count "host"
 test_ping $test_count
 
 cleanup
-config $test_count "host"
+config $test_count "network"
 test_ping $test_count
 
 trap - EXIT
