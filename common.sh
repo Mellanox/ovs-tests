@@ -1732,7 +1732,7 @@ Command completion arrived after timeout|Error cqe|failed reclaiming pages"
     fi
 
     local logdir="$DEVTESTS_LOGDIR/$TESTNAME"
-    log "Dump fw debug to $logdir"
+    log "Dump fw debug to $logdir/"
     [ ! -e $logdir ] && mkdir $logdir
     [ ! -e $logdir ] && return
 
