@@ -44,8 +44,6 @@ function config() {
     reload_sfs_into_ns
     set_sf_switchdev
     verify_single_ib_device $((count*2))
-
-    config_vf ns1 $VF $REP
 }
 
 function test_ping_sf_host() {
@@ -122,6 +120,7 @@ test_count=2
 cleanup
 config $test_count "both"
 ((test_count+=test_count))
+config_vf ns1 $VF $REP
 test_ping $test_count
 
 trap - EXIT
