@@ -9,6 +9,8 @@ my_dir="$(dirname "$0")"
 IP1="7.7.7.1"
 IP2="7.7.7.2"
 
+require_cmd brctl
+
 function cleanup() {
     log "cleanup"
     ip netns exec ns0 brctl delbr bb1
