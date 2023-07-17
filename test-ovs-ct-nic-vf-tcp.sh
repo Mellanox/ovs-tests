@@ -11,6 +11,7 @@ my_dir="$(dirname "$0")"
 
 require_module act_ct
 require_remote_server
+not_relevant_for_nic cx4 cx4lx cx5
 
 require_mlxreg
 config_sriov 2 $NIC
