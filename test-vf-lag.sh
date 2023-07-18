@@ -11,9 +11,6 @@ my_dir="$(dirname "$0")"
 require_module bonding
 require_interfaces NIC NIC2
 
-config_sriov 2
-reset_tc $NIC
-
 local_ip="2.2.2.2"
 remote_ip="2.2.2.3"
 dst_mac="e4:1d:2d:fd:8b:02"
