@@ -1807,15 +1807,16 @@ mlx5_pci_slot_reset Device state = 2 pci_status: 1. Exit, err = 0, result = 5, r
     [ "$a" != "" ] && echo "$a"
     [ "$b" != "" ] && echo "$b"
 
-    a=`journalctl_for_test $since | grep -E -i "$memleak" || true`
-    if [ "$a" != "" ]; then
+    if [ -f $kmemleak_sysfs ]; then
         # WA getting "mount.nfs" leaks sometimes in regression VM.
         local unref_count=`cat $kmemleak_sysfs | grep -c "unreferenced object"`
         local mount_count=`cat $kmemleak_sysfs | grep -c "mount.nfs"`
         if [ $unref_count -ne $mount_count ]; then
-            err "Detected memory leaks in the log"
-            echo "$a"
+            err "Detected $unref_count memory leaks in the log"
+            a=`journalctl_for_test $since | grep -E -i "$memleak" || true`
+            [ "$a" != "" ] && echo "$a"
             rc=1
+            cat $kmemleak_sysfs
         fi
     fi
 
