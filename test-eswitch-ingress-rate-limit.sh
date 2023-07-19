@@ -75,8 +75,8 @@ function check_mrate() {
 
     mrate=$(bc <<< "$mrate * 1000" | sed -e 's/\..*//')
 
-    local upper=$(bc <<< "$rate * 1100")
-    local lower=$(bc <<< "$rate * 900")
+    local upper=$(bc <<< "$rate * 1150")
+    local lower=$(bc <<< "$rate * 950")
 
     if (( mrate < lower || mrate > upper )); then
         err "Measured rate $mrate out of range [$lower, $upper]"
