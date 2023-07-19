@@ -54,12 +54,12 @@ function config_dev() {
     # trying to guess exact timeout to ignore with iperf3 'O' flag just execute
     # single warm-up iperf3 run when configuring the device.
     ovs-vsctl set interface $REP ingress_policing_rate=10000
-    ip netns exec ns0 iperf3 -t 10 -fm -c $IP2
+    ip netns exec ns0 iperf3 -t 3 -fm -c $IP2
 }
 
 function check_mrate() {
     local rate=$1
-    local mrate=$(ip netns exec ns0 iperf3 -t 15 -fm -c $IP2 -O 1 | grep 'sender' | gawk '{printf $7}')
+    local mrate=$(ip netns exec ns0 iperf3 -t 6 -fm -c $IP2 -O 1 | grep 'sender' | gawk '{printf $7}')
 
     tc -s filter show dev $REP ingress protocol ip | grep -q "Sent 0"
     if [ $? -eq 0 ]; then
