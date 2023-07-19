@@ -8,9 +8,9 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
+config_sriov 2
 enable_switchdev
 require_interfaces REP REP2
-unbind_vfs
 bind_vfs
 reset_tc $REP $REP2
 
