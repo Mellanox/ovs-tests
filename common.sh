@@ -1102,7 +1102,7 @@ function bring_up_reps() {
     ifs=`__get_vf_reps $nic`
 
     if [ -z "$ifs" ]; then
-        warn "bring_up_reps: cannot find reps for $nic"
+        echo "bring_up_reps: no reps for $nic to bring up"
         return
     fi
 
