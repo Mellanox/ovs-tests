@@ -565,6 +565,9 @@ def format_result(res, out='', html=False):
 
 
 def sort_tests(tests, randomize=False):
+    def cmp1(x):
+        return x[:-3].replace('-', 'a')
+
     if randomize:
         warn('Randomize temporarily disabled. sort by name.')
         randomize = False
@@ -572,11 +575,13 @@ def sort_tests(tests, randomize=False):
         print('Randomizing the tests order')
         random.shuffle(tests)
     elif type(tests[0]) == str:
-        tests.sort(key=lambda x: os.path.basename(x).split('.')[0])
+        key=lambda x: cmp1(os.path.basename(x))
     elif args.group:
-        tests.sort(key=lambda x: x.group + x.name.split('.')[0])
+        key=lambda x: cmp1(x.group + x.name)
     else:
-        tests.sort(key=lambda x: x.name.split('.')[0])
+        key=lambda x: cmp1(x.name)
+
+    tests.sort(key=key)
 
 
 def glob_tests(glob_filter):
