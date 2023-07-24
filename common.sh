@@ -2470,7 +2470,7 @@ function dmfs_dump() {
 
 function smfs_dump() {
     local dump=${1:-dump}
-    if [ -f /sys/kernel/debug/mlx5/$PCI/steering/fdb ]; then
+    if [ -e /sys/kernel/debug/mlx5/$PCI/steering/fdb ]; then
         cat /sys/kernel/debug/mlx5/$PCI/steering/fdb/* > /tmp/$dump || err "smfs dump failed"
     else
         cat /proc/driver/mlx5_core/smfs_dump/fdb/$PCI > /tmp/$dump || err "smfs dump failed"
