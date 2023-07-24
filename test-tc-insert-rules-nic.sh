@@ -63,9 +63,8 @@ function test_basic_L4() {
 }
 
 function test_prio() {
-    title "Check EOPNOTSUPP adding vf rule on prio without vf trusted mode"
-
-    tc filter add dev $VF protocol ip parent ffff: \
+    local filter="""\
+    add dev $VF protocol ip parent ffff: \
             prio 3 flower \
                     skip_sw \
                     dst_mac e4:11:22:11:4a:51 \
@@ -73,9 +72,18 @@ function test_prio() {
                     ip_proto tcp \
                     src_ip 1.1.1.1 \
                     dst_ip 2.2.2.2 \
-            action drop >/tmp/log 2>&1
-    grep -q "Operation not supported" /tmp/log && success && return
-    err "Expected operation not supported error"
+            action drop
+    """
+
+    if fw_ver_lt 38 566 ; then
+        title "Check EOPNOTSUPP adding vf rule on prio without vf trusted mode"
+        tc filter $filter >/tmp/log 2>&1
+        grep -q "Operation not supported" /tmp/log && success && return
+        err "Expected operation not supported error"
+    else
+        # expected to work from at least fw xx.38.0566 (RM 3547692)
+        tc_filter_success $filter
+    fi
 }
 
 
