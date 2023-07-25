@@ -166,7 +166,7 @@ function ovs_add_host_pf_rep_port() {
     local pci=${2:-$BF_PCI}
     local port=`get_port_from_pci $pci hpf`
 
-    ovs-vsctl add-port $bridge $port -- set Interface $port type=dpdk options:dpdk-devargs=$pci,representor=[-1],$DPDK_PORT_EXTRA_ARGS
+    ovs-vsctl add-port $bridge $port -- set Interface $port type=dpdk options:dpdk-devargs=$pci,representor=[65535],$DPDK_PORT_EXTRA_ARGS
 }
 
 function start_vdpa_vm() {
