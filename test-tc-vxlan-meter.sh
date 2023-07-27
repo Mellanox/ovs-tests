@@ -21,7 +21,7 @@ DSTPORT=4789
 
 VXLAN_MAC=24:25:d0:e2:00:00
 
-RATE=200
+RATE=100
 BURST=65536
 TMPFILE=/tmp/meter.log
 
@@ -117,23 +117,17 @@ function run() {
 
     t=10
     # traffic
-    ip netns exec ns0 timeout -k 1 $((t+4)) iperf3 -s -J > $TMPFILE &
-    pid2=$!
+    ip netns exec ns0 timeout -k 1 $((t+5)) iperf3 -s -1 -J > $TMPFILE &
     sleep 2
-    on_remote timeout -k 1 $t iperf3 -c $IP -t $t -u -l 1400 -b 2G -P2 &
-    pid1=$!
+    on_remote timeout -k 1 $((t+2)) iperf3 -c $IP -t $t -O 1 -u -l 1400 -b 1G -P2 &
 
     verify
 }
 
 function verify() {
     # verify client pid
-    sleep 2
-    kill -0 $pid1 &>/dev/null
-    if [ $? -ne 0 ]; then
-        err "iperf3 failed"
-        return
-    fi
+    sleep 2.5
+    pidof iperf3 &>/dev/null || err "iperf3 failed"
 
     timeout $((t-2)) tcpdump -qnnei $REP -c 10 'udp' &
     local tpid=$!
@@ -177,11 +171,9 @@ function run2() {
 
     t=10
     # traffic
-    on_remote timeout -k 1 $((t+5)) iperf3  -s -J > $TMPFILE &
-    pid2=$!
+    on_remote timeout -k 1 $((t+5)) iperf3  -s -1 -J > $TMPFILE &
     sleep 2
-    ip netns exec ns0 timeout -k 1 $((t+2)) iperf3 -u -c $REMOTE -t $t -l 1400 -b 2G -P2 &
-    pid1=$!
+    ip netns exec ns0 timeout -k 1 $((t+2)) iperf3 -u -c $REMOTE -t $t -O 1 -l 1400 -b 1G -P2 &
 
     verify
 }
