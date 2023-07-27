@@ -2473,7 +2473,7 @@ function smfs_dump() {
 
 function fw_dump() {
     local dump=$1
-    local mode=`get_flow_steering_mode $NIC`
+    local mode=`get_flow_steering_mode $PCI`
     if [ "$mode" == "smfs" ]; then
         smfs_dump $dump
     elif [ "$mode" == "dmfs" ]; then
