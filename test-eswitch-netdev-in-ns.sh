@@ -59,7 +59,7 @@ function run() {
     fi
 
     title "Verify a device in switchdev with SRIOV enabled mode which is moved via devlink reload into a ns.
-    Eswitch mode and sriov should persist in the namespace following the reload."
+    Sriov should persist in the namespace while eswitch mode should not following the reload."
     enable_switchdev
     config_sriov 2
     local num_devs=`get_reps_count $NIC`
@@ -70,19 +70,14 @@ function run() {
     ip netns add ns0
     devlink dev reload pci/$PCI netns ns0
     local esw_mode=`exec_in_ns0 devlink dev eswitch show pci/$PCI | grep "mode" | cut -d' ' -f 3`
-    if [ "$esw_mode" != "switchdev" ]; then
+    if [ "$esw_mode" != "legacy" ]; then
         device_restore_root_ns
-        fail "Device($PCI) eswitch mode is $esw_mode(expected to be switchdev)"
+        fail "Device($PCI) eswitch mode is $esw_mode(expected to be legacy)"
     fi
     local sriov_num=`exec_in_ns0 cat /sys/bus/pci/devices/$PCI/sriov_numvfs`
     if [ "$sriov_num" -ne 2 ]; then
         device_restore_root_ns
         fail "SRIOV number of device($PCI) is $sriov_num(expected to be 2)"
-    fi
-    local num_devs_in_ns=`PF_IN_NS=ns0 get_reps_count eth0`
-    if [ "$num_devs_in_ns" -ne $num_devs ]; then
-        device_restore_root_ns
-        fail "Got $num_devs_in_ns reps in ns0, expect $num_devs"
     fi
     device_restore_root_ns
     config_sriov 0
