@@ -382,12 +382,12 @@ function setup_expected_steering_mode() {
     local mode1=`get_flow_steering_mode $pci`
     local mode2=`get_flow_steering_mode $pci2`
 
-    if [ "$mode1" != $STEERING_MODE ]; then
+    if [ -n "$mode1" ] && [ "$mode1" != $STEERING_MODE ]; then
         config_sriov 2
         enable_legacy $NIC
         set_flow_steering_mode $pci $STEERING_MODE
     fi
-    if [ "$mode2" != $STEERING_MODE ]; then
+    if [ -n "$mode2" ] && [ "$mode2" != $STEERING_MODE ]; then
         config_sriov 2 $NIC2
         enable_legacy $NIC2
         set_flow_steering_mode $pci2 $STEERING_MODE
