@@ -253,10 +253,11 @@ function __setup_common() {
 
     __get_device_name
     __get_pci_device_name
-    reset_is_bf_host
-
     status="NIC $NIC FW $FW PCI $PCI DEVICE $DEVICE $device_name"
     log $status
+
+    reset_is_bf_host
+    is_bf_host && . $DIR/common-bf.sh
 
     print_mlnx_ofed_version
     __test_for_devlink_compat
@@ -269,8 +270,6 @@ function __setup_common() {
     set_ovs_debug_logs
     check_simx
     simx_append_log "# TEST $TESTNAME #"
-
-    is_bf_host && . $DIR/common-bf.sh
 }
 
 ovs_log_path="/var/log/openvswitch/ovs-vswitchd.log"
@@ -346,37 +345,28 @@ function is_mlxdump_supported() {
 }
 
 function get_flow_steering_mode() {
-    local nic=$1
-    local pci=$(basename `readlink /sys/class/net/$nic/device`)
+    local pci=$1
 
-    if [ "$devlink_compat" -ge 1 ]; then
-        cat `devlink_compat_dir $nic`/steering_mode 2>/dev/null
-    else
-        devlink dev param show pci/$pci name flow_steering_mode | grep "runtime value" | awk {'print $NF'}
-    fi
+    __devlink dev param show pci/$pci name flow_steering_mode | grep "runtime value" | awk {'print $NF'}
 }
 
 function set_flow_steering_mode() {
-    local nic=$1
-    local mode=$2
-    local pci=$(basename `readlink /sys/class/net/$nic/device`)
+    local pci=$1
 
-    if [ "$devlink_compat" -ge 1 ]; then
-        echo $mode > `devlink_compat_dir $nic`/steering_mode || fail "Failed to set $mode flow steering mode"
-    else
-        devlink dev param set pci/$pci name flow_steering_mode value $mode cmode runtime || fail "Failed to set $mode flow steering mode"
-    fi
-
-    log "Set $mode flow steering mode on $nic"
+    log "Set $mode flow steering mode on $pci"
+    __devlink dev param set pci/$pci name flow_steering_mode value $mode cmode runtime || fail "Failed to set $mode flow steering mode"
 }
 
 function show_current_steering_mode() {
-    local mode1=`get_flow_steering_mode $NIC`
-    local mode2=`get_flow_steering_mode $NIC2`
+    local pci=`get_pf_pci`
+    local pci2=`get_pf_pci2`
+    local mode1=`get_flow_steering_mode $pci`
+    local mode2=`get_flow_steering_mode $pci2`
+
     # if mode is empty assume old ofed 4.6 which doesn't support steering mode.
     if [ -n "$mode1" ]; then
-        log "Flow steering mode for $NIC is $mode1"
-        log "Flow steering mode for $NIC2 is $mode2"
+        log "Flow steering mode for $pci is $mode1"
+        log "Flow steering mode for $pci2 is $mode2"
     fi
 }
 
@@ -385,17 +375,21 @@ function setup_expected_steering_mode() {
         show_current_steering_mode
         return
     fi
-    local mode1=`get_flow_steering_mode $NIC`
-    local mode2=`get_flow_steering_mode $NIC2`
+
+    local pci=`get_pf_pci`
+    local pci2=`get_pf_pci2`
+    local mode1=`get_flow_steering_mode $pci`
+    local mode2=`get_flow_steering_mode $pci2`
+
     if [ "$mode1" != $STEERING_MODE ]; then
         config_sriov 2
         enable_legacy $NIC
-        set_flow_steering_mode $NIC $STEERING_MODE
+        set_flow_steering_mode $pci $STEERING_MODE
     fi
     if [ "$mode2" != $STEERING_MODE ]; then
         config_sriov 2 $NIC2
         enable_legacy $NIC2
-        set_flow_steering_mode $NIC2 $STEERING_MODE
+        set_flow_steering_mode $pci2 $STEERING_MODE
     fi
     show_current_steering_mode
 }
@@ -1194,7 +1188,7 @@ function wait_switch_mode_compat() {
 }
 
 function __devlink() {
-    exec_pf_in_ns devlink $@
+    bf_wrap $(get_exec_pf_in_ns) devlink $@
 }
 
 function switch_mode() {
