@@ -77,7 +77,9 @@ function sf_set_param_if_supported() {
     devlink dev param show auxiliary/$dev name $param_name &>/dev/null
     if [ $? -eq 0 ] ; then
         sf_set_param $dev $param_name
+        return 0
     fi
+    return 1
 }
 
 function sf_disable_roce() {
@@ -189,12 +191,13 @@ function sf_enable_features() {
     local sf_dev=$1
     local features=$2
     local feature
+    local changed=0
 
     for feature in $features ; do
-        sf_set_param_if_supported $sf_dev enable_$feature
+        sf_set_param_if_supported $sf_dev enable_$feature && changed=1
     done
 
-    sf_reload_aux $sf_dev
+    [ $changed == 1 ] && sf_reload_aux $sf_dev
 }
 
 function bind_sfs() {
