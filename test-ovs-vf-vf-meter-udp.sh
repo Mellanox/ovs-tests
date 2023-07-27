@@ -13,7 +13,7 @@ IP1="7.7.7.1"
 IP2="7.7.7.2"
 
 BR=br-ovs
-RATE=200
+RATE=100
 TMPFILE=/tmp/iperf3.log
 
 METER_BPS=1
@@ -53,17 +53,12 @@ function test_udp() {
 
     title "Test iperf3 udp $VF($IP1) -> $VF2($IP2)"
     t=10
-    ip netns exec ns0 timeout -k 1 $((t+5)) iperf3 -s -J > $TMPFILE &
+    ip netns exec ns0 timeout -k 1 $((t+5)) iperf3 -s -1 -J > $TMPFILE &
     sleep 2
-    ip netns exec ns1 timeout -k 1 $((t+2)) iperf3 -u -c $IP1 -t $t -l 1400 -b2G -P 4 &
-    pid1=$!
+    ip netns exec ns1 timeout -k 1 $((t+2)) iperf3 -u -c $IP1 -t $t -O 1 -l 1400 -b1G -P 3 &
 
-    sleep 2
-    kill -0 $pid1 &>/dev/null
-    if [ $? -ne 0 ]; then
-        err "iperf3 failed"
-        return
-    fi
+    sleep 2.5
+    pidof iperf3 &>/dev/null || err "iperf3 failed"
 
     timeout $((t-2)) tcpdump -qnnei $REP -c 10 'udp' &
     local tpid=$!
