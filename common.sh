@@ -2200,7 +2200,13 @@ function verify_iperf3_bw() {
     if [ "$proto" = "TCP" ]; then
         local bw=$(cat $iperf_out_file | jq ".end.sum_received.bits_per_second | select(.)")
     else
-        local bw=$(cat $iperf_out_file | jq ".intervals[1].sum.bits_per_second | select(.)")
+        # For UDP we have to combine results manually due to iperf3 ver 3.4 bug
+        # that always outputs .end.sum_received.bits_per_second as 0:
+        # https://github.com/esnet/iperf/issues/754
+        #
+        # Also, ignore last interval that is usually fraction of a second with
+        # wildly varying rate.
+        local bw=$(cat $iperf_out_file | jq '[.intervals[] | select(.sum.omitted == false) | .sum.bits_per_second] | .[0:-1] | add / length')
     fi
 
     bw=`bc <<< $bw/1000/1000`

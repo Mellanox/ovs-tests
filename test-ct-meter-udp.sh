@@ -26,7 +26,7 @@ mac2=`cat /sys/class/net/$VF2/address`
 test "$mac1" || fail "no mac1"
 test "$mac2" || fail "no mac2"
 
-RATE=200
+RATE=100
 BURST=65536
 TMPFILE=/tmp/iperf3.log
 
@@ -85,15 +85,14 @@ function run() {
 
     t=12
     echo "run traffic for $t seconds"
-    ip netns exec ns1 timeout $((t+1)) iperf3 -s -J > $TMPFILE &
-    sleep 0.5
-    ip netns exec ns0 timeout $((t+1)) iperf3 -t $t -c $IP2 -u -b 1G &
+    ip netns exec ns1 timeout $((t+5)) iperf3 -s -1 -J > $TMPFILE &
+    sleep 2
+    ip netns exec ns0 timeout $((t+2)) iperf3 -t $t -O 3 -c $IP2 -u -b 1G &
 
     sleep 2.5
     pidof iperf3 &>/dev/null || err "iperf3 failed"
 
     echo "sniff packets on $REP"
-    # first 4 packets not offloaded until conn is in established state.
     timeout $((t-4)) tcpdump -qnnei $REP -c 10 'udp' &
     pid=$!
 
