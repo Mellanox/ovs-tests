@@ -352,6 +352,7 @@ function get_flow_steering_mode() {
 
 function set_flow_steering_mode() {
     local pci=$1
+    local mode=$2
 
     log "Set $mode flow steering mode on $pci"
     __devlink dev param set pci/$pci name flow_steering_mode value $mode cmode runtime || fail "Failed to set $mode flow steering mode"
