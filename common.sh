@@ -319,10 +319,10 @@ function clear_warn_once() {
 
 function setup_iptables_legacy() {
     if [ -f /usr/sbin/iptables-legacy ]; then
-        if update-alternatives --list | grep -w iptables | grep -q legacy ; then
+        if update-alternatives --list 2>/dev/null | grep -w iptables | grep -q legacy ; then
             return
         fi
-        update-alternatives  --set iptables /usr/sbin/iptables-legacy
+        update-alternatives --set iptables /usr/sbin/iptables-legacy
     fi
 }
 
