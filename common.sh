@@ -347,7 +347,12 @@ function is_mlxdump_supported() {
 function get_flow_steering_mode() {
     local pci=$1
 
-    __devlink dev param show pci/$pci name flow_steering_mode | grep "runtime value" | awk {'print $NF'}
+    if [ "$devlink_compat" -ge 1 ]; then
+        local nic=`get_pf_nic $pci`
+        cat `devlink_compat_dir $nic`/steering_mode 2>/dev/null
+    else
+        __devlink dev param show pci/$pci name flow_steering_mode | grep "runtime value" | awk {'print $NF'}
+    fi
 }
 
 function set_flow_steering_mode() {
@@ -355,7 +360,12 @@ function set_flow_steering_mode() {
     local mode=$2
 
     log "Set $mode flow steering mode on $pci"
-    __devlink dev param set pci/$pci name flow_steering_mode value $mode cmode runtime || fail "Failed to set $mode flow steering mode"
+    if [ "$devlink_compat" -ge 1 ]; then
+        local nic=`get_pf_nic $pci`
+        echo $mode > `devlink_compat_dir $nic`/steering_mode || fail "Failed to set $mode flow steering mode"
+    else
+        __devlink dev param set pci/$pci name flow_steering_mode value $mode cmode runtime || fail "Failed to set $mode flow steering mode"
+    fi
 }
 
 function show_current_steering_mode() {
@@ -1445,6 +1455,16 @@ function get_pf_pci2() {
     fi
 
     echo "$pci"
+}
+
+function get_pf_nic() {
+    local pci=$1
+
+    if [ "$pci" == "$PCI" ]; then
+        echo $NIC
+    elif [ "$pci" == "$PCI2" ]; then
+        echo $NIC2
+    fi
 }
 
 function unbind_vfs() {
