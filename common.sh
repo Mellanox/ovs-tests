@@ -258,6 +258,7 @@ function __setup_common() {
 
     reset_is_bf_host
     is_bf_host && . $DIR/common-bf.sh
+    is_bf && . $DIR/common-bf.sh
 
     print_mlnx_ofed_version
     __test_for_devlink_compat
@@ -2366,6 +2367,24 @@ function fw_ver_lt() {
     return 0
 }
 
+function __detect_config() {
+    local i
+    for i in `ls -1d /sys/class/net/*`; do
+        local port_name=`cat $i/phys_port_name 2>/dev/null`
+        if [ "$port_name" == "p0" ]; then
+            NIC=`basename $i`
+            echo "Detected NIC=$NIC"
+        elif [ "$port_name" == "p1" ]; then
+            NIC2=`basename $i`
+            echo "Detected NIC2=$NIC"
+        fi
+        [ -n "$NIC" ] && [ -n "$NIC2" ] && break
+    done
+    is_bf && BF_NIC=$NIC && BF_NIC2=$NIC2
+    [ -n "$NIC" ] && [ -n "$NIC2" ] && return 0
+    return 1
+}
+
 function __load_config() {
     local conf
 
@@ -2379,11 +2398,13 @@ function __load_config() {
             fail "Config $CONFIG not found"
         fi
     else
-        fail "Missing CONFIG"
+        __detect_config || fail "Missing CONFIG"
     fi
 
-    echo "Loading config $conf"
-    . $conf
+    if [ -n "$conf" ]; then
+        echo "Loading config $conf"
+        . $conf
+    fi
 }
 
 function __trapped_int_cleanup() {

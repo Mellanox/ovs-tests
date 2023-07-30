@@ -125,8 +125,8 @@ function ovs-appctl() {
 }
 
 function __setup_common_bf() {
-    BF_PCI=$(on_bf "basename \$(readlink /sys/class/net/${BF_NIC}/device)")
-    BF_PCI2=$(on_bf "basename \$(readlink /sys/class/net/${BF_NIC2}/device)")
+    BF_PCI=$(bf_wrap "basename \$(readlink /sys/class/net/${BF_NIC}/device)")
+    BF_PCI2=$(bf_wrap "basename \$(readlink /sys/class/net/${BF_NIC2}/device)")
     echo "ARM NIC $BF_NIC PCI $BF_PCI"
 }
 
