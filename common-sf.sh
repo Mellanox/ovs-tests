@@ -62,6 +62,10 @@ function sf_unbind() {
     echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf/unbind || err "$1: Failed to unbind from sf core"
 }
 
+function sf_cfg_unbind() {
+    echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf_cfg/unbind || err "$1: Failed to unbind from sf cfg"
+}
+
 function sf_set_param() {
     local dev=$1
     local param_name=$2
@@ -211,6 +215,13 @@ function unbind_sfs() {
     local sf_dev
     for sf_dev in `get_aux_sf_devices`; do
         sf_unbind `basename $sf_dev`
+    done
+}
+
+function unbind_sfs_cfg() {
+    local sf_dev
+    for sf_dev in `get_aux_sf_devices`; do
+        sf_cfg_unbind `basename $sf_dev`
     done
 }
 
