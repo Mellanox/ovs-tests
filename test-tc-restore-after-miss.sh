@@ -33,6 +33,7 @@ function cleanup() {
     cleanup_remote
 }
 
+config_sriov 2
 enable_switchdev
 unbind_vfs
 bind_vfs
