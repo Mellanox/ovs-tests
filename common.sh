@@ -2376,7 +2376,7 @@ function __detect_config() {
             echo "Detected NIC=$NIC"
         elif [ "$port_name" == "p1" ]; then
             NIC2=`basename $i`
-            echo "Detected NIC2=$NIC"
+            echo "Detected NIC2=$NIC2"
         fi
         [ -n "$NIC" ] && [ -n "$NIC2" ] && break
     done
