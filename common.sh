@@ -348,11 +348,11 @@ function is_mlxdump_supported() {
 function get_flow_steering_mode() {
     local pci=$1
 
-    if [ "$devlink_compat" -ge 1 ]; then
+    if is_bf_host || [ "$devlink_compat" -lt 1 ]; then
+        __devlink dev param show pci/$pci name flow_steering_mode | grep "runtime value" | awk {'print $NF'}
+    else
         local nic=`get_pf_nic $pci`
         cat `devlink_compat_dir $nic`/steering_mode 2>/dev/null
-    else
-        __devlink dev param show pci/$pci name flow_steering_mode | grep "runtime value" | awk {'print $NF'}
     fi
 }
 
@@ -361,11 +361,11 @@ function set_flow_steering_mode() {
     local mode=$2
 
     log "Set $mode flow steering mode on $pci"
-    if [ "$devlink_compat" -ge 1 ]; then
+    if is_bf_host || [ "$devlink_compat" -lt 1 ]; then
+        __devlink dev param set pci/$pci name flow_steering_mode value $mode cmode runtime || fail "Failed to set $mode flow steering mode"
+    else
         local nic=`get_pf_nic $pci`
         echo $mode > `devlink_compat_dir $nic`/steering_mode || fail "Failed to set $mode flow steering mode"
-    else
-        __devlink dev param set pci/$pci name flow_steering_mode value $mode cmode runtime || fail "Failed to set $mode flow steering mode"
     fi
 }
 
