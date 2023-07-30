@@ -7,7 +7,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-user_steering_mode=`get_flow_steering_mode $NIC`
+user_steering_mode=`get_flow_steering_mode $PCI`
 if [ -z "$user_steering_mode" ]; then
     fail "Steering mode is not supported"
 fi
@@ -22,8 +22,10 @@ function toggle_steering_mode() {
         fail "Invalid steering mode"
     fi
 
-    set_flow_steering_mode $NIC $current_steering_mode
-    echo "Flow steering mode for $NIC is now `get_flow_steering_mode $NIC`"
+    set_flow_steering_mode $PCI $current_steering_mode
+    set_flow_steering_mode $PCI2 $current_steering_mode
+    echo "Flow steering mode for $PCI is now `get_flow_steering_mode $PCI`"
+    echo "Flow steering mode for $PCI2 is now `get_flow_steering_mode $PCI2`"
 }
 
 function loop_toggle_modes() {
@@ -39,7 +41,8 @@ function loop_toggle_modes() {
 function restore_steering_mode() {
     title "Restore user steering mode"
     enable_legacy
-    set_flow_steering_mode $NIC $user_steering_mode
+    set_flow_steering_mode $PCI $user_steering_mode
+    set_flow_steering_mode $PCI2 $user_steering_mode
     enable_switchdev
 }
 
