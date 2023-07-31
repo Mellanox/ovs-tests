@@ -2010,9 +2010,9 @@ function ovs_set_log_levels() {
 }
 
 function __restart_ovs() {
-    stop_openvswitch
-    service_ovs start
-    __print_ovs_version_once
+    bf_wrap_exec "stop_openvswitch
+                  service_ovs start
+                  __print_ovs_version_once"
 }
 
 function restart_openvswitch() {
