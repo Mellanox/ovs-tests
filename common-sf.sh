@@ -186,6 +186,8 @@ function __create_sfs() {
             break
         fi
 
+        is_bf && is_ofed && sf_cfg_unbind $sf_dev && sf_bind $sf_dev
+
         sf_enable_features $sf_dev "eth"
 
         sleep 0.5
