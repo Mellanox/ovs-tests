@@ -2001,9 +2001,7 @@ function __print_ovs_version_once() {
 }
 
 function restart_openvswitch_nocheck() {
-    stop_openvswitch
-    service_ovs start
-    __print_ovs_version_once
+    __restart_ovs
 }
 
 __ovs_log_levels=""
@@ -2011,10 +2009,14 @@ function ovs_set_log_levels() {
     __ovs_log_levels=$@
 }
 
-function restart_openvswitch() {
+function __restart_ovs() {
     stop_openvswitch
     service_ovs start
     __print_ovs_version_once
+}
+
+function restart_openvswitch() {
+    __restart_ovs
     ovs-appctl vlog/set tc:syslog:warn
     if [ "$__ovs_log_levels" != "" ]; then
         ovs-appctl vlog/set $__ovs_log_levels
