@@ -2605,6 +2605,17 @@ function ns_wrap() {
     echo $cmd
 }
 
+function ns_exec() {
+    local ns=$1
+    shift
+    local cmd=$@
+
+    if [[ -n $ns ]]; then
+        cmd="ip netns exec $ns $cmd"
+    fi
+    eval $cmd
+}
+
 function get_exec_ns() {
     local ns=$1
     local exec_ns

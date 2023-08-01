@@ -400,12 +400,15 @@ function reset_sfs_ns() {
 }
 
 function set_sf_switchdev() {
-    title "Set SF switchdev"
+    # after reload_sfs_into_ns use ns0 if exists.
+    local ns=`ip netns ls | grep -w ns0`
+
+    title "Set SF switchdev $ns"
 
     local sf_dev
     for sf_dev in `get_aux_sf_devices`; do
         local i=`basename $sf_dev`
-        ip netns exec ns0 devlink dev eswitch set auxiliary/$i mode switchdev || fail "Failed to config SF switchdev"
+        ns_exec "$ns" devlink dev eswitch set auxiliary/$i mode switchdev || fail "Failed to config SF switchdev"
     done
     log "Wait for shared fdb wq"
     sleep 3
