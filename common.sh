@@ -2379,6 +2379,8 @@ function __detect_config() {
     local i
     for i in `ls -1d /sys/class/net/*`; do
         cat $i/phys_switch_id &>/dev/null || continue
+        local driver=$(basename `readlink $i/device/driver`)
+        [ "$driver" == "mlx5_core" ] || continue
         local port_name=`cat $i/phys_port_name 2>/dev/null`
         if [ "$port_name" == "p0" ]; then
             NIC=`basename $i`
