@@ -129,6 +129,22 @@ function ovs_add_meter() {
     exec_dbg "ovs-ofctl -O openflow13 add-meter $bridge meter=${meter_id},${meter_type}${burst},band=type=drop,rate=${rate}${burst_size}"
 }
 
+function ovs_mod_meter() {
+    local bridge=${1:-"br-phy"}
+    local meter_id=${2:-0}
+    local type=${3:-"pktps"}
+    local rate=${4:-1}
+    local burst_size=$5
+    local burst=""
+
+    if [ -n "$burst_size" ]; then
+        burst=",burst"
+        burst_size=",burst_size=$burst_size"
+    fi
+
+    exec_dbg "ovs-ofctl -O openflow13 mod-meter $bridge meter=${meter_id},${type}${burst},band=type=drop,rate=${rate}${burst_size}"
+}
+
 function ovs_del_meter() {
     local bridge=${1:-"br-phy"}
     local meter_id=${2:-1}
