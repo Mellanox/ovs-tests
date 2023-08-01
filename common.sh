@@ -2081,7 +2081,7 @@ function reload_modules() {
     wait_for_ifaces
 
     check_kasan
-    set_macs
+    ! is_bf && set_macs
     setup_expected_steering_mode
     echo "Reload modules done"
 }
