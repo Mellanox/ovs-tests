@@ -43,7 +43,8 @@ function config() {
 
 enable_switchdev
 
-config 2
+# 4 sfs reproduced better than 2.
+config 4
 reload_modules
 
 trap - EXIT
