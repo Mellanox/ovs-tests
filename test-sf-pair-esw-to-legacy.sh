@@ -46,6 +46,8 @@ enable_switchdev
 # 4 sfs reproduced better than 2.
 config 4
 enable_legacy
+# wait for flushing and sfs removal.
+sleep 3
 
 trap - EXIT
 cleanup
