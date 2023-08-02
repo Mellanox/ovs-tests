@@ -239,7 +239,6 @@ function remove_sfs() {
         sf_inactivate $rep
         delete_sf $rep
     done
-    sleep 1
 }
 
 function sf_reload_aux() {
