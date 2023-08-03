@@ -80,6 +80,7 @@ function test_ping() {
     done
 }
 
+enable_legacy
 config_sriov 2
 enable_switchdev
 bind_vfs

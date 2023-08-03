@@ -85,6 +85,7 @@ function test_ping() {
     done
 }
 
+enable_legacy
 enable_switchdev
 test_count=2
 
