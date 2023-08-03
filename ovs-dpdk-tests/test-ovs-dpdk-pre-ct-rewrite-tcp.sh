@@ -30,17 +30,16 @@ function config() {
 }
 
 function add_openflow_rules() {
-    ovs-ofctl del-flows br-phy
-    ovs-ofctl add-flow br-phy "arp,actions=normal"
-    ovs-ofctl add-flow br-phy "icmp,actions=NORMAL"
-    ovs-ofctl add-flow br-phy "table=0,tcp,nw_dst=${FAKE_IP},ct_state=-trk,actions=mod_nw_dst:${LOCAL_IP},ct(zone=5, table=1)"
-    ovs-ofctl add-flow br-phy "table=0,tcp,ct_state=-trk,actions=ct(zone=5, table=1)"
-    ovs-ofctl add-flow br-phy "table=1,tcp,ct_state=+trk+new,actions=ct(zone=5, commit),NORMAL"
-    ovs-ofctl add-flow br-phy "table=1,tcp,nw_src=${LOCAL_IP},ct_state=+trk+est,ct_zone=5,actions=mod_nw_src:${FAKE_IP},normal"
-    ovs-ofctl add-flow br-phy "table=1,tcp,ct_state=+trk+est,ct_zone=5,actions=normal"
-
-    debug "OVS flow rules:"
-    ovs-ofctl dump-flows br-phy --color
+    local bridge="br-phy"
+    ovs-ofctl del-flows $bridge
+    ovs-ofctl add-flow $bridge "arp,actions=normal"
+    ovs-ofctl add-flow $bridge "icmp,actions=NORMAL"
+    ovs-ofctl add-flow $bridge "table=0,tcp,nw_dst=${FAKE_IP},ct_state=-trk,actions=mod_nw_dst:${LOCAL_IP},ct(zone=5, table=1)"
+    ovs-ofctl add-flow $bridge "table=0,tcp,ct_state=-trk,actions=ct(zone=5, table=1)"
+    ovs-ofctl add-flow $bridge "table=1,tcp,ct_state=+trk+new,actions=ct(zone=5, commit),NORMAL"
+    ovs-ofctl add-flow $bridge "table=1,tcp,nw_src=${LOCAL_IP},ct_state=+trk+est,ct_zone=5,actions=mod_nw_src:${FAKE_IP},normal"
+    ovs-ofctl add-flow $bridge "table=1,tcp,ct_state=+trk+est,ct_zone=5,actions=normal"
+    ovs_ofctl_dump_flows
 }
 
 function run() {

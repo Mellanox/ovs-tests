@@ -85,20 +85,21 @@ function config_ovs() {
 function add_openflow_rules() {
     local PF=`get_port_from_pci`
     local REP=$IB_PF0_PORT0
+    local bridge="br-phy"
 
-    ovs-ofctl add-group br-phy group_id=1,type=fast_failover,bucket=watch_port=$PF,actions=$PF,bucket=watch_port=p1,actions=p1
+    ovs-ofctl add-group $bridge group_id=1,type=fast_failover,bucket=watch_port=$PF,actions=$PF,bucket=watch_port=p1,actions=p1
     title "Adding openflow rules"
-    ovs-ofctl del-flows br-phy
-    ovs-ofctl add-flow br-phy in_port=$PF,arp,actions=output:$REP
-    ovs-ofctl add-flow br-phy in_port=p1,arp,actions=output:$REP
-    ovs-ofctl add-flow br-phy in_port=$PF,dl_dst=$MAC,actions=output:$REP
-    ovs-ofctl add-flow br-phy in_port=p1,dl_dst=$MAC,actions=output:$REP
-    ovs-ofctl add-flow br-phy in_port=$REP,actions=group:1
+    ovs-ofctl del-flows $bridge
+    ovs-ofctl add-flow $bridge in_port=$PF,arp,actions=output:$REP
+    ovs-ofctl add-flow $bridge in_port=p1,arp,actions=output:$REP
+    ovs-ofctl add-flow $bridge in_port=$PF,dl_dst=$MAC,actions=output:$REP
+    ovs-ofctl add-flow $bridge in_port=p1,dl_dst=$MAC,actions=output:$REP
+    ovs-ofctl add-flow $bridge in_port=$REP,actions=group:1
 
     debug "OVS groups:"
-    ovs-ofctl dump-groups br-phy --color
-    debug "OVS flow rules:"
-    ovs-ofctl dump-flows br-phy --color
+    ovs-ofctl dump-groups $bridge --color
+
+    ovs_ofctl_dump_flows
 }
 
 function run_traffic() {

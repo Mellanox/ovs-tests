@@ -35,14 +35,14 @@ function config() {
 }
 
 function add_openflow_rules() {
-    ovs-ofctl del-flows br-int
-    ovs-ofctl add-flow br-int "arp,actions=NORMAL"
-    ovs-ofctl add-flow br-int "icmp,actions=NORMAL"
-    ovs-ofctl add-flow br-int "table=0,tcp,ct_state=-trk,actions=ct(table=1)"
-    ovs-ofctl add-flow br-int "table=1,tcp,ct_state=+trk+new,actions=ct(commit, exec(set_field:0x1234567891/0xffffffffff->ct_label)),normal"
-    ovs-ofctl add-flow br-int "table=1,tcp,ct_state=+trk+est,ct_label=0x1234567891/0xffffffffff,actions=normal"
-    debug "OVS flow rules:"
-    ovs-ofctl dump-flows br-int --color
+    local bridge="br-int"
+    ovs-ofctl del-flows $bridge
+    ovs-ofctl add-flow $bridge "arp,actions=NORMAL"
+    ovs-ofctl add-flow $bridge "icmp,actions=NORMAL"
+    ovs-ofctl add-flow $bridge "table=0,tcp,ct_state=-trk,actions=ct(table=1)"
+    ovs-ofctl add-flow $bridge "table=1,tcp,ct_state=+trk+new,actions=ct(commit, exec(set_field:0x1234567891/0xffffffffff->ct_label)),normal"
+    ovs-ofctl add-flow $bridge "table=1,tcp,ct_state=+trk+est,ct_label=0x1234567891/0xffffffffff,actions=normal"
+    ovs_ofctl_dump_flows
 }
 
 function run() {

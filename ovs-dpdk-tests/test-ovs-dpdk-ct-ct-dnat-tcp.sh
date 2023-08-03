@@ -34,17 +34,17 @@ function config() {
 }
 
 function add_openflow_rules() {
-    ovs-ofctl del-flows br-phy
-    ovs-ofctl add-flow br-phy "arp,actions=normal"
-    ovs-ofctl add-flow br-phy "icmp,actions=normal"
-    ovs-ofctl add-flow br-phy "table=0,in_port=$IB_PF0_PORT1,tcp,ct_state=-trk, actions=ct(zone=2, table=1)"
-    ovs-ofctl add-flow br-phy "table=1,in_port=$IB_PF0_PORT1,tcp,ct_state=+trk+new, actions=ct(zone=2, commit, nat(dst=${LOCAL_IP}:5201)),$IB_PF0_PORT0"
-    ovs-ofctl add-flow br-phy "table=1,in_port=$IB_PF0_PORT1,tcp,ct_state=+trk+est, actions=ct(zone=2, nat),$IB_PF0_PORT0"
-    ovs-ofctl add-flow br-phy "table=0,in_port=$IB_PF0_PORT0,tcp,ct_state=-trk, actions=ct(zone=2, table=1)"
-    ovs-ofctl add-flow br-phy "table=1,in_port=$IB_PF0_PORT0,tcp,ct_state=+trk+new, actions=ct(zone=2, commit, nat),$IB_PF0_PORT1"
-    ovs-ofctl add-flow br-phy "table=1,in_port=$IB_PF0_PORT0,tcp,ct_state=+trk+est, actions=ct(zone=2, nat),$IB_PF0_PORT1"
-    debug "OVS flow rules:"
-    ovs-ofctl dump-flows br-phy --color
+    local bridge="br-phy"
+    ovs-ofctl del-flows $bridge
+    ovs-ofctl add-flow $bridge "arp,actions=normal"
+    ovs-ofctl add-flow $bridge "icmp,actions=normal"
+    ovs-ofctl add-flow $bridge "table=0,in_port=$IB_PF0_PORT1,tcp,ct_state=-trk, actions=ct(zone=2, table=1)"
+    ovs-ofctl add-flow $bridge "table=1,in_port=$IB_PF0_PORT1,tcp,ct_state=+trk+new, actions=ct(zone=2, commit, nat(dst=${LOCAL_IP}:5201)),$IB_PF0_PORT0"
+    ovs-ofctl add-flow $bridge "table=1,in_port=$IB_PF0_PORT1,tcp,ct_state=+trk+est, actions=ct(zone=2, nat),$IB_PF0_PORT0"
+    ovs-ofctl add-flow $bridge "table=0,in_port=$IB_PF0_PORT0,tcp,ct_state=-trk, actions=ct(zone=2, table=1)"
+    ovs-ofctl add-flow $bridge "table=1,in_port=$IB_PF0_PORT0,tcp,ct_state=+trk+new, actions=ct(zone=2, commit, nat),$IB_PF0_PORT1"
+    ovs-ofctl add-flow $bridge "table=1,in_port=$IB_PF0_PORT0,tcp,ct_state=+trk+est, actions=ct(zone=2, nat),$IB_PF0_PORT1"
+    ovs_ofctl_dump_flows
 }
 
 function run() {

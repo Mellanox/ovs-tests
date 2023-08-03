@@ -26,11 +26,11 @@ function config() {
 }
 
 function add_openflow_rules() {
-    ovs-ofctl del-flows br-phy
-    ovs-ofctl add-flow br-phy "arp,actions=normal"
-    ovs-ofctl add-flow br-phy "in_port=$IB_PF0_PORT0,ip,actions=mod_nw_src=$FAKE_IP,in_port"
-    debug "OVS flow rules:"
-    ovs-ofctl dump-flows br-phy --color
+    local bridge="br-phy"
+    ovs-ofctl del-flows $bridge
+    ovs-ofctl add-flow $bridge "arp,actions=normal"
+    ovs-ofctl add-flow $bridge "in_port=$IB_PF0_PORT0,ip,actions=mod_nw_src=$FAKE_IP,in_port"
+    ovs_ofctl_dump_flows
 }
 
 function run() {

@@ -14,6 +14,11 @@ function set_iperf2() {
     iperf_cmd=iperf
 }
 
+function ovs_ofctl_dump_flows() {
+   debug "OVS flow rules:"
+   ovs-ofctl dump-flows $bridge --color
+}
+
 function ovs_add_ct_after_nat_rules() {
     local bridge=$1
     local ip=$2
@@ -29,8 +34,7 @@ function ovs_add_ct_after_nat_rules() {
    ovs-ofctl add-flow $bridge "table=0,priority=30,in_port=$rep,ip,nw_dst=$dummy_ip,actions=ct(commit,nat(dst=$ip:5201),table=1)"
    ovs-ofctl add-flow $bridge "table=1,ip,actions=ct(commit,table=2)"
    ovs-ofctl add-flow $bridge "table=2,in_port=$rep,ip,actions=$rep2"
-   debug "OVS flow rules:"
-   ovs-ofctl dump-flows $bridge --color
+   ovs_ofctl_dump_flows
 }
 
 function ovs_add_ipv6_mod_hdr_rules() {
@@ -46,8 +50,7 @@ function ovs_add_ipv6_mod_hdr_rules() {
     ovs-ofctl del-flows -OOpenFlow15 $bridge
     ovs-ofctl add-flow -OOpenFlow15 $bridge in_port=$rep0,ipv6,ipv6_dst=${dummy_peer_ipv6},ipv6_src=${my_ipv6},actions=set_field:${peer_ipv6}-\>ipv6_dst,set_field:${my_ipv6}-\>ipv6_src,$rep1
     ovs-ofctl add-flow -OOpenFlow15 $bridge in_port=$rep1,ipv6,ipv6_dst=${my_ipv6},ipv6_src=${peer_ipv6},actions=set_field:${my_ipv6}-\>ipv6_dst,set_field:${dummy_peer_ipv6}-\>ipv6_src,$rep0
-    debug "OVS flow rules:"
-    ovs-ofctl dump-flows $bridge --color
+    ovs_ofctl_dump_flows
 }
 
 function ovs_add_ct_dnat_rules() {
@@ -67,8 +70,7 @@ function ovs_add_ct_dnat_rules() {
     ovs-ofctl add-flow $bridge "table=0,in_port=${tx_port},${proto},ct_state=-trk, actions=ct(zone=2, table=1, nat)"
     ovs-ofctl add-flow $bridge "table=1,in_port=${tx_port},${proto},ct_state=+trk+new, actions=ct(zone=2, commit),${rx_port}"
     ovs-ofctl add-flow $bridge "table=1,in_port=${tx_port},${proto},ct_state=+trk+est, actions=${rx_port}"
-    debug "OVS flow rules:"
-    ovs-ofctl dump-flows $bridge --color
+    ovs_ofctl_dump_flows
 }
 
 function ovs_add_ct_nat_nop_rules() {
@@ -80,8 +82,7 @@ function ovs_add_ct_nat_nop_rules() {
     ovs-ofctl add-flow $bridge "table=0, ip,ct_state=-trk, actions=ct(table=1,nat)"
     ovs-ofctl add-flow $bridge "table=1, ip,ct_state=+trk+new, actions=ct(commit),normal"
     ovs-ofctl add-flow $bridge "table=1, ip,ct_state=+trk+est, actions=normal"
-    debug "OVS flow rules:"
-    ovs-ofctl dump-flows $bridge --color
+    ovs_ofctl_dump_flows
 }
 
 function ovs_add_ct_rules() {
@@ -96,8 +97,7 @@ function ovs_add_ct_rules() {
     ovs-ofctl add-flow $bridge "table=0,$proto,ct_state=-trk,actions=ct(zone=5, table=1)"
     ovs-ofctl add-flow $bridge "table=1,$proto,ct_state=+trk+new,actions=ct(zone=5, commit),NORMAL"
     ovs-ofctl add-flow $bridge "table=1,$proto,ct_state=+trk+est,ct_zone=5,actions=normal"
-    debug "OVS flow rules:"
-    ovs-ofctl dump-flows $bridge --color
+    ovs_ofctl_dump_flows
 }
 
 function ovs_add_ct_rules_dec_ttl() {
@@ -109,8 +109,7 @@ function ovs_add_ct_rules_dec_ttl() {
     ovs-ofctl add-flow $bridge "table=0,ip,ct_state=-trk,actions=ct(zone=5, table=1)"
     ovs-ofctl add-flow $bridge "table=1,ip,ct_state=+trk+new,actions=ct(zone=5, commit),dec_ttl,NORMAL"
     ovs-ofctl add-flow $bridge "table=1,ip,ct_state=+trk+est,ct_zone=5,actions=dec_ttl,normal"
-    debug "OVS flow rules:"
-    ovs-ofctl dump-flows $bridge --color
+    ovs_ofctl_dump_flows
 }
 
 function ovs_add_meter() {
