@@ -31,7 +31,7 @@ function add_openflow_rules() {
     ovs-ofctl add-flow br-phy "table=0,icmp,ct_state=-trk,actions=ct(zone=5, table=1)"
     ovs-ofctl add-flow br-phy "table=1,icmp,ct_state=+trk+new,actions=ct(zone=5, commit),NORMAL"
     ovs-ofctl add-flow br-phy "table=1,icmp,ct_state=+trk+est,ct_zone=5,actions=normal"
-    debug "\nOVS flow rules:"
+    debug "OVS flow rules:"
     ovs-ofctl dump-flows br-phy --color
 }
 
