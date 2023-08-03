@@ -29,7 +29,7 @@ function ovs_add_ct_after_nat_rules() {
    ovs-ofctl add-flow $bridge "table=0,priority=30,in_port=$rep,ip,nw_dst=$dummy_ip,actions=ct(commit,nat(dst=$ip:5201),table=1)"
    ovs-ofctl add-flow $bridge "table=1,ip,actions=ct(commit,table=2)"
    ovs-ofctl add-flow $bridge "table=2,in_port=$rep,ip,actions=$rep2"
-   echo "OVS flow rules:"
+   debug "OVS flow rules:"
    ovs-ofctl dump-flows $bridge --color
 }
 
