@@ -32,6 +32,7 @@ function config() {
 function run() {
     config
 
+    sleep 5
     on_remote "timeout 3 tcpdump -qnnei $REMOTE_NIC -c 10 \"ip and ip[8]=22 and ip[1]=0x24\" -vvv -Q in" &
     pid_remote=$!
     sleep 2
