@@ -72,7 +72,7 @@ class Host(object):
 
 
 class SetupConfigure(object):
-    MLNXToolsPath = '/opt/mellanox/ethtool/sbin:/opt/mellanox/iproute2/sbin:/opt/verutils/bin/'
+    MLNXToolsPath = '/opt/mellanox/ethtool/sbin:/opt/mellanox/iproute2/sbin:/opt/verutils/bin'
     config_file = "/workspace/dev_reg_conf.sh"
     profile_sh = "/etc/profile.d/zz_dev_reg_env.sh"
 
@@ -232,9 +232,23 @@ class SetupConfigure(object):
         sleep(5)
 
     def UpdatePATHEnvironmentVariable(self):
+        self.Logger.info("Create %s", self.profile_sh)
         os.environ['PATH'] = self.MLNXToolsPath + os.pathsep + os.environ['PATH']
         with open(self.profile_sh, 'w') as f:
             f.write('PATH="%s:$PATH"\n' % self.MLNXToolsPath)
+        if self.ID == 'ubuntu':
+            self.Logger.info("Add path to /etc/environment")
+            with open("/etc/environment", "r") as f:
+                lines = f.readlines()
+            with open("/etc/environment", "w") as f:
+                for i, line in enumerate(lines):
+                    if line.startswith("PATH="):
+                        if "/opt/mellanox/iproute2" not in line:
+                           path = line.split('=')[1].strip().strip('"')
+                           path += ":%s" % self.MLNXToolsPath
+                           line = "PATH=%s" % path
+                           lines[i] = line
+                f.writelines(lines)
 
     def LoadPFInfo(self):
         pnics = []
