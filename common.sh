@@ -296,7 +296,7 @@ function __set_testpmd() {
 }
 
 function kmemleak_scan_per_test() {
-    [ "$KMEMLEAK_SCAN_PER_TEST" == 1 ] && return 0
+    [ "$KMEMLEAK_SCAN" == 1 ] && return 0
     return 1
 }
 
@@ -2271,7 +2271,7 @@ function kill_all_bgs() {
 }
 
 function reload_driver_per_test() {
-    [ "$RELOAD_DRIVER_PER_TEST" == 1 ] && return 0
+    [ "$RELOAD_DRIVER" == 1 ] && return 0
     return 1
 }
 
@@ -2768,8 +2768,8 @@ function __test_help() {
     echo "Available exports:"
     echo
     echo "DEVLINK_COMPAT=0|1|2          - Force to use or not use ofed devlink compat."
-    echo "KMEMLEAK_SCAN_PER_TEST=1      - Do kmemleak scan per test."
-    echo "RELOAD_DRIVER_PER_TEST=1      - Reload driver at the end of the test."
+    echo "KMEMLEAK_SCAN=1               - Do kmemleak scan at the end of the test."
+    echo "RELOAD_DRIVER=1               - Reload driver at the end of the test."
     echo "USE_OPENIBD=1                 - Use openibd service script (i.e. MLNX OFED) to reload modules. default=1"
     echo "FREEZE_ON_ERROR=1             - Pause test on each error."
     echo "ENABLE_OVS_DEBUG=1            - Set ovs debug level."
