@@ -34,7 +34,7 @@ ovs_conf_set max-idle 15000
 verify_ping
 generate_traffic "remote" $LOCAL_IP
 
-check_offload_contains "src=1.1.1.7/0.0.0.0,dst=1.1.1.8.*ttl=63" 2
+check_offload_contains "tcp.*ttl=63" 2
 
 trap - EXIT
 cleanup
