@@ -98,7 +98,6 @@ sleep 1
 
 function test_lag_remote_no_vlan_mcast() {
     create_bridge_with_mcast $br $bond $REP $REP2 $REP3
-    ip link set name $br type bridge ageing_time 300
 
     on_remote "ip address replace dev bond0 $REMOTE_IP/24
                ip l set dev bond0 up"
@@ -112,7 +111,6 @@ function test_lag_remote_no_vlan_mcast() {
 
 function test_lag_remote_trunk_to_mixed_vlan_mcast() {
     create_bridge_with_mcast $br $bond $REP $REP2 $REP3
-    ip link set name $br type bridge ageing_time 300
 
     on_remote "ip address replace dev bond0 $REMOTE_IP_VLAN2/24
                ip l set dev bond0 up"
@@ -126,7 +124,6 @@ function test_lag_remote_trunk_to_mixed_vlan_mcast() {
 
 function test_lag_remote_trunk_to_mixed_qinq_mcast() {
     create_bridge_with_mcast $br $bond $REP $REP2 $REP3
-    ip link set name $br type bridge ageing_time 300
 
     on_remote "ip address replace dev bond0 $REMOTE_IP_VLAN2/24
                ip l set dev bond0 up"

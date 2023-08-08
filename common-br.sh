@@ -20,7 +20,7 @@ function create_bridge_with_interfaces() {
     done
 
     ip link set $bridge_name up
-    ip link set name $bridge_name type bridge ageing_time 200
+    ip link set name $bridge_name type bridge ageing_time 400
 }
 
 function create_bridge_with_mcast() {

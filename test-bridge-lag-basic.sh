@@ -81,8 +81,6 @@ on_remote "ip l set dev bond0 up
 
 sleep 1
 
-# Default 2sec ageing timeout is too aggressive when notifying between esws
-ip link set name $br type bridge ageing_time 300
 ip link set $br type bridge vlan_filtering 1
 bridge vlan add dev $REP vid 2 pvid untagged
 bridge vlan add dev $REP2 vid 2
