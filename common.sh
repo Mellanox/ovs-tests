@@ -2001,7 +2001,7 @@ function __print_ovs_version_once() {
 }
 
 function restart_openvswitch_nocheck() {
-    __restart_ovs
+    __restart_openvswitch
 }
 
 __ovs_log_levels=""
@@ -2009,14 +2009,14 @@ function ovs_set_log_levels() {
     __ovs_log_levels=$@
 }
 
-function __restart_ovs() {
+function __restart_openvswitch() {
     bf_wrap_exec "stop_openvswitch
                   service_ovs start
                   __print_ovs_version_once"
 }
 
 function restart_openvswitch() {
-    __restart_ovs
+    __restart_openvswitch
     ovs-appctl vlog/set tc:syslog:warn
     if [ "$__ovs_log_levels" != "" ]; then
         ovs-appctl vlog/set $__ovs_log_levels
