@@ -244,8 +244,8 @@ class SetupConfigure(object):
                 for i, line in enumerate(lines):
                     if line.startswith("PATH="):
                         if "/opt/mellanox/iproute2" not in line:
-                           path = line.split('=')[1].strip().strip('"')
-                           path += ":%s" % self.MLNXToolsPath
+                           oldpath = line.split('=')[1].strip().strip('"')
+                           path = "%s:%s" % (self.MLNXToolsPath, oldpath)
                            line = "PATH=%s" % path
                            lines[i] = line
                 f.writelines(lines)
