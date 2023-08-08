@@ -1898,13 +1898,24 @@ function ovs_clear_bridges() {
     bf_wrap "ovs-vsctl list-br | xargs -r -L 1 ovs-vsctl del-br 2>/dev/null"
 }
 
+OVS_CTL="/usr/share/openvswitch/scripts/ovs-ctl"
+OVS_PID=""
+
 function service_ovs() {
     local action=$1
     local ovs="openvswitch"
     if [ "$ID" == "ubuntu" ]; then
           ovs="openvswitch-switch"
     fi
-    systemctl $action $ovs
+    if [ "$VALGRIND_OPENVSWITCH" == 1 ] && [ -f "$OVS_CTL" ]; then
+        $OVS_CTL --ovs-vswitchd-wrapper=valgrind $action
+    else
+        systemctl $action $ovs
+    fi
+    OVS_PID_FILE="/var/run/openvswitch/ovs-vswitchd.pid"
+    if [ "$action" == "start" ] && [ -f $OVS_PID_FILE ]; then
+        OVS_PID=`cat $OVS_PID_FILE`
+    fi
 }
 
 function stop_openvswitch() {
@@ -1914,6 +1925,14 @@ function stop_openvswitch() {
         killall ovs-vswitchd ovsdb-server 2>/dev/null || true
         sleep 1
     fi
+    if [ "$VALGRIND_OPENVSWITCH" == 1 ] && [ -n "$OVS_PID" ]; then
+        OVS_VALGRIND_LOG="/var/log/openvswitch/ovs-vswitchd.valgrind.log.$OVS_PID"
+        if [ -s "$OVS_VALGRIND_LOG" ]; then
+            err "Detected openvswitch valgrind issues"
+            cat $OVS_VALGRIND_LOG
+        fi
+    fi
+    OVS_PID=""
 }
 
 function check_ovs_settings() {
@@ -2774,6 +2793,7 @@ function __test_help() {
     echo "FREEZE_ON_ERROR=1             - Pause test on each error."
     echo "ENABLE_OVS_DEBUG=1            - Set ovs debug level."
     echo "CLEAR_OVS_LOG=1               - Clear ovs log at the start of the test."
+    echo "VALGRIND_OPENVSWITCH=1        - Start openvswitch with valgrind."
     exit 0
 }
 
