@@ -16,7 +16,7 @@ function test_no_vlan() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF $br $VF2_IP $time $time
+    verify_ping_ns $namespace1 $VF $br $VF2_IP $time $npackets
 
     cleanup_br
 }
@@ -34,7 +34,7 @@ function test_trunk_to_trunk_vlan() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF.2 $br $VF2_IP_VLAN2 $time $time
+    verify_ping_ns $namespace1 $VF.2 $br $VF2_IP_VLAN2 $time $npackets
 
     cleanup_br
 }
@@ -51,7 +51,7 @@ function test_trunk_to_access_vlan() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF.3 $br $VF2_IP_UNTAGGED $time $time
+    verify_ping_ns $namespace1 $VF.3 $br $VF2_IP_UNTAGGED $time $npackets
 
     cleanup_br
 }
@@ -68,7 +68,7 @@ function test_access_to_trunk_vlan() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF $br $VF2_IP_VLAN2 $time $time
+    verify_ping_ns $namespace1 $VF $br $VF2_IP_VLAN2 $time $npackets
 
     cleanup_br
 }
@@ -86,7 +86,7 @@ function test_trunk_to_trunk_qinq() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF.3.2 $br $VF2_IP_VLAN2 $time $time 'vlan and vlan and icmp'
+    verify_ping_ns $namespace1 $VF.3.2 $br $VF2_IP_VLAN2 $time $npackets 'vlan and vlan and icmp'
 
     cleanup_br
 }
@@ -104,7 +104,7 @@ function test_trunk_to_access_qinq() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF.3.2 $br $VF2_IP_VLAN2 $time $time 'vlan and vlan and icmp'
+    verify_ping_ns $namespace1 $VF.3.2 $br $VF2_IP_VLAN2 $time $npackets 'vlan and vlan and icmp'
 
     cleanup_br
 }
@@ -122,7 +122,7 @@ function test_access_to_trunk_qinq() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF.2 $br $VF2_IP_VLAN2 $time $time 'vlan and vlan and icmp'
+    verify_ping_ns $namespace1 $VF.2 $br $VF2_IP_VLAN2 $time $npackets 'vlan and vlan and icmp'
 
     cleanup_br
 }
@@ -140,7 +140,7 @@ function test_access_to_access_qinq() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF.2 $br $VF2_IP_VLAN2 $time $time 'vlan and vlan and icmp'
+    verify_ping_ns $namespace1 $VF.2 $br $VF2_IP_VLAN2 $time $npackets 'vlan and vlan and icmp'
 
     cleanup_br
 }
@@ -189,7 +189,7 @@ function __test_remote_no_vlan_mcast() {
     sleep 10
     bridge mdb show
 
-    verify_ping_remote_mcast $remote_dev $br $MCAST_IP 5 8 8
+    verify_ping_remote_mcast $remote_dev $br $MCAST_IP $time $ndups $npackets
 
     ip netns del $namespace1
     ip netns del $namespace2
@@ -237,7 +237,7 @@ function __test_remote_trunk_to_mixed_vlan_mcast() {
     sleep 10
     bridge mdb show
 
-    verify_ping_remote_mcast $remote_dev $br $MCAST_IP 5 8 8
+    verify_ping_remote_mcast $remote_dev $br $MCAST_IP $time $ndups $npackets
 
     ip netns del $namespace1
     ip netns del $namespace2

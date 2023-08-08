@@ -29,7 +29,8 @@ MCAST_IP3="224.10.10.12"
 namespace1=ns1
 namespace2=ns2
 namespace3=ns3
-time=5
+time=10
+npackets=6
 
 not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
 
@@ -116,9 +117,9 @@ flush_bridge $br
 sleep 5
 bridge mdb show
 
-verify_ping_ns $namespace1 $VF $br $VF2_IP_VLAN2 $time $time
-verify_ping_ns $namespace1 $VF $br $VF3_IP_VLAN2 $time $time
-verify_ping_ns_mcast_no_offload $namespace1 $VF $br $MCAST_IP 5 4 5
+verify_ping_ns $namespace1 $VF $br $VF2_IP_VLAN2 $time $npackets
+verify_ping_ns $namespace1 $VF $br $VF3_IP_VLAN2 $time $npackets
+verify_ping_ns_mcast_no_offload $namespace1 $VF $br $MCAST_IP $time $((time-1)) $time
 
 cleanup
 trap - EXIT

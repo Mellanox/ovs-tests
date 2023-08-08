@@ -34,7 +34,9 @@ MCAST_IP="224.10.10.10"
 namespace1=ns1
 namespace2=ns2
 namespace3=ns3
-time=5
+time=10
+ndups=18
+npackets=8
 
 require_remote_server
 not_relevant_for_nic cx4 cx4lx cx5 cx6 cx6lx
@@ -103,7 +105,7 @@ flush_bridge $br
 sleep 10
 bridge mdb show
 
-verify_ping_ns_mcast $namespace1 $VF $br $MCAST_IP 5 8 8
+verify_ping_ns_mcast $namespace1 $VF $br $MCAST_IP $time $ndups $npackets
 
 cleanup
 trap - EXIT

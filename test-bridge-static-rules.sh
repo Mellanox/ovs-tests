@@ -19,7 +19,7 @@ VF2_IP="7.7.1.1"
 VF2_MAC="e4:0a:05:08:00:03"
 namespace1=ns1
 namespace2=ns2
-time=5
+time=10
 
 function cleanup() {
     ip link del name $br type bridge 2>/dev/null

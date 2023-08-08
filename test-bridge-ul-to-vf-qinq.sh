@@ -32,7 +32,8 @@ REMOTE_IP_VLAN2="7.7.2.1"
 REMOTE_MAC_VLAN2="0c:42:a1:58:ac:29"
 REMOTE_IP_UNTAGGED="7.7.3.1"
 namespace1=ns1
-time=5
+time=10
+npackets=6
 
 function cleanup() {
 
@@ -80,7 +81,7 @@ function test_trunk_to_trunk_qinq() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF.3.2 $br $REMOTE_IP_VLAN2 $time $time 'vlan and vlan and icmp'
+    verify_ping_ns $namespace1 $VF.3.2 $br $REMOTE_IP_VLAN2 $time $npackets 'vlan and vlan and icmp'
 
     on_remote "
               ip link del link $REMOTE_NIC name ${REMOTE_NIC}.3.2 type vlan id 2 &>/dev/null
@@ -113,7 +114,7 @@ function test_access_to_trunk_qinq() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF.2 $br $REMOTE_IP_VLAN2 $time $time 'vlan and vlan and icmp'
+    verify_ping_ns $namespace1 $VF.2 $br $REMOTE_IP_VLAN2 $time $npackets 'vlan and vlan and icmp'
 
     on_remote "
               ip link del link $REMOTE_NIC name ${REMOTE_NIC}.3.2 type vlan id 2 &>/dev/null
@@ -144,7 +145,7 @@ function test_access_to_access_qinq() {
     sleep 1
     flush_bridge $br
 
-    verify_ping_ns $namespace1 $VF.2 $br $REMOTE_IP_VLAN2 $time $time 'vlan and vlan and icmp'
+    verify_ping_ns $namespace1 $VF.2 $br $REMOTE_IP_VLAN2 $time $npackets 'vlan and vlan and icmp'
 
     on_remote "ip link del link $REMOTE_NIC name ${REMOTE_NIC}.2 type vlan id 2 &>/dev/null"
     ip link del name $br type bridge

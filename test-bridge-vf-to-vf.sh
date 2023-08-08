@@ -32,7 +32,8 @@ VF2_MAC_VLAN2="e4:0a:05:08:00:06"
 VF2_IP_UNTAGGED="7.7.3.1"
 namespace1=ns1
 namespace2=ns2
-time=5
+time=10
+npackets=6
 
 function cleanup() {
     ip link del name $br type bridge 2>/dev/null

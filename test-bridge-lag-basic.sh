@@ -26,7 +26,8 @@ REMOTE_IP="7.7.1.1"
 REMOTE_MAC="0c:42:a1:58:ac:28"
 namespace1=ns1
 namespace2=ns2
-time=5
+time=10
+npackets=6
 
 function cleanup() {
     clear_remote_bonding
@@ -93,22 +94,22 @@ remote_active=$REMOTE_NIC
 title "test ping esw0->esw1"
 change_slaves
 flush_bridge $br
-verify_ping_ns $namespace1 $VF $REP $VF2_IP $time $time
+verify_ping_ns $namespace1 $VF $REP $VF2_IP $time $npackets
 
 title "test ping esw0->bond"
 change_slaves
 flush_bridge $br
-verify_ping_ns $namespace1 $VF $bond $REMOTE_IP $time $time
+verify_ping_ns $namespace1 $VF $bond $REMOTE_IP $time $npackets
 
 title "test ping esw1->esw0"
 change_slaves
 flush_bridge $br
-verify_ping_ns $namespace2 $VF2.2 $REP2 $VF1_IP $time $time
+verify_ping_ns $namespace2 $VF2.2 $REP2 $VF1_IP $time $npackets
 
 title "test ping esw1->bond"
 change_slaves
 flush_bridge $br
-verify_ping_ns $namespace2 $VF2.2 $bond $REMOTE_IP $time $time
+verify_ping_ns $namespace2 $VF2.2 $bond $REMOTE_IP $time $npackets
 
 cleanup
 trap - EXIT
