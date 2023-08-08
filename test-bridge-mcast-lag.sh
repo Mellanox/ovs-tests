@@ -90,8 +90,6 @@ require_interfaces REP REP2 REP3 NIC NIC2
 
 remote_disable_sriov
 config_remote_bonding
-on_remote "ip address replace dev bond0 $REMOTE_IP/24
-           ip l set dev bond0 up"
 
 ovs_clear_bridges
 sleep 1
