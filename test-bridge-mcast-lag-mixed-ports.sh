@@ -50,9 +50,8 @@ function cleanup() {
     ip netns del $namespace2 &>/dev/null
     ip netns del $namespace3 &>/dev/null
 
+    on_remote "ip a del dev bond0.2 $MCAST_IP/24 &>/dev/null"
     clear_remote_bonding
-    on_remote "ip a flush dev $REMOTE_NIC
-               ip a flush dev $REMOTE_NIC2"
 
     unbind_vfs
     unbind_vfs $NIC2
