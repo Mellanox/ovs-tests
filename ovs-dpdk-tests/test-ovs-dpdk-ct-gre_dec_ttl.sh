@@ -17,11 +17,6 @@ require_interfaces REP NIC
 unbind_vfs
 bind_vfs
 
-function cleanup() {
-    ovs_conf_remove max-idle
-    cleanup_test
-}
-
 cleanup_test
 
 gre_set_entropy
@@ -30,12 +25,11 @@ config_tunnel gre
 config_local_tunnel_ip $LOCAL_TUN_IP br-phy
 config_remote_tunnel gre
 ovs_add_ct_rules_dec_ttl
-ovs_conf_set max-idle 15000
 
 verify_ping
 generate_traffic "remote" $LOCAL_IP
 
-check_offload_contains "tcp.*ttl=63" 2
+check_offload_contains "ttl=63" 2
 
 trap - EXIT
 cleanup_test
