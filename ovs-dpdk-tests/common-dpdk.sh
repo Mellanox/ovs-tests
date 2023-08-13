@@ -185,7 +185,7 @@ function start_vdpa_vm() {
     fi
 
     debug "starting VM $vm_name"
-    timeout 20 virsh start $vm_name &>/dev/null
+    timeout --foreground 20 virsh start $vm_name &>/dev/null
     if [ $? -ne 0 ]; then
         fail "could not start VM"
     fi
