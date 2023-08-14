@@ -33,8 +33,8 @@ function config() {
 function del_and_add_pf() {
     local pci=$(get_pf_pci)
 
-    ovs_del_pf
-    ovs_add_pf
+    ovs_del_port "PF"
+    ovs_add_port "PF"
 }
 
 function run() {

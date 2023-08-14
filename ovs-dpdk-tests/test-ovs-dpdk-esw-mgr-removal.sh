@@ -27,9 +27,9 @@ function del_and_add_pf() {
     local pci=$(get_pf_pci)
     local msg="Resource temporarily unavailable"
 
-    ovs_del_pf
+    ovs_del_port "PF"
     verify_ovs_expected_msg "$msg"
-    ovs_add_pf
+    ovs_add_port "PF"
 }
 
 function run() {

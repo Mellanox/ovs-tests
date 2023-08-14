@@ -29,7 +29,7 @@ function verify_err_and_add_pf() {
     local msg="Resource temporarily unavailable"
 
     verify_ovs_expected_msg "$msg"
-    ovs_add_pf
+    ovs_add_port "PF"
 }
 
 function run() {

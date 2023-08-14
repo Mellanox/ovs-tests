@@ -112,21 +112,42 @@ function ovs_add_bridge() {
     ovs-vsctl --may-exist add-br $bridge -- set Bridge $bridge datapath_type=netdev -- br-set-external-id $bridge bridge-id $bridge -- set bridge $bridge fail-mode=standalone
 }
 
-function ovs_add_pf() {
-    local bridge=${1:-br-phy}
-    local pci=${2:-`get_pf_pci`}
+function ovs_add_port() {
+    local type=$1
+    local num=${2:-"1"}
+    local bridge=${3:-br-phy}
+    local pci=${4:-`get_pf_pci`}
     local port=`get_port_from_pci $pci`
+    local rep=""
 
-    debug "Add ovs pf port $port"
-    ovs-vsctl add-port $bridge $port -- set Interface $port type=dpdk options:dpdk-devargs=$pci,$DPDK_PORT_EXTRA_ARGS
+    if ([ "${type}" == "ECPF" ] && ! (is_bf || is_bf_host)); then
+        return
+    fi
+
+    if [ "${type}" == "ECPF" ]; then
+        port+="hpf"
+        rep="representor=[65535],"
+    elif [ "${type}" == "SF" ]; then
+        port+="sf_$num"
+        rep="representor=sf[$num],"
+    fi
+    debug "Add ovs $type port $port"
+    ovs-vsctl add-port $bridge $port -- set Interface $port type=dpdk options:dpdk-devargs=$pci,$rep$DPDK_PORT_EXTRA_ARGS
 }
 
-function ovs_del_pf() {
-    local bridge=${1:-br-phy}
-    local pci=${2:-`get_pf_pci`}
+function ovs_del_port() {
+    local type=$1
+    local num=${2:-"1"}
+    local bridge=${3:-br-phy}
+    local pci=${4:-`get_pf_pci`}
     local port=`get_port_from_pci $pci`
 
-    debug "Del ovs pf port $port"
+    if [ "${type}" == "ECPF" ]; then
+        port+="hpf"
+    elif [ "${type}" == "SF" ]; then
+        port+="sf_$num"
+    fi
+    debug "Del ovs $type port $port"
     ovs-vsctl del-port $bridge $port
 }
 
@@ -160,21 +181,9 @@ function config_simple_bridge_with_rep() {
     ovs_add_bridge $bridge
 
     if [ "$should_add_pf" == "true" ]; then
-        ovs_add_pf $bridge $pci
+        ovs_add_port "PF" $bridge $pci
     fi
     configure_dpdk_rep_ports $reps $bridge $pci
-}
-
-function ovs_add_host_pf_rep_port() {
-    if ! (is_bf || is_bf_host); then
-        return
-    fi
-
-    local bridge=${1:-"br-phy"}
-    local pci=${2:-$BF_PCI}
-    local port=`get_port_from_pci $pci hpf`
-
-    ovs-vsctl add-port $bridge $port -- set Interface $port type=dpdk options:dpdk-devargs=$pci,representor=[65535],$DPDK_PORT_EXTRA_ARGS
 }
 
 function start_vdpa_vm() {

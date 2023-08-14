@@ -493,7 +493,7 @@ function config_remote_arm_bridge() {
     if is_bf_host; then
         title "Configuring simple bridge $bridge over remote arm side"
         on_remote_bf_exec "config_simple_bridge_with_rep 0 true $bridge $port
-                           ovs_add_host_pf_rep_port $bridge $pci"
+                           ovs_add_port \"ECPF\" $bridge $pci"
     fi
 }
 
