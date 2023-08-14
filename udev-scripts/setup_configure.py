@@ -164,9 +164,7 @@ class SetupConfigure(object):
                 self.LoadVFInfo()
                 self.LoadRepInfo()
 
-            if self.args.dpdk or self.args.vdpa or self.args.doca:
-                self.configure_hugepages()
-
+            self.configure_hugepages()
             self.ConfigureOVS()
 
             if self.args.second_server:
@@ -723,15 +721,17 @@ class SetupConfigure(object):
     def configure_hugepages(self):
         if self.args.vdpa or self.args.doca:
             nr_hugepages = 4096
-        else:
+        elif self.args.dpdk:
             nr_hugepages = 2048
+        else:
+            return
+
         self.Logger.info("Allocating %s hugepages", nr_hugepages)
 
         if self.args.bluefield:
             runcmd_output_remote(self.bf_ip, 'echo %s > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages' % nr_hugepages)
-            return
-
-        runcmd('echo %s > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages' % nr_hugepages)
+        else:
+            runcmd('echo %s > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages' % nr_hugepages)
 
     @property
     def Logger(self):
