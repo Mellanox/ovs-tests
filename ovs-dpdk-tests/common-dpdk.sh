@@ -25,7 +25,11 @@ function set_ovs_dpdk_debug_logs() {
     if [ -f $log ]; then
         echo > $log
     fi
-    ovs_set_log_levels dpif_netdev:file:DBG netdev_offload_dpdk:file:DBG
+    if [ "$DOCA" == "1" ]; then
+        ovs_set_log_levels dpif_netdev:file:DBG netdev_offload_dpdk:file:DBG ovs_doca:DBG dpdk_offload_doca:DBG
+    elif [ "$DPDK" == "1" ]; then
+        ovs_set_log_levels dpif_netdev:file:DBG netdev_offload_dpdk:file:DBG
+    fi
 }
 
 function require_dpdk() {
