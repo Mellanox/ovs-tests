@@ -29,7 +29,7 @@ function config() {
 }
 
 function add_openflow_rules() {
-    local bridge="by-phy"
+    local bridge="br-phy"
     ovs-ofctl del-flows $bridge
     ovs-ofctl add-group $bridge group_id=1,type=select,bucket=watch_port=$IB_PF0_PORT1,output:$IB_PF0_PORT1,bucket=watch_port=rep-dummy,output:rep-dummy
     ovs-ofctl add-flow $bridge "in_port=$IB_PF0_PORT0,actions=group=1"
