@@ -127,6 +127,10 @@ function ovs_add_port() {
     if [ "${type}" == "ECPF" ]; then
         port+="hpf"
         rep="representor=[65535],"
+        ovs-vsctl add-port $bridge $port -- set Interface $port type=dpdk options:dpdk-devargs=$pci,representor=[65535],$DPDK_PORT_EXTRA_ARGS
+    elif [ "${type}" == "VF" ]; then
+        port+="vf_$num"
+        rep="representor=[$num],"
     elif [ "${type}" == "SF" ]; then
         port+="sf_$num"
         rep="representor=sf[$num],"
@@ -144,6 +148,8 @@ function ovs_del_port() {
 
     if [ "${type}" == "ECPF" ]; then
         port+="hpf"
+    elif [ "${type}" == "VF" ]; then
+        port+="vf_$num"
     elif [ "${type}" == "SF" ]; then
         port+="sf_$num"
     fi
