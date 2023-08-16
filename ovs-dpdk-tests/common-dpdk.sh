@@ -415,7 +415,15 @@ function check_offload_contains() {
 
 function check_dpdk_offloads() {
     local IP=$1
-    local filter='icmpv6\|arp\|drop\|ct_state(0x21/0x21)\|flow-dump\|actions:ib_pf1\|actions:ib_pf0'
+    local filter='icmpv6\|arp\|drop\|ct_state(0x21/0x21)\|flow-dump'
+
+    if [ "$DOCA" != "1" ]; then
+        local pci=$(get_pf_pci)
+        local pci2=$(get_pf_pci2)
+        local ib_pf0=`get_port_from_pci $pci`
+        local ib_pf1=`get_port_from_pci $pci2`
+        filter="actions:$ib_pf1\|actions:$ib_pf0\|${filter}"
+    fi
 
     if [[ $IP != *":"* ]]; then
         filter="ipv6\|${filter}"
