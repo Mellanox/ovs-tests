@@ -1,5 +1,9 @@
-CLEAR_OVS_LOG=1
-ENABLE_OVS_DEBUG=1
+if [ -z "$CLEAR_OVS_LOG" ]; then
+    CLEAR_OVS_LOG=1
+fi
+if [ -z "$ENABLE_OVS_DEBUG" ]; then
+    ENABLE_OVS_DEBUG=1
+fi
 
 DPDK_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
 . $DPDK_DIR/../common.sh
