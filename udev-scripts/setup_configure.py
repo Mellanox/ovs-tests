@@ -29,6 +29,9 @@ def runcmd2(cmd):
     except CalledProcessError:
         return 1
 
+def runcmd2_remote(ip, cmd):
+    ssh_config = '-q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=3'
+    return runcmd2(f'ssh {ssh_config} {ip} "{cmd}"')
 
 def runcmd_output(cmd):
     return check_output(cmd, shell=True).decode()
@@ -491,23 +494,29 @@ class SetupConfigure(object):
         runcmd_output("systemctl stop %s" % self.ovs_service)
 
     def RestartOVS(self):
-        runcmd_output("systemctl restart %s" % self.ovs_service)
+        if self.args.bluefield:
+            return runcmd2_remote(self.bf_ip, "systemctl restart openvswitch-switch")
+
+        return runcmd2("systemctl restart %s" % self.ovs_service)
 
     def ConfigureOVS(self):
         self.Logger.info("Configure OVS hw-offload=true")
-        if self.args.bluefield:
-            self.Configure_BF_OVS()
-            return
-        self.RestartOVS()
-        runcmd_output('ovs-vsctl set Open_vSwitch . other_config:hw-offload=true')
-        self.RestartOVS()
 
-    def Configure_BF_OVS(self):
-        runcmd_output_remote(self.bf_ip,
-                             "systemctl restart openvswitch-switch &&"
-                             "ovs-vsctl set Open_vSwitch . other_config:hw-offload=true &&"
-                             "systemctl restart openvswitch-switch &&"
-                             "ovs-vsctl list-br | xargs -r -L 1 ovs-vsctl del-br")
+        if self.RestartOVS():
+            # W.A. for BF2 (Bug #3582205). RestartOVS fails inconsistently with:
+            # A dependency job for openvswitch-switch.service failed. See 'journalctl -xe' for details.
+            # Doing the restart one more time usually solves the issue.
+            self.RestartOVS()
+
+        if self.args.bluefield:
+            runcmd_output_remote(self.bf_ip,
+                                "ovs-vsctl set Open_vSwitch . other_config:hw-offload=true &&"
+                                "systemctl restart openvswitch-switch &&"
+                                "ovs-vsctl list-br | xargs -r -L 1 ovs-vsctl del-br")
+        else:
+            runcmd_output('ovs-vsctl set Open_vSwitch . other_config:hw-offload=true')
+
+        self.RestartOVS()
 
     def BindVFs(self):
         for VFInfo in chain.from_iterable(map(lambda PFInfo: PFInfo['vfs'], self.host.PNics)):
