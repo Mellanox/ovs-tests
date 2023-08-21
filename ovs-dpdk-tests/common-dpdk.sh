@@ -422,7 +422,7 @@ function check_dpdk_offloads() {
         local pci2=$(get_pf_pci2)
         local ib_pf0=`get_port_from_pci $pci`
         local ib_pf1=`get_port_from_pci $pci2`
-        filter="actions:$ib_pf1\|actions:$ib_pf0\|${filter}"
+        filter="actions:$ib_pf1\b\|actions:$ib_pf0\b\|${filter}"
     fi
 
     if [[ $IP != *":"* ]]; then
