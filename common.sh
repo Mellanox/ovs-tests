@@ -8,6 +8,8 @@ TESTNAME=`basename $__argv0`
 TESTDIR=$(cd `dirname $__argv0` ; pwd)
 DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" &>/dev/null && pwd)
 SET_MACS="$DIR/set-macs.sh"
+OVS_MEMORY="$DIR/ovs-memory.sh"
+: "${OVS_MEMORY_CSV_OUTPUT:="/workspace/ovs-memory.csv"}"
 
 COLOR0="\033["
 NOCOLOR="\033[0;0m"
@@ -1897,6 +1899,16 @@ function ovs_dump_ovs_flows() {
 
 function ovs_clear_bridges() {
     bf_wrap "ovs-vsctl list-br | xargs -r -L 1 ovs-vsctl del-br 2>/dev/null"
+}
+
+function ovs_memory() {
+    local section="$1" # optional
+    [ "$section" ] && section="section='$section'"
+    if is_bf_host; then
+        on_bf_exec "$OVS_MEMORY '$section' 'csv=$OVS_MEMORY_CSV_OUTPUT'"
+    else
+        $OVS_MEMORY "$section" "csv=$OVS_MEMORY_CSV_OUTPUT"
+    fi
 }
 
 OVS_CTL="/usr/share/openvswitch/scripts/ovs-ctl"
