@@ -1644,11 +1644,17 @@ def main():
     if not args.loops:
         args.loops = 1
 
+    failed = False
+
     for iteration in range(args.loops):
-        failed = run_tests(iteration)
+        failed = failed or run_tests(iteration)
+
         if args.stop and failed:
             return 1
     # end loops
+
+    if failed:
+        return 1
 
     return 0
 
