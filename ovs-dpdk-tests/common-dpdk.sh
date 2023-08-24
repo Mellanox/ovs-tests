@@ -127,7 +127,6 @@ function ovs_add_port() {
     if [ "${type}" == "ECPF" ]; then
         port+="hpf"
         rep="representor=[65535],"
-        ovs-vsctl add-port $bridge $port -- set Interface $port type=dpdk options:dpdk-devargs=$pci,representor=[65535],$DPDK_PORT_EXTRA_ARGS
     elif [ "${type}" == "VF" ]; then
         port+="vf_$num"
         rep="representor=[$num],"
@@ -187,7 +186,7 @@ function config_simple_bridge_with_rep() {
     ovs_add_bridge $bridge
 
     if [ "$should_add_pf" == "true" ]; then
-        ovs_add_port "PF" $bridge $pci
+        ovs_add_port "PF" 0 $bridge $pci
     fi
     configure_dpdk_rep_ports $reps $bridge $pci
 }
