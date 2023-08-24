@@ -2061,6 +2061,13 @@ function restart_openvswitch() {
 __ovs_used=0
 
 function start_clean_openvswitch() {
+    if [ "$__ovs_used" -eq 1 ] && \
+       [ "$ENABLE_OVS_MEMORY" ]; then
+        # __ovs_used=1 means that this function already
+        # executed once: this is the second time it is
+        # called, usually right before resetting / cleaning up OVS.
+        ovs_memory $TESTNAME
+    fi
     if is_bf_host; then
         on_bf_exec "restart_openvswitch
                     ovs_clear_bridges"
@@ -2807,6 +2814,7 @@ function __test_help() {
     echo "USE_OPENIBD=1                 - Use openibd service script (i.e. MLNX OFED) to reload modules. default=1"
     echo "FREEZE_ON_ERROR=1             - Pause test on each error."
     echo "ENABLE_OVS_DEBUG=1            - Set ovs debug level."
+    echo "ENABLE_OVS_MEMORY=1           - Print a report of OVS memory usage."
     echo "CLEAR_OVS_LOG=1               - Clear ovs log at the start of the test."
     echo "VALGRIND_OPENVSWITCH=1        - Start openvswitch with valgrind."
     echo "SKIP_OVS_LOG_DUMP=0           - Skip ovs log dump on failure."
