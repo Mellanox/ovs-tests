@@ -1055,6 +1055,11 @@ function config_reps() {
     echo
 }
 
+function count_available_vf() {
+    local total_vfs="/sys/class/net/${1}/device/sriov_totalvfs"
+    cat "$total_vfs" 2> /dev/null || echo 0
+}
+
 function count_reps() {
     local want=$1
     local nic=$2
