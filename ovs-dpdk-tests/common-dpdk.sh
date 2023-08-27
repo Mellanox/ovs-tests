@@ -381,6 +381,11 @@ function query_sw_packets_in_sent_packets_percentage() {
         return 1
     fi
 
+    if [ -z "$all_packets_passed" ]; then
+        err  "ERROR: Cannot get all_packets_passed"
+        return 1
+    fi
+
     title "Checking that $total_packets_passed_in_sw is no more than $valid_percetange_passed_in_sw% of $all_packets_passed"
     if [ $(($valid_percetange_passed_in_sw*$total_packets_passed_in_sw)) -gt $all_packets_passed ]; then
         err "$total_packets_passed_in_sw packets passed in SW, it is more than $valid_percetange_passed_in_sw% of $all_packets_passed"
