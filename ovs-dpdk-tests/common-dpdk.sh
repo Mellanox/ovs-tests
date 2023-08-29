@@ -374,7 +374,7 @@ function query_sw_packets_in_sent_packets_percentage() {
     local valid_percetange_passed_in_sw=${2:-10}
 
     local total_packets_passed_in_sw=$(get_total_packets_passed_in_sw)
-    local all_packets_passed=$(get_total_packets_passed)
+    local all_packets_passed=$(get_total_packets_passed $bridge)
 
     if [ -z "$total_packets_passed_in_sw" ]; then
         err  "ERROR: Cannot get total_packets_passed_in_sw"
