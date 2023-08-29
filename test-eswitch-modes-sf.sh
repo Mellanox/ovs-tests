@@ -26,7 +26,7 @@ wait_for_ifaces
 verify_eswitch "legacy"
 
 echo "- Create $num SFs - expect to fail"
-devlink port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum $num 2>&1 | grep -q "Error: mlx5_core: Port add is only supported in eswitch switchdev mode"
+devlink port add pci/0000:08:00.0 flavour pcisf pfnum 0 sfnum $num 2>&1 | grep -q "Error: mlx5_core: SF ports are only supported in eswitch switchdev mode"
 [ $? -eq 0 ] && success || fail "Create SFs did not fail as expected"
 
 verify_eswitch "legacy"
