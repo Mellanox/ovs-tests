@@ -2298,6 +2298,8 @@ function dump_ovs_log() {
     local look="ERR|WARN|EMER|assertion|DBG"
     local filter="timeval|ioctl|coverage|flow create.*void|ufid 00000000-0000-0000-0000-000000000000"
 
+    [ "$SKIP_OVS_LOG_DUMP" == 1 ] && return
+
     if [ -f $ovs_log_path ] && [ "$__ovs_used" == 1 ] && [ "$CLEAR_OVS_LOG" == 1 ]; then
         local a=`cat $ovs_log_path | grep -E "$look" | grep -v -E "$filter"`
         if [ "$a" != "" ]; then
@@ -2794,6 +2796,7 @@ function __test_help() {
     echo "ENABLE_OVS_DEBUG=1            - Set ovs debug level."
     echo "CLEAR_OVS_LOG=1               - Clear ovs log at the start of the test."
     echo "VALGRIND_OPENVSWITCH=1        - Start openvswitch with valgrind."
+    echo "SKIP_OVS_LOG_DUMP=0           - Skip ovs log dump on failure."
     exit 0
 }
 
