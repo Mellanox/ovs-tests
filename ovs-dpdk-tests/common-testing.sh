@@ -5,7 +5,6 @@ REMOTE_IP2=2.2.2.8
 
 p_server=/tmp/perf_server
 p_client=/tmp/perf_client
-p_ping=/tmp/ping_out
 p_scapy=/tmp/tcpdump
 num_connections=5
 iperf_cmd=iperf3
@@ -187,6 +186,7 @@ function send_metered_ping() {
     local ip_addr=${4:-"1.1.1.8"}
     local interval=${5:-0.01}
     local expected_received=${6:-10}
+    local p_ping="/tmp/ping_out"
 
     rm -rf $p_ping
     exec_dbg "ip netns exec $namespace ping -c $count -w $wait -i $interval $ip_addr &> $p_ping"
