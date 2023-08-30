@@ -6,8 +6,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common-dpdk.sh
 
-pktgen=$my_dir/../scapy-traffic-tester.py
-
 trap cleanup_test EXIT
 
 NS0_IP=1.1.1.7
@@ -45,7 +43,7 @@ function run() {
     ovs_add_meter br-phy 2 pktps 50 1
     ovs_add_bidir_meter_rules
     debug "testing meter on REPs"
-    ovs_send_scapy_packets $pktgen $VF1 $VF2 $NS0_IP $NS1_IP 1 150 ns0 ns1
+    ovs_send_scapy_packets $VF1 $VF2 $NS0_IP $NS1_IP 1 150 ns0 ns1
     check_dpdk_offloads $NS0_IP
     ovs_check_tcpdump 70
     ovs_del_meter br-phy 1

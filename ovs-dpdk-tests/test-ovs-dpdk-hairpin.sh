@@ -6,8 +6,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common-dpdk.sh
 
-pktgen=$my_dir/../scapy-traffic-tester.py
-
 FAKE_IP=1.1.1.111
 
 config_sriov 2
@@ -38,7 +36,7 @@ function run() {
     add_openflow_rules
 
     before=`ip netns exec ns0 ifconfig | grep 'RX packets' | awk '{print $3}'`
-    ovs_send_scapy_packets $pktgen $VF $VF2 $LOCAL_IP $REMOTE_IP 1 150 ns0 ns1
+    ovs_send_scapy_packets $VF $VF2 $LOCAL_IP $REMOTE_IP 1 150 ns0 ns1
     after=`ip netns exec ns0 ifconfig | grep 'RX packets' | awk '{print $3}'`
 
     # check offloads
