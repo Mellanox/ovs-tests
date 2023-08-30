@@ -193,11 +193,11 @@ function send_metered_ping() {
     local pkts=$(grep 'received' $p_ping | awk '{ print $4 }')
 
     if [ $pkts -gt $expected_received ]; then
-        err "expected $expected_received to pass meter but got $pkts"
+        err "Expected at most $expected_received packets but got $pkts packets"
         cat $p_ping
         return 1
     fi
-    success "expected at most $expected_received packets to pass and $pkts passed"
+    success "Got $pkts packets"
     rm -rf $p_ping
 }
 
