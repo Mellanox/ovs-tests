@@ -204,7 +204,9 @@ function send_metered_ping() {
 function ovs_check_tcpdump() {
     local expected=${1:-1}
 
-    local pkts=$(tcpdump -nner $p_scapy | wc -l)
+    killall tcpdump
+    sleep 1
+    local pkts=$(tcpdump -nner $p_scapy udp | wc -l)
     if [ $pkts -gt $expected ]; then
         err "expected $expected to pass meter but got $pkts"
         tcpdump -nner $p_scapy
