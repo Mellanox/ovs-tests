@@ -39,13 +39,15 @@ function run() {
     ovs_del_meter
     ovs-appctl revalidator/purge
 
-    ovs_add_meter br-phy 1 pktps 50 1
-    ovs_add_meter br-phy 2 pktps 50 1
+    local rate=50
+    ovs_add_meter br-phy 1 pktps $rate 1
+    ovs_add_meter br-phy 2 pktps $rate 1
     ovs_add_bidir_meter_rules
     debug "testing meter on REPs"
-    ovs_send_scapy_packets $VF1 $VF2 $NS0_IP $NS1_IP 1 150 ns0 ns1
+    local t=3
+    ovs_send_scapy_packets $VF1 $VF2 $NS0_IP $NS1_IP $t 10 ns0 ns1
     check_dpdk_offloads $NS0_IP
-    ovs_check_tcpdump 70
+    ovs_check_tcpdump $((rate*t+10))
     ovs_del_meter br-phy 1
     ovs_del_meter br-phy 2
 
