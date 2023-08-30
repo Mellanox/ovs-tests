@@ -128,7 +128,7 @@ function run() {
     on_remote timeout $((t+4)) iperf3 -s -D
     pid1=$!
     sleep 2
-    ip netns exec ns0 timeout $((t+2)) iperf3 -c $REMOTE_VXLAN_DEV_IP -t $t -P3 &
+    ip netns exec ns0 timeout $((t+2)) iperf3 -c $REMOTE_VXLAN_DEV_IP -t $t -P3 -b 1M &
     pid2=$!
 
     # verify pid
@@ -139,16 +139,17 @@ function run() {
         return
     fi
     ip addr del $LOCAL_IP/24 dev $VF
-    ip addr add dev $VF $LOCAL_IP/24
     sleep 1
+    ip addr add dev $VF $LOCAL_IP/24
+    sleep 5
 
-    timeout $((t-2)) tcpdump -qnnei $REP -c 10 'tcp' &
+    timeout $((t-8)) tcpdump -qnnei $REP -c 10 'tcp' &
     tpid=$!
-    timeout $((t-2)) tcpdump -qnnei vxlan_sys_4789 -c 10 &
+    timeout $((t-8)) tcpdump -qnnei vxlan_sys_4789 -c 10 &
     tpid1=$!
-    ip netns exec ns0 timeout $((t-2)) tcpdump -qnnei $VF2 -c 30 &
+    ip netns exec ns0 timeout $((t-8)) tcpdump -qnnei $VF2 -c 30 &
     tpid2=$!
-    sleep $t
+    sleep $((t-5))
 
     title "Verify offload on $REP"
     verify_no_traffic $tpid
