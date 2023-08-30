@@ -206,7 +206,7 @@ function ovs_check_tcpdump() {
 
     local pkts=$(tcpdump -nner $p_scapy | wc -l)
     if [ $pkts -gt $expected ]; then
-        err "expted $expected to pass meter but got $pkts"
+        err "expected $expected to pass meter but got $pkts"
         tcpdump -nner $p_scapy
         return 1
     fi
