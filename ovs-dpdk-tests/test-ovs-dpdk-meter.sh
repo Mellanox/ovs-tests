@@ -33,7 +33,7 @@ function run() {
 
     ovs_add_meter br-phy 1 pktps 1
     ovs_add_simple_meter_rule
-    debug "testing meter on PF"
+    title "Testing meter on PF"
     send_metered_ping
     check_dpdk_offloads $NS0_IP
     ovs_del_meter
@@ -43,14 +43,13 @@ function run() {
     ovs_add_meter br-phy 1 pktps $rate 1
     ovs_add_meter br-phy 2 pktps $rate 1
     ovs_add_bidir_meter_rules
-    debug "testing meter on REPs"
+    title "Testing meter on REPs"
     local t=3
     ovs_send_scapy_packets $VF1 $VF2 $NS0_IP $NS1_IP $t 10 ns0 ns1
     check_dpdk_offloads $NS0_IP
     ovs_check_tcpdump $((rate*t+10))
     ovs_del_meter br-phy 1
     ovs_del_meter br-phy 2
-
 }
 
 test_pre_config
