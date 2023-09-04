@@ -109,7 +109,9 @@ ignore_expected_dpdk_err_msg
 
 function ovs_add_bridge() {
     local bridge=${1:-br-phy}
-    ovs-vsctl --may-exist add-br $bridge -- set Bridge $bridge datapath_type=netdev -- br-set-external-id $bridge bridge-id $bridge -- set bridge $bridge fail-mode=standalone
+    ovs-vsctl --may-exist add-br $bridge \
+              -- set Bridge $bridge datapath_type=netdev fail-mode=standalone \
+              -- br-set-external-id $bridge bridge-id $bridge
 }
 
 function ovs_add_port() {
