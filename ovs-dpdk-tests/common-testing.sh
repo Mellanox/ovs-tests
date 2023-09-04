@@ -354,7 +354,7 @@ function initiate_traffic() {
         cmd="on_remote $cmd"
     fi
 
-    debug "Executing | $cmd"
+    debug "Executing in background | $cmd"
     eval $cmd &
     local pid2=$!
 
@@ -367,8 +367,8 @@ function initiate_traffic() {
        return 1
     fi
 
-    #check iperf on remote
     if [ "$remote" == "remote" ]; then
+        debug "Check iperf is running on remote"
         verify_iperf_running $remote
     fi
 }
