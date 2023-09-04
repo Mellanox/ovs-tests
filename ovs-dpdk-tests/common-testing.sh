@@ -516,7 +516,7 @@ function __config_remote_nic() {
 }
 
 function exec_dbg() {
-    debug "Executing | $@"
+    debug "${GRAY}Executing | ${NOCOLOR}$@"
     eval "$@"
 }
 
