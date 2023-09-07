@@ -13,7 +13,12 @@ IP2="2001:db8:0:f101::2"
 IPV41="8.8.8.1"
 IPV42="8.8.8.2"
 
-trap cleanup_test EXIT
+
+function cleanup(){
+    ovs_cleanup_hw_offload_ct_ipv6
+    cleanup_test
+}
+trap cleanup EXIT
 
 function config() {
     enable_switchdev
@@ -21,6 +26,7 @@ function config() {
     unbind_vfs
     bind_vfs
     cleanup_test
+    ovs_enable_hw_offload_ct_ipv6
     config_simple_bridge_with_rep 2
     start_vdpa_vm
     start_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
@@ -42,5 +48,5 @@ function run() {
 
 run
 trap - EXIT
-cleanup_test
+cleanup
 test_done

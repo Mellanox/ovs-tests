@@ -636,3 +636,11 @@ function config_devices() {
     bind_vfs
     bind_vfs $NIC2
 }
+
+function ovs_enable_hw_offload_ct_ipv6 {
+    ovs_conf_set hw-offload-ct-ipv6-enabled true
+}
+
+function ovs_cleanup_hw_offload_ct_ipv6 {
+    ovs_conf_remove hw-offload-ct-ipv6-enabled
+}
