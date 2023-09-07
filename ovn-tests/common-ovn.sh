@@ -122,6 +122,7 @@ function ovn_set_ovs_config() {
 
     if [ "$DPDK" == 1 ]; then
         ovs-vsctl set open . external-ids:ovn-bridge-datapath-type=netdev
+        ovs_enable_hw_offload_ct_ipv6
     fi
 }
 
