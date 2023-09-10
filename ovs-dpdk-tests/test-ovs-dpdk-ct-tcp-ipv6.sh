@@ -27,6 +27,8 @@ function config() {
     bind_vfs
     cleanup_test
     ovs_enable_hw_offload_ct_ipv6
+    debug "Restarting OVS"
+    restart_openvswitch
     config_simple_bridge_with_rep 2
     start_vdpa_vm
     start_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
