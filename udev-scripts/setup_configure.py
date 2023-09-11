@@ -698,7 +698,10 @@ class SetupConfigure(object):
 
             if self.args.vdpa:
                 conf += '\nVDPA=1'
-                self.set_sysconfig_openvswitch_user()
+
+                if self.ID != 'ubuntu':
+                    self.set_sysconfig_openvswitch_user()
+
                 self.vdpa_vm_init(1, vm1['domain_name'])
                 self.vdpa_vm_init(2, vm2['domain_name'])
 
