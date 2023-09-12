@@ -83,14 +83,20 @@ function get_mlx_iface() {
 }
 
 function __test_for_devlink_compat() {
-    if [ -e /sys/kernel/debug/mlx5/$PCI/compat ]; then
+    local pci=$PCI
+
+    if is_bf_host; then
+        pci=$BF_PCI
+        __devlink_compat_dir="/sys/class/net/\$nic/compat/devlink"
+    elif [ -e /sys/kernel/debug/mlx5/$PCI/compat ]; then
         __devlink_compat_dir="/sys/kernel/debug/mlx5/\$pci/compat"
     elif [ -e /sys/class/net/$NIC/compat/devlink ]; then
         __devlink_compat_dir="/sys/class/net/\$nic/compat/devlink"
     fi
+
     if [ -n "$DEVLINK_COMPAT" ]; then
         devlink_compat=$DEVLINK_COMPAT
-    elif devlink dev param show pci/$PCI name flow_steering_mode &>/dev/null ; then
+    elif __devlink dev param show pci/$pci name flow_steering_mode &>/dev/null ; then
         return
     else
         devlink_compat=${DEVLINK_COMPAT:-1}
@@ -351,11 +357,11 @@ function is_mlxdump_supported() {
 function get_flow_steering_mode() {
     local pci=$1
 
-    if is_bf_host || [ "$devlink_compat" -lt 1 ]; then
+    if [ "$devlink_compat" -lt 1 ]; then
         __devlink dev param show pci/$pci name flow_steering_mode | grep "runtime value" | awk {'print $NF'}
     else
         local nic=`get_pf_nic $pci`
-        cat `devlink_compat_dir $nic`/steering_mode 2>/dev/null
+        bf_wrap cat `devlink_compat_dir $nic`/steering_mode 2>/dev/null
     fi
 }
 
@@ -363,8 +369,13 @@ function set_flow_steering_mode() {
     local pci=$1
     local mode=$2
 
+    if is_bf_host; then
+        warn "Changing steering mode is not supported over bf host"
+    fi
+
     log "Set $mode flow steering mode on $pci"
-    if is_bf_host || [ "$devlink_compat" -lt 1 ]; then
+
+    if [ "$devlink_compat" -lt 1 ]; then
         __devlink dev param set pci/$pci name flow_steering_mode value $mode cmode runtime || fail "Failed to set $mode flow steering mode"
     else
         local nic=`get_pf_nic $pci`
@@ -1173,8 +1184,11 @@ function devlink_compat_dir() {
     local nic=$1
     local pci=$(basename `readlink /sys/class/net/$nic/device` 2>/dev/null)
     local compat=`eval echo "$__devlink_compat_dir"`
-    if [ -z "$compat" ] || [ ! -d $compat ]; then
+    if [ -z "$compat" ]; then
         fail "Cannot get devlink compat dir"
+    fi
+    if ! is_bf_host && [ ! -d $compat ]; then
+        fail "Cannot find devlink compat dir"
     fi
     echo $compat
 }
@@ -1473,6 +1487,10 @@ function get_pf_nic() {
         echo $NIC
     elif [ "$pci" == "$PCI2" ]; then
         echo $NIC2
+    elif [ "$pci" == "$BF_PCI" ]; then
+        echo $BF_NIC
+    elif [ "$pci" == "$BF_PCI2" ]; then
+        echo $BF_NIC2
     fi
 }
 
