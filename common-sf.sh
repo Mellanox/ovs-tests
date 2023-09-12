@@ -37,7 +37,7 @@ function sf_get_all_reps() {
 }
 
 function get_aux_sf_devices() {
-    ls -1d /sys/bus/auxiliary/devices/mlx5_core.sf.* 2>/dev/null
+    bf_wrap ls -1d /sys/bus/auxiliary/devices/mlx5_core.sf.* 2>/dev/null
 }
 
 function sf_get_dev() {
@@ -119,7 +119,9 @@ SF_DIRECTION_HOST=131072
 function create_sf() {
     local pfnum=$1
     local sfnum=$2
-    $devlink port add pci/$PCI flavour pcisf pfnum $pfnum sfnum $sfnum >/dev/null
+    local pci=`get_pf_pci`
+
+    $devlink port add pci/$pci flavour pcisf pfnum $pfnum sfnum $sfnum >/dev/null
     if [ $? -ne 0 ] ; then
         err "Failed to create sf on pfnum $pfnum sfnum $sfnum"
         return 1
