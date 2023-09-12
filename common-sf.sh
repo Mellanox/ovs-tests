@@ -40,12 +40,17 @@ function get_aux_sf_devices() {
     bf_wrap ls -1d /sys/bus/auxiliary/devices/mlx5_core.sf.* 2>/dev/null
 }
 
+function get_sfnum() {
+    local sf_dev=$1
+    bf_wrap cat $sf_dev/sfnum
+}
+
 function sf_get_dev() {
     local sfnum=$1
     local sf_dev
     local sfnum2
     for sf_dev in `get_aux_sf_devices`; do
-        sfnum2=`cat $sf_dev/sfnum`
+        sfnum2=`get_sfnum $sf_dev`
         if [[ "$sfnum2" == "$sfnum" ]]; then
             basename $sf_dev
             return
@@ -57,19 +62,19 @@ function sf_get_dev() {
 function sf_get_netdev() {
     local sfnum=$1
     local dev=`sf_get_dev $sfnum`
-    basename `ls -1 /sys/bus/auxiliary/devices/$dev/net`
+    basename `bf_wrap ls -1 /sys/bus/auxiliary/devices/$dev/net`
 }
 
 function sf_bind() {
-    echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf/bind || err "$1: Failed to bind to sf core"
+    bf_wrap echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf/bind || err "$1: Failed to bind to sf core"
 }
 
 function sf_unbind() {
-    echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf/unbind || err "$1: Failed to unbind from sf core"
+    bf_wrap echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf/unbind || err "$1: Failed to unbind from sf core"
 }
 
 function sf_cfg_unbind() {
-    echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf_cfg/unbind || err "$1: Failed to unbind from sf cfg"
+    bf_wrap echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf_cfg/unbind || err "$1: Failed to unbind from sf cfg"
 }
 
 function sf_set_param() {
