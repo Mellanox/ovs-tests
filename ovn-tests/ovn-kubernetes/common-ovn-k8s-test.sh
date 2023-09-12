@@ -33,7 +33,7 @@ function config_ovn_k8s_pf_ext_server() {
     local ovn_controller_ip_mask=$3
     local ovn_controller_mac=$4
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
     ovn_add_network $BRIDGE $NIC $OVN_KUBERNETES_NETWORK
     ovn_config_mtu $NIC $BRIDGE
     ip link set $NIC addr $ovn_controller_mac
@@ -54,7 +54,7 @@ function config_ovn_k8s_pf_vlan() {
     config_sriov_switchdev_mode
     require_interfaces $vf_var $rep_var
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
     ovn_add_network $BRIDGE $NIC $OVN_KUBERNETES_NETWORK
     ovs_create_bridge_vlan_interface $BRIDGE
 
@@ -78,7 +78,7 @@ function config_ovn_k8s_vf_lag() {
     config_vf_lag $mode
     require_interfaces $vf_var $rep_var
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
     ovn_add_network $BRIDGE $OVN_BOND $OVN_KUBERNETES_NETWORK
     ovn_config_mtu $NIC $NIC2 $OVN_BOND $BRIDGE
     ip link set $OVN_BOND addr $ovn_controller_mac
@@ -96,7 +96,7 @@ function config_ovn_k8s_hairpin() {
     config_sriov_switchdev_mode
     require_interfaces CLIENT_VF CLIENT_REP
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
     ovn_set_ovs_config $ovn_ip $ovn_ip
     ovn_start_ovn_controller
 }
@@ -114,7 +114,7 @@ function config_ovn_k8s_vf_lag_vlan() {
     config_vf_lag $mode
     require_interfaces $vf_var $rep_var
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
     ovn_add_network $BRIDGE $OVN_BOND $OVN_KUBERNETES_NETWORK
     ovs_create_bridge_vlan_interface $BRIDGE
 

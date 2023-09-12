@@ -67,7 +67,7 @@ function config_ovn_single_node() {
     config_sriov_switchdev_mode
     require_interfaces CLIENT_VF CLIENT_REP SERVER_VF SERVER_REP
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
 
     if [ "$DPDK" == 1 ]; then
         config_simple_bridge_with_rep 0
@@ -86,7 +86,8 @@ function config_ovn_pf() {
 
     config_sriov_switchdev_mode
     require_interfaces $vf_var $rep_var
-    start_clean_openvswitch
+
+    ovn_start_clean_openvswitch
 
     if [ "$DPDK" == 1 ]; then
         config_simple_bridge_with_rep 0
@@ -111,7 +112,7 @@ function ovn_single_node_external_config() {
     config_sriov_switchdev_mode
     require_interfaces CLIENT_VF CLIENT_REP
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
     ovn_add_network $OVN_PF_BRIDGE $NIC $network
     ip link set $NIC up
 
@@ -130,7 +131,7 @@ function config_ovn_single_node_external_vf_lag() {
     config_vf_lag $mode
     require_interfaces CLIENT_VF CLIENT_REP
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
     ovn_add_network $OVN_PF_BRIDGE $OVN_BOND $network
 
     ovn_set_ovs_config $ovn_ip $ovn_ip
@@ -224,7 +225,7 @@ function config_ovn_pf_vlan() {
     config_sriov_switchdev_mode
     require_interfaces $vf_var $rep_var
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
     ovs_create_bridge_vlan_interface
     ovs_add_port_to_switch $OVN_PF_BRIDGE $NIC "$port_extra_args"
     ovn_config_mtu $NIC $OVN_PF_BRIDGE $OVN_VLAN_INTERFACE
@@ -244,7 +245,7 @@ function config_ovn_pf_vlan_int() {
     config_sriov_switchdev_mode
     require_interfaces $vf_var $rep_var
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
     create_vlan_interface $NIC $PF_VLAN_INT $OVN_VLAN_TAG
     ovn_config_mtu $NIC $PF_VLAN_INT
     ip addr add $ovn_controller_ip/24 dev $PF_VLAN_INT
@@ -264,7 +265,7 @@ function config_ovn_vf_lag() {
     config_vf_lag $mode
     require_interfaces $vf_var $rep_var
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
 
     if [ "$DPDK" == 1 ]; then
         dev="br-phy"
@@ -290,7 +291,7 @@ function config_ovn_vf_lag_vlan() {
     config_vf_lag $mode
     require_interfaces $vf_var $rep_var
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
     ovs_create_bridge_vlan_interface
 
     if [ "$DPDK" == 1 ]; then
@@ -315,7 +316,7 @@ function config_ovn_vf_lag_vlan_int() {
     config_vf_lag $mode
     require_interfaces $vf_var $rep_var
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
     create_vlan_interface $OVN_BOND $BOND_VLAN_INT $OVN_VLAN_TAG
     ovn_config_mtu $NIC $NIC2 $OVN_BOND $BOND_VLAN_INT
     ip addr add $ovn_controller_ip/24 dev $BOND_VLAN_INT

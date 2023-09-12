@@ -10,7 +10,7 @@ function config_bf_ovn_k8s_pf() {
     local ovn_controller_ip_mask=$3
     local ovn_controller_mac=$4
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
     ovn_add_network $BRIDGE $BF_NIC $OVN_KUBERNETES_NETWORK
     ovn_config_mtu $BF_NIC $BRIDGE
     ip link set $BF_NIC addr $ovn_controller_mac
@@ -28,7 +28,7 @@ function config_bf_ovn_k8s_pf_vlan() {
     local ovn_controller_mac=$4
     local ovn_tunnel_ip=$5
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
     ovn_add_network $BRIDGE $BF_NIC $OVN_KUBERNETES_NETWORK
     ovs_create_bridge_vlan_interface $BRIDGE
 

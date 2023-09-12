@@ -71,9 +71,10 @@ function config_bf_ovn_single_node() {
     unbind_vfs
     bind_vfs
     require_interfaces CLIENT_VF SERVER_VF
+
     on_bf_exec "ovn_start_northd_central
                 ovn_create_topology
-                start_clean_openvswitch
+                ovn_start_clean_openvswitch
                 ovn_set_ovs_config $ovn_ip $ovn_ip
                 ip link set $BF_NIC up
                 ovn_start_ovn_controller"
@@ -89,7 +90,7 @@ function config_bf_ovn_pf() {
     local ovn_controller_ip=$2
     local tun_dev=$BF_NIC
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
 
     if [ "$DPDK" == 1 ]; then
         config_simple_bridge_with_rep 0
@@ -109,7 +110,7 @@ function config_bf_ovn_pf_vlan() {
     local ovn_controller_ip=$2
     local port_extra_args=$(get_dpdk_pf_port_extra_args)
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
     ovs_create_bridge_vlan_interface
     ovs_add_port_to_switch $OVN_PF_BRIDGE $BF_NIC "$port_extra_args"
 

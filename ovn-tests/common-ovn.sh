@@ -111,9 +111,11 @@ function ovn_stop_ovn_controller() {
     ovn_is_controller_running && $OVN_CTL stop_controller
 }
 
-function ovn_restart_openvswitch() {
-    restart_openvswitch
-    $OVN_CTL start_northd
+function ovn_start_clean_openvswitch() {
+    if [ "$DPDK" == 1 ]; then
+        ovs_enable_hw_offload_ct_ipv6
+    fi
+    start_clean_openvswitch
 }
 
 function ovn_set_ovs_config() {
@@ -127,8 +129,6 @@ function ovn_set_ovs_config() {
 
     if [ "$DPDK" == 1 ]; then
         ovs-vsctl set open . external-ids:ovn-bridge-datapath-type=netdev
-        ovs_enable_hw_offload_ct_ipv6
-        ovn_restart_openvswitch
     fi
 }
 

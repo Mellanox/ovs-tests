@@ -12,7 +12,7 @@ function config_ovn_pf_provider_net() {
     config_sriov_switchdev_mode
     require_interfaces $vf_var $rep_var
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
     ovn_add_network $OVN_PF_BRIDGE $NIC $network
     ovn_config_mtu $NIC $OVN_PF_BRIDGE
     ip addr add $ovn_controller_ip/24 dev $OVN_PF_BRIDGE
@@ -31,7 +31,7 @@ function config_ovn_vf_lag_provider_net() {
     config_vf_lag
     require_interfaces $vf_var $rep_var
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
     ovn_add_network $OVN_PF_BRIDGE $OVN_BOND $network
     ovn_config_mtu $NIC $NIC2 $OVN_BOND $OVN_PF_BRIDGE
     ip addr add $ovn_controller_ip/24 dev $OVN_PF_BRIDGE
@@ -45,7 +45,7 @@ function config_ovn_osp_gw_chassis_pf() {
     local ovn_controller_ip=$2
     local network=${3:-$OSP_EXTERNAL_NETWORK}
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
     ovn_add_network $OVN_PF_BRIDGE $NIC $network
     ovn_config_mtu $NIC $OVN_PF_BRIDGE
     ip link set $NIC up
@@ -60,7 +60,7 @@ function config_ovn_osp_gw_chassis_pf_vlan() {
     local ovn_controller_ip=$2
     local network=${3:-$OSP_EXTERNAL_NETWORK}
 
-    start_clean_openvswitch
+    ovn_start_clean_openvswitch
     create_vlan_interface $NIC $PF_VLAN_INT $OVN_VLAN_TAG
     ovn_add_network $OVN_PF_BRIDGE $NIC $network
 
