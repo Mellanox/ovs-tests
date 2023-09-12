@@ -4,7 +4,9 @@ devlink='devlink'
 irq_reguest_debug_func='mlx5_irq_request'
 
 function __set_sf_cmd() {
-    if which mlxdevm &>/dev/null ; then
+    if is_bf_host; then
+        devlink=__mlxdevm
+    elif which mlxdevm &>/dev/null ; then
         devlink='mlxdevm'
     fi
 }
@@ -14,6 +16,10 @@ function __irq_reguest_debug_func() {
     if [[ $? -eq 0 ]]; then
         irq_reguest_debug_func='mlx5_irqs_request_mask'
     fi
+}
+
+function __mlxdevm() {
+    bf_wrap $(get_exec_pf_in_ns) mlxdevm $@
 }
 
 __set_sf_cmd
