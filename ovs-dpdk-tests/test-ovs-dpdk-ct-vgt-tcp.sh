@@ -27,8 +27,6 @@ VLAN_IP2="4.4.4.2"
 
 config_sriov 2
 enable_switchdev
-require_interfaces REP NIC
-unbind_vfs
 bind_vfs
 
 trap cleanup EXIT

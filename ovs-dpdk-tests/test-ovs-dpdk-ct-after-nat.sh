@@ -11,6 +11,7 @@ DUMMY_IP=1.1.1.111
 trap cleanup_test EXIT
 
 function config() {
+    config_sriov 2
     enable_switchdev
     bind_vfs
     debug "Restarting OVS"

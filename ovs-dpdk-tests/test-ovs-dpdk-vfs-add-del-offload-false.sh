@@ -8,7 +8,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common-dpdk.sh
 
-config_sriov
+config_sriov 2
 enable_switchdev
 bind_vfs
 

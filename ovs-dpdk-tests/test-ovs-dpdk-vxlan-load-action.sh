@@ -14,8 +14,6 @@ require_remote_server
 
 config_sriov 2
 enable_switchdev
-require_interfaces REP NIC
-unbind_vfs
 bind_vfs
 
 DUMMY_MAC=00:00:0a:e3:c4:01

@@ -15,8 +15,6 @@ trap cleanup_test EXIT
 function config() {
     config_sriov 2
     enable_switchdev
-    require_interfaces REP NIC
-    unbind_vfs
     bind_vfs
     cleanup_test
 

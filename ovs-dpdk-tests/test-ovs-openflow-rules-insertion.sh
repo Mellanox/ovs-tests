@@ -8,8 +8,7 @@ my_dir="$(dirname "$0")"
 . $my_dir/common-dpdk.sh
 
 config_sriov 2
-require_interfaces REP NIC
-unbind_vfs
+enable_switchdev
 bind_vfs
 
 trap cleanup_test EXIT

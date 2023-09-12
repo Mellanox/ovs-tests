@@ -14,8 +14,7 @@ NS1_IP=1.1.1.8
 #Test pre-req
 function test_pre_config() {
     config_sriov 2
-    require_interfaces REP NIC
-    unbind_vfs
+    enable_switchdev
     bind_vfs
 
     cleanup_test

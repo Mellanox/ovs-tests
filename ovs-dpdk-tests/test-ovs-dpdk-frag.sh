@@ -11,7 +11,6 @@ my_dir="$(dirname "$0")"
 require_remote_server
 
 config_sriov 2
-require_interfaces REP NIC
 enable_switchdev
 bind_vfs
 

@@ -10,6 +10,7 @@ my_dir="$(dirname "$0")"
 trap cleanup_test EXIT
 
 function config() {
+    config_sriov 2
     enable_switchdev
     bind_vfs
     cleanup_test

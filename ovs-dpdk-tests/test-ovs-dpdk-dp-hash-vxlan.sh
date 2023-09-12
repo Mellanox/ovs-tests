@@ -12,8 +12,6 @@ require_remote_server
 
 config_sriov 2
 enable_switchdev
-require_interfaces REP NIC
-unbind_vfs
 bind_vfs
 
 IB_PORT=`get_port_from_pci`

@@ -16,8 +16,7 @@ vlan_dev=${REMOTE_NIC}.$vlan
 trap 'cleanup_test $vlan_dev' EXIT
 
 config_sriov 2
-require_interfaces REP NIC
-unbind_vfs
+enable_switchdev
 bind_vfs
 
 cleanup_test $vlan_dev

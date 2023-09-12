@@ -12,8 +12,6 @@ FAKE_IP=1.1.1.111
 
 config_sriov 2
 enable_switchdev
-require_interfaces REP NIC
-unbind_vfs
 bind_vfs
 
 trap cleanup_test EXIT

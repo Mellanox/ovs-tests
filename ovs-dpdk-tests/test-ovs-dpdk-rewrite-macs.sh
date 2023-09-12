@@ -15,8 +15,7 @@ FAKE_MAC1="e4:11:22:33:44:55"
 FAKE_MAC2="e4:11:22:33:44:66"
 
 config_sriov 2
-require_interfaces REP NIC
-unbind_vfs
+enable_switchdev
 bind_vfs
 
 trap cleanup_test EXIT

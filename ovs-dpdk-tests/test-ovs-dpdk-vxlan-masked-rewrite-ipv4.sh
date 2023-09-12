@@ -15,7 +15,6 @@ FAKE_IP=1.1.10.8
 FAKE_ROUTE=1.1.10.0
 
 config_sriov 2
-require_interfaces REP NIC
 enable_switchdev
 bind_vfs
 

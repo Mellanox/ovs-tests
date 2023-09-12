@@ -15,8 +15,7 @@ require_remote_server
 gre_set_entropy
 
 config_sriov 2
-require_interfaces REP NIC
-unbind_vfs
+enable_switchdev
 bind_vfs
 
 cleanup_test

@@ -12,7 +12,6 @@ require_remote_server
 
 config_sriov 2
 enable_switchdev
-require_interfaces REP NIC
 bind_vfs
 
 trap cleanup_test EXIT

@@ -15,8 +15,7 @@ SNAT_IP=5.5.1.1
 SNAT_ROUTE=5.5.1.0
 
 config_sriov 2
-require_interfaces REP NIC
-unbind_vfs
+enable_switchdev
 bind_vfs
 
 trap cleanup_test EXIT

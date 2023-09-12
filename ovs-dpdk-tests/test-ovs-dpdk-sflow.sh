@@ -41,8 +41,6 @@ on_remote pkill sflowtool
 
 config_sriov 2
 enable_switchdev
-require_interfaces REP REP2
-unbind_vfs
 bind_vfs
 
 function cleanup() {

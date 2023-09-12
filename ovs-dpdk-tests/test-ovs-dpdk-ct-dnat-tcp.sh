@@ -12,8 +12,7 @@ my_dir="$(dirname "$0")"
 FAKE_IP=1.1.1.111
 
 config_sriov 2
-require_interfaces REP NIC
-unbind_vfs
+enable_switchdev
 bind_vfs
 
 trap cleanup_test EXIT

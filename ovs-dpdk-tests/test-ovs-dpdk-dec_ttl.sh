@@ -13,8 +13,7 @@ trap cleanup EXIT
 require_remote_server
 
 config_sriov 2
-require_interfaces REP NIC
-unbind_vfs
+enable_switchdev
 bind_vfs
 
 function cleanup() {

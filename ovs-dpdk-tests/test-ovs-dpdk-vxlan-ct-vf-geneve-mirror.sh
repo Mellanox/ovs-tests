@@ -15,8 +15,7 @@ MIRROR_IP=8.8.8.8
 DUMMY_IP=8.8.8.10
 
 config_sriov 2
-require_interfaces REP NIC
-unbind_vfs
+enable_switchdev
 bind_vfs
 
 trap cleanup_test EXIT
