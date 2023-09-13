@@ -261,7 +261,7 @@ function verify_ping() {
     cmd="${dst_execution} ping -q -c $packet_num -w 2 -i 0.01 $remote_ip"
 
     if [ -n "$size" ]; then
-        cmd+="-s $size"
+        cmd+=" -s $size"
     fi
 
     if [[ $remote_ip = *":"* ]]; then
