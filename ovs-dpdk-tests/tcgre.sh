@@ -59,7 +59,7 @@ for dev in `ls -1 /sys/class/net/`; do
     if [ "$swid" != "$PF_SWID" ]; then
         continue
     fi
-    port_name=`cat /sys/class/net/${dev}/phys_port_name 2>/dev/null`
+    port_name=`cat /sys/class/net/${dev}/phys_port_name | sed 's/c1//' 2>/dev/null`
 
     # In arm side, vf reps portname is pf[number]vf[number].
     if is_bf; then
