@@ -68,7 +68,7 @@ function get_ipsec_counter() {
     fi
 
     local c="ipsec_${counter_name}_pkts"
-    if is_ipsec_ofed; then
+    if is_ipsec_ofed_full_offload; then
         c="ipsec_full_${counter_name}_pkts"
     fi
 
@@ -100,9 +100,9 @@ function check_offloaded_rules() {
 
     title "Verify $offload rules"
 
-    local chk_policy=0
-    if [[ "$offload" == "full_offload" ]] && ! is_ipsec_ofed; then
-        chk_policy=1
+    local chk_policy=1
+    if [[ "$offload" == "full_offload" ]] && is_ipsec_ofed_full_offload; then
+        chk_policy=0
     fi
 
     local g="offload"

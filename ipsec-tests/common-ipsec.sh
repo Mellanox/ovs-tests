@@ -104,7 +104,7 @@ function ipsec_config() {
     local algo_line_out="aead 'rfc4106(gcm(aes))' $key_out 128"
 
     local offload=$SHOULD_OFFLOAD
-    if [ "$offload" == "full_offload" ] && is_ipsec_ofed; then
+    if [ "$offload" == "full_offload" ] && is_ipsec_ofed_full_offload; then
         offload="mlnx_ofed_full_offload"
     fi
 
@@ -334,4 +334,12 @@ function ipsec_set_trusted_vfs_on_both_sides() {
 function ipsec_cleanup_trusted_vfs_on_both_sides() {
     ipsec_cleanup_trusted_vfs
     ipsec_cleanup_trusted_vfs_on_remote
+}
+
+function is_ipsec_ofed_full_offload() {
+    ip x s help  2>&1 | grep -q "offload.*packet"
+    if [[ $? -eq 1 ]]; then
+        return is_ipsec_ofed
+    fi
+    return 1
 }
