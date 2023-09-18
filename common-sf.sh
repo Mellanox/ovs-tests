@@ -66,15 +66,15 @@ function sf_get_netdev() {
 }
 
 function sf_bind() {
-    bf_wrap echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf/bind || err "$1: Failed to bind to sf core"
+    bf_wrap "echo $1 | tee /sys/bus/auxiliary/drivers/mlx5_core.sf/bind" || err "$1: Failed to bind to sf core"
 }
 
 function sf_unbind() {
-    bf_wrap echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf/unbind || err "$1: Failed to unbind from sf core"
+    bf_wrap "echo $1 | tee /sys/bus/auxiliary/drivers/mlx5_core.sf/unbind" || err "$1: Failed to unbind from sf core"
 }
 
 function sf_cfg_unbind() {
-    bf_wrap echo $1 > /sys/bus/auxiliary/drivers/mlx5_core.sf_cfg/unbind || err "$1: Failed to unbind from sf cfg"
+    bf_wrap "echo $1 | tee /sys/bus/auxiliary/drivers/mlx5_core.sf_cfg/unbind" || err "$1: Failed to unbind from sf cfg"
 }
 
 function sf_set_param() {
