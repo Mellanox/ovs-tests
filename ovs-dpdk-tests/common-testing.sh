@@ -290,6 +290,10 @@ function verify_ping() {
     local packet_num=${4:-10}
     local dst_execution="ip netns exec $namespace"
 
+    if [ "${namespace}" == "none" ]; then
+        dst_execution=""
+    fi
+
     if [ "${VDPA}" == "1" ]; then
         dst_execution="on_vm1"
         if [ "${namespace}" != "ns0" ]; then
@@ -371,32 +375,47 @@ function generate_traffic_verify_bw() {
 }
 
 function generate_traffic() {
-    local remote=$1
+    local client_remote=$1
     local my_ip=$2
-    local namespace=$3
+    local client_namespace=${3:-"none"}
     local validate=${4:-true}
+    local server_namespace=${5:-"ns0"}
+    local server_remote=${6:-"local"}
+    local run_time=${7:-5}
 
-    initiate_traffic $remote $my_ip $namespace
+    initiate_traffic $client_remote $my_ip $client_namespace $server_namespace $server_remote $run_time
     if [ "$validate" == "true" ]; then
         validate_offload $my_ip
     else
         wait_traffic
     fi
-    validate_actual_traffic
+
+    validate_actual_traffic $client_remote $server_remote
     stop_traffic
 }
 
 function initiate_traffic() {
-    local remote=$1
+    local client_remote=$1
     local my_ip=$2
-    local namespace=$3
+    local client_namespace=$3
+    local server_namespace=${4:-"ns0"}
+    local server_remote=${5:-"local"}
+    local t=${6:-"5"}
 
-    local server_dst_execution="ip netns exec ns0"
-    local client_dst_execution="ip netns exec $namespace"
+    local server_dst_execution="ip netns exec $server_namespace"
+    local client_dst_execution="ip netns exec $client_namespace"
+
+    if [ "$client_namespace" == "none" ]; then
+        client_dst_execution=""
+    fi
+
+    if [ "$server_namespace" == "none" ]; then
+        server_dst_execution=""
+    fi
 
     INITIATE_TRAFFIC_IPERF_PID=""
 
-    if [ -z "$remote" ] || [ -z "$my_ip" ]; then
+    if [ -z "$client_remote" ] || [ -z "$my_ip" ]; then
         fail "Missing arguments for initiate_traffic()"
         return 1
     fi
@@ -407,15 +426,17 @@ function initiate_traffic() {
         on_vm2 rm -rf $p_client
     fi
 
-    local t=5
-
     sleep_time=$((t+2))
     if [ "$iperf_cmd" == "iperf" ]; then
         sleep_time=$((t+4))
     fi
+    #cleanup logs
+    rm -rf $p_server 2>/dev/null
+    rm -rf $p_client 2>/dev/null
+    on_remote "rm -rf $p_server 2>/dev/null
+               rm -rf $p_client 2>/dev/null"
 
     # server
-    rm -rf $p_server
     local server_cmd="${server_dst_execution} timeout $sleep_time $iperf_cmd -f Mbits -s"
 
     if [ "$iperf_cmd" == "iperf" ]; then
@@ -424,21 +445,24 @@ function initiate_traffic() {
         server_cmd+=" -D --logfile $p_server"
     fi
 
+    if [ "$server_remote" == "remote" ]; then
+        server_cmd="on_remote $server_cmd"
+    fi
+
     exec_dbg "$server_cmd"
     sleep 2
 
-    verify_iperf_running
+    verify_iperf_running "$server_remote"
 
     # client
-    rm -rf $p_client
     local cmd="$iperf_cmd -f Mbits -c $my_ip -t $t -P $num_connections &> $p_client"
 
-    if [ -n "$namespace" ]; then
+    if [ -n "$client_namespace" ]; then
         cmd="${client_dst_execution} $cmd"
     fi
 
-    if [ "$remote" == "remote" ]; then
-        cmd="on_remote $cmd"
+    if [ "$client_remote" == "remote" ]; then
+        cmd="on_remote \"$cmd\""
     fi
 
     debug "Executing in background | $cmd"
@@ -455,9 +479,9 @@ function initiate_traffic() {
        return 1
     fi
 
-    if [ "$remote" == "remote" ]; then
+    if [ "$client_remote" == "remote" ]; then
         debug "Check iperf is running on remote"
-        verify_iperf_running $remote
+        verify_iperf_running $client_remote
     fi
 }
 
@@ -473,7 +497,28 @@ function validate_offload() {
     check_dpdk_offloads $ip
 }
 
+function verify_server_log() {
+    if [ -f $p_server ]; then
+        debug "Server traffic:"
+        cat $p_server
+    else
+        fail "Missing $p_server, probably a problem with iperf"
+    fi
+}
+
+function verify_client_log() {
+    if [ -f $p_client ]; then
+        debug "Client traffic:"
+        cat $p_client
+    else
+        fail "Missing $p_client, probably a problem with iperf or ssh"
+    fi
+}
+
 function validate_actual_traffic() {
+    local client_remote=$1
+    local server_remote=$2
+
     if [ "${VDPA}" == "1" ]; then
         scp root@${NESTED_VM_IP1}:${p_server} $p_server &> /dev/null
         if [ -n "$namespace"  ]; then
@@ -481,28 +526,37 @@ function validate_actual_traffic() {
         fi
     fi
 
-    if [ -f $p_server ]; then
-        debug "Server traffic:"
-        cat $p_server
+    if [ "$server_remote" == "remote" ]; then
+        on_remote_exec verify_server_log
     else
-        err "Missing $p_server, probably a problem with iperf"
+        verify_server_log
     fi
 
-    if [ -f $p_client ]; then
-        debug "Client traffic:"
-        cat $p_client
+    if [ "$client_remote" == "remote" ]; then
+        on_remote_exec verify_client_log
     else
-        err "Missing $p_client, probably a problem with iperf or ssh"
+        verify_client_log
     fi
 
-    validate_traffic 100
+    validate_traffic 100 $client_remote $server_remote
 }
 
 function validate_traffic() {
     local min_traffic=$1
+    local client_remote=$2
+    local server_remote=$3
 
-    local server_traffic=$(cat $p_server | grep SUM | grep -o "[0-9.]* MBytes/sec" | cut -d " " -f 1 | head -1)
-    local client_traffic=$(cat $p_client | grep SUM | grep -o "[0-9.]* MBytes/sec" | cut -d " " -f 1 | head -1)
+    if [ "$server_remote" == "remote" ]; then
+        local server_traffic=$(on_remote "cat $p_server | grep SUM | grep -o \"[0-9.]* MBytes/sec\" | cut -d \" \" -f 1 | head -1")
+    else
+        local server_traffic=$(cat $p_server | grep SUM | grep -o "[0-9.]* MBytes/sec" | cut -d " " -f 1 | head -1)
+    fi
+
+    if [ "$client_remote" == "remote" ]; then
+        local client_traffic=$(on_remote "cat $p_client | grep SUM | grep -o \"[0-9.]* MBytes/sec\" | cut -d \" \" -f 1 | head -1")
+    else
+        local client_traffic=$(cat $p_client | grep SUM | grep -o "[0-9.]* MBytes/sec" | cut -d " " -f 1 | head -1)
+    fi
 
     debug "Validate traffic server: $server_traffic , client: $client_traffic"
     if [[ -z $server_traffic || $server_traffic < $1 ]]; then
