@@ -186,7 +186,7 @@ function __create_sfs() {
             break
         fi
 
-        is_bf && is_ofed && sf_cfg_unbind $sf_dev && sf_bind $sf_dev
+        is_bf_host && echo "rebind $sf_dev" && sf_cfg_unbind $sf_dev && sf_bind $sf_dev
 
         sf_enable_features $sf_dev "eth"
 
