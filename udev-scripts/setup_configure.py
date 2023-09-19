@@ -327,8 +327,7 @@ class SetupConfigure(object):
                 port_name = f.read().strip()
         except IOError:
             try:
-                port_number = runcmd_output(
-                    'devlink port show %s -j 2> /dev/null| jq .[][].port' % port).strip()
+                port_number = runcmd_output('devlink port show %s -j 2> /dev/null | jq .[][].port' % port).strip()
 
                 if port_number != '':
                     port_name = 'p%s' % port_number
