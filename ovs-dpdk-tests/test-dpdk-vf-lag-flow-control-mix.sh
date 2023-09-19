@@ -12,7 +12,6 @@ my_dir="$(dirname "$0")"
 enable_switchdev
 
 function cleanup() {
-    ethtool -A $NIC tx off rx off
     ethtool -A $NIC2 tx off rx off
     clean_vf_lag
     cleanup_test
