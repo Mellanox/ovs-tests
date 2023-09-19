@@ -169,6 +169,7 @@ class SetupConfigure(object):
                 self.LoadVFInfo()
                 self.LoadRepInfo()
 
+            self.disable_flow_control()
             self.configure_hugepages()
             self.ConfigureOVS()
 
@@ -730,6 +731,12 @@ class SetupConfigure(object):
         notes = ["source %s" % self.profile_sh,
                  "export CONFIG=%s" % self.config_file]
         self.Logger.info("Notes:\n%s" % '\n'.join(notes))
+
+    def disable_flow_control(self):
+        if self.args.dpdk or self.args.doca:
+            for nic in self.host.PNics:
+                self.Logger.info('Disable flow control on %s' % nic['name'])
+                runcmd('ethtool -A %s rx off tx off' % nic['name'])
 
     def configure_hugepages(self):
         if self.args.vdpa or self.args.doca:
