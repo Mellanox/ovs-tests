@@ -298,7 +298,7 @@ function set_ovs_debug_logs() {
 
 function __set_testpmd() {
     if [ -x /opt/mellanox/dpdk/bin/dpdk-testpmd ]; then
-        testpmd="LD_LIBRARY_PATH=/opt/mellanox/dpdk/lib64 /opt/mellanox/dpdk/bin/dpdk-testpmd"
+        testpmd="/opt/mellanox/dpdk/bin/dpdk-testpmd"
     else
         testpmd="$DIR/testpmd/testpmd"
     fi
