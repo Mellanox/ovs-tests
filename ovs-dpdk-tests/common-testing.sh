@@ -298,6 +298,47 @@ function verify_iperf_running() {
     fi
 }
 
+function generate_traffic_verify_bw() {
+    local timeout_sec=${1:-11}
+    local expected_bw=$2
+    local cmd=$3
+
+    local iperf_client_log=/tmp/iperf3_client_log.json
+
+    if [[ -z $expected_bw ]] ; then
+        err "$FUNCNAME: expected_bw param must not be empty"
+        return 1
+    fi
+
+    ip netns exec ns0 timeout $timeout_sec iperf3 -s -D ; sleep 0.5
+    pgrep -f 'iperf3 -s' &>/dev/null || {
+        err "Failed to start iperf server"
+        return 1
+    }
+
+    ip netns exec ns1 timeout $timeout_sec \
+        iperf3 -c $REMOTE_IP -t $((timeout_sec - 1)) -J c -P5 \
+        > $iperf_client_log &
+    pgrep -f 'iperf3 -c' &>/dev/null || {
+        err "Failed to start iperf client"
+        killall -9 iperf3 &>/dev/null
+        return 1
+    }
+
+    if [[ -n $cmd ]] ; then
+        sleep $((timeout_sec / 2))
+        $cmd
+        sleep $((timeout_sec / 2 + 2))
+    else
+        sleep $timeout_sec
+    fi
+
+    check_dpdk_offloads $LOCAL_IP
+    killall -9 iperf3 &>/dev/null ; wait %
+    verify_iperf3_bw $iperf_client_log $expected_bw
+    rm $iperf_client_log
+}
+
 function generate_traffic() {
     local remote=$1
     local my_ip=$2
