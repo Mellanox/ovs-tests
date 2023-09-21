@@ -35,8 +35,17 @@ function config() {
     config_remote_tunnel "vxlan"
     on_remote ip l set dev $TUNNEL_DEV address $VXLAN_MAC
     config_local_tunnel_ip $LOCAL_TUN_IP br-phy
-    ip netns exec ns0 ip r a $SNAT_ROUTE/24 dev $VF
-    ip netns exec ns0 arp -s $SNAT_IP $VXLAN_MAC
+
+    local dst_execution="ip netns exec ns0"
+    local dev=$VF
+
+    if [ "${VDPA}" == "1" ]; then
+        dst_execution="on_vm1"
+        dev=$VDPA_DEV_NAME
+    fi
+
+    $dst_execution ip r a $SNAT_ROUTE/24 dev $dev
+    $dst_execution arp -s $SNAT_IP $VXLAN_MAC
 }
 
 function add_openflow_rules() {
