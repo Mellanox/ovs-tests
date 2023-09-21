@@ -42,9 +42,8 @@ function cleanup_remote() {
 function cleanup_local() {
     enable_legacy
     config_sriov 0
-    for ns in $NS $VF_NS1 $VF_NS2; do
-        ip netns del $ns &>/dev/null
-    done
+    ip netns ls | grep -q -w $NS && ip netns exec $NS devlink dev reload pci/$NIC_PCI netns 1
+    ip -all netns delete
     ip a flush dev $NIC 2>/dev/null
     ip l del $VXLAN 2>/dev/null
 }
