@@ -100,9 +100,9 @@ function check_offloaded_rules() {
 
     title "Verify $offload rules"
 
-    local chk_policy=1
-    if [[ "$offload" == "full_offload" ]] && is_ipsec_ofed_full_offload; then
-        chk_policy=0
+    local chk_policy=0
+    if [[ "$offload" == "full_offload" ]] && ! is_ipsec_ofed_full_offload; then
+        chk_policy=1
     fi
 
     local g="offload"
