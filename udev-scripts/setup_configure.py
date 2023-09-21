@@ -736,7 +736,7 @@ class SetupConfigure(object):
         if self.args.dpdk or self.args.doca:
             for nic in self.host.PNics:
                 self.Logger.info('Disable flow control on %s' % nic['name'])
-                runcmd('ethtool -A %s rx off tx off' % nic['name'])
+                runcmd2('ethtool -A %s rx off tx off' % nic['name'])
 
     def configure_hugepages(self):
         if self.args.vdpa or self.args.doca:
