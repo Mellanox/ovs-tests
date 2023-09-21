@@ -733,7 +733,13 @@ class SetupConfigure(object):
         self.Logger.info("Notes:\n%s" % '\n'.join(notes))
 
     def disable_flow_control(self):
-        if self.args.dpdk or self.args.doca:
+        if not (self.args.dpdk or self.args.doca):
+            return
+        if self.args.bluefield:
+            for nic in self.arm:
+                self.Logger.info('Disable flow control on %s' % nic['ifname'])
+                runcmd2_remote('ethtool -A %s rx off tx off' % nic['ifname'])
+        else:
             for nic in self.host.PNics:
                 self.Logger.info('Disable flow control on %s' % nic['name'])
                 runcmd2('ethtool -A %s rx off tx off' % nic['name'])
