@@ -738,7 +738,7 @@ class SetupConfigure(object):
         if self.args.bluefield:
             for nic in self.arm:
                 self.Logger.info('Disable flow control on %s' % nic['ifname'])
-                runcmd2_remote('ethtool -A %s rx off tx off' % nic['ifname'])
+                runcmd2_remote(self.bf_ip, 'ethtool -A %s rx off tx off' % nic['ifname'])
         else:
             for nic in self.host.PNics:
                 self.Logger.info('Disable flow control on %s' % nic['name'])
