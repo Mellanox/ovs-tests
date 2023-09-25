@@ -594,3 +594,15 @@ function verify_ovs_expected_msg() {
 
     fail "Did not get expected message \"$msg\""
 }
+
+function verify_remote_tcpdump_is_running() {
+    for _ in `seq 5`; do
+       if on_remote pidof -s tcpdump >/dev/null; then
+            debug "tcpdump is now running on remote"
+            return
+       fi
+       sleep 1
+    done
+
+    fail "tcpdump is not running on remote"
+}

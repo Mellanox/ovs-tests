@@ -29,9 +29,10 @@ function run() {
     config
 
     sleep 5
-    on_remote "timeout 5 tcpdump -qnnei $REMOTE_NIC -c 10 \"ip and ip[8]=22 and ip[1]=0x24\" -vvv -Q in" &
+    on_remote "timeout 10 tcpdump -qnnei $REMOTE_NIC -c 10 \"ip and ip[8]=22 and ip[1]=0x24\" -vvv -Q in" &
     pid_remote=$!
-    sleep 3
+    sleep 1
+    verify_remote_tcpdump_is_running
     # icmp
     verify_ping $REMOTE_IP ns0
 
