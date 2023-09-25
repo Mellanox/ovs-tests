@@ -939,6 +939,11 @@ function get_dpdk_pf_port_extra_args() {
 
 function WA_dpdk_initial_ping_and_flush() {
     if [[ "$DPDK" == 1 ]]; then
+
+        if [ "$ID" == "ubuntu" ]; then
+            return
+        fi
+
         # WA RM #3287703 require initial traffic + flush to start working.
         echo "Init traffic"
         ip netns exec $CLIENT_NS ping -w 1 $SERVER_IPV4 &> /dev/null
