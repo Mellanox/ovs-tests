@@ -426,7 +426,9 @@ function check_offload_contains() {
     local text=$1
     local num_flows=$2
 
-    local flows=$(ovs-appctl dpctl/dump-flows -m type=offloaded | grep -E "$text" |wc -l)
+    title "Check offloaded rules with $text"
+
+    local flows=$(ovs-appctl dpctl/dump-flows -m type=offloaded | grep -E "$text" | wc -l)
     if [ $flows -ne $num_flows ]; then
         err "expected $num_flows flows with $text message but got $flows"
         echo "flows:"
@@ -437,6 +439,8 @@ function check_offload_contains() {
 function check_dpdk_offloads() {
     local IP=$1
     local filter='icmpv6\|arp\|drop\|ct_state(0x21/0x21)\|flow-dump'
+
+    title "Check DPDK offloads"
 
     if [ "$DOCA" != "1" ]; then
         local pci=$(get_pf_pci)
@@ -494,6 +498,8 @@ function check_offloaded_connections() {
     local current_connections
     local result
 
+    title "Check offloaded CT connections"
+
     for (( i=0; i<3; i++ )); do
         current_connections=$(ovs-appctl dpctl/offload-stats-show | grep 'Total' | grep 'CT bi-dir Connections:' | awk '{print $5}')
         if [ $current_connections -lt $expected_connections ]; then
@@ -517,6 +523,8 @@ function check_offloaded_connections_marks() {
     local proto=$2
     local actual
     local result
+
+    title "Check offloaded connections"
 
     for (( i=0; i<3; i++ )); do
         actual=$(ovs-appctl dpctl/dump-flows -m --names | grep -w $proto | grep "offloaded:yes" | wc -l)
@@ -571,6 +579,8 @@ function check_e2e_stats() {
     local expected_add_hw_messages=$1
     local appctl_cmd=$2
 
+    title "Check e2e stats"
+
     local x=$(ovs-appctl dpctl/offload-stats-show -m | grep 'Total' | grep 'HW add e2e flows:' | awk '{print $6}')
     debug "Number of offload messages: $x"
 
@@ -619,6 +629,8 @@ function check_counters {
 function check_tcp_sequence {
     local cmd="ovs-appctl coverage/read-counter conntrack_tcp_seq_chk_failed"
     local val=$(eval $cmd)
+
+    title "Check tcp sequence"
 
     if [ $val -ne 0 ]; then
        err "$cmd value $val is greater than zero"
