@@ -1691,7 +1691,14 @@ function get_test_time_elapsed_human() {
 
 function journalctl_for_test() {
     local since=${1:-$_check_start_ts_full}
-    journalctl --since="$since"
+
+    if is_bf_host; then
+        # XXX not supporting user arg since.
+        since=`get_test_time_elapsed`
+        on_bf journalctl --since=\"$since sec ago\"
+    else
+        journalctl --since="$since"
+    fi
 }
 
 function check_kasan() {
@@ -1822,7 +1829,8 @@ Can't enable single FDB mode"
     local br_errs="Packet reformat .* is not supported"
     local fw_errs="firmware internal error|assert_var|\
 Command completion arrived after timeout|Error cqe|failed reclaiming pages"
-    local ovs_errs="Kernel flower acknowledgment does not match request"
+    local ovs_errs_redundant="Kernel flower acknowledgment does not match request"
+    local ovs_errs="Segmentation fault|core dumped"
     local look_ahead="Call Trace:|Allocated by task|Freed by task"
     local look_ahead_count=12
     local filter="networkd-dispatcher|nm-dispatcher|uses legacy ethtool link settings|\
@@ -1839,7 +1847,7 @@ mlx5_pci_slot_reset Device state = 2 pci_status: 1. Exit, err = 0, result = 5, r
         filter+="$__expected_error_msgs"
     fi
 
-    look="$look|$memtrack|$mlx5_errs|$br_errs|$fw_errs"
+    look="$look|$memtrack|$mlx5_errs|$br_errs|$fw_errs|$ovs_errs"
     local a=`journalctl_for_test $since | grep -E -i "$look" | grep -v -E -i "$filter" || true`
     local b=`journalctl_for_test $since | grep -E -A $look_ahead_count -i "$look_ahead" || true`
     if [ "$a" != "" ] || [ "$b" != "" ]; then
@@ -2343,8 +2351,8 @@ function dump_ovs_log() {
 
     [ "$SKIP_OVS_LOG_DUMP" == 1 ] && return
 
-    if [ -f $ovs_log_path ] && [ "$__ovs_used" == 1 ] && [ "$CLEAR_OVS_LOG" == 1 ]; then
-        local a=`cat $ovs_log_path | grep -E "$look" | grep -v -E "$filter"`
+    if [ "$__ovs_used" == 1 ] && [ "$CLEAR_OVS_LOG" == 1 ]; then
+        local a=`bf_wrap cat $ovs_log_path 2>/dev/null | grep -E "$look" | grep -v -E "$filter"`
         if [ "$a" != "" ]; then
             err "Detected errors in ovs log"
             echo "$a"
