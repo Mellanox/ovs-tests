@@ -454,12 +454,12 @@ function check_dpdk_offloads() {
         filter="ipv6\|${filter}"
     fi
 
-    local rc=0
-    ovs-appctl dpctl/dump-flows -m | grep -q -v $filter | grep -q -- $IP'\|tnl_pop' > /tmp/filtered.txt || rc=1
-    if [ $rc -eq 1 ]; then
+    if ! ovs-appctl dpctl/dump-flows -m > /tmp/filtered.txt ; then
         err "ovs-appctl failed"
         return 1
     fi
+
+    grep -q -v $filter /tmp/filtered.txt | grep -q -- $IP'\|tnl_pop' > /tmp/filtered.txt
 
     local x=$(cat /tmp/filtered.txt | wc -l)
     debug "Number of filtered rules: $x"
