@@ -225,7 +225,13 @@ class SetupConfigure(object):
 
     def ReloadModules(self):
         self.Logger.info("Reload modules")
-        # workaround because udev rules changed in jenkins script but didn't take affect
+        # workaround mlnx ofed and CX7 will fail to do modprobe reload because of busy compat
+        # module. use openibd.
+        if os.path.exists('/etc/init.d/openibd'):
+            runcmd2('/etc/init.d/openibd force-restart')
+            sleep(5)
+            return
+        # workaround because udev rules changed in jenkins script but didn't take affect.
         runcmd2('modprobe -rq act_ct')
         runcmd2('modprobe -rq cls_flower')
         runcmd2('modprobe -rq mlx5_fpga_tools')
