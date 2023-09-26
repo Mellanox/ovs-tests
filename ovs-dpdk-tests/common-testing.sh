@@ -189,15 +189,18 @@ function send_metered_ping() {
     local p_ping="/tmp/ping_out"
 
     rm -rf $p_ping
-    exec_dbg "ip netns exec $namespace ping -c $count -w $wait -i $interval $ip_addr &> $p_ping"
+    exec_dbg "ip netns exec $namespace ping -c $count -w $wait -i $interval $ip_addr > $p_ping"
     local pkts=$(grep 'received' $p_ping | awk '{ print $4 }')
 
     if [ $pkts -gt $expected_received ]; then
         err "Expected at most $expected_received packets but got $pkts packets"
         cat $p_ping
         return 1
+    elif [ $pkts -le $expected_received ]; then
+        success "Got $pkts packets"
+    else
+        err "Failed parsing number of received packets."
     fi
-    success "Got $pkts packets"
     rm -rf $p_ping
 }
 
