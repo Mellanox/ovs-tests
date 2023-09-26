@@ -573,7 +573,6 @@ function verify_ovs_expected_msg() {
         if [ "$?" == 0 ]; then
             return 0
         fi
-            :
     done
 
     fail "Did not get expected message \"$msg\""
