@@ -506,9 +506,12 @@ function check_offloaded_connections() {
             result="0"
             debug "Not sufficient offloaded connections, current $current_connections vs expected $expected_connections - recheck"
             sleep 0.7
-        else
+        elif [ $current_connections -ge $expected_connections ]; then
             result="1"
             debug "Number of offloaded connections: $current_connections is at least as expected $expected_connections"
+            break
+        else
+            err "Failed to get stats"
             break
         fi
     done
