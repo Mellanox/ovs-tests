@@ -459,12 +459,12 @@ function check_dpdk_offloads() {
         return 1
     fi
 
-    grep -q -v $filter /tmp/dump.txt | grep -q -- $IP'\|tnl_pop' > /tmp/filtered.txt
+    grep -v $filter /tmp/dump.txt | grep -- $IP'\|tnl_pop' > /tmp/filtered.txt
 
     local x=$(cat /tmp/filtered.txt | wc -l)
     debug "Number of filtered rules: $x"
 
-    cat /tmp/filtered.txt | grep -q -E "$OFFLOAD_FILTER" > /tmp/offloaded.txt
+    cat /tmp/filtered.txt | grep -E "$OFFLOAD_FILTER" > /tmp/offloaded.txt
     local y=$(cat /tmp/offloaded.txt | wc -l)
     debug "Number of offloaded rules: $y"
 
