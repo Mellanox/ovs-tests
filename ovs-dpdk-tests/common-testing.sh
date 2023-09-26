@@ -105,6 +105,8 @@ function ovs_add_ct_rules_dec_ttl() {
     debug "Adding ct_dec_ttl rules"
     ovs-ofctl del-flows $bridge
     ovs-ofctl add-flow $bridge "arp,actions=NORMAL"
+    ovs-ofctl add-flow $bridge "icmp,actions=NORMAL"
+    ovs-ofctl add-flow $bridge "icmp6,actions=NORMAL"
     ovs-ofctl add-flow $bridge "table=0,ip,ct_state=-trk,actions=ct(zone=5, table=1)"
     ovs-ofctl add-flow $bridge "table=1,ip,ct_state=+trk+new,actions=ct(zone=5, commit),dec_ttl,NORMAL"
     ovs-ofctl add-flow $bridge "table=1,ip,ct_state=+trk+est,ct_zone=5,actions=dec_ttl,normal"
