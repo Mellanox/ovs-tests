@@ -347,7 +347,10 @@ function config_ns() {
             vm_ip=$NESTED_VM_IP2
         fi
         debug "Set $VDPA_DEV_NAME ip $ip_addr on vm $vm_ip"
-        __on_remote $vm_ip "ifconfig $VDPA_DEV_NAME $ip_addr/24 up
+        for ip in $ip_addr; do
+            __on_remote $vm_ip ip address add $ip/24 dev $VDPA_DEV_NAME
+        done
+        __on_remote $vm_ip "ip link set dev $VDPA_DEV_NAME up
                             ip -6 address add $ipv6_addr/64 dev $VDPA_DEV_NAME"
         return
     fi
@@ -357,7 +360,10 @@ function config_ns() {
     fi
     debug "Attach $dev to namespace $ns"
     ip link set $dev netns $ns || err "Failed to attach"
-    ip netns exec $ns ifconfig $dev $ip_addr/24 up
+    for ip in $ip_addr; do
+        ip netns exec $ns ip address add $ip/24 dev $dev
+    done
+    ip netns exec $ns ip link set dev $dev up
     ip netns exec $ns ip -6 address add $ipv6_addr/64 dev $dev
 }
 
