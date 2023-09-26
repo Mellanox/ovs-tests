@@ -310,7 +310,7 @@ function generate_traffic() {
     if [ "$validate" == "true" ]; then
         validate_offload $my_ip
     else
-        sleep 5
+        wait_traffic
     fi
     validate_actual_traffic
     stop_traffic
@@ -323,6 +323,8 @@ function initiate_traffic() {
 
     local server_dst_execution="ip netns exec ns0"
     local client_dst_execution="ip netns exec $namespace"
+
+    INITIATE_TRAFFIC_IPERF_PID=""
 
     if [ -z "$remote" ] || [ -z "$my_ip" ]; then
         fail "Missing arguments for initiate_traffic()"
@@ -372,6 +374,7 @@ function initiate_traffic() {
     debug "Executing in background | $cmd"
     eval $cmd &
     local pid2=$!
+    INITIATE_TRAFFIC_IPERF_PID=$pid2
 
     # verify pid
     sleep 1
@@ -395,7 +398,7 @@ function validate_offload() {
         check_offloaded_connections $num_connections
     fi
 
-    sleep $sleep_time
+    wait_traffic
 
     check_dpdk_offloads $ip
 }
@@ -447,9 +450,21 @@ function stop_traffic() {
    if [ "${VDPA}" == "1" ]; then
       dst_execution="on_vm1 "
    fi
-   exec_dbg "${dst_execution}killall -9 -q $iperf_cmd"
-   exec_dbg "on_remote killall -9 -q $iperf_cmd"
+   exec_dbg "${dst_execution}killall -9 -q $iperf_cmd &>/dev/null"
+   exec_dbg "on_remote killall -9 -q $iperf_cmd &>/dev/null"
    sleep 1
+}
+
+function wait_traffic() {
+   [ -z "$INITIATE_TRAFFIC_IPERF_PID" ] && return
+
+   debug "Wait for iperf pid $INITIATE_TRAFFIC_IPERF_PID"
+   if [ "${VDPA}" == "1" ]; then
+      on_vm1 wait $INITIATE_TRAFFIC_IPERF_PID
+   else
+      wait $INITIATE_TRAFFIC_IPERF_PID
+   fi
+   INITIATE_TRAFFIC_IPERF_PID=""
 }
 
 function __cleanup() {
