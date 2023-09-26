@@ -472,15 +472,12 @@ function check_dpdk_offloads() {
         err "Number of filtered rules expected to be same as offloaded rules."
         debug "Unexpected rules:"
         cat /tmp/filtered.txt | grep -v -E "$OFFLOAD_FILTER"
-        rm -rf /tmp/offloaded.txt /tmp/filtered.txt
-        return 1
     elif [ $x -eq 0 ]; then
         err "No offloaded rules."
-        rm -rf /tmp/offloaded.txt /tmp/filtered.txt
-        return 1
+    else
+        query_sw_packets
     fi
 
-    query_sw_packets
     rm -rf /tmp/offloaded.txt /tmp/filtered.txt
 }
 
