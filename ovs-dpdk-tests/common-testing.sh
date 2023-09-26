@@ -284,7 +284,10 @@ function verify_ping() {
 
 function verify_iperf_running() {
     local remote=${1:-"local"}
-    local proc_cmd="ps -efww | grep iperf | grep -v grep | wc -l"
+    proc_cmd="pidof -s iperf3"
+    if [ "$iperf_cmd" == "iperf" ]; then
+        proc_cmd="pidof -s iperf"
+    fi
 
     if [ "$remote" == "remote" ]; then
        proc_cmd="on_remote $proc_cmd"
@@ -292,9 +295,9 @@ function verify_iperf_running() {
        proc_cmd="on_vm1 $proc_cmd"
     fi
 
-    local num_proc=$(eval $proc_cmd)
-    if [[  $num_proc < 1 ]] ; then
-       err "no iperf process on $remote"
+    title "Look for iperf pid"
+    if ! $proc_cmd ; then
+       err "No iperf process on $remote"
        stop_traffic
        return 1
     fi
