@@ -550,7 +550,6 @@ function config_vlan_device_ns() {
         fi
     fi
 
-
     config_ns $ns $dev $ip
 
     local cmd='${dst_execution} ip link add link $dev name $vlan_dev type vlan id $vlan_id'
