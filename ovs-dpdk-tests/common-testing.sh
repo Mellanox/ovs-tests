@@ -284,10 +284,7 @@ function verify_ping() {
 
 function verify_iperf_running() {
     local remote=${1:-"local"}
-    proc_cmd="pidof -s iperf3"
-    if [ "$iperf_cmd" == "iperf" ]; then
-        proc_cmd="pidof -s iperf"
-    fi
+    proc_cmd="pidof -s $iperf_cmd"
 
     if [ "$remote" == "remote" ]; then
        proc_cmd="on_remote $proc_cmd"
