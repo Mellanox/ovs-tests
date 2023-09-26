@@ -307,25 +307,19 @@ function config_ns() {
         if [ "${ns}" != "ns0" ]; then
             vm_ip=$NESTED_VM_IP2
         fi
-        debug "setting $VDPA_DEV_NAME ip $ip_addr on vm $vm_ip"
+        debug "Set $VDPA_DEV_NAME ip $ip_addr on vm $vm_ip"
         __on_remote $vm_ip ifconfig $VDPA_DEV_NAME $ip_addr/24 up
         __on_remote $vm_ip ip -6 address add $ipv6_addr/64 dev $VDPA_DEV_NAME
         return
     fi
 
     if ! ip netns ls | grep -w $ns >/dev/null; then
-        debug "adding namespace $ns"
         ip netns add $ns
     fi
-    debug "attaching $dev to namespace $ns"
-    ip link set $dev netns $ns
+    debug "Attach $dev to namespace $ns"
+    ip link set $dev netns $ns || err "Failed to attach"
     ip netns exec $ns ifconfig $dev $ip_addr/24 up
     ip netns exec $ns ip -6 address add $ipv6_addr/64 dev $dev
-    local cmd="ip netns | grep $ns | wc -l"
-    local num_ns=$(eval $cmd)
-    if [ $num_ns -ne 1 ]; then
-        err "failed to add namespace $ns"
-    fi
 }
 
 function set_e2e_cache_enable() {
