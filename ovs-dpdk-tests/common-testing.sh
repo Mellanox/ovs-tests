@@ -412,17 +412,17 @@ function validate_actual_traffic() {
     fi
 
     if [ -f $p_server ]; then
-        debug "Server traffic"
+        debug "Server traffic:"
         cat $p_server
     else
-        err "no $p_server , probably problem with iperf"
+        err "Missing $p_server, probably a problem with iperf"
     fi
 
     if [ -f $p_client ]; then
-        debug "Client traffic"
+        debug "Client traffic:"
         cat $p_client
     else
-        err "no $p_client , probably problem with iperf or ssh problem"
+        err "Missing $p_client, probably a problem with iperf or ssh"
     fi
 
     validate_traffic 100
@@ -434,13 +434,13 @@ function validate_traffic() {
     local server_traffic=$(cat $p_server | grep SUM | grep -o "[0-9.]* MBytes/sec" | cut -d " " -f 1 | head -1)
     local client_traffic=$(cat $p_client | grep SUM | grep -o "[0-9.]* MBytes/sec" | cut -d " " -f 1 | head -1)
 
-    debug "validate traffic server: $server_traffic , client: $client_traffic"
+    debug "Validate traffic server: $server_traffic , client: $client_traffic"
     if [[ -z $server_traffic || $server_traffic < $1 ]]; then
-        err "server traffic is $server_traffic, lower than limit $min_traffic"
+        err "Server traffic is $server_traffic, lower than limit $min_traffic"
     fi
 
     if [[ -z $client_traffic ||  $client_traffic < $1 ]]; then
-        err "client traffic is $client_traffic, lower than limit $min_traffic"
+        err "Client traffic is $client_traffic, lower than limit $min_traffic"
     fi
 }
 
