@@ -214,8 +214,11 @@ function ovs_check_tcpdump() {
         err "expected $expected to pass meter but got $pkts"
         tcpdump -nner $p_scapy
         return 1
+    elif [ $pkts -le $expected ]; then
+        success "expected at most $expected packets to pass and $pkts passed"
+    else
+        err "Failed ovs_check_tcpdump."
     fi
-    success "expected at most $expected packets to pass and $pkts passed"
     rm -rf $p_scapy
 }
 
