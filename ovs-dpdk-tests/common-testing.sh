@@ -304,10 +304,10 @@ function generate_traffic() {
     local remote=$1
     local my_ip=$2
     local namespace=$3
-    local validate_offload=${4:-true}
+    local validate=${4:-true}
 
     initiate_traffic $remote $my_ip $namespace
-    if [ "$validate_offload" == "true" ]; then
+    if [ "$validate" == "true" ]; then
         validate_offload $my_ip
     else
         sleep 5
