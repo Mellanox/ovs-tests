@@ -469,15 +469,13 @@ function check_dpdk_offloads() {
     debug "Number of offloaded rules: $y"
 
     if [ $x -ne $y ]; then
-        err "offloads failed"
-        debug "Filtered rules:"
-        cat /tmp/filtered.txt
-        debug "Offloaded rules:"
-        cat /tmp/offloaded.txt
+        err "Number of filtered rules expected to be same as offloaded rules."
+        debug "Unexpected rules:"
+        cat /tmp/filtered.txt | grep -v -E "$OFFLOAD_FILTER"
         rm -rf /tmp/offloaded.txt /tmp/filtered.txt
         return 1
     elif [ $x -eq 0 ]; then
-        err "offloads failed. no rules."
+        err "No offloaded rules."
         rm -rf /tmp/offloaded.txt /tmp/filtered.txt
         return 1
     fi
