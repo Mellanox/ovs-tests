@@ -14,8 +14,8 @@ function set_iperf2() {
 }
 
 function ovs_ofctl_dump_flows() {
-   debug "OVS flow rules:"
-   ovs-ofctl dump-flows $bridge --color
+    debug "OVS flow rules:"
+    ovs-ofctl dump-flows $bridge --color
 }
 
 function ovs_add_ct_after_nat_rules() {
@@ -25,15 +25,15 @@ function ovs_add_ct_after_nat_rules() {
     local rep=${4:-"$IB_PF0_PORT0"}
     local rep2=${5:-"$IB_PF0_PORT1"}
 
-   ovs-ofctl del-flows $bridge
-   ovs-ofctl add-flow $bridge "table=0,priority=1,actions=drop"
-   ovs-ofctl add-flow $bridge "table=0,priority=10,arp,actions=NORMAL"
-   ovs-ofctl add-flow $bridge "table=0,priority=10,icmp,actions=NORMAL"
-   ovs-ofctl add-flow $bridge "table=0,priority=20,in_port=$rep2,ip,actions=ct(nat),$rep"
-   ovs-ofctl add-flow $bridge "table=0,priority=30,in_port=$rep,ip,nw_dst=$dummy_ip,actions=ct(commit,nat(dst=$ip:5201),table=1)"
-   ovs-ofctl add-flow $bridge "table=1,ip,actions=ct(commit,table=2)"
-   ovs-ofctl add-flow $bridge "table=2,in_port=$rep,ip,actions=$rep2"
-   ovs_ofctl_dump_flows
+    ovs-ofctl del-flows $bridge
+    ovs-ofctl add-flow $bridge "table=0,priority=1,actions=drop"
+    ovs-ofctl add-flow $bridge "table=0,priority=10,arp,actions=NORMAL"
+    ovs-ofctl add-flow $bridge "table=0,priority=10,icmp,actions=NORMAL"
+    ovs-ofctl add-flow $bridge "table=0,priority=20,in_port=$rep2,ip,actions=ct(nat),$rep"
+    ovs-ofctl add-flow $bridge "table=0,priority=30,in_port=$rep,ip,nw_dst=$dummy_ip,actions=ct(commit,nat(dst=$ip:5201),table=1)"
+    ovs-ofctl add-flow $bridge "table=1,ip,actions=ct(commit,table=2)"
+    ovs-ofctl add-flow $bridge "table=2,in_port=$rep,ip,actions=$rep2"
+    ovs_ofctl_dump_flows
 }
 
 function ovs_add_ipv6_mod_hdr_rules() {
@@ -447,26 +447,26 @@ function validate_traffic() {
 }
 
 function stop_traffic() {
-   local dst_execution=""
+    local dst_execution=""
 
-   if [ "${VDPA}" == "1" ]; then
-      dst_execution="on_vm1 "
-   fi
-   exec_dbg "${dst_execution}killall -9 -q $iperf_cmd &>/dev/null"
-   exec_dbg "on_remote killall -9 -q $iperf_cmd &>/dev/null"
-   sleep 1
+    if [ "${VDPA}" == "1" ]; then
+        dst_execution="on_vm1 "
+    fi
+    exec_dbg "${dst_execution}killall -9 -q $iperf_cmd &>/dev/null"
+    exec_dbg "on_remote killall -9 -q $iperf_cmd &>/dev/null"
+    sleep 1
 }
 
 function wait_traffic() {
-   [ -z "$INITIATE_TRAFFIC_IPERF_PID" ] && return
+    [ -z "$INITIATE_TRAFFIC_IPERF_PID" ] && return
 
-   debug "Wait for iperf pid $INITIATE_TRAFFIC_IPERF_PID"
-   if [ "${VDPA}" == "1" ]; then
-      on_vm1 wait $INITIATE_TRAFFIC_IPERF_PID
-   else
-      wait $INITIATE_TRAFFIC_IPERF_PID
-   fi
-   INITIATE_TRAFFIC_IPERF_PID=""
+    debug "Wait for iperf pid $INITIATE_TRAFFIC_IPERF_PID"
+    if [ "${VDPA}" == "1" ]; then
+        on_vm1 wait $INITIATE_TRAFFIC_IPERF_PID
+    else
+        wait $INITIATE_TRAFFIC_IPERF_PID
+    fi
+    INITIATE_TRAFFIC_IPERF_PID=""
 }
 
 function __cleanup() {
