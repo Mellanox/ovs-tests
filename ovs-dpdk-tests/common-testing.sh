@@ -494,6 +494,14 @@ function cleanup_test() {
         on_vm1 ip a flush dev $VDPA_DEV_NAME
         on_vm2 ip a flush dev $VDPA_DEV_NAME
     fi
+    if [ "$GRE_ENTROPY" -eq 1 ]; then
+        unbind_vfs
+        bind_vfs
+    fi
+    if [ "$REMOTE_GRE_ENTROPY" -eq 1 ]; then
+        on_remote_exec "unbind_vfs
+                        bind_vfs"
+    fi
     sleep 0.5
 }
 
