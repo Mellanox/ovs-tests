@@ -22,7 +22,7 @@ config_simple_bridge_with_rep 1
 start_vdpa_vm
 config_ns ns0 $VF $LOCAL_IP
 
-ovs-ofctl add-flow br-phy ip,actions=mod_nw_tos=8,normal
+ovs-ofctl add-flow br-phy tcp,actions=mod_nw_tos=8,normal
 
 verify_ping
 generate_traffic "remote" $LOCAL_IP

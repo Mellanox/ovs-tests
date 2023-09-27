@@ -23,7 +23,7 @@ cleanup_test
 config_tunnel gre
 config_local_tunnel_ip $LOCAL_TUN_IP br-phy
 config_remote_tunnel gre
-ovs-ofctl add-flow br-int ip,actions=dec_ttl,normal
+ovs-ofctl add-flow br-int tcp,actions=dec_ttl,normal
 verify_ping
 generate_traffic "remote" $LOCAL_IP
 
