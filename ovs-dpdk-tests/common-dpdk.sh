@@ -786,3 +786,14 @@ function ovs_enable_hw_offload_ct_ipv6 {
 function ovs_cleanup_hw_offload_ct_ipv6 {
     ovs_conf_remove hw-offload-ct-ipv6-enabled
 }
+
+# $1: <uint> size to configure
+function ovs_set_hw_offload_ct_size {
+    local size=$1
+    [ "$size" ] || err "CT-Size parameter required but not provided."
+    ovs_conf_set hw-offload-ct-size $size
+}
+
+function ovs_cleanup_hw_offload_ct_size {
+    ovs_conf_remove hw-offload-ct-size
+}
