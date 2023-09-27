@@ -486,6 +486,7 @@ function cleanup_test() {
     __cleanup
     cleanup_e2e_cache
     cleanup_ct_ct_nat_offload
+    cleanup_tunnel
     if [ "$tunnel_device_name" != "" ]; then
         cleanup_remote_tunnel
     fi

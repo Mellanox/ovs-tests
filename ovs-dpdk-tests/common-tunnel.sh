@@ -10,18 +10,29 @@ TUNNEL_DEV2="tunnel2"
 
 TCGRE="${DIR}/ovs-dpdk-tests/tcgre.sh"
 
+__entropy=0
 function gre_set_entropy() {
     local pci=$(get_pf_pci)
     local cmd="$TCGRE $pci"
     debug "Run $cmd"
     bf_wrap "$cmd"
+    __entropy=1
 }
 
+__entropy_remote=0
 function gre_set_entropy_on_remote() {
     local pci=$(get_pf_pci)
     local cmd="$TCGRE $pci"
     debug "Run on remote $cmd"
     remote_bf_wrap "$cmd"
+    __entropy_remote=1
+}
+
+function cleanup_tunnel() {
+    if [ $__entropy -eq 1 ]; then
+        unbind_vfs
+        bind_vfs
+    fi
 }
 
 function cleanup_remote_tunnel() {
@@ -34,6 +45,11 @@ function cleanup_remote_tunnel() {
 
     on_remote "ip a flush dev $physdev
                ip l del dev $tunnel &>/dev/null"
+
+    if [ $__entropy_remote -eq 1 ]; then
+        on_remote_exec "unbind_vfs
+                        bind_vfs"
+    fi
 }
 
 function config_remote_tunnel() {
