@@ -197,6 +197,21 @@ function ovs_add_bidir_meter_rules() {
     exec_dbg "ovs-ofctl -O openflow13 add-flow $bridge "table=0,in_port=${in_port2},actions=meter:${meter_id2},${in_port1}""
 }
 
+function ovs_add_multi_meter_rules() {
+    local bridge=${1:-"br-phy"}
+    local meter_id1=${2:-1}
+    local meter_id2=${3:-2}
+    local meter_id3=${4:-3}
+    local in_port1=${5:-"$IB_PF0_PORT0"}
+    local in_port2=${6:-"$IB_PF0_PORT1"}
+
+    ovs-ofctl del-flows $bridge
+    exec_dbg "ovs-ofctl -O openflow13 add-flow $bridge 'table=0,in_port=${in_port1},actions=${in_port2}'"
+    exec_dbg "ovs-ofctl -O openflow13 add-flow $bridge 'table=0,in_port=${in_port2},actions=meter:${meter_id1},resubmit(,1)'"
+    exec_dbg "ovs-ofctl -O openflow13 add-flow $bridge 'table=1,in_port=${in_port2},actions=meter:${meter_id2},resubmit(,2)'"
+    exec_dbg "ovs-ofctl -O openflow13 add-flow $bridge 'table=2,in_port=${in_port2},actions=meter:${meter_id3},${in_port1}'"
+}
+
 function send_metered_ping() {
     local namespace=${1:-"ns0"}
     local count=${2:-100}
