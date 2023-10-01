@@ -40,7 +40,11 @@ expected = {
         'failed to flow_del'
     ],
     'test-eswitch-devlink-reload.sh': ['Warning: mlx5_core: reload while VFs are present is unfavorable.'],
-    'test-ovs-dpdk-esw-mgr-removal.sh': ['Resource temporarily unavailable']
+    'test-ovs-dpdk-esw-mgr-removal.sh': ['Resource temporarily unavailable'],
+    'test-ovs-dpdk-init-order.sh': [
+        'ovs-vsctl: Error detected while setting up',
+        'Resource temporarily unavailable'
+    ]
 }
 
 
