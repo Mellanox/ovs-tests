@@ -21,6 +21,8 @@ elif [ "$DPDK" == "1" ]; then
     OFFLOAD_FILTER="$OFFLOAD_FILTER.*dp:dpdk"
 fi
 
+SLOW_PATH_TRAFFIC_PERCENTAGE=10
+
 function set_ovs_dpdk_debug_logs() {
     local log="/var/log/openvswitch/ovs-vswitchd.log"
     if [ "$ENABLE_OVS_DEBUG" != "1" ]; then
@@ -381,8 +383,26 @@ function get_total_packets_passed() {
     echo $pkts
 }
 
+function set_slow_path_percentage() {
+    local percentage=$1
+    local reason=$2
+
+    if [ -z "$percentage" ]; then
+        err  "ERROR: Cannot set slow path percentage, missing parameter"
+        return 1
+    fi
+
+    if [ -z "$reason" ]; then
+        err  "ERROR: Cannot change slow path percentage without providing a reason, missing parameter"
+        return 1
+    fi
+
+    SLOW_PATH_TRAFFIC_PERCENTAGE=$1
+    debug "Slow path percentage set to $percentage, because: \"$reason\""
+}
+
 function query_sw_packets_in_sent_packets_percentage() {
-    local valid_percentage_passed_in_sw=${1:-10}
+    local valid_percentage_passed_in_sw=$SLOW_PATH_TRAFFIC_PERCENTAGE
 
     local total_packets_passed_in_sw=$(get_total_packets_passed_in_sw)
     local all_packets_passed=$(get_total_packets_passed)
@@ -431,7 +451,7 @@ function query_sw_packets() {
     debug "Received $total_packets_passed_in_sw packets in SW"
 
     if [ $total_packets_passed_in_sw -gt $expected_num_of_pkts ]; then
-        query_sw_packets_in_sent_packets_percentage 10
+        query_sw_packets_in_sent_packets_percentage
         return $?
     fi
     return 0
