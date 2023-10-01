@@ -464,10 +464,6 @@ function check_dpdk_offloads() {
         filter="actions:$ib_pf1\b\|actions:$ib_pf0\b\|${filter}"
     fi
 
-    if [[ $IP != *":"* ]]; then
-        filter="ipv6\|${filter}"
-    fi
-
     if ! ovs-appctl dpctl/dump-flows -m > /tmp/dump.txt ; then
         err "ovs-appctl failed"
         return 1
