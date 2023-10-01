@@ -358,8 +358,7 @@ function get_total_packets_passed_in_sw() {
 
 function get_total_packets_passed() {
     local bridge=$1
-
-    local pkts=$(ovs-ofctl dump-flows $bridge | grep -o "n_packets=[0-9.]*" | awk -F"=" '{print $2}')
+    local pkts=$(ovs-ofctl dump-flows $bridge | grep -o "n_packets=[0-9.]*" | awk -F"=" '{print $2}' | tail -1)
 
     if [ -z "$pkts" ]; then
         echo "ERROR: Cannot get pkts" >> /dev/stderr
