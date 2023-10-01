@@ -15,8 +15,8 @@ bind_vfs
 trap cleanup EXIT
 
 function cleanup() {
-    cleanup_test
     ovs_conf_remove max-idle
+    cleanup_test
 }
 
 function config() {
