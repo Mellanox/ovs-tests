@@ -14,7 +14,8 @@ SERVER_IPV4=$EXTERNAL_SERVER_IP
 function clean_up_test() {
     ip -all netns del
     ip addr flush dev $NIC
-    config_sriov 0
+    unbind_vfs
+    bind_vfs
     on_bf_exec "ovn_stop_ovn_controller
                 ovn_remove_ovs_config
                 ovn_remove_network $BRIDGE $BF_NIC
@@ -25,7 +26,6 @@ function clean_up_test() {
 }
 
 function config_test() {
-    config_sriov
     require_interfaces CLIENT_VF
     ip addr add $EXTERNAL_SERVER_IP/$SERVER_NODE_IP_MASK dev $NIC
     ip link set $NIC up

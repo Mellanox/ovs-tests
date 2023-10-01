@@ -15,7 +15,8 @@ export REMOTE_CHASSIS=$(on_remote_bf_exec "get_ovs_id")
 
 function clean_up_test() {
     ip -all netns del
-    config_sriov 0
+    unbind_vfs
+    bind_vfs
     on_bf_exec "ovn_stop_ovn_controller
                 ovn_remove_ovs_config
                 ovn_remove_network $BRIDGE $BF_NIC
@@ -33,7 +34,6 @@ function clean_up_test() {
 }
 
 function config_test() {
-    config_sriov
     require_interfaces CLIENT_VF
     on_bf_exec "ovn_start_northd_central $CLIENT_NODE_IP &&
                 ovn_create_topology &&

@@ -11,6 +11,8 @@ read_k8s_topology_pod_service_same_node
 
 function clean_up_test() {
     ip -all netns del
+    unbind_vfs
+    bind_vfs
     on_bf_exec "ovn_stop_ovn_controller
                 start_clean_openvswitch
                 ovn_start_clean
