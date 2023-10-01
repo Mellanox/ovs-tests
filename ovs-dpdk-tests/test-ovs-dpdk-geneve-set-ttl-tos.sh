@@ -18,8 +18,6 @@ trap cleanup_test EXIT
 
 function config() {
     cleanup_test
-    debug "Restarting OVS"
-    start_clean_openvswitch
 
     config_tunnel "geneve"
     ovs-vsctl set interface geneve_br-int options:ttl=22 options:tos=0x24
@@ -44,7 +42,6 @@ function run() {
 }
 
 run
-start_clean_openvswitch
 trap - EXIT
 cleanup_test
 test_done
