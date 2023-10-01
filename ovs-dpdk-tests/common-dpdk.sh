@@ -75,6 +75,7 @@ function configure_dpdk_rep_ports() {
     local reps=$1
     local bridge=$2
     local pci=${3-$PCI}
+    local i
 
     for (( i=0; i<$reps; i++ )); do
         local rep=`get_port_from_pci $pci $i`
