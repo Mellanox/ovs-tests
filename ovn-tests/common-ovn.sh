@@ -158,6 +158,9 @@ function ovn_bind_port() {
     local ovn_port=$2
     local dpdk_options
 
+    debug "Bind ovs port $port"
+    require_interfaces port
+
     if [ "$DPDK" == 1 ]; then
         local vf_id=$(cat /sys/class/net/$port/phys_port_name | sed 's/pf.vf//')
         local pci=$(get_pf_pci)
