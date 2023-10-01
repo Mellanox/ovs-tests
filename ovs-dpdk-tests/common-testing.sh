@@ -549,6 +549,11 @@ function exec_dbg() {
     eval "$@"
 }
 
+function exec_dbg_on_remote() {
+    debug "${GRAY}Executing on remote | ${NOCOLOR}$@"
+    on_remote "$@"
+}
+
 function config_vlan_device_ns() {
     local dev=$1
     local vlan_dev=$2
