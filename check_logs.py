@@ -4,6 +4,7 @@ import argparse
 import requests
 from glob import glob
 import os
+import re
 
 
 def parse_args():
@@ -32,14 +33,14 @@ TAGS_ALWAYS = [
     'TODO',
     'command not found',
     'No such file or directory',
-    'too many arguments',
 ]
 
 expected = {
     'all': [
         'failed to flow_del'
     ],
-    'test-eswitch-devlink-reload.sh': ['Warning: mlx5_core: reload while VFs are present is unfavorable.']
+    'test-eswitch-devlink-reload.sh': ['Warning: mlx5_core: reload while VFs are present is unfavorable.'],
+    'test-ovs-dpdk-esw-mgr-removal.sh': ['Resource temporarily unavailable']
 }
 
 
@@ -70,6 +71,7 @@ def start():
         if r.content.find('TEST PASSED') >= 0:
             _tags.extend(TAGS_ON_SUCCESS)
 
+        br = False
         for i in _tags:
             for line in r.content.splitlines():
                 if (i.lower() in line.lower()) and not expected_line(test, line):
@@ -78,7 +80,17 @@ def start():
                 continue
             print('%s - %s' % (test, i))
             print('    %s' % url)
+            br = True
             break
+
+        if br:
+            continue
+
+        for line in r.content.splitlines():
+            m = re.search(r'.*\.sh: line .*: .*: .*', line)
+            if m:
+                print('%s - bash error: %s' % (test, m.group()))
+                print('    %s' % url)
 
 
 if __name__ == '__main__':
