@@ -81,19 +81,22 @@ function configure_dpdk_rep_ports() {
         local rep=`get_port_from_pci $pci $i`
 
         if [ "${VDPA}" != "1" ]; then
+            debug "Add ovs port $rep"
             ovs-vsctl add-port $bridge "$rep" -- set Interface "$rep" type=dpdk options:dpdk-devargs=$pci,representor=[$i],$DPDK_PORT_EXTRA_ARGS
         else
             local vf_num="VF"
             vf_num+=$((i+1))
             local vfpci=$(get_vf_pci ${!vf_num})
             if [ "$i" == "0" ]; then
+                debug "Add ovs vdpa port $rep"
                 ovs-vsctl add-port $bridge "$rep" -- \
                     set Interface "$rep" type=dpdkvdpa options:vdpa-socket-path=/tmp/sock$(($i+1)) \
                     options:vdpa-accelerator-devargs=$vfpci \
                     options:dpdk-devargs=$pci,representor=[$i],$DPDK_PORT_EXTRA_ARGS
             else
-                ovs-vsctl add-port $bridge "$rep"_vdpa -- \
-                    set Interface "$rep"_vdpa type=dpdkvdpa options:vdpa-socket-path=/tmp/sock$(($i+1)) \
+                debug "Add ovs vdpa port ${rep}_vdpa"
+                ovs-vsctl add-port $bridge ${rep}_vdpa -- \
+                    set Interface ${rep}_vdpa type=dpdkvdpa options:vdpa-socket-path=/tmp/sock$(($i+1)) \
                     options:vdpa-accelerator-devargs=$vfpci
                 ovs-vsctl add-port $bridge "$rep" -- set Interface "$rep" type=dpdk options:dpdk-devargs=$pci,representor=[$i],$DPDK_PORT_EXTRA_ARGS
             fi
