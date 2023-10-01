@@ -12,6 +12,25 @@ IP=$LOCAL_IP
 REMOTE=$REMOTE_IP
 MAC="e4:11:22:11:4a:51"
 
+function get_grace_period() {
+    local pci=`get_pf_pci`
+
+    grace_period=`devlink health show pci/$pci reporter fw_fatal | grep -Eo "grace_period [0-9]+" | awk {'print $2'}`
+
+    if [ -z $grace_period ]; then
+        fail "Failed to get grace period"
+    fi
+}
+
+function set_grace_period() {
+    local value=$1
+    local pci=`get_pf_pci`
+    local pci2=`get_pf_pci2`
+
+    devlink health set pci/$pci reporter fw_fatal grace_period $value || err "Failed to change grace period to $value for $pci"
+    devlink health set pci/$pci2 reporter fw_fatal grace_period $value || err "Failed to change grace period to $value for $pci2"
+}
+
 function keep_link_up() {
     local val=$1
     local conf="KEEP_ETH_LINK_UP_P1"
@@ -23,8 +42,6 @@ function keep_link_up() {
 function cleanup() {
     title "Cleanup"
     ovs_clear_bridges
-    reset_tc $NIC $NIC2 $REP
-    clear_remote_bonding
     ip netns del ns0 &> /dev/null
     set_port_state_up &> /dev/null
     disable_esw_multiport
@@ -33,11 +50,14 @@ function cleanup() {
     keep_link_up 1
     enable_legacy $NIC2
     config_sriov 0 $NIC2
+    config_sriov 2
+    enable_switchdev
+    cleanup_remote
+    set_grace_period $grace_period
 }
 
 function get_sending_dev() {
     local REP=$IB_PF0_PORT0
-
     ovs_dump_flows --names | grep "0x0800" | grep "in_port($REP)" | grep -oP "actions:(\w+)"| cut -d":" -f2
 }
 
@@ -48,8 +68,17 @@ function config_remote() {
     on_remote "ip a add $REMOTE/24 dev bond0"
 }
 
+function cleanup_remote() {
+    title "Cleanup remote"
+    clear_remote_bonding
+    on_remote_exec "config_sriov 2
+                    enable_switchdev
+                    ip link set $NIC up"
+}
+
 function config() {
     title "Config"
+    set_grace_period 0
     keep_link_up 0
     enable_lag_resource_allocation_mode
     set_lag_port_select_mode "multiport_esw"
@@ -103,28 +132,17 @@ function add_openflow_rules() {
 }
 
 function run_traffic() {
-    ip netns exec ns0 ping -q -c 1 -i 0.1 -w 2 $REMOTE
-
-    if [ $? -ne 0 ]; then
-        err "Init traffic failed"
-        return
-    fi
-
     local t=15
     local pid_remote
-    local pid_offload
     local pid_ping
 
     echo "Run ICMP traffic for $t seconds"
-    ip netns exec ns0 ping -w $t -i 0.2 -q $REMOTE &
+    exec_dbg "ip netns exec ns0 ping -w $t -i 0.2 -q $REMOTE &"
     pid_ping=$!
 
     sleep 1
-    echo "Sniff packets on $REP"
-    timeout $((t-1)) tcpdump -qnnei $REP -c 15 'icmp' &
-    pid_offload=$!
 
-    on_remote "timeout $t tcpdump -qnnei bond0 -c 5 'icmp'" &
+    exec_dbg_on_remote "timeout $t tcpdump -qnnei bond0 -c 5 'icmp'" &
     pid_remote=$!
 
     title "ovs dump flows"
@@ -147,7 +165,7 @@ function run_traffic() {
     title "Current interface sending packets $sending_dev2"
     [ -z "$sending_dev2" ] && err "Invalid sending dev"
 
-    on_remote "timeout $t tcpdump -qnnei bond0 -c 5 'icmp'" &
+    exec_dbg_on_remote "timeout $t tcpdump -qnnei bond0 -c 5 'icmp'" &
     pid_remote=$!
 
     title "Verify traffic on remote after nic $sending_dev1 is down"
@@ -164,16 +182,15 @@ function run_traffic() {
         err "Expected traffic to be sent on different nic"
     fi
 
-    title "Verify traffic offload on $REP"
-    verify_no_traffic $pid_offload
-
-    ovs_clear_bridges
+    check_dpdk_offloads $IP
     set_port_state_up
 }
 
 trap cleanup EXIT
 
+get_grace_period
 config
+verify_ping
 run_traffic
 trap - EXIT
 cleanup
