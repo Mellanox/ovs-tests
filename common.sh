@@ -2034,6 +2034,12 @@ function check_dpdk_init() {
         fi
         __restart_ovs=1
     fi
+
+    if [ "$DPDK" == 1 ]; then
+        if ovs-appctl dpctl/dump-dps 2>/dev/null | grep -q ovs-system ; then
+            ovs-appctl dpctl/del-dp system@ovs-system
+        fi
+    fi
 }
 
 function check_doca_init() {
