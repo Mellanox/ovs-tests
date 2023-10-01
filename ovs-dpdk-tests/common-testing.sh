@@ -449,7 +449,7 @@ function stop_traffic() {
         dst_execution="on_vm1 "
     fi
     exec_dbg "${dst_execution}killall -9 -q $iperf_cmd &>/dev/null"
-    exec_dbg "on_remote killall -9 -q $iperf_cmd &>/dev/null"
+    exec_dbg_on_remote "killall -9 -q $iperf_cmd &>/dev/null"
     sleep 1
 }
 
