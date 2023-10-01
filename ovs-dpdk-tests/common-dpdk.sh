@@ -258,8 +258,9 @@ function start_vdpa_vm() {
 function config_local_tunnel_ip() {
     local ip_addr=$1
     local dev=$2
+    local subnet=${3:-24}
 
-    bf_wrap "ip addr add $ip_addr/24 dev $dev
+    bf_wrap "ip addr add $ip_addr/$subnet dev $dev
              ip link set $dev up"
 }
 
