@@ -2815,7 +2815,6 @@ function grace_period_after_pci_reset() {
 
     echo "Waiting $sleep sec for pci reset grace period"
     sleep $sleep
-
 }
 
 function pci_reset() {
