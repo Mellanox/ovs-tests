@@ -2350,8 +2350,11 @@ function reload_driver_per_test() {
 }
 
 function dump_ovs_log() {
-    local look="ERR|WARN|EMER|assertion|DBG"
+    local errs="EMER|assertion|backtrace|SIGSEGV"
+    local look="ERR|WARN|DBG"
     local filter="timeval|ioctl|coverage|flow create.*void|ufid 00000000-0000-0000-0000-000000000000"
+
+    look="$look|$errs"
 
     [ "$SKIP_OVS_LOG_DUMP" == 1 ] && return
 
