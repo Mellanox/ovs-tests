@@ -357,10 +357,15 @@ function get_total_packets_passed_in_sw() {
 }
 
 function get_total_packets_passed() {
-    local bridge=$1
-    local pkts=$(ovs-ofctl dump-flows $bridge | grep "table=0" | grep -o "n_packets=[0-9.]*" | cut -d= -f2 | awk '{ SUM += $1} END { print SUM }')
+    local pkts=0
+    local bridge_pkts
 
-    if [ -z "$pkts" ]; then
+    for br in `ovs-vsctl list-br`; do
+        bridge_pkts=$(ovs-ofctl dump-flows $br | grep "table=0" | grep -o "n_packets=[0-9.]*" | cut -d= -f2 | awk '{ SUM += $1} END { print SUM }')
+        ((pkts += bridge_pkts))
+    done
+
+    if [ $pkts -eq 0 ]; then
         echo "ERROR: Cannot get pkts" >> /dev/stderr
         return
     fi
@@ -369,11 +374,10 @@ function get_total_packets_passed() {
 }
 
 function query_sw_packets_in_sent_packets_percentage() {
-    local bridge=$1
-    local valid_percetange_passed_in_sw=${2:-10}
+    local valid_percetange_passed_in_sw=${1:-10}
 
     local total_packets_passed_in_sw=$(get_total_packets_passed_in_sw)
-    local all_packets_passed=$(get_total_packets_passed $bridge)
+    local all_packets_passed=$(get_total_packets_passed)
 
     if [ -z "$total_packets_passed_in_sw" ]; then
         err  "ERROR: Cannot get total_packets_passed_in_sw"
@@ -419,7 +423,7 @@ function query_sw_packets() {
     debug "Received $total_packets_passed_in_sw packets in SW"
 
     if [ $total_packets_passed_in_sw -gt $expected_num_of_pkts ]; then
-        query_sw_packets_in_sent_packets_percentage br-phy 10
+        query_sw_packets_in_sent_packets_percentage 10
         return $?
     fi
     return 0
