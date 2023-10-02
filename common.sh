@@ -2660,6 +2660,22 @@ function config_remote_geneve() {
                tc qdisc add dev geneve1 ingress" || err "Failed to config remote geneve"
 }
 
+function config_remote_geneve_options() {
+    local geneve_opts="geneve_opts ffff:80:00001234"
+
+    config_remote_geneve external
+
+    title "Setup remote geneve + opts"
+    on_remote "ip link add vm type veth peer name vm_rep
+               ifconfig vm $REMOTE/24 up
+               ifconfig vm_rep 0 promisc up
+               tc qdisc add dev vm_rep ingress
+               tc filter add dev vm_rep ingress proto ip flower skip_hw action tunnel_key set src_ip 0.0.0.0 dst_ip $LOCAL_TUN id $TUN_ID dst_port 6081 $geneve_opts pipe action mirred egress redirect dev geneve1
+               tc filter add dev vm_rep ingress proto arp flower skip_hw action tunnel_key set src_ip 0.0.0.0 dst_ip $LOCAL_TUN id $TUN_ID dst_port 6081 $geneve_opts pipe action mirred egress redirect dev geneve1
+               tc filter add dev geneve1 ingress protocol arp flower skip_hw action tunnel_key unset action mirred egress redirect dev vm_rep
+               tc filter add dev geneve1 ingress protocol ip flower skip_hw action tunnel_key unset action mirred egress redirect dev vm_rep"
+}
+
 function cleanup_remote_vxlan() {
     on_remote "ip a flush dev $REMOTE_NIC
                ip l del dev vxlan1 &>/dev/null"
