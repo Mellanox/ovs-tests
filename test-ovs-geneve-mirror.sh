@@ -1,9 +1,10 @@
 #!/bin/bash
 #
-# Test OVS with geneve + modify ttl traffic
+# Test OVS with geneve + mirror
+#
+# Bug SW #3608605: [OFED 23.10, ASAP, geneve] Encap rule not offloaded for geneve with geneve options + mirroring
 #
 # Require external server
-#
 
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
