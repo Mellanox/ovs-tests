@@ -529,11 +529,7 @@ function wait_traffic() {
     [ -z "$INITIATE_TRAFFIC_IPERF_PID" ] && return
 
     debug "Wait for iperf pid $INITIATE_TRAFFIC_IPERF_PID"
-    if [ "${VDPA}" == "1" ]; then
-        on_vm2 wait $INITIATE_TRAFFIC_IPERF_PID
-    else
-        wait $INITIATE_TRAFFIC_IPERF_PID
-    fi
+    wait $INITIATE_TRAFFIC_IPERF_PID
     INITIATE_TRAFFIC_IPERF_PID=""
 }
 
