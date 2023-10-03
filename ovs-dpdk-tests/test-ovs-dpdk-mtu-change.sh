@@ -37,13 +37,19 @@ function run() {
 
     config
     config_remote_nic
+
     local mtu=$(ovs-vsctl list interface $ib_pf | grep -w mtu | awk '{ print $3 }')
+
     if (( $mtu == $mtu_request )); then
         let "mtu_request=mtu_request+100"
     fi
+
     change_mtu_request 1600 $ib_pf
+    # Limitation of ovs-doca, need to restart ovs for the mtu change.
     restart_openvswitch_nocheck
+
     mtu=$(ovs-vsctl list interface $ib_pf | grep -w mtu | awk '{ print $3 }')
+
     if (( $mtu != $mtu_request )); then
         fail "MTU settings didn't change"
     fi
