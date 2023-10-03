@@ -123,6 +123,7 @@ function ovs_add_port() {
     local num=${2:-"1"}
     local bridge=${3:-br-phy}
     local pci=${4:-`get_pf_pci`}
+    local mtu=$5
     local port=`get_port_from_pci $pci`
     local rep=""
 
@@ -140,8 +141,13 @@ function ovs_add_port() {
         port+="sf_$num"
         rep="representor=sf[$num],"
     fi
-    debug "Add ovs $type port $port"
-    exec_dbg ovs-vsctl add-port $bridge $port -- set Interface $port type=dpdk options:dpdk-devargs=$pci,$rep$DPDK_PORT_EXTRA_ARGS
+
+    if [ -n "$mtu" ]; then
+        mtu="mtu_request=$mtu"
+    fi
+
+    debug "Add ovs $type port $port $mtu"
+    exec_dbg ovs-vsctl add-port $bridge $port -- set Interface $port type=dpdk options:dpdk-devargs=$pci,$rep$DPDK_PORT_EXTRA_ARGS $mtu
 }
 
 function ovs_del_port() {
@@ -182,6 +188,7 @@ function config_simple_bridge_with_rep() {
     local should_add_pf=${2:-"true"}
     local bridge=${3:-"br-phy"}
     local nic=${4:-"$NIC"}
+    local pf_mtu=$5
     local pci=$(get_pf_pci)
 
     if [ $nic == $NIC2 ]; then
@@ -192,7 +199,7 @@ function config_simple_bridge_with_rep() {
     ovs_add_bridge $bridge
 
     if [ "$should_add_pf" == "true" ]; then
-        ovs_add_port "PF" 0 $bridge $pci
+        ovs_add_port "PF" 0 $bridge $pci $pf_mtu
     fi
     configure_dpdk_rep_ports $reps $bridge $pci
 }
