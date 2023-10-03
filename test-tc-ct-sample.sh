@@ -93,8 +93,9 @@ function run() {
     ip link show dev $REP
 
     pkill psample
-    timeout -k 1 2 $psample_dir/psample -n $n > $file &
+    timeout -k 1 3 $psample_dir/psample -n $n > $file &
     pid=$!
+    sleep 1
 
     title "run traffic"
     ip netns exec ns0 ping -q -c $n -i 0.1 -w 2 $IP2 || err "Ping failed"
