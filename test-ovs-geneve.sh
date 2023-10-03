@@ -24,16 +24,6 @@ bind_vfs
 require_interfaces REP NIC VF
 
 
-function set_nf_liberal() {
-    nf_liberal="/proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal"
-    if [ -e $nf_liberal ]; then
-        echo 1 > $nf_liberal
-        echo "`basename $nf_liberal` set to: `cat $nf_liberal`"
-    else
-        echo "Cannot find $nf_liberal"
-    fi
-}
-
 function cleanup_remote() {
     on_remote "ip a flush dev $REMOTE_NIC
                ip l del dev geneve1 &>/dev/null"
@@ -50,8 +40,6 @@ trap cleanup EXIT
 
 function config() {
     cleanup
-    set_nf_liberal
-    conntrack -F
     ifconfig $NIC $LOCAL_TUN/24 up
     # WA SimX bug? interface not receiving traffic from tap device to down&up to fix it.
     for i in $NIC $VF $REP ; do
@@ -71,19 +59,6 @@ function config() {
     ovs-vsctl add-port br-ovs geneve1 -- set interface geneve1 type=geneve options:local_ip=$LOCAL_TUN options:remote_ip=$REMOTE_IP options:key=$TUN_ID options:dst_port=$geneve_port
 }
 
-function initial_traffic() {
-    title "initial traffic"
-    # this part is important when using multi-table CT.
-    # the initial traffic will cause ovs to create initial tc rules
-    # and also tuple rules. but since ovs adds the rules somewhat late
-    # conntrack will already mark the conn est. and tuple rules will be in hw.
-    # so we start second traffic which will be faster added to hw before
-    # conntrack and this will check the miss rule in our driver is ok
-    # (i.e. restoring reg_0 correctly)
-    ip netns exec ns0 iperf3 -s -D
-    on_remote timeout -k1 3 iperf3 -c $IP -t 2
-}
-
 function run() {
     config
     config_remote_geneve
@@ -96,9 +71,8 @@ function run() {
         return
     fi
 
-    initial_traffic
-
     title "Run traffic"
+    ip netns exec ns0 iperf3 -s -D
     on_remote timeout -k1 15 iperf3 -c $IP -t 12 -P3 &
     pid2=$!
 
