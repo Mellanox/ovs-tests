@@ -197,7 +197,7 @@ function check_fragmented_rules() {
     local fragmented_flow_rules=$(ovs_dump_flows --names | grep -E "frag=(first|later)" | grep $traffic_filter | grep -vE "(drop|packets:0)")
     local rules_count=$(echo "$fragmented_flow_rules" | wc -l)
     if (("$rules_count" != "$expected_count")); then
-        err "Expected 4 rules, found $rules_count"
+        err "Expected $expected_count rules, found $rules_count"
         echo "$fragmented_flow_rules"
         return 1
     fi
@@ -788,11 +788,7 @@ function check_fragmented_traffic() {
     sleep ${TRAFFIC_INFO['offloaded_traffic_verification_delay']}
     head -n5 $logfile
 
-    if [[ "$DPDK" == 1 ]]; then
-      __start_testpmd_offload_client
-      __start_testpmd_offload_server
-
-    else
+    if [[ "$DPDK" != 1 ]]; then
       # Listen to traffic on representor
       timeout 10 tcpdump -Unnepi $rep $tcpdump_filter -c 8 &
       local tdpid=$!
@@ -807,18 +803,11 @@ function check_fragmented_traffic() {
       wait $traffic_pid
     fi
 
-    title "Check captured packets count"
-    if [[ "$DPDK" == 1 ]]; then
-        title "Check ${traffic_type^^} traffic is offloaded on the sender"
-        __verify_testpmd_offload_local "$CLIENT_NS" "$CLIENT_VF" "$client_vf_tx_pkts" "$client_vf_rx_pkts"
-
-        if [[ -z "$local_traffic" ]]; then
-            __verify_offload_testpmd $SERVER_NS $SERVER_VF $server_vf_tx_pkts $server_vf_rx_pkts
-        fi
-
-    else
+    # In DPDK & DOCA fragmented packets are not offloaded
+    if [[ "$DPDK" != 1 ]]; then
         # Offloading fragmented traffic is not supported in upstream
         # Wait tcpdump to finish and verify traffic is not offloaded
+        title "Check captured packets count"
         verify_have_traffic $tdpid
     fi
 
