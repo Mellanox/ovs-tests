@@ -2,10 +2,9 @@
 #
 # Test OVS-DPDK MTU change.
 # This will force reconfigure causing issue.
-# Issue: OVS-3511377
 #
+# Bug SW #3511377: [OVS-DOCA] Adding back a PF after having it removed fails on port reconfigure
 # Require external server
-#
 
 my_dir="$(dirname "$0")"
 . $my_dir/common-dpdk.sh
