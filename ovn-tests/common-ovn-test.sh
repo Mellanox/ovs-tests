@@ -77,11 +77,16 @@ function config_ovn_single_node() {
     ovn_start_ovn_controller
 }
 
+function config_ovn_pf_tunnel_mtu() {
+    config_ovn_pf $1 $2 $3 $4 $OVN_TUNNEL_MTU
+}
+
 function config_ovn_pf() {
     local ovn_central_ip=$1
     local ovn_controller_ip=$2
     local vf_var=$3
     local rep_var=$4
+    local pf_mtu=$5
     local tun_dev=$NIC
 
     config_sriov_switchdev_mode
@@ -90,8 +95,13 @@ function config_ovn_pf() {
     ovn_start_clean_openvswitch
 
     if [ "$DPDK" == 1 ]; then
-        config_simple_bridge_with_rep 0
         tun_dev="br-phy"
+
+        if [ -z "$pf_mtu" ]; then
+            config_simple_bridge_with_rep 0
+        else
+            config_simple_bridge_with_rep 0 "true" $tun_dev $NIC $pf_mtu
+        fi
     fi
 
     ip addr add $ovn_controller_ip/24 dev $tun_dev
