@@ -72,7 +72,7 @@ function config() {
     fi
 
     ovs-ofctl add-flow br-ovs arp,actions=normal
-    ovs-ofctl add-flow br-ovs "ip,in_port=$tun,actions=dec_ttl,output:$REP" || fail "Failed adding openflow rule"
+    ovs-ofctl add-flow br-ovs "ip,in_port=$tun,actions=${extra}dec_ttl,output:$REP" || fail "Failed adding openflow rule"
     ovs-ofctl add-flow br-ovs "ip,in_port=$REP,actions=${extra}output:$tun" || fail "Failed adding openflow rule"
     ovs-vsctl show
     ovs-ofctl dump-flows --color br-ovs
