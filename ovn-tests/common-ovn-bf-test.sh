@@ -122,6 +122,18 @@ function config_bf_ovn_pf_vlan() {
     ovn_start_ovn_controller
 }
 
+function config_bf_host_pf() {
+    local bridge=$1
+
+    if [ "$DPDK" == 1 ]; then
+        ovs_add_port "ECPF" 0 $bridge $BF_PCI
+    else
+        ovs-vsctl add-port $bridge $BF_HOST_NIC
+    fi
+
+    ip link set $BF_HOST_NIC up
+}
+
 function __common_ovn_bf_test_init() {
     require_bf
     require_bf_ovn
