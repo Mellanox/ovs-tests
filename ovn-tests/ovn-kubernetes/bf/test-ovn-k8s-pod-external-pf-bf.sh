@@ -42,8 +42,7 @@ function config_test() {
     config_bf_ovn_interface_namespace $CLIENT_VF $CLIENT_REP $CLIENT_NS $CLIENT_PORT $CLIENT_MAC $CLIENT_IPV4 $CLIENT_IPV6 $CLIENT_GATEWAY_IPV4 $CLIENT_GATEWAY_IPV6
 
     on_remote_bf_exec "config_bf_ovn_k8s_pf $CLIENT_NODE_IP $SERVER_NODE_IP $SERVER_NODE_IP_MASK $SERVER_NODE_MAC
-                       ovs-vsctl add-port $BRIDGE $BF_HOST_NIC
-                       ip link set $BF_HOST_NIC up"
+                       config_bf_host_pf $BRIDGE"
 
     # WA remove the ip on the bridge.
     on_bf "ip addr del $CLIENT_NODE_IP/$CLIENT_NODE_IP_MASK dev $BRIDGE"
