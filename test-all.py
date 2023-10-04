@@ -449,7 +449,7 @@ def get_kmemleak_info():
 def run_test(test, html=False):
     cmd = test.fname
 
-    env = os.environ
+    env = os.environ.copy()
     env.update(test.opts.get('env', {}))
 
     logname = os.path.join(LOGDIR, test.test_log)
