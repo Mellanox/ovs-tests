@@ -77,15 +77,18 @@ function run() {
     local t=10
     interval=$1
 
-    timeout $((t+2)) sflowtool -p $SFLOW_PORT \
-        -L localtime,srcIP,dstIP > $file&
-    sleep 1
+    sflowtool -p $SFLOW_PORT -L localtime,srcIP,dstIP > $file&
+    pid1=$!
 
     counter=$(expr $t*1/$interval | bc)
-    debug "run: ip netns exec ns0 timeout $((t+2)) ping $IP2 -c $counter -i $interval -W $t"
-    ip netns exec ns0 timeout $((t+2)) ping $IP2 -q -c $counter -i $interval -W $t
+    debug "run: ip netns exec ns0 ping $IP2 -c $counter -i $interval -w $((t*2))"
+    ip netns exec ns0 ping $IP2 -q -c $counter -i $interval -w $((t*2))
 
-    wait
+    check_dpdk_offloads $IP1
+
+    #wait for last packets to reach sflow
+    sleep 1
+    kill $pid1 &>/dev/null || kill -9 $pid1 &>/dev/null
 
     if grep $IP1 $file | grep $IP2 > /dev/null; then
         success2 "get the expected IP addresses: $IP1, $IP2"
@@ -106,7 +109,6 @@ function run() {
     else
         err "get $n packets, expected $expected"
     fi
-    check_dpdk_offloads $IP1
 
     ovs-vsctl clear bridge br-phy sflow
 }
