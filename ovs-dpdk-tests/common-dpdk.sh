@@ -382,7 +382,7 @@ function get_total_packets_passed() {
 }
 
 function query_sw_packets_in_sent_packets_percentage() {
-    local valid_percetange_passed_in_sw=${1:-10}
+    local valid_percentage_passed_in_sw=${1:-10}
 
     local total_packets_passed_in_sw=$(get_total_packets_passed_in_sw)
     local all_packets_passed=$(get_total_packets_passed)
@@ -397,13 +397,13 @@ function query_sw_packets_in_sent_packets_percentage() {
         return 1
     fi
 
-    title "Checking that $total_packets_passed_in_sw is no more than $valid_percetange_passed_in_sw% of $all_packets_passed"
-    local a=$((valid_percetange_passed_in_sw*total_packets_passed_in_sw))
+    title "Checking that $total_packets_passed_in_sw is no more than $valid_percentage_passed_in_sw% of $all_packets_passed"
+    local a=$(($valid_percentage_passed_in_sw*$all_packets_passed/100))
 
-    if [ $a -gt $all_packets_passed ]; then
-        err "$total_packets_passed_in_sw packets passed in SW, it is more than $valid_percetange_passed_in_sw% of $all_packets_passed"
+    if [ $a -lt $total_packets_passed_in_sw ]; then
+        err "$total_packets_passed_in_sw packets passed in SW, it is more than $valid_percentage_passed_in_sw% of $all_packets_passed"
         return 1
-    elif [ $a -le $all_packets_passed ]; then
+    elif [ $a -ge $total_packets_passed_in_sw ]; then
         success
         return 0
     fi
