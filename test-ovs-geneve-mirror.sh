@@ -52,6 +52,8 @@ function config() {
     ip netns add ns0
     ip link set dev $VF netns ns0
     ip netns exec ns0 ifconfig $VF $IP/24 up
+    ip link set $REP up
+    ip link set $REP2 up
 
     ovs-vsctl add-br br-ovs
     ovs-vsctl add-port br-ovs $REP
