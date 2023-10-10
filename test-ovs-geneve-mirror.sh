@@ -23,6 +23,7 @@ VXLAN_ID=$TUN_ID
 TUNNEL_TEST=geneve
 #TUNNEL_TEST=vxlan
 
+config_sriov 2
 enable_switchdev
 unbind_vfs
 bind_vfs
