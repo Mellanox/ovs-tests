@@ -8,6 +8,7 @@ p_client=/tmp/perf_client
 p_scapy=/tmp/tcpdump
 num_connections=5
 iperf_cmd=iperf3
+roce_cmd=/usr/bin/ib_send_bw
 
 function set_iperf2() {
     iperf_cmd=iperf
@@ -335,6 +336,24 @@ function verify_iperf_running() {
     fi
 }
 
+function verify_roce_traffic_running() {
+    local remote=${1:-"local"}
+    proc_cmd="pidof -s $roce_cmd"
+
+    if [ "$remote" == "remote" ]; then
+       proc_cmd="on_remote $proc_cmd"
+    elif [ "${VDPA}" == "1" ]; then
+       proc_cmd="on_vm1 $proc_cmd"
+    fi
+
+    title "Look for ib_send_bw pid"
+    if ! $proc_cmd ; then
+       err "No ib_send_bw process on $remote"
+       stop_roce_traffic
+       return 1
+    fi
+}
+
 function generate_traffic_verify_bw() {
     local timeout_sec=${1:-11}
     local expected_bw=$2
@@ -460,7 +479,7 @@ function initiate_traffic() {
         server_dst_execution=""
     fi
 
-    INITIATE_TRAFFIC_IPERF_PID=""
+    INITIATE_TRAFFIC_PID=""
 
     if [ -z "$client_remote" ] || [ -z "$my_ip" ]; then
         fail "Missing arguments for initiate_traffic()"
@@ -511,7 +530,7 @@ function initiate_traffic() {
         pid2=$!
     fi
 
-    INITIATE_TRAFFIC_IPERF_PID=$pid2
+    INITIATE_TRAFFIC_PID=$pid2
 
     # verify pid
     sleep 2
@@ -530,6 +549,71 @@ function initiate_traffic() {
 
 function __ovs_using_ct() {
     echo $TESTNAME | grep -q -- "-ct-"
+}
+
+function initiate_roce_traffic() {
+    local ip=$1
+    local client_remote=${2:-"local"}
+    local server_remote=${3:-"remote"}
+    local client_ns=${4:-none}
+    local server_ns=${5:-none}
+    local time=${6:-5}
+    local client_gid_index=${7:-3}
+    local server_gid_index=${8:-3}
+
+    sleep_time=$((time+2))
+
+    local client_cmd="timeout $sleep_time $roce_cmd --ib-dev mlx5_2 --gid-index $client_gid_index --port 18000 $ip --connection UD --size 1024 --bidirectional --duration $time"
+    local server_cmd="timeout $sleep_time $roce_cmd --ib-dev mlx5_2 --gid-index $server_gid_index --port 18000 --connection UD --size 1024 --bidirectional --duration $time"
+
+    if [ "$client_ns" != "none" ]; then
+        client_cmd="ip netns exec $client_ns $client_cmd"
+    fi
+
+    if [ "$server_ns" != "none" ]; then
+        server_cmd="ip netns exec $server_ns $server_cmd"
+    fi
+
+    if [ "$client_remote" == "remote" ]; then
+        client_cmd="on_remote $client_cmd"
+    fi
+
+    if [ "$server_remote" == "remote" ]; then
+        server_cmd="on_remote $server_cmd"
+    fi
+
+    exec_dbg "$server_cmd &"
+    sleep 2
+    verify_roce_traffic_running "$server_remote"
+
+    debug "Executing | $client_cmd &"
+    eval $client_cmd &
+    INITIATE_TRAFFIC_PID=$!
+
+    # verify pid
+    sleep 1
+    kill -0 $INITIATE_TRAFFIC_PID &>/dev/null
+    if [ $? -ne 0 ]; then
+       err "$roce_cmd failed"
+       return 1
+    fi
+
+    verify_roce_traffic_running $client_remote
+}
+
+function generate_roce_traffic() {
+    local ip=$1
+    local client_remote=${2:-"local"}
+    local server_remote=${3:-"remote"}
+    local client_ns=${4:-none}
+    local server_ns=${5:-none}
+    local time=${6:-5}
+    local client_gid_index=${7:-3}
+    local server_gid_index=${8:-3}
+
+    initiate_roce_traffic $ip $client_remote $server_remote $client_ns $server_ns $time $client_gid_index $server_gid_index
+    validate_offload $my_ip
+    stop_roce_traffic
 }
 
 function validate_offload() {
@@ -619,6 +703,17 @@ function validate_traffic() {
     fi
 }
 
+function stop_roce_traffic() {
+    local dst_execution=""
+
+    if [ "${VDPA}" == "1" ]; then
+        dst_execution="on_vm1 "
+    fi
+    exec_dbg "${dst_execution}killall -9 -q $roce_cmd &>/dev/null"
+    exec_dbg_on_remote "killall -9 -q $roce_cmd &>/dev/null"
+    sleep 1
+}
+
 function stop_traffic() {
     local dst_execution=""
 
@@ -631,11 +726,11 @@ function stop_traffic() {
 }
 
 function wait_traffic() {
-    [ -z "$INITIATE_TRAFFIC_IPERF_PID" ] && return
+    [ -z "$INITIATE_TRAFFIC_PID" ] && return
 
-    debug "Wait for iperf pid $INITIATE_TRAFFIC_IPERF_PID"
-    wait $INITIATE_TRAFFIC_IPERF_PID
-    INITIATE_TRAFFIC_IPERF_PID=""
+    debug "Wait for iperf pid $INITIATE_TRAFFIC_PID"
+    wait $INITIATE_TRAFFIC_PID
+    INITIATE_TRAFFIC_PID=""
 }
 
 function __cleanup() {
