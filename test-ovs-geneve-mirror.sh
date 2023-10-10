@@ -101,7 +101,8 @@ function run() {
     sleep 1
 
     ip netns exec ns0 ping -q -c 10 -i 0.1 -w 2 $REMOTE || err "ping failed"
-   
+
+    title "Verify rules"
     local out=`ovs_dump_flows -m | grep 0x0800 | grep -v "offloaded:yes"`
     if [ -n "$out" ]; then
         err "Unoffloaded flows"
