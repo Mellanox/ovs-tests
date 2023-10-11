@@ -2259,8 +2259,12 @@ function verify_rate() {
     fi
 
     local delta=$((100 * ($expected_rate - $rate)/$expected_rate))
-    if [ ${delta#-} -gt 10 ]; then
-        err "delta $delta: rate $rate is over the limit $expected_rate"
+    delta=${delta#-}
+
+    if [ $delta -gt 10 ]; then
+        err "delta $delta is greater than 10: rate $rate is over the limit $expected_rate"
+    else
+        success2 "delta $delta: rate $rate is in the expected limit $expected_rate"
     fi
 }
 
