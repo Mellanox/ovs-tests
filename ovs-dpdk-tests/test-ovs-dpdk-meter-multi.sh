@@ -29,14 +29,14 @@ function config_topology() {
 
 function run() {
     local max_rate_mbits=100
-    local sec=11
+    local sec=15
 
     config_topology
 
     title "Testing add meter on REPs"
-    ovs_add_meter br-phy 1 kbps 400000 40000
-    ovs_add_meter br-phy 2 kbps 200000 20000
-    ovs_add_meter br-phy 3 kbps ${max_rate_mbits}000 ${max_rate_mbits}00
+    ovs_add_meter br-phy 1 kbps 400000 200000
+    ovs_add_meter br-phy 2 kbps 200000 100000
+    ovs_add_meter br-phy 3 kbps ${max_rate_mbits}000 $((max_rate_mbits/2))000
 
     ovs_add_multi_meter_rules
 
