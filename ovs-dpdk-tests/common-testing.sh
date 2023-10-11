@@ -405,6 +405,13 @@ function initiate_traffic() {
     local server_dst_execution="ip netns exec $server_namespace"
     local client_dst_execution="ip netns exec $client_namespace"
 
+    if [ "${VDPA}" == "1" ]; then
+        server_dst_execution="on_vm1"
+        on_vm1 rm -rf $p_server
+        client_dst_execution="on_vm2"
+        on_vm2 rm -rf $p_client
+    fi
+
     if [ "$client_namespace" == "none" ]; then
         client_dst_execution=""
     fi
@@ -418,12 +425,6 @@ function initiate_traffic() {
     if [ -z "$client_remote" ] || [ -z "$my_ip" ]; then
         fail "Missing arguments for initiate_traffic()"
         return 1
-    fi
-    if [ "${VDPA}" == "1" ]; then
-        server_dst_execution="on_vm1"
-        on_vm1 rm -rf $p_server
-        client_dst_execution="on_vm2"
-        on_vm2 rm -rf $p_client
     fi
 
     sleep_time=$((t+2))
