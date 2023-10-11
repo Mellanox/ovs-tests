@@ -221,7 +221,7 @@ function send_metered_ping() {
     local expected_received=${6:-10}
     local p_ping="/tmp/ping_out"
 
-    rm -rf $p_ping
+    rm -f $p_ping
     exec_dbg "ip netns exec $namespace ping -c $count -w $wait -i $interval $ip_addr > $p_ping"
     local pkts=$(grep 'received' $p_ping | awk '{ print $4 }')
 
@@ -234,7 +234,7 @@ function send_metered_ping() {
     else
         err "Failed parsing number of received packets."
     fi
-    rm -rf $p_ping
+    rm -f $p_ping
 }
 
 function ovs_check_tcpdump() {
@@ -252,7 +252,7 @@ function ovs_check_tcpdump() {
     else
         err "Failed ovs_check_tcpdump."
     fi
-    rm -rf $p_scapy
+    rm -f $p_scapy
 }
 
 function ovs_send_scapy_packets() {
@@ -266,7 +266,7 @@ function ovs_send_scapy_packets() {
     local dst_ns=$8
     local pktgen="$DPDK_DIR/../scapy-traffic-tester.py"
 
-    rm -rf $p_scapy
+    rm -f $p_scapy
     local tcpdump_cmd="tcpdump -qnnei $dev2 -Q in -w $p_scapy &"
     local scapy_dst_cmd="timeout $((t+5)) $pktgen -l -i $dev2 --src-ip $src_ip --time $(($t+2)) &"
     local scapy_src_cmd="timeout $((t+5)) $pktgen -i $dev1 --src-ip $src_ip --dst-ip $dst_ip --time $t --pkt-count $pkt_count --inter 0.01 &"
@@ -407,9 +407,9 @@ function initiate_traffic() {
 
     if [ "${VDPA}" == "1" ]; then
         server_dst_execution="on_vm1"
-        on_vm1 rm -rf $p_server
+        on_vm1 "rm -f $p_server"
         client_dst_execution="on_vm2"
-        on_vm2 rm -rf $p_client
+        on_vm2 "rm -f $p_client"
     fi
 
     if [ "$client_namespace" == "none" ]; then
@@ -432,10 +432,8 @@ function initiate_traffic() {
         sleep_time=$((t+4))
     fi
     #cleanup logs
-    rm -rf $p_server 2>/dev/null
-    rm -rf $p_client 2>/dev/null
-    on_remote "rm -rf $p_server 2>/dev/null
-               rm -rf $p_client 2>/dev/null"
+    rm -f $p_server $p_client
+    on_remote "rm -f $p_server $p_client"
 
     # server
     local server_cmd="${server_dst_execution} timeout $sleep_time $iperf_cmd -f Mbits -s"
