@@ -509,6 +509,7 @@ function check_traffic_offload() {
     if [ "$DPDK" == 1 ]; then
       echo "sleep until the traffic is finished"
       wait $traffic_pid
+      check_dpdk_offloads $server_ip
     fi
 
     if [[ $counters_ok == 1 ]]; then
