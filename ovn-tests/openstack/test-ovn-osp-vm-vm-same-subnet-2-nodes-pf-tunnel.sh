@@ -29,23 +29,7 @@ function run_test() {
     ovs-vsctl show
     ovn-sbctl show
 
-    title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
-    check_icmp_traffic_offload $SERVER_IPV4
-
-    title "Test TCP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
-    check_remote_tcp_traffic_offload $SERVER_IPV4
-
-    title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
-    check_remote_udp_traffic_offload $SERVER_IPV4
-
-    title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
-    check_icmp6_traffic_offload $SERVER_IPV6
-
-    title "Test TCP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
-    check_remote_tcp6_traffic_offload $SERVER_IPV6
-
-    title "Test UDP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
-    check_remote_udp6_traffic_offload $SERVER_IPV6
+    run_remote_traffic
 }
 
 ovn_clean_up

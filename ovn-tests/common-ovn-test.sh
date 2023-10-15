@@ -366,14 +366,22 @@ function ovn_config_interface_namespace() {
 
 function run_local_traffic() {
     local icmp6_offload=${1:-"icmp6_is_offloaded"}
+    local icmp4_offload=${2:-"icmp4_is_offloaded"}
+    local receiver_dev=${3:-$SERVER_VF}
 
-    title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
-    check_icmp_traffic_offload $SERVER_IPV4
+    if [ "$icmp4_offload" == "icmp4_is_offloaded" ]; then
+        title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $receiver_dev($SERVER_IPV4) offloaded"
+        check_icmp_traffic_offload $SERVER_IPV4
+    else
+        # Offloading ICMP with connection tracking is not supported
+        title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $receiver_dev($SERVER_IPV4)"
+        ip netns exec $CLIENT_NS ping -w 4 $SERVER_IPV4 && success || err
+    fi
 
-    title "Test TCP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
+    title "Test TCP traffic between $CLIENT_VF($CLIENT_IPV4) -> $receiver_dev($SERVER_IPV4) offloaded"
     check_local_tcp_traffic_offload $SERVER_IPV4
 
-    title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($SERVER_IPV4) offloaded"
+    title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $receiver_dev($SERVER_IPV4) offloaded"
     check_local_udp_traffic_offload $SERVER_IPV4
 
     if [ -n "$IGNORE_IPV6_TRAFFIC" ]; then
@@ -382,28 +390,35 @@ function run_local_traffic() {
     fi
 
     if [ "$icmp6_offload" == "icmp6_is_offloaded" ]; then
-        title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
+        title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $receiver_dev($SERVER_IPV6) offloaded"
         check_icmp6_traffic_offload $SERVER_IPV6
     else
         # ICMP6 offloading is not supported because IPv6 packet header doesn't contain checksum header
         # which cause offloading to fail
-        title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) (not checking offloaded)"
+        title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $receiver_dev($SERVER_IPV6) (not checking offloaded)"
         ip netns exec $CLIENT_NS ping -6 -w 4 $SERVER_IPV6 && success || err
     fi
 
-    title "Test TCP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
+    title "Test TCP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $receiver_dev($SERVER_IPV6) offloaded"
     check_local_tcp6_traffic_offload $SERVER_IPV6
 
-    title "Test UDP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($SERVER_IPV6) offloaded"
+    title "Test UDP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $receiver_dev($SERVER_IPV6) offloaded"
     check_local_udp6_traffic_offload $SERVER_IPV6
 }
 
 function run_remote_traffic() {
     local icmp6_offload=${1:-"icmp6_is_offloaded"}
-    local receiver_dev=${2:-$SERVER_VF}
+    local icmp4_offload=${2:-"icmp4_is_offloaded"}
+    local receiver_dev=${3:-$SERVER_VF}
 
-    title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $receiver_dev($SERVER_IPV4) offloaded"
-    check_icmp_traffic_offload $SERVER_IPV4
+    if [ "$icmp4_offload" == "icmp4_is_offloaded" ]; then
+        title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $receiver_dev($SERVER_IPV4) offloaded"
+        check_icmp_traffic_offload $SERVER_IPV4
+    else
+        # Offloading ICMP with connection tracking is not supported
+        title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $receiver_dev($SERVER_IPV4)"
+        ip netns exec $CLIENT_NS ping -w 4 $SERVER_IPV4 && success || err
+    fi
 
     title "Test TCP traffic between $CLIENT_VF($CLIENT_IPV4) -> $receiver_dev($SERVER_IPV4) offloaded"
     check_remote_tcp_traffic_offload $SERVER_IPV4
