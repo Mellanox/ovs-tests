@@ -473,7 +473,8 @@ function check_offload_contains() {
 
 function check_dpdk_offloads() {
     local IP=$1
-    local filter='icmpv6\|arp\|drop\|ct_state(0x21/0x21)\|flow-dump'
+    local filter='arp\|drop\|ct_state(0x21/0x21)\|flow-dump'
+    local regex_filter='icmpv6.*ct\(.*'
 
     title "Check DPDK offloads"
 
@@ -490,7 +491,7 @@ function check_dpdk_offloads() {
         return 1
     fi
 
-    grep -v $filter /tmp/dump.txt | grep -- $IP'\|tnl_pop' > /tmp/filtered.txt
+    grep -v $filter /tmp/dump.txt | grep -v -E $regex_filter | grep -i -- $IP'\|tnl_pop' > /tmp/filtered.txt
 
     local x=$(cat /tmp/filtered.txt | wc -l)
     debug "Number of filtered rules: $x"
