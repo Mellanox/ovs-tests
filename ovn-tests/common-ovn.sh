@@ -162,7 +162,7 @@ function ovn_bind_port() {
     require_interfaces port
 
     if [ "$DPDK" == 1 ]; then
-        local vf_id=$(cat /sys/class/net/$port/phys_port_name | sed 's/pf.vf//')
+        local vf_id=$(cat /sys/class/net/$port/phys_port_name | sed -e 's/c1//' -e 's/pf.vf//')
         local pci=$(get_pf_pci)
 
         dpdk_options="-- set interface $port type=dpdk options:dpdk-devargs=$pci,representor=[$vf_id],$DPDK_PORT_EXTRA_ARGS"
