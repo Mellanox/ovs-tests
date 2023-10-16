@@ -135,6 +135,7 @@ class SetupConfigure(object):
         try:
             self.flow_steering_mode = None
             self.host = Host(socket.gethostbyname(socket.gethostname()))
+            self.Logger.info("Host %s" % self.host.name)
 
             if not self.args.skip_kmemleak:
                 start_kmemleak()
