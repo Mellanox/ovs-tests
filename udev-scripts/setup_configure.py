@@ -537,9 +537,9 @@ class SetupConfigure(object):
     def get_nested_vm_data(self):
         try:
             with open(NESTED_VM_DATA) as json_file:
-                return json.load(json_file)
+                self.nested_vm_data = json.load(json_file)
         except IOError:
-            raise RuntimeError('Failed to read %s ' % path)
+            raise RuntimeError('Failed to read %s' % NESTED_VM_DATA)
 
     def findTagIndex(self, tree, tag):
         i = 0
@@ -612,9 +612,8 @@ class SetupConfigure(object):
         self.Logger.info("Initialized VM %s XML under %s", vm_name, xml_file)
 
     def get_cloud_player_vm(self, vm_num):
-        data = self.get_nested_vm_data()
         i = 1
-        for vm in data:
+        for vm in self.nested_vm_data:
             if vm['parent_ip'] == self.host.name:
                 if i == vm_num:
                     return vm
@@ -698,6 +697,7 @@ class SetupConfigure(object):
         conf += '\nREMOTE_SERVER=%s' % self.get_cloud_player_ip()
 
         if os.path.exists(NESTED_VM_DATA):
+            self.get_nested_vm_data()
             vm1 = self.get_cloud_player_vm(1)
             vm2 = self.get_cloud_player_vm(2)
             conf += '\nNESTED_VM_IP1=%s' % vm1['ip']
