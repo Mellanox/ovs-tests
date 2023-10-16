@@ -107,7 +107,7 @@ function run() {
     local out=`ovs_dump_flows -m | grep 0x0800 | grep -v "offloaded:yes"`
     if [ -n "$out" ]; then
         err "Unoffloaded flows"
-        echo $out
+        echo -e "$out"
     fi
 
     title "Verify offload"
