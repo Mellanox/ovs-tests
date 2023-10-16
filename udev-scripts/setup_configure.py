@@ -700,6 +700,8 @@ class SetupConfigure(object):
             self.get_nested_vm_data()
             vm1 = self.get_cloud_player_vm(1)
             vm2 = self.get_cloud_player_vm(2)
+            if not vm1 or not vm2:
+                raise RuntimeError("Failed to get nested vm data")
             conf += '\nNESTED_VM_IP1=%s' % vm1['ip']
             conf += '\nNESTED_VM_IP2=%s' % vm2['ip']
             conf += '\nNESTED_VM_NAME1=%s' % vm1['domain_name']
