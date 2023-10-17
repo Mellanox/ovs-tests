@@ -33,8 +33,7 @@ function config_vf_lag() {
     config_sriov 2 $NIC2
     enable_switchdev $NIC
     enable_switchdev $NIC2
-    config_bonding $NIC $NIC2 $mode
-    is_vf_lag_activated || fail
+    config_bonding $NIC $NIC2 $mode || fail
     bind_vfs $NIC
     bind_vfs $NIC2
 
