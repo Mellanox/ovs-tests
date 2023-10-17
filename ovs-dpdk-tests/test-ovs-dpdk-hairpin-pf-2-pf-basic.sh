@@ -106,7 +106,7 @@ function run_test() {
     on_remote_exec "config_remote
                     verify_ping $REMOTE_IP
                     generate_traffic "local" $LOCAL_IP ns1"
-    check_dpdk_offloads
+    check_dpdk_offloads $LOCAL_IP
 }
 
 run_test

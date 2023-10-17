@@ -55,7 +55,7 @@ function run() {
     #sleep for 5 seconds for traffic to be sent
     sleep 5
     check_offload_contains 'set\(udp\(.*' 2
-    check_dpdk_offloads
+    check_dpdk_offloads $LOCAL_IP
 }
 
 config
