@@ -37,7 +37,9 @@ function config_vf_lag() {
     bind_vfs $NIC
     bind_vfs $NIC2
 
+    title "Turn off flow control on $NIC"
     ethtool -A $NIC tx off rx off
+    title "Turn on flow control on $NIC2"
     ethtool -A $NIC2 tx on rx on
 }
 
@@ -53,7 +55,7 @@ function run() {
         # 124 is timeout so testpmd was running.
         success
     else
-        err
+        err "Failed to run testpmd"
     fi
 }
 
