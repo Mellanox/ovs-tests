@@ -19,6 +19,11 @@ function config_bf_ovn_k8s_pf() {
 
     ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
     ovn_start_ovn_controller
+
+    if [[ "$DPDK" == 1 ]]; then
+        echo "Sleeping for 5 sec until the link is ready"
+        sleep 5
+    fi
 }
 
 function config_bf_ovn_k8s_pf_vlan() {
@@ -40,6 +45,11 @@ function config_bf_ovn_k8s_pf_vlan() {
 
     ovn_set_ovs_config $ovn_central_ip $ovn_tunnel_ip
     ovn_start_ovn_controller
+
+    if [[ "$DPDK" == 1 ]]; then
+        echo "Sleeping for 5 sec until the link is ready"
+        sleep 5
+    fi
 }
 
 __common_ovn_bf_test_init
