@@ -79,7 +79,8 @@ function config_ovn_osp_local_pf() {
     local ovn_controller_ip=$2
     local port=$NIC
 
-    config_ovn_pf $ovn_central_ip $ovn_controller_ip CLIENT_VF CLIENT_REP
+
+    config_ovn_pf_tunnel_mtu $ovn_central_ip $ovn_controller_ip CLIENT_VF CLIENT_REP
 
     if [ "$DPDK" == 1 ]; then
         port="br-phy"
