@@ -594,8 +594,8 @@ function add_remote_mirror() {
     local remote_addr=$4
     local local_addr=$5
 
-    ip a add $local_addr/24 dev br-phy &> /dev/null
-    ip l set br-phy up &> /dev/null
+    ip a add $local_addr/24 dev br-phy
+    ip l set br-phy up
     ovs-vsctl add-port $bridge ${type}M -- set interface ${type}M type=$type options:key=$vni options:remote_ip=$remote_addr options:local_ip=$local_addr \
     -- --id=@p get port ${type}M -- --id=@m create mirror name=m0 select-all=true output-port=@p \
     -- set bridge $bridge mirrors=@m
