@@ -888,14 +888,19 @@ function ovn_add_network() {
     local br=${1:-$OVN_PF_BRIDGE}
     local network_iface=${2:-$NIC}
     local network=${3:-$OVN_EXTERNAL_NETWORK}
+    local pf_mtu=$4
     local dpdk_bridge_options=""
     local dpdk_port_options=""
     local pci
 
+    if [ -n "$pf_mtu" ]; then
+        pf_mtu="mtu_request=$pf_mtu"
+    fi
+
     if [ "$DPDK" == 1 ]; then
         pci=$(get_pf_pci)
         dpdk_bridge_options="-- set bridge $br datapath_type=netdev"
-        dpdk_port_options="-- set interface $network_iface type=dpdk options:dpdk-devargs=$pci,$DPDK_PORT_EXTRA_ARGS"
+        dpdk_port_options="-- set interface $network_iface type=dpdk options:dpdk-devargs=$pci,$DPDK_PORT_EXTRA_ARGS $pf_mtu"
     fi
     ovs-vsctl --may-exist add-br $br $dpdk_bridge_options
     ovs-vsctl add-port $br $network_iface $dpdk_port_options

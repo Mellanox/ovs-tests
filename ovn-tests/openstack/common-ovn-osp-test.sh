@@ -46,7 +46,7 @@ function config_ovn_osp_gw_chassis_pf() {
     local network=${3:-$OSP_EXTERNAL_NETWORK}
 
     ovn_start_clean_openvswitch
-    ovn_add_network $OVN_PF_BRIDGE $NIC $network
+    ovn_add_network $OVN_PF_BRIDGE $NIC $network $OVN_TUNNEL_MTU
     ovn_config_mtu $NIC $OVN_PF_BRIDGE
     ip link set $NIC up
     ip addr add $ovn_controller_ip/24 dev $OVN_PF_BRIDGE
