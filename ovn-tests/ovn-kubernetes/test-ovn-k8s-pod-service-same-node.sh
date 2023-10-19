@@ -26,26 +26,7 @@ function run_test() {
     ovs-vsctl show
     ovn-sbctl show
 
-    # Offloading ICMP with connection tracking is not supported
-    title "Test ICMP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($LB_IPV4)"
-    ip netns exec $CLIENT_NS ping -w 4 $LB_IPV4 && success || err
-
-    title "Test TCP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($LB_IPV4) offloaded"
-    check_local_tcp_traffic_offload $LB_IPV4
-
-    title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $SERVER_VF($LB_IPV4) offloaded"
-    check_local_udp_traffic_offload $LB_IPV4
-
-    # ICMP6 offloading is not supported because IPv6 packet header doesn't contain checksum header
-    # which cause offloading to fail and offloading ICMP with connection tracking is not supported
-    title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($LB_IPV6)"
-    ip netns exec $CLIENT_NS ping -6 -w 4 $LB_IPV6 && success || err
-
-    title "Test TCP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($LB_IPV6) offloaded"
-    check_local_tcp6_traffic_offload $LB_IPV6
-
-    title "Test UDP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $SERVER_VF($LB_IPV6) offloaded"
-    check_local_udp6_traffic_offload $LB_IPV6
+    run_local_traffic "icmp6_is_not_offloaded" "icmp4_not_offloaded" $SERVER_VF $LB_IPV4 $LB_IPV6
 }
 
 TRAFFIC_INFO['local_traffic']=1
