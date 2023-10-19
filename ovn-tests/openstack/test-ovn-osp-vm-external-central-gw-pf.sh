@@ -37,9 +37,7 @@ function config_test() {
     ovn_start_northd_central $ovn_central_ip
     ovn_create_topology
 
-    config_ovn_pf $ovn_central_ip $ovn_controller_ip CLIENT_VF CLIENT_REP
-    config_port_ip $NIC $SERVER_IPV4 $SERVER_IPV6
-
+    config_ovn_osp_local_pf $ovn_central_ip $ovn_controller_ip
     ovn_config_interface_namespace $CLIENT_VF $CLIENT_REP $CLIENT_NS $CLIENT_PORT $CLIENT_MAC $CLIENT_IPV4 $CLIENT_IPV6 $CLIENT_GATEWAY_IPV4 $CLIENT_GATEWAY_IPV6
 
     on_remote_exec "config_ovn_osp_gw_chassis_pf $ovn_central_ip $ovn_remote_controller_ip"

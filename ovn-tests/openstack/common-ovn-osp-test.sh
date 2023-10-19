@@ -73,3 +73,17 @@ function config_ovn_osp_gw_chassis_pf_vlan() {
     ovn_set_ovs_config $ovn_central_ip $ovn_controller_ip
     ovn_start_ovn_controller
 }
+
+function config_ovn_osp_local_pf() {
+    local ovn_central_ip=$1
+    local ovn_controller_ip=$2
+    local port=$NIC
+
+    config_ovn_pf $ovn_central_ip $ovn_controller_ip CLIENT_VF CLIENT_REP
+
+    if [ "$DPDK" == 1 ]; then
+        port="br-phy"
+    fi
+
+    config_port_ip $port $SERVER_IPV4 $SERVER_IPV6
+}
