@@ -49,7 +49,7 @@ function run_test() {
     ovs-vsctl show
     ovn-sbctl show
 
-    run_remote_traffic "icmp6_is_not_offloaded" "icmp4_not_offloaded"
+    run_remote_traffic "icmp6_is_not_offloaded" "icmp4_is_not_offloaded"
 }
 
 clean_up_test

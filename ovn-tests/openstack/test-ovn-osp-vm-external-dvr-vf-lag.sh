@@ -31,7 +31,7 @@ function run_test() {
     ovs-vsctl show
     ovn-sbctl show
 
-    run_remote_traffic "icmp6_is_not_offloaded" "icmp4_not_offloaded" $SERVER_PORT
+    run_remote_traffic "icmp6_is_not_offloaded" "icmp4_is_not_offloaded" $SERVER_PORT
 }
 
 TRAFFIC_INFO['server_ns']=""

@@ -26,7 +26,7 @@ function run_test() {
     ovs-vsctl show
     ovn-sbctl show
 
-    run_local_traffic "icmp6_is_not_offloaded" "icmp4_not_offloaded"
+    run_local_traffic "icmp6_is_not_offloaded" "icmp4_is_not_offloaded"
 }
 
 TRAFFIC_INFO['local_traffic']=1
