@@ -1283,6 +1283,8 @@ def load_tests_from_(data, sub, opts={}, group=''):
 
 def load_tests_from_db(data):
     deprecated_subfolder = data.get('tests_subfolder', '')
+    if deprecated_subfolder:
+        warn("Using deprecated key 'tests_subfolder'.")
     tests = load_tests_from_(data['tests'], deprecated_subfolder)
 
     for test in tests:
