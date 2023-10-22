@@ -1167,6 +1167,8 @@ def get_dbs():
 
     dbs_out = []
     for db in dbs:
+        if 'ignore_db' in db:
+            continue
         db = get_db_path(db)
         if not db:
             return {}
