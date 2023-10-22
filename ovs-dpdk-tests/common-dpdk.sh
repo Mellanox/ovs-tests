@@ -475,8 +475,7 @@ function check_dpdk_offloads() {
     local IP=$1
     local filter='arp\|drop\|ct_state(0x21/0x21)\|flow-dump\|nd('
     local regex_filter='icmpv6.*ct\(.*'
-
-    title "Check DPDK offloads"
+    local ovs_type="DPDK"
 
     if [ "$DOCA" != "1" ]; then
         local pci=$(get_pf_pci)
@@ -484,7 +483,11 @@ function check_dpdk_offloads() {
         local ib_pf0=`get_port_from_pci $pci`
         local ib_pf1=`get_port_from_pci $pci2`
         filter="actions:$ib_pf1\b\|actions:$ib_pf0\b\|${filter}"
+    else
+        ovs_type="DOCA"
     fi
+
+    title "Check $ovs_type offloads"
 
     if ! ovs-appctl dpctl/dump-flows -m > /tmp/dump.txt ; then
         err "ovs-appctl failed"
