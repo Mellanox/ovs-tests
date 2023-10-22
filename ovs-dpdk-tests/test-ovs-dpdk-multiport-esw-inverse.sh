@@ -16,6 +16,7 @@ function cleanup() {
     restore_lag_resource_allocation_mode
     config_devices
     cleanup_test
+    set_grace_period $grace_period
 }
 
 function config_ovs() {
@@ -57,6 +58,7 @@ function config_remote_ips() {
 
 function config() {
     title "Config"
+    set_grace_period 0
     enable_lag_resource_allocation_mode
     set_lag_port_select_mode "multiport_esw"
     config_sriov 2
@@ -82,6 +84,7 @@ function run() {
     generate_traffic local $REMOTE_IP2 none true none remote
 }
 
+get_grace_period
 run
 trap - EXIT
 cleanup

@@ -681,6 +681,25 @@ function set_flex_parser() {
     fw_reset
 }
 
+function get_grace_period() {
+    local pci=`get_pf_pci`
+
+    grace_period=`devlink health show pci/$pci reporter fw_fatal | grep -Eo "grace_period [0-9]+" | awk {'print $2'}`
+
+    if [ -z $grace_period ]; then
+        fail "Failed to get grace period"
+    fi
+}
+
+function set_grace_period() {
+    local value=$1
+    local pci=`get_pf_pci`
+    local pci2=`get_pf_pci2`
+
+    devlink health set pci/$pci reporter fw_fatal grace_period $value || err "Failed to change grace period to $value for $pci"
+    devlink health set pci/$pci2 reporter fw_fatal grace_period $value || err "Failed to change grace period to $value for $pci2"
+}
+
 function config_devices() {
     config_sriov 2
     config_sriov 2 $NIC2
