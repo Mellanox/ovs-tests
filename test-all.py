@@ -1206,22 +1206,25 @@ def read_mini_reg_list():
                 MINI_REG_LIST.extend(data['tests'])
 
 
-def read_ignore_list():
+def read_ignore_db():
     global IGNORE_LIST
 
     if not DB_PATH:
         return
 
-    mini = os.path.join(DB_PATH, 'ignore_db.yaml')
-    if not os.path.exists(mini):
+    ignoredb = os.path.join(DB_PATH, 'ignore_db.yaml')
+    if not os.path.exists(ignoredb):
         return
 
-    with open(mini) as f:
+    with open(ignoredb) as f:
         data = yaml.safe_load(f)
         if type(data['tests']) is dict:
             IGNORE_LIST = data['tests'].keys()
         elif type(data['tests']) is list:
             IGNORE_LIST = data['tests']
+        root_folders = data.get('root_folders', [''])
+
+    return root_folders
 
 
 def update_opts(opts1, opts2):
@@ -1311,11 +1314,15 @@ def revert_skip_if_needed():
             TESTS.remove(test)
 
 
-def get_all_tests(include_subfolders=False):
-    lst = glob(os.path.join(MYDIR, 'test-*.sh'))
+def get_all_tests(root_folder='', include_subfolders=False):
+    recursive = False
     if include_subfolders:
-        lst.extend(glob(os.path.join(MYDIR, '*', 'test-*.sh')))
-    return lst
+        sub = '**'
+        recursive = True
+    else:
+        sub = ''
+    pat = os.path.join(MYDIR, root_folder, sub, 'test-*.sh')
+    return glob(pat, recursive=recursive)
 
 
 def get_tests_from_glob(lst, tests):
@@ -1380,10 +1387,12 @@ def db_check():
         err('Cannot do db check without a redmine key')
         return 1
     rm = MlxRedmine(RM_API_KEY)
-    all_tests = get_all_tests(include_subfolders=True)
+    root_folders = read_ignore_db()
+    all_tests = []
+    for d in root_folders:
+        all_tests.extend(get_all_tests(d, include_subfolders=True))
     all_tests = [os.path.basename(t) for t in all_tests]
     sort_tests(all_tests)
-    read_ignore_list()
 
     for test in TESTS:
         if test.name in all_tests:
