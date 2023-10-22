@@ -375,7 +375,7 @@ def parse_args():
                         help='exclude tests')
     parser.add_argument('--glob', '-g', action='append',
                         help='glob of tests')
-    parser.add_argument('--db', action='append',
+    parser.add_argument('--db', nargs='+',
                         help='DB file to read for tests to run')
     parser.add_argument('--db-check', action='store_true',
                         help='DB check')
@@ -607,7 +607,7 @@ def glob_tests(glob_filter):
 
 def get_config():
     if 'CONFIG' not in os.environ:
-        if not args.dry:
+        if not (args.dry or args.db_check):
             raise RuntimeError("CONFIG environment variable is missing.")
         return
 
