@@ -14,6 +14,10 @@ config_sriov 2
 enable_switchdev
 bind_vfs
 
+on_remote_exec "config_sriov 2
+                enable_switchdev
+                bind_vfs"
+
 trap cleanup EXIT
 
 function cleanup() {
