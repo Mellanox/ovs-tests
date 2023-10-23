@@ -11,9 +11,9 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
-get_grace_period
 
 if [ "$DOCA" == "1" ]; then
+    get_grace_period
     set_grace_period 0
     set_flex_parser 8
     config_devices
