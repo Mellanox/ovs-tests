@@ -86,16 +86,16 @@ class SetupConfigure(object):
         parser.add_argument('--second-server', '-s', help='Second server config', action='store_true')
         parser.add_argument('--dpdk', help='Add DPDK=1 to configuration file', action='store_true')
         parser.add_argument('--doca', help='Add DOCA=1 to configuration file', action='store_true')
-        parser.add_argument('--sw-steering-mode', help='Configure software steering mode', action='store_true')
-        parser.add_argument('--bluefield', help='Setup configuration for bluefield host', action='store_true')
+        parser.add_argument('--sw-steering-mode', help='DEPRECATED. Configure software steering mode', action='store_true')
+        parser.add_argument('--bluefield', help='DEPRECATED. Setup configuration for bluefield host', action='store_true')
         parser.add_argument('--vdpa', help='Setup configuration for vdpa host', action='store_true')
         parser.add_argument('--steering-mode', choices=['sw', 'fw'], help='Configure steering mode')
         parser.add_argument('--skip-kmemleak', help='Skip enabling kmemleak scan', action='store_true')
 
         self.args = parser.parse_args()
 
-        if self.args.bluefield and self.args.steering_mode:
-            self.Logger.warning("Using default steering mode for bluefield.")
+        if self.args.bluefield:
+            self.Logger.warning("--bluefield is deprecated. don't use it.")
 
         if self.args.sw_steering_mode:
             self.Logger.warning("--sw-steering-mode is deprecated. don't use it.")
@@ -124,8 +124,19 @@ class SetupConfigure(object):
 
     def detect_bf_mode(self):
         pci = self.host.PNics[0]['bus']
-        out = runcmd_output("mlxconfig -d %s q | grep INTERNAL_CPU_ESWITCH_MANAGER" % pci)
+        try:
+            out = runcmd_output("mlxconfig -d %s q | grep INTERNAL_CPU_ESWITCH_MANAGER" % pci)
+        except CalledProcessError:
+            out = None
+
+        self.bf = False
+
+        if not out:
+            self.bf_mode = None
+            return
+
         if 'ECPF' in out:
+            self.bf = True
             self.bf_mode = 'ECPF'
         else:
             self.bf_mode = 'HOST_PF'
@@ -153,13 +164,11 @@ class SetupConfigure(object):
             self.CreateVFs()
             self.LoadVFInfo()
             self.SetVFMACs()
+            self.detect_bf_mode()
 
-            if self.args.bluefield:
-                self.detect_bf_mode()
-                if self.bf_mode == 'HOST_PF':
-                    self.args.bluefield = False
-
-            if self.args.bluefield:
+            if self.bf:
+                if self.args.steering_mode:
+                    self.Logger.warning("Using default steering mode for bluefield.")
                 self.read_cloud_player_bf_ips()
                 self.Load_BF_Info()
             else:
@@ -503,7 +512,7 @@ class SetupConfigure(object):
         runcmd_output("systemctl stop %s" % self.ovs_service)
 
     def RestartOVS(self):
-        if self.args.bluefield:
+        if self.bf:
             return runcmd2_remote(self.bf_ip, "systemctl restart openvswitch-switch")
 
         return runcmd2("systemctl restart %s" % self.ovs_service)
@@ -517,7 +526,7 @@ class SetupConfigure(object):
             # Doing the restart one more time usually solves the issue.
             self.RestartOVS()
 
-        if self.args.bluefield:
+        if self.bf:
             runcmd_output_remote(self.bf_ip,
                                 "ovs-vsctl set Open_vSwitch . other_config:hw-offload=true &&"
                                 "systemctl restart openvswitch-switch &&"
@@ -671,7 +680,7 @@ class SetupConfigure(object):
         rep = nic1['vfs'][0]['rep']
         rep2 = nic1['vfs'][1]['rep']
 
-        if self.args.bluefield:
+        if self.bf:
             rep = self.arm[0]['vfs_reps'][0]['ifname']
             rep2 = self.arm[0]['vfs_reps'][1]['ifname']
 
@@ -725,7 +734,7 @@ class SetupConfigure(object):
         if self.args.doca:
             conf += '\nDOCA=1'
 
-        if self.args.bluefield:
+        if self.bf:
             conf += '\nBF_NIC=%s' % self.arm[0]['ifname']
             conf += '\nBF_NIC2=%s' % self.arm[1]['ifname']
             conf += '\nBF_HOST_NIC=%s' % self.arm[0]['pf_rep']['ifname']
@@ -744,7 +753,7 @@ class SetupConfigure(object):
     def disable_flow_control(self):
         if not (self.args.dpdk or self.args.doca):
             return
-        if self.args.bluefield:
+        if self.bf:
             for nic in self.arm:
                 self.Logger.info('Disable flow control on %s' % nic['ifname'])
                 runcmd2_remote(self.bf_ip, 'ethtool -A %s rx off tx off' % nic['ifname'])
@@ -763,7 +772,7 @@ class SetupConfigure(object):
 
         self.Logger.info("Allocating %s hugepages", nr_hugepages)
 
-        if self.args.bluefield:
+        if self.bf:
             runcmd_output_remote(self.bf_ip, 'echo %s > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages' % nr_hugepages)
         else:
             runcmd('echo %s > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages' % nr_hugepages)
