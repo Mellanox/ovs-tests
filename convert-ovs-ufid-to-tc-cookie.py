@@ -15,8 +15,6 @@ if len(sys.argv) < 2:
     sys.exit(1)
 
 ufid = sys.argv[1]
-out = ""
-word = []
 
 try:
     sp = ufid.split('-')
@@ -35,14 +33,13 @@ tmp = sp[1]
 sp[1] = sp[2]
 sp[2] = tmp
 
+cookie = []
 for i in sp:
     tmp = ""
-    for j in range(int(len(i)/2)):
+    for j in range(int(len(i) / 2)):
         pos = j*2
         m = i[pos:pos+2]
-        tmp = m+tmp
-    word.append(tmp)
+        tmp = m + tmp
+    cookie.append(tmp)
 
-out = ''.join(word)
-
-print(out)
+print(''.join(cookie))
