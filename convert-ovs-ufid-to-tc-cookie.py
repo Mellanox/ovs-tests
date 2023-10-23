@@ -7,15 +7,17 @@
 
 from __future__ import print_function
 import sys
+import os
+
 
 if len(sys.argv) < 2:
-    print("USAGE: Missing ufid argument")
+    print("Usage: %s [ufid]" % os.path.basename(sys.argv[0]))
     sys.exit(1)
 
 ufid = sys.argv[1]
-
 out = ""
 word = []
+
 try:
     sp = ufid.split('-')
     w3 = sp[4][:4]
@@ -25,7 +27,7 @@ try:
     sp[4] = w4
     sp.append(w5)
 except IndexError:
-    print("ERROR: Invalid ufid?")
+    print("ERROR: Invalid ufid ?")
     sys.exit(1)
 
 # Replace w1 and w2
