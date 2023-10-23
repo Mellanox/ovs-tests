@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# The script converts tc cookie to ovs ufid.
+# The script converts ovs ufid to tc cookie.
 #
 # ./convert-ovs-ufid-to-tc-cookie.py [ufid]
 #
@@ -28,18 +28,18 @@ except IndexError:
     print("ERROR: Invalid ufid?")
     sys.exit(1)
 
-#replace w1 and w2
+# Replace w1 and w2
 tmp = sp[1]
 sp[1] = sp[2]
 sp[2] = tmp
 
 for i in sp:
-        tmp=""
-        for j in range(int(len(i)/2)):
-                pos = j*2
-                m = i[pos:pos+2]
-                tmp = m+tmp
-        word.append(tmp)
+    tmp = ""
+    for j in range(int(len(i)/2)):
+        pos = j*2
+        m = i[pos:pos+2]
+        tmp = m+tmp
+    word.append(tmp)
 
 out = ''.join(word)
 
