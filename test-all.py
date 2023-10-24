@@ -721,6 +721,30 @@ def fix_path_from_config():
     os.environ['PATH'] = os.pathsep.join(newp) + os.pathsep + os.environ['PATH']
 
 
+DPDK_LIB_DIR = "/opt/mellanox/dpdk"
+DOCA_LIB_DIR = "/opt/mellanox/doca"
+
+
+def get_dpdk_version():
+    g = glob(os.path.join(DPDK_LIB_DIR, '**', 'libdpdk.pc'), recursive=True)
+    if g:
+        with open(g[0]) as f:
+            for line in f.readlines():
+                if 'version:' in line.lower():
+                    return 'DPDK_%s' % line.split()[1]
+    return ''
+
+
+def get_doca_version():
+    g = glob(os.path.join(DOCA_LIB_DIR, '**', 'doca.pc'), recursive=True)
+    if g:
+        with open(g[0]) as f:
+            for line in f.readlines():
+                if 'version:' in line.lower():
+                    return 'DOCA_%s' % line.split()[1]
+    return ''
+
+
 def get_current_state():
     global envinfo
     global current_nic
@@ -737,8 +761,10 @@ def get_current_state():
         distro = ''
 
     fix_path_from_config()
+
     nic = get_config_value('NIC')
     dpdk_mode = get_config_value('DPDK') == '1'
+
     current_fw_ver = args.test_fw or get_current_fw(nic)
     current_nic = args.test_nic if args.test_nic else DeviceType.get(get_current_nic_type(nic))
     current_kernel = args.test_kernel if args.test_kernel else os.uname()[2]
@@ -746,10 +772,12 @@ def get_current_state():
     simx_mode = True if args.test_simx else check_simx(nic)
 
     envinfo.update({
+        'dpdk version': get_dpdk_version(),
+        'doca version': get_doca_version(),
         'Nic': current_nic,
         'Firmware Version': current_fw_ver,
         'Kernel': current_kernel,
-        'Flow steering_mode': flow_steering_mode,
+        'Flow steering mode': flow_steering_mode,
         'simx': simx_mode,
         'config_dpdk': dpdk_mode,
         'distro': distro,
