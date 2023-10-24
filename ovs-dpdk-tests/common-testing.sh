@@ -654,11 +654,15 @@ function cleanup_test() {
         cleanup_remote_tunnel
     fi
     cleanup_remote_tunnel $tunnel_device_name
+    cleanup_vdpa
+    sleep 0.5
+}
+
+function cleanup_vdpa() {
     if is_vdpa; then
         on_vm1 ip a flush dev $VDPA_DEV_NAME
         on_vm2 ip a flush dev $VDPA_DEV_NAME
     fi
-    sleep 0.5
 }
 
 function config_local_vlan() {
