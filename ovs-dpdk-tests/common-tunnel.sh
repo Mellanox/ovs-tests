@@ -32,6 +32,7 @@ function gre_set_entropy_on_remote() {
 
 function cleanup_tunnel() {
     if [ $__entropy -eq 1 ]; then
+        debug "Rebind VFs to clear gre entropy"
         unbind_vfs
         bind_vfs
     fi
