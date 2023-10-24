@@ -73,6 +73,10 @@ __setup_common_dpdk
 require_dpdk
 set_ovs_dpdk_debug_logs
 
+function is_vdpa() {
+    [ "$VDPA" == 1 ]
+}
+
 function configure_dpdk_rep_ports() {
     local reps=$1
     local bridge=$2
@@ -82,10 +86,7 @@ function configure_dpdk_rep_ports() {
     for (( i=0; i<$reps; i++ )); do
         local rep=`get_port_from_pci $pci $i`
 
-        if [ "${VDPA}" != "1" ]; then
-            debug "Add ovs port $rep"
-            ovs-vsctl add-port $bridge "$rep" -- set Interface "$rep" type=dpdk options:dpdk-devargs=$pci,representor=[$i],$DPDK_PORT_EXTRA_ARGS
-        else
+        if is_vdpa; then
             local vf_num="VF"
             vf_num+=$((i+1))
             local vfpci=$(get_vf_pci ${!vf_num})
@@ -102,6 +103,9 @@ function configure_dpdk_rep_ports() {
                     options:vdpa-accelerator-devargs=$vfpci
                 ovs-vsctl add-port $bridge "$rep" -- set Interface "$rep" type=dpdk options:dpdk-devargs=$pci,representor=[$i],$DPDK_PORT_EXTRA_ARGS
             fi
+        else
+            debug "Add ovs port $rep"
+            ovs-vsctl add-port $bridge "$rep" -- set Interface "$rep" type=dpdk options:dpdk-devargs=$pci,representor=[$i],$DPDK_PORT_EXTRA_ARGS
         fi
     done
 }
