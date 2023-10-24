@@ -39,7 +39,7 @@ function config() {
     local dst_execution="ip netns exec ns0"
     local dev=$VF
 
-    if [ "${VDPA}" == "1" ]; then
+    if is_vdpa; then
         dst_execution="on_vm1"
         dev=$VDPA_DEV_NAME
     fi

@@ -214,7 +214,7 @@ function start_vdpa_vm() {
     local vm_name=${1:-$NESTED_VM_NAME1}
     local vm_ip=${2:-$NESTED_VM_IP1}
 
-    if [ "${VDPA}" != "1" ]; then
+    if ! is_vdpa; then
         return
     fi
 
@@ -279,7 +279,7 @@ function config_static_ipv6_neigh_ns() {
     local dst_execution1="ip netns exec $ns"
     local dst_execution2="ip netns exec $ns2"
 
-    if [ "${VDPA}" == 1 ]; then
+    if is_vdpa; then
         dst_execution1="on_vm1"
         dst_execution2="on_vm2"
         src_dev=$VDPA_DEV_NAME
@@ -302,7 +302,7 @@ function config_static_arp_ns() {
     local dst_execution1="ip netns exec $ns"
     local dst_execution2="ip netns exec $ns2"
 
-    if [ "${VDPA}" == 1 ]; then
+    if is_vdpa; then
         dst_execution1="on_vm1"
         dst_execution2="on_vm2"
         dev=$VDPA_DEV_NAME
@@ -319,7 +319,7 @@ function config_ns() {
     local ip_addr=$3
     local ipv6_addr=${4-"2001:db8:0:f101::1"}
 
-    if [ "${VDPA}" == "1" ]; then
+    if is_vdpa; then
         local vm_ip=$NESTED_VM_IP1
 
         if [ "${ns}" != "ns0" ]; then

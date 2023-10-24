@@ -10,7 +10,7 @@ my_dir="$(dirname "$0")"
 
 VLAN_ID=3458
 
-if [ "${VDPA}" == "1" ]; then
+if is_vdpa; then
     DEV1=${VDPA_DEV_NAME}
     DEV2=${VDPA_DEV_NAME}
     VLAN_DEV1=${VDPA_DEV_NAME}.${VLAN_ID}
@@ -35,7 +35,7 @@ function cleanup() {
     local dst_execution1="ip netns exec ns0"
     local dst_execution2="ip netns exec ns1"
 
-    if [ "${VDPA}" == "1" ]; then
+    if is_vdpa; then
         dst_execution1="on_vm1"
         dst_execution2="on_vm2"
     fi

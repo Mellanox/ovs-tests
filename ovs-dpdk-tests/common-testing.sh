@@ -158,7 +158,7 @@ function ovs_wait_until_ipv6_done() {
     local namespace=${2:-ns0}
     local dst_execution="ip netns exec $namespace"
 
-    if [ "${VDPA}" == "1" ]; then
+    if is_vdpa; then
         dst_execution="on_vm1"
     fi
 
@@ -294,7 +294,7 @@ function verify_ping() {
         dst_execution=""
     fi
 
-    if [ "${VDPA}" == "1" ]; then
+    if is_vdpa; then
         dst_execution="on_vm1"
         if [ "${namespace}" != "ns0" ]; then
             dst_execution="on_vm2"
@@ -321,7 +321,7 @@ function verify_iperf_running() {
 
     if [ "$remote" == "remote" ]; then
        proc_cmd="on_remote $proc_cmd"
-    elif [ "${VDPA}" == "1" ]; then
+    elif is_vdpa; then
        proc_cmd="on_vm1 $proc_cmd"
     fi
 
@@ -405,7 +405,7 @@ function initiate_traffic() {
     local server_dst_execution="ip netns exec $server_namespace"
     local client_dst_execution="ip netns exec $client_namespace"
 
-    if [ "${VDPA}" == "1" ]; then
+    if is_vdpa; then
         server_dst_execution="on_vm1"
         on_vm1 "rm -f $p_server"
         client_dst_execution="on_vm2"
@@ -518,7 +518,7 @@ function validate_actual_traffic() {
     local client_remote=$1
     local server_remote=$2
 
-    if [ "${VDPA}" == "1" ]; then
+    if is_vdpa; then
         scp root@${NESTED_VM_IP1}:${p_server} $p_server &> /dev/null
         if [ -n "$namespace"  ]; then
             scp root@${NESTED_VM_IP2}:${p_client} $p_client &> /dev/null
@@ -570,7 +570,7 @@ function validate_traffic() {
 function stop_traffic() {
     local dst_execution=""
 
-    if [ "${VDPA}" == "1" ]; then
+    if is_vdpa; then
         dst_execution="on_vm1 "
     fi
     exec_dbg "${dst_execution}killall -9 -q $iperf_cmd &>/dev/null"
@@ -608,7 +608,7 @@ function cleanup_test() {
         cleanup_remote_tunnel
     fi
     cleanup_remote_tunnel $tunnel_device_name
-    if [ "${VDPA}" == "1" ]; then
+    if is_vdpa; then
         on_vm1 ip a flush dev $VDPA_DEV_NAME
         on_vm2 ip a flush dev $VDPA_DEV_NAME
     fi
@@ -685,7 +685,7 @@ function config_vlan_device_ns() {
 
     local dst_execution="ip netns exec $ns"
 
-    if [ "${VDPA}" == "1" ]; then
+    if is_vdpa; then
         dst_execution="on_vm1"
 
         if [ "${ns}" != "ns0" ]; then
