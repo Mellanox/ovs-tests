@@ -38,6 +38,7 @@ function __cleanup_entropy() {
 
 function cleanup_tunnel() {
     if [ $__entropy -eq 1 ]; then
+        __entropy=0
         __cleanup_entropy
     fi
 }
@@ -54,6 +55,7 @@ function cleanup_remote_tunnel() {
                ip l del dev $tunnel &>/dev/null"
 
     if [ $__entropy_remote -eq 1 ]; then
+        __entropy_remote=0
         on_remote_exec __cleanup_entropy
     fi
 }
