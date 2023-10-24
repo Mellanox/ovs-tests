@@ -633,9 +633,9 @@ function wait_traffic() {
 }
 
 function __cleanup() {
+    ip -all netns delete
     ip a flush dev $NIC &>/dev/null
     ip a flush dev $NIC2 &>/dev/null
-    ip -all netns delete &>/dev/null
     start_clean_openvswitch
 }
 
