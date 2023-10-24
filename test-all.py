@@ -745,6 +745,14 @@ def get_doca_version():
     return ''
 
 
+def get_ovs_version():
+    try:
+        output = subprocess.check_output("ovs-vswitchd --version", shell=True).decode().strip()
+    except subprocess.CalledProcessError:
+        return ''
+    return output.splitlines()[0].split()[-1]
+
+
 def get_current_state():
     global envinfo
     global current_nic
@@ -774,6 +782,7 @@ def get_current_state():
     envinfo.update({
         'dpdk version': get_dpdk_version(),
         'doca version': get_doca_version(),
+        'ovs version': get_ovs_version(),
         'Nic': current_nic,
         'Firmware Version': current_fw_ver,
         'Kernel': current_kernel,
