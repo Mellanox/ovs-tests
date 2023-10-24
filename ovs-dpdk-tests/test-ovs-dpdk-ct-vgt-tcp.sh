@@ -35,7 +35,7 @@ function cleanup() {
     local dst_execution1="ip netns exec ns0"
     local dst_execution2="ip netns exec ns1"
 
-    if [ "$VDPA}" == "1" ]; then
+    if [ "${VDPA}" == "1" ]; then
         dst_execution1="on_vm1"
         dst_execution2="on_vm2"
     fi
