@@ -753,6 +753,14 @@ def get_ovs_version():
     return output.splitlines()[0].split()[-1]
 
 
+def get_mofed_version():
+    try:
+        output = subprocess.check_output("ofed_info -s", shell=True).decode().strip()
+    except subprocess.CalledProcessError:
+        return ''
+    return output.strip(':')
+
+
 def get_current_state():
     global envinfo
     global current_nic
@@ -783,13 +791,14 @@ def get_current_state():
         'dpdk version': get_dpdk_version(),
         'doca version': get_doca_version(),
         'ovs version': get_ovs_version(),
-        'Nic': current_nic,
-        'Firmware Version': current_fw_ver,
-        'Kernel': current_kernel,
-        'Flow steering mode': flow_steering_mode,
+        'mofed version': get_mofed_version(),
+        'nic': current_nic,
+        'firmware version': current_fw_ver,
+        'kernel': current_kernel,
+        'flow steering mode': flow_steering_mode,
         'simx': simx_mode,
-        'config_dpdk': dpdk_mode,
         'distro': distro,
+        'config dpdk': dpdk_mode,
     })
 
     if distro:
