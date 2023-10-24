@@ -30,11 +30,15 @@ function gre_set_entropy_on_remote() {
     __entropy_remote=1
 }
 
+function __cleanup_entropy() {
+    debug "Rebind VFs to clear gre entropy"
+    unbind_vfs
+    bind_vfs
+}
+
 function cleanup_tunnel() {
     if [ $__entropy -eq 1 ]; then
-        debug "Rebind VFs to clear gre entropy"
-        unbind_vfs
-        bind_vfs
+        __cleanup_entropy
     fi
 }
 
@@ -50,8 +54,7 @@ function cleanup_remote_tunnel() {
                ip l del dev $tunnel &>/dev/null"
 
     if [ $__entropy_remote -eq 1 ]; then
-        on_remote_exec "unbind_vfs
-                        bind_vfs"
+        on_remote_exec __cleanup_entropy
     fi
 }
 
