@@ -21,6 +21,12 @@ from mlxredmine import MlxRedmine
 from ansi2html import Ansi2HTMLConverter
 
 # HTML components
+ENV_ROW = """
+<tr>
+    <td>{key}</td>
+    <td>{val}</td>
+</tr>"""
+
 SUMMARY_ROW = """
 <tr>
     <td>{number_of_tests}</td>
@@ -74,6 +80,18 @@ HTML = """<!DOCTYPE html>
         {style}
     </head>
     <body>
+        <h2>Environment</h2>
+        <table id="env_table" class="asap_table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {envinfo}
+            </tbody>
+        </table>
         <h2>Summary</h2>
         <table id="summary_table" class="asap_table">
             <thead>
@@ -709,6 +727,13 @@ def get_current_state():
     global flow_steering_mode
     global simx_mode
     global dpdk_mode
+    global distro
+
+    _distro = get_distro()
+    if 'PRETTY_NAME' in _distro:
+        distro = _distro['PRETTY_NAME']
+    else:
+        distro = ''
 
     fix_path_from_config()
     nic = get_config_value('NIC')
@@ -719,6 +744,8 @@ def get_current_state():
     flow_steering_mode = get_flow_steering_mode(nic)
     simx_mode = True if args.test_simx else check_simx(nic)
 
+    if distro:
+        print(distro)
     print("nic: %s" % current_nic)
     print("fw: %s" % current_fw_ver)
     print("flow steering: %s" % flow_steering_mode)
@@ -1094,9 +1121,30 @@ def prep_html_results(tests):
     return test_results
 
 
+def prep_envinfo():
+    envinfo = ""
+
+    info = {
+        'Nic': current_nic,
+        'Firmware Version': current_fw_ver,
+        'Kernel': current_kernel,
+        'Flow steering_mode': flow_steering_mode,
+        'simx': simx_mode,
+        'config_dpdk': dpdk_mode,
+        'distro': distro,
+    }
+
+    for key in info:
+        envinfo += ENV_ROW.format(key=key, val=info[key])
+
+    return envinfo
+
+
 def save_summary_html():
     if not LOGDIR:
         return
+
+    envinfo = prep_envinfo()
 
     tmp = get_summary()
     summary = SUMMARY_ROW.format(**tmp)
@@ -1110,7 +1158,7 @@ def save_summary_html():
 
     summary_file = os.path.join(LOGDIR, "summary.html")
     with open(summary_file, 'w') as f:
-        f.write(HTML.format(style=HTML_CSS, summary=summary, results=results, rerun=rerun))
+        f.write(HTML.format(style=HTML_CSS, envinfo=envinfo, summary=summary, results=results, rerun=rerun))
     return summary_file
 
 
@@ -1340,13 +1388,12 @@ def get_tests_from_glob(lst, tests):
 
 def get_tests():
     global TESTS
-    distro = get_distro()
-    if 'PRETTY_NAME' in distro:
-        print(distro['PRETTY_NAME'])
+
     try:
+        get_current_state()
+
         if args.db:
             TESTS = []
-            get_current_state()
             if RM_API_KEY:
                 rm = MlxRedmine(RM_API_KEY)
             else:
