@@ -304,7 +304,7 @@ function config_static_arp_ns() {
         dev=$VDPA_DEV_NAME
     fi
 
-    local mac=$(${dst_execution1} ip l | grep -A1 "$dev" | grep link | cut -d ' ' -f 6)
+    local mac=$(${dst_execution1} cat /sys/class/net/$dev/address)
     local cmd1="${dst_execution2} arp -s $ip_addr $mac"
     eval $cmd1
 }
