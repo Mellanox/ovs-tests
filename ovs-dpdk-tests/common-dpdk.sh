@@ -340,12 +340,15 @@ function config_ns() {
     ip netns exec $ns ip -6 address add $ipv6_addr/64 dev $dev
 }
 
+__ovs_e2e_cache_set=0
 function set_e2e_cache_enable() {
     local enabled=${1:-true}
+    __ovs_e2e_cache_set=1
     ovs-vsctl --no-wait set Open_vSwitch . other_config:e2e-enable=${enabled}
 }
 
 function cleanup_e2e_cache() {
+    [ "$__ovs_e2e_cache_set" == 1 ] || return
     ovs-vsctl --no-wait remove Open_vSwitch . other_config e2e-enable
 }
 
@@ -679,11 +682,14 @@ function check_e2e_stats() {
     fi
 }
 
+__ovs_ct_ct_nat_offload_set=0
 function enable_ct_ct_nat_offload {
+    __ct_ct_nat_offload_set=1
     ovs-vsctl set open_vswitch . other_config:ct-action-on-nat-conns=true
 }
 
 function cleanup_ct_ct_nat_offload {
+    [ "$__ct_ct_nat_offload_set" == 1 ] || return
     ovs-vsctl remove open_vswitch . other_config ct-action-on-nat-conns
 }
 
