@@ -160,6 +160,7 @@ KMEMLEAK_SYSFS = "/sys/kernel/debug/kmemleak"
 TAG_COLOR = "yellow"
 RERUN_TAG = "*rerun"
 INJECT_TAG = "*inject"
+envinfo = {}
 
 TIME_DURATION_UNITS = (
     ('h', 60*60),
@@ -721,13 +722,13 @@ def fix_path_from_config():
 
 
 def get_current_state():
+    global envinfo
     global current_nic
     global current_fw_ver
     global current_kernel
     global flow_steering_mode
     global simx_mode
     global dpdk_mode
-    global distro
 
     _distro = get_distro()
     if 'PRETTY_NAME' in _distro:
@@ -743,6 +744,16 @@ def get_current_state():
     current_kernel = args.test_kernel if args.test_kernel else os.uname()[2]
     flow_steering_mode = get_flow_steering_mode(nic)
     simx_mode = True if args.test_simx else check_simx(nic)
+
+    envinfo.update({
+        'Nic': current_nic,
+        'Firmware Version': current_fw_ver,
+        'Kernel': current_kernel,
+        'Flow steering_mode': flow_steering_mode,
+        'simx': simx_mode,
+        'config_dpdk': dpdk_mode,
+        'distro': distro,
+    })
 
     if distro:
         print(distro)
@@ -1122,29 +1133,21 @@ def prep_html_results(tests):
 
 
 def prep_envinfo():
-    envinfo = ""
+    global envinfo
 
-    info = {
-        'Nic': current_nic,
-        'Firmware Version': current_fw_ver,
-        'Kernel': current_kernel,
-        'Flow steering_mode': flow_steering_mode,
-        'simx': simx_mode,
-        'config_dpdk': dpdk_mode,
-        'distro': distro,
-    }
+    info = ""
 
-    for key in info:
-        envinfo += ENV_ROW.format(key=key, val=info[key])
+    for key in envinfo:
+        info += ENV_ROW.format(key=key, val=envinfo[key])
 
-    return envinfo
+    return info
 
 
 def save_summary_html():
     if not LOGDIR:
         return
 
-    envinfo = prep_envinfo()
+    info = prep_envinfo()
 
     tmp = get_summary()
     summary = SUMMARY_ROW.format(**tmp)
@@ -1158,7 +1161,7 @@ def save_summary_html():
 
     summary_file = os.path.join(LOGDIR, "summary.html")
     with open(summary_file, 'w') as f:
-        f.write(HTML.format(style=HTML_CSS, envinfo=envinfo, summary=summary, results=results, rerun=rerun))
+        f.write(HTML.format(style=HTML_CSS, envinfo=info, summary=summary, results=results, rerun=rerun))
     return summary_file
 
 
