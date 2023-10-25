@@ -484,11 +484,19 @@ function initiate_traffic() {
     fi
 }
 
+function __ovs_using_ct() {
+    echo $TESTNAME | grep -q -- "-ct-"
+}
+
 function validate_offload() {
     local ip=$1
+    local is_ct=0
 
-    if echo $TESTNAME | grep -q -- "-ct-" ; then
+    __ovs_using_ct && is_ct=1
+
+    if [ $is_ct -eq 1 ] ; then
         check_offloaded_connections $num_connections
+        check_ct_est_packet_count
     fi
 
     wait_traffic
