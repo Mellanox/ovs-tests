@@ -557,22 +557,30 @@ function check_offloaded_connections() {
     fi
 }
 
-function check_ct_est_packet_count() {
-    title "Check CT est packet count"
+function __check_ct_est_packet_count_br() {
+    local br=$1
+    local ct_est_pkts=`ovs-ofctl dump-flows $br | grep -w "+est" | grep -o "n_packets=[0-9]\+" | cut -d= -f2`
 
-    local ct_est_pkts=`ovs-ofctl dump-flows br-phy | grep -w "+est" | grep -o "n_packets=[0-9]\+" | cut -d= -f2`
+    # no CT est rule.
+    [ -z "$ct_est_pkts" ] && return
 
-    if [ -z "$ct_est_pkts" ]; then
-        err "Failed to get ct est packet count"
-    elif [ $ct_est_pkts -gt 5 ]; then
+    title "Check CT est packet count on bridge $br"
+
+    if [ $ct_est_pkts -gt 5 ]; then
         success "CT est packet count: $ct_est_pkts"
         return
-    else
-        err "Incorrect ct est packet count: $ct_est_pkts"
     fi
 
-    # print on err.
-    ovs-ofctl dump-flows br-phy | grep -w "+est"
+    err "Incorrect ct est packet count: $ct_est_pkts"
+    ovs-ofctl dump-flows $br | grep -w "+est"
+}
+
+function check_ct_est_packet_count() {
+    local br
+
+    for br in `ovs-vsctl list-br`; do
+        __check_ct_est_packet_count_br $br
+    done
 }
 
 function check_offloaded_connections_marks() {
