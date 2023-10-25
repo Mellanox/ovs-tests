@@ -33,7 +33,7 @@ function run() {
     ovs_add_ct_rules "br-int" "udp"
 
     verify_ping
-    debug "Testing UDP traffic"
+    title "Testing UDP traffic"
     t=5
     # traffic
     ip netns exec ns0 timeout -k 1 $((t+2)) iperf -s &
@@ -42,16 +42,16 @@ function run() {
     on_remote timeout -k 1 $((t+2)) iperf -c $LOCAL_IP -t $t -u -l 1000 &
     pid2=$!
 
-    # verify pid
     sleep 2
+    debug "verify pid"
     kill -0 $pid2 &>/dev/null
     if [ $? -ne 0 ]; then
         err "iperf failed"
         return
     fi
 
-    # check offloads
-    check_dpdk_offloads $LOCAL_IP
+    sleep $t
+    validate_offload $LOCAL_IP
 
     killall -9 iperf &>/dev/null
     debug "wait for bgs"

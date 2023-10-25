@@ -26,17 +26,13 @@ function config() {
     config_ns ns0 $VF $IP
 }
 
-function add_openflow_rules() {
-    ovs_add_ct_rules br-phy udp
-}
-
 function run() {
     config
     config_remote_nic
-    add_openflow_rules
+    ovs_add_ct_rules "br-phy" "udp"
 
     verify_ping
-    debug "Testing UDP traffic"
+    title "Testing UDP traffic"
     t=5
     # traffic
     ip netns exec ns0 timeout -k 1 $((t+2)) iperf -s &
@@ -45,8 +41,8 @@ function run() {
     on_remote timeout -k 1 $((t+2)) iperf -c $IP -t $t -u -l 1000 &
     pid2=$!
 
-    # verify pid
     sleep 2
+    debug "verify pid"
     kill -0 $pid2 &>/dev/null
     if [ $? -ne 0 ]; then
         err "iperf failed"
@@ -54,8 +50,7 @@ function run() {
     fi
 
     sleep $t
-    # check offloads
-    check_dpdk_offloads $IP
+    validate_offload $IP
 
     killall -9 iperf &>/dev/null
     debug "wait for bgs"
