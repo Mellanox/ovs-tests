@@ -47,13 +47,13 @@ function config_remote() {
 function run() {
     config
     config_remote
+
     ovs_add_ct_rules "br-phy" tcp
-    ovs_add_ct_rules "br-phy-2" tcp
-
     verify_ping $REMOTE_IP
-    verify_ping $REMOTE_IP2
-
     generate_traffic "remote" $LOCAL_IP
+
+    ovs_add_ct_rules "br-phy-2" tcp
+    verify_ping $REMOTE_IP2
     generate_traffic "remote" $LOCAL_IP2
 
     local pci=$(get_pf_pci2)
