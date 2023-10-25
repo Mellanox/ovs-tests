@@ -374,6 +374,44 @@ function generate_traffic_verify_bw() {
     rm $iperf_client_log
 }
 
+function generate_scapy_traffic() {
+    local server_interface=$1
+    local client_interface=$2
+    local server_ip=$3
+    local client_ip=$4
+    local client_remote=${5:-"remote"}
+    local client_namespace=${6:-"none"}
+    local server_namespace=${7:-"ns0"}
+    local run_time=${6:-10}
+
+    local pktgen_dir=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
+    local pktgen=$pktgen_dir/../scapy-traffic-tester.py
+    local server_dst_execution="ip netns exec $server_namespace"
+    local client_dst_execution="ip netns exec $client_namespace"
+
+    if [ "$client_namespace" == "none" ]; then
+        client_dst_execution=""
+    fi
+
+    if [ "$server_namespace" == "none" ]; then
+        server_dst_execution=""
+    fi
+
+    local server_cmd="${server_dst_execution} timeout $((run_time+2)) $pktgen -l -i $server_interface --src-ip $client_ip --dst-ip $server_ip &"
+    local client_cmd="${client_dst_execution} timeout $((run_time+2)) $pktgen -i $client_interface --src-ip $client_ip --dst-ip $server_ip --time $run_time --src-port-count 5 &"
+
+    exec_dbg "$server_cmd"
+
+    if [ "$client_remote" == "remote" ]; then
+        exec_dbg_on_remote "$client_cmd"
+    else
+        exec_dbg "$client_cmd"
+    fi
+
+    wait
+    validate_offload $server_ip
+}
+
 function generate_traffic() {
     local client_remote=$1
     local my_ip=$2
