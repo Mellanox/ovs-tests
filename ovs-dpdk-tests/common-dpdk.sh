@@ -569,13 +569,19 @@ function __check_ct_est_packet_count_br() {
 
     title "Check CT est packet count on bridge $br"
 
-    if [ $ct_est_pkts -gt 5 ]; then
-        success "CT est packet count: $ct_est_pkts"
-        return
-    fi
+    local pkts
+    local i=1
 
-    err "Incorrect ct est packet count: $ct_est_pkts"
-    ovs-ofctl dump-flows $br | grep -w "+est"
+    for pkts in $ct_est_pkts; do
+        if [ $pkts -gt 5 ]; then
+            success "Rule #$i: CT est packet count: $pkts"
+            let i+=1
+            continue
+        fi
+
+        err "Incorrect ct est packet count: $pkts"
+        ovs-ofctl dump-flows $br | grep -w "+est"
+    done
 }
 
 function check_ct_est_packet_count() {
