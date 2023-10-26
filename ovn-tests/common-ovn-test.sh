@@ -359,7 +359,7 @@ function ovn_config_interface_namespace() {
     fi
 
     debug "Sleeping after configuring interface $vf namespace $ns"
-    sleep 3
+    sleep 5
 }
 
 function run_local_traffic() {
