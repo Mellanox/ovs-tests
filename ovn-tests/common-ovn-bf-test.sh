@@ -24,6 +24,8 @@ function __config_bf_ovn_interface_namespace() {
         ip netns exec $ns ip -6 route add default via $ipv6_gw dev $vf
     fi
 
+    debug "Sleeping after configuring interface $vf namespace $ns"
+    sleep 5
 }
 
 function __config_bf_ovn_rep() {
