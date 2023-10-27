@@ -2377,7 +2377,13 @@ function reload_driver_per_test() {
 function dump_ovs_log() {
     local errs="EMER|assertion|backtrace|SIGSEGV"
     local look="ERR|WARN|DBG"
-    local filter="timeval|ioctl|coverage|flow create.*void|ufid 00000000-0000-0000-0000-000000000000"
+    local filter="$(IFS='\n'; for e in "\
+timeval
+ioctl
+coverage
+flow create.*void
+ufid 00000000-0000-0000-0000-000000000000"
+    do printf '%s' "$e"; done | tr '\n' '|')"
 
     look="$look|$errs"
 
