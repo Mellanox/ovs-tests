@@ -2396,7 +2396,7 @@ ufid 00000000-0000-0000-0000-000000000000"
         local a=`bf_wrap cat $ovs_log_path 2>/dev/null | grep -E "$look" | grep -v -E "$filter"`
         if [ "$a" != "" ]; then
             err "Detected errors in ovs log"
-            echo "$a"
+            echo "$a" | grep --color -E "$errs|\$"
         fi
     fi
 }
