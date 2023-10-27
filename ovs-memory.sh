@@ -182,6 +182,10 @@ function print_report() (
     if [ "$FULL" = 1 ]; then
         print_field  process  in-use "$(ovs_get_memory_in_use)        " "${section}"
     fi
+    total=$(mlx5_get_icm_size)
+    total=$((total+$(ovs_get_hugepage_heap_size)))
+    total=$((total+$(ovs_get_memory_rss)))
+    printf "${YELLOW}#######${NOCOLOR} TOTAL memory: %s\n" "$(convert_bytes_binary "$total")"
 )
 
 print_report "$SECTION"
