@@ -2395,7 +2395,9 @@ ufid 00000000-0000-0000-0000-000000000000"
     if [ "$__ovs_used" == 1 ] && [ "$CLEAR_OVS_LOG" == 1 ]; then
         local a=`bf_wrap cat $ovs_log_path 2>/dev/null | grep -E "$look" | grep -v -E "$filter"`
         if [ "$a" != "" ]; then
-            err "Detected errors in ovs log"
+            if echo "$a" | grep -q -E "$errs"; then
+                err "Detected anomalies ($errs) in ovs log:"
+            fi
             echo "$a" | grep --color -E "$errs|\$"
         fi
     fi
