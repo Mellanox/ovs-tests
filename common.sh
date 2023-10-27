@@ -2382,6 +2382,9 @@ timeval
 ioctl
 coverage
 flow create.*void
+No free [0-9]+ kB hugepages reported
+TELEMETRY
+terminating with signal 15
 ufid 00000000-0000-0000-0000-000000000000"
     do printf '%s' "$e"; done | tr '\n' '|')"
 
