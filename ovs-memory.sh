@@ -36,12 +36,38 @@ function convert_bytes_binary() {
     numfmt --to=iec-i --suffix=B --format="%.2f" "${1:-0}" | tr -d ' '
 }
 
+function ovs_get() {
+    # 'get' outputs quoted values, 'eval' removes them.
+    eval v=$(ovs-vsctl get o . other_config:$1 2> /dev/null)
+    printf "%s" "$v"
+}
+
+function ovs_ct_size() { printf "$(ovs_get hw-offload-ct-size)"; }
+function ovs_ct_ipv6() { printf "$(ovs_get hw-offload-ct-ipv6-enabled)"; }
+
+function ovs_ct_type() {
+    local ct_size=$(ovs_get hw-offload-ct-size)
+    local ct_ipv6=$(ovs_get hw-offload-ct-ipv6-enabled)
+    local type
+
+    [ "$ct_size" ] || ct_size=250000
+    ct_size=$(numfmt --to=si $ct_size)
+    if [ "$ct_size" = "0" ]; then
+        printf "NO-CT"
+    elif [ ! "$ct_ipv6" ]; then
+        printf "CT-IPv4-%s" "$ct_size"
+    else
+        printf "CT-IPv4+6-%s" "$ct_size"
+    fi
+}
+
 function ovs_detect_flavor() {
     if ovs-vsctl list o . 2> /dev/null | grep doca_initialized | grep -q 'true'; then
-        printf "ovs-doca"
+        printf "ovs-doca-$(ovs_ct_type)"
     elif ovs-vsctl list o . 2> /dev/null | grep dpdk_initialized | grep -q 'true'; then
-        printf "ovs-dpdk"
+        printf "ovs-dpdk-$(ovs_ct_type)"
     else
+        # TODO: Print ovs-kernel CT offload limit
         printf "ovs-kernel"
     fi
 }
