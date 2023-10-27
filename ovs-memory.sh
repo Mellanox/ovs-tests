@@ -98,6 +98,53 @@ function ovs_get_memory_in_use() {
     )
 }
 
+# Read the driver memory
+
+# List all kernel netdev from a specific vendor ID
+# $1: vendor ID
+function list_netdev_from_vendor() {
+    for n in /sys/class/net/*; do
+        local vendor="$n/device/vendor"
+        if [ -e "$vendor" ] && grep -q "$1" "$vendor"; then
+            echo "$(basename $n)"
+        fi
+    done
+}
+
+MLX_VENDOR_ID="0x15b3"
+
+# List all kernel netdev from Mellanox that are PF
+function list_mlx_pf() {
+    for d in $(list_netdev_from_vendor $MLX_VENDOR_ID); do
+        # This discriminates against VF
+        [ -e "/sys/class/net/$d/device/physfn" ] && continue
+        # This discriminates against VF rep
+        [ -e "/sys/class/net/$d/phy_stats" ] && echo $d
+    done
+}
+
+# Get the PCI address of a kernel netdevice
+# $1: netdev
+function netdev_pci() {
+    basename $(readlink -f $(readlink -f /sys/class/net/$1)/../..)
+}
+
+PAGE_SZ=4096
+function mlx5_get_icm_size() {
+    for pf in $(list_mlx_pf); do
+        pci=$(netdev_pci $pf)
+        n_page="/sys/kernel/debug/mlx5/${pci}/pages/fw_pages_total"
+        [ -e "$n_page" ] && cat "$n_page"
+    done |
+    (
+        total=0
+        while read -r n; do
+            total=$((total+(n*$PAGE_SZ)))
+        done
+        printf "%d" $total
+    )
+}
+
 function sanitize() {
     echo "$@" | tr -s ' ,:' '_' | tr -cd ' .\-_a-zA-Z0-9'
 }
@@ -124,6 +171,7 @@ OVS_FLAVOR="$(ovs_detect_flavor)"
 function print_report() (
     section="${1}"
     printf "${YELLOW}####### ${OVS_FLAVOR^^} memory: %s${NOCOLOR}\n" "$section"
+    print_field ICM pages "$(mlx5_get_icm_size)" "${section}"
     if [ "$OVS_FLAVOR" != "ovs-kernel" ] || [ "$FULL" = 1 ]; then
         print_field hugepage   total "$(ovs_get_hugepage_heap_size)   " "${section}"
         if [ "$FULL" = 1 ]; then
