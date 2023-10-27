@@ -2375,8 +2375,8 @@ function reload_driver_per_test() {
 }
 
 function dump_ovs_log() {
-    local errs="EMER|assertion|backtrace|SIGSEGV"
-    local look="ERR|WARN|DBG"
+    local errs="ERR|EMER|assertion|backtrace|SIGSEGV"
+    local look="WARN|DBG"
     local filter="$(IFS='\n'; for e in "\
 timeval
 ioctl
