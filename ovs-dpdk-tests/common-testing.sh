@@ -483,10 +483,11 @@ function initiate_traffic() {
     fi
 
     if [ "$server_remote" == "remote" ]; then
-        server_cmd="on_remote $server_cmd"
+        exec_dbg_on_remote $server_cmd
+    else
+        exec_dbg $server_cmd
     fi
 
-    exec_dbg "$server_cmd"
     sleep 2
 
     verify_iperf_running "$server_remote"
@@ -498,13 +499,16 @@ function initiate_traffic() {
         cmd="${client_dst_execution} $cmd"
     fi
 
+    local pid2
+
     if [ "$client_remote" == "remote" ]; then
-        cmd="on_remote \"$cmd\""
+        exec_dbg_on_remote "$cmd" &
+        pid2=$!
+    else
+        eval $cmd &
+        pid2=$!
     fi
 
-    debug "Executing in background | $cmd"
-    eval $cmd &
-    local pid2=$!
     INITIATE_TRAFFIC_IPERF_PID=$pid2
 
     # verify pid
