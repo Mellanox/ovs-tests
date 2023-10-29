@@ -23,9 +23,6 @@ function __config_bf_ovn_interface_namespace() {
     if [[ -n "$ipv6_gw" ]]; then
         ip netns exec $ns ip -6 route add default via $ipv6_gw dev $vf
     fi
-
-    debug "Sleeping after configuring interface $vf namespace $ns"
-    sleep 5
 }
 
 function __config_bf_ovn_rep() {
@@ -49,6 +46,9 @@ function config_bf_ovn_interface_namespace() {
 
     __config_bf_ovn_interface_namespace $vf $ns $mac $ip $ipv6 $ip_gw $ipv6_gw
     on_bf_exec "__config_bf_ovn_rep $rep $ovn_port"
+
+    debug "Sleeping after configuring interface $vf namespace $ns"
+    sleep 5
 }
 
 function config_bf_ovn_remote_interface_namespace() {
@@ -64,6 +64,9 @@ function config_bf_ovn_remote_interface_namespace() {
 
     on_remote_exec "__config_bf_ovn_interface_namespace $vf $ns $mac $ip $ipv6 $ip_gw $ipv6_gw"
     on_remote_bf_exec "__config_bf_ovn_rep $rep $ovn_port"
+
+    debug "Sleeping after configuring interface $vf namespace $ns"
+    sleep 5
 }
 
 function config_bf_ovn_single_node() {
