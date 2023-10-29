@@ -508,7 +508,7 @@ function initiate_traffic() {
     INITIATE_TRAFFIC_IPERF_PID=$pid2
 
     # verify pid
-    sleep 1
+    sleep 2
     kill -0 $pid2 &>/dev/null
     if [ $? -ne 0 ]; then
        err "$iperf_cmd failed"
