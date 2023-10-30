@@ -48,7 +48,7 @@ function config_bf_ovn_interface_namespace() {
     on_bf_exec "__config_bf_ovn_rep $rep $ovn_port"
 
     debug "Sleeping after configuring interface $vf namespace $ns"
-    sleep 5
+    sleep 7
 }
 
 function config_bf_ovn_remote_interface_namespace() {
@@ -66,7 +66,7 @@ function config_bf_ovn_remote_interface_namespace() {
     on_remote_bf_exec "__config_bf_ovn_rep $rep $ovn_port"
 
     debug "Sleeping after configuring interface $vf namespace $ns"
-    sleep 5
+    sleep 7
 }
 
 function config_bf_ovn_single_node() {
