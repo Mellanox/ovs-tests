@@ -693,6 +693,13 @@ function is_ofed() {
     return 1
 }
 
+function is_upstream() {
+    if [[ `uname -r` == *"upstream"* ]] || [[ `uname -r` == *"linust"* ]] || [[ `ofed_info -s 2>/dev/null` == *"upstream"* ]]; then
+        return 0 # true
+    fi
+    return 1 # false
+}
+
 function is_cloud() {
     if [ -e /workspace/cloud_tools/ ]; then
         return 0 # true
