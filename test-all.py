@@ -160,6 +160,7 @@ TAG_COLOR = "yellow"
 RERUN_TAG = "*rerun"
 INJECT_TAG = "*inject"
 envinfo = {}
+kmemleak_ignore = os.path.join(MYDIR, "kmemleak.ignore")
 
 TIME_DURATION_UNITS = (
     ('h', 60*60),
@@ -515,12 +516,22 @@ def run_test(test, html=False):
         # not timedout
         status = get_better_status(rc, log)
         memleak = get_kmemleak_info()
-        log += memleak
-        unref_count = memleak.count("unreferenced object")
-        mount_count = memleak.count("mount.nfs")
-        if memleak and unref_count != mount_count:
-            status = "kmemleak found issues"
-            rc = 1
+        if memleak:
+            log += "\n\n"
+            unref_count = memleak.count("unreferenced object")
+            ignore_count = 0
+            with open(kmemleak_ignore) as f:
+                for line in f.readlines():
+                    line = line.strip()
+                    if not line or line.startswith("#"):
+                        continue
+                    ignore_count += memleak.count(line)
+            if unref_count == ignore_count:
+                log += "Found %d known memory leaks\n\n" % ignore_count
+            else:
+                status = "kmemleak found issues"
+                rc = 1
+            log += memleak
 
     with open(logname, 'w') as f1:
         f1.write(log)
