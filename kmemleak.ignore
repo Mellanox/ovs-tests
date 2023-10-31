@@ -1,0 +1,11 @@
+# Ignore keywords for known kmemleak unreferenced object
+
+# Bug SW #2996462
+mount.nfs
+
+# Bug SW #3411768
+comm "ip"
+comm "ifconfig"
+
+# Bug SW #3604266
+secondary_startup_64_no_verify
