@@ -1290,7 +1290,7 @@ def read_mini_reg_list():
     if not DB_PATH:
         return
 
-    minis = glob(os.path.join(DB_PATH, '*mini_reg*.yaml'))
+    minis = glob(os.path.join(DB_PATH, '*mini*.yaml'))
     MINI_REG_LIST = []
 
     for mini in minis:
