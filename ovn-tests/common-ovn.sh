@@ -453,6 +453,7 @@ function check_traffic_offload() {
 
     if [[ -n "$skip_offload" ]]; then
         wait $traffic_pid && success || err
+        __check_vf_counters
         ovs_flush_rules
         return
     fi
