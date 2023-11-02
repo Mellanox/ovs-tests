@@ -945,6 +945,14 @@ function err() {
     kmsg "$m"
 }
 
+function err_stderr() {
+    local m=${@:-Failed}
+    TEST_FAILED=1
+    m="ERROR: $m"
+    echo -e "${RED}$m$NOCOLOR" >> /dev/stderr
+    kmsg "$m"
+}
+
 function success() {
     local m=${@:-OK}
     echo -e "$GREEN$m$NOCOLOR"

@@ -361,12 +361,12 @@ function get_total_packets_passed_in_sw() {
     local pkts2=$(ovs-appctl dpif-netdev/pmd-stats-show | grep 'packets received:' | sed -n '2p' | awk '{print $3}')
 
     if [ -z "$pkts1" ]; then
-        echo "ERROR: Cannot get pkts1" >> /dev/stderr
+        err_stderr "Cannot get pkts1"
         return
     fi
 
     if [ -z "$pkts2" ]; then
-        echo "ERROR: Cannot get pkts2" >> /dev/stderr
+        err_stderr "Cannot get pkts2"
         return
     fi
 
@@ -379,7 +379,7 @@ function __verify_bridge_pkts() {
     # invalid stats. catch it here.
     ((bridge_pkts+=0))
     if [ $bridge_pkts -lt 0 ] || [ $bridge_pkts -gt 100000000000000 ]; then
-        echo "ERROR: Invalid packet count $bridge_pkts ?" >> /dev/stderr
+        err_stderr "Invalid packet count $bridge_pkts ?"
         return 1
     fi
     return 0
@@ -396,7 +396,7 @@ function get_total_packets_passed() {
     done
 
     if [ $pkts -eq 0 ]; then
-        echo "ERROR: Cannot get pkts" >> /dev/stderr
+        err_stderr "Cannot get pkts"
         return
     fi
 
@@ -408,12 +408,12 @@ function set_slow_path_percentage() {
     local reason=$2
 
     if [ -z "$percentage" ]; then
-        err  "ERROR: Cannot set slow path percentage, missing parameter"
+        err "Cannot set slow path percentage, missing parameter"
         return 1
     fi
 
     if [ -z "$reason" ]; then
-        err  "ERROR: Cannot change slow path percentage without providing a reason, missing parameter"
+        err "Cannot change slow path percentage without providing a reason, missing parameter"
         return 1
     fi
 
@@ -438,12 +438,12 @@ function query_sw_packets_in_sent_packets_percentage() {
     local ret=0
 
     if [ -z "$total_packets_passed_in_sw" ]; then
-        err  "ERROR: Cannot get total_packets_passed_in_sw"
+        err "Cannot get total_packets_passed_in_sw"
         ret=1
     fi
 
     if [ -z "$all_packets_passed" ]; then
-        err  "ERROR: Cannot get all_packets_passed"
+        err "Cannot get all_packets_passed"
         ret=1
     fi
 
@@ -479,7 +479,7 @@ function query_sw_packets() {
     local total_packets_passed_in_sw=$(get_total_packets_passed_in_sw)
 
     if [ -z "$total_packets_passed_in_sw" ]; then
-        err "ERROR: Cannot get total_packets_passed_in_sw"
+        err "Cannot get total_packets_passed_in_sw"
         return 1
     fi
 
