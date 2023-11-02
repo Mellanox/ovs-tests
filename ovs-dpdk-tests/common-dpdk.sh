@@ -373,12 +373,25 @@ function get_total_packets_passed_in_sw() {
     echo $(($pkts1+$pkts2))
 }
 
+function __verify_bridge_pkts() {
+    local bridge_pkts=$1
+    # We don't expect a rule with so much traffic but we noticed ovs reporting
+    # invalid stats. catch it here.
+    ((bridge_pkts+=0))
+    if [ $bridge_pkts -lt 0 ] || [ $bridge_pkts -gt 100000000000000 ]; then
+        echo "ERROR: Invalid packet count $bridge_pkts ?" >> /dev/stderr
+        return 1
+    fi
+    return 0
+}
+
 function get_total_packets_passed() {
     local pkts=0
     local bridge_pkts
 
     for br in `ovs-vsctl list-br`; do
         bridge_pkts=$(ovs-ofctl dump-flows $br | grep "table=0" | grep -o "n_packets=[0-9.]*" | cut -d= -f2 | awk '{ SUM += $1} END { print SUM }')
+        __verify_bridge_pkts $bridge_pkts || return
         ((pkts += bridge_pkts))
     done
 
@@ -408,19 +421,34 @@ function set_slow_path_percentage() {
     debug "Slow path percentage set to $percentage, because: \"$reason\""
 }
 
+function ovs_dump_flows_all_bridges() {
+    local br
+
+    for br in `ovs-vsctl list-br`; do
+        echo $br
+        ovs-ofctl dump-flows --color $br
+    done
+}
+
 function query_sw_packets_in_sent_packets_percentage() {
     local valid_percentage_passed_in_sw=$SLOW_PATH_TRAFFIC_PERCENTAGE
 
     local total_packets_passed_in_sw=$(get_total_packets_passed_in_sw)
     local all_packets_passed=$(get_total_packets_passed)
+    local ret=0
 
     if [ -z "$total_packets_passed_in_sw" ]; then
         err  "ERROR: Cannot get total_packets_passed_in_sw"
-        return 1
+        ret=1
     fi
 
     if [ -z "$all_packets_passed" ]; then
         err  "ERROR: Cannot get all_packets_passed"
+        ret=1
+    fi
+
+    if [ "$ret" == 1 ]; then
+        ovs_dump_flows_all_bridges
         return 1
     fi
 
