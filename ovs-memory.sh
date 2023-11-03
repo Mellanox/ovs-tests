@@ -171,6 +171,27 @@ function mlx5_get_icm_size() {
     )
 }
 
+# Returns the memory used by netfilter conntrack, in bytes
+# Requires root level access.
+function nf_get_ct_size() {
+    # slabinfo fields are as follow:
+    # name     <active_objs>  <num_objs>   <objsize>      <objperslab> <pagesperslab> : \
+    # tunables <limit>        <batchcount> <sharedfactor> : \
+    # slabdata <active_slabs> <num_slabs>  <sharedavail>
+    #    $1          $2           $3            $4            $5            $6
+
+    # Measure once
+    local out=$(grep 'nf_conntrack ' /proc/slabinfo 2> /dev/null | tr -s ' ')
+
+    # Cut twice
+    set -- junk $(echo $out | cut -d: -f1); shift;
+    local pagesperslab=${6:-0}
+    set -- junk $(echo $out | cut -d: -f3); shift;
+    local num_slabs=${3:-0}
+
+    printf "%d" $((pagesperslab * num_slabs * PAGE_SZ))
+}
+
 function sanitize() {
     echo "$@" | tr -s ' ,:' '_' | tr -cd ' .\-_a-zA-Z0-9'
 }
@@ -187,7 +208,7 @@ function print_field() (
         [ "$section" ] && printf "%c%s" "-" "${section}" >> "$CSV"
         printf ":%s_%s,%s\n" "$memtype" "$field" "$bytes" >> "$CSV"
     fi
-    printf "${YELLOW}# ${CYAN}%-*s " 8 "$memtype"
+    printf "${YELLOW}# ${CYAN}%-*s " 12 "$memtype"
     printf "%*s: ${NOCOLOR}" 10 "$field"
     printf "%*s\n" 9 "$(convert_bytes_binary "$bytes")"
 )
@@ -214,6 +235,10 @@ function print_report() (
     local total=$(mlx5_get_icm_size)
     total=$((total+$(ovs_get_hugepage_heap_size)))
     total=$((total+$(ovs_get_memory_rss)))
+    printf "${YELLOW}#######${NOCOLOR} TOTAL OVS memory: %s\n" "$(convert_bytes_binary "$total")"
+    nf_size=$(nf_get_ct_size)
+    print_field  nf_conntrack slabs "$nf_size" "${section}"
+    total=$((total+$nf_size))
     printf "${YELLOW}#######${NOCOLOR} TOTAL memory: %s\n" "$(convert_bytes_binary "$total")"
 )
 
