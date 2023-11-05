@@ -76,6 +76,8 @@ function config_remote_tunnel() {
          cmd="ip link add $tunnel_dev type geneve id $tunnel_id remote $local_tunnel_ip dstport 6081"
     elif [ "$tnl_type" == "gre" ]; then
          cmd="ip link add $tunnel_dev type gretap key $tunnel_id remote $local_tunnel_ip"
+    elif [ "$tnl_type" == "gre-no-key" ]; then
+         cmd="ip link add $tunnel_dev type gretap remote $local_tunnel_ip"
     elif [ "$tnl_type" == "vxlan" ]; then
          cmd="ip link add $tunnel_dev type vxlan id $tunnel_id remote $local_tunnel_ip dstport 4789"
     else
