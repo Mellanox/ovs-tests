@@ -33,6 +33,10 @@ function run() {
     ovs_memory "1-uplink-$N-reps"
     config_simple_bridge_with_rep $N2 true br1 $NIC2
     ovs_memory "2-uplinks-$((N+N2))-reps"
+
+    ovs_clear_bridges
+    config_sriov 2 $NIC
+    config_sriov 2 $NIC2
 }
 
 run
