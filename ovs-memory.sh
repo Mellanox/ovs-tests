@@ -201,14 +201,14 @@ function print_report() (
     printf "${YELLOW}####### ${OVS_FLAVOR^^} memory: %s${NOCOLOR}\n" "$section"
     print_field ICM pages "$(mlx5_get_icm_size)" "${section}"
     if [ "$OVS_FLAVOR" != "ovs-kernel" ] || [ "$FULL" = 1 ]; then
-        print_field hugepage   total "$(ovs_get_hugepage_heap_size)   " "${section}"
+        print_field hugepage total "$(ovs_get_hugepage_heap_size)   " "${section}"
         if [ "$FULL" = 1 ]; then
             print_field hugepage mempool "$(ovs_get_hugepage_mempool_size)" "${section}"
         fi
     fi
-    print_field  process    RSS "$(ovs_get_memory_rss)           " "${section}"
+    print_field process RSS "$(ovs_get_memory_rss)           " "${section}"
     if [ "$FULL" = 1 ]; then
-        print_field  process  in-use "$(ovs_get_memory_in_use)        " "${section}"
+        print_field process in-use "$(ovs_get_memory_in_use)        " "${section}"
     fi
 
     local total=$(mlx5_get_icm_size)
