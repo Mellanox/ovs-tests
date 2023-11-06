@@ -34,9 +34,6 @@ function run() {
 
     set_iperf2
     generate_traffic "remote" $LOCAL_IP
-
-    ovs_clear_bridges
-    config_sriov 2
 }
 
 run
