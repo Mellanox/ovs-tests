@@ -176,10 +176,11 @@ function sanitize() {
 }
 
 function print_field() (
-    memtype="$1"
-    field="${2}"
-    bytes="${3}"
-    section="${4}"
+    local memtype=$1
+    local field=$2
+    local bytes=$3
+    local section=$4
+
     if [ "$CSV" ]; then
         section="$(sanitize "$section")"
         printf "%s" "$OVS_FLAVOR" >> "$CSV"
@@ -195,7 +196,8 @@ OVS_FLAVOR="$(ovs_detect_flavor)"
 
 # $1: Section name
 function print_report() (
-    section="${1}"
+    local section=$1
+
     printf "${YELLOW}####### ${OVS_FLAVOR^^} memory: %s${NOCOLOR}\n" "$section"
     print_field ICM pages "$(mlx5_get_icm_size)" "${section}"
     if [ "$OVS_FLAVOR" != "ovs-kernel" ] || [ "$FULL" = 1 ]; then
@@ -208,7 +210,8 @@ function print_report() (
     if [ "$FULL" = 1 ]; then
         print_field  process  in-use "$(ovs_get_memory_in_use)        " "${section}"
     fi
-    total=$(mlx5_get_icm_size)
+
+    local total=$(mlx5_get_icm_size)
     total=$((total+$(ovs_get_hugepage_heap_size)))
     total=$((total+$(ovs_get_memory_rss)))
     printf "${YELLOW}#######${NOCOLOR} TOTAL memory: %s\n" "$(convert_bytes_binary "$total")"
