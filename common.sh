@@ -1957,7 +1957,7 @@ function ovs_memory() {
     if is_bf_host; then
         on_bf_exec "$OVS_MEMORY '$section' 'csv=$OVS_MEMORY_CSV_OUTPUT'"
     else
-        $OVS_MEMORY "$section" "csv=$OVS_MEMORY_CSV_OUTPUT"
+        eval $OVS_MEMORY "$section" "csv=$OVS_MEMORY_CSV_OUTPUT"
     fi
 }
 
