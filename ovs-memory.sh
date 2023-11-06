@@ -36,6 +36,7 @@ function convert_bytes_binary() {
 }
 
 function ovs_get() {
+    local v
     # 'get' outputs quoted values, 'eval' removes them.
     eval v=$(ovs-vsctl get o . other_config:$1 2> /dev/null)
     printf "%s" "$v"
