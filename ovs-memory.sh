@@ -9,7 +9,7 @@ FULL=0
 function usage() {
 cat <<_END_OF_USAGE
 Usage:
-$0 \\
+$0
   -h | -help | --help    Show this help
   csv=<file>             Add output in Comma-Separated-Value format to a file
   section=<name>         Specialize the report title with a section name
