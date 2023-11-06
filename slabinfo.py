@@ -58,7 +58,8 @@ def main():
     total_size = 0
     for key in before.keys():
         if (re.match("kmalloc-[0-9]+", key) or
-            '0000:08:00' in key):
+            '0000:08:00' in key or
+            key == 'nf_conntrack'):
             count = after[key]['active_objs'] - before[key]['active_objs']
             if (count < 1):
                 continue
