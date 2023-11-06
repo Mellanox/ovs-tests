@@ -8,8 +8,7 @@ FULL=0
 
 function usage() {
 cat <<_END_OF_USAGE
-Usage:
-$0
+Usage: $0
   -h | -help | --help    Show this help
   csv=<file>             Add output in Comma-Separated-Value format to a file
   section=<name>         Specialize the report title with a section name
@@ -19,13 +18,13 @@ _END_OF_USAGE
 }
 
 for arg; do
-case "$arg" in
--h|-help|--help) DO_USAGE=y ;;
-csv=*) CSV="${arg#*=}" ;;
-section=*) SECTION="${arg#*=}" ;;
-full) FULL=1 ;;
-*) echo "unknown option $arg"; FATAL=y ;;
-esac
+    case "$arg" in
+    -h|-help|--help) DO_USAGE=y ;;
+    csv=*) CSV="${arg#*=}" ;;
+    section=*) SECTION="${arg#*=}" ;;
+    full) FULL=1 ;;
+    *) echo "Unknown option $arg"; FATAL=y ;;
+    esac
 done
 
 [ "$FATAL" ] && usage
