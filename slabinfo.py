@@ -45,7 +45,7 @@ def convert_unit(size):
     elif size > 1024:
         return "{:.2f} KB".format(size/(1024))
     else:
-        return str(size_in_bytes)+" Bytes"
+        return str(size)+" Bytes"
 
 
 
