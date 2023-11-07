@@ -30,6 +30,9 @@ def read_slab(slab):
             'active_objs': int(p[1]),
             'num_objs': int(p[2]),
             'objsize': int(p[3]),
+            'pagesperslab': int(p[5]),
+            'active_slabs': int(p[13]),
+            'num_slabs': int(p[14]),
         }
 
     return b
@@ -55,19 +58,25 @@ def main():
     before = read_slab(args.slab_before)
     after = read_slab(args.slab_after)
 
-    total_size = 0
+    total_size_obj = 0
+    total_size_pages = 0
     for key in before.keys():
         if (re.match("kmalloc-[0-9]+", key) or
             '0000:08:00' in key or
             key == 'nf_conntrack'):
-            count = after[key]['active_objs'] - before[key]['active_objs']
-            if (count < 1):
+            count_obj = after[key]['active_objs'] - before[key]['active_objs']
+            if (count_obj < 1):
                 continue
-            size = count * after[key]['objsize']
-            print(key, "\t", convert_unit(size))
-            total_size += size
+            size_obj = count_obj * after[key]['objsize']
+            pages = ((after[key]['active_slabs'] * after[key]['pagesperslab']) -
+                     (before[key]['active_slabs'] * before[key]['pagesperslab']))
+            size_pages = pages * 4096
+            print(key, "\t", convert_unit(size_obj), "\t", convert_unit(size_pages))
+            total_size_obj += size_obj
+            total_size_pages += size_pages
 
-    print("total \t ", convert_unit(total_size))
+    print("total size obj \t ", convert_unit(total_size_obj))
+    print("total size pages \t ", convert_unit(total_size_pages))
 
     return 0
 
