@@ -17,7 +17,9 @@ bind_vfs
 trap cleanup_test EXIT
 
 function add_openflow_rules() {
-    NIC_MAC=`cat /sys/class/net/$NIC/address`
+    local pci=`get_pf_pci`
+    local nic=`get_pf_nic $pci`
+    NIC_MAC=`bf_wrap cat /sys/class/net/$nic/address`
     REMOTE_NIC_MAC=`on_remote cat /sys/class/net/$REMOTE_NIC/address`
     VF_MAC=$(ip netns exec ns0 cat /sys/class/net/$VF/address)
     REMOTE_MAC=`on_remote cat /sys/class/net/$TUNNEL_DEV/address`
