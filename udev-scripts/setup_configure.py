@@ -17,6 +17,7 @@ from subprocess import check_output
 from subprocess import CalledProcessError
 
 NESTED_VM_DATA = "/workspace/nested_data.json"
+ssh_config = '-q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=3'
 
 
 def runcmd(cmd):
@@ -31,7 +32,6 @@ def runcmd2(cmd):
 
 
 def runcmd2_remote(ip, cmd):
-    ssh_config = '-q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=3'
     return runcmd2(f'ssh {ssh_config} {ip} "{cmd}"')
 
 
@@ -40,7 +40,6 @@ def runcmd_output(cmd):
 
 
 def runcmd_output_remote(ip, cmd):
-    ssh_config = '-q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=3'
     return runcmd_output(f'ssh {ssh_config} {ip} "{cmd}"')
 
 
