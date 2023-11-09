@@ -36,7 +36,7 @@ function run() {
     ovs_del_meter
     ovs-appctl revalidator/purge
 
-    ovs_add_meter br-int 1 pktps 50 1
+    ovs_add_meter br-int 1 pktps 50
     ovs_add_simple_meter_rule br-int 1
     debug "testing meter on REP"
     send_metered_ping ns0 200 5 $REMOTE_IP 0.05 115
