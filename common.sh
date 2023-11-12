@@ -8,6 +8,7 @@ TESTNAME=`basename $__argv0`
 TESTDIR=$(cd `dirname $__argv0` ; pwd)
 DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" &>/dev/null && pwd)
 SET_MACS="$DIR/set-macs.sh"
+SOS_REPORT_COLLECTOR="/.autodirect/net_linux_verification/release/doca/scripts/collect_sos_report.sh"
 OVS_MEMORY="$DIR/ovs-memory.sh"
 : "${OVS_MEMORY_CSV_OUTPUT:="/workspace/ovs-memory.csv"}"
 
@@ -2403,6 +2404,22 @@ ufid 00000000-0000-0000-0000-000000000000"
     fi
 }
 
+function collect_sos_reports() {
+    [ "$ENABLE_SOS_COLLECTOR" != 1 ] && return
+    [ ! -f $SOS_REPORT_COLLECTOR ] && return
+    which sos &>/dev/null || return
+
+    local run_cmd="$SOS_REPORT_COLLECTOR $TESTNAME devtest"
+
+    if is_bf_host; then
+        on_bf "$run_cmd"
+        on_remote_bf "$run_cmd"
+    else
+        eval $run_cmd
+        on_remote "$run_cmd"
+    fi
+}
+
 function test_done() {
     kill_all_bgs
     set +e
@@ -2415,6 +2432,7 @@ function test_done() {
         success "TEST PASSED"
     else
         dump_ovs_log
+        collect_sos_reports
         fail "TEST FAILED"
     fi
     exit $TEST_FAILED
@@ -2907,6 +2925,7 @@ function __test_help() {
     echo "CLEAR_OVS_LOG=1               - Clear ovs log at the start of the test."
     echo "VALGRIND_OPENVSWITCH=1        - Start openvswitch with valgrind."
     echo "SKIP_OVS_LOG_DUMP=0           - Skip ovs log dump on failure."
+    echo "ENABLE_SOS_COLLECTOR=0        - Collect sos reports."
     exit 0
 }
 
