@@ -26,11 +26,19 @@ function config() {
     config_simple_bridge_with_rep 16
 }
 
+function copy_batch_to_bf() {
+    if is_bf_host; then
+        scp2 $output_file $BF_IP:/tmp/
+    fi
+}
+
 function create_openflow_rules_port_change_batch() {
     title "Creating openflow rules batch with port change"
     for i in `seq 1 $number_of_rules`; do
         echo "$ofctl_rule_prefix,tcp_src=$i,action=drop" >> $output_file
     done
+
+    copy_batch_to_bf
 }
 
 function create_openflow_rules_mac_change_batch() {
@@ -50,6 +58,8 @@ function create_openflow_rules_mac_change_batch() {
             done
         done
     done
+
+    copy_batch_to_bf
 }
 
 function test_time_cmd() {
