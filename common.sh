@@ -9,6 +9,7 @@ TESTDIR=$(cd `dirname $__argv0` ; pwd)
 DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" &>/dev/null && pwd)
 SET_MACS="$DIR/set-macs.sh"
 SOS_REPORT_COLLECTOR="/.autodirect/net_linux_verification/release/doca/scripts/collect_sos_report.sh"
+SOS_REPORT_CONFIG="/etc/sos/sos-mlx-cloud-verification.conf"
 OVS_MEMORY="$DIR/ovs-memory.sh"
 : "${OVS_MEMORY_CSV_OUTPUT:="/workspace/ovs-memory.csv"}"
 
@@ -2407,20 +2408,15 @@ ufid 00000000-0000-0000-0000-000000000000"
 function collect_sos_reports() {
     [ "$ENABLE_SOS_COLLECTOR" != 1 ] && return
     [ ! -f $SOS_REPORT_COLLECTOR ] && return
+    [ ! -f $SOS_REPORT_CONFIG ] && return
 
-    if is_bf_host; then
-        on_bf "which sos &>/dev/null" || return
-    else
-        which sos &>/dev/null || return
-    fi
-
-    local run_cmd="$SOS_REPORT_COLLECTOR $TESTNAME devtest"
+    local run_cmd="which sos && $SOS_REPORT_COLLECTOR $TESTNAME devtest"
 
     if is_bf_host; then
         on_bf "$run_cmd"
         on_remote_bf "$run_cmd"
     else
-        eval $run_cmd
+        eval "$run_cmd"
         on_remote "$run_cmd"
     fi
 }
