@@ -2407,7 +2407,12 @@ ufid 00000000-0000-0000-0000-000000000000"
 function collect_sos_reports() {
     [ "$ENABLE_SOS_COLLECTOR" != 1 ] && return
     [ ! -f $SOS_REPORT_COLLECTOR ] && return
-    which sos &>/dev/null || return
+
+    if is_bf_host; then
+        on_bf "which sos &>/dev/null" || return
+    else
+        which sos &>/dev/null || return
+    fi
 
     local run_cmd="$SOS_REPORT_COLLECTOR $TESTNAME devtest"
 
