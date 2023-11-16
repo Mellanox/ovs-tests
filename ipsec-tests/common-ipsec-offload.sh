@@ -309,26 +309,10 @@ function cleanup_crypto() {
 
 function config_full() {
     cleanup_test
-
-    ipsec_set_mode full
-    ipsec_set_mode_on_remote full
-
-    if is_ipsec_ofed; then
-        # ipsec_sec_mode set switchdev and mlnx ofed will continue in switchdev
-        reset_eswitch_encap
-        enable_switchdev
-        on_remote_exec enable_switchdev
-        return
-    fi
-
-    # upstream move to legacy
-    enable_legacy
-    on_remote_exec enable_legacy
 }
 
 function cleanup_full() {
     cleanup_test
-    ipsec_clear_mode_on_both_sides
 }
 
 IPSEC_KEY_LEN_128=128
