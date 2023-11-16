@@ -285,6 +285,7 @@ class Test(object):
         self.opts = opts or {}
         self.tag = ''
         self.group = ''
+        self.cmd = self._test_file
 
     def init_state(self):
         self._passed = False
@@ -466,7 +467,7 @@ def get_kmemleak_info():
 
 
 def run_test(test, html=False):
-    cmd = test.fname
+    cmd = test.cmd
 
     env = os.environ.copy()
     env.update(test.opts.get('env', {}))
@@ -496,6 +497,9 @@ def run_test(test, html=False):
     except AttributeError:
         # timeout introduced in python3.3
         out, _ = subp.communicate()
+
+    if args.dry:
+        return "nothing"
 
     if not out:
         raise ExecCmdFailed("Empty result")
@@ -1607,15 +1611,19 @@ def __run_test(test):
     elif test.skip:
         res = 'SKIP'
         reason = test.reason
-    elif args.dry:
-        res = 'DRY'
     else:
         start_time = datetime.now()
         logname = os.path.join(LOGDIR, test.test_log)
+        if args.dry:
+            test.cmd = "/bin/echo dry-run"
+            logname = ''
         try:
             reason = test.run(args.html)
             res = 'TEST PASSED'
             test.set_passed()
+            if args.dry:
+                res = 'DRY'
+                reason = ''
         except ExecCmdFailed as e:
             failed = True
             reason = str(e)
