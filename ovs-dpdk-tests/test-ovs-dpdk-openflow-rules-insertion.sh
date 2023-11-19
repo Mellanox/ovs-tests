@@ -12,7 +12,12 @@ config_sriov 16
 enable_switchdev
 bind_vfs
 
-trap cleanup_test EXIT
+function cleanup() {
+    ovs_conf_remove pmd-quiet-idle
+    cleanup_test
+}
+
+trap cleanup EXIT
 
 number_of_rules=${1:-4000}
 output_file="/tmp/openflow_batch_$$"
@@ -22,6 +27,7 @@ ofctl_rule_prefix="in_port=2,ip,tcp"
 
 function config() {
     echo > $output_file
+    ovs_conf_set pmd-quiet-idle true
     start_clean_openvswitch
     config_simple_bridge_with_rep 16
 }
@@ -105,5 +111,5 @@ function run() {
 
 run
 trap - EXIT
-cleanup_test
+cleanup
 test_done
