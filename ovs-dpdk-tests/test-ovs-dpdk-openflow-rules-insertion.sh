@@ -39,7 +39,7 @@ function copy_batch_to_bf() {
 }
 
 function create_openflow_rules_port_change_batch() {
-    title "Creating openflow rules batch with port change"
+    title "Creating $number_of_rules openflow rules batch with port change"
     for i in `seq 1 $number_of_rules`; do
         echo "$ofctl_rule_prefix,tcp_src=$i,action=drop" >> $output_file
     done
@@ -48,7 +48,7 @@ function create_openflow_rules_port_change_batch() {
 }
 
 function create_openflow_rules_mac_change_batch() {
-    title "Creating openflow rules batch with mac change"
+    title "Creating $number_of_rules openflow rules batch with mac change"
     local mac
     local count=0
 
