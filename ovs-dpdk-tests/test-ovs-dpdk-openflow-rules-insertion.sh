@@ -20,6 +20,7 @@ function cleanup() {
 trap cleanup EXIT
 
 number_of_rules=${1:-4000}
+expected_time=$((number_of_rules/1000*300))
 output_file="/tmp/openflow_batch_$$"
 br=br-phy
 ofctl_rule_prefix="in_port=2,ip,tcp"
@@ -84,7 +85,7 @@ function test_time_cmd() {
 
 function apply_batch() {
     title "Apply openflow rule batch"
-    test_time_cmd 1000 "ovs-ofctl add-flows $br $output_file"
+    test_time_cmd $expected_time "ovs-ofctl add-flows $br $output_file"
     local rules=`ovs-appctl bridge/dump-flows $br | wc -l`
 
     if [ $rules -ge $number_of_rules ]; then
