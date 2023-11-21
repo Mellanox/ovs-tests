@@ -2408,13 +2408,17 @@ function collect_sos_reports() {
     [ "$ENABLE_SOS_COLLECTOR" != 1 ] && return
     [ ! -f $SOS_REPORT_COLLECTOR ] && return
 
-    local run_cmd="which sos && $SOS_REPORT_COLLECTOR $TESTNAME devtest"
+    local run_cmd="which sos &>/dev/null && $SOS_REPORT_COLLECTOR $TESTNAME devtest"
 
     if is_bf_host; then
+        title "Collect sos report from BF"
         on_bf "$run_cmd"
+        title "Collect sos report from remote BF"
         on_remote_bf "$run_cmd"
     else
+        title "Collect sos report"
         eval "$run_cmd"
+        title "Collect sos report from remote"
         on_remote "$run_cmd"
     fi
 }
