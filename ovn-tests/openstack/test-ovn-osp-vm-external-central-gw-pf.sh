@@ -50,8 +50,8 @@ function run_test() {
     run_local_traffic "icmp6_is_not_offloaded" "icmp4_is_not_offloaded" $SERVER_PORT
 }
 
-if [ "$DOCA" == "1" ]; then
-    warn "In doca, we don't support internal port rules offloading, turning off offload checking"
+if [ "$DPDK" == "1" ] || [ "$DOCA" == "1" ]; then
+    warn "In dpdk and doca, we don't support internal port rules offloading, turning off offload checking"
     TRAFFIC_INFO['client_verify_offload']=""
 fi
 
