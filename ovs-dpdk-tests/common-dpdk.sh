@@ -133,17 +133,17 @@ function ovs_add_port() {
     local port=`get_port_from_pci $pci`
     local rep=""
 
-    if ([ "${type}" == "ECPF" ] && ! (is_bf || is_bf_host)); then
+    if ([ "$type" == "ECPF" ] && ! (is_bf || is_bf_host)); then
         return
     fi
 
-    if [ "${type}" == "ECPF" ]; then
+    if [ "$type" == "ECPF" ]; then
         port+="hpf"
         rep="representor=[65535],"
-    elif [ "${type}" == "VF" ]; then
+    elif [ "$type" == "VF" ]; then
         port+="vf_$num"
         rep="representor=[$num],"
-    elif [ "${type}" == "SF" ]; then
+    elif [ "$type" == "SF" ]; then
         port+="sf_$num"
         rep="representor=sf[$num],"
     fi
@@ -152,8 +152,10 @@ function ovs_add_port() {
         mtu="mtu_request=$mtu"
     fi
 
+    local dpdk_opts="options:dpdk-devargs=$pci,$rep$DPDK_PORT_EXTRA_ARGS"
+
     debug "Add ovs $type port $port $mtu"
-    exec_dbg ovs-vsctl add-port $bridge $port -- set Interface $port type=dpdk options:dpdk-devargs=$pci,$rep$DPDK_PORT_EXTRA_ARGS $mtu
+    exec_dbg ovs-vsctl add-port $bridge $port -- set Interface $port type=dpdk $dpdk_opts $mtu
 }
 
 function ovs_del_port() {
