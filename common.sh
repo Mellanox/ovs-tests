@@ -2029,7 +2029,6 @@ function check_ovs_settings() {
 
 function check_dpdk_init() {
     if [ "$DPDK" == 1 ]; then
-        ovs_reset_conf "dpdk-extra" "-a 0000:00:00.0"
         ovs_reset_conf "dpdk-init" "true"
 
         [ "$DOCA" == 1 ] && ovs_reset_conf "doca-init" "true"
@@ -2038,7 +2037,6 @@ function check_dpdk_init() {
             ovs-appctl dpctl/del-dp system@ovs-system
         fi
     else
-        ovs_reset_conf "dpdk-extra"
         ovs_reset_conf "dpdk-init"
         ovs_reset_conf "doca-init"
     fi
