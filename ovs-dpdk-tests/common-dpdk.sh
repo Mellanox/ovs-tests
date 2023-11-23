@@ -133,6 +133,11 @@ function ovs_add_port() {
     local port=`get_port_from_pci $pci`
     local rep=""
 
+    if [ -z "$pci" ]; then
+        err "ovs_add_port: pci is empty"
+        return
+    fi
+
     if ([ "$type" == "ECPF" ] && ! (is_bf || is_bf_host)); then
         return
     fi
