@@ -47,17 +47,19 @@ function require_dpdk() {
 function get_port_from_pci() {
     local pci=${1-$PCI}
     local rep=$2
-    local port=pf0
+    local port="pf0"
 
     if [ "$pci" == "$PCI2" ] || [ "$pci" == "$BF_PCI2" ]; then
-        port=pf1
+        port="pf1"
     fi
+
+    port="ib_$port"
 
     if [ -n "$rep" ]; then
-        port+="_$rep"
+        port+="vf_$rep"
     fi
 
-    echo "ib_$port"
+    echo "$port"
 }
 
 function __setup_common_dpdk() {
@@ -104,8 +106,7 @@ function configure_dpdk_rep_ports() {
                 ovs-vsctl add-port $bridge "$rep" -- set Interface "$rep" type=dpdk options:dpdk-devargs=$pci,representor=[$i],$DPDK_PORT_EXTRA_ARGS
             fi
         else
-            debug "Add ovs port $rep"
-            ovs-vsctl add-port $bridge "$rep" -- set Interface "$rep" type=dpdk options:dpdk-devargs=$pci,representor=[$i],$DPDK_PORT_EXTRA_ARGS
+            ovs_add_port VF $i $bridge
         fi
     done
 }
@@ -170,6 +171,7 @@ function ovs_del_port() {
     elif [ "${type}" == "SF" ]; then
         port+="sf_$num"
     fi
+
     debug "Del ovs $type port $port"
     ovs-vsctl del-port $bridge $port
 }
