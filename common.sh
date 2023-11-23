@@ -2021,7 +2021,6 @@ function check_ovs_settings() {
     __restart_ovs=0
 
     check_dpdk_init
-    check_doca_init
 
     if [ "$__restart_ovs" == 1 ];then
         restart_openvswitch
@@ -2029,56 +2028,34 @@ function check_ovs_settings() {
 }
 
 function check_dpdk_init() {
-    local force=0
-    local want=""
-    local dummy_pci="0000:00:00.0"
-    local want_extra="-a $dummy_pci"
-
-    if [ "${DPDK}" == 1 ]; then
-        want="true"
-    fi
-
-    local init1=`ovs-vsctl get Open_vSwitch . other_config:dpdk-init 2>/dev/null | tr -d '"'`
-    local extra1=`ovs-vsctl get Open_vSwitch . other_config:dpdk-extra 2>/dev/null | tr -d '"'`
-
-    if [ "$want" == "true" ] && [ "$want_extra" != "$extra1" ]; then
-        force=1
-    fi
-
-    if [ "$init1" != "$want" ] || [ "$force" == 1 ]; then
-        warn "OVS reset dpdk-init=$want"
-        if [ "$want" == "true" ]; then
-           ovs-vsctl set Open_vSwitch . other_config:dpdk-extra="$want_extra"
-           ovs-vsctl set Open_vSwitch . other_config:dpdk-init=true
-        else
-           ovs-vsctl remove Open_vSwitch . other_config dpdk-init
-           ovs-vsctl remove Open_vSwitch . other_config dpdk-extra
-        fi
-        __restart_ovs=1
-    fi
-
     if [ "$DPDK" == 1 ]; then
+        ovs_reset_conf "dpdk-extra" "-a 0000:00:00.0"
+        ovs_reset_conf "dpdk-init" "true"
+
+        [ "$DOCA" == 1 ] && ovs_reset_conf "doca-init" "true"
+
         if ovs-appctl dpctl/dump-dps 2>/dev/null | grep -q ovs-system ; then
             ovs-appctl dpctl/del-dp system@ovs-system
         fi
+    else
+        ovs_reset_conf "dpdk-extra"
+        ovs_reset_conf "dpdk-init"
+        ovs_reset_conf "doca-init"
     fi
+
 }
 
-function check_doca_init() {
-    local want=""
+function ovs_reset_conf() {
+    local key=$1
+    local val=$2
+    local cur=`ovs-vsctl get Open_vSwitch . other_config:$key 2>/dev/null | tr -d '"'`
 
-    if [ "${DOCA}" == 1 ]; then
-        want="true"
-    fi
-
-    local init1=`ovs-vsctl get Open_vSwitch . other_config:doca-init 2>/dev/null | tr -d '"'`
-
-    if [ "$init1" != "$want" ]; then
-        warn "OVS reset doca-init=$want"
-        if [ "$want" == "true" ]; then
-           ovs-vsctl set Open_vSwitch . other_config:doca-init=true
+    if [ "$cur" != "$val" ]; then
+        warn "OVS reset $key=\"$val\""
+        if [ -n "$val" ]; then
+           ovs-vsctl set Open_vSwitch . other_config:$key="$val"
         else
-           ovs-vsctl remove Open_vSwitch . other_config doca-init
+           ovs-vsctl remove Open_vSwitch . other_config $key
         fi
         __restart_ovs=1
     fi
