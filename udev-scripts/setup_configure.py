@@ -241,7 +241,7 @@ class SetupConfigure(object):
         # reload modules with modprobe because of busy compat module.
         if os.path.exists('/etc/init.d/openibd'):
             runcmd2('/etc/init.d/openibd force-restart')
-        else
+        else:
             runcmd2('modprobe -rq act_ct')
             runcmd2('modprobe -rq cls_flower')
             runcmd2('modprobe -rq mlx5_fpga_tools')
