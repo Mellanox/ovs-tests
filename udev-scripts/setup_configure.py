@@ -43,16 +43,6 @@ def runcmd_output_remote(ip, cmd):
     return runcmd_output(f'ssh {ssh_config} {ip} "{cmd}"')
 
 
-def start_kmemleak():
-    """Make sure kmemleak thread is running if supported. ignore errors."""
-    if os.path.exists('/sys/kernel/debug/kmemleak'):
-        scan = 180
-        print("Set kmemleak scan thread to %s seconds" % scan)
-        runcmd("echo scan=%s > /sys/kernel/debug/kmemleak" % scan)
-    else:
-        print("kmemleak not supported")
-
-
 def is_pf(phys_port_name):
     return re.match(r'^p\d+$', phys_port_name) is not None
 
@@ -141,6 +131,15 @@ class SetupConfigure(object):
             self.bf_mode = 'HOST_PF'
         self.Logger.info("BlueField mode is %s" % self.bf_mode)
 
+    def start_kmemleak(self):
+        """Make sure kmemleak thread is running if supported."""
+        if os.path.exists('/sys/kernel/debug/kmemleak'):
+            scan = 180
+            self.Logger.info("Set kmemleak scan thread to %s seconds" % scan)
+            runcmd("echo scan=%s > /sys/kernel/debug/kmemleak" % scan)
+        else:
+            self.Logger.info("kmemleak is not supported")
+
     def Run(self):
         try:
             self.flow_steering_mode = None
@@ -148,7 +147,7 @@ class SetupConfigure(object):
             self.Logger.info("Host %s" % self.host.name)
 
             if not self.args.skip_kmemleak:
-                start_kmemleak()
+                self.start_kmemleak()
             self.set_ovs_service()
             self.StopOVS()
             self.ReloadModules()
