@@ -2012,12 +2012,9 @@ function check_ovs_settings() {
         warn "OVS tc-policy is $a"
     fi
 
-    a=`ovs-vsctl get Open_vSwitch . other_config:max-idle 2>/dev/null`
-    if [ -n "$a" ]; then
-        warn "OVS cleaning max-idle"
-        ovs-vsctl remove Open_vSwitch . other_config max-idle
-    fi
+    ovs_reset_conf max-idle
 
+    # Checks above don't require restart of ovs.
     __restart_ovs=0
 
     check_dpdk_init
