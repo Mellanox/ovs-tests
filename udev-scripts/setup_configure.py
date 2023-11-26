@@ -233,21 +233,24 @@ class SetupConfigure(object):
                 self.arm[pf_index]['pf_rep'] = pf_rep
 
     def ReloadModules(self):
+        # Reload modules a s workaround when udev rules changed in
+        # jenkins script but didn't take affect.
         self.Logger.info("Reload modules")
-        # workaround mlnx ofed and CX7 will fail to do modprobe reload because of busy compat
-        # module. use openibd.
+
+        # Use mlnx ofed openibd script as aorkaround (e.g. CX7) will fail to
+        # reload modules with modprobe because of busy compat module.
         if os.path.exists('/etc/init.d/openibd'):
             runcmd2('/etc/init.d/openibd force-restart')
-            sleep(5)
-            return
-        # workaround because udev rules changed in jenkins script but didn't take affect.
-        runcmd2('modprobe -rq act_ct')
-        runcmd2('modprobe -rq cls_flower')
-        runcmd2('modprobe -rq mlx5_fpga_tools')
-        runcmd2('modprobe -rq mlx5_vdpa')
-        runcmd2('modprobe -rq mlx5_ib')
-        runcmd2('modprobe -rq mlx5_core')
-        runcmd2('modprobe -aq mlx5_ib mlx5_core')
+        else
+            runcmd2('modprobe -rq act_ct')
+            runcmd2('modprobe -rq cls_flower')
+            runcmd2('modprobe -rq mlx5_fpga_tools')
+            runcmd2('modprobe -rq mlx5_vdpa')
+            runcmd2('modprobe -rq mlx5_ib')
+            runcmd2('modprobe -rq mlx5_core')
+            runcmd2('modprobe -aq mlx5_ib mlx5_core')
+
+        # Sleep a bit after reloading the modules for pci devices to initialize.
         sleep(5)
 
     def UpdatePATHEnvironmentVariable(self):
