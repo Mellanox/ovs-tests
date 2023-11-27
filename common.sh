@@ -420,23 +420,23 @@ function setup_expected_steering_mode() {
 }
 
 function enable_esw_multiport() {
-    local nic=$NIC
-    devlink dev param show pci/$PCI name esw_multiport &>/dev/null
+    local pci=`get_pf_pci`
+    __devlink dev param show pci/$pci name esw_multiport &>/dev/null
     if [ $? -ne 0 ]; then
         return
     fi
     log "Enable multiport eswitch"
-    devlink dev param set pci/$PCI name esw_multiport value 1 cmode runtime || fail "Failed to enable multiport eswitch"
+    __devlink dev param set pci/$pci name esw_multiport value 1 cmode runtime || fail "Failed to enable multiport eswitch"
 }
 
 function disable_esw_multiport() {
-    local nic=$NIC
-    devlink dev param show pci/$PCI name esw_multiport &>/dev/null
+    local pci=`get_pf_pci`
+    __devlink dev param show pci/$pci name esw_multiport &>/dev/null
     if [ $? -ne 0 ]; then
         return
     fi
     log "Disable multiport eswitch"
-    devlink dev param set pci/$PCI name esw_multiport value 0 cmode runtime
+    __devlink dev param set pci/$pci name esw_multiport value 0 cmode runtime
 }
 
 function devlink_port_eswitch_enable() {
@@ -2811,6 +2811,11 @@ function restore_lag_resource_allocation_mode() {
 __lag_port_select_mode="hash"
 __lag_port_select_mode_changed=0
 function set_lag_port_select_mode() {
+    if is_bf_host; then
+        # Don't do anything for BF host/arm. mlnx ofed still has the compat but should use devlink.
+        return
+    fi
+
     if [ ! -f /sys/class/net/$NIC/compat/devlink/lag_port_select_mode ]; then
         # MLNX OFED 5.7 needs to enable a compat. verify if exists.
         return
