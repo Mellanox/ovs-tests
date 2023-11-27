@@ -775,6 +775,18 @@ def get_mofed_version():
     return output.strip(':')
 
 
+__is_bf_host = None
+def is_bf_host():
+    if __is_bf_host is not None:
+        return __is_bf_host
+    try:
+        subprocess.check_output("lspci -s $PCI 2>/dev/null | grep -wq \"Mellanox .* BlueField.* integrated\"", shell=True)
+        _is_bf_host = True
+    except subprocess.CalledProcessError:
+        _is_bf_host = False
+    return is_bf_host
+
+
 def get_current_state():
     global envinfo
     global current_nic
@@ -813,6 +825,7 @@ def get_current_state():
         'simx': simx_mode,
         'distro': distro,
         'config dpdk': dpdk_mode,
+        'is_bf_host': is_bf_host(),
     })
 
     if distro:
@@ -914,7 +927,9 @@ def update_skip_according_to_db(rm, _tests, data):
         if ignore_failed:
             t.set_skip("Test failed and first ignored - check manually")
 
-        if re.search(r'\.el[0-9]+[\.|_]', current_kernel):
+        if is_bf_host():
+            min_kernel = ''
+        elif re.search(r'\.el[0-9]+[\.|_]', current_kernel):
             min_kernel = str(opts.get('min_kernel_rhel', ''))
         elif 'bluefield' in current_kernel:
             min_kernel = str(opts.get('min_kernel_bf', ''))
