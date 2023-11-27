@@ -105,7 +105,7 @@ function configure_dpdk_rep_ports() {
                 ovs-vsctl add-port $bridge "$rep" -- set Interface "$rep" type=dpdk $dpdk_opts
             fi
         else
-            ovs_add_port VF $i $bridge
+            ovs_add_port VF $i $bridge $pci
         fi
     done
 }
