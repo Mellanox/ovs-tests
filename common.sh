@@ -2031,6 +2031,7 @@ function check_dpdk_init() {
         [ "$DOCA" == 1 ] && ovs_reset_conf "doca-init" "true"
 
         if ovs-appctl dpctl/dump-dps 2>/dev/null | grep -q ovs-system ; then
+            warn "OVS del-dp system@ovs-system"
             ovs-appctl dpctl/del-dp system@ovs-system
         fi
     else
