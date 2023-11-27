@@ -884,6 +884,7 @@ def update_skip_according_to_db(rm, _tests, data):
             t.set_failed("Invalid fw to compare")
 
     custom_kernels = data.get('custom_kernels', {})
+    is_debug_kernel = '_debug_' in current_kernel and '_min_debug_' not in current_kernel
     print_newline = False
 
     for t in _tests:
@@ -897,7 +898,6 @@ def update_skip_according_to_db(rm, _tests, data):
         ignore_for_linust = opts.get('ignore_for_linust', 0)
         ignore_for_upstream = opts.get('ignore_for_upstream', 0)
         ignore_for_debug_kernel = opts.get('ignore_for_debug_kernel', 0)
-        is_debug_kernel = '_debug_' in current_kernel and '_min_debug_' not in current_kernel
 
         if ignore_for_debug_kernel and is_debug_kernel:
             t.set_ignore("Ignore on debug kernel")
