@@ -160,7 +160,7 @@ function ovs_add_port() {
     local dpdk_opts="options:dpdk-devargs=$pci,$rep$DPDK_PORT_EXTRA_ARGS"
 
     debug "Add ovs $type port $port $mtu"
-    exec_dbg ovs-vsctl add-port $bridge $port -- set Interface $port type=dpdk $dpdk_opts $mtu
+    exec_dbg ovs-vsctl add-port $bridge $port -- set Interface $port type=dpdk $dpdk_opts $mtu || err "Failed to add port"
 }
 
 function ovs_del_port() {
