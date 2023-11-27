@@ -190,7 +190,7 @@ function config_remote_bridge_tunnel() {
     local bridge=${5:-"br-int"}
     local pci=${6:-`get_pf_pci`}
 
-    debug "configuring remote bridge tunnel type $tnl_type key $vni remote_ip $2 with $reps reps"
+    debug "Configuring remote bridge tunnel type $tnl_type key $vni remote_ip $2 with $reps reps"
     ovs_add_bridge $bridge
     ovs-vsctl add-port $bridge ${tnl_type}"_$bridge"   -- set interface ${tnl_type}"_$bridge" type=${tnl_type} options:key=${vni} options:remote_ip=${remote_ip}
 
@@ -209,7 +209,7 @@ function config_simple_bridge_with_rep() {
         pci=$(get_pf_pci2)
     fi
 
-    debug "configuring simple bridge $bridge with $reps reps"
+    debug "Configuring bridge $bridge with $reps reps"
     ovs_add_bridge $bridge
 
     if [ "$should_add_pf" == "true" ]; then
@@ -233,7 +233,7 @@ function start_vdpa_vm() {
         return
     fi
 
-    debug "starting VM $vm_name"
+    debug "Starting VM $vm_name"
     timeout --foreground 20 virsh start $vm_name &>/dev/null
     if [ $? -ne 0 ]; then
         fail "could not start VM"
