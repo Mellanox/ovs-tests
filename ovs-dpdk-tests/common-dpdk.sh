@@ -56,7 +56,7 @@ function get_port_from_pci() {
     port="ib_$port"
 
     if [ -n "$rep" ]; then
-        port+="vf_$rep"
+        port+="vf$rep"
     fi
 
     echo "$port"
@@ -146,10 +146,10 @@ function ovs_add_port() {
         port+="hpf"
         rep="representor=[65535],"
     elif [ "$type" == "VF" ]; then
-        port+="vf_$num"
+        port+="vf$num"
         rep="representor=[$num],"
     elif [ "$type" == "SF" ]; then
-        port+="sf_$num"
+        port+="sf$num"
         rep="representor=sf[$num],"
     fi
 
@@ -173,9 +173,9 @@ function ovs_del_port() {
     if [ "${type}" == "ECPF" ]; then
         port+="hpf"
     elif [ "${type}" == "VF" ]; then
-        port+="vf_$num"
+        port+="vf$num"
     elif [ "${type}" == "SF" ]; then
-        port+="sf_$num"
+        port+="sf$num"
     fi
 
     debug "Del ovs $type port $port"
