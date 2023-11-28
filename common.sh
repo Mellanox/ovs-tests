@@ -2047,11 +2047,12 @@ function ovs_reset_conf() {
     local cur=`ovs-vsctl get Open_vSwitch . other_config:$key 2>/dev/null | tr -d '"'`
 
     if [ "$cur" != "$val" ]; then
-        warn "OVS reset $key=\"$val\""
         if [ -n "$val" ]; then
-           ovs-vsctl set Open_vSwitch . other_config:$key="$val"
+            warn "OVS reset $key=\"$val\""
+            ovs-vsctl set Open_vSwitch . other_config:$key="$val"
         else
-           ovs-vsctl remove Open_vSwitch . other_config $key
+            warn "OVS reset $key"
+            ovs-vsctl remove Open_vSwitch . other_config $key
         fi
         __restart_ovs=1
     fi
