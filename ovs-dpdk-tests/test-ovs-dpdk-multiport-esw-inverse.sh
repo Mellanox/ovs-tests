@@ -23,10 +23,11 @@ function config_ovs() {
     local pf1=`get_port_from_pci $PCI2`
     local pf1vf0=`get_port_from_pci $PCI2 0`
     local bridge="br-phy"
+    local pci=`get_pf_pci`
 
     config_simple_bridge_with_rep 1 true $bridge $NIC
-    exec_dbg ovs-vsctl add-port $bridge $pf1 -- set interface $pf1 type=dpdk options:dpdk-devargs="$PCI,$DPDK_PORT_EXTRA_ARGS,representor=pf1"
-    exec_dbg ovs-vsctl add-port $bridge $pf1vf0 -- set Interface $pf1vf0 type=dpdk options:dpdk-devargs="$PCI,representor=pf1vf0,$DPDK_PORT_EXTRA_ARGS"
+    exec_dbg ovs-vsctl add-port $bridge $pf1 -- set interface $pf1 type=dpdk options:dpdk-devargs="$pci,$DPDK_PORT_EXTRA_ARGS,representor=pf1"
+    exec_dbg ovs-vsctl add-port $bridge $pf1vf0 -- set Interface $pf1vf0 type=dpdk options:dpdk-devargs="$pci,representor=pf1vf0,$DPDK_PORT_EXTRA_ARGS"
 }
 
 function config_ips() {

@@ -85,10 +85,12 @@ function set_interfaces_up() {
 }
 
 function config_ovs() {
+    local pci=`get_pf_pci`
+
     title "Config OVS"
     start_clean_openvswitch
     config_simple_bridge_with_rep 1
-    ovs-vsctl add-port br-phy p1 -- set interface p1 type=dpdk options:dpdk-devargs="0000:08:00.0,dv_xmeta_en=4,dv_flow_en=2,representor=pf1"
+    ovs-vsctl add-port br-phy p1 -- set interface p1 type=dpdk options:dpdk-devargs="$pci,representor=pf1,$DPDK_PORT_EXTRA_ARGS"
     ovs-vsctl show
 }
 
