@@ -777,14 +777,17 @@ def get_mofed_version():
 
 __is_bf_host = None
 def is_bf_host():
+    global __is_bf_host
+
     if __is_bf_host is not None:
         return __is_bf_host
+
     try:
-        subprocess.check_output("lspci -s $PCI 2>/dev/null | grep -wq \"Mellanox .* BlueField.* integrated\"", shell=True)
-        _is_bf_host = True
+        subprocess.check_output("lspci 2>/dev/null | grep -m1 -wq \"Mellanox .* BlueField.* integrated\"", shell=True)
+        __is_bf_host = True
     except subprocess.CalledProcessError:
-        _is_bf_host = False
-    return is_bf_host
+        __is_bf_host = False
+    return __is_bf_host
 
 
 def get_current_state():
