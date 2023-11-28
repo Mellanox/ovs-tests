@@ -660,9 +660,12 @@ function add_local_mirror() {
     local bridge=$3
     local pci=$(get_pf_pci)
 
-    ovs-vsctl add-port $bridge $port -- set interface $port type=dpdk options:dpdk-devargs=$pci,representor=[${rep_num}],$DPDK_PORT_EXTRA_ARGS \
-    -- --id=@p get port $port -- --id=@m create mirror name=m0 select-all=true output-port=@p \
-    -- set bridge $bridge mirrors=@m
+    local dpdk_opts="options:dpdk-devargs=$pci,representor=[$rep_num],$DPDK_PORT_EXTRA_ARGS"
+
+    local mirror_opts="-- --id=@p get port $port -- --id=@m create mirror name=m0 select-all=true output-port=@p \
+                       -- set bridge $bridge mirrors=@m"
+
+    ovs-vsctl add-port $bridge $port -- set interface $port type=dpdk $dpdk_opts $mirror_opts
 }
 
 function add_remote_mirror() {
@@ -671,12 +674,16 @@ function add_remote_mirror() {
     local vni=$3
     local remote_addr=$4
     local local_addr=$5
+    local port="${type}M"
+
+    local mirror_opts="-- --id=@p get port $port -- --id=@m create mirror name=m0 select-all=true output-port=@p \
+                       -- set bridge $bridge mirrors=@m"
+    local tun_opts="options:key=$vni options:remote_ip=$remote_addr options:local_ip=$local_addr"
 
     ip a add $local_addr/24 dev br-phy
     ip l set br-phy up
-    ovs-vsctl add-port $bridge ${type}M -- set interface ${type}M type=$type options:key=$vni options:remote_ip=$remote_addr options:local_ip=$local_addr \
-    -- --id=@p get port ${type}M -- --id=@m create mirror name=m0 select-all=true output-port=@p \
-    -- set bridge $bridge mirrors=@m
+
+    ovs-vsctl add-port $bridge $port -- set interface $port type=$type $tun_opts $mirror_opts
 }
 
 function cleanup_mirrors() {
