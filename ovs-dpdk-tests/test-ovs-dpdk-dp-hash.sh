@@ -12,9 +12,14 @@ config_sriov 2
 enable_switchdev
 bind_vfs
 
-trap cleanup_test EXIT
+function cleanup() {
+    ovs_conf_remove hw-offload-ct-size
+    cleanup_test
+}
+trap cleanup EXIT
 
 function config() {
+    ovs_conf_set hw-offload-ct-size 0
     cleanup_test
     config_simple_bridge_with_rep 2
     bf_wrap "ip link add dev dummy type veth peer name rep-dummy"
@@ -51,5 +56,5 @@ function run() {
 run
 bf_wrap "ip link del dummy"
 trap - EXIT
-cleanup_test
+cleanup
 test_done

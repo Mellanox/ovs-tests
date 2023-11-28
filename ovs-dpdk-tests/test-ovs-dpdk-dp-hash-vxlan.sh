@@ -15,9 +15,15 @@ enable_switchdev
 bind_vfs
 
 IB_PORT=`get_port_from_pci`
-trap cleanup_test EXIT
+
+function cleanup() {
+    ovs_conf_remove hw-offload-ct-size
+    cleanup_test
+}
+trap cleanup EXIT
 
 function config() {
+    ovs_conf_set hw-offload-ct-size 0
     cleanup_test
     config_tunnel "vxlan" 1 br-phy br-phy
     bf_wrap "ip link add dev dummy type veth peer name rep-dummy"
@@ -56,5 +62,5 @@ function run() {
 run
 bf_wrap "ip link del dummy"
 trap - EXIT
-cleanup_test
+cleanup
 test_done
