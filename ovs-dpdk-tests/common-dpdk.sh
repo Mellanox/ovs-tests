@@ -236,10 +236,10 @@ function start_vdpa_vm() {
     debug "Starting VM $vm_name"
     timeout --foreground 20 virsh start $vm_name &>/dev/null
     if [ $? -ne 0 ]; then
-        fail "could not start VM"
+        fail "Could not start VM"
     fi
 
-    for i in {0..20}; do
+    for i in {0..30}; do
         status=$(virsh list --all | grep "$vm_name" | awk '{ print $3 }')
         if [ "${status}" == "running" ]; then
             break
@@ -254,14 +254,14 @@ function start_vdpa_vm() {
     local vm_started="false"
 
     for i in {0..60}; do
-        if ping -c1 $vm_ip -w 1 &>/dev/null; then
+        if ping -c1 -w1 $vm_ip &>/dev/null; then
             vm_started="true"
             break
         fi
     done
 
     if [ "${vm_started}" == "false" ]; then
-        fail "timeout waiting for VM to start"
+        fail "Timeout waiting for VM to start"
     fi
 
     sleep 2
