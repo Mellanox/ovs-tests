@@ -1534,8 +1534,8 @@ function get_bound_vfs_count() {
 
 function wait_for_vfs() {
     local nic=$1
-    local vfs=0
-    local cmax=`get_vfs_count $nic`
+    local vfs
+    local count=`get_vfs_count $nic`
     local i
 
     for i in `seq 10`; do
