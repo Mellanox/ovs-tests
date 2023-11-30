@@ -812,3 +812,7 @@ function ovs_set_hw_offload_ct_size {
 function ovs_cleanup_hw_offload_ct_size {
     ovs_conf_remove hw-offload-ct-size
 }
+
+if [[ "$TESTNAME" == "common-dpdk.sh" ]]; then
+    __common_eval $@
+fi
