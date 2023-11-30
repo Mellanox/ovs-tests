@@ -463,7 +463,8 @@ function __common_sf_exec() {
     if [ "$COMMON_SF" == "common-sf.sh" ]; then
         # script executed directly. evaluate user input.
         local DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" &>/dev/null && pwd)
-        . $DIR/common.sh $@
+        . $DIR/common.sh
+        __common_eval $@
     fi
 }
 

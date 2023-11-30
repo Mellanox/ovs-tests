@@ -2947,7 +2947,7 @@ function __common_eval() {
 }
 
 # common script executed directly. evaluate user input.
-if [[ "$TESTNAME" == common* ]]; then
+if [[ "$TESTNAME" == "common.sh" ]]; then
     __common_eval $@
 fi
 
