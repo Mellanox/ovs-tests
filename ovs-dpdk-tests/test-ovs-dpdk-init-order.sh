@@ -28,6 +28,7 @@ function verify_err_and_add_pf() {
 
     verify_ovs_expected_msg "$msg"
     ovs_add_port "PF"
+    sleep 2
 }
 
 function run() {
