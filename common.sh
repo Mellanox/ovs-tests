@@ -1555,6 +1555,7 @@ function bind_vfs() {
 
     for nic in $nics; do
         local sysfs="/sys/bus/pci/devices/${PCI_MAP[$nic]}"
+        local act=0
 
         for i in `ls -1d $sysfs/virt*`; do
             vfpci=$(basename `readlink $i`)
@@ -1565,12 +1566,13 @@ function bind_vfs() {
                     log "Cannot bind VF $vfpci"
                     err=1
                 fi
+                act=1
             fi
         done
         unset __once_bind_vfs
 
-        # wait for vfs if there isn't an error.
-        if [ $err -eq 0 ]; then
+        # wait for vfs if there isn't an error and did something.
+        if [ $err -eq 0 ] && [ $act -eq 1 ] ; then
             wait_for_vfs $nic
             udevadm settle # wait for udev renaming after bind
         fi
