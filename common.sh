@@ -1246,8 +1246,7 @@ function switch_mode() {
     local extra="$extra_mode"
     local vf_count=`get_vfs_count $nic`
 
-    local old_mode=`get_eswitch_mode $nic`
-    if [ "$old_mode" == "$mode" ]; then
+    if [ `get_eswitch_mode $nic` == "$mode" ]; then
         log "E-Switch mode for $nic is $mode"
         if [ "$mode" == "switchdev" ]; then
             wait_for_reps $nic $vf_count
