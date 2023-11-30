@@ -18,8 +18,8 @@ bind_vfs
 trap test_cleanup_local EXIT
 
 function test_cleanup_local() {
-    cleanup_test
     ovs_conf_remove ct-labels-mapping
+    cleanup_test
 }
 
 function config() {
@@ -53,5 +53,6 @@ function run() {
 }
 
 run
-start_clean_openvswitch
+trap - EXIT
+test_cleanup_local
 test_done
