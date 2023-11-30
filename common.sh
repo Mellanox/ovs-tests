@@ -1529,7 +1529,7 @@ function unbind_vfs() {
 
 function get_bound_vfs_count() {
     local nic=$1
-    exec_pf_in_ns ls -1 /sys/class/net/*/device/physfn/net/$nic 2>/dev/null | wc -l
+    exec_pf_in_ns ls -1d /sys/class/net/*/device/physfn/net/$nic 2>/dev/null | wc -l
 }
 
 function wait_for_vfs() {
