@@ -471,6 +471,7 @@ def run_test(test, html=False):
 
     env = os.environ.copy()
     env.update(test.opts.get('env', {}))
+    test_timeout = test.opts.get('timeout', TEST_TIMEOUT_MAX)
 
     logname = os.path.join(LOGDIR, test.test_log)
     logname_html = os.path.join(LOGDIR, test.test_log_html)
@@ -482,7 +483,7 @@ def run_test(test, html=False):
                             stderr=subprocess.STDOUT, close_fds=True, env=env)
     try:
         try:
-            out, _ = subp.communicate(timeout=TEST_TIMEOUT_MAX)
+            out, _ = subp.communicate(timeout=test_timeout)
         except subprocess.TimeoutExpired as e:
             subp.kill()
             out = e.output
@@ -1392,7 +1393,7 @@ def load_tests_from_(data, sub, opts={}, group=''):
     opts = update_opts(opts, data.get('opts', {}))
     for key in data:
         if fnmatch(key, 'test-*.sh'):
-            # every key under test is in opts.
+            # Join all keys under test to opts. (no need for opts key).
             test_opts = update_opts(opts, data[key])
             t = Test(os.path.join(MYDIR, sub, key), test_opts)
             t.group = group
