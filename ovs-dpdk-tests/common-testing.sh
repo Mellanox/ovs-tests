@@ -445,8 +445,9 @@ function generate_traffic() {
     local server_namespace=${5:-"ns0"}
     local server_remote=${6:-"local"}
     local run_time=${7:-5}
+    local streams=${8:$num_connections}
 
-    initiate_traffic $client_remote $my_ip $client_namespace $server_namespace $server_remote $run_time
+    initiate_traffic $client_remote $my_ip $client_namespace $server_namespace $server_remote $run_time $streams
     if [ "$validate" == "true" ]; then
         validate_offload $my_ip
     else
@@ -464,6 +465,7 @@ function initiate_traffic() {
     local server_namespace=${4:-"ns0"}
     local server_remote=${5:-"local"}
     local t=${6:-"5"}
+    local streams=${7:$num_connections}
 
     local server_dst_execution="ip netns exec $server_namespace"
     local client_dst_execution="ip netns exec $client_namespace"
@@ -518,7 +520,7 @@ function initiate_traffic() {
     verify_iperf_running "$server_remote"
 
     # client
-    local cmd="$iperf_cmd -f Mbits -c $my_ip -t $t -P $num_connections &> $p_client"
+    local cmd="$iperf_cmd -f Mbits -c $my_ip -t $t -P $streams &> $p_client"
 
     if [ -n "$client_namespace" ]; then
         cmd="${client_dst_execution} $cmd"
