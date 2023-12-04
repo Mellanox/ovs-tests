@@ -767,6 +767,8 @@ function set_flex_parser() {
 }
 
 function get_grace_period() {
+    is_bf_host && warn "skip get_grace_period on bf" && return
+
     local pci=`get_pf_pci`
 
     grace_period=`devlink health show pci/$pci reporter fw_fatal | grep -Eo "grace_period [0-9]+" | awk {'print $2'}`
@@ -777,6 +779,8 @@ function get_grace_period() {
 }
 
 function set_grace_period() {
+    is_bf_host && warn "skip set_grace_period on bf" && return
+
     local value=$1
     local pci=`get_pf_pci`
     local pci2=`get_pf_pci2`
