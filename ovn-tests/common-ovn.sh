@@ -862,20 +862,32 @@ function ovs_create_bridge_vlan_interface() {
     ovs-vsctl add-port $br $interface tag=$vlan -- set Interface $interface type=internal
 }
 
+function __ovn_nbctl_list() {
+    local table=$1
+    # skip first line as its the column name "name".
+    ovn-nbctl -f csv --columns=name list $table | tail -n +2
+}
+
+function __ovn_sbctl_list() {
+    local table=$1
+    # skip first line as its the column name "name".
+    ovn-sbctl -f csv --columns=name list $table | tail -n +2
+}
+
 function ovn_clear_switches() {
-    ovn-nbctl -f csv --columns=name list LOGICAL_SWITCH | xargs -L 1 ovn-nbctl ls-del &>/dev/null
+    __ovn_nbctl_list LOGICAL_SWITCH | xargs -r -L 1 ovn-nbctl ls-del
 }
 
 function ovn_clear_routers() {
-    ovn-nbctl -f csv --columns=name list LOGICAL_ROUTER | xargs -L 1 ovn-nbctl lr-del &>/dev/null
-}
-
-function ovn_clear_chassis() {
-    ovn-sbctl -f csv --columns=name list CHASSIS | xargs -L 1 ovn-sbctl chassis-del &>/dev/null
+    __ovn_nbctl_list LOGICAL_ROUTER | xargs -r -L 1 ovn-nbctl lr-del
 }
 
 function ovn_clear_load_balancers() {
-    ovn-nbctl -f csv --columns=name list LOAD_BALANCER | xargs -L 1 ovn-nbctl lb-del &>/dev/null
+    __ovn_nbctl_list LOAD_BALANCER | xargs -r -L 1 ovn-nbctl lb-del
+}
+
+function ovn_clear_chassis() {
+    __ovn_sbctl_list CHASSIS | xargs -r -L 1 ovn-sbctl chassis-del
 }
 
 function ovn_start_clean() {
