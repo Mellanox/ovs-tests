@@ -125,8 +125,19 @@ function ovs-appctl() {
 }
 
 function __setup_common_bf() {
+    if ! is_bf_host && ! is_bf ; then
+        return
+    fi
+
     BF_PCI=$(bf_wrap "basename \$(readlink /sys/class/net/${BF_NIC}/device)")
     BF_PCI2=$(bf_wrap "basename \$(readlink /sys/class/net/${BF_NIC2}/device)")
+
+    bf_wrap """
+        source /etc/os-release
+        echo -e \"ARM ${ANSI_COLOR0}\${PRETTY_NAME}$NOCOLOR\"
+        uname -a
+    """
+
     echo "ARM NIC $BF_NIC PCI $BF_PCI"
 }
 
