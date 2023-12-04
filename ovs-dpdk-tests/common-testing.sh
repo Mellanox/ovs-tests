@@ -313,7 +313,7 @@ function verify_ping() {
     exec_dbg "$cmd"
 
     if [ $? -ne 0 ]; then
-        err "ping failed"
+        fail "ping failed"
         return 1
     fi
 }
