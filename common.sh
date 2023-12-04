@@ -2796,6 +2796,8 @@ function set_lag_resource_allocation() {
 __lag_res_alloc_mode=0
 __lag_res_alloc_changed=0
 function enable_lag_resource_allocation_mode() {
+    is_bf_host && warn "skip enable_lag_resource_allocation_mode on bf" && return
+
     local current_mode=`get_lag_resource_allocation_mode`
     if [ "$current_mode" == "1" ]; then
         return
