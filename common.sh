@@ -1239,11 +1239,9 @@ function __devlink() {
     bf_wrap $(get_exec_pf_in_ns) devlink $@
 }
 
-function switch_mode() {
-    local mode=$1
-    local nic=${2:-$NIC}
-    local pci=${PCI_MAP[$nic]}
-    local extra="$extra_mode"
+function check_eswitch_mode() {
+    local nic=$1
+    local mode=$2
     local vf_count=`get_vfs_count $nic`
 
     if [ `get_eswitch_mode $nic` == "$mode" ]; then
@@ -1251,8 +1249,19 @@ function switch_mode() {
         if [ "$mode" == "switchdev" ]; then
             wait_for_reps $nic $vf_count
         fi
-        return
+        return 0
     fi
+    return 1
+}
+
+function switch_mode() {
+    local mode=$1
+    local nic=${2:-$NIC}
+    local pci=${PCI_MAP[$nic]}
+    local extra="$extra_mode"
+    local vf_count=`get_vfs_count $nic`
+
+    check_eswitch_mode $nic $mode && return
 
     log "Change $nic eswitch ($pci) mode to $mode $extra"
 
