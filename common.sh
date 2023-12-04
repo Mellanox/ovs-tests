@@ -222,11 +222,11 @@ function ofed_ver_lte() {
 }
 
 function print_mlnx_ofed_version() {
-    if is_ofed ; then
+    if is_ofed || is_bf_host ; then
         # first try version field and fallback to ofed_info script.
-        local ofed_version=`modinfo --field version mlx5_core`
+        local ofed_version=`bf_wrap modinfo --field version mlx5_core`
         if [ -z "$ofed_version" ]; then
-            ofed_version=`ofed_info -s 2>/dev/null | tr -d :`
+            ofed_version=`bf_wrap ofed_info -s 2>/dev/null | tr -d :`
         fi
         log "MLNX_OFED $ofed_version"
     fi
