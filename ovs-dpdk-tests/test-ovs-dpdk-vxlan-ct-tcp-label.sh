@@ -23,10 +23,8 @@ function test_cleanup_local() {
 }
 
 function config() {
-    cleanup_test
-    debug "Restarting OVS"
     ovs_conf_set ct-labels-mapping true
-    start_clean_openvswitch
+    cleanup_test
 
     config_tunnel "vxlan"
     config_remote_tunnel "vxlan"
