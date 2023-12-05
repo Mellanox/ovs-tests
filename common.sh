@@ -495,6 +495,8 @@ function __config_bonding() {
 
     log "Config bonding $nic1 $nic2 mode $mode"
 
+    unbind_vfs $nic1 $nic2
+
     if is_rh72_kernel ; then
         ip link add name bond0 type bond
         echo 100 > /sys/class/net/bond0/bonding/miimon
