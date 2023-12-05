@@ -19,6 +19,7 @@ function config() {
     echo "- Config"
     config_sriov 2
     config_sriov 2 $NIC2
+    unbind_vfs $NIC $NIC2
     enable_switchdev
     enable_switchdev $NIC2
     reset_tc $NIC $NIC2 $REP
