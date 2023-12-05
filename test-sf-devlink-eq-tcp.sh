@@ -46,17 +46,17 @@ function deconfig_iter() {
 }
 
 function run_traffic() {
-    local t=15
+    local t=5
     echo "run traffic for $t seconds"
     ip netns exec ns1 timeout $((t+1)) iperf -s &
     sleep 0.5
     ip netns exec ns0 timeout $((t+1)) iperf -t $t -c $IP2 -P 3 &
 
-    sleep 2
+    sleep 1
     pidof iperf &>/dev/null || err "iperf failed"
 
     echo "sniff packets on $SF_REP1"
-    timeout $((t-4)) tcpdump -qnnei $SF_REP1 -c 10 'tcp' &
+    timeout $t tcpdump -qnnei $SF_REP1 -c 10 'tcp' &
     pid=$!
 
     sleep $t
@@ -78,6 +78,7 @@ function run() {
 
         devlink_dev_set_eq $i $i $SF1 $SF2
         config_iter
+        fail_if_err
         run_traffic
         deconfig_iter
     done
