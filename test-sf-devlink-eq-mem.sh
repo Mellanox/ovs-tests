@@ -29,9 +29,14 @@ function test_with_default_eq_values() {
 
     create_sfs $SF_NUM
 
-    local dev=`sf_get_netdev 1`
+    title "Get default params"
+    local dev="auxiliary/`sf_get_dev 1`"
     default_io_eq_size=`devlink_dev_get_param $dev io_eq_size`
     default_event_eq_size=`devlink_dev_get_param $dev event_eq_size`
+
+    if [ -z "$default_io_eq_size" ] || [ -z "$default_event_eq_size" ]; then
+        fail
+    fi
 
     local used_mem_end=$(get_used_mem)
     total_used_mem_default_eq=$(($used_mem_end - $used_mem_start))
@@ -51,6 +56,7 @@ function test_with_lowest_eq_values() {
 
     create_sfs $SF_NUM
 
+    title "Set params"
     devlink_dev_set_eq $LOWEST_VALUE $LOWEST_VALUE `devlink_get_sfs`
 
     local used_mem_end=$(get_used_mem)
