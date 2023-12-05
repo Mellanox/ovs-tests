@@ -539,6 +539,9 @@ function clear_bonding() {
     local nic1=${1:-$NIC}
     local nic2=${2:-$NIC2}
     log "Clear bonding"
+
+    unbind_vfs $nic1 $nic2
+
     ip link del bond0 &>/dev/null
     ip link set dev $nic1 nomaster &>/dev/null
     ip link set dev $nic2 nomaster &>/dev/null
