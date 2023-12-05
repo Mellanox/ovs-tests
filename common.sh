@@ -1006,11 +1006,11 @@ function config_vf() {
     echo "[$ns] VF $vf ${info:+($info)} -> REP $rep"
     ip netns add $ns
     ${mac:+ip link set $vf address $mac}
-    ip link set $vf netns $ns
+    ip link set $vf netns $ns || err "Failed to move $vf to ns $ns"
     ${ip:+ip -netns $ns address replace dev $vf $ip/$prefix}
-    ip -netns $ns link set $vf up
+    ip -netns $ns link set $vf up || err "link up $vf failed"
 
-    __config_rep $rep
+    __config_rep $rep || err "link up $rep failed"
 }
 
 function add_vf_vlan() {
