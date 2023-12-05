@@ -76,7 +76,8 @@ function run() {
     for i in $sizes; do
         title "Configure SFs EQ io_eq_size $i event_eq_size $i"
 
-        devlink_dev_set_eq $i $i $SF1 $SF2
+        devlink_dev_set_eq $i $i auxiliary/$SF_DEV1 auxiliary/$SF_DEV2
+        fail_if_err
         config_iter
         fail_if_err
         run_traffic
