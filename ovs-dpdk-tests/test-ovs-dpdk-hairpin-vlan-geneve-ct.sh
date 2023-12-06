@@ -27,12 +27,13 @@ function cleanup() {
 
 function add_openflow_rules() {
     local bridge="br-phy"
+    local pf0=`get_port_from_pci $pci`
 
-    ovs-ofctl add-flow $bridge "in_port=ib_pf0, tcp action=br-phy-patch"
-    ovs-ofctl add-flow $bridge "in_port=vtap-br-phy, action=push_vlan:0x8100 mod_vlan_vid:5,ib_pf0" -O OpenFlow11
-    ovs-ofctl add-flow $bridge "in_port=br-phy-patch, action=ib_pf0"
-    ovs-ofctl add-flow $bridge "in_port=ib_pf0,udp dl_vlan=5 action=pop_vlan,vtap-br-phy"
-    ovs-ofctl add-flow $bridge "in_port=ib_pf0,arp dl_vlan=5 action=pop_vlan,vtap-br-phy"
+    ovs-ofctl add-flow $bridge "in_port=$pf0, tcp action=${bridge}-patch"
+    ovs-ofctl add-flow $bridge "in_port=vtap-br-phy, action=push_vlan:0x8100,mod_vlan_vid:5,$pf0" -O OpenFlow11
+    ovs-ofctl add-flow $bridge "in_port=${bridge}-patch, action=$pf0"
+    ovs-ofctl add-flow $bridge "in_port=$pf0,udp,dl_vlan=5 action=pop_vlan,vtap-br-phy"
+    ovs-ofctl add-flow $bridge "in_port=$pf0,arp,dl_vlan=5 action=pop_vlan,vtap-br-phy"
 
     debug "$bridge openflow rules"
     ovs-ofctl dump-flows $bridge --color
