@@ -123,7 +123,7 @@ function run_traffic() {
 
     verify_iperf_running remote
     validate_offload $ip
-    on_remote_exec validate_actual_traffic
+    validate_actual_traffic remote remote
     stop_traffic
 }
 
