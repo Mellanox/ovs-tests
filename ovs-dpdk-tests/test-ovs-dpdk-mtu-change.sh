@@ -48,7 +48,7 @@ function run() {
     # Limitation of ovs-doca, need to restart ovs for the mtu change.
     restart_openvswitch_nocheck
 
-    mtu=$(ovs-vsctl list interface $pf0 | grep -w mtu | awk '{ print $3 }')
+    local mtu=$(ovs-vsctl list interface $pf0 | grep -w mtu | awk '{ print $3 }')
 
     if (( $mtu != $mtu_request )); then
         fail "MTU settings didn't change"
