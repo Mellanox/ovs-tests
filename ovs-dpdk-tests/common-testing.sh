@@ -655,23 +655,25 @@ function validate_actual_traffic() {
     local server_remote=$2
 
     if is_vdpa; then
-        scp root@${NESTED_VM_IP1}:${p_server} $p_server &> /dev/null
+        echo "copy logs from nested vm"
+        scp2 root@${NESTED_VM_IP1}:${p_server} $p_server &> /dev/null
         if [ -n "$namespace"  ]; then
-            scp root@${NESTED_VM_IP2}:${p_client} $p_client &> /dev/null
+            scp2 root@${NESTED_VM_IP2}:${p_client} $p_client &> /dev/null
         fi
     fi
 
     if [ "$server_remote" == "remote" ]; then
-        on_remote_exec verify_server_log
-    else
-        verify_server_log
+        echo "copy remote server log"
+        scp2 root@$REMOTE_SERVER:$p_server $p_server &>/dev/null
     fi
 
     if [ "$client_remote" == "remote" ]; then
-        on_remote_exec verify_client_log
-    else
-        verify_client_log
+        echo "copy remote client log"
+        scp2 root@$REMOTE_SERVER:$p_client $p_client &>/dev/null
     fi
+
+    verify_server_log
+    verify_client_log
 
     validate_traffic 100 $client_remote $server_remote
 }
