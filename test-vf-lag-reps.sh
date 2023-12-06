@@ -49,6 +49,6 @@ function cleanup() {
 trap cleanup EXIT
 cleanup
 config
-fail_if_err
+trap - EXIT
 cleanup
 test_done

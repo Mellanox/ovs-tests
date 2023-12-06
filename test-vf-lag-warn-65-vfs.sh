@@ -76,5 +76,4 @@ fw_reset
 wait_for_ifaces
 config
 
-fail_if_err
 test_done
