@@ -19,10 +19,6 @@ function config() {
     reset_tc $NIC $NIC2 $REP
 }
 
-function cleanup() {
-    rmmod bonding
-}
-
 function test_bond_mode() {
     local ret1
     local ret2
@@ -60,8 +56,6 @@ function test_bond_mode() {
 
     clear_bonding
 }
-
-trap cleanup EXIT
 
 config
 
