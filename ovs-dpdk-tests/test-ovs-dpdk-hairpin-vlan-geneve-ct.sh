@@ -116,7 +116,7 @@ function run_traffic() {
 
     # client
     on_remote "rm -rf $p_client"
-    local client_cmd="${client_dst_execution} $iperf_cmd -f Mbits -c $ip -t $t -P $num_connections --logfile $p_client"
+    local client_cmd="${client_dst_execution} timeout $sleep_time $iperf_cmd -f Mbits -c $ip -t $t -P $num_connections --logfile $p_client"
 
     debug "Executing | on_remote $client_cmd"
     on_remote "$client_cmd"
