@@ -12,16 +12,26 @@ DPDK_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
 
 VDPA_DEV_NAME="eth2"
 OFFLOAD_FILTER="offloaded:yes"
+SLOW_PATH_TRAFFIC_PERCENTAGE=10
 
-if [ "$DOCA" == "1" ]; then
+function is_dpdk() {
+    [ "$DPDK" == 1 ] && return 0
+    return 1
+}
+
+function is_doca() {
+    [ "$DOCA" == 1 ] && return 0
+    return 1
+}
+
+if is_doca; then
     DPDK_PORT_EXTRA_ARGS="dv_xmeta_en=4,dv_flow_en=2"
     OFFLOAD_FILTER="$OFFLOAD_FILTER.*dp:doca"
-elif [ "$DPDK" == "1" ]; then
+elif is_dpdk; then
     DPDK_PORT_EXTRA_ARGS="dv_xmeta_en=1"
     OFFLOAD_FILTER="$OFFLOAD_FILTER.*dp:dpdk"
 fi
 
-SLOW_PATH_TRAFFIC_PERCENTAGE=10
 
 function set_ovs_dpdk_debug_logs() {
     local log="/var/log/openvswitch/ovs-vswitchd.log"
@@ -31,17 +41,15 @@ function set_ovs_dpdk_debug_logs() {
     if [ -f $log ]; then
         echo > $log
     fi
-    if [ "$DOCA" == "1" ]; then
+    if is_doca; then
         ovs_set_log_levels dpif_netdev:file:DBG netdev_offload_dpdk:file:DBG ovs_doca:DBG dpdk_offload_doca:DBG
-    elif [ "$DPDK" == "1" ]; then
+    elif is_dpdk; then
         ovs_set_log_levels dpif_netdev:file:DBG netdev_offload_dpdk:file:DBG
     fi
 }
 
 function require_dpdk() {
-    if [ "${DPDK}" != "1" ]; then
-        fail "Missing DPDK=1"
-    fi
+    ! is_dpdk && fail "Not configured DPDK=1"
 }
 
 function get_port_from_pci() {
