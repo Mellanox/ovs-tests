@@ -31,21 +31,15 @@ function test_bond_mode() {
 
     title "Test $1 mode"
 
-    ip link add name bond1 type bond mode $mode miimon 100 || fail "Failed to create bond interface"
+    ip link add name bond0 type bond mode $mode miimon 100 || fail "Failed to create bond interface"
 
     ip link set dev $NIC down
     ip link set dev $NIC2 down
-    ret1=$(ip link set dev $NIC master bond1 2>&1 >/dev/null)
-    ret2=$(ip link set dev $NIC2 master bond1 2>&1 >/dev/null)
-    ip link set dev bond1 up
+    ret1=$(ip link set dev $NIC master bond0 2>&1 >/dev/null)
+    ret2=$(ip link set dev $NIC2 master bond0 2>&1 >/dev/null)
+    ip link set dev bond0 up
     ip link set dev $NIC up
     ip link set dev $NIC2 up
-
-    sleep 2
-
-    ip link set dev $NIC nomaster &>/dev/null
-    ip link set dev $NIC2 nomaster &>/dev/null
-    ip link del name bond1 &>/dev/null
 
     vf_lag=$(is_vf_lag_activated)
     if [[ $ret1 != "" || $ret2 != $warning ]]; then
@@ -63,6 +57,8 @@ function test_bond_mode() {
     else
         success
     fi
+
+    clear_bonding
 }
 
 trap cleanup EXIT
