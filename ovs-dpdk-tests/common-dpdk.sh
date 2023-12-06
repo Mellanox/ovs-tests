@@ -61,7 +61,7 @@ function get_port_from_pci() {
         port="pf1"
     fi
 
-    port="ib_$port"
+    port="$port"
 
     if [ -n "$rep" ]; then
         port+="vf$rep"
