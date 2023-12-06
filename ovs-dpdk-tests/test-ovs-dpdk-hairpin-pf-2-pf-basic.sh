@@ -54,17 +54,17 @@ function cleanup() {
 
 function add_remote_openflow_rules() {
     local pci=`get_pf_pci`
-    local ib_pf=`get_port_from_pci $pci`
-    local ib_vf0=`get_port_from_pci $pci 0`
-    local ib_vf1=`get_port_from_pci $pci 1`
+    local pf0=`get_port_from_pci $pci`
+    local vf0=`get_port_from_pci $pci 0`
+    local vf1=`get_port_from_pci $pci 1`
     local bridge="br-phy"
 
     ovs-ofctl del-flows $bridge
     ovs-ofctl add-flow $bridge "arp,actions=normal"
-    ovs-ofctl add-flow $bridge "ip,in_port="$ib_vf0" actions=$ib_pf"
-    ovs-ofctl add-flow $bridge "ip,in_port="$ib_vf1" actions=$ib_pf"
-    ovs-ofctl add-flow $bridge "ip,in_port="$ib_pf",dl_dst=$VF1_MAC actions=$ib_vf1" #MAC learning
-    ovs-ofctl add-flow $bridge "ip,in_port="$ib_pf",dl_dst=$VF0_MAC actions=$ib_vf0" #MAC learning
+    ovs-ofctl add-flow $bridge "ip,in_port="$vf0" actions=$pf0"
+    ovs-ofctl add-flow $bridge "ip,in_port="$vf1" actions=$pf0"
+    ovs-ofctl add-flow $bridge "ip,in_port="$pf0",dl_dst=$VF1_MAC actions=$vf1" #MAC learning
+    ovs-ofctl add-flow $bridge "ip,in_port="$pf0",dl_dst=$VF0_MAC actions=$vf0" #MAC learning
 
     debug "OVS flow rules:"
     ovs-ofctl dump-flows $bridge --color
