@@ -96,12 +96,7 @@ function config_ovn_pf() {
 
     if [ "$DPDK" == 1 ]; then
         tun_dev="br-phy"
-
-        if [ -z "$pf_mtu" ]; then
-            config_simple_bridge_with_rep 0
-        else
-            config_simple_bridge_with_rep 0 "true" $tun_dev $NIC $pf_mtu
-        fi
+        config_simple_bridge_with_rep 0 "true" $tun_dev $NIC $pf_mtu
     fi
 
     ip addr add $ovn_controller_ip/24 dev $tun_dev
