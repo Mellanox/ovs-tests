@@ -822,6 +822,24 @@ function ovs_cleanup_hw_offload_ct_size {
     ovs_conf_remove hw-offload-ct-size
 }
 
+function ovs_set_ct_zone_timeout() {
+    local zone=$1
+    local tp=$2
+    local timeout=$3
+
+    ovs-vsctl -- --id=@m create Datapath datapath_version=0 -- set open_vswitch . datapaths:netdev=@m
+    if [ "$tp" == "udp" ]; then
+        ovs-vsctl add-zone-tp netdev zone=$zone udp_first=$timeout udp_single=$timeout udp_multiple=$timeout
+    else
+        ovs-vsctl add-zone-tp netdev zone=$zone tcp_syn_sent=$timeout tcp_syn_recv=$timeout tcp_established=$timeout tcp_fin_wait=$timeout tcp_time_wait=$timeout tcp_close=$timeout
+    fi
+}
+
+function ovs_clear_datapaths() {
+    # call to clear functions adding custom netdev datapath like ovs_set_ct_zone_timeout().
+    ovs-vsctl  clear open_vswitch . datapaths
+}
+
 if [[ "$TESTNAME" == "common-dpdk.sh" ]]; then
     __common_eval $@
 fi
