@@ -18,7 +18,10 @@ bind_vfs
 require_interfaces NIC VF REP
 
 function cleanup() {
-    ip netns del ns0 2> /dev/null
+    if ip netns ls | grep -q -w ns0; then
+        ip -netns ns0 link set dev $VF netns 1
+        ip netns del ns0
+    fi
     ifconfig $REP 0
 }
 trap cleanup EXIT
@@ -30,10 +33,8 @@ ip link set $NIC up
 ip link set $NIC down
 
 cleanup
+config_vf ns0 $VF $REP $IP2
 ifconfig $REP $IP1/24 up
-ip netns add ns0
-ip link set $VF netns ns0
-ip netns exec ns0 ifconfig $VF $IP2/24 up
 
 title "Test ping REP($IP1) -> VF($IP2)"
 ping -q -c 10 -i 0.2 -w 4 $IP2 && success || err
@@ -83,5 +84,6 @@ function test_ping_flood() {
 test_ping_flood 10000
 test_ping_flood 600 32768
 
+trap - EXIT
 cleanup
 test_done

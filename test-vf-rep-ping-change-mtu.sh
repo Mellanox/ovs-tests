@@ -15,30 +15,33 @@ bind_vfs
 require_interfaces VF REP
 
 function cleanup() {
-    ip netns exec ns0 ip link set $VF mtu 1500 &>/dev/null
-    ip netns del ns0 &>/dev/null
-    ip link set $REP mtu 1500 &>/dev/nulll
-    ifconfig $REP 0 &>/dev/null
+    if ip netns ls | grep -q -w ns0; then
+        ip -netns ns0 link set dev $VF netns 1
+        ip netns del ns0
+    fi
+    ip link set $VF mtu 1500
+    ip link set $REP mtu 1500
+    ifconfig $REP 0
 }
 
 trap cleanup EXIT
 cleanup
+
+config_vf ns0 $VF $REP $IP2
 ifconfig $REP $IP1/24 up
-ip netns add ns0
-ip link set $VF netns ns0
-ip netns exec ns0 ifconfig $VF $IP2/24 up
 
 title "Test ping VF($IP2) -> REP($IP1)"
-ip netns exec ns0 ping -q -f -w 10 $IP1 &
+ip netns exec ns0 ping -q -f -w 6 $IP1 &
 pid=$!
-sleep 0.5
+sleep 1
 pidof ping &>/dev/null || fail "Ping failed"
 
 echo "Change mtu during traffic"
-for mtu in 500 1000 2000 1500 ; do
-    sleep 1
+for mtu in 500 1000 1500 2000; do
+    echo "set mtu $mtu"
     ip link set $REP mtu $mtu || fail "Failed to set mtu to $REP"
     ip netns exec ns0 ip link set $VF mtu $mtu || fail "Failed to set mtu to $VF"
+    sleep 1
 done
 
 wait $pid
@@ -48,4 +51,6 @@ if [ $rc != 0 ]; then
     err "Ping failed"
 fi
 
+trap - EXIT
+cleanup
 test_done

@@ -19,16 +19,16 @@ bind_vfs
 require_interfaces VF REP
 
 function cleanup() {
-    ip netns del ns0 2> /dev/null
+    if ip netns ls | grep -q -w ns0; then
+        ip -netns ns0 link set dev $VF netns 1
+        ip netns del ns0
+    fi
     ifconfig $REP 0
 }
 
 function ping_test() {
-    cleanup
+    config_vf ns0 $VF $REP $IP2
     ifconfig $REP $IP1/24 up
-    ip netns add ns0
-    ip link set $VF netns ns0
-    ip netns exec ns0 ifconfig $VF $IP2/24 up
 
     title "Test ping REP($IP1) -> VF($IP2)"
     ping -q -c 10 -i 0.2 -w 4 $IP2 && success || err
@@ -49,6 +49,8 @@ function reconfig_sriov() {
 }
 
 function run_test() {
+    cleanup
+
     title "Ping test 1"
     ping_test
     fail_if_err
