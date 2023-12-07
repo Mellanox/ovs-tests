@@ -736,6 +736,8 @@ function wait_traffic() {
 }
 
 function __cleanup() {
+    clear_ns_dev ns0 $VF
+    clear_ns_dev ns1 $VF2
     ip -all netns delete
     ip a flush dev $NIC &>/dev/null
     ip a flush dev $NIC2 &>/dev/null
