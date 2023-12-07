@@ -18,11 +18,7 @@ bind_vfs
 require_interfaces NIC VF REP
 
 function cleanup() {
-    if ip netns ls | grep -q -w ns0; then
-        ip -netns ns0 link set dev $VF netns 1
-        ip netns del ns0
-    fi
-    ifconfig $REP 0
+    clear_ns_dev ns0 $VF $REP
 }
 trap cleanup EXIT
 

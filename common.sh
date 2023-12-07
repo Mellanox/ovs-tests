@@ -1013,6 +1013,18 @@ function config_vf() {
     __config_rep $rep || err "link up $rep failed"
 }
 
+function clear_ns_dev() {
+    local ns=${1:-ns0}
+    local ns_dev=${2:-$VF}
+    local rep=${3:-$REP}
+
+    if ip netns ls | grep -q -w $ns; then
+        ip -netns $ns link set dev $ns_dev netns 1
+        ip netns del $ns
+    fi
+    ip addr flush dev $rep
+}
+
 function add_vf_vlan() {
     local ns=$1
     local vf=$2

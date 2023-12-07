@@ -15,13 +15,9 @@ bind_vfs
 require_interfaces VF REP
 
 function cleanup() {
-    if ip netns ls | grep -q -w ns0; then
-        ip -netns ns0 link set dev $VF netns 1
-        ip netns del ns0
-    fi
+    clear_ns_dev ns0 $VF $REP
     ip link set $VF mtu 1500
     ip link set $REP mtu 1500
-    ifconfig $REP 0
 }
 
 trap cleanup EXIT
