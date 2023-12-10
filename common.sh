@@ -1940,7 +1940,7 @@ function check_for_err() {
     local a=`journalctl_for_test | grep -E -i "$look" || true`
 
     if [ "$a" != "" ]; then
-        err "Detected errors in the log"
+        err "Found errors in the log"
         echo "$a"
         return 1
     fi
