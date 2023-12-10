@@ -2429,6 +2429,39 @@ ufid 00000000-0000-0000-0000-000000000000"
     fi
 }
 
+function coredump_info() {
+    # rhel/fedora
+    SYSTEMD_CORE_DUMP_PATH="/var/lib/systemd/coredump"
+    # ubuntu
+    APPORT_CORE_DUMP_PATH="/var/lib/apport/coredump"
+
+    local since=`get_test_time_elapsed`
+    local min
+    local dumps
+    # convert to minutes and have at least 1 minute.
+    min=$(bc <<< "($since+59)/60")
+
+    # CX host.
+    dumps=$(find $SYSTEMD_CORE_DUMP_PATH -mmin -$min -type f -print 2>/dev/null)
+    if [ -n "$dumps" ]; then
+        err "Detected core dumps"
+        log $dumps
+        err "Coredump info"
+        coredumpctl --since="$since sec ago" list
+        coredumpctl --since="$since sec ago" -1 info | head -n50
+        # TODO - copy the core dump file
+        return
+    fi
+
+    # Could be host or BF ARM.
+    dumps=$(bf_wrap "find $APPORT_CORE_DUMP_PATH -mmin -$min -type f -print 2>/dev/null")
+    if [ -n "$dumps" ]; then
+        err "Detected core dumps"
+        echo $dumps
+        # TODO - copy the core dump file
+    fi
+}
+
 function collect_sos_reports() {
     [ "$ENABLE_SOS_COLLECTOR" != 1 ] && return
     [ ! -f $SOS_REPORT_COLLECTOR ] && return
@@ -2461,6 +2494,7 @@ function test_done() {
     else
         dump_ovs_log
         collect_sos_reports
+        coredump_info
         fail "TEST FAILED"
     fi
     exit $TEST_FAILED
