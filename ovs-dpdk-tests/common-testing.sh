@@ -320,14 +320,17 @@ function verify_ping() {
 
 function verify_iperf_running() {
     local remote=${1:-"local"}
-    proc_cmd="pidof -s $iperf_cmd"
+    local proc_cmd
 
     if [ "$remote" == "remote" ]; then
         proc_cmd="on_remote $proc_cmd"
     elif is_vdpa; then
         proc_cmd="on_vm1 $proc_cmd"
+    else
+        proc_cmd="pidof -s $iperf_cmd"
     fi
 
+    title "Look for iperf pid"
     if ! $proc_cmd ; then
         err "No iperf process on $remote"
         stop_traffic
@@ -337,12 +340,14 @@ function verify_iperf_running() {
 
 function verify_roce_traffic_running() {
     local remote=${1:-"local"}
-    proc_cmd="pidof -s $roce_cmd"
+    local proc_cmd
 
     if [ "$remote" == "remote" ]; then
         proc_cmd="on_remote $proc_cmd"
     elif [ "${VDPA}" == "1" ]; then
         proc_cmd="on_vm1 $proc_cmd"
+    else
+        proc_cmd="pidof -s $roce_cmd"
     fi
 
     title "Look for ib_send_bw pid"
