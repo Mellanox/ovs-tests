@@ -757,7 +757,7 @@ function check_tcp_sequence {
     title "Check tcp sequence"
 
     if [ $val -ne 0 ]; then
-       err "$cmd value $val is greater than zero"
+        err "$cmd value $val is greater than zero"
     fi
 }
 

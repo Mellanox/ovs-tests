@@ -167,7 +167,7 @@ function ovs_wait_until_ipv6_done() {
 
     local cmd="${dst_execution} ping -c1 -w 1 $remote_ip"
     if [[ $remote_ip = *":"* ]]; then
-       cmd+=" -6"
+        cmd+=" -6"
     fi
     for i in {0..15}; do
         eval $cmd &> /dev/null
@@ -307,7 +307,7 @@ function verify_ping() {
     cmd="${dst_execution} ping -q -c $packet_num -w 2 -i 0.01 $remote_ip -s $size"
 
     if [[ $remote_ip = *":"* ]]; then
-       cmd+=" -6"
+        cmd+=" -6"
     fi
 
     exec_dbg "$cmd"
@@ -323,16 +323,15 @@ function verify_iperf_running() {
     proc_cmd="pidof -s $iperf_cmd"
 
     if [ "$remote" == "remote" ]; then
-       proc_cmd="on_remote $proc_cmd"
+        proc_cmd="on_remote $proc_cmd"
     elif is_vdpa; then
-       proc_cmd="on_vm1 $proc_cmd"
+        proc_cmd="on_vm1 $proc_cmd"
     fi
 
-    title "Look for iperf pid"
     if ! $proc_cmd ; then
-       err "No iperf process on $remote"
-       stop_traffic
-       return 1
+        err "No iperf process on $remote"
+        stop_traffic
+        return 1
     fi
 }
 
@@ -341,16 +340,16 @@ function verify_roce_traffic_running() {
     proc_cmd="pidof -s $roce_cmd"
 
     if [ "$remote" == "remote" ]; then
-       proc_cmd="on_remote $proc_cmd"
+        proc_cmd="on_remote $proc_cmd"
     elif [ "${VDPA}" == "1" ]; then
-       proc_cmd="on_vm1 $proc_cmd"
+        proc_cmd="on_vm1 $proc_cmd"
     fi
 
     title "Look for ib_send_bw pid"
     if ! $proc_cmd ; then
-       err "No ib_send_bw process on $remote"
-       stop_roce_traffic
-       return 1
+        err "No ib_send_bw process on $remote"
+        stop_roce_traffic
+        return 1
     fi
 }
 
@@ -536,9 +535,9 @@ function initiate_traffic() {
     sleep 2
     kill -0 $pid2 &>/dev/null
     if [ $? -ne 0 ]; then
-       err "$iperf_cmd failed"
-       stop_traffic
-       return 1
+        err "$iperf_cmd failed"
+        stop_traffic
+        return 1
     fi
 
     if [ "$client_remote" == "remote" ]; then
@@ -594,8 +593,8 @@ function initiate_roce_traffic() {
     sleep 1
     kill -0 $INITIATE_TRAFFIC_PID &>/dev/null
     if [ $? -ne 0 ]; then
-       err "$roce_cmd failed"
-       return 1
+        err "$roce_cmd failed"
+        return 1
     fi
 
     verify_roce_traffic_running $client_remote
@@ -877,12 +876,12 @@ function verify_ovs_expected_msg() {
 
 function verify_remote_tcpdump_is_running() {
     for _ in `seq 5`; do
-       if on_remote pidof -s tcpdump >/dev/null; then
+        if on_remote pidof -s tcpdump >/dev/null; then
             debug "tcpdump is now running on remote"
             sleep 1
             return
-       fi
-       sleep 1
+        fi
+        sleep 1
     done
 
     fail "tcpdump is not running on remote"
