@@ -806,7 +806,7 @@ function on_remote() {
 
 function __on_remote() {
     local remote=$1
-    ssh2 $remote "[ -n $CONIFG ] && . $CONFIG ; ${@:2}"
+    ssh2 $remote "[ -n $CONFIG ] && . $CONFIG ; ${@:2}"
 }
 
 function print_remote_test_separator() {
