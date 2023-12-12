@@ -142,7 +142,6 @@ function ovs_add_port() {
     local pci=${4:-`get_pf_pci`}
     local mtu=$5
     local port=`get_port_from_pci $pci`
-    local rep=""
 
     if [ -z "$pci" ]; then
         err "ovs_add_port: pci is empty"
@@ -153,25 +152,35 @@ function ovs_add_port() {
         return
     fi
 
+    local dpdk_opts="options:dpdk-devargs=$pci,$DPDK_PORT_EXTRA_ARGS"
+    local port_type
+
     if [ "$type" == "ECPF" ]; then
         port+="hpf"
-        rep="representor=[65535],"
+        dpdk_opts+=",representor=[65535]"
+        port_type="dpdk"
+    elif [ "$type" == "PF" ]; then
+        port_type="dpdk"
     elif [ "$type" == "VF" ]; then
         port+="vf$num"
-        rep="representor=[$num],"
+        dpdk_opts+=",representor=[$num]"
+        port_type="dpdk"
     elif [ "$type" == "SF" ]; then
         port+="sf$num"
-        rep="representor=sf[$num],"
+        dpdk_opts+=",representor=sf[$num]"
+        port_type="dpdk"
+    else
+        port=$num
+        port_type=$type
+        dpdk_opts=""
     fi
 
     if [ -n "$mtu" ]; then
-        mtu="mtu_request=$mtu"
+        dpdk_opts+=" mtu_request=$mtu"
     fi
 
-    local dpdk_opts="options:dpdk-devargs=$pci,$rep$DPDK_PORT_EXTRA_ARGS"
-
-    debug "Add ovs $type port $port $mtu"
-    exec_dbg ovs-vsctl --timeout=10 add-port $bridge $port -- set Interface $port type=dpdk $dpdk_opts $mtu || err "Failed to add port $bridge $port"
+    debug "Add ovs port $type $port $mtu"
+    exec_dbg ovs-vsctl --timeout=10 add-port $bridge $port -- set Interface $port type=$port_type $dpdk_opts || err "Failed to add port $bridge $port"
 }
 
 function ovs_del_port() {
@@ -181,12 +190,16 @@ function ovs_del_port() {
     local pci=${4:-`get_pf_pci`}
     local port=`get_port_from_pci $pci`
 
-    if [ "${type}" == "ECPF" ]; then
+    if [ "$type" == "ECPF" ]; then
         port+="hpf"
-    elif [ "${type}" == "VF" ]; then
+    elif [ "$type" == "PF" ]; then
+        port=$port
+    elif [ "$type" == "VF" ]; then
         port+="vf$num"
-    elif [ "${type}" == "SF" ]; then
+    elif [ "$type" == "SF" ]; then
         port+="sf$num"
+    else
+        port=$num
     fi
 
     debug "Del ovs $type port $port"
