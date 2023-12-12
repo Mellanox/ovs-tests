@@ -193,10 +193,11 @@ function config_remote_bridge_tunnel() {
     local reps=${4:-1}
     local bridge=${5:-"br-int"}
     local pci=${6:-`get_pf_pci`}
+    local port="${tnl_type}_$bridge"
 
     debug "Configuring remote bridge tunnel type $tnl_type key $vni remote_ip $2 with $reps reps"
     ovs_add_bridge $bridge
-    ovs-vsctl add-port $bridge ${tnl_type}"_$bridge"   -- set interface ${tnl_type}"_$bridge" type=${tnl_type} options:key=${vni} options:remote_ip=${remote_ip}
+    ovs-vsctl add-port $bridge $port -- set interface $port type=$tnl_type options:key=$vni options:remote_ip=$remote_ip
 
     configure_dpdk_rep_ports $reps "$bridge" $pci
 }
