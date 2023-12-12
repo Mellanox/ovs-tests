@@ -1987,7 +1987,7 @@ function ovs_dump_ovs_flows() {
 }
 
 function ovs_clear_bridges() {
-    bf_wrap "ovs-vsctl list-br | xargs -r -L 1 ovs-vsctl del-br 2>/dev/null"
+    bf_wrap "ovs-vsctl list-br | xargs -r -L 1 ovs-vsctl --timeout=10 del-br 2>/dev/null"
 }
 
 function ovs_memory() {
