@@ -22,6 +22,10 @@ function cleanup() {
     ovs_conf_remove hw-offload-ct-size
     ovs_conf_remove max-idle
     cleanup_test
+    # reconfiguring sriov while port in dpdk seems the driver doesn't create the representor.
+    # reconfig sriov after ovs is cleared.
+    config_sriov 0
+    config_sriov 2
 }
 trap cleanup EXIT
 
