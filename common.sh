@@ -1022,7 +1022,7 @@ function clear_ns_dev() {
         ip -netns $ns link set dev $ns_dev netns 1
         ip netns del $ns
     fi
-    ip addr flush dev $rep
+    [ -e /sys/class/net/$rep ] && ip addr flush dev $rep
 }
 
 function add_vf_vlan() {
