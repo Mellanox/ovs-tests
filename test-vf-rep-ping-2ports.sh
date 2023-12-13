@@ -27,11 +27,13 @@ REP1_NIC2=`get_rep 0 $NIC2`
 require_interfaces VF REP VF1_NIC2 REP1_NIC2
 
 function cleanup() {
-    clear_ns_dev ns0 $1 $2
+    local vf=$1
+    local rep=$2
+    clear_ns_dev ns0 $vf $rep
 }
 trap cleanup EXIT
 
-cleanup
+cleanup $VF $REP
 title "Test ping on port1 $REP($IP1) -> $VF($IP2)"
 config_vf ns0 $VF $REP $IP2
 ifconfig $REP $IP1/24 up
