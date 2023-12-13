@@ -1019,7 +1019,7 @@ function clear_ns_dev() {
     local rep=${3:-$REP}
 
     if ip netns ls | grep -q -w $ns; then
-        ip -netns $ns link set dev $ns_dev netns 1
+        ip -netns $ns link set dev $ns_dev netns 1 2>/dev/null
         ip netns del $ns
     fi
     [ -e /sys/class/net/$rep ] && ip addr flush dev $rep
