@@ -18,8 +18,6 @@ config_sriov $N2 $NIC2
 
 enable_switchdev
 enable_switchdev $NIC2
-
-unbind_vfs
 bind_vfs
 
 trap cleanup_test EXIT

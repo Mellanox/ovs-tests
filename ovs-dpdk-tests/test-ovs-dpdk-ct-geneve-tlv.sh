@@ -19,9 +19,9 @@ if [ "$DOCA" == "1" ]; then
     config_devices
 else
     config_sriov 2
+    enable_switchdev
 fi
 require_interfaces REP NIC
-unbind_vfs
 bind_vfs
 
 trap cleanup EXIT

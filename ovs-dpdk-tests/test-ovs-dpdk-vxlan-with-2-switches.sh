@@ -16,9 +16,7 @@ config_sriov 2 $NIC2
 enable_switchdev
 enable_switchdev $NIC2
 require_interfaces REP NIC NIC2
-unbind_vfs
 bind_vfs
-unbind_vfs $NIC2
 bind_vfs $NIC2
 
 trap 'cleanup_test $TUNNEL_DEV2' EXIT

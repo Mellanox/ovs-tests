@@ -18,12 +18,10 @@ config_sriov 1
 config_sriov 1 $NIC2
 enable_switchdev
 enable_switchdev $NIC2
+bind_vfs
+bind_vfs $NIC2
 on_remote_exec enable_legacy
 on_remote_exec enable_legacy $NIC2
-unbind_vfs
-bind_vfs
-unbind_vfs $NIC2
-bind_vfs $NIC2
 
 trap cleanup EXIT
 

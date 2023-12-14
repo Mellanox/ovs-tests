@@ -16,9 +16,8 @@ IPV42="8.8.8.2"
 trap cleanup_test EXIT
 
 function config() {
+    config_sriov 2
     enable_switchdev
-    require_interfaces REP REP2 NIC
-    unbind_vfs
     bind_vfs
     cleanup_test
     config_simple_bridge_with_rep 2
