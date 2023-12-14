@@ -26,6 +26,7 @@ on_remote_exec "enable_legacy
 trap cleanup EXIT
 
 function cleanup() {
+    ovs_conf_remove max-idle
     cleanup_test
     on_remote_exec cleanup_test
 }
