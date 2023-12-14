@@ -12,13 +12,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common-dpdk.sh
 
-config_sriov 2
-config_sriov 2 $NIC2
-enable_switchdev
-enable_switchdev $NIC2
-require_interfaces REP NIC NIC2
-bind_vfs
-bind_vfs $NIC2
+config_devices
 
 trap cleanup_test EXIT
 
