@@ -13,13 +13,7 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
-require_interfaces REP NIC NIC2
-config_sriov 1
-config_sriov 1 $NIC2
-enable_switchdev
-enable_switchdev $NIC2
-bind_vfs
-bind_vfs $NIC2
+config_devices
 on_remote_exec "enable_legacy
                 enable_legacy $NIC2"
 
