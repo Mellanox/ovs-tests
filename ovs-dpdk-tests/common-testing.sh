@@ -488,7 +488,7 @@ function initiate_traffic() {
         return 1
     fi
 
-    sleep_time=$((t+2))
+    local sleep_time=$((t+2))
     if [ "$iperf_cmd" == "iperf" ]; then
         sleep_time=$((t+4))
     fi
@@ -563,7 +563,7 @@ function initiate_roce_traffic() {
     local client_gid_index=${7:-3}
     local server_gid_index=${8:-3}
 
-    sleep_time=$((time+2))
+    local sleep_time=$((time+2))
 
     local client_cmd="timeout $sleep_time $roce_cmd --ib-dev mlx5_2 --gid-index $client_gid_index --port 18000 $ip --connection UD --size 1024 --bidirectional --duration $time"
     local server_cmd="timeout $sleep_time $roce_cmd --ib-dev mlx5_2 --gid-index $server_gid_index --port 18000 --connection UD --size 1024 --bidirectional --duration $time"

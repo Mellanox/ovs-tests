@@ -103,8 +103,7 @@ function run_traffic() {
     local client_dst_execution="ip netns exec $namespace"
 
     local t=5
-
-    sleep_time=$((t+2))
+    local sleep_time=$((t+2))
 
     # server
     on_remote "rm -rf $p_server"
