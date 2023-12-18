@@ -736,7 +736,7 @@ function stop_traffic() {
 function wait_traffic() {
     [ -z "$INITIATE_TRAFFIC_PID" ] && return
 
-    debug "Wait for iperf pid $INITIATE_TRAFFIC_PID"
+    debug "Wait for traffic pid $INITIATE_TRAFFIC_PID"
     wait $INITIATE_TRAFFIC_PID
     INITIATE_TRAFFIC_PID=""
 }
