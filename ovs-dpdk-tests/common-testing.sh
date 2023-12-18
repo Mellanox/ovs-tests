@@ -270,7 +270,7 @@ function ovs_send_scapy_packets() {
     local pktgen="$DPDK_DIR/../scapy-traffic-tester.py"
 
     rm -f $p_scapy
-    local tcpdump_cmd="tcpdump -qnnei $dev2 -Q in -w $p_scapy &"
+    local tcpdump_cmd="timeout $((t+5)) tcpdump -qnnei $dev2 -Q in -w $p_scapy &"
     local scapy_dst_cmd="timeout $((t+5)) $pktgen -l -i $dev2 --src-ip $src_ip --time $(($t+2)) &"
     local scapy_src_cmd="timeout $((t+5)) $pktgen -i $dev1 --src-ip $src_ip --dst-ip $dst_ip --time $t --pkt-count $pkt_count --inter 0.01 &"
 
