@@ -37,6 +37,8 @@ function run() {
     before=`ip netns exec ns0 ifconfig | grep 'RX packets' | awk '{print $3}'`
     ovs_send_scapy_packets $VF $VF2 $LOCAL_IP $REMOTE_IP 1 150 ns0 ns1
     after=`ip netns exec ns0 ifconfig | grep 'RX packets' | awk '{print $3}'`
+    killall tcpdump
+    sleep 2
 
     # check offloads
     check_dpdk_offloads $LOCAL_IP
