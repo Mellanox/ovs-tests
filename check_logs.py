@@ -7,6 +7,9 @@ import os
 import re
 
 
+MYDIR = os.path.abspath(os.path.dirname(__file__))
+
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--url', required=True, help='Results url')
@@ -58,7 +61,7 @@ def expected_line(test, line):
 
 
 def start():
-    tests = glob(os.path.join('*', "test-*.sh"))
+    tests = glob(os.path.join(MYDIR, '*', "test-*.sh"))
     for test in tests:
         test = os.path.basename(test)
         if 'artifact/test_logs' in args.url:
