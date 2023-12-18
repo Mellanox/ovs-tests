@@ -47,7 +47,8 @@ expected = {
     'test-ovs-dpdk-init-order.sh': [
         'ovs-vsctl: Error detected while setting up',
         'Resource temporarily unavailable'
-    ]
+    ],
+    'test-ovs-dpdk-dp-hash-vxlan-busy-port.sh': ['Error attaching device'],
 }
 
 
