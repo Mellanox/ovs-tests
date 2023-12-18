@@ -39,7 +39,6 @@ function run() {
 
     verify_ping
 
-    sleep_time=0.5
     validate_offload $LOCAL_IP
 }
 
