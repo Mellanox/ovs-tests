@@ -44,7 +44,6 @@ function run() {
 }
 
 run
-ovs_conf_set hw-offload true
 trap - EXIT
 cleanup
 test_done
