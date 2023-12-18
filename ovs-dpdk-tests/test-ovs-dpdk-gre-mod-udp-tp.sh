@@ -50,12 +50,16 @@ function run() {
 
     verify_ping
     ip netns exec ns0 timeout $t $pktgen -l -i $VF --src-ip $REMOTE_IP --dst-ip $LOCAL_IP --src-port 4051 --dst-port 4051 &
+    local pid1=$!
     on_remote timeout $t $pktgen -i $TUNNEL_DEV --src-ip $REMOTE_IP --dst-ip $LOCAL_IP --src-port 4051 --dst-port 4050 --time $t &
+    local pid2=$!
 
     #sleep for 5 seconds for traffic to be sent
     sleep 5
     check_offload_contains 'set\(udp\(.*' 2
     check_dpdk_offloads $LOCAL_IP
+    kill $pid1 $pid2
+    wait &>/dev/null
 }
 
 config
