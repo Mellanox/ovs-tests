@@ -1649,14 +1649,14 @@ function get_vf() {
 }
 
 function get_rep() {
-    local i
     local vf=$1
-    local id2
-    local count=0
     local nic=${2:-$NIC}
     local id=`get_sw_id $nic`
     local pn=`get_port_name $nic`
+    local count=0
+    local id2
     local pn2
+    local i
 
     local b="${nic}_$vf"
 
@@ -1666,7 +1666,7 @@ function get_rep() {
     fi
 
     if [ -z "$id" ]; then
-        fail "Cannot find rep index $vf. Cannot get switch id for $nic"
+        fail "Cannot find rep index ${vf}. Cannot get switch id for ${nic}."
     fi
 
     for i in `ls -1 /sys/class/net`; do
