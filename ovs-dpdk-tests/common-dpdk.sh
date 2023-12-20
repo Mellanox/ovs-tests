@@ -90,9 +90,8 @@ function configure_dpdk_rep_ports() {
     local i
 
     for (( i=0; i<$reps; i++ )); do
-        local rep=`get_port_from_pci $pci $i`
-
         if is_vdpa; then
+            local rep=`get_port_from_pci $pci $i`
             local vf_num="VF$((i+1))"
             local vfpci=$(get_vf_pci ${!vf_num})
             local vdpa_socket="/tmp/sock$(($i+1))"
