@@ -83,6 +83,29 @@ function is_vdpa() {
     [ "$VDPA" == 1 ]
 }
 
+function config_vdpa_port() {
+    local bridge=$1
+    local pci=$2
+    local i=$3
+
+    local rep=`get_port_from_pci $pci $i`
+    local vf_num="VF$((i+1))"
+    local vfpci=$(get_vf_pci ${!vf_num})
+    local vdpa_socket="/tmp/sock$(($i+1))"
+    local vdpa_opts="options:vdpa-socket-path=$vdpa_socket options:vdpa-accelerator-devargs=$vfpci"
+    local dpdk_opts="options:dpdk-devargs=$pci,representor=[$i],$DPDK_PORT_EXTRA_ARGS"
+
+    if [ "$i" == "0" ]; then
+        debug "Add ovs vdpa port $rep"
+        ovs-vsctl add-port $bridge "$rep" -- set Interface "$rep" type=dpdkvdpa $vdpa_opts $dpdk_opts
+    else
+        debug "Add ovs vdpa port ${rep}_vdpa"
+        ovs-vsctl add-port $bridge ${rep}_vdpa -- set Interface ${rep}_vdpa type=dpdkvdpa $vdpa_opts
+        debug "Add ovs port $rep"
+        ovs-vsctl add-port $bridge "$rep" -- set Interface "$rep" type=dpdk $dpdk_opts
+    fi
+}
+
 function configure_dpdk_rep_ports() {
     local reps=$1
     local bridge=$2
@@ -91,22 +114,7 @@ function configure_dpdk_rep_ports() {
 
     for (( i=0; i<$reps; i++ )); do
         if is_vdpa; then
-            local rep=`get_port_from_pci $pci $i`
-            local vf_num="VF$((i+1))"
-            local vfpci=$(get_vf_pci ${!vf_num})
-            local vdpa_socket="/tmp/sock$(($i+1))"
-            local vdpa_opts="options:vdpa-socket-path=$vdpa_socket options:vdpa-accelerator-devargs=$vfpci"
-            local dpdk_opts="options:dpdk-devargs=$pci,representor=[$i],$DPDK_PORT_EXTRA_ARGS"
-
-            if [ "$i" == "0" ]; then
-                debug "Add ovs vdpa port $rep"
-                ovs-vsctl add-port $bridge "$rep" -- set Interface "$rep" type=dpdkvdpa $vdpa_opts $dpdk_opts
-            else
-                debug "Add ovs vdpa port ${rep}_vdpa"
-                ovs-vsctl add-port $bridge ${rep}_vdpa -- set Interface ${rep}_vdpa type=dpdkvdpa $vdpa_opts
-                debug "Add ovs port $rep"
-                ovs-vsctl add-port $bridge "$rep" -- set Interface "$rep" type=dpdk $dpdk_opts
-            fi
+            config_vdpa_port $bridge $pci $i
         else
             ovs_add_port VF $i $bridge $pci
         fi
