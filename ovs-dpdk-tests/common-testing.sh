@@ -310,12 +310,7 @@ function verify_ping() {
         cmd+=" -6"
     fi
 
-    exec_dbg "$cmd"
-
-    if [ $? -ne 0 ]; then
-        fail "ping failed"
-        return 1
-    fi
+    exec_dbg "$cmd" || fail "ping failed"
 }
 
 function verify_iperf_running() {
