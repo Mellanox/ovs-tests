@@ -199,7 +199,7 @@ function config_remote_bridge_tunnel() {
     ovs_add_bridge $bridge
     ovs-vsctl add-port $bridge $port -- set interface $port type=$tnl_type options:key=$vni options:remote_ip=$remote_ip
 
-    configure_dpdk_rep_ports $reps "$bridge" $pci
+    configure_dpdk_rep_ports $reps $bridge $pci
 }
 
 function config_simple_bridge_with_rep() {
