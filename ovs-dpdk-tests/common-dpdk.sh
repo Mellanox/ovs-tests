@@ -550,7 +550,7 @@ function check_dpdk_offloads() {
         return 1
     fi
 
-    grep -v $filter /tmp/dump.txt | grep -v -E $regex_filter | grep -i -- $IP'\|tnl_pop' > /tmp/filtered.txt
+    grep -v $filter /tmp/dump.txt | grep -v -E $regex_filter | grep -i -- "$IP\|$LOCAL_TUN_IP\|tnl_pop" > /tmp/filtered.txt
 
     local x=$(cat /tmp/filtered.txt | wc -l)
     debug "Number of filtered rules: $x"
