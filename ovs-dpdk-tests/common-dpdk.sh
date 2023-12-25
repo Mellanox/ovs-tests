@@ -22,10 +22,10 @@ function is_doca() {
 
 if is_doca; then
     DPDK_PORT_EXTRA_ARGS="dv_xmeta_en=4,dv_flow_en=2"
-    OFFLOAD_FILTER="$OFFLOAD_FILTER.*dp:doca"
+    OFFLOAD_FILTER="${OFFLOAD_FILTER}.*dp:doca"
 elif is_dpdk; then
     DPDK_PORT_EXTRA_ARGS="dv_xmeta_en=1"
-    OFFLOAD_FILTER="$OFFLOAD_FILTER.*dp:dpdk"
+    OFFLOAD_FILTER="${OFFLOAD_FILTER}.*dp:dpdk"
 fi
 
 
