@@ -57,5 +57,5 @@ function devlink_dev_set_eq() {
 }
 
 function devlink_get_sfs() {
-    devlink dev show | grep -w sf
+    devlink dev show | grep -w sf | sed 's/:$//'
 }
