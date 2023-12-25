@@ -33,8 +33,10 @@ function config() {
     ovs_conf_set hw-offload-ct-size 0
     cleanup_test
     config_tunnel "vxlan" 1 br-phy br-phy
-    bf_wrap "ip link add dev dummy type veth peer name rep-dummy"
     config_local_tunnel_ip $LOCAL_TUN_IP br-phy
+    bf_wrap "ip link add dev dummy type veth peer name rep-dummy
+             ip link set dev dummy up
+             ip link set dev rep-dummy up"
     ovs-vsctl add-port br-phy rep-dummy
     ovs-vsctl show
 }
