@@ -533,14 +533,14 @@ function check_dpdk_offloads() {
     local regex_filter='icmp.*ct\(.*'
     local ovs_type="DPDK"
 
-    if [ "$DOCA" != "1" ]; then
+    if is_doca; then
+        ovs_type="DOCA"
+    else
         local pci=$(get_pf_pci)
         local pci2=$(get_pf_pci2)
         local pf0=`get_port_from_pci $pci`
         local pf1=`get_port_from_pci $pci2`
         filter="actions:$pf1\b\|actions:$pf0\b\|${filter}"
-    else
-        ovs_type="DOCA"
     fi
 
     title "Check $ovs_type offloads"
