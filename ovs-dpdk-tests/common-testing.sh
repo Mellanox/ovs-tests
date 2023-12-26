@@ -511,7 +511,7 @@ function initiate_traffic() {
     verify_iperf_running "$server_remote"
 
     # client
-    local cmd="$iperf_cmd -f Mbits -c $my_ip -t $t -P $streams &> $p_client"
+    local cmd="timeout $sleep_time $iperf_cmd -f Mbits -c $my_ip -t $t -P $streams &> $p_client"
 
     if [ -n "$client_namespace" ]; then
         cmd="${client_dst_execution} $cmd"
