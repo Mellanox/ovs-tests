@@ -290,12 +290,13 @@ function set_ovs_debug_logs() {
     if [ "$CLEAR_OVS_LOG" == 1 ]; then
         bf_wrap "test -f $ovs_log_path && echo > $ovs_log_path"
     fi
-    if [ "$ENABLE_OVS_DEBUG" != "1" ]; then
-        return
-    fi
-    local lvl="netdev_offload:file:DBG netdev_offload_tc:file:DBG tc:file:DBG"
+
+    local lvl
     if [ "$DPDK" != 1 ]; then
         lvl+=" tc:syslog:warn"
+    fi
+    if [ "$ENABLE_OVS_DEBUG" == "1" ]; then
+        lvl+=" netdev_offload:file:DBG netdev_offload_tc:file:DBG tc:file:DBG"
     fi
     ovs_set_log_levels $lvl
 }
