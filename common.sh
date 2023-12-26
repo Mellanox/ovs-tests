@@ -293,7 +293,11 @@ function set_ovs_debug_logs() {
     if [ "$ENABLE_OVS_DEBUG" != "1" ]; then
         return
     fi
-    ovs_set_log_levels netdev_offload:file:DBG netdev_offload_tc:file:DBG tc:file:DBG
+    local lvl="netdev_offload:file:DBG netdev_offload_tc:file:DBG tc:file:DBG"
+    if [ "$DPDK" != 1 ]; then
+        lvl+=" tc:syslog:warn"
+    fi
+    ovs_set_log_levels $lvl
 }
 
 function __set_testpmd() {
@@ -2113,7 +2117,6 @@ function __restart_openvswitch() {
 
 function restart_openvswitch() {
     __restart_openvswitch
-    ovs-appctl vlog/set tc:syslog:warn
     if [ "$__ovs_log_levels" != "" ]; then
         ovs-appctl vlog/set $__ovs_log_levels
         ovs-appctl vlog/disable-rate-limit
