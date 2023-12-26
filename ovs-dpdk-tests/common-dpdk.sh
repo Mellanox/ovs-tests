@@ -529,7 +529,7 @@ function check_offload_contains() {
 
 function check_dpdk_offloads() {
     local IP=$1
-    local filter='arp\|drop\|ct_state(0x21/0x21)\|flow-dump\|nd(\|rep-dummy'
+    local filter='arp\|drop\|ct_state(0x21/0x21)\|flow-dump\|nd(\|rep-dummy\|33:33:00:00'
     local regex_filter='icmp.*ct\(.*'
     local ovs_type="DPDK"
 
