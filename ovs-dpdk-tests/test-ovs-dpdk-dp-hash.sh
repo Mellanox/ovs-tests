@@ -49,7 +49,7 @@ function add_openflow_rules() {
 function run() {
     config
     add_openflow_rules
-
+    sleep 2
     verify_ping
     generate_traffic "local" $LOCAL_IP ns1
     ovs-appctl dpctl/dump-flows -m
