@@ -19,6 +19,7 @@ IB_PORT=`get_port_from_pci`
 function cleanup() {
     ovs_conf_remove hw-offload-ct-size
     cleanup_test
+    bf_wrap "ip link del dummy"
 }
 trap cleanup EXIT
 
@@ -62,7 +63,6 @@ function run() {
 }
 
 run
-bf_wrap "ip link del dummy"
 trap - EXIT
 cleanup
 test_done
