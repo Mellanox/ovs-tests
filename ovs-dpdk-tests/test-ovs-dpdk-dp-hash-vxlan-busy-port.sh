@@ -62,7 +62,7 @@ function run() {
     config
     config_remote_tunnel vxlan
     add_openflow_rules
-
+    sleep 2
     ovs_conf_set max-idle 300000
     verify_ping $REMOTE_IP ns0
     ovs-appctl dpctl/dump-flows -m
