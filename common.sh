@@ -1876,7 +1876,7 @@ Can't enable single FDB mode"
     local fw_errs="firmware internal error|assert_var|\
 Command completion arrived after timeout|Error cqe|failed reclaiming pages"
     local ovs_errs_redundant="Kernel flower acknowledgment does not match request"
-    local ovs_errs="Segmentation fault|core dumped|vswitchd.*killed"
+    local ovs_errs="Segmentation fault|core dumped|vswitchd.*killed|\[DOCA\]\[ERR\]"
     local look_ahead="Call Trace:|Allocated by task|Freed by task"
     local look_ahead_count=12
     local filter="networkd-dispatcher|nm-dispatcher|uses legacy ethtool link settings|\
@@ -1887,7 +1887,8 @@ failed to kill vid 0081/0|\
 Spectre V2 : WARNING: Unprivileged eBPF is enabled with eIBRS on, data leaks possible via Spectre v2 BHB attacks!|\
 kvm|pluto.* Warning: kernel has no audit support|\
 Deprecated Driver is detected: iptables will not be maintained in a future major release and may be disabled|\
-mlx5_pci_slot_reset Device state = 2 pci_status: 1. Exit, err = 0, result = 5, recovered"
+mlx5_pci_slot_reset Device state = 2 pci_status: 1. Exit, err = 0, result = 5, recovered|\
+engine_pipe_entry_query.*failed querying pipe entry - pipe is null"
 
     if [ -n "$__expected_error_msgs" ]; then
         filter+="$__expected_error_msgs"
