@@ -19,7 +19,6 @@ IB_PORT=`get_port_from_pci`
 function cleanup() {
     ovs_conf_remove hw-offload-ct-size
     cleanup_test
-    bf_wrap "ip link del dummy"
 }
 trap cleanup EXIT
 
@@ -28,17 +27,13 @@ function config() {
     cleanup_test
     config_tunnel "vxlan" 1 br-phy br-phy
     config_local_tunnel_ip $LOCAL_TUN_IP br-phy
-    bf_wrap "ip link add dev dummy type veth peer name rep-dummy
-             ip link set dev dummy up
-             ip link set dev rep-dummy up"
-    ovs-vsctl add-port br-phy rep-dummy
     ovs-vsctl show
 }
 
 function add_openflow_rules() {
     local bridge="br-phy"
     ovs-ofctl del-flows $bridge
-    ovs-ofctl add-group $bridge group_id=1,type=select,bucket=watch_port=$IB_PORT,output:$IB_PORT,bucket=watch_port=rep-dummy,output:rep-dummy
+    ovs-ofctl add-group $bridge group_id=1,type=select,bucket=watch_port=$IB_PORT,output:$IB_PORT
 
     ovs-ofctl add-flow $bridge in_port=$IB_PF0_PORT0,actions=vxlan_$bridge
     ovs-ofctl add-flow $bridge in_port=vxlan_$bridge,actions=$IB_PF0_PORT0

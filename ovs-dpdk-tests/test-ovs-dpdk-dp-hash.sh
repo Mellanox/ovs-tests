@@ -15,7 +15,6 @@ bind_vfs
 function cleanup() {
     ovs_conf_remove hw-offload-ct-size
     cleanup_test
-    bf_wrap "ip link del dummy"
 }
 trap cleanup EXIT
 
@@ -23,10 +22,6 @@ function config() {
     ovs_conf_set hw-offload-ct-size 0
     cleanup_test
     config_simple_bridge_with_rep 2
-    bf_wrap "ip link add dev dummy type veth peer name rep-dummy
-             ip link set dev dummy up
-             ip link set dev rep-dummy up"
-    ovs-vsctl add-port br-phy rep-dummy
     start_vdpa_vm
     start_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
     config_ns ns0 $VF $LOCAL_IP
@@ -37,7 +32,7 @@ function config() {
 function add_openflow_rules() {
     local bridge="br-phy"
     ovs-ofctl del-flows $bridge
-    ovs-ofctl add-group $bridge group_id=1,type=select,bucket=watch_port=$IB_PF0_PORT1,output:$IB_PF0_PORT1,bucket=watch_port=rep-dummy,output:rep-dummy
+    ovs-ofctl add-group $bridge group_id=1,type=select,bucket=watch_port=$IB_PF0_PORT1,output:$IB_PF0_PORT1
     ovs-ofctl add-flow $bridge "in_port=$IB_PF0_PORT0,actions=group=1"
     ovs-ofctl add-flow $bridge "in_port=$IB_PF0_PORT1,actions=$IB_PF0_PORT0"
 
