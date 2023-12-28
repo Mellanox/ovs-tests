@@ -58,7 +58,7 @@ function run() {
     on_remote "killall tcpdump"
     wait
 
-    debug "Verify udp src port entropy"
+    debug "Verify src port entropy"
     on_remote "tcpdump -r /tmp/out -n udp[42:4]=0x01010101 | grep -o \"7.7.7.7.[0-9]\+\" | cut -d. -f5" > /tmp/ports
     verify_entropy
 
@@ -72,7 +72,21 @@ function run() {
     on_remote "killall tcpdump"
     wait
 
-    debug "Verify tcp src port entropy"
+    debug "Verify src port entropy"
+    on_remote "tcpdump -r /tmp/out -n udp[42:4]=0x01010101 | grep -o \"7.7.7.7.[0-9]\+\" | cut -d. -f5" > /tmp/ports
+    verify_entropy
+
+    ovs_flush_rules
+
+    debug "Capture packets"
+    on_remote "tcpdump -nnei $NIC -w /tmp/out" &
+
+    debug "Send icmp packets"
+    ip netns exec ns0 python -c "from scapy.all import *; p=Ether()/IP(src='1.1.1.1')/ICMP(); sendp(p, iface='$VF', count=10, inter=0.5)"
+    on_remote "killall tcpdump"
+    wait
+
+    debug "Verify src port entropy"
     on_remote "tcpdump -r /tmp/out -n udp[42:4]=0x01010101 | grep -o \"7.7.7.7.[0-9]\+\" | cut -d. -f5" > /tmp/ports
     verify_entropy
 }
