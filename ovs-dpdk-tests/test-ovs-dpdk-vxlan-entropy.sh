@@ -22,24 +22,12 @@ function config() {
     config_tunnel "vxlan"
     config_remote_tunnel "vxlan"
     config_local_tunnel_ip $LOCAL_TUN_IP br-phy
-}
-
-function run() {
-    config
-
-    debug "Capture packets"
-    on_remote "tcpdump -nnei $NIC udp -w /tmp/out" &
     local pf0vf0=`get_port_from_pci $PCI 0`
     ovs-ofctl add-flow br-int in_port=$pf0vf0,actions=vxlan_br-int
     ovs-ofctl dump-flows br-int --color
+}
 
-    debug "Send packets"
-    ip netns exec ns0 python -c "from scapy.all import *; p=Ether()/IP(src='1.1.1.1')/UDP(); sendp(p, iface='$VF', count=10, inter=0.5)"
-    on_remote "killall tcpdump"
-    wait
-
-    debug "Verify udp src port entropy"
-    on_remote "tcpdump -r /tmp/out -n udp[42:4]=0x01010101 | grep -o \"7.7.7.7.[0-9]\+\" | cut -d. -f5" > /tmp/ports
+function verify_entropy() {
     local port1=`head -1 /tmp/ports`
     local port2=`tail -1 /tmp/ports`
 
@@ -48,9 +36,45 @@ function run() {
     elif [ "$port1" != "$port2" ]; then
         err "Expected ports to be the same. $port1 vs $port2"
     else
-        echo "port $port1"
+        debug "port $port1"
         success
     fi
+}
+
+function ovs_flush_rules() {
+    ovs_conf_set max-idle 1
+    sleep 0.5
+    ovs_conf_remove max-idle
+}
+
+function run() {
+    config
+
+    debug "Capture packets"
+    on_remote "tcpdump -nnei $NIC -w /tmp/out" &
+
+    debug "Send udp packets"
+    ip netns exec ns0 python -c "from scapy.all import *; p=Ether()/IP(src='1.1.1.1')/UDP(); sendp(p, iface='$VF', count=10, inter=0.5)"
+    on_remote "killall tcpdump"
+    wait
+
+    debug "Verify udp src port entropy"
+    on_remote "tcpdump -r /tmp/out -n udp[42:4]=0x01010101 | grep -o \"7.7.7.7.[0-9]\+\" | cut -d. -f5" > /tmp/ports
+    verify_entropy
+
+    ovs_flush_rules
+
+    debug "Capture packets"
+    on_remote "tcpdump -nnei $NIC -w /tmp/out" &
+
+    debug "Send tcp packets"
+    ip netns exec ns0 python -c "from scapy.all import *; p=Ether()/IP(src='1.1.1.1')/TCP(); sendp(p, iface='$VF', count=10, inter=0.5)"
+    on_remote "killall tcpdump"
+    wait
+
+    debug "Verify tcp src port entropy"
+    on_remote "tcpdump -r /tmp/out -n udp[42:4]=0x01010101 | grep -o \"7.7.7.7.[0-9]\+\" | cut -d. -f5" > /tmp/ports
+    verify_entropy
 }
 
 run
