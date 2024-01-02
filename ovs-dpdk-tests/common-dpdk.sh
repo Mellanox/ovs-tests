@@ -179,8 +179,17 @@ function ovs_add_port() {
         dpdk_opts+=" mtu_request=$mtu"
     fi
 
-    debug "Add ovs port $type $port $mtu"
-    exec_dbg ovs-vsctl --timeout=10 add-port $bridge $port -- set Interface $port type=$port_type $dpdk_opts || err "Failed to add port $bridge $port"
+    __ovs_add_port $bridge $port $port_type $dpdk_opts
+}
+
+function __ovs_add_port() {
+    local bridge=$1
+    local port=$2
+    local port_type=$3
+    local opts=$4
+
+    debug "Add ovs $port_type port $port"
+    exec_dbg ovs-vsctl --timeout=10 add-port $bridge $port -- set Interface $port type=$port_type $opts || err "Failed to add port $bridge $port"
 }
 
 function ovs_del_port() {
