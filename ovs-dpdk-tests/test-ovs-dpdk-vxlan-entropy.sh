@@ -27,7 +27,17 @@ function config() {
     ovs-ofctl dump-flows br-int --color
 }
 
+function config_push_vlan() {
+    title "Config push vlan"
+    local pf0vf0=`get_port_from_pci $PCI 0`
+    ovs-ofctl del-flows br-int in_port=$pf0vf0
+    ovs-ofctl -O OpenFlow13 add-flow br-int in_port=$pf0vf0,actions=push_vlan:0x8100,mod_vlan_vid:5,vxlan_br-int
+    ovs-ofctl dump-flows br-int --color
+}
+
 function verify_entropy() {
+    on_remote "tcpdump -r /tmp/out -n udp[$ip_pos:4]=0x01010101 | grep -o \"7.7.7.7.[0-9]\+\" | cut -d. -f5" > /tmp/ports
+
     local port1=`head -1 /tmp/ports`
     local port2=`tail -1 /tmp/ports`
 
@@ -47,8 +57,8 @@ function ovs_flush_rules() {
     ovs_conf_remove max-idle
 }
 
-function run() {
-    config
+function test_udp() {
+    title "Test udp"
 
     debug "Capture packets"
     on_remote "tcpdump -nnei $NIC -w /tmp/out" &
@@ -59,10 +69,13 @@ function run() {
     wait
 
     debug "Verify src port entropy"
-    on_remote "tcpdump -r /tmp/out -n udp[42:4]=0x01010101 | grep -o \"7.7.7.7.[0-9]\+\" | cut -d. -f5" > /tmp/ports
     verify_entropy
 
     ovs_flush_rules
+}
+
+function test_tcp() {
+    title "Test tcp"
 
     debug "Capture packets"
     on_remote "tcpdump -nnei $NIC -w /tmp/out" &
@@ -73,10 +86,13 @@ function run() {
     wait
 
     debug "Verify src port entropy"
-    on_remote "tcpdump -r /tmp/out -n udp[42:4]=0x01010101 | grep -o \"7.7.7.7.[0-9]\+\" | cut -d. -f5" > /tmp/ports
     verify_entropy
 
     ovs_flush_rules
+}
+
+function test_icmp() {
+    title "Test icmp"
 
     debug "Capture packets"
     on_remote "tcpdump -nnei $NIC -w /tmp/out" &
@@ -87,8 +103,22 @@ function run() {
     wait
 
     debug "Verify src port entropy"
-    on_remote "tcpdump -r /tmp/out -n udp[42:4]=0x01010101 | grep -o \"7.7.7.7.[0-9]\+\" | cut -d. -f5" > /tmp/ports
     verify_entropy
+
+    ovs_flush_rules
+}
+
+function run() {
+    config
+
+    ip_pos=42
+    test_udp
+    test_tcp
+    test_icmp
+
+    config_push_vlan
+    ip_pos=46
+    test_udp
 }
 
 run
