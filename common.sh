@@ -1653,6 +1653,13 @@ function get_vf() {
     fi
 }
 
+function get_rep_from_pci() {
+    local pci=$1
+    local rep=$2
+    local nic=`get_pf_nic $pci`
+    get_rep $nic $rep
+}
+
 function get_rep() {
     local vf=$1
     local nic=${2:-$NIC}
