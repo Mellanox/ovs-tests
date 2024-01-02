@@ -361,33 +361,30 @@ function config_ns() {
     local dev=$2
     local ip_addr=$3
     local ipv6_addr=${4-"2001:db8:0:f101::1"}
+    local on_vm="ip netns exec $ns"
 
     if is_vdpa; then
-        local on_vm="on_vm1"
-
-        if [ "$ns" != "ns0" ]; then
+        if [ "$ns" == "ns0" ]; then
+	    on_vm="on_vm1"
+	else
             on_vm="on_vm2"
         fi
 
         debug "Set $VDPA_DEV_NAME ip $ip_addr on vm $on_vm"
-        for ip in $ip_addr; do
-            $on_vm ip address add $ip/24 dev $VDPA_DEV_NAME
-        done
-        $on_vm "ip link set dev $VDPA_DEV_NAME up
-                ip -6 address add $ipv6_addr/64 dev $VDPA_DEV_NAME"
-        return
+	dev=$VDPA_DEV_NAME
+    else
+        debug "Attach $dev to namespace $ns"
+	if ! ip netns ls | grep -w $ns >/dev/null; then
+	    ip netns add $ns
+	fi
+        ip link set $dev netns $ns || err "Failed to attach device to ns"
     fi
 
-    if ! ip netns ls | grep -w $ns >/dev/null; then
-        ip netns add $ns
-    fi
-    debug "Attach $dev to namespace $ns"
-    ip link set $dev netns $ns || err "Failed to attach"
     for ip in $ip_addr; do
-        ip netns exec $ns ip address add $ip/24 dev $dev
+        $on_vm "ip address add $ip/24 dev $dev"
     done
-    ip netns exec $ns ip link set dev $dev up
-    ip netns exec $ns ip -6 address add $ipv6_addr/64 dev $dev
+    $on_vm "ip link set dev $dev up"
+    $on_vm "ip -6 address add $ipv6_addr/64 dev $dev"
 }
 
 __ovs_e2e_cache_set=0
