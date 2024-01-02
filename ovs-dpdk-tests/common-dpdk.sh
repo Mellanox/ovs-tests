@@ -381,10 +381,10 @@ function config_ns() {
     fi
 
     for ip in $ip_addr; do
-        $on_vm "ip address add $ip/24 dev $dev"
+        $on_vm ip address add $ip/24 dev $dev
     done
-    $on_vm "ip link set dev $dev up"
-    $on_vm "ip -6 address add $ipv6_addr/64 dev $dev"
+    $on_vm ip link set dev $dev up
+    $on_vm ip -6 address add $ipv6_addr/64 dev $dev
 }
 
 __ovs_e2e_cache_set=0
