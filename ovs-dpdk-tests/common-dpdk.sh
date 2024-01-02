@@ -363,17 +363,18 @@ function config_ns() {
     local ipv6_addr=${4-"2001:db8:0:f101::1"}
 
     if is_vdpa; then
-        local vm_ip=$NESTED_VM_IP1
+        local on_vm="on_vm1"
 
-        if [ "${ns}" != "ns0" ]; then
-            vm_ip=$NESTED_VM_IP2
+        if [ "$ns" != "ns0" ]; then
+            on_vm="on_vm2"
         fi
-        debug "Set $VDPA_DEV_NAME ip $ip_addr on vm $vm_ip"
+
+        debug "Set $VDPA_DEV_NAME ip $ip_addr on vm $on_vm"
         for ip in $ip_addr; do
-            __on_remote $vm_ip ip address add $ip/24 dev $VDPA_DEV_NAME
+            $on_vm ip address add $ip/24 dev $VDPA_DEV_NAME
         done
-        __on_remote $vm_ip "ip link set dev $VDPA_DEV_NAME up
-                            ip -6 address add $ipv6_addr/64 dev $VDPA_DEV_NAME"
+        $on_vm "ip link set dev $VDPA_DEV_NAME up
+                ip -6 address add $ipv6_addr/64 dev $VDPA_DEV_NAME"
         return
     fi
 
