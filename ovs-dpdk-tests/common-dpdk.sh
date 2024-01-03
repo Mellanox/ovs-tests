@@ -179,7 +179,7 @@ function ovs_add_port() {
         dpdk_opts+=" mtu_request=$mtu"
     fi
 
-    __ovs_add_port $bridge $port $port_type $dpdk_opts
+    __ovs_add_port $bridge $port $port_type "$dpdk_opts"
 }
 
 function __ovs_add_port() {
