@@ -29,7 +29,6 @@ function config() {
     debug "Restarting OVS"
     restart_openvswitch
     config_simple_bridge_with_rep 2
-    start_vdpa_vms
     config_ns ns0 $VF $IPV41 $LOCAL_IP
     config_ns ns1 $VF2 $IPV42 $IP2
     # Need to sleep 3 seconds at least for ipv6 address to be added

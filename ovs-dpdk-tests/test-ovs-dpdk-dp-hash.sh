@@ -22,7 +22,6 @@ function config() {
     ovs_conf_set hw-offload-ct-size 0
     cleanup_test
     config_simple_bridge_with_rep 2
-    start_vdpa_vms
     config_ns ns0 $VF $LOCAL_IP
     config_ns ns1 $VF2 $REMOTE_IP
     ovs-vsctl show

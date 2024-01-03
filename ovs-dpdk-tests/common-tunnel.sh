@@ -118,8 +118,6 @@ function config_tunnel() {
     fi
     config_simple_bridge_with_rep 0 true $br $nic
     config_remote_bridge_tunnel $tnl_id $remote_tnl_ip $tnl_type $reps $remote_br $pci
-    start_vdpa_vm1
-    [ $reps -gt 1 ] && start_vdpa_vm2
     config_ns ns0 $dev $local_ip
     local cmd="${dst_execution} ip link set dev $dev mtu 1400"
     eval $cmd

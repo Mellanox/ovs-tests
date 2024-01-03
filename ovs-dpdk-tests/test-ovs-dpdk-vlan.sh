@@ -23,7 +23,6 @@ function config() {
     cleanup_test $vlan_dev
     config_simple_bridge_with_rep 1
     config_remote_arm_bridge
-    start_vdpa_vm1
     ovs-vsctl set port $IB_PF0_PORT0 tag=$vlan
     config_ns ns0 $VF $LOCAL_IP
 }

@@ -19,7 +19,6 @@ trap cleanup_test EXIT
 function config() {
     cleanup_test
     config_simple_bridge_with_rep 1
-    start_vdpa_vm1
     config_ns ns0 $VF $LOCAL_IP
 }
 

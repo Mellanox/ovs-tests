@@ -22,7 +22,6 @@ function config() {
 
     cleanup_test
     config_simple_bridge_with_rep 2
-    start_vdpa_vms
     config_ns ns0 $VF $LOCAL_IP
     for i in `seq 10`; do
         local addr=${subnet}${i}

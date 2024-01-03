@@ -119,6 +119,8 @@ function configure_dpdk_rep_ports() {
             ovs_add_port VF $i $bridge $pci
         fi
     done
+
+    [ "$reps" -gt 0 ] && start_vdpa_vms
 }
 
 function ignore_expected_dpdk_err_msg() {
