@@ -53,8 +53,7 @@ function config() {
     start_clean_openvswitch
 
     config_simple_bridge_with_rep 2
-    start_vdpa_vm1
-    start_vdpa_vm2
+    start_vdpa_vms
 
     config_vlan_device_ns $DEV1 $VLAN_DEV1 $VLAN_ID $LOCAL_IP $VLAN_IP1 "ns0"
     config_vlan_device_ns $DEV2 $VLAN_DEV2 $VLAN_ID $REMOTE_IP $VLAN_IP2 "ns1"

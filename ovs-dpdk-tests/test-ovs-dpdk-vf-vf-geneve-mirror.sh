@@ -26,8 +26,7 @@ function config() {
     config_simple_bridge_with_rep 0
     config_remote_bridge_tunnel $TUNNEL_ID $REMOTE_TUNNEL_IP vxlan 2
     add_remote_mirror geneve br-int 150 $DUMMY_IP $MIRROR_IP
-    start_vdpa_vm1
-    start_vdpa_vm2
+    start_vdpa_vms
     config_ns ns0 $VF $LOCAL_IP
     config_ns ns1 $VF2 $REMOTE_IP
 }
