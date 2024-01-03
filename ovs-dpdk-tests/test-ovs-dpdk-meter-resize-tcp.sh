@@ -46,6 +46,7 @@ function run() {
 
     verify_ping
     generate_traffic "remote" $LOCAL_IP "none" true "ns0" "local" 5 19
+    sleep 2
     check_resize_counter
 }
 
