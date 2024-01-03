@@ -304,7 +304,7 @@ function wait_vdpa_vm() {
     local status
     local i
 
-    for i in {0..30}; do
+    for i in {0..60}; do
         status=$(virsh list --all | grep "$vm_name" | awk '{ print $3 }')
         if [ "${status}" == "running" ]; then
             break
