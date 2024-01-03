@@ -255,10 +255,12 @@ function config_simple_bridge_with_rep() {
 
 function start_vdpa_vm1() {
     start_vdpa_vm $NESTED_VM_NAME1 $NESTED_VM_IP1
+    wait_vdpa_vm $NESTED_VM_NAME1 $NESTED_VM_IP1
 }
 
 function start_vdpa_vm2() {
     start_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
+    wait_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
 }
 
 function start_vdpa_vms() {
@@ -287,6 +289,21 @@ function start_vdpa_vm() {
         fail "Could not start VM"
     fi
 
+    success "VM $vm_name started. wait for it to be ready."
+    # should call wait_vdpa_vm() before using the vm.
+}
+
+function wait_vdpa_vm() {
+    local vm_name=${1:-$NESTED_VM_NAME1}
+    local vm_ip=${2:-$NESTED_VM_IP1}
+
+    if ! is_vdpa; then
+        return
+    fi
+
+    local status
+    local i
+
     for i in {0..30}; do
         status=$(virsh list --all | grep "$vm_name" | awk '{ print $3 }')
         if [ "${status}" == "running" ]; then
@@ -314,7 +331,7 @@ function start_vdpa_vm() {
 
     sleep 2
     __on_remote $vm_ip true || fail "VM is not ready"
-    success "VM $vm_name started"
+    success "VM $vm_name is ready"
 }
 
 function config_local_tunnel_ip() {
