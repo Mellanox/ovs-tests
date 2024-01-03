@@ -292,6 +292,7 @@ function verify_ping() {
     local size=${3:-56}
     local packet_num=${4:-10}
     local interval=${5:-0.01}
+    local wait_time=${6:-2}
     local dst_execution="ip netns exec $namespace"
 
     if [ "${namespace}" == "none" ]; then
@@ -305,7 +306,7 @@ function verify_ping() {
         fi
     fi
 
-    cmd="${dst_execution} ping -q -c $packet_num -w 2 -i $interval $remote_ip -s $size"
+    cmd="${dst_execution} ping -q -c $packet_num -w $wait_time -i $interval $remote_ip -s $size"
 
     if [[ $remote_ip = *":"* ]]; then
         cmd+=" -6"
