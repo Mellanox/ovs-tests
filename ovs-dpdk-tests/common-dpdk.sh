@@ -254,18 +254,22 @@ function config_simple_bridge_with_rep() {
 }
 
 function start_vdpa_vm1() {
+    local wait_vm=${1:-"yes"}
     start_vdpa_vm $NESTED_VM_NAME1 $NESTED_VM_IP1
-    wait_vdpa_vm $NESTED_VM_NAME1 $NESTED_VM_IP1
+    [ "$wait_vm" == "yes" ] && wait_vdpa_vm $NESTED_VM_NAME1 $NESTED_VM_IP1
 }
 
 function start_vdpa_vm2() {
+    local wait_vm=${1:-"yes"}
     start_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
-    wait_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
+    [ "$wait_vm" == "yes" ] && wait_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
 }
 
 function start_vdpa_vms() {
-    start_vdpa_vm1
-    start_vdpa_vm2
+    start_vdpa_vm1 no_wait
+    start_vdpa_vm2 no_wait
+    wait_vdpa_vm $NESTED_VM_NAME1 $NESTED_VM_IP1
+    wait_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
 }
 
 function start_vdpa_vm() {
