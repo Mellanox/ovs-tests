@@ -23,7 +23,6 @@ cleanup_test
 config_tunnel gre
 config_local_tunnel_ip $LOCAL_TUN_IP br-phy
 config_remote_tunnel gre
-start_vdpa_vm1
 
 verify_ping
 generate_traffic "remote" $LOCAL_IP

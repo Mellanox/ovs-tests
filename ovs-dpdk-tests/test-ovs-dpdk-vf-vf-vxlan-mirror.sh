@@ -24,7 +24,6 @@ function config() {
 
     config_tunnel "vxlan" 2
     add_remote_mirror vxlan br-int 150 $DUMMY_IP $MIRROR_IP
-    start_vdpa_vm2
     config_ns ns1 $VF2 $REMOTE_IP
 }
 

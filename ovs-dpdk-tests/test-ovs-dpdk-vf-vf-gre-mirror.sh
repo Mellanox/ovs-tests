@@ -28,7 +28,6 @@ gre_set_entropy
 debug "Restarting OVS"
 start_clean_openvswitch
 config_tunnel vxlan 2
-start_vdpa_vm2
 add_remote_mirror gre br-int 150 $DUMMY_IP $MIRROR_IP
 config_ns ns1 $VF2 $REMOTE_IP
 
