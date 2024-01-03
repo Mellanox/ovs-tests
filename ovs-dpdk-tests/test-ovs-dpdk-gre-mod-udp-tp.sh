@@ -27,7 +27,7 @@ function config() {
     config_tunnel gre
     config_local_tunnel_ip $LOCAL_TUN_IP br-phy
     config_remote_tunnel gre
-    start_vdpa_vm
+    start_vdpa_vm1
 }
 
 function add_openflow_rules() {

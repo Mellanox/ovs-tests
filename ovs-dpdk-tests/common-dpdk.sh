@@ -253,6 +253,14 @@ function config_simple_bridge_with_rep() {
     configure_dpdk_rep_ports $reps $bridge $pci
 }
 
+function start_vdpa_vm1() {
+    start_vdpa_vm $NESTED_VM_NAME1 $NESTED_VM_IP1
+}
+
+function start_vdpa_vm2() {
+    start_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
+}
+
 function start_vdpa_vm() {
     local vm_name=${1:-$NESTED_VM_NAME1}
     local vm_ip=${2:-$NESTED_VM_IP1}

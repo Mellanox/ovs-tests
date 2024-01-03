@@ -21,8 +21,8 @@ function config() {
     bind_vfs
     cleanup_test
     config_simple_bridge_with_rep 2
-    start_vdpa_vm
-    start_vdpa_vm $NESTED_VM_NAME2 $NESTED_VM_IP2
+    start_vdpa_vm1
+    start_vdpa_vm2
     config_ns ns0 $VF $IPV41 $LOCAL_IP
     config_ns ns1 $VF2 $IPV42 $IP2
     # Need to sleep 3 seconds at least for ipv6 address to be added

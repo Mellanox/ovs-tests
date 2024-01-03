@@ -17,7 +17,7 @@ function config() {
     ovs_set_hw_offload_ct_size 0
     start_clean_openvswitch
     config_simple_bridge_with_rep 1
-    start_vdpa_vm
+    start_vdpa_vm1
     config_ns ns0 $VF $LOCAL_IP
 }
 

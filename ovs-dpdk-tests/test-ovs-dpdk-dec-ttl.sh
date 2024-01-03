@@ -24,7 +24,7 @@ function cleanup() {
 cleanup_test
 config_remote_nic
 config_simple_bridge_with_rep 1
-start_vdpa_vm
+start_vdpa_vm1
 config_ns ns0 $VF $LOCAL_IP
 
 ovs-ofctl add-flow br-phy ip,actions=dec_ttl,normal
