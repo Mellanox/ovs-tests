@@ -1884,7 +1884,7 @@ WARNING:| RIP:| BUG:|refcount > 1|refcount_t|segfault|in_atomic|hw csum failure|
 list_del corruption|which is not allocated|Objects remaining|assertion failed|\
 Slab cache still has objects|Unknown object at|\
 warning: consoletype is now deprecated|warning: use tty|\
-kfree for unknown address|UBSAN|KASAN"
+kfree for unknown address|UBSAN|KASAN|systemd-coredump"
     local memleak="new suspected memory leaks"
     local memtrack="memtrack_report: Summary: .* leak\(s\) detected"
     local mlx5_errs="mlx5_core .* err |mlx5_core .* failed |syndrome|health compromised|wait_func_handle_exec_timeout|\
@@ -1893,7 +1893,7 @@ Can't enable single FDB mode"
     local fw_errs="firmware internal error|assert_var|\
 Command completion arrived after timeout|Error cqe|failed reclaiming pages"
     local ovs_errs_redundant="Kernel flower acknowledgment does not match request"
-    local ovs_errs="Segmentation fault|core dumped|vswitchd.*killed|\[DOCA\]\[ERR\]"
+    local ovs_errs="Segmentation fault|core dumped|vswitchd.*killed|\[DOCA\]\[ERR\]|ovs-vswitchd.*\|EMER\|"
     local look_ahead="Call Trace:|Allocated by task|Freed by task"
     local look_ahead_count=12
     local filter="networkd-dispatcher|nm-dispatcher|uses legacy ethtool link settings|\
