@@ -2422,7 +2422,7 @@ ufid 00000000-0000-0000-0000-000000000000"
             if echo "$a" | grep -q -E "$errs"; then
                 err "Detected anomalies ($errs) in ovs log:"
             else
-                echo "From ovs-vswitchd log:"
+                title "From ovs-vswitchd log:"
             fi
             echo "$a" | grep --color -E "$errs|\$"
         fi
