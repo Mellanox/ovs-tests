@@ -9,6 +9,7 @@ TESTDIR=$(cd `dirname $__argv0` ; pwd)
 DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" &>/dev/null && pwd)
 SET_MACS="$DIR/set-macs.sh"
 SOS_REPORT_COLLECTOR="/.autodirect/net_linux_verification/release/doca/scripts/collect_sos_report.sh"
+COREDUMP_PATH="/.autodirect/net_linux_verification/release/doca/coredumps"
 OVS_MEMORY="$DIR/ovs-memory.sh"
 : "${OVS_MEMORY_CSV_OUTPUT:="/workspace/ovs-memory.csv"}"
 
@@ -2429,6 +2430,24 @@ ufid 00000000-0000-0000-0000-000000000000"
     fi
 }
 
+function __copy_coredump() {
+    local dump=$1
+    [ -z "$dump" ] && return
+    [ ! -e $COREDUMP_PATH ] && return
+    [ ! -f /workspace/cloud_tools/.setup_info ] && return
+    . /workspace/cloud_tools/.setup_info
+    [ -z "$CLOUD_SESSION_ID" ] && return
+    local TIME=`date +%Y%m%d%H%M`
+    local LABEL="${TESTNAME}_${TIME}"
+    local dest_path="$COREDUMP_PATH/$CLOUD_SESSION_ID/`hostname`/$LABEL"
+    log "Compress coredump"
+    gzip $dump
+    dump+=".gz"
+    log "Copy coredump to $dest_path/`basename $dump`"
+    mkdir -p $dest_path || err "Failed to create path $dest_path"
+    sudo cp $dump $dest_path || err "Failed to copy coredump to $dest_path"
+}
+
 function coredump_info() {
     # rhel/fedora
     SYSTEMD_CORE_DUMP_PATH="/var/lib/systemd/coredump"
@@ -2437,28 +2456,45 @@ function coredump_info() {
 
     local since=`get_test_time_elapsed`
     local min
-    local dumps
+    local dump
     # convert to minutes and have at least 1 minute.
     min=$(bc <<< "($since+59)/60")
 
     # CX host.
-    dumps=$(find $SYSTEMD_CORE_DUMP_PATH -mmin -$min -type f -print 2>/dev/null)
-    if [ -n "$dumps" ]; then
-        err "Detected core dumps"
-        log $dumps
+    dump=$(find $SYSTEMD_CORE_DUMP_PATH -mmin -$min -type f -print 2>/dev/null | tail -1)
+    if [ -n "$dump" ]; then
+        err "Detected systemd coredump"
+        log $dump
         err "Coredump info"
         coredumpctl --since="$since sec ago" list
-        coredumpctl --since="$since sec ago" -1 info | head -n50
-        # TODO - copy the core dump file
+        # the dump command seems to also output the info.
+        #coredumpctl --since="$since sec ago" -1 info | head -n50
+        local TIME=`date +%Y%m%d%H%M`
+        dump="/tmp/coredump_${TESTNAME}_${TIME}"
+        coredumpctl --since="$since sec ago" -1 -o $dump dump
+        __copy_coredump $dump
         return
     fi
 
     # Could be host or BF ARM.
-    dumps=$(bf_wrap "find $APPORT_CORE_DUMP_PATH -mmin -$min -type f -print 2>/dev/null")
-    if [ -n "$dumps" ]; then
-        err "Detected core dumps"
-        echo $dumps
-        # TODO - copy the core dump file
+    dump=$(bf_wrap "find $APPORT_CORE_DUMP_PATH -mmin -$min -type f -print 2>/dev/null | tail -1")
+    if [ -n "$dump" ]; then
+        err "Detected apport coredump"
+        log $dump
+        local i
+        local size
+        for i in `seq 5`; do
+            size=$(bf_wrap stat -c "%s" $dump)
+            if [ "$size" != 0 ]; then
+                break
+            fi
+            echo "Waiting for coredump to flush"
+            sleep 1
+        done
+        [ "$size" == 0 ] && return
+        cp $dump /tmp
+        dump="/tmp/`basename $dump`"
+        __copy_coredump $dump
     fi
 }
 
