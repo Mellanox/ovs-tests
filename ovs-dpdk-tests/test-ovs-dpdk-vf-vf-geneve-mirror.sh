@@ -25,7 +25,6 @@ function config() {
 
     config_tunnel "vxlan" 2
     add_remote_mirror geneve br-int 150 $DUMMY_IP $MIRROR_IP
-    config_ns ns0 $VF $LOCAL_IP
     config_ns ns1 $VF2 $REMOTE_IP
 }
 
