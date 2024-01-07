@@ -13,13 +13,19 @@ enable_switchdev
 require_interfaces REP NIC
 bind_vfs
 
-trap cleanup_test EXIT
+function cleanup() {
+    ovs_conf_remove hw-offload-ct-size
+    cleanup_test
+}
+
+trap cleanup EXIT
 
 remote_ips=""
 
 function config() {
     local subnet="${REMOTE_IP::-1}"
 
+    ovs_conf_set hw-offload-ct-size 0
     cleanup_test
     config_simple_bridge_with_rep 2
     config_ns ns0 $VF $LOCAL_IP
@@ -49,7 +55,7 @@ function add_openflow_rules() {
     local bridge="br-phy"
 
     ovs-ofctl del-flows $bridge
-    ovs-ofctl add-group $bridge group_id=1,type=select,bucket=output:$IB_PF0_PORT1
+    ovs-ofctl add-group $bridge group_id=1,type=select,selection_method=doca,bucket=output:$IB_PF0_PORT1
     ovs-ofctl add-flow $bridge "in_port=$IB_PF0_PORT0,actions=group=1"
     ovs-ofctl add-flow $bridge "in_port=$IB_PF0_PORT1,actions=$IB_PF0_PORT0"
 
@@ -74,5 +80,5 @@ function run() {
 
 run
 trap - EXIT
-cleanup_test
+cleanup
 test_done
