@@ -15,6 +15,7 @@ bind_vfs
 function cleanup() {
     ovs_conf_remove pmd-quiet-idle
     cleanup_test
+    config_sriov 2
 }
 
 trap cleanup EXIT
@@ -110,8 +111,6 @@ function run() {
     echo > $output_file
     create_openflow_rules_mac_change_batch
     apply_batch
-
-    config_sriov 2
 }
 
 run
