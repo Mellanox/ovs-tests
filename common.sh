@@ -2595,9 +2595,14 @@ function __setup_clean() {
 }
 
 function warn_if_redmine_bug_is_open() {
+    local issues=$@
     local i
-    local issues=`head -n50 $TESTDIR/$TESTNAME | grep "^#" | grep -o "Bug SW #[0-9]\+" | cut -d"#" -f2`
     local p=0
+
+    if [ -z "$issues" ]; then
+        issues=`head -n50 $TESTDIR/$TESTNAME | grep "^#" | grep -o "Bug SW #[0-9]\+" | cut -d"#" -f2`
+    fi
+
     for i in $issues ; do
         redmine_info $i
         if redmine_bug_is_open ; then
