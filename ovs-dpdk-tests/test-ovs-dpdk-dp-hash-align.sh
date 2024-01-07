@@ -64,12 +64,11 @@ function run() {
     add_openflow_rules
 
     for ip in $remote_ips; do
-        echo "ip=$ip"
+        debug "ip $ip"
         verify_ping $ip ns0 56 10 0.1
         sleep 1
         validate_rules
-        # wait for rules to age
-        sleep 12
+        ovs_flush_rules
     done
 }
 

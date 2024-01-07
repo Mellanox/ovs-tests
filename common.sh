@@ -2129,6 +2129,12 @@ function __restart_openvswitch() {
                   __print_ovs_version_once"
 }
 
+function ovs_flush_rules() {
+    ovs_conf_set max-idle 1
+    sleep 0.5
+    ovs_conf_remove max-idle
+}
+
 function restart_openvswitch() {
     __restart_openvswitch
     if [ "$__ovs_log_levels" != "" ]; then

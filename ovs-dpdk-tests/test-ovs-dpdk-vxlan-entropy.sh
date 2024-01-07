@@ -51,12 +51,6 @@ function verify_entropy() {
     fi
 }
 
-function ovs_flush_rules() {
-    ovs_conf_set max-idle 1
-    sleep 0.5
-    ovs_conf_remove max-idle
-}
-
 function test_udp() {
     title "Test udp"
 
