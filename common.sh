@@ -2471,7 +2471,7 @@ function coredump_info() {
     if [ -n "$dump" ]; then
         err "Detected systemd coredump"
         log $dump
-        err "Coredump info"
+        debug "Coredump info"
         coredumpctl --since="$since sec ago" list
         # the dump command seems to also output the info.
         #coredumpctl --since="$since sec ago" -1 info | head -n50
@@ -2487,6 +2487,7 @@ function coredump_info() {
     if [ -n "$dump" ]; then
         err "Detected apport coredump"
         log $dump
+        debug "Coredump info"
         local i
         local size
         for i in `seq 5`; do
