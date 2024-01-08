@@ -35,11 +35,18 @@ function add_openflow_rules() {
     ovs-ofctl del-flows $bridge
     ovs-ofctl add-group $bridge group_id=1,type=select,selection_method=doca,bucket=watch_port=$IB_PORT,output:$IB_PORT
 
+    # avoid dp_hash on ip6
+    ovs-ofctl add-flow $bridge in_port=$IB_PF0_PORT0,ip6,actions=drop
+
     ovs-ofctl add-flow $bridge in_port=$IB_PF0_PORT0,actions=vxlan_$bridge
     ovs-ofctl add-flow $bridge in_port=vxlan_$bridge,actions=$IB_PF0_PORT0
 
     ovs-ofctl add-flow $bridge in_port=LOCAL,actions=group:1
     ovs-ofctl add-flow $bridge in_port=$IB_PORT,actions=LOCAL
+
+    # avoid dp_hash on arp
+    local tun_mac=$(on_remote "cat /sys/class/net/$TUNNEL_DEV/address")
+    ip netns exec ns0 ip n r $REMOTE_IP dev $VF lladdr $tun_mac
 
     debug "OVS groups:"
     ovs-ofctl dump-groups $bridge --color
