@@ -58,7 +58,7 @@ function validate_rules() {
 }
 
 function verify_entropy() {
-    on_remote "tcpdump -r /tmp/out -n udp[$ip_pos:4]=0x01010108 | grep -o \"7.7.7.8.[0-9]\+\" | cut -d. -f5" > /tmp/ports
+    on_remote "tcpdump -r /tmp/out -n udp[$ip_pos:4]=0x01010107 | grep -o \"7.7.7.7.[0-9]\+\" | cut -d. -f5" > /tmp/ports
 
     local port1=`head -1 /tmp/ports`
     local port2=`tail -1 /tmp/ports`
