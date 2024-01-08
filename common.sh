@@ -2441,7 +2441,7 @@ function __backtrace_coredump() {
     local core=$2
     [ ! -f $exe ] && return
     [ ! -f $core ] && return
-    [ ! which gdb >/dev/null ] && return
+    ! which gdb &>/dev/null && return
     gdb $exe $core -ex "bt" -batch 2>/dev/null
 }
 
