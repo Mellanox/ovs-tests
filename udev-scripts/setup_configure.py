@@ -346,6 +346,7 @@ class SetupConfigure(object):
         except IOError:
             port_name = ''
             try:
+                # Special case for UEK6 with mlnx ofed.
                 port_number = runcmd_output('devlink port show %s -j 2> /dev/null | jq -e .[][].port' % port).strip()
                 if port_number != '':
                     port_name = 'p%s' % port_number
