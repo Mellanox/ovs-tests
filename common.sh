@@ -2436,6 +2436,15 @@ ufid 00000000-0000-0000-0000-000000000000"
     fi
 }
 
+function __backtrace_coredump() {
+    local exe=$1
+    local core=$2
+    [ ! -f $exe ] && return
+    [ ! -f $core ] && return
+    [ ! which gdb >/dev/null ] && return
+    gdb $exe $core -ex "bt" -batch 2>/dev/null
+}
+
 function __copy_coredump() {
     local dump=$1
     [ -z "$dump" ] && return
@@ -2478,6 +2487,8 @@ function coredump_info() {
         local TIME=`date +%Y%m%d%H%M`
         dump="/tmp/coredump_${TESTNAME}_${TIME}"
         coredumpctl --since="$since sec ago" -1 -o $dump dump
+        local exe=$(coredumpctl --since="$since sec ago" info -1 | grep Executable: | awk {'print $2'})
+        __backtrace_coredump $exe $dump
         __copy_coredump $dump
         return
     fi
@@ -2500,7 +2511,10 @@ function coredump_info() {
         done
         [ "$size" == 0 ] && return
         cp $dump /tmp
-        dump="/tmp/`basename $dump`"
+        local base=$(basename $dump)
+        local exe=$(echo $base | cut -d. -f2 | sed 's@_@/@g')
+        dump="/tmp/$base"
+        __backtrace_coredump $exe $dump
         __copy_coredump $dump
     fi
 }
