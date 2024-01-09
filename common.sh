@@ -2460,7 +2460,7 @@ function __copy_coredump() {
     gzip $dump
     dump+=".gz"
     log "Copy coredump to $dest_path/`basename $dump`"
-    mkdir -p $dest_path || err "Failed to create path $dest_path"
+    sudo mkdir -p $dest_path || err "Failed to create path $dest_path"
     sudo cp $dump $dest_path || err "Failed to copy coredump to $dest_path"
 }
 
