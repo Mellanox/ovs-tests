@@ -2448,6 +2448,7 @@ function __backtrace_coredump() {
 function __copy_coredump() {
     local dump=$1
     [ -z "$dump" ] && return
+    [ ! -f $dump ] && return
     [ ! -e $COREDUMP_PATH ] && return
     [ ! -f /workspace/cloud_tools/.setup_info ] && return
     . /workspace/cloud_tools/.setup_info
