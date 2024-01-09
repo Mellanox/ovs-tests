@@ -594,6 +594,11 @@ function check_dpdk_offloads() {
     local filter='arp\|drop\|ct_state(0x21/0x21)\|flow-dump\|nd(\|33:33:00:00'
     local regex_filter='icmp.*ct\(.*'
     local ovs_type="DPDK"
+    local bridge
+
+    for bridge in `ovs-vsctl list-br`; do
+        filter+="\|in_port($bridge).*used:never"
+    done
 
     if is_doca; then
         ovs_type="DOCA"
