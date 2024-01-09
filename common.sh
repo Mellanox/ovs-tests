@@ -2511,12 +2511,12 @@ function coredump_info() {
             sleep 1
         done
         [ "$size" == 0 ] && return
-        cp $dump /tmp
+        bf_wrap cp $dump /tmp
         local base=$(basename $dump)
         local exe=$(echo $base | cut -d. -f2 | sed 's@_@/@g')
         dump="/tmp/$base"
-        __backtrace_coredump $exe $dump
-        __copy_coredump $dump
+        bf_wrap_exec __backtrace_coredump $exe $dump
+        bf_wrap_exec __copy_coredump $dump
     fi
 }
 
