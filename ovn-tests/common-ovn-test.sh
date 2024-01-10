@@ -357,6 +357,17 @@ function ovn_config_interface_namespace() {
     sleep 5
 }
 
+function skip_case_by_env_key() {
+    local key=$1
+    local val=${!key}
+
+    if [ -n "$val" ]; then
+        warn "Ignore by key $key: $val"
+        return 0
+    fi
+    return 1
+}
+
 function run_local_traffic() {
     local icmp6_offload=${1:-"icmp6_is_offloaded"}
     local icmp4_offload=${2:-"icmp4_is_offloaded"}
@@ -379,10 +390,7 @@ function run_local_traffic() {
     title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $receiver_dev($receiver_ipv4) offloaded"
     check_local_udp_traffic_offload $receiver_ipv4
 
-    if [ -n "$IGNORE_IPV6_TRAFFIC" ]; then
-        warn "$IGNORE_IPV6_TRAFFIC"
-        return
-    fi
+    skip_case_by_env_key IGNORE_IPV6_TRAFFIC && return
 
     if [ "$icmp6_offload" == "icmp6_is_offloaded" ]; then
         title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $receiver_dev($receiver_ipv6) offloaded"
@@ -423,10 +431,7 @@ function run_remote_traffic() {
     title "Test UDP traffic between $CLIENT_VF($CLIENT_IPV4) -> $receiver_dev($receiver_ipv4) offloaded"
     check_remote_udp_traffic_offload $receiver_ipv4
 
-    if [ -n "$IGNORE_IPV6_TRAFFIC" ]; then
-        warn "$IGNORE_IPV6_TRAFFIC"
-        return
-    fi
+    skip_case_by_env_key IGNORE_IPV6_TRAFFIC && return
 
     if [ "$icmp6_offload" == "icmp6_is_offloaded" ]; then
         title "Test ICMP6 traffic between $CLIENT_VF($CLIENT_IPV6) -> $receiver_dev($receiver_ipv6) offloaded"
