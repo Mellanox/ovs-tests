@@ -616,6 +616,7 @@ function generate_roce_traffic() {
 
 function validate_offload() {
     local ip=$1
+    local expected_sw_packets=${2:-100000}
     local is_ct=0
 
     __ovs_using_ct && is_ct=1
@@ -627,7 +628,7 @@ function validate_offload() {
 
     wait_traffic
 
-    check_dpdk_offloads $ip
+    check_dpdk_offloads $ip $expected_sw_packets
 }
 
 function verify_server_log() {

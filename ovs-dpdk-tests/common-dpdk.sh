@@ -551,7 +551,7 @@ function query_sw_packets_in_sent_packets_percentage() {
 }
 
 function query_sw_packets() {
-    local expected_num_of_pkts=100000
+    local expected_num_of_pkts=${1:-100000}
 
     if [[ "$short_device_name" == "cx5"* ]]; then
         expected_num_of_pkts=350000
@@ -591,6 +591,7 @@ function check_offload_contains() {
 
 function check_dpdk_offloads() {
     local IP=$1
+    local expected_sw_packets=${2:-100000}
     local filter='arp\|drop\|ct_state(0x21/0x21)\|flow-dump\|nd(\|33:33:00:00'
     local regex_filter='icmp.*ct\(.*'
     local ovs_type="DPDK"
@@ -633,7 +634,7 @@ function check_dpdk_offloads() {
     elif [ $x -eq 0 ]; then
         err "No offloaded rules."
     else
-        query_sw_packets
+        query_sw_packets $expected_sw_packets
     fi
 
     rm -rf /tmp/offloaded.txt /tmp/filtered.txt
