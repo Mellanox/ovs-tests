@@ -91,6 +91,7 @@ function run() {
     on_remote ip l del vm &> /dev/null
 }
 
+add_expected_error_for_issue 3667910 "Failed to lock SW reset semaphore"
 run
 trap - EXIT
 cleanup
