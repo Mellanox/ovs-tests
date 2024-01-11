@@ -599,6 +599,7 @@ function check_dpdk_offloads() {
 
     for bridge in `ovs-vsctl list-br`; do
         filter+="\|in_port($bridge).*used:never"
+        filter+="\|actions:$bridge"
     done
 
     if is_doca; then
