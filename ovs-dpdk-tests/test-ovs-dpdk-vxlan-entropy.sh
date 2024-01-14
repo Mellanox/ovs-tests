@@ -53,11 +53,15 @@ function verify_entropy() {
     fi
 }
 
+function start_tcpdump() {
+    on_remote "rm -f /tmp/*.pcap ; tcpdump -nnei $NIC -w $PCAP" &
+}
+
 function test_udp() {
     title "Test udp"
 
     debug "Capture packets"
-    on_remote "tcpdump -nnei $NIC -w $PCAP" &
+    start_tcpdump
 
     debug "Send udp packets"
     ip netns exec ns0 python -c "from scapy.all import *; p=Ether()/IP(src='1.1.1.1')/UDP(); sendp(p, iface='$VF', count=10, inter=0.5)"
@@ -74,7 +78,7 @@ function test_tcp() {
     title "Test tcp"
 
     debug "Capture packets"
-    on_remote "tcpdump -nnei $NIC -w $PCAP" &
+    start_tcpdump
 
     debug "Send tcp packets"
     ip netns exec ns0 python -c "from scapy.all import *; p=Ether()/IP(src='1.1.1.1')/TCP(); sendp(p, iface='$VF', count=10, inter=0.5)"
@@ -91,7 +95,7 @@ function test_icmp() {
     title "Test icmp"
 
     debug "Capture packets"
-    on_remote "tcpdump -nnei $NIC -w $PCAP" &
+    start_tcpdump
 
     debug "Send icmp packets"
     ip netns exec ns0 python -c "from scapy.all import *; p=Ether()/IP(src='1.1.1.1')/ICMP(); sendp(p, iface='$VF', count=10, inter=0.5)"

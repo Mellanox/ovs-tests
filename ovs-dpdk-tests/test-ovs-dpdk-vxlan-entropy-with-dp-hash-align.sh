@@ -82,11 +82,15 @@ function verify_entropy() {
     fi
 }
 
+function start_tcpdump() {
+    on_remote "rm -f /tmp/*.pcap ; tcpdump -nnei $NIC -w $PCAP" &
+}
+
 function test_icmp() {
     title "Test icmp"
 
     debug "Capture packets"
-    on_remote "tcpdump -nnei $NIC -w $PCAP" &
+    start_tcpdump
     sleep 0.5
 
     ovs_flush_rules
