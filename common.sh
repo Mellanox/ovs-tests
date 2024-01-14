@@ -1824,7 +1824,7 @@ function add_expected_error_for_issue() {
 
     redmine_info $issue_id
 
-    if redmine_bug_is_open ; then
+    if redmine_bug_is_open_or_err ; then
         add_expected_error_msg $message
     fi
 }
@@ -2718,12 +2718,20 @@ RM_STATUS_LIST_CLOSED="$RM_STATUS_CLOSED $RM_STATUS_REJECTED
 
 function redmine_bug_is_open() {
     local i
+    [ "$RM_STATUS_ID" = "" ] && return 1
     for i in $RM_STATUS_LIST_CLOSED ; do
-        if [ $RM_STATUS_ID = $i ]; then
+        if [ "$RM_STATUS_ID" == $i ]; then
             return 1
         fi
     done
     return 0
+}
+
+function redmine_bug_is_open_or_err() {
+    if [ -z $RM_STATUS_ID ] || redmine_bug_is_open; then
+        return 0
+    fi
+    return 1
 }
 
 function redmine_info() {
