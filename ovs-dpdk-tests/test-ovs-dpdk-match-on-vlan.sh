@@ -15,27 +15,27 @@ require_interfaces NIC NIC2
 
 vlan_ip=2.2.2.1
 remote_vlan_ip=2.2.2.2
+vlan_dev="$VF.3458"
 
 function config_vlans() {
-    local dev="$VF1.3458"
-    ip link add link $VF1 name "$VF1.3458" type vlan id 3458
-    ip address flush $dev
-    ip address add $vlan_ip/24 dev $dev
-    ip link set $dev up
+    ip link add link $VF name $vlan_dev type vlan id 3458
+    ip address flush $vlan_dev
+    ip address add $vlan_ip/24 dev $vlan_dev
+    ip link set $vlan_dev up
 
-    on_remote "ip link add link $VF1 name "$VF1.3458" type vlan id 3458
-               ip address flush $dev
-               ip address add $remote_vlan_ip/24 dev $dev
-               ip link set $dev up"
+    on_remote "ip link add link $VF name $vlan_dev type vlan id 3458
+               ip address flush $vlan_dev
+               ip address add $remote_vlan_ip/24 dev $vlan_dev
+               ip link set $vlan_dev up"
 }
 
 function set_vfs_ips() {
-    ip address flush $VF1
-    ip addr add $LOCAL_IP/24 dev $VF1
-    ip link set $VF1 up
-    on_remote "ip address flush $VF1
-               ip addr add $REMOTE_IP/24 dev $VF1
-               ip link set $VF1 up"
+    ip address flush $VF
+    ip addr add $LOCAL_IP/24 dev $VF
+    ip link set $VF up
+    on_remote "ip address flush $VF
+               ip addr add $REMOTE_IP/24 dev $VF
+               ip link set $VF up"
 }
 
 function config() {
@@ -47,9 +47,11 @@ function config() {
 
 function cleanup() {
     cleanup_test
-    ip link del "$VF.3458" >/dev/null
+    ip link del $vlan_dev >/dev/null
+    ip address flush $VF
     remote_cleanup_test
-    on_remote "ip link del "$VF.3458" >/dev/null"
+    on_remote "ip link del $vlan_dev >/dev/null
+               ip address flush $VF"
 }
 
 function run_traffic() {
