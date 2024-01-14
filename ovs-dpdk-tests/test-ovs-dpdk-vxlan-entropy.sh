@@ -8,6 +8,8 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common-dpdk.sh
 
+PCAP="/tmp/out.pcap"
+
 require_remote_server
 
 config_sriov 2
@@ -36,7 +38,7 @@ function config_push_vlan() {
 }
 
 function verify_entropy() {
-    on_remote "tcpdump -r /tmp/out -n udp[$ip_pos:4]=0x01010101 | grep -o \"7.7.7.7.[0-9]\+\" | cut -d. -f5" > /tmp/ports
+    on_remote "tcpdump -r $PCAP -n udp[$ip_pos:4]=0x01010101 | grep -o \"7.7.7.7.[0-9]\+\" | cut -d. -f5" > /tmp/ports
 
     local port1=`head -1 /tmp/ports`
     local port2=`tail -1 /tmp/ports`
@@ -55,7 +57,7 @@ function test_udp() {
     title "Test udp"
 
     debug "Capture packets"
-    on_remote "tcpdump -nnei $NIC -w /tmp/out" &
+    on_remote "tcpdump -nnei $NIC -w $PCAP" &
 
     debug "Send udp packets"
     ip netns exec ns0 python -c "from scapy.all import *; p=Ether()/IP(src='1.1.1.1')/UDP(); sendp(p, iface='$VF', count=10, inter=0.5)"
@@ -72,7 +74,7 @@ function test_tcp() {
     title "Test tcp"
 
     debug "Capture packets"
-    on_remote "tcpdump -nnei $NIC -w /tmp/out" &
+    on_remote "tcpdump -nnei $NIC -w $PCAP" &
 
     debug "Send tcp packets"
     ip netns exec ns0 python -c "from scapy.all import *; p=Ether()/IP(src='1.1.1.1')/TCP(); sendp(p, iface='$VF', count=10, inter=0.5)"
@@ -89,7 +91,7 @@ function test_icmp() {
     title "Test icmp"
 
     debug "Capture packets"
-    on_remote "tcpdump -nnei $NIC -w /tmp/out" &
+    on_remote "tcpdump -nnei $NIC -w $PCAP" &
 
     debug "Send icmp packets"
     ip netns exec ns0 python -c "from scapy.all import *; p=Ether()/IP(src='1.1.1.1')/ICMP(); sendp(p, iface='$VF', count=10, inter=0.5)"

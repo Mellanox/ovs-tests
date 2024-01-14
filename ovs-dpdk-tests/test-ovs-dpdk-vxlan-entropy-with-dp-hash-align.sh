@@ -8,6 +8,8 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common-dpdk.sh
 
+PCAP="/tmp/out.pcap"
+
 require_remote_server
 
 config_sriov 2
@@ -65,7 +67,7 @@ function validate_rules() {
 }
 
 function verify_entropy() {
-    on_remote "tcpdump -r /tmp/out -n udp[$ip_pos:4]=0x01010107 | grep -o \"7.7.7.7.[0-9]\+\" | cut -d. -f5" > /tmp/ports
+    on_remote "tcpdump -r $PCAP -n udp[$ip_pos:4]=0x01010107 | grep -o \"7.7.7.7.[0-9]\+\" | cut -d. -f5" > /tmp/ports
 
     local port1=`head -1 /tmp/ports`
     local port2=`tail -1 /tmp/ports`
@@ -84,9 +86,9 @@ function test_icmp() {
     title "Test icmp"
 
     debug "Capture packets"
-    on_remote "tcpdump -nnei $NIC -w /tmp/out" &
+    on_remote "tcpdump -nnei $NIC -w $PCAP" &
     sleep 0.5
-    
+
     ovs_flush_rules
     debug "Send icmp packets"
     exec_dbg ip netns exec ns0 ping -q $REMOTE_IP -i 0.5 -c 10 || fail "Ping failed"
