@@ -17,7 +17,9 @@ function misc_functions() {
         "ovs-vswitchd -h" \
         "ovs-appctl doca/log-get" \
         "ovs-appctl doca/log-set error" \
-        "ovs-appctl doca/log-set debug" ; do
+        "ovs-appctl doca/log-set debug" \
+        "ovs-vsctl set Open_vSwitch . other_config:enable-statistics=true" \
+        "ovs-vsctl remove Open_vSwitch . other_config enable-statistics" ; do
         title "Command: $cmd"
         $cmd || err "Failed cmd: $cmd"
     done
