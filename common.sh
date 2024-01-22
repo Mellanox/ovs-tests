@@ -2075,16 +2075,20 @@ function check_ovs_settings() {
     fi
 }
 
+function ovs_del_dp_ovs_system() {
+    if ovs-appctl dpctl/dump-dps 2>/dev/null | grep -q ovs-system ; then
+        warn "OVS del-dp system@ovs-system"
+        ovs-appctl dpctl/del-dp system@ovs-system
+    fi
+}
+
 function check_dpdk_init() {
-    if [ "$DPDK" == 1 ]; then
+    if [ "$DOCA" == 1 ]; then
+        ovs_reset_conf "doca-init" "true"
+        ovs_del_dp_ovs_system
+    elif [ "$DPDK" == 1 ]; then
         ovs_reset_conf "dpdk-init" "true"
-
-        [ "$DOCA" == 1 ] && ovs_reset_conf "doca-init" "true"
-
-        if ovs-appctl dpctl/dump-dps 2>/dev/null | grep -q ovs-system ; then
-            warn "OVS del-dp system@ovs-system"
-            ovs-appctl dpctl/del-dp system@ovs-system
-        fi
+        ovs_del_dp_ovs_system
     else
         ovs_reset_conf "dpdk-init"
         ovs_reset_conf "doca-init"
