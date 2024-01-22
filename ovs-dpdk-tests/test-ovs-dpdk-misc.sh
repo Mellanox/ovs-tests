@@ -15,6 +15,10 @@ function misc_functions() {
     # short commands
     for cmd in \
         "ovs-vswitchd -h" \
+        "ovs-dpctl -h" \
+        "ovs-vsctl -h" \
+        "ovs-ofctl -h" \
+        "ovs-appctl -h" \
         "ovs-appctl doca/log-get" \
         "ovs-appctl doca/log-set error" \
         "ovs-appctl doca/log-set debug" \
