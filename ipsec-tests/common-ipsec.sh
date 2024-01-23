@@ -106,6 +106,7 @@ function ipsec_config() {
     local offload=$SHOULD_OFFLOAD
     if [ "$offload" == "full_offload" ] && is_ipsec_ofed_full_offload; then
         offload="mlnx_ofed_full_offload"
+        log $offload
     fi
 
     local offload_in offload_out
