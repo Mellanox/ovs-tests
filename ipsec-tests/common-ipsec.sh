@@ -223,6 +223,7 @@ function ipsec_config_on_both_sides() {
 
 function ipsec_flush_local() {
     local dev=${1:-"$NIC"}
+    log "Flush xfrm state and policy"
     ip xfrm state flush
     ip xfrm policy flush
     ip address flush $dev
@@ -230,6 +231,7 @@ function ipsec_flush_local() {
 
 function ipsec_flush_remote() {
     local dev=${1:-"$NIC"}
+    log "Flush remote xfrm state and policy"
     on_remote "ip xfrm state flush
                ip xfrm policy flush
                ip address flush $dev"
