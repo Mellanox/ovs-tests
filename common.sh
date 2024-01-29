@@ -248,7 +248,7 @@ function __setup_common() {
     require_interfaces NIC NIC2
     require_cmd lspci ethtool tc bc jq
     fail_if_err
-    bf_wrap ulimit -c unlimited
+    bf_wrap "ulimit -c unlimited ; sysctl -w fs.suid_dumpable=1"
 
     sysfs_pci_device=`readlink -f /sys/class/net/$NIC/../../`
     SRIOV_NUMVFS_NIC=$sysfs_pci_device/sriov_numvfs
