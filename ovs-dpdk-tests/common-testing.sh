@@ -308,7 +308,7 @@ function verify_ping() {
         fi
     fi
 
-    cmd="${dst_execution} ping -q -c $packet_num -w $wait_time -i $interval $remote_ip -s $size"
+    local cmd="${dst_execution} ping -q -c $packet_num -w $wait_time -i $interval $remote_ip -s $size"
 
     if [[ $remote_ip = *":"* ]]; then
         cmd+=" -6"
