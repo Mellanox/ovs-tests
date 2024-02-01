@@ -76,12 +76,14 @@ def start():
             continue
 
         _tags = TAGS_ALWAYS[:]
-        if r.content.find('TEST PASSED') >= 0:
+        out = r.content.decode('ascii', 'ignore').strip()
+
+        if out.find('TEST PASSED') >= 0:
             _tags.extend(TAGS_ON_SUCCESS)
 
         br = False
         for i in _tags:
-            for line in r.content.splitlines():
+            for line in out.splitlines():
                 if (i.lower() in line.lower()) and not expected_line(test, line):
                     break
             if i.lower() not in line.lower():
@@ -94,7 +96,7 @@ def start():
         if br:
             continue
 
-        for line in r.content.splitlines():
+        for line in out.splitlines():
             m = re.search(r'.*\.sh: line .*: .*: .*', line)
             if m:
                 print('%s - bash error: %s' % (test, m.group()))
