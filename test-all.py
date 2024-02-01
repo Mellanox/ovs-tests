@@ -762,7 +762,7 @@ def get_doca_version():
 
 def get_ovs_version():
     try:
-        output = subprocess.check_output("ovs-vswitchd --version", shell=True).decode().strip()
+        output = subprocess.check_output("ovs-vswitchd --version", shell=True, stderr=subprocess.DEVNULL).decode().strip()
     except subprocess.CalledProcessError:
         return ''
     return output.splitlines()[0].split()[-1]
@@ -770,7 +770,7 @@ def get_ovs_version():
 
 def get_mofed_version():
     try:
-        output = subprocess.check_output("ofed_info -s", shell=True).decode().strip()
+        output = subprocess.check_output("ofed_info -s", shell=True, stderr=subprocess.DEVNULL).decode().strip()
     except subprocess.CalledProcessError:
         return ''
     return output.strip(':')
