@@ -2085,9 +2085,11 @@ function ovs_del_dp_ovs_system() {
 function check_dpdk_init() {
     if [ "$DOCA" == 1 ]; then
         ovs_reset_conf "doca-init" "true"
+        ovs_reset_conf "dpdk-init"
         ovs_del_dp_ovs_system
     elif [ "$DPDK" == 1 ]; then
         ovs_reset_conf "dpdk-init" "true"
+        ovs_reset_conf "doca-init"
         ovs_del_dp_ovs_system
     else
         ovs_reset_conf "dpdk-init"
