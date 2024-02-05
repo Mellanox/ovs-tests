@@ -11,6 +11,8 @@ trap cleanup_test EXIT
 function run() {
     local i
 
+    start_clean_openvswitch
+
     title "Add/del ovs bridge multiple times"
     for i in `seq 4`; do
         ovs-vsctl add-br ov1 || err "Failed to add br"
