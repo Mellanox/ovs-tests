@@ -2002,7 +2002,7 @@ function ovs_dump_ovs_flows() {
 }
 
 function ovs_clear_bridges() {
-    bf_wrap "ovs-vsctl list-br | xargs -r -L 1 ovs-vsctl --timeout=$OVS_VSCTL_TIMEOUT del-br 2>/dev/null"
+    bf_wrap "ovs-vsctl list-br 2>/dev/null | xargs -r -L 1 ovs-vsctl --timeout=$OVS_VSCTL_TIMEOUT del-br 2>/dev/null"
 }
 
 function ovs_memory() {
@@ -2155,6 +2155,12 @@ function restart_openvswitch() {
 
 __ovs_used=0
 
+function __start_clean_openvswitch() {
+    ovs_clear_bridges
+    restart_openvswitch
+    ovs_clear_bridges
+}
+
 function start_clean_openvswitch() {
     if [ "$__ovs_used" -eq 1 ] && \
        [ "$ENABLE_OVS_MEMORY" ]; then
@@ -2164,13 +2170,10 @@ function start_clean_openvswitch() {
         ovs_memory $TESTNAME
     fi
     if is_bf_host; then
-        on_bf_exec "restart_openvswitch
-                    ovs_clear_bridges"
-        on_remote_bf_exec "restart_openvswitch
-                           ovs_clear_bridges"
+        on_bf_exec "__start_clean_openvswitch"
+        on_remote_bf_exec "__start_clean_openvswitch"
     else
-        restart_openvswitch
-        ovs_clear_bridges
+        __start_clean_openvswitch
     fi
     __ovs_used=1
 }
