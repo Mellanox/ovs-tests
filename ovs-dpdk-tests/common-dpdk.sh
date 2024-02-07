@@ -155,22 +155,19 @@ function ovs_add_port() {
     fi
 
     local dpdk_opts="options:dpdk-devargs=$pci,$DPDK_PORT_EXTRA_ARGS"
-    local port_type
+    local port_type="dpdk"
 
     if [ "$type" == "ECPF" ]; then
         port+="hpf"
         dpdk_opts+=",representor=[65535]"
-        port_type="dpdk"
     elif [ "$type" == "PF" ]; then
-        port_type="dpdk"
+        port=$port
     elif [ "$type" == "VF" ]; then
         port+="vf$num"
         dpdk_opts+=",representor=[$num]"
-        port_type="dpdk"
     elif [ "$type" == "SF" ]; then
         port+="sf$num"
         dpdk_opts+=",representor=sf[$num]"
-        port_type="dpdk"
     else
         port=$num
         port_type=$type
