@@ -1,0 +1,2 @@
+[general]
+max_wqes_to_be_handled_in_burst_per_qp = 100
