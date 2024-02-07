@@ -12,6 +12,7 @@ SOS_REPORT_COLLECTOR="/.autodirect/net_linux_verification/release/doca/scripts/c
 COREDUMP_PATH="/.autodirect/net_linux_verification/release/doca/coredumps"
 OVS_MEMORY="$DIR/ovs-memory.sh"
 : "${OVS_MEMORY_CSV_OUTPUT:="/workspace/ovs-memory.csv"}"
+OVS_VSCTL_TIMEOUT=10
 
 COLOR0="\033["
 NOCOLOR="\033[0;0m"
@@ -2000,7 +2001,7 @@ function ovs_dump_ovs_flows() {
 }
 
 function ovs_clear_bridges() {
-    bf_wrap "ovs-vsctl list-br | xargs -r -L 1 ovs-vsctl --timeout=10 del-br 2>/dev/null"
+    bf_wrap "ovs-vsctl list-br | xargs -r -L 1 ovs-vsctl --timeout=$OVS_VSCTL_TIMEOUT del-br 2>/dev/null"
 }
 
 function ovs_memory() {

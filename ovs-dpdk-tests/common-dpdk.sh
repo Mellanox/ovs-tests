@@ -132,7 +132,7 @@ ignore_expected_dpdk_err_msg
 
 function ovs_add_bridge() {
     local bridge=${1:-br-phy}
-    exec_dbg ovs-vsctl --timeout=10 --may-exist add-br $bridge \
+    exec_dbg ovs-vsctl --timeout=$OVS_VSCTL_TIMEOUT --may-exist add-br $bridge \
               -- set Bridge $bridge datapath_type=netdev fail-mode=standalone \
               -- br-set-external-id $bridge bridge-id $bridge || err "Failed to add bridge $bridge"
 }
@@ -188,7 +188,7 @@ function __ovs_add_port() {
     local opts=$4
 
     debug "Add ovs $port_type port $port"
-    exec_dbg ovs-vsctl --timeout=10 add-port $bridge $port -- set Interface $port type=$port_type $opts || err "Failed to add port $bridge $port"
+    exec_dbg ovs-vsctl --timeout=$OVS_VSCTL_TIMEOUT add-port $bridge $port -- set Interface $port type=$port_type $opts || err "Failed to add port $bridge $port"
 }
 
 function ovs_del_port() {
