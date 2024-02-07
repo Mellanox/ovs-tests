@@ -37,7 +37,7 @@ function config() {
 function timeout_ovs-vsctl() {
     local cmd="ovs-vsctl $@"
 
-    bf_wrap "timeout 10 $cmd"
+    bf_wrap "timeout $OVS_VSCTL_TIMEOUT $cmd"
     [ $? -eq 124 ] && err "Timed out command $cmd"
 }
 
