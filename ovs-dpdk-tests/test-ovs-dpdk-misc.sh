@@ -24,6 +24,8 @@ function misc_functions() {
         "ovs-appctl doca/log-set debug" \
         "ovs-appctl dpdk/log-set pmd:debug" \
         "ovs-appctl dpdk/log-set pmd:info" \
+        "ovs-appctl dpdk/get-mempool-stats" \
+        "ovs-appctl dpdk/get-memzone-stats" \
         "ovs-vsctl set Open_vSwitch . other_config:enable-statistics=true" \
         "ovs-vsctl remove Open_vSwitch . other_config enable-statistics" ; do
         title "Command: $cmd"
