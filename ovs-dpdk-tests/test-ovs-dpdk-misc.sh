@@ -8,7 +8,7 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
-restart_openvswitch
+start_clean_openvswitch
 
 function misc_functions() {
     local cmd
