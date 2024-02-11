@@ -8,6 +8,7 @@ my_dir="$(dirname "$0")"
 
 require_remote_server
 
+enable_switchdev
 start_clean_openvswitch
 
 function misc_functions() {
