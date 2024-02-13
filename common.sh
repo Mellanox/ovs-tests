@@ -1946,6 +1946,7 @@ engine_pipe_entry_query.*failed querying pipe entry - pipe is null"
 
     check_simx_errors
     dump_fw_basic_debug
+    collect_asan_logs
 
     return $rc
 }
@@ -3057,6 +3058,28 @@ function disable_ftrace() {
     echo 0 > /sys/kernel/debug/tracing/tracing_on
 }
 
+function collect_asan_logs() {
+    [ "$SKIP_OVS_ASAN_LOG_CHECK" == 1 ] && return
+
+    local since=`get_test_time_elapsed`
+    # convert to minutes and have at least 1 minute.
+    local min=$(bc <<< "($since+59)/60")
+    local asan_logs=$(bf_wrap "find /tmp/asan.ovs-vswitchd* -mmin -$min -type f -print 2>/dev/null")
+
+    [ "$asan_logs" == "" ] && return
+
+    local asan_report="/tmp/asan.ovs-vswitchd-${TESTNAME}-`hostname -i`-`date +%y%m%d%H%M`.log"
+    local log
+
+    for log in $asan_logs; do
+        cat $log >> $asan_report
+        echo >> $asan_report
+    done
+
+    err "Detected errors reported by OVS ASAN:"
+    cat $asan_report
+}
+
 function __test_help() {
     echo "To run a test export a config and run the test script as so:"
     echo
@@ -3076,6 +3099,7 @@ function __test_help() {
     echo "VALGRIND_OPENVSWITCH=1        - Start openvswitch with valgrind."
     echo "SKIP_OVS_LOG_DUMP=0           - Skip ovs log dump on failure."
     echo "ENABLE_SOS_COLLECTOR=0        - Collect sos reports."
+    echo "SKIP_OVS_ASAN_LOG_CHECK=0     - Skip ovs asan log check."
     exit 0
 }
 
