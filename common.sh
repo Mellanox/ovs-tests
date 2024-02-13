@@ -3064,20 +3064,23 @@ function collect_asan_logs() {
     local since=`get_test_time_elapsed`
     # convert to minutes and have at least 1 minute.
     local min=$(bc <<< "($since+59)/60")
-    local asan_logs=$(bf_wrap "find /tmp/asan.ovs-vswitchd* -mmin -$min -type f -print 2>/dev/null")
+    local asan_logs=$(bf_wrap "find /tmp/asan.* -mmin -$min -type f -print 2>/dev/null")
 
     [ "$asan_logs" == "" ] && return
 
-    local asan_report="/tmp/asan.ovs-vswitchd-${TESTNAME}-`hostname -i`-`date +%y%m%d%H%M`.log"
+    local asan_report="/tmp/asan-report-${TESTNAME}-`hostname`-`date +%y%m%d%H%M%S`.log"
     local log
 
     for log in $asan_logs; do
+        echo -e "$log:\n" >> $asan_report
         cat $log >> $asan_report
         echo >> $asan_report
+        rm $log
     done
 
     err "Detected errors reported by OVS ASAN:"
     cat $asan_report
+    echo "ASAN Report saved in $asan_report"
 }
 
 function __test_help() {
