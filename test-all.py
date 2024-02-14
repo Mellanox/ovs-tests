@@ -695,6 +695,11 @@ def get_flow_steering_mode(nic):
     return output.split()[-1]
 
 
+def check_ovs_asan():
+    output = subprocess.check_output("nm /usr/sbin/ovs-vswitchd | grep __sanitizer_syscall_ | wc -l", shell=True).decode().strip()
+    return int(output) > 0
+
+
 def get_current_fw(nic):
     if not nic:
         return ''
@@ -799,6 +804,7 @@ def get_current_state():
     global flow_steering_mode
     global simx_mode
     global dpdk_mode
+    global ovs_asan
 
     _distro = get_distro()
     if 'PRETTY_NAME' in _distro:
@@ -816,6 +822,7 @@ def get_current_state():
     current_kernel = args.test_kernel if args.test_kernel else os.uname()[2]
     flow_steering_mode = get_flow_steering_mode(nic)
     simx_mode = True if args.test_simx else check_simx(nic)
+    ovs_asan = check_ovs_asan()
 
     envinfo.update({
         'dpdk version': get_dpdk_version(),
@@ -827,6 +834,7 @@ def get_current_state():
         'kernel': current_kernel,
         'flow steering mode': flow_steering_mode,
         'simx': simx_mode,
+        'ovs_asan': ovs_asan,
         'distro': distro,
         'config dpdk': dpdk_mode,
         'is_bf_host': is_bf_host(),
@@ -1041,6 +1049,11 @@ def update_skip_according_to_db(rm, _tests, data):
                 elif k == 'dpdk':
                     if v == dpdk_mode:
                         ignore_count += 1
+                elif k =='ovs_asan':
+                    if (ovs_asan and v) or (not ovs_asan and not v):
+                        ignore_count += 1
+                elif k == 'set_env':
+                    ignore_count += 1
                 else:
                     t.set_failed("Invalid ignore key: %s=%s" % (k, v))
                     break
@@ -1051,6 +1064,9 @@ def update_skip_according_to_db(rm, _tests, data):
                     bugs_list.append(i['rm'])
                 elif 'reason' in i:
                     t.set_ignore(i['reason'])
+                elif 'set_env' in i:
+                    t.opts['env'] = t.opts.get('env', {})
+                    t.opts['env'].update(i['set_env'])
                 else:
                     tmp = ['%s=%s' % (k, i[k]) for k in i]
                     t.set_ignore("Ignore %s" % ' '.join(tmp))
