@@ -116,8 +116,14 @@ function ovn_stop_ovn_controller() {
 }
 
 function ovn_start_clean_openvswitch() {
-    if [ "$DPDK" == 1 ]; then
-        ovs_enable_hw_offload_ct_ipv6
+    if is_dpdk; then
+        local key="IGNORE_IPV6_TRAFFIC"
+        local val=${!key}
+
+        if [ "$val" == "" ]; then
+            # not ignoring ipv6 cases.
+            ovs_enable_hw_offload_ct_ipv6
+        fi
     fi
     start_clean_openvswitch
 }
