@@ -23,12 +23,19 @@ STATUS_CLOSED = 5
 STATUS_CLOSED_REJECTED = 38
 STATUS_CLOSED_EXTERNAL = 74
 
-REDMINE_TIMESTAMP_FMT = '%Y-%m-%dT%H:%M:%S'
+REDMINE_TIMESTAMP_FMT = ('%Y-%m-%dT%H:%M:%SZ', '%Y-%m-%dT%H:%M:%S')
 
 
 def parse_redmine_time(value):
     parts = value.split('.')
-    return datetime.strptime(parts[0], REDMINE_TIMESTAMP_FMT)
+    saved_e = None
+    for fmt in REDMINE_TIMESTAMP_FMT:
+        try:
+            return datetime.strptime(parts[0], fmt)
+        except ValueError as e:
+            saved_e = e
+            pass
+    raise ValueError("Timestamp %s: %s" % (value, saved_e))
 
 
 class MlxRedmine(object):
