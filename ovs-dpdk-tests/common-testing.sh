@@ -464,7 +464,7 @@ function initiate_traffic() {
     local client_namespace=$3
     local server_namespace=${4:-"ns0"}
     local server_remote=${5:-"local"}
-    local t=${6:-"5"}
+    local t=${6:-5}
     local streams=${7:-$num_connections}
 
     local server_dst_execution="ip netns exec $server_namespace"
