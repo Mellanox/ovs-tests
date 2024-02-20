@@ -660,6 +660,12 @@ function verify_client_log() {
 function validate_actual_traffic() {
     local client_remote=$1
     local server_remote=$2
+    local min_bw=100
+
+    if is_simx; then
+        warn "In SimX, min bw validation is set to 1 mbps"
+        min_bw=1
+    fi
 
     if is_vdpa; then
         echo "copy logs from nested vm"
@@ -682,7 +688,7 @@ function validate_actual_traffic() {
     verify_server_log
     verify_client_log
 
-    validate_traffic 100 $client_remote $server_remote
+    validate_traffic $min_bw $client_remote $server_remote
 }
 
 function validate_traffic() {
