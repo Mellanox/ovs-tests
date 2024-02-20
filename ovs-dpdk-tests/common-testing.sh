@@ -702,12 +702,19 @@ function validate_traffic() {
         local client_traffic=$(cat $p_client | eval $filter)
     fi
 
+    [ -z "$server_traffic" ] && server_traffic=0
+    [ -z "$client_traffic" ] && client_traffic=0
+
     debug "Validate traffic server: $server_traffic , client: $client_traffic"
-    if [[ -z $server_traffic || $server_traffic < $min_traffic ]]; then
+
+    server_traffic=`numfmt --to=iec $server_traffic`
+    client_traffic=`numfmt --to=iec $client_traffic`
+
+    if (( $server_traffic < $min_traffic )); then
         err "Server traffic is $server_traffic, lower than limit $min_traffic"
     fi
 
-    if [[ -z $client_traffic ||  $client_traffic < $min_traffic ]]; then
+    if (( $client_traffic < $min_traffic )); then
         err "Client traffic is $client_traffic, lower than limit $min_traffic"
     fi
 }
