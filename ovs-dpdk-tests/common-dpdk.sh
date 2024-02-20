@@ -654,14 +654,14 @@ function check_offloaded_connections() {
 
     title "Check offloaded CT connections"
 
-    for (( i=0; i<3; i++ )); do
+    for (( i=0; i<4; i++ )); do
         current_connections=$(ovs-appctl dpctl/offload-stats-show | grep -i -E "Total.*CT bi-dir Connections:" | awk '{print $5}')
         if [ -z "$current_connections" ]; then
             err "Failed to get stats"
             break
         elif [ $current_connections -lt $expected_connections ]; then
             debug "Number of offloaded connections $current_connections is lower than expected $expected_connections - recheck"
-            sleep 0.7
+            sleep 1
         elif [ $current_connections -ge $expected_connections ]; then
             result=1
             debug "Number of offloaded connections $current_connections is at least as expected $expected_connections"
