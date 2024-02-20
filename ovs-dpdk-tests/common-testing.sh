@@ -709,8 +709,8 @@ function validate_traffic() {
 
     debug "Validate traffic server: $server_traffic , client: $client_traffic"
 
-    server_traffic=`numfmt --to=iec $server_traffic`
-    client_traffic=`numfmt --to=iec $client_traffic`
+    server_traffic=`printf %.0f $server_traffic`
+    client_traffic=`printf %.0f $client_traffic`
 
     if (( $server_traffic < $min_traffic )); then
         err "Server traffic is $server_traffic, lower than limit $min_traffic"
