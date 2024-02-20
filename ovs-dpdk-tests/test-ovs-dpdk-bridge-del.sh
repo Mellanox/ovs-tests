@@ -41,30 +41,30 @@ function timeout_ovs-vsctl() {
     [ $? -eq 124 ] && err "Timed out command $cmd"
 }
 
+function del_bridges() {
+    debug "deleting bridges (br-int, br-phy)"
+    timeout_ovs-vsctl del-br br-int
+    timeout_ovs-vsctl del-br br-phy
+}
+
 function run() {
     title "Test creating tunnel bridges without e2e-enabled"
     config false
     ovs-vsctl show
 
-    debug "deleting bridges (br-int ->> br-phy)"
-    timeout_ovs-vsctl del-br br-int
-    timeout_ovs-vsctl del-br br-phy
+    del_bridges
 
     title "Test creating tunnel bridges with e2e-enabled"
     config true
     ovs-vsctl show
 
-    debug "deleting bridges (br-int ->> br-phy)"
-    timeout_ovs-vsctl del-br br-int
-    timeout_ovs-vsctl del-br br-phy
+    del_bridges
 
     title "Test creating tunnel bridges without e2e-enabled"
     config false
     ovs-vsctl show
 
-    debug "deleting bridges (br-phy ->> br-int)"
-    timeout_ovs-vsctl del-br br-phy
-    timeout_ovs-vsctl del-br br-int
+    del_bridges
 }
 
 run
