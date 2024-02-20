@@ -645,6 +645,10 @@ function simx_log() {
     echo "/workspace/logs/${ip}_simx.log"
 }
 
+function sleep_if_simx() {
+    debug "${FUNCNAME[1]} : sleep simx" ; sleep 5
+}
+
 function cloud_fw_reset() {
     local ip=`ip route get 1 | grep -o "src [0-9.]*" | awk {'print $2'}`
     disable_sriov

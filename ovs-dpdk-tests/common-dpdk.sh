@@ -229,6 +229,7 @@ function config_remote_bridge_tunnel() {
     ovs-vsctl add-port $bridge $port -- set interface $port type=$tnl_type $opts
 
     configure_dpdk_rep_ports $reps $bridge $pci
+    sleep_if_simx
 }
 
 function config_simple_bridge_with_rep() {
@@ -344,6 +345,7 @@ function config_local_tunnel_ip() {
 
     bf_wrap "ip addr add $ip_addr/$subnet dev $dev
              ip link set $dev up"
+    sleep_if_simx
 }
 
 function config_static_ipv6_neigh_ns() {

@@ -95,6 +95,7 @@ function config_remote_tunnel() {
                ip l set dev $remote_nic up"
 
     config_remote_arm_bridge $bridge $port
+    sleep_if_simx
 }
 
 function config_tunnel() {
