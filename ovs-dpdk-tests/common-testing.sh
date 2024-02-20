@@ -688,16 +688,18 @@ function validate_traffic() {
     local client_remote=$2
     local server_remote=$3
 
+    local filter="grep SUM | grep -o '[0-9.]* MBytes/sec' | cut -d ' ' -f 1 | head -1"
+
     if [ "$server_remote" == "remote" ]; then
-        local server_traffic=$(on_remote "cat $p_server | grep SUM | grep -o \"[0-9.]* MBytes/sec\" | cut -d \" \" -f 1 | head -1")
+        local server_traffic=$(on_remote "cat $p_server" | eval $filter)
     else
-        local server_traffic=$(cat $p_server | grep SUM | grep -o "[0-9.]* MBytes/sec" | cut -d " " -f 1 | head -1)
+        local server_traffic=$(cat $p_server | eval $filter)
     fi
 
     if [ "$client_remote" == "remote" ]; then
-        local client_traffic=$(on_remote "cat $p_client | grep SUM | grep -o \"[0-9.]* MBytes/sec\" | cut -d \" \" -f 1 | head -1")
+        local client_traffic=$(on_remote "cat $p_client" | eval $filter)
     else
-        local client_traffic=$(cat $p_client | grep SUM | grep -o "[0-9.]* MBytes/sec" | cut -d " " -f 1 | head -1)
+        local client_traffic=$(cat $p_client | eval $filter)
     fi
 
     debug "Validate traffic server: $server_traffic , client: $client_traffic"
