@@ -703,11 +703,11 @@ function validate_traffic() {
     fi
 
     debug "Validate traffic server: $server_traffic , client: $client_traffic"
-    if [[ -z $server_traffic || $server_traffic < $1 ]]; then
+    if [[ -z $server_traffic || $server_traffic < $min_traffic ]]; then
         err "Server traffic is $server_traffic, lower than limit $min_traffic"
     fi
 
-    if [[ -z $client_traffic ||  $client_traffic < $1 ]]; then
+    if [[ -z $client_traffic ||  $client_traffic < $min_traffic ]]; then
         err "Client traffic is $client_traffic, lower than limit $min_traffic"
     fi
 }
