@@ -690,7 +690,7 @@ function validate_traffic() {
     local client_remote=$2
     local server_remote=$3
 
-    local filter="grep SUM | grep -o '[0-9.]* MBytes/sec' | cut -d ' ' -f 1 | head -1"
+    local filter="grep SUM | grep -o '\s[1-9][0-9.]* MBytes/sec' | head -1 | awk {'print \$1'}"
 
     if [ "$server_remote" == "remote" ]; then
         local server_traffic=$(on_remote "cat $p_server" | eval $filter)
