@@ -284,7 +284,7 @@ function __setup_common() {
     set_ovs_debug_logs
     check_simx
     simx_append_log "# TEST $TESTNAME #"
-    is_simx && OVS_VSCTL_TIMEOUT=50
+    is_simx && OVS_VSCTL_TIMEOUT=100
 }
 
 ovs_log_path="/var/log/openvswitch/ovs-vswitchd.log"
