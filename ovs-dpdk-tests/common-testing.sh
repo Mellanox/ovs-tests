@@ -492,9 +492,9 @@ function initiate_traffic() {
         return 1
     fi
 
-    local sleep_time=$((t+2))
+    local sleep_time=$((t+5))
     if [ "$iperf_cmd" == "iperf" ]; then
-        sleep_time=$((t+4))
+        sleep_time=$((sleep_time+2))
     fi
     #cleanup logs
     rm -f $p_server $p_client
