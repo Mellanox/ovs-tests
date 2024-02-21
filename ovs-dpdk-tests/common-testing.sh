@@ -445,7 +445,7 @@ function generate_traffic() {
     local run_time=${7:-5}
     local streams=${8:-$num_connections}
 
-    is_simx && [ $run_time == 5 ] && run_time=15
+    is_simx && [ $run_time == 5 ] && run_time=20
 
     initiate_traffic $client_remote $my_ip $client_namespace $server_namespace $server_remote $run_time $streams
     if [ "$validate" == "true" ]; then
