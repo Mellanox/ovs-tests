@@ -194,6 +194,7 @@ function __get_pci_device_name() {
 
 function check_simx() {
     if lspci -s $PCI -vvv | grep -q SimX ; then
+        log "SimX"
         IS_SIMX=1
     fi
 }
