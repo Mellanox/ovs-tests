@@ -647,7 +647,7 @@ function simx_log() {
 }
 
 function sleep_if_simx() {
-    debug "${FUNCNAME[1]} : sleep simx" ; sleep 5
+    is_simx && debug "${FUNCNAME[1]} : sleep simx" && sleep 5
 }
 
 function cloud_fw_reset() {
