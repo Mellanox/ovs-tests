@@ -683,6 +683,7 @@ function __check_ct_est_packet_count_br() {
 
     # no CT est rule.
     [ -z "$ct_est_pkts" ] && return
+    __found_ct_est_rule=1
 
     title "Check CT est packet count on bridge $br"
 
@@ -701,12 +702,21 @@ function __check_ct_est_packet_count_br() {
     done
 }
 
+__SKIP_CT_EST_RULE=0
+__found_ct_est_rule=0
 function check_ct_est_packet_count() {
     local br
 
+    [ $__SKIP_CT_EST_RULE -ne 0 ] && return
+
+    __found_ct_est_rule=0
     for br in `ovs-vsctl list-br`; do
         __check_ct_est_packet_count_br $br
     done
+
+    if [ $__found_ct_est_rule -eq 0 ]; then
+        err "Cannot find ct est rule"
+    fi
 }
 
 function check_offloaded_connections_marks() {
