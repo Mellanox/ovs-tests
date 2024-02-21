@@ -18,6 +18,7 @@ REMOTE="7.7.7.2"
 REMOTE_NET="7.7.7.0/24"
 NAT_IP="6.6.6.6"
 
+config_sriov 2
 enable_switchdev
 require_interfaces REP NIC
 unbind_vfs
