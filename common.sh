@@ -192,6 +192,19 @@ function __get_pci_device_name() {
     fi
 }
 
+function check_ovs_asan() {
+    local count=$(nm /usr/sbin/ovs-vswitchd 2>/dev/null | grep __sanitizer_syscall_ | wc -l)
+    if [ $count -gt 0 ]; then
+        log "OVS ASAN"
+        IS_ASAN=1
+    fi
+}
+
+function is_asan() {
+    [ "$IS_ASAN" == 1 ] && return 0
+    return 1
+}
+
 function check_simx() {
     if lspci -s $PCI -vvv | grep -q SimX ; then
         log "SimX"
@@ -283,6 +296,7 @@ function __setup_common() {
     kmemleak_scan_per_test && kmemleak_clear
     __set_testpmd
     set_ovs_debug_logs
+    check_ovs_asan
     check_simx
     simx_append_log "# TEST $TESTNAME #"
     is_simx && OVS_VSCTL_TIMEOUT=100
