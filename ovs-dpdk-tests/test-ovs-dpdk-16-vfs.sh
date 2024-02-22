@@ -17,10 +17,15 @@ enable_switchdev
 require_interfaces REP NIC
 bind_vfs
 
-trap cleanup_test EXIT
+trap cleanup EXIT
+
+function cleanup() {
+    cleanup_test
+    remote_cleanup_test
+}
 
 function config() {
-    cleanup_test
+    cleanup
     config_simple_bridge_with_rep 16
     config_ns ns0 $VF $LOCAL_IP
 }
@@ -40,9 +45,7 @@ function run() {
 }
 
 run
-
 check_counters
-
 trap - EXIT
-cleanup_test
+cleanup
 test_done
