@@ -73,6 +73,9 @@ function __setup_common_dpdk() {
 
     IB_PF0_PORT0=`get_port_from_pci $PCI 0`
     IB_PF0_PORT1=`get_port_from_pci $PCI 1`
+
+    add_expected_simx_error_for_issue 3792891 "[mlx5/mlx5_cmdif_counter.c:*] D0:P1:F0:V0 DEALLOC_Q_COUNTER: resource number"
+    add_expected_simx_error_for_issue 3676766 "ERR-GENERAL [mlx5/mlx5_cmdif_rqt.c:*] mlx5/mlx5_cmdif_rqt.c:*:mlx5_opcode_MODIFY_RQT: assertion failed"
 }
 
 __setup_common_dpdk

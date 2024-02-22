@@ -1851,6 +1851,10 @@ function add_expected_error_for_issue() {
     fi
 }
 
+function add_expected_simx_error_for_issue() {
+    is_simx && add_expected_error_for_issue $1 $2
+}
+
 function dump_fw_basic_debug() {
     [ -z "$DEVTESTS_LOGDIR" ] && return
     [ -z "$DEVTESTS_STAMP" ] && return
