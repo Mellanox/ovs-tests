@@ -765,7 +765,7 @@ function __cleanup() {
     ip -all netns delete
     ip a flush dev $NIC &>/dev/null
     ip a flush dev $NIC2 &>/dev/null
-    ovs_clear_bridges
+    start_clean_openvswitch
 }
 
 function remote_cleanup_test() {
