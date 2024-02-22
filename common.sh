@@ -766,6 +766,7 @@ function scp2() {
 }
 
 function ssh2() {
+    __USING_REMOTE_SERVER=1
     ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=3 "$@"
     local rc=$?
     if [ $rc -eq 255 ]; then

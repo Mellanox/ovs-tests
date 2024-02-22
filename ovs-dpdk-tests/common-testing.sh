@@ -765,7 +765,7 @@ function __cleanup() {
     ip -all netns delete
     ip a flush dev $NIC &>/dev/null
     ip a flush dev $NIC2 &>/dev/null
-    start_clean_openvswitch
+    ovs_clear_bridges
 }
 
 function remote_cleanup_test() {
@@ -779,10 +779,13 @@ function cleanup_test() {
     cleanup_e2e_cache
     cleanup_ct_ct_nat_offload
     cleanup_tunnel
-    if [ "$tunnel_device_name" != "" ]; then
-        cleanup_remote_tunnel
+    if [ "$__USING_REMOTE_SERVER" -eq 1 ]; then
+        if [ "$tunnel_device_name" != "" ]; then
+            cleanup_remote_tunnel
+        fi
+        cleanup_remote_tunnel $tunnel_device_name
+        remote_cleanup_test
     fi
-    cleanup_remote_tunnel $tunnel_device_name
     cleanup_vdpa
     sleep 0.5
 }
