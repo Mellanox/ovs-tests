@@ -47,8 +47,6 @@ function cleanup_remote_tunnel() {
     local tunnel=${1:-$TUNNEL_DEV}
     local physdev=$REMOTE_NIC
 
-    [ $__config_remote_tunnel -eq 1 ] || return
-
     if [ "$tunnel" == "$TUNNEL_DEV2" ]; then
         physdev=$REMOTE_NIC2
     fi
@@ -61,9 +59,6 @@ function cleanup_remote_tunnel() {
         on_remote_exec __cleanup_entropy
     fi
 }
-
-
-__config_remote_tunnel=0
 
 function config_remote_tunnel() {
     local tnl_type=$1
@@ -90,7 +85,6 @@ function config_remote_tunnel() {
          return 1
     fi
 
-    __config_remote_tunnel=1
     on_remote "ip link del $tunnel_dev &>/dev/null
                $cmd
                ip a flush dev $remote_nic
