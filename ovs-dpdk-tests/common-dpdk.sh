@@ -654,10 +654,12 @@ function check_offloaded_connections() {
     local expected_connections=$1
     local current_connections
     local result=0
-
+    local number_of_retries=4
     title "Check offloaded CT connections"
 
-    for (( i=0; i<4; i++ )); do
+    is_simx && number_of_retries=9
+
+    for (( i=0; i<$number_of_retries; i++ )); do
         current_connections=$(ovs-appctl dpctl/offload-stats-show | grep -i -E "Total.*CT bi-dir Connections:" | awk '{print $5}')
         if [ -z "$current_connections" ]; then
             err "Failed to get stats"
