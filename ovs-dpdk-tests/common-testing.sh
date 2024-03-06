@@ -446,7 +446,7 @@ function generate_traffic() {
     local streams=${8:-$num_connections}
 
     if is_simx && [ $run_time -eq 5 ]; then
-        run_time=20
+        run_time=30
         warn "In SimX, default runtime is set to $run_time"
     fi
 
