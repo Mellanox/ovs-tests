@@ -445,7 +445,10 @@ function generate_traffic() {
     local run_time=${7:-5}
     local streams=${8:-$num_connections}
 
-    is_simx && [ $run_time == 5 ] && run_time=20
+    if is_simx && [ $run_time -eq 5 ]; then
+        run_time=20
+        warn "In SimX, default runtime is set to $run_time"
+    fi
 
     initiate_traffic $client_remote $my_ip $client_namespace $server_namespace $server_remote $run_time $streams
     if [ "$validate" == "true" ]; then
@@ -670,8 +673,8 @@ function validate_actual_traffic() {
     local min_bw=100
 
     if is_simx; then
-        warn "In SimX, min bw validation is set to 1 mbps"
         min_bw=1
+        warn "In SimX, min bw validation is set to $min_bw mbps"
     fi
 
     if is_vdpa; then
