@@ -214,7 +214,7 @@ function ovs_del_port() {
     fi
 
     debug "Del ovs $type port $port"
-    ovs-vsctl del-port $bridge $port || err "Failed to del port $bridge $port"
+    ovs-vsctl --timeout=$OVS_VSCTL_TIMEOUT del-port $bridge $port || err "Failed to del port $bridge $port"
 }
 
 function config_remote_bridge_tunnel() {
