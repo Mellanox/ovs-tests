@@ -675,6 +675,9 @@ function validate_actual_traffic() {
     if is_simx; then
         min_bw=1
         warn "In SimX, min bw validation is set to $min_bw mbps"
+    elif is_asan; then
+        min_bw=30
+        warn "In ASAN, min bw validation is set to $min_bw mbps"
     fi
 
     if is_vdpa; then
