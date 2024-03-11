@@ -6,10 +6,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common-dpdk.sh
 
-not_relevant_for_nic cx4
-
-my_dir="$(dirname "$0")"
-. $my_dir/common-dpdk.sh
+trap cleanup_test EXIT
 
 FAKE_MAC1="e4:11:22:33:44:55"
 FAKE_MAC2="e4:11:22:33:44:66"
@@ -17,8 +14,6 @@ FAKE_MAC2="e4:11:22:33:44:66"
 config_sriov 2
 enable_switchdev
 bind_vfs
-
-trap cleanup_test EXIT
 
 function config() {
     cleanup_test
