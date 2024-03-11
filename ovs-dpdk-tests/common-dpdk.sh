@@ -935,9 +935,10 @@ function check_resize_counter() {
     local counter=`ovs-appctl coverage/read-counter doca_pipe_resize`
 
     if [ $counter -lt 1 ]; then
-        fail "No resize found"
+        err "No resize found"
+    else
+        success "got $counter resize(s)"
     fi
-    success "got $counter resize(s)"
 }
 
 if [[ "$TESTNAME" == "common-dpdk.sh" ]]; then
