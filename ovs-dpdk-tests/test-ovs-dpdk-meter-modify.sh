@@ -39,8 +39,9 @@ function run() {
     ovs_add_bidir_meter_rules
 
     title "Generating traffic"
-    generate_traffic_verify_bw $sec $((max_rate_mbits * 3 / 2)) \
-        "ovs_mod_meter br-phy 2 kbps $((max_rate_mbits * 1000 * 2))"
+    local mod_meter_cmd="ovs_mod_meter br-phy 2 kbps $((max_rate_mbits * 1000 * 2))"
+    local exp_bw=$((max_rate_mbits * 3 / 2))
+    generate_traffic_verify_bw $sec $exp_bw "$mod_meter_cmd"
 
     ovs_del_meter br-phy 1
     ovs_del_meter br-phy 2

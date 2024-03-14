@@ -2358,7 +2358,7 @@ function verify_rate() {
 
 function verify_iperf3_bw() {
     local iperf_out_file=$1
-    local rate=$2
+    local exp_rate=$2
 
     local proto=$(cat $iperf_out_file | jq -r ".start.test_start.protocol | select(.)")
 
@@ -2376,8 +2376,7 @@ function verify_iperf3_bw() {
     fi
 
     bw=`bc <<< $bw/1000/1000`
-
-    verify_rate $bw $rate
+    verify_rate $bw $exp_rate
 }
 
 function wait_for_linkup() {

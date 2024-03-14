@@ -559,7 +559,7 @@ function query_sw_packets() {
         expected_num_of_pkts=350000
     fi
 
-    debug "Expecting $expected_num_of_pkts to reach SW"
+    debug "Expecting max $expected_num_of_pkts packets in SW"
 
     local total_packets_passed_in_sw=$(get_total_packets_passed_in_sw)
 
