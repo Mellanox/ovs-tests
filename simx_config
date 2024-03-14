@@ -1,4 +1,11 @@
 {
- "general": {"max_wqes_to_be_handled_in_burst_per_qp": "50"},
- "logger": {"print_timestamp": "true"}
+    "adapter": {"num_of_function": 16 },
+    "general": {"max_wqes_to_be_handled_in_burst_per_qp": "60"},
+    "logger": {"print_timestamp": "true"},
+    "General Device Capabilities": {
+        "lag_master": "true",
+        "lag_native_fdb_selection": "true",
+        "lag_tx_port_affinity": "true",
+        "num_lag_ports": "0x2"
+    }
 }
