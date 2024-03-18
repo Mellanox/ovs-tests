@@ -23,7 +23,7 @@ require_interfaces NIC
 function cleanup() {
     ip a flush dev $NIC
     ethtool -U $NIC delete 1 &>/dev/null
-    ethtool -X $NIC equal 1
+    ethtool -X $NIC default
     cleanup_remote_vxlan
     sleep 0.5
 }

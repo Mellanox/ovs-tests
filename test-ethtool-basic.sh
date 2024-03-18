@@ -37,6 +37,12 @@ function test_stats() {
     done
 }
 
+function cleanup() {
+        ethtool -X $NIC default
+}
+
+trap cleanup EXIT
+
 function test_rss() {
     local num_rings=4
     local hkey1="00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00"
