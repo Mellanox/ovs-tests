@@ -78,7 +78,7 @@ class SetupConfigure(object):
         parser.add_argument('--sw-steering-mode', help='DEPRECATED. Configure software steering mode', action='store_true')
         parser.add_argument('--bluefield', help='DEPRECATED. Setup configuration for bluefield host', action='store_true')
         parser.add_argument('--vdpa', help='Setup configuration for vdpa host', action='store_true')
-        parser.add_argument('--steering-mode', choices=['sw', 'fw'], help='Configure steering mode')
+        parser.add_argument('--steering-mode', choices=['sw', 'fw', 'hw'], help='Configure steering mode')
         parser.add_argument('--skip-kmemleak', help='Skip enabling kmemleak scan', action='store_true')
 
         self.args = parser.parse_args()
@@ -443,6 +443,8 @@ class SetupConfigure(object):
             mode = 'smfs'
         elif self.args.steering_mode == 'fw':
             mode = 'dmfs'
+        elif self.args.steering_mode == 'hw':
+            mode = 'hmfs'
         else:
             raise RuntimeError('Invalid steering mode %s' % self.args.steering_mode)
 
