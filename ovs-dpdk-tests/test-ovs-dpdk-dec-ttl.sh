@@ -27,7 +27,7 @@ config_simple_bridge_with_rep 1
 config_ns ns0 $VF $LOCAL_IP
 
 ovs-ofctl add-flow br-phy ip,actions=dec_ttl,normal
-ovs_conf_set max-idle 15000
+ovs_conf_set max-idle 300000
 
 verify_ping
 generate_traffic "remote" $LOCAL_IP
