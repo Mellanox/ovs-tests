@@ -10,11 +10,6 @@ VDPA_DEV_NAME="eth2"
 OFFLOAD_FILTER="offloaded:yes"
 SLOW_PATH_TRAFFIC_PERCENTAGE=10
 
-function is_dpdk() {
-    [ "$DPDK" == 1 ] && return 0
-    return 1
-}
-
 function is_doca() {
     [ "$DOCA" == 1 ] && return 0
     return 1

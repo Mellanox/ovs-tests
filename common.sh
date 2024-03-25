@@ -68,6 +68,10 @@ devlink_compat=0
 __ignore_errors=0
 PF_IN_NS=""
 
+function is_dpdk() {
+    [ "$DPDK" == 1 ] && return 0
+    return 1
+}
 
 function get_mlx_iface() {
     local i
