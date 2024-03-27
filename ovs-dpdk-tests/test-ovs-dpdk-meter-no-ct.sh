@@ -44,8 +44,8 @@ function run() {
     ovs_add_meter br-phy 2 pktps $rate 1
     ovs_add_bidir_meter_rules
     title "Testing meter on REPs"
-    local t=3
-    ovs_send_scapy_packets $VF1 $VF2 $NS0_IP $NS1_IP $t 10 ns0 ns1
+    local t=4
+    ovs_send_scapy_packets $VF1 $VF2 $NS0_IP $NS1_IP $t 100 ns0 ns1
     check_dpdk_offloads $NS0_IP
     ovs_check_tcpdump $((rate*t+10))
     ovs_del_meter br-phy 1
