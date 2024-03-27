@@ -247,7 +247,14 @@ function send_metered_ping() {
 
 function ovs_check_tcpdump() {
     local expected=${1:-1}
+    local pktgen="$DPDK_DIR/../scapy-traffic-tester.py"
+    local b=`basename $pktgen`
 
+    echo "wait for $b to finish"
+    for i in `seq 5`; do
+        pidof $b || break
+        sleep 1
+    done
     killall tcpdump
     sleep 1
     local pkts=$(tcpdump -nner $p_scapy udp | wc -l)
