@@ -30,7 +30,7 @@ function config_topology() {
 function run() {
     config_topology
 
-    ovs_add_meter br-phy 1 pktps 1
+    ovs_add_meter br-phy 1 pktps 3
     ovs_add_simple_meter_rule
     title "Testing meter on PF"
     send_metered_ping

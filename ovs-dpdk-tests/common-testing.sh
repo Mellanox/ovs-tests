@@ -233,6 +233,9 @@ function send_metered_ping() {
     if [ -z "$pkts" ]; then
         cat $p_ping
         err "No received packets"
+    elif [ $pkts -eq 0 ]; then
+        cat $p_ping
+        err "0 received packets"
     elif [ $pkts -gt $expected_received ]; then
         err "Expected at most $expected_received packets but received $pkts packets"
         cat $p_ping
