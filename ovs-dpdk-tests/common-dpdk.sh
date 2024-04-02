@@ -69,8 +69,11 @@ function __setup_common_dpdk() {
     IB_PF0_PORT0=`get_port_from_pci $PCI 0`
     IB_PF0_PORT1=`get_port_from_pci $PCI 1`
 
-    add_expected_simx_error_for_issue 3792891 "[mlx5/mlx5_cmdif_counter.c:*] D0:P1:F0:V0 DEALLOC_Q_COUNTER: resource number"
-    add_expected_simx_error_for_issue 3676766 "ERR-GENERAL [mlx5/mlx5_cmdif_rqt.c:*] mlx5/mlx5_cmdif_rqt.c:*:mlx5_opcode_MODIFY_RQT: assertion failed"
+    add_expected_simx_error_for_issue 3792891 "ERR-CMD .*mlx5_cmdif_flow_table.c.*D0:P1:F0:V0 DEALLOC_FLOW_COUNTER: resource number .* is busy"
+    add_expected_simx_error_for_issue 3676766 "ERR-GENERAL .*mlx5_cmdif_rqt.c.*mlx5_opcode_MODIFY_RQT: assertion failed"
+    add_expected_simx_error_for_issue 3849379 "ERR-GENERAL .*mlx5_cmdif_rq.c.*mlx5_opcode_MODIFY_RQ: assertion failed"
+    add_expected_simx_error_for_issue 3849379 "ERR-GENERAL .*mlx5_cmdif_sq.c.*mlx5_opcode_MODIFY_SQ: assertion failed"
+    add_expected_simx_error_for_issue 3849479 "ERR-NIC .*mlx5_nic.c.*D0:P1:F0:V0 HWS: Failed to handle STC action offset"
 }
 
 __setup_common_dpdk

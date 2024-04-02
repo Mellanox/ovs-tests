@@ -1811,7 +1811,7 @@ function check_simx_errors() {
 
     local look="ERR|FATAL"
     local filter=""
-    local filter_warn="assertion failed: D0:P[0-9]:F0 flow index \(.*\) doesn't exist in table ID \(0x5\)"
+    local filter_warn="NOT_IN_USE"
 
     filter+="$filter_warn"
 
