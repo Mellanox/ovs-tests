@@ -1851,12 +1851,12 @@ function add_expected_error_for_issue() {
     redmine_info $issue_id
 
     if redmine_bug_is_open_or_err ; then
-        add_expected_error_msg $message
+        add_expected_error_msg "$message"
     fi
 }
 
 function add_expected_simx_error_for_issue() {
-    is_simx && add_expected_error_for_issue $1 $2
+    is_simx && add_expected_error_for_issue "$1" "$2"
 }
 
 function dump_fw_basic_debug() {
