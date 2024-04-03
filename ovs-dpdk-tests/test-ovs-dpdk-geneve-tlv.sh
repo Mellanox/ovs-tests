@@ -58,6 +58,7 @@ function config_remote() {
 }
 
 function config_openflow_rules() {
+    title "add openflow rules"
     ovs-ofctl add-tlv-map br-int "{class=0xffff,type=0x80,len=4}->tun_metadata0"
     ovs-ofctl del-flows br-int
     ovs-ofctl add-flow br-int arp,actions=normal

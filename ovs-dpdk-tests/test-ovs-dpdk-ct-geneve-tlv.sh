@@ -58,6 +58,7 @@ function config_remote() {
 }
 
 function config_openflow_rules() {
+    title "add openflow rules"
     ovs-ofctl del-flows br-int
     ovs-ofctl add-flow br-int arp,actions=normal
     ovs-ofctl add-flow br-int icmp,actions=normal
