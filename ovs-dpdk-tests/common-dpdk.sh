@@ -212,7 +212,8 @@ function ovs_del_port() {
     elif [ "$type" == "SF" ]; then
         port+="sf$num"
     else
-        port=$num
+        port=$type
+        type=""
     fi
 
     debug "Del ovs $type port $port"
