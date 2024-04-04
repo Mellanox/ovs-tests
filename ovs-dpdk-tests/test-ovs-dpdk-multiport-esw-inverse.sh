@@ -27,7 +27,7 @@ function config_ovs() {
 
     config_simple_bridge_with_rep 1 true $bridge $NIC
     exec_dbg ovs-vsctl add-port $bridge $pf1 -- set interface $pf1 type=dpdk options:dpdk-devargs="$pci,$DPDK_PORT_EXTRA_ARGS,representor=pf1"
-    exec_dbg ovs-vsctl add-port $bridge $pf1vf0 -- set Interface $pf1vf0 type=dpdk options:dpdk-devargs="$pci,representor=pf1vf0,$DPDK_PORT_EXTRA_ARGS"
+    exec_dbg ovs-vsctl add-port $bridge $pf1vf0 -- set Interface $pf1vf0 type=dpdk options:dpdk-devargs="$pci,$DPDK_PORT_EXTRA_ARGS,representor=pf1vf0"
 }
 
 function config_ips() {

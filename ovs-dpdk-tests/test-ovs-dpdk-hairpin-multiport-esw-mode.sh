@@ -63,13 +63,14 @@ function set_interfaces_up() {
 }
 
 function config_ovs() {
+    local pci=`get_pf_pci`
     local pci2=`get_pf_pci2`
     local port2=`get_port_from_pci $pci2`
 
     title "Config OVS"
     start_clean_openvswitch
     config_simple_bridge_with_rep 0
-    ovs-vsctl add-port br-phy $port2 -- set interface $port2 type=dpdk options:dpdk-devargs="0000:08:00.0,dv_xmeta_en=4,dv_flow_en=2,representor=pf1"
+    ovs-vsctl add-port br-phy $port2 -- set interface $port2 type=dpdk options:dpdk-devargs="$pci,$DPDK_PORT_EXTRA_ARGS,representor=pf1"
     ovs-vsctl show
 }
 
