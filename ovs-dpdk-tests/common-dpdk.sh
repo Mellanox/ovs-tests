@@ -192,6 +192,10 @@ function __ovs_add_port() {
     exec_dbg ovs-vsctl --timeout=$OVS_VSCTL_TIMEOUT add-port $bridge $port -- set Interface $port type=$port_type $opts || err "Failed to add port $bridge $port"
 }
 
+function ovs_add_dpdk_port() {
+    __ovs_add_port "$1" "$2" "dpdk"
+}
+
 function ovs_del_port() {
     local type=$1
     local num=${2:-"1"}

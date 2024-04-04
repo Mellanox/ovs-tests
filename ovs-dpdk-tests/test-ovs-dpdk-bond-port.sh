@@ -45,7 +45,7 @@ function run() {
     config
     start_clean_openvswitch
     ovs_add_bridge br-phy
-    __ovs_add_port br-phy bond0 dpdk
+    ovs_add_dpdk_port br-phy bond0
     ovs-vsctl show
     # ovs could return success on adding the bond port but it still could be in error state.
     ovs-vsctl show | grep -q "error" && err "Some ports in error state."

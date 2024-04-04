@@ -47,9 +47,9 @@ function run() {
     ovs_add_bridge br-phy
     # order is important. checking reps first before pf.
     local pf1vf0=`get_rep 0 $NIC2`
-    __ovs_add_port br-phy $pf1vf0 dpdk
-    __ovs_add_port br-phy $REP dpdk
-    __ovs_add_port br-phy bond0 dpdk
+    ovs_add_dpdk_port br-phy $pf1vf0
+    ovs_add_dpdk_port br-phy $REP
+    ovs_add_dpdk_port br-phy bond0
     ovs-vsctl show
     # ovs could return success on adding the bond port but it still could be in error state.
     ovs-vsctl show | grep -q "error" && err "Some ports in error state."
