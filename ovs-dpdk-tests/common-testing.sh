@@ -4,6 +4,7 @@ LOCAL_IP2=2.2.2.7
 REMOTE_IP2=2.2.2.8
 LOCAL_IPV6="192:168:1:1::1"
 REMOTE_IPV6="192:168:1:1::2"
+REMOTE_IPV62="192:168:1:1::4"
 
 p_server=/tmp/perf_server
 p_client=/tmp/perf_client
