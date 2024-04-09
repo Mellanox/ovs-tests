@@ -39,6 +39,12 @@ function run() {
     verify_ping
 
     generate_traffic "local" $LOCAL_IP ns1
+
+    # check counter if exists
+    local c=`ovs-appctl coverage/read-counter ovs_doca_invalid_classify_port 2>/dev/null`
+    if [ -n "$c" ] && [ $c -gt 0 ]; then
+        err "Counter ovs_doca_invalid_classify_port = $c"
+    fi
 }
 
 run
