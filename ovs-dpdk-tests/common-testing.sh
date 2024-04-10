@@ -241,7 +241,7 @@ function send_metered_ping() {
     local p_ping="/tmp/ping_out"
 
     rm -f $p_ping
-    exec_dbg "ip netns exec $namespace ping -c $count -w $wait -i $interval $ip_addr > $p_ping"
+    exec_dbg "timeout $wait ip netns exec $namespace ping -c $count -i $interval $ip_addr > $p_ping"
     local pkts=$(grep 'received' $p_ping | awk '{ print $4 }')
 
     if [ -z "$pkts" ]; then
