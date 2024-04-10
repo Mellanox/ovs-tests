@@ -134,6 +134,20 @@ function ovs_add_meter() {
     exec_dbg "ovs-ofctl -O openflow13 add-meter $bridge meter=${meter_id},${meter_type}${burst},band=type=drop,rate=${rate}${burst_size}"
 }
 
+#Currently applying SW-meter requires OVS restart
+function ovs_set_port_sw_meter() {
+    local port=${1:-"pf0"}
+    local meter_type=${2:-"pps"}
+    local rate=${3:-10k}
+    local burst=${4:-6k}
+    local dry_run=${5:-"no-dry-run"}
+
+    exec_dbg "ovs-vsctl set interface $port options:sw-meter=$meter_type:$rate:$burst"
+    if [[ $"dry_run" == "dry-run" ]]; then
+        exec_dbg "ovs-vsctl set interface $port options:dry_run=true"
+    fi
+}
+
 function ovs_mod_meter() {
     local bridge=${1:-"br-phy"}
     local meter_id=${2:-0}
