@@ -20,14 +20,15 @@ function cleanup() {
 }
 
 function config_ovs() {
-    local pf1=`get_port_from_pci $PCI2`
-    local pf1vf0=`get_port_from_pci $PCI2 0`
     local bridge="br-phy"
-    local pci=`get_pf_pci`
+    REP2=`get_rep 0 $NIC2`
 
-    config_simple_bridge_with_rep 1 true $bridge $NIC
-    exec_dbg ovs-vsctl add-port $bridge $pf1 -- set interface $pf1 type=dpdk options:dpdk-devargs="$pci,$DPDK_PORT_EXTRA_ARGS,representor=pf1"
-    exec_dbg ovs-vsctl add-port $bridge $pf1vf0 -- set Interface $pf1vf0 type=dpdk options:dpdk-devargs="$pci,$DPDK_PORT_EXTRA_ARGS,representor=pf1vf0"
+    ovs_add_bridge $bridge
+    ovs_add_dpdk_port $bridge $NIC
+    ovs_add_dpdk_port $bridge $NIC2
+
+    ovs_add_dpdk_port $bridge $REP
+    ovs_add_dpdk_port $bridge $REP2
 }
 
 function config_ips() {
