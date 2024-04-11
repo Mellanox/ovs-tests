@@ -944,6 +944,12 @@ function check_resize_counter() {
     fi
 }
 
+function get_infiniband_device() {
+    local pci=${1:-$PCI}
+    # should return mlx5_0 or in bond mlx5_bond_0
+    ls -1 /sys/bus/pci/devices/$pci/infiniband
+}
+
 if [[ "$TESTNAME" == "common-dpdk.sh" ]]; then
     __common_eval $@
 fi
