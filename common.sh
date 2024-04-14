@@ -2352,9 +2352,15 @@ function verify_rate() {
 
     local delta=$((100 * ($expected_rate - $rate)/$expected_rate))
     delta=${delta#-}
+    max_delta=10
 
-    if [ $delta -gt 10 ]; then
-        err "delta $delta is greater than 10: rate $rate is over the limit $expected_rate"
+    if is_asan; then
+        max_delta=20
+        warn "In ASAN, verify_rate() max_delta is set to $max_delta"
+    fi
+
+    if [ $delta -gt $max_delta ]; then
+        err "delta $delta is greater than #max_delta: rate $rate is over the limit $expected_rate"
     else
         success2 "delta $delta: rate $rate is in the expected limit $expected_rate"
     fi
