@@ -496,6 +496,12 @@ function cleanup_mpesw() {
     ip link set $NIC2 up
 }
 
+function get_dev_mac() {
+    local device=${1:-$NIC}
+
+    cat /sys/class/net/$device/address
+}
+
 function devlink_port_eswitch_enable() {
     local port=$1
     if is_ofed ; then
