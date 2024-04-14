@@ -8,25 +8,6 @@ require_remote_server
 
 trap cleanup EXIT
 
-function cleanup_mpesw() {
-    ovs_clear_bridges
-    reset_tc $NIC $NIC2 $REP
-    clear_remote_bonding
-    ip netns del ns0 &> /dev/null
-    set_port_state_up &> /dev/null
-    disable_esw_multiport
-    restore_lag_port_select_mode
-    restore_lag_resource_allocation_mode
-    reload_modules
-    config_sriov 2
-    config_sriov 2 $NIC2
-    enable_switchdev
-    enable_switchdev $NIC2
-    bind_vfs
-    ip link set $NIC up
-    ip link set $NIC2 up
-}
-
 function cleanup() {
     title "Cleaning up local"
     cleanup_mpesw
@@ -81,19 +62,6 @@ function config_remote() {
                     enable_legacy $NIC2
                     config_ns ns0 $NIC $LOCAL_IP
                     config_ns ns1 $NIC2 $REMOTE_IP"
-}
-
-function config_mpesw() {
-    enable_lag_resource_allocation_mode
-    set_lag_port_select_mode "multiport_esw"
-    config_sriov 2
-    config_sriov 2 $NIC2
-    enable_switchdev
-    enable_switchdev $NIC2
-    enable_esw_multiport
-    bind_vfs $NIC
-    bind_vfs $NIC2
-    set_interfaces_up
 }
 
 function config() {

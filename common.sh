@@ -467,6 +467,35 @@ function disable_esw_multiport() {
     __devlink dev param set pci/$pci name esw_multiport value 0 cmode runtime
 }
 
+function config_mpesw() {
+    enable_lag_resource_allocation_mode
+    set_lag_port_select_mode "multiport_esw"
+    config_sriov 2
+    config_sriov 2 $NIC2
+    enable_switchdev
+    enable_switchdev $NIC2
+    enable_esw_multiport
+    bind_vfs $NIC
+    bind_vfs $NIC2
+    ip link set $NIC up
+    ip link set $NIC2 up
+}
+
+function cleanup_mpesw() {
+    ovs_clear_bridges
+    reset_tc $NIC $NIC2 $REP
+    clear_remote_bonding
+    ip netns del ns0 &> /dev/null
+    set_port_state_up &> /dev/null
+    disable_esw_multiport
+    restore_lag_port_select_mode
+    restore_lag_resource_allocation_mode
+    reload_modules
+    config_devices
+    ip link set $NIC up
+    ip link set $NIC2 up
+}
+
 function devlink_port_eswitch_enable() {
     local port=$1
     if is_ofed ; then

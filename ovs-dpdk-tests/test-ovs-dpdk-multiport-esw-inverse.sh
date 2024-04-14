@@ -7,14 +7,7 @@ trap cleanup EXIT
 
 function cleanup() {
     title "Cleanup"
-    ovs_clear_bridges
-    reset_tc $NIC $NIC2
-    clear_remote_bonding
-    set_port_state_up &> /dev/null
-    disable_esw_multiport
-    restore_lag_port_select_mode
-    restore_lag_resource_allocation_mode
-    config_devices
+    cleanup_mpesw
     cleanup_test
     set_grace_period $grace_period
 }
@@ -61,16 +54,7 @@ function config_remote_ips() {
 function config() {
     title "Config"
     set_grace_period 0
-    enable_lag_resource_allocation_mode
-    set_lag_port_select_mode "multiport_esw"
-    config_sriov 2
-    config_sriov 2 $NIC2
-    enable_switchdev
-    enable_switchdev $NIC2
-    enable_esw_multiport
-    bind_vfs $NIC
-    bind_vfs $NIC2
-    set_interfaces_up
+    config_mpesw
     config_ovs
     config_ips
     config_remote_ips
