@@ -7,6 +7,11 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common-dpdk.sh
 
+# This test only cares to catch a crash and it is expected
+# to get error msgs about unsupported mode.
+SKIP_OVS_LOG_DUMP=1
+add_expected_error_msg "doca_flow_pipe_add_entry"
+
 function cleanup() {
     config_sriov 2 $NIC
     config_sriov 2 $NIC2
