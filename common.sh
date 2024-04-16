@@ -970,6 +970,7 @@ function fail() {
         debug "Test is freeze on fail - press enter to exit"
         read
     fi
+    collect_asan_logs
     exit 1
 }
 
