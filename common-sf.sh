@@ -12,9 +12,15 @@ function __set_sf_cmd() {
 }
 
 function __irq_reguest_debug_func() {
-    cat /sys/kernel/debug/dynamic_debug/control | grep mlx5_irqs_request_mask &>/dev/null
+    local irq_req_cmd="mlx5_irqs_request_mask"
+
+    if is_ofed; then
+        irq_req_cmd="comp_irq_request_sf"
+    fi
+
+    cat /sys/kernel/debug/dynamic_debug/control | grep $irq_req_cmd &>/dev/null
     if [[ $? -eq 0 ]]; then
-        irq_reguest_debug_func='mlx5_irqs_request_mask'
+        irq_reguest_debug_func=$irq_req_cmd
     fi
 }
 
@@ -62,6 +68,12 @@ function sf_get_dev() {
 function sf_get_netdev() {
     local sfnum=$1
     local dev=`sf_get_dev $sfnum`
+    sf_dev_to_netdev $dev
+}
+
+function sf_dev_to_netdev(){
+    local dev=$1
+
     basename `bf_wrap ls -1 /sys/bus/auxiliary/devices/$dev/net`
 }
 
@@ -273,6 +285,11 @@ function sf_reload_aux_check_cpu_irq() {
 
     start_cpu_irq_check
     sf_reload_aux $sf_dev || return 1
+    if is_ofed; then
+        local sf_netdev=`sf_dev_to_netdev $sf_dev`
+        log "bringing $sf_netdev up"
+        ip link set $sf_netdev up
+    fi
     check_cpu_irq $sf_dev $cpus
 }
 
