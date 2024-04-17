@@ -24,6 +24,7 @@ rates="16 32"
 function cleanup() {
     stop_iperf
     start_clean_openvswitch &>/dev/null
+    ip -netns ns0 link set dev $VF netns 1 &>/dev/null
     ip netns del ns0 &>/dev/null
 }
 trap cleanup EXIT
@@ -97,6 +98,7 @@ function run_rates() {
             continue
         fi
 
+        sleep 1
         check_mrate $rate
     done
 }
