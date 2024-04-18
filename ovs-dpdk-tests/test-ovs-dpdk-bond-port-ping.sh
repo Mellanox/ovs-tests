@@ -15,6 +15,8 @@ enable_switchdev
 function cleanup() {
     clean_vf_lag
     cleanup_test
+    on_remote_exec "config_sriov 2
+                    enable_switchdev"
 }
 
 trap cleanup EXIT
