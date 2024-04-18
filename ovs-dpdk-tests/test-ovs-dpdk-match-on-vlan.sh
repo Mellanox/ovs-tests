@@ -11,6 +11,9 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common-dpdk.sh
 
+config_sriov 2
+enable_switchdev
+bind_vfs
 require_interfaces NIC NIC2
 
 vlan_ip=2.2.2.1
@@ -40,7 +43,7 @@ function set_vfs_ips() {
 
 function config() {
     config_simple_bridge_with_rep 1
-    on_remote_exec "config_simple_bridge_with_rep 1"
+    on_remote_exec "cleanup_test ; config_simple_bridge_with_rep 1"
     set_vfs_ips
     config_vlans
 }
@@ -66,6 +69,7 @@ function check_offload() {
 }
 
 function run_test() {
+    cleanup_test
     config
     run_traffic
     check_offload
