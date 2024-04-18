@@ -22,6 +22,9 @@ function misc_functions() {
         "ovs-appctl -h" \
         "ovs-appctl doca/log-get" \
         "ovs-appctl doca/log-set error" \
+        "ovs-vsctl set Open_vSwitch . other_config:dpdk-offload-trace=true" \
+        "ovs-appctl dpdk/dump-offloads" \
+        "ovs-vsctl set Open_vSwitch . other_config:dpdk-offload-trace=false" \
         "ovs-appctl doca/log-set debug" \
         "ovs-appctl dpdk/log-set pmd:debug" \
         "ovs-appctl dpdk/log-set pmd:info" \
