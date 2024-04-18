@@ -33,7 +33,7 @@ function set_ovs_dpdk_debug_logs() {
         echo > $log
     fi
     if is_doca; then
-        ovs_set_log_levels dpif_netdev:file:DBG netdev_offload_dpdk:file:DBG ovs_doca:DBG dpdk_offload_doca:DBG
+        ovs_set_log_levels dpif_netdev:file:DBG netdev_offload_dpdk:file:DBG ovs_doca:file:DBG dpdk_offload_doca:file:DBG
     elif is_dpdk; then
         ovs_set_log_levels dpif_netdev:file:DBG netdev_offload_dpdk:file:DBG
     fi
