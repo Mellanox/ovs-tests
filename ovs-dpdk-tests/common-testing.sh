@@ -788,6 +788,7 @@ function __cleanup() {
     ip -all netns delete
     ip a flush dev $NIC &>/dev/null
     ip a flush dev $NIC2 &>/dev/null
+    ip link set $VF mtu 1500
     start_clean_openvswitch
 }
 
