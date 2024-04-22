@@ -31,7 +31,7 @@ function config_topology() {
 
 function run() {
     local max_rate_mbits=400
-    local sec=11
+    local sec=20
 
     config_topology
 
