@@ -17,6 +17,8 @@ function cleanup() {
     config_sriov 2
     enable_switchdev
     bind_vfs
+    #WA for bug #3875230
+    ! is_bf && set_macs
     on_remote_exec "config_sriov 2
                     enable_switchdev
                     bind_vfs"
