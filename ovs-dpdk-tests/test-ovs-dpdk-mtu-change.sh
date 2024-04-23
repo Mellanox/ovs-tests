@@ -28,7 +28,7 @@ function change_mtu_request() {
     local interface=$2
 
     debug "Request MTU = $mtu for $interface"
-    ovs-vsctl set interface $interface mtu_request=$mtu
+    ovs-vsctl --timeout=$OVS_VSCTL_TIMEOUT set interface $interface mtu_request=$mtu
 }
 
 function run() {
