@@ -74,6 +74,7 @@ function __setup_common_dpdk() {
     add_expected_simx_error_for_issue 3849379 "ERR-GENERAL .*mlx5_cmdif_rq.c.*mlx5_opcode_MODIFY_RQ: assertion failed"
     add_expected_simx_error_for_issue 3849379 "ERR-GENERAL .*mlx5_cmdif_sq.c.*mlx5_opcode_MODIFY_SQ: assertion failed"
     add_expected_simx_error_for_issue 3849479 "ERR-NIC .*mlx5_nic.c.*Failed to handle STC action offset"
+    add_expected_simx_error_for_issue 3867710 "QUERY_Q_COUNTER|failed reading stats on vport"
 }
 
 __setup_common_dpdk
