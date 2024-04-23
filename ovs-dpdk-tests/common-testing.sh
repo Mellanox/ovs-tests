@@ -321,6 +321,16 @@ function verify_ping() {
         fi
     fi
 
+    if is_simx && [ $packet_num -eq 10 ]; then
+        packet_num=30
+        warn "In SimX, default packet num is set to $packet_num"
+    fi
+
+    if is_simx && [ $wait_time -eq 2 ]; then
+        wait_time=10
+        warn "In SimX, default wait time is set to $wait_time"
+    fi
+
     local cmd="${dst_execution} ping -q -c $packet_num -w $wait_time -i $interval $remote_ip -s $size"
 
     if [[ $remote_ip = *":"* ]]; then
