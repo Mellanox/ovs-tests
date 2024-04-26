@@ -26,6 +26,8 @@ function cleanup() {
     # reconfig sriov after ovs is cleared.
     config_sriov 0
     config_sriov 2
+    #WA for bug #3875230
+    ! is_bf && set_macs
 }
 trap cleanup EXIT
 
