@@ -103,6 +103,12 @@ function run_traffic() {
     local client_dst_execution="ip netns exec $namespace"
 
     local t=5
+
+    if is_simx; then
+        t=30
+        warn "In SimX, default runtime is set to $t"
+    fi
+
     local sleep_time=$((t+2))
 
     # server
