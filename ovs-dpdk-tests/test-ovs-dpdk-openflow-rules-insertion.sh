@@ -26,7 +26,7 @@ output_file="/tmp/openflow_batch_$$"
 br=br-phy
 ofctl_rule_prefix="in_port=2,ip,tcp"
 
-if [ "$short_device_name" == "bf2" ]; then
+if [ "$short_device_name" == "bf2" ] || is_asan; then
     expected_time=$((number_of_rules/1000*500))
 fi
 
