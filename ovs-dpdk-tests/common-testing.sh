@@ -935,6 +935,11 @@ function verify_ovs_expected_msg() {
 
     title "Verifying \"$msg\" expected message."
 
+    if is_simx && [ $timeout -eq 10 ]; then
+        timeout=30
+        warn "In SimX, default timeout is set to $timeout"
+    fi
+
     local end=$((SECONDS+$timeout))
     while [ $SECONDS -lt $end ]; do
         ovs-vsctl show | grep "$msg"
