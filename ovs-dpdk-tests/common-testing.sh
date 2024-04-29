@@ -466,8 +466,13 @@ function generate_traffic() {
     local streams=${8:-$num_connections}
 
     if is_simx && [ $run_time -eq 5 ]; then
-        run_time=30
-        warn "In SimX, default runtime is set to $run_time"
+        if [[ $my_ip = *":"* ]]; then
+            run_time=40
+            warn "In SimX, IPv6 default runtime is set to $run_time"
+        else
+            run_time=30
+            warn "In SimX, IPv4 default runtime is set to $run_time"
+        fi
     fi
 
     initiate_traffic $client_remote $my_ip $client_namespace $server_namespace $server_remote $run_time $streams
