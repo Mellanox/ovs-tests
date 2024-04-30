@@ -472,7 +472,7 @@ function devlink_port_eswitch_enable() {
     if is_ofed ; then
         mlxdevm port function cap set $port eswitch true || err "Failed to set port $port eswitch"
     else
-        ~roid/SWS/gerrit2/iproute2/devlink/devlink port function set $port eswitch enable || err "Failed to set port $port eswitch"
+        devlink port function set $port eswitch enable || err "Failed to set port $port eswitch"
     fi
 }
 
@@ -481,7 +481,7 @@ function devlink_port_show() {
     if is_ofed ; then
         mlxdevm port show $port
     else
-        ~roid/SWS/gerrit2/iproute2/devlink/devlink port show $port
+        devlink port show $port
     fi
 }
 
