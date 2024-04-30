@@ -8,16 +8,11 @@ my_dir="$(dirname "$0")"
 . $my_dir/common-dpdk.sh
 . $my_dir/../common-sf.sh
 
+config_sriov 2
 enable_switchdev
 
 function cleanup() {
     clean_vf_lag
-    config_sriov 2
-    enable_switchdev
-    bind_vfs
-    on_remote_exec "config_sriov 2
-                    enable_switchdev
-                    bind_vfs"
     cleanup_test
 }
 
