@@ -28,18 +28,18 @@ function config_topology() {
 function run() {
     config_topology
 
+    title "Testing meter on PF"
     ovs_add_meter br-phy 1 pktps 3
     ovs_add_simple_meter_rule
-    debug "testing meter on PF"
     send_metered_ping
     check_dpdk_offloads $LOCAL_IP
     ovs_del_meter
     ovs-appctl revalidator/purge
 
+    debug "Testing meter on REP"
     ovs_add_meter br-int 1 pktps 50
     ovs_add_simple_meter_rule br-int 1
-    debug "testing meter on REP"
-    send_metered_ping ns0 200 5 $REMOTE_IP 0.05 115
+    send_metered_ping ns0 200 5 $REMOTE_IP 0.01 115
     check_dpdk_offloads $LOCAL_IP
     ovs_del_meter br-int 1
 }
