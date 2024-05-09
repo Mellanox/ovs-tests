@@ -9,3 +9,6 @@ comm "ifconfig"
 
 # Bug SW #3604266
 secondary_startup_64_no_verify
+
+# Bug SW #3895968
+virtnet_rx_mode_work
