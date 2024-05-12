@@ -142,10 +142,12 @@ function run() {
     tpid2=$!
     timeout $((t-4)) tcpdump -qnnei $REP2 -c 10 'tcp' &
     tpid3=$!
-  
+
     sleep 4
+    sleep_if_simx
     change_slaves
     sleep 4
+    sleep_if_simx
     change_slaves
     sleep $((t-8))
     title "Verify traffic on $VF"
