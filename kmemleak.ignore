@@ -9,3 +9,6 @@ comm "ifconfig"
 
 # Bug SW #3895968
 virtnet_rx_mode_work
+
+# Bug SW #3644690
+alloc_vfsmnt
