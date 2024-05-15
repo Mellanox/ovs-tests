@@ -325,7 +325,7 @@ function wait_vdpa_vm() {
     done
 
     if [ "${status}" != "running" ]; then
-        fail "VM is not running"
+        fail "VM $vm_name is not running"
     fi
 
     local vm_started="false"
@@ -338,11 +338,25 @@ function wait_vdpa_vm() {
     done
 
     if [ "${vm_started}" == "false" ]; then
-        fail "Timeout waiting for VM to start"
+        fail "Timeout waiting for VM $vm_name to start"
     fi
 
-    sleep 2
-    __on_remote $vm_ip true || fail "VM is not ready"
+    sleep 5
+
+    local vm_is_ready="false"
+
+    for i in {0..10}; do
+        if __on_remote $vm_ip true &>/dev/null; then
+            vm_is_ready="true"
+            break
+        fi
+        echo "retry"
+    done
+
+    if [ "$vm_is_ready" == "false" ]; then
+        fail "VM $vm_name is not ready"
+    fi
+
     success "VM $vm_name is ready"
 }
 
