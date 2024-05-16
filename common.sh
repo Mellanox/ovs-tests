@@ -1857,7 +1857,7 @@ function check_simx_errors() {
     local p='$p'
     local out=`sed -n "$linenum,$p" $log | uniq`
 
-    local look="ERR|FATAL"
+    local look="ERR-|FATAL"
     local filter=""
     local filter_warn="NOT_IN_USE"
 
