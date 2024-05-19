@@ -33,9 +33,11 @@ function set_ovs_dpdk_debug_logs() {
         echo > $log
     fi
     if is_doca; then
-        ovs_set_log_levels dpif_netdev:file:DBG netdev_offload_dpdk:file:DBG ovs_doca:file:DBG dpdk_offload_doca:file:DBG
+        ovs_set_log_levels dpif_netdev:file:DBG netdev_offload_dpdk:file:DBG ovs_doca:file:DBG dpdk_offload_doca:file:DBG \
+                           dpif_netdev_ext:file:DBG netdev_offload_dpdk_ext:file:DBG
     elif is_dpdk; then
-        ovs_set_log_levels dpif_netdev:file:DBG netdev_offload_dpdk:file:DBG
+        ovs_set_log_levels dpif_netdev:file:DBG netdev_offload_dpdk:file:DBG \
+                           dpif_netdev_ext:file:DBG netdev_offload_dpdk_ext:file:DBG
     fi
 }
 
