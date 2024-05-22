@@ -34,7 +34,7 @@ function run() {
     sleep 1
     verify_remote_tcpdump_is_running
     # icmp
-    verify_ping $REMOTE_IP ns0
+    verify_ping $REMOTE_IP ns0 56 11 0.5 6
 
     title "Verify traffic on remote"
     verify_have_traffic $pid_remote
