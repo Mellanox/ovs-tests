@@ -38,7 +38,7 @@ function del_and_add_pf() {
 function run() {
     config
 
-    verify_ping $REMOTE_IP ns0 56 50
+    verify_ping $REMOTE_IP ns0 56 50 0.1 6
 
     validate_offload $LOCAL_IP
 
@@ -46,7 +46,7 @@ function run() {
 
     sleep 3
 
-    verify_ping $REMOTE_IP ns0 56 50
+    verify_ping $REMOTE_IP ns0 56 50 0.1 6
 
     validate_offload $LOCAL_IP
 }
