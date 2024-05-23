@@ -63,8 +63,8 @@ function check_no_offloaded_connections() {
 function run() {
     config
     config_remote
-    verify_ping 1.1.1.3 ns1 56 50
-    verify_ping 1.1.1.4 ns0 56 50
+    verify_ping 1.1.1.3 ns1 56 50 0.1 6
+    verify_ping 1.1.1.4 ns0 56 50 0.1 6
     check_no_offloaded_connections
 }
 
