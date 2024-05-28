@@ -49,9 +49,10 @@ function config_vf_lag() {
 }
 
 function config() {
+    local mode=${1:-"802.3ad"}
     config_vf_lag
     remote_disable_sriov
-    config_remote_bonding
+    config_remote_bonding $REMOTE_NIC $REMOTE_NIC2 $mode
     on_remote "ip a add $REMOTE_IP/24 dev bond0
                ip a add $REMOTE_IP2/24 dev bond0"
     config_vf ns0 $VF $REP $LOCAL_IP
