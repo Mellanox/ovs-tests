@@ -1984,7 +1984,8 @@ Spectre V2 : WARNING: Unprivileged eBPF is enabled with eIBRS on, data leaks pos
 kvm|pluto.* Warning: kernel has no audit support|\
 Deprecated Driver is detected: iptables will not be maintained in a future major release and may be disabled|\
 mlx5_pci_slot_reset Device state = 2 pci_status: 1. Exit, err = 0, result = 5, recovered|\
-engine_pipe_entry_query.*failed querying pipe entry - pipe is null"
+engine_pipe_entry_query.*failed querying pipe entry - pipe is null|\
+Unmaintained driver is detected: ip_tables"
 
     if [ -n "$__expected_error_msgs" ]; then
         filter+="$__expected_error_msgs"
