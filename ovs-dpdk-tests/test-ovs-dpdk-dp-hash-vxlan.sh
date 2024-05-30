@@ -51,7 +51,7 @@ function run() {
     config
     config_remote_tunnel vxlan
     add_openflow_rules
-    sleep 2
+    sleep 4
     verify_ping $REMOTE_IP ns0
     generate_traffic "remote" $LOCAL_IP
     ovs-appctl dpctl/dump-flows -m
