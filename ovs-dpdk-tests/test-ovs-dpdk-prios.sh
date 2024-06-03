@@ -63,9 +63,9 @@ function run() {
     title "doca groups dump"
     echo -e "$group_dump"
 
-    echo -e "$group_dump" | grep "group_id=0" | grep -v "l3_type" | grep "dst_mac" | grep "src_mac" | grep -q "priority=2" || fail "ETH/ARP isn't offloaded to prio 2 (LOW)"
-    echo -e "$group_dump" | grep "group_id=0" | grep "l3_type\[4,specific]=02000000" | grep -q "priority=1" || fail "IPV6 isn't offloaded to prio 1 (MED)"
-    echo -e "$group_dump" | grep "group_id=0" | grep "l3_type\[4,specific]=01000000" | grep -q "priority=0" || fail "IPV4 isn't offloaded to prio 0 (HIGH)"
+    echo -e "$group_dump" | grep "group_id=0" | grep -v "l3_type" | grep "dst_mac" | grep "src_mac" | grep -q "priority=3" || err "ETH/ARP isn't offloaded to prio 2 (LOW)"
+    echo -e "$group_dump" | grep "group_id=0" | grep "l3_type\[4,specific]=02000000" | grep -q "priority=2" || err "IPV6 isn't offloaded to prio 1 (MED)"
+    echo -e "$group_dump" | grep "group_id=0" | grep "l3_type\[4,specific]=01000000" | grep -q "priority=1" || err "IPV4 isn't offloaded to prio 0 (HIGH)"
 }
 
 run
