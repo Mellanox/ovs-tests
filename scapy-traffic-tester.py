@@ -20,6 +20,8 @@ def parse_args():
                         help='TCP syn flood')
     parser.add_argument('--src-ip',
                         help='Source ip')
+    parser.add_argument('--client-only', action='store_true',
+                        help='Client only')
     parser.add_argument('--dst-ip',
                         help='Destination ip')
     parser.add_argument('--src-port', type=int, default=0,
@@ -111,7 +113,7 @@ def run_client(args):
         args.dst_port = random.randrange(2026, 2999)
 
     needed = ('dev', 'src_ip', 'dst_ip', 'src_port', 'src_port_count',
-              'dst_port', 'dst_port_count', 'pkt_count', 'inter', 'time')
+              'dst_port', 'dst_port_count', 'pkt_count', 'inter', 'time', 'client_only')
     verify_args(args, needed)
     progress = random.choice(['.', 'a', 'b', 'c', 'z'])
     print("char: %s" % progress)
@@ -139,21 +141,33 @@ def run_client(args):
                         UDP(sport=sport1, dport=dport1)/
                         payload)
 
+            if args.client_only:
+                pkt = Ether(src='00:00:00:00:00:01',dst='00:00:00:00:00:02')/pkt
             pkt_list.append(pkt)
 
     print("Prepared %d packets" % len(pkt_list))
     t_end = time.time() + args.time
-    s = conf.L3socket(iface=args.dev)
+    s = None
     try:
-        while time.time() < t_end:
+        if args.client_only:
             for pkt in pkt_list:
-                send(pkt, verbose=0, count=args.pkt_count, inter=args.inter, iface=args.dev, socket=s)
+                sendp(pkt, verbose=0, count=args.pkt_count, inter=args.inter, iface=args.dev)
                 sent += args.pkt_count
                 if sent % 500 == 0 or args.inter >= 1:
                     sys.stdout.write(progress)
                     sys.stdout.flush()
+        else:
+            s = conf.L3socket(iface=args.dev)
+            while time.time() < t_end:
+                for pkt in pkt_list:
+                    send(pkt, verbose=0, count=args.pkt_count, inter=args.inter, iface=args.dev, socket=s)
+                    sent += args.pkt_count
+                    if sent % 500 == 0 or args.inter >= 1:
+                        sys.stdout.write(progress)
+                        sys.stdout.flush()
     finally:
-        s.close()
+        if s is not None:
+            s.close()
     print()
     print("sent %d packets" % sent)
 
