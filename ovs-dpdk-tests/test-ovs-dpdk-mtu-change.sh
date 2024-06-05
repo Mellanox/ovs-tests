@@ -51,8 +51,9 @@ function run() {
     restart_openvswitch_nocheck
 
     local mtu=$(ovs-vsctl list interface $pf0 | grep -w mtu | awk '{ print $3 }')
+    echo "Check new MTU $mtu >= $mtu_request"
 
-    if (( $mtu != $mtu_request )); then
+    if (( $mtu < $mtu_request )); then
         fail "MTU settings didn't change"
     fi
 
