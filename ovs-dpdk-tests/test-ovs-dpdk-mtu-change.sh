@@ -40,11 +40,13 @@ function run() {
 
     local mtu=$(ovs-vsctl list interface $pf0 | grep -w mtu | awk '{ print $3 }')
 
+    echo "Current MTU $mtu"
+
     if (( $mtu == $mtu_request )); then
         let "mtu_request=mtu_request+100"
     fi
 
-    change_mtu_request 1600 $pf0
+    change_mtu_request $mtu_request $pf0
     # Limitation of ovs-doca, need to restart ovs for the mtu change.
     restart_openvswitch_nocheck
 
