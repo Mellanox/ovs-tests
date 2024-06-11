@@ -3240,5 +3240,7 @@ if [ "$TESTNAME" == "." ]; then
     return
 fi
 
+add_expected_error_for_issue 3944219 "mlx5_hwmon_dev_register failed with error code -22|\ .*syndrome .*0x7d79ae.*"
+
 # execute normally
 __common_main $@
