@@ -198,7 +198,7 @@ function __get_pci_device_name() {
 }
 
 function check_ovs_asan() {
-    local count=$(nm /usr/sbin/ovs-vswitchd 2>/dev/null | grep __sanitizer_syscall_ | wc -l)
+    local count=$(nm /usr/sbin/ovs-vswitchd 2>/dev/null | grep -E "(__sanitizer_syscall_|__asan_init)" | wc -l)
     if [ $count -gt 0 ]; then
         log "OVS ASAN"
         IS_ASAN=1
