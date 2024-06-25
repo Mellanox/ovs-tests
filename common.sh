@@ -13,6 +13,7 @@ COREDUMP_PATH="/.autodirect/net_linux_verification/release/doca/coredumps"
 OVS_MEMORY="$DIR/ovs-memory.sh"
 : "${OVS_MEMORY_CSV_OUTPUT:="/workspace/ovs-memory.csv"}"
 OVS_VSCTL_TIMEOUT=10
+CONNECT_TIMEOUT=3
 
 COLOR0="\033["
 NOCOLOR="\033[0;0m"
@@ -252,6 +253,13 @@ function print_mlnx_ofed_version() {
     fi
 }
 
+function is_lockdep_enabled() {
+    if zcat /proc/config.gz | grep -iq 'CONFIG_LOCKDEP=y'; then
+        return 0
+    fi
+    return 1
+}
+
 function __setup_common() {
     start_test_timestamp
 
@@ -304,6 +312,7 @@ function __setup_common() {
     check_simx
     simx_append_log "# TEST $TESTNAME #"
     is_simx && OVS_VSCTL_TIMEOUT=100
+    is_lockdep_enabled && CONNECT_TIMEOUT=30
 }
 
 ovs_log_path="/var/log/openvswitch/ovs-vswitchd.log"
@@ -815,12 +824,12 @@ function set_port_state_down() {
 }
 
 function scp2() {
-    scp -q -o ConnectTimeout=3 "$@"
+    scp -q -o ConnectTimeout=$CONNECT_TIMEOUT "$@"
 }
 
 function ssh2() {
     __USING_REMOTE_SERVER=1
-    ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=3 "$@"
+    ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=$CONNECT_TIMEOUT "$@"
     local rc=$?
     if [ $rc -eq 255 ]; then
         debug "SSH connection $1 rc 255"
