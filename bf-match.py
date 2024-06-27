@@ -81,7 +81,8 @@ def read_nics():
     for iface in netifaces.interfaces():
         nic = {}
 
-        for attr in ['phys_port_name', 'phys_switch_id', 'vendor', 'address',
+        for attr in ['phys_port_name', 'phys_switch_id', 'vendor',
+                     'address', 'ifindex',
                      'device/infiniband/*/node_guid',
                      'device/infiniband/*/sys_image_guid',
                      'device/sfnum']:
@@ -112,11 +113,12 @@ def read_nics():
             nic['phys_switch_id'] = node_guid_to_phys_id(nic['sys_image_guid'])
 
         nic['name'] = iface
-        DATA[nic['address']] = nic
+        uniq = '%s-%s' % (nic['address'], nic['ifindex'])
+        DATA[uniq] = nic
 
 
 def is_parent(nic):
-    if not re.match(r'p(\d+)', nic.get('phys_port_name', '')):
+    if is_rep(nic) or not re.match(r'p(\d+)', nic.get('phys_port_name', '')):
         return False
     return True
 
@@ -128,7 +130,7 @@ def get_parent(nic):
             continue
         if p['phys_switch_id'] != nic['phys_switch_id']:
             continue
-        m = re.search(r'pf(\d+)', nic['phys_port_name'])
+        m = re.search(r'pf?(\d+)', nic['phys_port_name'])
         if not m:
             continue
         pfnum = m.groups()[0]
@@ -208,14 +210,24 @@ def link_reps():
         elif not is_rep(nic):
             continue
 
-        m = re.search(r'pf(\d+)((vf|sf)(\d+))?', nic['phys_port_name'])
+        m = re.search(r'(pf?)(\d+)((vf|sf)(\d+))?', nic['phys_port_name'])
         if not m:
             continue
 
-        nic_type = m.groups()[2]
-        num = m.groups()[3]
+        if m.groups()[0] == 'p':
+            nic_type = 'pf'
+        else:
+            nic_type = m.groups()[3]
 
-        if nic_type == 'vf':
+        pf_num = m.groups()[1]
+        num = m.groups()[4]
+
+        if nic_type == 'pf':
+            # pf rep
+            parent = get_parent(nic)
+            if parent:
+                add_to_list(parent, 'pf-rep', nic)
+        elif nic_type == 'vf':
             # vf rep
             vf = get_vf(nic, num)
             if vf:
@@ -251,6 +263,8 @@ def print_reps():
                 print(' %-4s %-12s' % ('SF', sf['name']), '-> REP', sf['rep_device']['name'])
         for hpf in nic.get('hpf', []):
             print(' %-17s -> HPF' % ' ', hpf['name'])
+        for pf_rep in nic.get('pf-rep', []):
+            print(' %-17s -> PF REP' % ' ', pf_rep['name'])
 
 
 def parse_args():
