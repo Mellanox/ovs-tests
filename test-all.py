@@ -754,7 +754,7 @@ def get_dpdk_version():
 
 
 def get_doca_version():
-    g = glob(os.path.join(DOCA_LIB_DIR, '**', 'doca.pc'), recursive=True)
+    g = glob(os.path.join(DOCA_LIB_DIR, '**', 'doca-flow.pc'), recursive=True)
     if g:
         with open(g[0]) as f:
             for line in f.readlines():
