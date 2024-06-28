@@ -335,13 +335,13 @@ function verify_ping() {
         fi
     fi
 
-    if is_simx && [ $packet_num -eq 10 ]; then
-        packet_num=30
-        warn "In SimX, default packet num is set to $packet_num"
+    if is_simx && [ $interval -eq 1 ]; then
+        interval=0.5
+        warn "In SimX, default interval is set to $interval"
     fi
 
-    if is_simx && [ $wait_time -eq 2 ]; then
-        wait_time=10
+    if is_simx && [ $wait_time -eq 4 ]; then
+        wait_time=30
         warn "In SimX, default wait time is set to $wait_time"
     fi
 
