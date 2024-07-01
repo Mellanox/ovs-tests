@@ -5,16 +5,17 @@
 # the same data file to append and parse data from both machines.
 #
 # Example output:
-#
 # p0 b83f:d203:00c4:6330
-#  VF   pf0vf0       -> REP pf0vf0
-#  VF   pf0vf1       -> REP pf0vf1
-#  VF   pf0vf2       -> REP pf0vf2
-#  SF   pf0dpu1      -> REP pf0dpu1_r
-#  SF   pf0dpu3      -> REP pf0dpu3_r
-#                    -> HPF pf0hpf
+# VF   pf0vf0       -> REP pf0vf0
+# VF   pf0vf1       -> REP pf0vf1
+# VF   pf0vf2       -> REP pf0vf2
+# SF   pf0dpu1      -> REP pf0dpu1_r
+# SF   pf0dpu3      -> REP pf0dpu3_r
+#                   -> HPF pf0hpf
+#                   -> PF REP p0
 # p1 b83f:d203:00c4:6331
-#                    -> HPF pf1hpf
+#                   -> HPF pf1hpf
+#                   -> PF REP p1
 
 import os
 import re
