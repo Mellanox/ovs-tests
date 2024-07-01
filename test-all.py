@@ -694,8 +694,13 @@ def get_flow_steering_mode(nic):
 
 
 def check_ovs_asan():
-    output = subprocess.check_output("nm /usr/sbin/ovs-vswitchd | grep __sanitizer_syscall_ | wc -l", shell=True).decode().strip()
-    return int(output) > 0
+    try:
+        output1 = subprocess.check_output("nm /usr/sbin/ovs-vswitchd 2>/dev/null", shell=True).decode().strip()
+        output2 = subprocess.check_output("nm -D /usr/sbin/ovs-vswitchd 2>/dev/null", shell=True).decode().strip()
+        output1 += output2
+    except subprocess.CalledProcessError:
+        return
+    return '__sanitizer_syscall_' in output1 or '__asan_init' in output1
 
 
 def get_current_fw(nic):
