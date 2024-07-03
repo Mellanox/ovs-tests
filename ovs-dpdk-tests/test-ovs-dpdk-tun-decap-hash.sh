@@ -26,9 +26,7 @@ function config() {
 
     cleanup_test
 
-    config_tunnel "vxlan" 1 $BRIDGE $BRIDGE
-    ovs-vsctl set interface $VXLAN_DEV options:explicit=true
-    restart_openvswitch
+    config_tunnel "vxlan" 1 $BRIDGE $BRIDGE $TUNNEL_ID $LOCAL_IP $REMOTE_TUNNEL_IP $VF $NIC "options:explicit=true"
     config_remote_tunnel "vxlan"
     on_remote arp -s $LOCAL_TUN_IP $NIC_MAC
 

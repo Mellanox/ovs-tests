@@ -108,6 +108,7 @@ function config_tunnel() {
     local remote_tnl_ip=${7:-"$REMOTE_TUNNEL_IP"}
     local dev=${8:-"$VF"}
     local nic=${9:-"$NIC"}
+    local extra_opts=${10}
     local pci=$(get_pf_pci)
 
     if [ $nic == $NIC2 ]; then
@@ -120,7 +121,7 @@ function config_tunnel() {
         dev=$VDPA_DEV_NAME
     fi
     config_simple_bridge_with_rep 0 true $br $nic
-    config_remote_bridge_tunnel $tnl_id $remote_tnl_ip $tnl_type $reps $remote_br $pci
+    config_remote_bridge_tunnel $tnl_id $remote_tnl_ip $tnl_type $reps $remote_br $pci $extra_opts
     config_ns ns0 $dev $local_ip
     local cmd="${dst_execution} ip link set dev $dev mtu 1400"
     eval $cmd
