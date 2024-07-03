@@ -1005,8 +1005,9 @@ function fail() {
         return
     fi
     TEST_FAILED=1
-    kill_all_bgs
     if [ "$m" != "TEST FAILED" ]; then
+        # Not reached from test_done().
+        __steps_end_of_test
         m="ERROR: $m"
     fi
     echo -e "${RED}$m$NOCOLOR" >>/dev/stderr
@@ -1015,7 +1016,6 @@ function fail() {
         debug "Test is freeze on fail - press enter to exit"
         read
     fi
-    collect_asan_logs
     exit 1
 }
 
@@ -2630,20 +2630,26 @@ function collect_sos_reports() {
     fi
 }
 
-function test_done() {
+function __steps_end_of_test() {
     kill_all_bgs
     set +e
     reload_driver_per_test && reload_modules
     kmemleak_scan_per_test && kmemleak_scan
     check_for_errors_log
     check_for_errors_log_remote
-    log "runtime: `get_test_time_elapsed_human`"
-    if [ $TEST_FAILED == 0 ]; then
-        success "TEST PASSED"
-    else
+    if [ $TEST_FAILED != 0 ]; then
         dump_ovs_log
         collect_sos_reports
         coredump_info
+    fi
+    log "runtime: `get_test_time_elapsed_human`"
+}
+
+function test_done() {
+    __steps_end_of_test
+    if [ "$TEST_FAILED" == 0 ]; then
+        success "TEST PASSED"
+    else
         fail "TEST FAILED"
     fi
     exit $TEST_FAILED
