@@ -254,6 +254,7 @@ function print_mlnx_ofed_version() {
 }
 
 function is_lockdep_enabled() {
+    [ -f /proc/config.gz ] || return 1
     if zcat /proc/config.gz | grep -iq 'CONFIG_LOCKDEP=y'; then
         return 0
     fi
