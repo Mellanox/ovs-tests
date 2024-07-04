@@ -353,7 +353,8 @@ function wait_vdpa_vm() {
             vm_is_ready="true"
             break
         fi
-        echo "retry"
+        debug "retry"
+        sleep 15
     done
 
     if [ "$vm_is_ready" == "false" ]; then
