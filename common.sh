@@ -1028,11 +1028,11 @@ function err() {
     TEST_FAILED=1
     m="ERROR: $m"
     echo -e "${RED}$m$NOCOLOR"
+    kmsg "$m"
     if [ "${FREEZE_ON_ERROR}" == "1" ]; then
         debug "Test is freeze on error - press enter to continue"
         read
     fi
-    kmsg "$m"
 }
 
 function err_stderr() {
