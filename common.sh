@@ -1006,12 +1006,14 @@ function fail() {
     fi
     TEST_FAILED=1
     if [ "$m" != "TEST FAILED" ]; then
-        # Not reached from test_done().
-        __steps_end_of_test
         m="ERROR: $m"
     fi
     echo -e "${RED}$m$NOCOLOR" >>/dev/stderr
     kmsg "$m"
+    if [ "$m" != "TEST FAILED" ]; then
+        # Not reached from test_done().
+        __steps_end_of_test
+    fi
     if [ "${FREEZE_ON_ERROR}" == "1" ]; then
         debug "Test is freeze on fail - press enter to exit"
         read
