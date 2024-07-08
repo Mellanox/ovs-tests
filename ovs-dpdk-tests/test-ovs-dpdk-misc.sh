@@ -6,10 +6,9 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common-dpdk.sh
 
-require_remote_server
-
 enable_switchdev
 start_clean_openvswitch
+ovs_add_bridge
 
 function misc_functions() {
     local cmd
@@ -32,11 +31,15 @@ function misc_functions() {
         "ovs-appctl dpdk/get-memzone-stats" \
         "ovs-appctl upcall/show" \
         "ovs-vsctl set Open_vSwitch . other_config:enable-statistics=true" \
-        "ovs-vsctl remove Open_vSwitch . other_config enable-statistics" ; do
+        "ovs-vsctl remove Open_vSwitch . other_config enable-statistics" \
+        "ovs-appctl qos/show-types br-phy" \
+        "ovs-appctl qos/show br-phy" \
+        ; do
         title "Command: $cmd"
         $cmd || err "Failed cmd: $cmd"
     done
 }
 
 misc_functions
+ovs_clear_bridges
 test_done
