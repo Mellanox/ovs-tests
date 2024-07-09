@@ -46,6 +46,7 @@ function run() {
     local t=4
     ovs_send_scapy_packets $VF1 $VF2 $NS0_IP $NS1_IP $t 100 ns0 ns1
     check_dpdk_offloads $NS0_IP
+    ovs-ofctl -O OpenFlow13 meter-stats br-phy
     ovs_check_tcpdump $((rate*t+10))
     ovs_del_meter br-phy 1
     ovs_del_meter br-phy 2
