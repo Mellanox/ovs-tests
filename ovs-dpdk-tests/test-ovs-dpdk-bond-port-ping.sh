@@ -64,6 +64,7 @@ function config() {
 function check_ping() {
     local ns=$1
     local remote=$2
+    local dev=$3
     title "Check ping to $remote"
     echo "Start tcpdump on $dev"
     timeout 10 tcpdump -nnei $dev -c 4 icmp &
@@ -90,9 +91,9 @@ function run() {
     ovs_add_dpdk_port br-phy $REP
     ovs_add_dpdk_port br-phy $REP2
     ovs-vsctl show
-    dev=`get_infiniband_device`
-    check_ping ns0 $REMOTE_IP
-    check_ping ns1 $REMOTE_IP2
+    local dev=`get_infiniband_device`
+    check_ping ns0 $REMOTE_IP $dev
+    check_ping ns1 $REMOTE_IP2 $dev
     ovs_clear_bridges
 }
 
