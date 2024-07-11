@@ -2602,7 +2602,7 @@ function coredump_info() {
                 break
             fi
             echo "Waiting for coredump to flush"
-            sleep 1
+            sleep 5
         done
         [ "$size" == 0 ] && return
         bf_wrap cp $dump /tmp
