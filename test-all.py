@@ -1480,7 +1480,10 @@ def get_tests_from_glob(lst, tests):
     tmp = []
     for i in lst:
         g = glob(os.path.join(MYDIR, i))
-        g.extend(glob(os.path.join(os.getcwd(), i)))
+        # os.path.join() resets the path if started with /
+        # so no need to try another prefix.
+        if not i.startswith('/'):
+            g.extend(glob(os.path.join(os.getcwd(), i)))
         for f in g:
             if f in tests:
                 continue
