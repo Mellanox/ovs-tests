@@ -89,6 +89,7 @@ function run() {
     #wait for last packets to reach sflow
     sleep 1
     kill $pid1 &>/dev/null || kill -9 $pid1 &>/dev/null
+    wait $pid1 &>/dev/null
 
     if grep $IP1 $file | grep $IP2 > /dev/null; then
         success2 "get the expected IP addresses: $IP1, $IP2"
