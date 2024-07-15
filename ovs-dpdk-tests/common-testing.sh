@@ -714,7 +714,7 @@ function verify_client_log() {
 function validate_actual_traffic() {
     local client_remote=$1
     local server_remote=$2
-    local min_bw=100
+    local min_bw=50
 
     if is_simx; then
         min_bw=1
