@@ -39,8 +39,8 @@ function run() {
     ovs-appctl revalidator/purge
 
     local rate=50
-    ovs_add_meter br-phy 1 pktps $rate
-    ovs_add_meter br-phy 2 pktps $rate
+    ovs_add_meter br-phy 1 pktps $rate 1
+    ovs_add_meter br-phy 2 pktps $rate 1
     ovs_add_bidir_meter_rules
     title "Testing meter on REPs"
     local t=4
