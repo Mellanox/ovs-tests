@@ -26,10 +26,22 @@ output_file="/tmp/openflow_batch_$$"
 br=br-phy
 ofctl_rule_prefix="in_port=2,ip,tcp"
 
-if [ "$short_device_name" == "bf2" ] || is_asan; then
-    expected_time=$((number_of_rules/1000*500))
-fi
+function fix_expected_time() {
+    if [ "$short_device_name" == "bf2" ]; then
+        expected_time=$((number_of_rules/1000*700))
+        return
+    fi
 
+    if ! is_ovs_optimized; then
+        return
+    fi
+
+    if is_asan || [ "$short_device_name" == "bf3" ]; then
+        expected_time=$((number_of_rules/1000*450))
+    fi
+}
+
+fix_expected_time
 
 function config() {
     echo > $output_file
