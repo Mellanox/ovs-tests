@@ -198,7 +198,7 @@ function __get_pci_device_name() {
 }
 
 function is_ovs_optimized() {
-    on_bf readelf --debug-dump=info /usr/sbin/ovs-vswitchd | grep -m1 "DW_AT_producer" | grep -q -- "-O0"
+    bf_wrap readelf --debug-dump=info /usr/sbin/ovs-vswitchd | grep -m1 "DW_AT_producer" | grep -q -- "-O0"
 }
 
 function check_ovs_asan() {
