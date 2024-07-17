@@ -49,17 +49,11 @@ function config() {
 function verify() {
     ovs-appctl upcall/show
 
-    local c1=`ovs-appctl upcall/show | grep "offloaded flows" | awk {'print $4'}`
-    echo "offloaded flows: $c1"
-
-    # sum from the revalidators.
-    local c2=`ovs-appctl upcall/show | grep "  [0-9]\+:" | sed 's/[()]//g' | awk {'print $3'} | paste -s -d+ - | bc`
-    echo "threads: $c2"
-
-    # With tc. c1 offloaded flows is taken from tc_to_ufid_node hmap which
+    # With tc, offloaded flows is taken from tc_to_ufid_node hmap which
     # doesn't have a garbage collector.
-    # c2 is the ukeys which gets cleaned for stale ukeys in revalidator_sweep__().
-    if [ $c2 -gt 0 ]; then
+    # The ukeys gets cleaned for stale ukeys in revalidator_sweep__().
+
+    if ovs-appctl upcall/show | grep '(keys' | awk '{print $3}' | grep -qv '0)' ; then
         err "Expected 0 ukeys"
         return
     fi
