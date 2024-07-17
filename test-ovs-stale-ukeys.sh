@@ -17,7 +17,6 @@ function cleanup() {
     ovs_clear_bridges
     ip link del veth0 &>/dev/null
     ip link del veth2 &>/dev/null
-    ip link del veth4 &>/dev/null
     ip -all netns delete
 }
 
@@ -28,7 +27,6 @@ function config() {
     echo "setup veth and ns"
     ip link add veth0 type veth peer name veth1
     ip link add veth2 type veth peer name veth3
-    ip link add veth4 type veth peer name veth5
 
     ifconfig veth0 $VM1_IP/24 up
     ifconfig veth1 up
@@ -82,11 +80,16 @@ function test_ping_tc_flush() {
     # Set low max-idle for longer time than ovs_flush_rules() for sweep.
     ovs_conf_set max-idle 1
     # Cause seq_mismatch a few times for the sweep to do someting.
+    local rev=$(ovs-appctl coverage/read-counter rev_reconfigure)
+    echo "rev_reconfigure $rev"
     for i in `seq 5`; do
-        ovs-vsctl add-port brv-1 veth4
-        ovs-vsctl del-port veth4
+        ovs-vsctl add-port brv-1 ovs-p2 -- set interface ovs-p2 type=internal
+        ovs-vsctl del-port ovs-p2
         sleep 1
     done
+    ovs-appctl revalidator/wait
+    local rev=$(ovs-appctl coverage/read-counter rev_reconfigure)
+    echo "rev_reconfigure $rev"
     ovs_conf_remove max-idle
     ovs_flush_rules
 }
