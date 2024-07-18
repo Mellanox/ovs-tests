@@ -44,7 +44,6 @@ function fix_expected_time() {
 fix_expected_time
 
 function config() {
-    echo > $output_file
     ovs_conf_set pmd-quiet-idle true
     start_clean_openvswitch
     config_simple_bridge_with_rep 16
@@ -58,6 +57,7 @@ function copy_batch_to_bf() {
 
 function create_openflow_rules_port_change_batch() {
     title "Creating $number_of_rules openflow rules batch with port change"
+    echo > $output_file
     for i in `seq 1 $number_of_rules`; do
         echo "$ofctl_rule_prefix,tcp_src=$i,action=drop" >> $output_file
     done
@@ -70,6 +70,7 @@ function create_openflow_rules_mac_change_batch() {
     local mac
     local count=0
 
+    echo > $output_file
     for ((i = 0; i < 99; i++)); do
         for ((j = 0; j < 99; j++)); do
             for ((k = 0; k < 99; k++)); do
@@ -102,6 +103,7 @@ function test_time_cmd() {
 
 function apply_batch() {
     title "Apply openflow rule batch"
+    ovs-ofctl del-flows $br
     test_time_cmd $expected_time "ovs-ofctl add-flows $br $output_file"
     local rules=`ovs-appctl bridge/dump-flows $br | wc -l`
 
@@ -110,6 +112,7 @@ function apply_batch() {
     else
         err "Expected at least $number_of_rules rules and found only $rules rules"
     fi
+    ovs-ofctl del-flows $br
 }
 
 function run() {
@@ -118,9 +121,6 @@ function run() {
     create_openflow_rules_port_change_batch
     apply_batch
 
-    ovs-ofctl del-flows $br
-
-    echo > $output_file
     create_openflow_rules_mac_change_batch
     apply_batch
 }
