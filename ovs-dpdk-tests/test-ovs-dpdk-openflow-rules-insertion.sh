@@ -21,9 +21,13 @@ function cleanup() {
 trap cleanup EXIT
 
 number_of_rules=${1:-4000}
-expected_time=$((number_of_rules/1000*300))
+if [ "$number_of_rules" -gt 1000 ]; then
+    expected_time=$((number_of_rules/1000*300))
+else
+    expected_time=10
+fi
 output_file="/tmp/openflow_batch_$$"
-br=br-phy
+br="br-phy"
 ofctl_rule_prefix="in_port=2,ip,tcp"
 
 function fix_expected_time() {
@@ -78,7 +82,7 @@ function create_openflow_rules_mac_change_batch() {
                     mac="e4:11:$i:$j:$k:$l"
                     echo "$ofctl_rule_prefix,dl_src=$mac,dl_dst=$mac,action=drop" >> $output_file
                     let count=count+1
-                    [ $count -eq $number_of_rules ] && return
+                    [ $count -ge $number_of_rules ] && return
                 done
             done
         done
