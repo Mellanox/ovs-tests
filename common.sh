@@ -218,6 +218,14 @@ function check_simx() {
     if lspci -s $PCI -vvv | grep -q SimX ; then
         log "SimX"
         IS_SIMX=1
+        if [ "$ENABLE_SOS_COLLECTOR" == "1" ]; then
+            # [SimX - NIC] Bug SW #3991818: [OVS-DOCA, SIMX] sosreport use registers which are not supported by SimX | mlx5_access_registers: assertion failed: D0:P1:F0:V0 Dispatcher: invalid access register id
+            redmine_info 3991818
+            if redmine_bug_is_open_or_err ; then
+                warn "Disable sos collector on simx"
+                ENABLE_SOS_COLLECTOR=0
+            fi
+        fi
     fi
 }
 
