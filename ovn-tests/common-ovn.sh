@@ -557,6 +557,11 @@ function check_traffic_offload() {
     else
         __bf_ovs_flush_rules_both
     fi
+
+    if [ $TEST_FAILED != 0 ]; then
+        echo "logfile dump"
+        tail -n 20 $logfile
+    fi
 }
 
 function __check_vf_counters() {
