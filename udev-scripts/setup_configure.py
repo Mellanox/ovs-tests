@@ -244,6 +244,7 @@ class SetupConfigure(object):
             runcmd2('modprobe -rq act_ct')
             runcmd2('modprobe -rq cls_flower')
             runcmd2('modprobe -rq mlx5_fpga_tools')
+            runcmd2('modprobe -rq mlx5_fwctl')
             runcmd2('modprobe -rq mlx5_vdpa')
             runcmd2('modprobe -rq mlx5_ib')
             runcmd2('modprobe -rq mlx5_core')
