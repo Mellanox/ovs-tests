@@ -977,3 +977,16 @@ function verify_remote_tcpdump_is_running() {
 
     fail "tcpdump is not running on remote"
 }
+
+function verify_ovs_readd_port() {
+    local br=$1
+
+    title "Check re-add of representor port without an error"
+    # Try to catch    ovs-vsctl: Error detected while setting up 'pf0vf0': 'pf0vf0' is trying to use device '0000:08:00.0,dv_xmeta_en=4,dv_flow_en=2,representor=[0],reuse_tag=1,fdb_def_rule_en=0,repr_matching_en=0,vport_match=1' which is already in use by 'pf0vf0'.  See ovs-vswitchd log for details.
+
+    ovs_flush_rules
+    ovs_del_port VF 0 $br
+    # rc code from this error is 0 so look for the error msg.
+    ovs_add_port VF 0 $br 2>&1 | tee /dev/stderr | grep -q -i Error
+    [ $? -eq 0 ] && err "Failed re-add port."
+}

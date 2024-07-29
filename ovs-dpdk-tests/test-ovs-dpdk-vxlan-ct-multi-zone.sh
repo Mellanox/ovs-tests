@@ -42,6 +42,8 @@ function run() {
 
     verify_ping
     generate_traffic "remote" $LOCAL_IP
+
+    verify_ovs_readd_port br-int
 }
 
 run

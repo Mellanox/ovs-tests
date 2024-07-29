@@ -50,6 +50,8 @@ function run() {
     ovs_check_tcpdump $((rate*t+10))
     ovs_del_meter br-phy 1
     ovs_del_meter br-phy 2
+
+    verify_ovs_readd_port
 }
 
 test_pre_config

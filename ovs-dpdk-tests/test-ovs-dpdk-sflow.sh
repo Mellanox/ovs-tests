@@ -119,5 +119,6 @@ add_sflow_port 2
 run 0.01
 add_sflow_port 1
 run 1
+verify_ovs_readd_port
 start_clean_openvswitch
 test_done

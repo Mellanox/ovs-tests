@@ -36,6 +36,8 @@ function run() {
 
     set_iperf2
     generate_traffic "remote" $LOCAL_IP
+
+    verify_ovs_readd_port br-phy
 }
 
 run
