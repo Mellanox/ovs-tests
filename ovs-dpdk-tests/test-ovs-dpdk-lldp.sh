@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Test LLDP traffic goes to kernel
+# Min FW XX.42.0344.
 #
 # Require external server
 #
