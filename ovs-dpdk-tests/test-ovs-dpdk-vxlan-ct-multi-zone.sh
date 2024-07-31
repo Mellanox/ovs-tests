@@ -26,14 +26,22 @@ function config() {
 
 function add_openflow_rules() {
     ovs-ofctl del-flows br-int
+    local zone1=$RANDOM
+    local zone2=$RANDOM
     ovs-ofctl add-flow br-int "arp,actions=NORMAL"
     ovs-ofctl add-flow br-int "icmp,actions=NORMAL"
-    ovs-ofctl add-flow br-int "table=0,tcp,ct_state=-trk, actions=ct(zone=2, table=1)"
-    ovs-ofctl add-flow br-int "table=1,tcp,ct_state=+trk+new, actions=ct(zone=2, commit, table=2)"
-    ovs-ofctl add-flow br-int "table=1,ct_zone=2,tcp,ct_state=+trk+est, actions=ct(zone=3, table=2)"
-    ovs-ofctl add-flow br-int "table=2,tcp,ct_state=+trk+new, actions=ct(zone=3, commit),normal"
-    ovs-ofctl add-flow br-int "table=2,ct_zone=3,tcp,ct_state=+trk+est, actions=normal"
+    ovs-ofctl add-flow br-int "table=0,tcp,ct_state=-trk, actions=ct(zone=$zone1, table=1)"
+    ovs-ofctl add-flow br-int "table=1,tcp,ct_state=+trk+new, actions=ct(zone=$zone1, commit, table=2)"
+    ovs-ofctl add-flow br-int "table=1,ct_zone=$zone1,tcp,ct_state=+trk+est, actions=ct(zone=$zone2, table=2)"
+    ovs-ofctl add-flow br-int "table=2,tcp,ct_state=+trk+new, actions=ct(zone=$zone2, commit),normal"
+    ovs-ofctl add-flow br-int "table=2,ct_zone=$zone2,tcp,ct_state=+trk+est, actions=normal"
     ovs-ofctl dump-flows br-int --color
+}
+
+function print_ovs_memzone_count() {
+    title "Verify ovs no memzone leak"
+    local memzone_count=`ovs-appctl dpdk/get-memzone-stats | grep ^Zone | wc -l`
+    echo "memzone count: $memzone_count"
 }
 
 function run() {
@@ -42,6 +50,9 @@ function run() {
 
     verify_ping
     generate_traffic "remote" $LOCAL_IP
+
+    ovs_flush_rules
+    print_ovs_memzone_count
 
     verify_ovs_readd_port br-int
 }
