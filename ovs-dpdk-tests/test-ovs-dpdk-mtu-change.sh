@@ -24,11 +24,23 @@ function config() {
 }
 
 function change_mtu_request() {
-    local mtu=$1
-    local interface=$2
+    local interface=$1
+    local mtu=$2
 
-    debug "Request MTU = $mtu for $interface"
+    title "Request MTU $mtu for $interface"
     ovs-vsctl --timeout=$OVS_VSCTL_TIMEOUT set interface $interface mtu_request=$mtu
+}
+
+function verify_mtu_requesnt() {
+    local interface=$1
+    local mtu_request=$2
+
+    local mtu=$(ovs-vsctl list interface $interface | grep -w mtu | awk '{ print $3 }')
+
+    title "Check new MTU $mtu >= requested $mtu_request"
+    if (( $mtu < $mtu_request )); then
+        err "MTU settings didn't change."
+    fi
 }
 
 function run() {
@@ -39,29 +51,21 @@ function run() {
     config_remote_nic
 
     local mtu=$(ovs-vsctl list interface $pf0 | grep -w mtu | awk '{ print $3 }')
-
     echo "Current MTU $mtu"
-
     if (( $mtu == $mtu_request )); then
-        let "mtu_request=mtu_request+100"
+        let mtu_request=mtu_request+100
     fi
 
-    change_mtu_request $mtu_request $pf0
+    change_mtu_request $pf0 $mtu_request
     # Limitation of ovs-doca, need to restart ovs for the mtu change.
     restart_openvswitch_nocheck
-
-    local mtu=$(ovs-vsctl list interface $pf0 | grep -w mtu | awk '{ print $3 }')
-    echo "Check new MTU $mtu >= $mtu_request"
-
-    if (( $mtu < $mtu_request )); then
-        fail "MTU settings didn't change"
-    fi
+    verify_mtu_requesnt $pf0 $mtu_request
 
     verify_ping
+    check_counters
 }
 
 run
-check_counters
 trap - EXIT
 cleanup_test
 test_done
