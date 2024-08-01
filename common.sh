@@ -1995,7 +1995,7 @@ Can't enable single FDB mode"
     local fw_errs="firmware internal error|assert_var|\
 Command completion arrived after timeout|Error cqe|failed reclaiming pages"
     local ovs_errs_redundant="Kernel flower acknowledgment does not match request"
-    local ovs_errs="Segmentation fault|core dumped|vswitchd.*killed|\[DOCA\]\[ERR\]|ovs-vswitchd.*\|EMER\|"
+    local ovs_errs="Segmentation fault|core dumped|vswitchd.*killed|ovs-vswitchd.*\|ERR\||ovs-vswitchd.*\|EMER\|"
     local look_ahead="Call Trace:|Allocated by task|Freed by task"
     local look_ahead_count=12
     local filter="networkd-dispatcher|nm-dispatcher|uses legacy ethtool link settings|\
