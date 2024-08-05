@@ -7,7 +7,7 @@ OVN_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
 if [ "$DPDK" == 1 ] || [ "$DOCA" == 1 ]; then
     . $OVN_DIR/../ovs-dpdk-tests/common-dpdk.sh
     add_expected_error_for_issue 3684070 "\[DOCA\]\[ERR\]"
-    add_expected_error_for_issue 4016359 "no response to inactivity probe after"
+    add_expected_error_for_issue 3678699 "no response to inactivity probe after"
 fi
 
 # WA since all tests wrap early the common functions it never set __ovs_used.
