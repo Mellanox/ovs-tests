@@ -11,6 +11,9 @@ my_dir="$(dirname "$0")"
 # to get error msgs about unsupported mode.
 SKIP_OVS_LOG_DUMP=1
 add_expected_error_msg "doca_flow_pipe_add_entry"
+add_expected_error_msg "Failed to create egress pipe"
+add_expected_error_msg "Failed to init DOCA port"
+add_expected_error_msg "Failed to set interface"
 
 function cleanup() {
     config_sriov 2 $NIC
