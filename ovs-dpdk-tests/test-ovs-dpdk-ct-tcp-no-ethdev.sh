@@ -8,6 +8,8 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common-dpdk.sh
 
+add_expected_error_for_issue 4016359 "failed to add 1 connection offloads"
+
 trap cleanup_test EXIT
 
 function config() {
