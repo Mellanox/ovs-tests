@@ -10,6 +10,8 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common-dpdk.sh
 
+add_expected_error_for_issue 4022658 "Unexpected device scan at /sys/bus/pci/devices"
+
 require_remote_server
 
 config_sriov 2
