@@ -326,6 +326,9 @@ function __setup_common() {
     simx_append_log "# TEST $TESTNAME #"
     is_simx && OVS_VSCTL_TIMEOUT=100
     is_lockdep_enabled && CONNECT_TIMEOUT=30
+
+    add_expected_error_for_issue 3944219 "mlx5_hwmon_dev_register failed with error code -22|\ .*syndrome .*0x7d79ae.*"
+    add_expected_bf_error_for_issue 3883402 "eal_memalloc_alloc_seg_bulk"
 }
 
 ovs_log_path="/var/log/openvswitch/ovs-vswitchd.log"
@@ -1915,6 +1918,10 @@ function add_expected_error_for_issue() {
     fi
 }
 
+function add_expected_bf_error_for_issue() {
+    is_bf_host && add_expected_error_for_issue "$1" "$2"
+}
+
 function add_expected_simx_error_for_issue() {
     is_simx && add_expected_error_for_issue "$1" "$2"
 }
@@ -3251,8 +3258,6 @@ fi
 if [ "$TESTNAME" == "." ]; then
     return
 fi
-
-add_expected_error_for_issue 3944219 "mlx5_hwmon_dev_register failed with error code -22|\ .*syndrome .*0x7d79ae.*"
 
 # execute normally
 __common_main $@
