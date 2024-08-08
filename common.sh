@@ -329,6 +329,10 @@ function __setup_common() {
 
     add_expected_error_for_issue 3944219 "mlx5_hwmon_dev_register failed with error code -22|\ .*syndrome .*0x7d79ae.*"
     add_expected_bf_error_for_issue 3883402 "eal_memalloc_alloc_seg_bulk"
+    if is_upstream ; then
+        add_expected_error_for_issue 3437831 "CREATE_EQ(0x301) recovered after timeout"
+        add_expected_error_for_issue 3437831 "MANAGE_PAGES(0x108) recovered after timeout"
+    fi
 }
 
 ovs_log_path="/var/log/openvswitch/ovs-vswitchd.log"
