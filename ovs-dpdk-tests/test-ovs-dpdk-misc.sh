@@ -34,9 +34,19 @@ function misc_functions() {
         "ovs-vsctl remove Open_vSwitch . other_config enable-statistics" \
         "ovs-appctl qos/show-types br-phy" \
         "ovs-appctl qos/show br-phy" \
+        "ovs-appctl dpctl/show" \
         ; do
         title "Command: $cmd"
         $cmd || err "Failed cmd: $cmd"
+    done
+
+    add_expected_error_msg "EAL: failed to parse device"
+    # Commands that will fail but we don't care. just increase function coverage.
+    for cmd in \
+        "ovs-appctl netdev-dpdk/detach x" \
+        ; do
+        title "Command: $cmd"
+        $cmd &>/dev/null
     done
 }
 
