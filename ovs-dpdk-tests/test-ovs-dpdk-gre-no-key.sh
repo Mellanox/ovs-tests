@@ -37,5 +37,6 @@ function run() {
 }
 
 run
-trap cleanup_test EXIT
+trap - EXIT
+cleanup_test
 test_done
