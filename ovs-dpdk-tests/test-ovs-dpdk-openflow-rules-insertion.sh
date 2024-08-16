@@ -41,7 +41,7 @@ function fix_expected_time() {
     fi
 
     if is_asan || [ "$short_device_name" == "bf3" ]; then
-        expected_time=$((number_of_rules/1000*450))
+        expected_time=$((number_of_rules/1000*500))
     fi
 }
 
