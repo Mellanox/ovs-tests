@@ -328,11 +328,12 @@ function __setup_common() {
     is_lockdep_enabled && CONNECT_TIMEOUT=30
 
     add_expected_error_for_issue 3944219 "mlx5_hwmon_dev_register failed with error code -22|\ .*syndrome .*0x7d79ae.*"
-    add_expected_bf_error_for_issue 3883402 "eal_memalloc_alloc_seg_bulk"
+    add_expected_error_for_issue 4035785 "doca_offload_entry_process.*del aux"
     if is_upstream ; then
         add_expected_error_for_issue 3437831 "CREATE_EQ(0x301) recovered after timeout"
         add_expected_error_for_issue 3437831 "MANAGE_PAGES(0x108) recovered after timeout"
     fi
+    add_expected_bf_error_for_issue 3883402 "eal_memalloc_alloc_seg_bulk"
 }
 
 ovs_log_path="/var/log/openvswitch/ovs-vswitchd.log"
