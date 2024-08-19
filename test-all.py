@@ -192,6 +192,7 @@ class DeviceType(object):
     CX6_DX = "0x101d"
     CX6_LX = "0x101f"
     CX7 = "0x1021"
+    CX8 = "0x1023"
     BF2 = "0xa2d6"
     BF3 = "0xa2dc"
     devices = {
@@ -202,6 +203,7 @@ class DeviceType(object):
         CX6_DX:    "cx6dx",
         CX6_LX:    "cx6lx",
         CX7:       "cx7",
+        CX8:       "cx8",
         BF2:       "bf2",
         BF3:       "bf3",
     }
