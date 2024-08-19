@@ -892,18 +892,26 @@ function config_remote_arm_bridge() {
 
 function config_remote_nic() {
     local ip=${1:-$REMOTE_IP}
+    local bridge=${2:-br-phy}
+    local port=${3:-$NIC}
+    local remote_nic=$REMOTE_NIC
 
     title "Configuring remote nic"
 
-    config_remote_arm_bridge
-    __config_remote_nic $ip
+    config_remote_arm_bridge $bridge $port
+
+    [ $port = $NIC2 ] && remote_nic=$REMOTE_NIC2
+
+    __config_remote_nic $ip $remote_nic
 }
 
 function __config_remote_nic() {
     local ip=$1
-    on_remote "ip a flush dev $REMOTE_NIC
-               ip a add $ip/24 dev $REMOTE_NIC
-               ip l set dev $REMOTE_NIC up"
+    local remote_nic=${2:-$REMOTE_NIC}
+
+    on_remote "ip a flush dev $remote_nic
+               ip a add $ip/24 dev $remote_nic
+               ip l set dev $remote_nic up"
 }
 
 function exec_dbg() {
