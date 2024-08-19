@@ -1271,7 +1271,7 @@ def prepare_logdir():
     if args.dry:
         return
     if args.log_dir:
-        logdir = args.log_dir
+        logdir = os.path.abspath(args.log_dir)
         os.mkdir(logdir)
     else:
         logdir = mkdtemp(prefix='devtests-')
