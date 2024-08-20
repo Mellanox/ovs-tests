@@ -4,11 +4,16 @@ OVN_DIR=$(cd "$(dirname ${BASH_SOURCE[0]})" && pwd)
 
 . $OVN_DIR/../common.sh
 
-if [ "$DPDK" == 1 ] || [ "$DOCA" == 1 ]; then
-    . $OVN_DIR/../ovs-dpdk-tests/common-dpdk.sh
-    add_expected_error_for_issue 3684070 "\[DOCA\]\[ERR\]"
+function ignore_expected_ovn_err_msg() {
+    if [ "$DPDK" == 1 ] || [ "$DOCA" == 1 ]; then
+        . $OVN_DIR/../ovs-dpdk-tests/common-dpdk.sh
+        add_expected_error_for_issue 3684070 "\[DOCA\]\[ERR\]"
+    fi
+
     add_expected_error_msg "no response to inactivity probe after 60 seconds, disconnecting"
-fi
+}
+
+ignore_expected_ovn_err_msg
 
 # WA since all tests wrap early the common functions it never set __ovs_used.
 __ovs_used=1
