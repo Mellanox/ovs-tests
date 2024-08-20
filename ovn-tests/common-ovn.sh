@@ -11,6 +11,8 @@ function ignore_expected_ovn_err_msg() {
     fi
 
     add_expected_error_msg "no response to inactivity probe after 60 seconds, disconnecting"
+    # Aug 19 23:12:40 c-237-149-100-102 ovs-vswitchd[45880]: ovs|00002|netdev_offload_tc(revalidator26)|ERR|dump_create: failed to get ifindex for ovn-819813-0: No such device
+    add_expected_error_msg "dump_create: failed to get ifindex for ovn-"
 }
 
 ignore_expected_ovn_err_msg
