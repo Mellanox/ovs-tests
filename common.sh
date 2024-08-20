@@ -274,8 +274,6 @@ function is_lockdep_enabled() {
 }
 
 function __setup_common() {
-    start_test_timestamp
-
     [ -f /etc/os-release ] && . /etc/os-release
     ANSI_COLOR0="$COLOR0${ANSI_COLOR}m"
     if [ -n "$PRETTY_NAME" ]; then
@@ -3223,6 +3221,7 @@ function __common_main() {
     if [ "X${NO_TITLE}" == "X" ]; then
         title2 $TESTNAME
     fi
+    start_test_timestamp
     __load_config
     warn_if_redmine_bug_is_open
     trap __trapped_int_cleanup INT
