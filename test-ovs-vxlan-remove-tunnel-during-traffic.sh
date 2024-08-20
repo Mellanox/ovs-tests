@@ -22,6 +22,7 @@ vxlan_port=4789
 
 function cleanup() {
     stop_traffic &>/dev/null
+    ovs_clear_bridges
     ip l del dev vxlan_sys_4789 &>/dev/null
     ip netns del ns0 &> /dev/null
     for i in `seq 0 3`; do

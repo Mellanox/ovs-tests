@@ -28,15 +28,15 @@ function create_gre_tunnel() {
     local ovsop=""
 
     echo "cleanup"
+    start_clean_openvswitch
     cleanup
 
     echo "setup veth and ns"
     ip link add veth0 type veth peer name veth1
     ip link add veth2 type veth peer name veth3
-
+    ifconfig veth2 $local_tun/24 up
     ifconfig veth0 $VM1_IP/24 up
     ifconfig veth1 up
-    ifconfig veth2 up
 
     ip netns add ns0
     ip link set veth3 netns ns0
@@ -50,13 +50,12 @@ function create_gre_tunnel() {
 
     ip netns exec ns0 ip link add name gre_sys type gretap dev veth3 remote $local_tun nocsum $grekey || fail "Failed to create gre interface"
     ip netns exec ns0 ifconfig gre_sys $VM2_IP/24 up
+    sleep 2
 
     echo "setup ovs"
-    start_clean_openvswitch
     ovs-vsctl add-br brv-1
     ovs-vsctl add-port brv-1 veth1
     ovs-vsctl add-port brv-1 gre0 -- set interface gre0 type=gre options:local_ip=$local_tun options:remote_ip=$remote_tun $ovsop
-    ifconfig veth2 $local_tun/24 up
 }
 
 function check_offloaded_rules() {
