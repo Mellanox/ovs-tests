@@ -134,6 +134,7 @@ function ignore_expected_dpdk_err_msg() {
     add_expected_error_for_issue 4040304 "sFlow id not found. meta=0x00000001, size=70"
     add_expected_error_for_issue 4040316 "Invalid port_id=1024"
     add_expected_error_for_issue 4040323 "Failed to get merged flow ufid"
+    add_expected_error_for_issue 4013548 "mlx5_net: Invalid SQ number."
     add_expected_error_for_issue 4013548 "Failed to disable SQ0 0x0 (ret=-22) in DPDK for worker ID 0"
     add_expected_error_for_issue 4013548 "Failed to disables SQs on worker id 0"
 }
