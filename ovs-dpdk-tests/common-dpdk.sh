@@ -131,7 +131,9 @@ function configure_dpdk_rep_ports() {
 function ignore_expected_dpdk_err_msg() {
     # [MLNX OFED] Bug SW #2334320: [OVS-DPDK] Failed to init debugfs files appears in dmesg after configure the setup
     add_expected_error_msg ".*Failed to init debugfs files.*"
-    add_expected_error_for_issue 4040304 "sFlow id not found. meta=0x00000001, size=70"
+    # Ignore all errors that come from vdpa.
+    add_expected_error_msg "mlx5_vdpa|netdev_dpdk_vdpa"
+    add_expected_error_for_issue 4040304 "sFlow id not found."
     add_expected_error_for_issue 4040316 "Invalid port_id=1024"
     add_expected_error_for_issue 4040323 "Failed to get merged flow ufid"
     add_expected_error_for_issue 4013548 "mlx5_net: Invalid SQ number."
