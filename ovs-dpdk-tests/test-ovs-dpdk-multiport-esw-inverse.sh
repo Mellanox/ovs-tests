@@ -7,8 +7,8 @@ trap cleanup EXIT
 
 function cleanup() {
     title "Cleanup"
-    cleanup_mpesw
     cleanup_test
+    cleanup_mpesw
     set_grace_period $grace_period
 }
 
@@ -56,6 +56,7 @@ function config() {
     set_grace_period 0
     config_mpesw
     config_ovs
+    set_interfaces_up
     config_ips
     config_remote_ips
 }
@@ -63,8 +64,8 @@ function config() {
 function run() {
     config
 
-    verify_ping $REMOTE_IP none 56 10
-    verify_ping $REMOTE_IP2 none 56 10
+    verify_ping $REMOTE_IP none
+    verify_ping $REMOTE_IP2 none
 
     generate_traffic local $REMOTE_IP none true none remote
     generate_traffic local $REMOTE_IP2 none true none remote
