@@ -15,6 +15,7 @@ IP1="7.7.7.1"
 IP2="7.7.7.2"
 
 function cleanup() {
+    ovs_clear_bridges
     ip -all netns delete
     remove_sfs
 }

@@ -41,6 +41,7 @@ function cleanup_remote() {
 }
 
 function cleanup() {
+    ovs_clear_bridges &>/dev/null
     ip a flush dev $NIC
     ip netns del ns0 &>/dev/null
     ip netns del ns1 &>/dev/null
@@ -168,7 +169,6 @@ slave2=$NIC2
 remote_active=$REMOTE_NIC
 
 run
-start_clean_openvswitch
 trap - EXIT
 cleanup
 test_done

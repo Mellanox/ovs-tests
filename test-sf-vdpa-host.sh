@@ -20,10 +20,10 @@ OVSBR=vdpa-br
 trap cleanup EXIT
 
 function cleanup {
+    ovs_clear_bridges
     ip netns del ns0 > /dev/null 2>&1
     delete_sf $rep2 > /dev/null 2>&1
     delete_sf $rep1 > /dev/null 2>&1
-    ovs_clear_bridges
 }
 
 function create_vdpa_netdev {

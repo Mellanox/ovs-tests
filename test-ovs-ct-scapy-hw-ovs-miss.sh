@@ -24,6 +24,7 @@ reset_tc $REP
 reset_tc $REP2
 
 function cleanup() {
+    ovs_clear_bridges &>/dev/null
     ovs-vsctl remove Open_vSwitch . other_config max-idle &>/dev/null
     conntrack -F &>/dev/null
     ip netns del ns0 2> /dev/null
@@ -148,10 +149,10 @@ function run() {
     scpyudp
 
     verify_no_traffic $pid1
-
-    ovs-vsctl del-br br-ovs
 }
 
 cleanup
 run
+trap - EXIT
+cleanup
 test_done

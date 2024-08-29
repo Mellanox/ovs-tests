@@ -29,6 +29,7 @@ SVID=1000
 tmpfile=/tmp/$$.pcap
 
 function cleanup() {
+    ovs_clear_bridges &>/dev/null
     ip netns del $NS1 &> /dev/null
     ip netns del $NS2 &> /dev/null
     sleep 1

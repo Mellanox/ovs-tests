@@ -36,6 +36,7 @@ reset_tc $REP2
 
 
 function cleanup() {
+    ovs_clear_bridges &>/dev/null
     ip netns del ns0 2> /dev/null
     ip netns del ns1 2> /dev/null
     reset_tc $REP
@@ -116,7 +117,6 @@ function run() {
 
 
 run
-echo clean
-ovs-vsctl del-br br-ovs
-
+trap - EXIT
+cleanup
 test_done
