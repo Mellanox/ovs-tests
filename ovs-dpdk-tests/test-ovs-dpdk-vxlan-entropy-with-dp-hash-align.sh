@@ -17,6 +17,7 @@ enable_switchdev
 bind_vfs
 
 IB_PORT=`get_port_from_pci`
+VF_MAC=$(cat /sys/class/net/$VF/address)
 
 function cleanup() {
     ovs_conf_remove hw-offload-ct-size
@@ -49,6 +50,7 @@ function add_openflow_rules() {
     # avoid dp_hash on arp
     local tun_mac=$(on_remote "cat /sys/class/net/$TUNNEL_DEV/address")
     ip netns exec ns0 ip n r $REMOTE_IP dev $VF lladdr $tun_mac
+    on_remote "ip n r $LOCAL_IP dev $TUNNEL_DEV lladdr $VF_MAC"
 
     debug "OVS groups:"
     ovs-ofctl dump-groups $bridge --color
