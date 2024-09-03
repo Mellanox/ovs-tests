@@ -124,5 +124,6 @@ function run() {
 }
 
 run
-ovs-vsctl del-br br-ovs
+trap - EXIT
+cleanup
 test_done
