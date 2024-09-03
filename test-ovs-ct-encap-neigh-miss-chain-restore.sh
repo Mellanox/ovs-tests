@@ -12,6 +12,8 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 . $my_dir/common-ovs-ct.sh
 
+add_expected_error_msg "recirc_id .* left allocated when ofproto"
+
 require_module act_ct
 require_remote_server
 
