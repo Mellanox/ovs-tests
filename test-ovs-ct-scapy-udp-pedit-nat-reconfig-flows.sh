@@ -12,6 +12,8 @@ my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 pktgen=$my_dir/scapy-traffic-tester.py
 
+add_expected_error_msg "recirc_id .* left allocated when ofproto"
+
 require_module act_ct
 
 IP1="7.7.7.1"
