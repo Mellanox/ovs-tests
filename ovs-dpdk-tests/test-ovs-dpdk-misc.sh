@@ -35,9 +35,12 @@ function misc_functions() {
         "ovs-appctl qos/show-types br-phy" \
         "ovs-appctl qos/show br-phy" \
         "ovs-appctl dpctl/show" \
+        "ovs-appctl dpif/show" \
         "ovs-appctl dpif/dump-flows br-phy" \
         "ovs-appctl dpif/dump-flows sort=recirc br-phy" \
         "ovs-appctl dpctl/offload-stats-clear" \
+        "ovs-appctl dpif-netdev/dump-packets on" \
+        "ovs-appctl dpif-netdev/dump-packets off" \
         ; do
         title "Command: $cmd"
         $cmd || err "Failed cmd: $cmd"
