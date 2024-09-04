@@ -152,7 +152,6 @@ function run() {
     on_remote killall -9 -q iperf3 &>/dev/null
     echo "wait for bgs"
     wait
-    ovs-vsctl del-port br-int vxlan0
 }
 
 run
