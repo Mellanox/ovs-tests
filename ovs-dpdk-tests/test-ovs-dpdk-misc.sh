@@ -42,6 +42,7 @@ function misc_functions() {
         "ovs-appctl dpif-netdev/dump-packets on" \
         "ovs-appctl dpif-netdev/dump-packets off" \
         "ovs-appctl list-commands" \
+        "ovs-appctl memory/show" \
         "ovs-ofctl ofp-print 010100170000000000000001657874726120646174610a" \
         "ovs-ofctl ct-flush br-phy" \
         "ovs-ofctl ct-flush-zone br-phy 1" \
