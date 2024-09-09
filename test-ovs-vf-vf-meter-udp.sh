@@ -90,6 +90,7 @@ test_udp
 config_ovs_flows $METER_PPS
 test_udp
 
+ovs_flush_rules
 ovs_clear_bridges
 cleanup
 test_done
