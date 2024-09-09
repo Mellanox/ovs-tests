@@ -10,8 +10,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common.sh
 
-add_expected_error_msg "dump_create: failed to get ifindex for vxlan0: No such device"
-
 min_nic_cx6dx
 require_remote_server
 

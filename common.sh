@@ -327,6 +327,7 @@ function __setup_common() {
 
     add_expected_error_for_issue 3944219 "mlx5_hwmon_dev_register failed with error code -22|\ .*syndrome .*0x7d79ae.*"
     add_expected_error_for_issue 4035785 "doca_offload_entry_process.*del aux"
+    add_expected_error_msg "dump_create: failed to get ifindex for vxlan0: No such device"
     if is_upstream ; then
         add_expected_error_for_issue 3437831 "CREATE_EQ(0x301) recovered after timeout"
         add_expected_error_for_issue 3437831 "MANAGE_PAGES(0x108) recovered after timeout"
