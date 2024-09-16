@@ -197,10 +197,6 @@ function __get_pci_device_name() {
     fi
 }
 
-function is_ovs_optimized() {
-    bf_wrap readelf --debug-dump=info /usr/sbin/ovs-vswitchd | grep -m1 "DW_AT_producer" | grep -q -- "-O0"
-}
-
 function check_ovs_asan() {
     local count=$((nm /usr/sbin/ovs-vswitchd 2>/dev/null && nm -D /usr/sbin/ovs-vswitchd 2>/dev/null) | grep -E "(__sanitizer_syscall_|__asan_init)" | wc -l)
     if [ $count -gt 0 ]; then

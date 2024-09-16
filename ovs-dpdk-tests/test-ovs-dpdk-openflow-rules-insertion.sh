@@ -36,10 +36,6 @@ function fix_expected_time() {
         return
     fi
 
-    if ! is_ovs_optimized; then
-        return
-    fi
-
     if is_asan || [ "$short_device_name" == "bf3" ]; then
         expected_time=$((number_of_rules/1000*500))
     fi
