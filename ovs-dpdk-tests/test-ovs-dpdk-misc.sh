@@ -19,6 +19,8 @@ function misc_functions() {
         "ovs-vsctl -h" \
         "ovs-ofctl -h" \
         "ovs-appctl -h" \
+        "ovs-appctl metrics/show -h" \
+        "ovs-appctl metrics/show -x -d" \
         "ovs-appctl doca/log-get" \
         "ovs-appctl doca/log-set error" \
         "ovs-vsctl set Open_vSwitch . other_config:dpdk-offload-trace=true" \
