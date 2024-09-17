@@ -10,6 +10,9 @@ my_dir="$(dirname "$0")"
 
 add_expected_error_for_issue 4016359 "failed to add 1 connection offloads"
 
+config_sriov
+enable_switchdev
+
 function cleanup() {
     clear_ns_dev ns0 int0
     clear_ns_dev ns1 br-phy
