@@ -10,13 +10,19 @@ my_dir="$(dirname "$0")"
 
 add_expected_error_for_issue 4016359 "failed to add 1 connection offloads"
 
-trap cleanup_test EXIT
+function cleanup() {
+    clear_ns_dev ns0 int0
+    clear_ns_dev ns1 br-phy
+    cleanup_test
+}
+
+trap cleanup EXIT
 
 function config() {
     cleanup_test
     config_simple_bridge_with_rep 0
-    ovs-vsctl add-port br-phy int -- set interface int type=internal
-    config_ns ns0 int $LOCAL_IP
+    ovs-vsctl add-port br-phy int0 -- set interface int0 type=internal
+    config_ns ns0 int0 $LOCAL_IP
     config_ns ns1 br-phy $REMOTE_IP
 }
 
