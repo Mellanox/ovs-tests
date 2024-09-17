@@ -39,7 +39,7 @@ function misc_functions() {
         "ovs-appctl dpctl/show" \
         "ovs-appctl dpif/show" \
         "ovs-appctl dpif/dump-flows br-phy" \
-        "ovs-appctl dpif/dump-flows sort=recirc br-phy" \
+        "ovs-appctl dpctl/dump-flows sort=in_port br-phy" \
         "ovs-appctl dpctl/offload-stats-clear" \
         "ovs-appctl dpif-netdev/dump-packets on" \
         "ovs-appctl dpif-netdev/dump-packets off" \
