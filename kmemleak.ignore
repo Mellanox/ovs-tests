@@ -12,3 +12,6 @@ alloc_vfsmnt
 
 # Bug SW #3599593
 xas_create
+
+# Bug SW #3652121
+mlx5_init_one_devl_locked
