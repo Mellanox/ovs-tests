@@ -363,7 +363,7 @@ function verify_iperf_running() {
         proc_cmd="on_vm1 $proc_cmd"
     fi
 
-    title "Look for iperf pid"
+    title "Look for $remote iperf pid"
     if ! $proc_cmd ; then
         err "No iperf process on $remote"
         stop_traffic
@@ -596,7 +596,6 @@ function initiate_traffic() {
     fi
 
     if [ "$client_remote" == "remote" ]; then
-        debug "Check iperf is running on remote"
         verify_iperf_running $client_remote
     fi
 }
