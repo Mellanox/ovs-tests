@@ -95,11 +95,8 @@ function ovs_add_ct_rules() {
     debug "Adding ct rules"
     ovs-ofctl del-flows $bridge
     ovs-ofctl add-flow $bridge "arp,actions=NORMAL"
-    if [ "$proto" == "ip6" ]; then
-        ovs-ofctl add-flow $bridge "icmp6,actions=NORMAL"
-    else
-        ovs-ofctl add-flow $bridge "icmp,actions=NORMAL"
-    fi
+    ovs-ofctl add-flow $bridge "icmp,actions=NORMAL"
+    ovs-ofctl add-flow $bridge "icmp6,actions=NORMAL"
     ovs-ofctl add-flow $bridge "table=0,$proto,ct_state=-trk,actions=ct(zone=5, table=1)"
     ovs-ofctl add-flow $bridge "table=1,$proto,ct_state=+trk+new,actions=ct(zone=5, commit),NORMAL"
     ovs-ofctl add-flow $bridge "table=1,$proto,ct_state=+trk+est,ct_zone=5,actions=normal"
@@ -113,6 +110,7 @@ function ovs_add_ct_rules_dec_ttl() {
     ovs-ofctl del-flows $bridge
     ovs-ofctl add-flow $bridge "arp,actions=NORMAL"
     ovs-ofctl add-flow $bridge "icmp,actions=NORMAL"
+    ovs-ofctl add-flow $bridge "icmp6,actions=NORMAL"
     ovs-ofctl add-flow $bridge "table=0,ip,ct_state=-trk,actions=ct(zone=5, table=1)"
     ovs-ofctl add-flow $bridge "table=1,ip,ct_state=+trk+new,actions=ct(zone=5, commit),dec_ttl,NORMAL"
     ovs-ofctl add-flow $bridge "table=1,ip,ct_state=+trk+est,ct_zone=5,actions=dec_ttl,normal"
