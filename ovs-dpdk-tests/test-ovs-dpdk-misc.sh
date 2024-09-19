@@ -60,6 +60,7 @@ function misc_functions() {
     # Commands that will fail but we don't care. just increase function coverage.
     for cmd in \
         "ovs-appctl netdev-dpdk/detach x" \
+        "sos report -o openvswitch --batch -q" \
         ; do
         title "Command: $cmd"
         $cmd &>/dev/null
