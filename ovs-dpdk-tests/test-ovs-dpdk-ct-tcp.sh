@@ -1,10 +1,8 @@
 #!/bin/bash
 #
-# Test OVS-DPDK TCP traffic with CT and OVS configured with multi PMD
+# Test OVS-DPDK TCP traffic with CT
 #
 # Require external server
-#
-# Bug SW #4069266: [OVS-DOCA, Performance] Failed to insert DOCA-CT entry: -24 when sending 20 mpps rate with packet size 114 and ct connections | Assignee: Paul Blakey | Status: In Progress
 #
 
 my_dir="$(dirname "$0")"
@@ -16,20 +14,12 @@ config_sriov 2
 enable_switchdev
 bind_vfs
 
-trap cleanup EXIT
-
-function cleanup() {
-    ovs-vsctl --no-wait remove o . other_config pmd-cpu-mask
-    ovs-vsctl --no-wait remove o . other_config hw-offload-ct-size
-    cleanup_test
-}
+trap cleanup_test EXIT
 
 function config() {
+    cleanup_test
     config_simple_bridge_with_rep 1
     config_ns ns0 $VF $LOCAL_IP
-    ovs-vsctl --timeout=$OVS_VSCTL_TIMEOUT set o . other_config:pmd-cpu-mask=0x6
-    ovs-vsctl --timeout=$OVS_VSCTL_TIMEOUT set o . other_config:hw-offload-ct-size=4096
-    restart_openvswitch_nocheck
 }
 
 function add_openflow_rules() {
@@ -42,9 +32,10 @@ function run() {
     add_openflow_rules
 
     verify_ping
+    generate_traffic "remote" $LOCAL_IP
 
     set_iperf2
-    generate_traffic "remote" $LOCAL_IP none true ns0 local 30 4096
+    generate_traffic "remote" $LOCAL_IP
 
     verify_ovs_readd_port br-phy
 }
@@ -54,5 +45,5 @@ run
 check_counters
 
 trap - EXIT
-cleanup
+cleanup_test
 test_done
