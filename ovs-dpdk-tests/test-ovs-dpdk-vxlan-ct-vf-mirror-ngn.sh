@@ -50,6 +50,7 @@ function run() {
     tcpdump -nnei $VF2 -S -c 100000 -vv > /tmp/mirror_tcpdump &
 
     tcpdump_pid=$!
+    iperf_client_extra_args="--bidir"
     generate_traffic "remote" $LOCAL_IP
 
     kill -0 $tcpdump_pid &>/dev/null

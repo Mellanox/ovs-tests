@@ -568,7 +568,7 @@ function initiate_traffic() {
         warn "In SimX, set bitrate to 10Mbit"
     fi
 
-    local cmd="timeout $sleep_time $iperf_cmd -f Mbits -c $my_ip -t $t -P $streams $simx &> $p_client"
+    local cmd="timeout $sleep_time $iperf_cmd -f Mbits -c $my_ip -t $t -P $streams $simx $iperf_client_extra_args &> $p_client"
 
     if [ -n "$client_namespace" ]; then
         cmd="${client_dst_execution} $cmd"
