@@ -594,10 +594,6 @@ function initiate_traffic() {
         stop_traffic
         return 1
     fi
-
-    if [ "$client_remote" == "remote" ]; then
-        verify_iperf_running $client_remote
-    fi
 }
 
 function __ovs_using_ct() {
