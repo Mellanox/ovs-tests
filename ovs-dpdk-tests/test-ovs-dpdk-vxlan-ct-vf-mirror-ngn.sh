@@ -50,7 +50,7 @@ function run() {
     tcpdump -nnei $VF2 -S -c 100000 -vv > /tmp/mirror_tcpdump &
 
     tcpdump_pid=$!
-    iperf_client_extra_args="--bidir"
+    iperf_client_extra_args="--bidir -b 100m"
     generate_traffic "remote" $LOCAL_IP
 
     kill -0 $tcpdump_pid &>/dev/null
@@ -64,6 +64,7 @@ function run() {
     orig_uniq_cnt=`echo "$orig" | sort | uniq | wc -l`
 
     title "Check tcpdump for packet duplication on mirror"
+    echo "Orig duplication ratio: `echo "$orig_cnt/$orig_uniq_cnt" | bc -l`, Reply duplication ratio: `echo "$reply_cnt/$reply_uniq_cnt" | bc -l`"
     if (($reply_cnt <= 0)) || (($orig_cnt <= 0)) ||
        (($reply_cnt * 1000 / $reply_uniq_cnt <= 1500)) ||
        (($reply_cnt * 1000 / $reply_uniq_cnt >= 2500)) ||
