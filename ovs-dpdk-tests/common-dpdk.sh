@@ -568,6 +568,9 @@ function query_sw_packets_in_sent_packets_percentage() {
         return 1
     fi
 
+    debug "Received $all_packets_passed total packets"
+    debug "Received $total_packets_passed_in_sw packets in SW"
+
     title "Checking that $total_packets_passed_in_sw is no more than $valid_percentage_passed_in_sw% of $all_packets_passed"
     local a=$(($valid_percentage_passed_in_sw*$all_packets_passed/100))
 
@@ -584,28 +587,12 @@ function query_sw_packets_in_sent_packets_percentage() {
 }
 
 function query_sw_packets() {
-    local expected_num_of_pkts=${1:-100000}
-
     if [[ "$short_device_name" == "cx5" ]]; then
-        expected_num_of_pkts=350000
+        set_slow_path_percentage 50 "CX5 is slower and require more time to offload rules."
     fi
 
-    debug "Expecting max $expected_num_of_pkts packets in SW"
-
-    local total_packets_passed_in_sw=$(get_total_packets_passed_in_sw)
-
-    if [ -z "$total_packets_passed_in_sw" ]; then
-        err "Cannot get total_packets_passed_in_sw"
-        return 1
-    fi
-
-    debug "Received $total_packets_passed_in_sw packets in SW"
-
-    if [ $total_packets_passed_in_sw -gt $expected_num_of_pkts ]; then
-        query_sw_packets_in_sent_packets_percentage
-        return $?
-    fi
-    return 0
+    query_sw_packets_in_sent_packets_percentage
+    return $?
 }
 
 function check_offload_contains() {
