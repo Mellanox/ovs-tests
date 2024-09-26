@@ -586,7 +586,7 @@ function query_sw_packets_in_sent_packets_percentage() {
 function query_sw_packets() {
     local expected_num_of_pkts=${1:-100000}
 
-    if [[ "$short_device_name" == "cx5"* ]]; then
+    if [[ "$short_device_name" == "cx5" ]]; then
         expected_num_of_pkts=350000
     fi
 
