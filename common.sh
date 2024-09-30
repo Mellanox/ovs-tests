@@ -2577,6 +2577,8 @@ function __copy_coredump() {
 }
 
 function coredump_info() {
+    [ "$SKIP_CORE_DUMP_COLLECT" == 1 ] && return
+
     # rhel/fedora
     SYSTEMD_CORE_DUMP_PATH="/var/lib/systemd/coredump"
     # ubuntu
@@ -3209,6 +3211,7 @@ function __test_help() {
     echo "SKIP_OVS_LOG_DUMP=0           - Skip ovs log dump on failure."
     echo "ENABLE_SOS_COLLECTOR=0        - Collect sos reports."
     echo "SKIP_OVS_ASAN_LOG_CHECK=0     - Skip ovs asan log check."
+    echo "SKIP_CORE_DUMP_COLLECT=0      - Skip collecting core dump."
     exit 0
 }
 
