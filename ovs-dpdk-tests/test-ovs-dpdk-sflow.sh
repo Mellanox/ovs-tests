@@ -75,14 +75,13 @@ function run() {
     title "Test OVS sFlow"
     local file=/tmp/sflow.txt
     local t=10
-    interval=$1
+    local interval=$1
 
     sflowtool -p $SFLOW_PORT -L localtime,srcIP,dstIP > $file&
-    pid1=$!
+    local pid1=$!
 
     counter=$(expr $t*1/$interval | bc)
-    debug "run: ip netns exec ns0 ping $IP2 -c $counter -i $interval -w $((t*2))"
-    ip netns exec ns0 ping $IP2 -q -c $counter -i $interval -w $((t*2))
+    exec_dbg "ip netns exec ns0 ping $IP2 -q -c $counter -i $interval -w $((t*2))"
 
     check_dpdk_offloads $IP1
 
