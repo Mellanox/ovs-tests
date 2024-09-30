@@ -52,6 +52,7 @@ function misc_functions() {
         "ovs-ofctl ct-flush-zone br-phy 1" \
         "ovs-ofctl -O OpenFlow14 dump-table-desc br-phy" \
         "ovs-ofctl dump-group-features br-phy" \
+        "ovs-appctl ofproto/list" \
         "ovs-vsctl list o" \
         ; do
         title "Command: $cmd"
