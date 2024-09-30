@@ -6,6 +6,7 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common-dpdk.sh
 
+SKIP_CORE_DUMP_COLLECT=1
 trap cleanup_test EXIT
 
 function run() {
