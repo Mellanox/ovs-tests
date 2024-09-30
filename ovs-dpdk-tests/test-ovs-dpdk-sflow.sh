@@ -60,6 +60,7 @@ function add_sflow_port() {
               -- set bridge br-phy sflow=@sflow
 
     ovs-vsctl list sflow
+    clear_pmd_stats
 }
 
 function config() {
