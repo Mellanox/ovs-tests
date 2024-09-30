@@ -43,6 +43,8 @@ function misc_functions() {
         "ovs-appctl dpctl/offload-stats-clear" \
         "ovs-appctl dpif-netdev/dump-packets on" \
         "ovs-appctl dpif-netdev/dump-packets off" \
+        "ovs-appctl dpif/reset-stats" \
+        "ovs-appctl fdb/stats-clear" \
         "ovs-appctl list-commands" \
         "ovs-appctl memory/show" \
         "ovs-ofctl ofp-print 010100170000000000000001657874726120646174610a" \
