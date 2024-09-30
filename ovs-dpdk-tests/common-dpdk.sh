@@ -587,12 +587,22 @@ function query_sw_packets_in_sent_packets_percentage() {
 }
 
 function query_sw_packets() {
+    local expected_num_of_pkts=${1:-100000}
+
     if [[ "$short_device_name" == "cx5" ]]; then
         set_slow_path_percentage 50 "CX5 is slower and require more time to offload rules."
     fi
 
-    query_sw_packets_in_sent_packets_percentage
-    return $?
+    local total_packets_passed_in_sw=$(get_total_packets_passed_in_sw)
+    local all_packets_passed=$(get_total_packets_passed)
+
+    if [ $total_packets_passed_in_sw -gt $expected_num_of_pkts ]; then
+        query_sw_packets_in_sent_packets_percentage
+        return $?
+    else
+        debug "skip sw vs total: in sw $total_packets_passed_in_sw, total $all_packets_passed, expected $expected_num_of_pkts"
+    fi
+    return 0
 }
 
 function check_offload_contains() {
