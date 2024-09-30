@@ -36,7 +36,7 @@ function run() {
     config_remote_nic
     add_openflow_rules
 
-    verify_ping
+    verify_ping $REMOTE_IP ns0 56 30 0.2 11
 
     validate_offload $LOCAL_IP
 }
