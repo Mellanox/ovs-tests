@@ -2671,12 +2671,24 @@ function __steps_end_of_test() {
     kmemleak_scan_per_test && kmemleak_scan
     check_for_errors_log
     check_for_errors_log_remote
+    __run_post_script
     if [ $TEST_FAILED != 0 ]; then
         dump_ovs_log
         collect_sos_reports
         coredump_info
     fi
     log "runtime: `get_test_time_elapsed_human`"
+}
+
+function __run_post_script() {
+  [ -z "$POST_SCRIPT" ] && return
+
+  if [ -x "$POST_SCRIPT" ]; then
+    debug "Running post script: '$POST_SCRIPT'"
+    eval $POST_SCRIPT
+  else
+    err "Cannot execute post script '$POST_SCRIPT'"
+  fi
 }
 
 function test_done() {
