@@ -15,3 +15,9 @@ xas_create
 
 # Bug SW #3652121
 mlx5_init_one_devl_locked
+
+# Bug SW #4101772
+comm "zram-generator"
+
+# Bug SW #4101797
+comm "devlink"
