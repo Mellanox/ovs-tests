@@ -329,6 +329,17 @@ function __setup_common() {
         add_expected_error_for_issue 3437831 "MANAGE_PAGES(0x108) recovered after timeout"
     fi
     add_expected_bf_error_for_issue 3883402 "eal_memalloc_alloc_seg_bulk"
+
+    check_for_local_ethaddr $NIC
+    check_for_local_ethaddr $NIC2
+}
+
+function check_for_local_ethaddr() {
+    local nic=$1
+    local addr=$(cat /sys/class/net/$nic/address)
+    local ea0=0x$(cat /sys/class/net/$nic/address | cut -d: -f1)
+    local is_local=$(($ea0 & 2))
+    [ $is_local != 0 ] && warn "Mac address of $nic $addr is a local address."
 }
 
 ovs_log_path="/var/log/openvswitch/ovs-vswitchd.log"
