@@ -3204,10 +3204,10 @@ function collect_asan_logs() {
 
     for log in $asan_logs; do
         echo -e "$log:\n" >> $asan_report
-        cat $log >> $asan_report
+        bf_wrap "cat $log" >> $asan_report
         echo >> $asan_report
-        rm $log
     done
+    bf_wrap "rm $asan_logs"
 
     err "Detected errors reported by OVS ASAN:"
     cat $asan_report
