@@ -15,9 +15,8 @@ trap cleanup_test EXIT
 
 function config() {
     cleanup_test
-    config_simple_bridge_with_rep 1 true "br-phy" $NIC &
-    config_simple_bridge_with_rep 1 true "br-phy-2" $NIC2 &
-    wait
+    config_simple_bridge_with_rep 1 true "br-phy" $NIC
+    config_simple_bridge_with_rep 1 true "br-phy-2" $NIC2
     config_ns ns0 $VF $LOCAL_IP
     config_ns ns0 `get_vf 0 $NIC2` $LOCAL_IP2
 }
