@@ -963,9 +963,9 @@ function check_resize_counter() {
     local counter=`ovs-appctl coverage/read-counter doca_pipe_resize`
 
     if [ $counter -lt 1 ]; then
-        err "No resize found"
+        err "No resize found."
     else
-        success "got $counter resize(s)"
+        success "Got $counter resize(s)."
     fi
 }
 
