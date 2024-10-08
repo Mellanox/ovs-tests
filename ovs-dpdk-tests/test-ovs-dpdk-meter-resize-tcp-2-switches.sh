@@ -55,9 +55,8 @@ function run() {
 
     verify_ping
     verify_ping $REMOTE_IP2 ns1
-    generate_traffic "remote" $LOCAL_IP "none" true "ns0" "local" 5 19 &
-    generate_traffic "remote" $LOCAL_IP2 "none" true "ns1" "local" 5 19 &
-    sleep 15
+    generate_traffic "remote" $LOCAL_IP "none" true "ns0" "local" 5 19
+    generate_traffic "remote" $LOCAL_IP2 "none" true "ns1" "local" 5 19
     check_resize_counter
 }
 
