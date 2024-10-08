@@ -961,10 +961,10 @@ function ovs_clear_datapaths() {
 function check_resize_counter() {
     local counter=`ovs-appctl coverage/read-counter doca_pipe_resize`
 
-    if [ $counter -lt 1 ]; then
-        err "No resize found."
-    else
+    if [ $counter -ge 1 ]; then
         success "Got $counter resize(s)."
+    else
+        err "No resize found."
     fi
 }
 
