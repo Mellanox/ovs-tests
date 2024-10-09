@@ -642,7 +642,6 @@ function check_dpdk_offloads() {
         filter="actions:$pf1\b\|actions:$pf0\b\|${filter}"
     fi
 
-
     if ! ovs-appctl dpctl/dump-flows -m > /tmp/dump.txt ; then
         err "ovs-appctl failed"
         return 1
@@ -667,7 +666,20 @@ function check_dpdk_offloads() {
         query_sw_packets $expected_sw_packets
     fi
 
+    check_stats_corruption
+
     rm -rf /tmp/offloaded.txt /tmp/filtered.txt
+}
+
+function check_stats_corruption() {
+    for i in `ovs-appctl dpctl/offload-stats-show | cut -d: -f2`; do
+        [ "$i" == 0 ] && continue
+        if [ "$i" -gt 10000000000 ]; then
+            err "Possible stats corruption: $i"
+            ovs-appctl dpctl/offload-stats-show
+            return
+        fi
+    done
 }
 
 function del_openflow_rules() {
