@@ -470,6 +470,7 @@ def run_test(test, html=False):
     cmd = test.cmd
 
     env = os.environ.copy()
+    env.update({"ENABLE_OVS_LOG_DUMP": "1"})
     env.update(test.opts.get('env', {}))
     test_timeout = test.opts.get('timeout', TEST_TIMEOUT_MAX)
 

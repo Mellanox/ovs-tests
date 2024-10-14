@@ -2544,7 +2544,7 @@ ufid 00000000-0000-0000-0000-000000000000"
 
     look="$look|$errs"
 
-    [ "$SKIP_OVS_LOG_DUMP" == 1 ] && return
+    [ "$ENABLE_OVS_LOG_DUMP" != 1 ] && return
 
     if [ "$__ovs_used" == 1 ] && [ "$CLEAR_OVS_LOG" == 1 ]; then
         local a=`bf_wrap cat $ovs_log_path 2>/dev/null | grep -E "$look" | grep -v -E "$filter"`
@@ -3231,7 +3231,7 @@ function __test_help() {
     echo "ENABLE_OVS_MEMORY=1           - Print a report of OVS memory usage."
     echo "CLEAR_OVS_LOG=1               - Clear ovs log at the start of the test."
     echo "VALGRIND_OPENVSWITCH=1        - Start openvswitch with valgrind."
-    echo "SKIP_OVS_LOG_DUMP=0           - Skip ovs log dump on failure."
+    echo "ENABLE_OVS_LOG_DUMP=1         - Enable ovs log dump on test failure."
     echo "ENABLE_SOS_COLLECTOR=0        - Collect sos reports."
     echo "SKIP_OVS_ASAN_LOG_CHECK=0     - Skip ovs asan log check."
     echo "SKIP_CORE_DUMP_COLLECT=0      - Skip collecting core dump."
