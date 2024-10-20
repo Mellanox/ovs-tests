@@ -23,12 +23,12 @@ function cleanup() {
 
 function config() {
     cleanup
+    ovs_conf_set ctl-pipe-size 10
+    restart_openvswitch
 
     config_simple_bridge_with_rep 2
     config_ns ns0 $VF $LOCAL_IP
     config_ns ns1 $VF2 $REMOTE_IP
-    ovs_conf_set ctl-pipe-size 10
-    restart_openvswitch
 
     local bridge="br-phy"
     exec_dbg "ovs-ofctl -O OpenFlow13 add-flow $bridge \"in_port=pf0vf0,ip,tcp,actions=move:NXM_OF_TCP_DST->NXM_NX_REG12[0..15],pf0vf1\"" || err "Failed adding rule"

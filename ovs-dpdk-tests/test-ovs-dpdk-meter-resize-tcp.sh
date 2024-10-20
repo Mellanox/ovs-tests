@@ -23,10 +23,11 @@ function cleanup() {
 
 function config() {
     cleanup
-    config_simple_bridge_with_rep 1
-    config_ns ns0 $VF $LOCAL_IP
     ovs_conf_set ctl-pipe-size 10
     restart_openvswitch
+
+    config_simple_bridge_with_rep 1
+    config_ns ns0 $VF $LOCAL_IP
 }
 
 function add_openflow_rules() {

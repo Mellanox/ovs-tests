@@ -27,12 +27,13 @@ function cleanup() {
 
 function config() {
     cleanup
+    ovs_conf_set ctl-pipe-size 10
+    restart_openvswitch
+
     config_simple_bridge_with_rep 1
     config_simple_bridge_with_rep 1 true br-phy-2 $NIC2
     config_ns ns0 $VF $LOCAL_IP
     config_ns ns1 `get_vf 0 $NIC2` $LOCAL_IP2 "2001:db8:0:f102::1"
-    ovs_conf_set ctl-pipe-size 10
-    restart_openvswitch
 }
 
 function add_openflow_rules() {
