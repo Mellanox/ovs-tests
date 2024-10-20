@@ -434,18 +434,18 @@ function config_ns() {
 
     if is_vdpa; then
         if [ "$ns" == "ns0" ]; then
-	    on_vm="on_vm1"
-	else
+            on_vm="on_vm1"
+        else
             on_vm="on_vm2"
         fi
 
         debug "Set $VDPA_DEV_NAME ip $ip_addr on vm $on_vm"
-	dev=$VDPA_DEV_NAME
+        dev=$VDPA_DEV_NAME
     else
         debug "Attach $dev to namespace $ns"
-	if ! ip netns ls | grep -w $ns >/dev/null; then
-	    ip netns add $ns
-	fi
+        if ! ip netns ls | grep -w $ns >/dev/null; then
+            ip netns add $ns
+        fi
         ip link set $dev netns $ns || err "Failed to attach device to ns"
     fi
 
