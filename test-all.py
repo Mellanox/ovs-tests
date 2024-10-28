@@ -747,39 +747,38 @@ def fix_path_from_config():
     os.environ['PATH'] = os.pathsep.join(newp) + os.pathsep + os.environ['PATH']
 
 
-DPDK_LIB_DIR = "/opt/mellanox/dpdk"
-DOCA_LIB_DIR = "/opt/mellanox/doca"
-
-
-def get_dpdk_version():
-    g = glob(os.path.join(DPDK_LIB_DIR, '**', 'libdpdk.pc'), recursive=True)
-    if g:
-        with open(g[0]) as f:
-            for line in f.readlines():
-                if 'version:' in line.lower():
-                    return 'DPDK_%s' % line.split()[1]
-    return ''
-
-
-def get_doca_version():
-    g = glob(os.path.join(DOCA_LIB_DIR, '**', 'doca-flow.pc'), recursive=True)
-    if g:
-        with open(g[0]) as f:
-            for line in f.readlines():
-                if 'version:' in line.lower():
-                    return 'DOCA_%s' % line.split()[1]
-    return ''
-
-
-def get_ovs_version():
+def get_ovs_vswitchd_version_output():
     try:
         output = subprocess.check_output("ovs-vswitchd --version", shell=True, stderr=subprocess.DEVNULL).decode().strip()
     except subprocess.CalledProcessError:
         return ''
-    return output.splitlines()[0].split()[-1]
+    return output
 
 
-def get_mofed_version():
+def get_ovs_version():
+    output = get_ovs_vswitchd_version_output()
+    if 'ovs-vswitchd' in output:
+        return output.splitlines()[0].split()[-1]
+    return ''
+
+
+def get_ovs_dpdk_version():
+    output = get_ovs_vswitchd_version_output()
+    for line in output.splitlines():
+        if 'DPDK' in line:
+            return line.split()[-1]
+    return ''
+
+
+def get_ovs_doca_version():
+    output = get_ovs_vswitchd_version_output()
+    for line in output.splitlines():
+        if 'DOCA' in line:
+            return line.split()[-1]
+    return ''
+
+
+def get_mlnx_ofed_version():
     try:
         output = subprocess.check_output("ofed_info -s", shell=True, stderr=subprocess.DEVNULL).decode().strip()
     except subprocess.CalledProcessError:
@@ -831,10 +830,10 @@ def get_current_state():
     ovs_asan = check_ovs_asan()
 
     envinfo.update({
-        'dpdk version': get_dpdk_version(),
-        'doca version': get_doca_version(),
+        'dpdk version': get_ovs_dpdk_version(),
+        'doca version': get_ovs_doca_version(),
         'ovs version': get_ovs_version(),
-        'mofed version': get_mofed_version(),
+        'mlnx ofed version': get_mlnx_ofed_version(),
         'nic': current_nic,
         'firmware version': current_fw_ver,
         'kernel': current_kernel,
@@ -1233,7 +1232,7 @@ def prep_html_results(tests):
     return test_results
 
 
-def prep_envinfo():
+def prep_envinfo_html():
     global envinfo
 
     info = ""
@@ -1248,7 +1247,7 @@ def save_summary_html():
     if not LOGDIR:
         return
 
-    info = prep_envinfo()
+    info = prep_envinfo_html()
 
     tmp = get_summary()
     summary = SUMMARY_ROW.format(**tmp)
