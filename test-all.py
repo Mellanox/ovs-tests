@@ -845,14 +845,8 @@ def get_current_state():
         'is_bf_host': is_bf_host(),
     })
 
-    if distro:
-        print(distro)
-    print("nic: %s" % current_nic)
-    print("fw: %s" % current_fw_ver)
-    print("flow steering: %s" % flow_steering_mode)
-    print("kernel: %s" % current_kernel)
-    if simx_mode:
-        print("simx mode")
+    for key in envinfo:
+        print("%s: %s" % (key, envinfo[key]))
 
 
 def update_skip_according_to_db(rm, _tests, data):
