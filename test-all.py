@@ -665,7 +665,7 @@ def get_config_value(key):
                 if line.startswith("%s=" % key):
                     return line.split('=')[1].strip().strip('"')
     except IOError:
-        err("Cannot read config %s" % config)
+        err("Cannot read config %s." % config)
 
 
 def get_pci(nic):
@@ -712,7 +712,7 @@ def get_current_fw(nic):
     cmd = "ethtool -i %s | grep firmware-version | awk {'print $2'}" % nic
     output = subprocess.check_output(cmd, shell=True).decode().strip()
     if not output:
-        err("Cannot get FW version")
+        err("Cannot get FW version.")
     return output
 
 
@@ -1283,7 +1283,7 @@ def get_db_path(db):
     for i in (db, db2, db3):
         if os.path.exists(i):
             return i
-    err("Cannot find db %s" % db)
+    err("Cannot find db %s." % db)
 
 
 def default_filter_dbs(dbs):
@@ -1532,7 +1532,7 @@ def print_test_line(name, reason):
 
 def db_check():
     if not RM_API_KEY:
-        err('Cannot do db check without a redmine key')
+        err('Cannot do a db check without a redmine key.')
         return 1
     rm = MlxRedmine(RM_API_KEY)
     root_folders = read_ignore_db()
@@ -1793,7 +1793,7 @@ def main():
         return 1
 
     if len(TESTS) == 0:
-        err("No tests to run")
+        err("No tests to run.")
         return 1
 
     prepare_logdir()
