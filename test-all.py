@@ -904,13 +904,15 @@ def update_skip_according_to_db(rm, _tests, data):
     is_debug_kernel = '_debug_' in current_kernel and '_min_debug_' not in current_kernel
     print_newline = False
 
+    bugs_list_count = 0
+
     for t in _tests:
         if t.ignore:
             continue
 
         name = t.name
         opts = t.opts
-        bugs_list = []
+        t.bugs_list = []
 
         ignore_for_linust = opts.get('ignore_for_linust', 0)
         ignore_for_upstream = opts.get('ignore_for_upstream', 0)
@@ -1066,7 +1068,7 @@ def update_skip_according_to_db(rm, _tests, data):
             # check if all ignore conditions matched.
             if ignore_count == len(i):
                 if 'rm' in i:
-                    bugs_list.append(i['rm'])
+                    t.bugs_list.append(i['rm'])
                 elif 'reason' in i:
                     t.set_ignore(i['reason'])
                 elif 'set_env' in i:
@@ -1076,54 +1078,66 @@ def update_skip_according_to_db(rm, _tests, data):
                     tmp = ['%s=%s' % (k, i[k]) for k in i]
                     t.set_ignore("Ignore %s" % ' '.join(tmp))
 
-        if t.ignore or t.failed:
-            continue
+        # Here could be test ignored or failed something but
+        # don't skip checking the issue list for db check or other purpose.
 
         # issue number key with list of kernels
         issue_keys = [x for x in opts.keys() if isinstance(x, int)]
         for issue in issue_keys:
             for kernel in opts[issue]:
                 if kernel_match(kernel, current_kernel):
-                    bugs_list.append(issue)
+                    t.bugs_list.append(issue)
 
         ignore_kernel = opts.get('ignore_kernel', {})
         for kernel in ignore_kernel:
             if kernel_match(kernel, current_kernel):
-                bugs_list.extend(ignore_kernel[kernel])
+                t.bugs_list.extend(ignore_kernel[kernel])
 
         if not simx_mode:
             for fw in opts.get('ignore_fw', {}):
                 if not current_fw_ver or re.search("^%s$" % fw, current_fw_ver):
-                    bugs_list.extend(opts['ignore_fw'][fw])
+                    t.bugs_list.extend(opts['ignore_fw'][fw])
 
         ignore_smfs = opts.get('ignore_smfs', [])
         if ignore_smfs and (not flow_steering_mode or flow_steering_mode == 'smfs'):
             for key in ignore_smfs:
                 if key == current_nic or kernel_match(key, current_kernel):
-                    bugs_list.extend(ignore_smfs[key])
+                    t.bugs_list.extend(ignore_smfs[key])
 
-        if not rm:
-            continue
+        bugs_list_count += len(t.bugs_list)
 
-        for bug in bugs_list:
+    # This step to go over the issues.
+    # Check RM instance exists.
+    if not rm:
+        return
+
+    print("Issues: %d" % bugs_list_count)
+    for t in _tests:
+        for bug in t.bugs_list:
             try:
                 task = rm.get_issue(bug)
                 t.issues.append(task)
             except Exception as e:
                 t.set_skip("Cannot fetch RM #%s (%s)" % (bug, e))
                 continue
-            if rm.is_issue_wont_fix_or_release_notes(task):
-                t.set_wont_fix()
-                tmp = "%s RM #%s: %s" % (task['status']['name'], bug, task['subject'])
-                WONT_FIX[name] = tmp
-                t.set_skip(tmp)
-            elif rm.is_issue_open(task):
-                days = rm.updated_days_ago(task)
-                tmp = "RM #%s: %s" % (bug, task['subject'])
-                if days > 60:
-                    tmp = "Open for %s days - %s" % (days, tmp)
-                t.set_skip(tmp)
-                break
+
+            # If test is already set ignored or failed no need to
+            # change status from issue.
+            if not (t.ignore or t.failed):
+                if rm.is_issue_wont_fix_or_release_notes(task):
+                    t.set_wont_fix()
+                    tmp = "%s RM #%s: %s" % (task['status']['name'], bug, task['subject'])
+                    WONT_FIX[name] = tmp
+                    t.set_skip(tmp)
+                elif rm.is_issue_open(task):
+                    days = rm.updated_days_ago(task)
+                    tmp = "RM #%s: %s" % (bug, task['subject'])
+                    if days > 60:
+                        tmp = "Open for %s days - %s" % (days, tmp)
+                    t.set_skip(tmp)
+                    break
+
+            # Print a step so it doesn't look a freeze.
             sys.stdout.write('.')
             sys.stdout.flush()
             print_newline = True
