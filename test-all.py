@@ -1582,6 +1582,8 @@ def db_check():
             continue
         for task in test.issues:
             if not rm.is_issue_open(task):
+                tmp = "RM CLOSED #%s: %s" % (task['id'], task['subject'])
+                print_test_line(name, tmp)
                 continue
 
             if rm.is_tracker_bug(task):
