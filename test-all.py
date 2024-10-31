@@ -669,7 +669,10 @@ def get_config_value(key):
 
 
 def get_pci(nic):
-    return os.path.basename(os.readlink("/sys/class/net/%s/device" % nic))
+    try:
+        return os.path.basename(os.readlink("/sys/class/net/%s/device" % nic))
+    except FileNotFoundError:
+        return ''
 
 
 def get_flow_steering_mode_compat(nic):
@@ -719,8 +722,11 @@ def get_current_fw(nic):
 def get_current_nic_type(nic):
     if not nic:
         return ''
-    with open('/sys/class/net/%s/device/device' % nic, 'r') as f:
-        return f.read().strip()
+    try:
+        with open('/sys/class/net/%s/device/device' % nic, 'r') as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        return ''
 
 
 def check_simx(nic):
