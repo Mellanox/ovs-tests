@@ -1574,9 +1574,6 @@ def db_check():
                 if fnmatch(t, test):
                     all_tests.remove(t)
 
-    for test in all_tests:
-        print_test_line(test, "Missing in db")
-
     target_version = ''
     for test in TESTS:
         name = test.name
