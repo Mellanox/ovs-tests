@@ -12,3 +12,7 @@ alloc_vfsmnt
 
 # Bug SW #3599593
 xas_create
+
+# Bug SW #3820547
+__ipv6_sock_mc_join
+__ip_mc_join_group
