@@ -947,16 +947,21 @@ function kmsg() {
     fi
 }
 
-function title2() {
+function title_test_name() {
+    title_box "TEST $1" $YELLOW
+}
+
+function title_box() {
     local title=${1:-$TESTNAME}
-    local tmp="## TEST $title ##"
+    local color=${2:-$YELLOW}
+    local tmp="## $title ##"
     local count=${#tmp}
     local sep=$(printf '%*s' $count | tr ' ' '#')
 
     echo -e "Start test
-${YELLOW}${sep}${NOCOLOR}
-${YELLOW}${tmp}${NOCOLOR}
-${YELLOW}${sep}${NOCOLOR}"
+${color}${sep}${NOCOLOR}
+${color}${tmp}${NOCOLOR}
+${color}${sep}${NOCOLOR}"
 
     kmsg "Start test
 $sep
@@ -3245,7 +3250,7 @@ function __common_main() {
     [ "$__COMMON_SH" == 1 ] && return
     __COMMON_SH=1
     if [ "X${NO_TITLE}" == "X" ]; then
-        title2 $TESTNAME
+        title_test_name $TESTNAME
     fi
     start_test_timestamp
     __load_config
