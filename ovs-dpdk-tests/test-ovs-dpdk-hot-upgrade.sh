@@ -11,21 +11,37 @@ OVS_RUNDIR='/var/run/openvswitch'
 PIDFILE="$OVS_RUNDIR/ovs-vswitchd.pid"
 PIDFILE_UPGRADING="$OVS_RUNDIR/ovs-vswitchd.upgrading.pid"
 
-trap cleanup_test EXIT
-
-function run() {
+function check_supported() {
     if [ ! -f $OVS_HOTUPGRADE ]; then
         warn "Cannot find $OVS_HOTUPGRADE. consider as not supported."
-        return
+        return 1
     fi
 
     if [ ! -f $PIDFILE ]; then
         err "Cannot find $PIDFILE"
-        return
+        return 1
     fi
 
-    config_simple_bridge_with_rep 1
+    return 0
+}
 
+function case_without_bridge() {
+    title "Case without a bridge."
+    run
+    check_log
+    # No cleanup to test next case without restarting ovs normally.
+}
+
+function case_with_bridge() {
+    title "Case with a bridge."
+    config_simple_bridge_with_rep 1
+    run
+    check_bridge
+    check_log
+    cleanup_test
+}
+
+function run() {
     title "Execute $OVS_HOTUPGRADE"
 
     local pid1=`cat $PIDFILE`
@@ -35,7 +51,13 @@ function run() {
     sleep 2
 
     title "Wait for the upgrading pid file to be removed."
-    for i in `seq 10`; do
+    # wait for the upgrade file.
+    for i in `seq 5`; do
+        sleep 1
+        [ -e $PIDFILE_UPGRADING ] && break
+    done
+    # wait for the pid file.
+    for i in `seq 5`; do
         sleep 1
         [ -e $PIDFILE ] && [ ! -e $PIDFILE_UPGRADING ] && break
     done
@@ -43,7 +65,8 @@ function run() {
     local pid2=`cat $PIDFILE`
     log "pid after ovs-hotupgrade: $pid2"
     if [ -z "$pid2" ] || [ "$pid1" == "$pid2" ]; then
-        err "Expected a new pid."
+        err "Expected a new pid. skip rest of the checks."
+        return
     fi
 
     title "Sleep a bit and check ovs pidfile and socket files."
@@ -62,12 +85,16 @@ function run() {
     local ndu2="$OVS_RUNDIR/ndu-sock.$pid2"
     [ -e $ndu1 ] && err "Expected $ndu1 to be removed."
     [ -e $ndu2 ] || err "Expected $ndu2 to exists."
+}
 
+function check_bridge() {
     title "Check the bridge."
     local br="br-phy"
     ovs-vsctl show
     ovs-ofctl dump-flows $br || err "Cannot find bridge $br"
+}
 
+function check_log() {
     title "Check for errors from ovs daemon."
     journalctl_for_test | grep -i "vswitchd.*|ERR|"
     if [ $? -eq 0 ]; then
@@ -75,7 +102,10 @@ function run() {
     fi
 }
 
-run
+check_supported || test_done
+
+trap cleanup_test EXIT
+case_without_bridge
+case_with_bridge
 trap - EXIT
-cleanup_test
 test_done
