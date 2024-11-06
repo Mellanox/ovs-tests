@@ -52,12 +52,12 @@ function run() {
 
     title "Wait for the upgrading pid file to be removed."
     # wait for the upgrade file.
-    for i in `seq 5`; do
+    for i in `seq 10`; do
         sleep 1
         [ -e $PIDFILE_UPGRADING ] && break
     done
     # wait for the pid file.
-    for i in `seq 5`; do
+    for i in `seq 10`; do
         sleep 1
         [ -e $PIDFILE ] && [ ! -e $PIDFILE_UPGRADING ] && break
     done
@@ -69,9 +69,16 @@ function run() {
         return
     fi
 
-    title "Sleep a bit and check ovs pidfile and socket files."
-    # Need to sleep a bit before next steps.
-    sleep 5
+    title "Wait for a single ovs-vswitchd process."
+    echo "ovs-vswitchd pids: $(pidof ovs-vswitchd)"
+    for i in `seq 30`; do
+        sleep 1
+        local count=$(pidof ovs-vswitchd | wc -w)
+        [ $count -le 1 ] && break
+    done
+    [ $count -ne 1 ] && err "Expected a single ovs-vswitchd process."
+
+    title "Check ovs pidfile."
     [ -f $PIDFILE ] || err "Missing pidfile $PIDFILE."
 
     title "Check ovs ctl files."
