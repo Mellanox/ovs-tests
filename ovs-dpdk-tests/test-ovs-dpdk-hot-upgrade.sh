@@ -11,6 +11,9 @@ OVS_RUNDIR='/var/run/openvswitch'
 PIDFILE="$OVS_RUNDIR/ovs-vswitchd.pid"
 PIDFILE_UPGRADING="$OVS_RUNDIR/ovs-vswitchd.upgrading.pid"
 
+config_sriov 2
+enable_switchdev
+
 function check_supported() {
     if [ ! -f $OVS_HOTUPGRADE ]; then
         warn "Cannot find $OVS_HOTUPGRADE. consider as not supported."
