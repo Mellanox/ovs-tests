@@ -6,7 +6,6 @@
 my_dir="$(dirname "$0")"
 . $my_dir/common-dpdk.sh
 
-OVS_HOTUPGRADE='/usr/share/openvswitch/scripts/ovs-hotupgrade'
 OVS_RUNDIR='/var/run/openvswitch'
 PIDFILE="$OVS_RUNDIR/ovs-vswitchd.pid"
 PIDFILE_UPGRADING="$OVS_RUNDIR/ovs-vswitchd.upgrading.pid"
@@ -15,11 +14,6 @@ config_sriov 2
 enable_switchdev
 
 function check_supported() {
-    if [ ! -f $OVS_HOTUPGRADE ]; then
-        warn "Cannot find $OVS_HOTUPGRADE. consider as not supported."
-        return 1
-    fi
-
     if [ ! -f $PIDFILE ]; then
         err "Cannot find $PIDFILE"
         return 1
@@ -45,12 +39,12 @@ function case_with_bridge() {
 }
 
 function run() {
-    title "Execute $OVS_HOTUPGRADE"
+    title "Hotupgrade ovs-vswitchd"
 
     local pid1=`cat $PIDFILE`
     log "Current pid: $pid1"
 
-    $OVS_HOTUPGRADE || err "ovs-hotupgrade script failed."
+    reload_ovs_vswitchd || err "ovs-vswitchd hotupgrade failed."
     sleep 2
 
     title "Wait for the upgrading pid file to be removed."
@@ -66,7 +60,7 @@ function run() {
     done
 
     local pid2=`cat $PIDFILE`
-    log "pid after ovs-hotupgrade: $pid2"
+    log "pid after ovs-vswitchd reload: $pid2"
     if [ -z "$pid2" ] || [ "$pid1" == "$pid2" ]; then
         err "Expected a new pid. skip rest of the checks."
         return

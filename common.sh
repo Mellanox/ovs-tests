@@ -2138,8 +2138,18 @@ function service_ovs() {
     else
         systemctl $action $ovs
     fi
+    __update_ovs_pid
+}
+
+function service_ovs_vswitchd() {
+    local action=$1
+    systemctl $action ovs-vswitchd
+    __update_ovs_pid
+}
+
+function __update_ovs_pid() {
     OVS_PID_FILE="/var/run/openvswitch/ovs-vswitchd.pid"
-    if [ "$action" == "start" ] && [ -f $OVS_PID_FILE ]; then
+    if [ -f $OVS_PID_FILE ]; then
         OVS_PID=`cat $OVS_PID_FILE`
     fi
 }
@@ -2288,6 +2298,10 @@ function start_clean_openvswitch() {
         __start_clean_openvswitch
     fi
     __ovs_used=1
+}
+
+function reload_ovs_vswitchd() {
+    bf_wrap_exec 'service_ovs_vswitchd reload'
 }
 
 function wait_for_ifaces() {
