@@ -18,7 +18,15 @@ bind_vfs
 
 trap cleanup EXIT
 
+#total connections (conns) must be multiple of 512
+test_total_conns=4096
+test_iperf_conns=128
+test_iperf_start_port=5201
+test_iperf_conn_bandwitdh="500k"
+test_iperf_run_time=20
+
 function cleanup() {
+    stop_traffic
     ovs-vsctl --no-wait remove o . other_config pmd-cpu-mask
     ovs-vsctl --no-wait remove o . other_config hw-offload-ct-size
     ovs-vsctl --no-wait remove o . other_config doca-ct
@@ -32,7 +40,7 @@ function config() {
     ovs-vsctl --timeout=$OVS_VSCTL_TIMEOUT set o . other_config:doca-ct=true
     ovs-vsctl --timeout=$OVS_VSCTL_TIMEOUT set o . other_config:doca-ct-ipv6=false
     ovs-vsctl --timeout=$OVS_VSCTL_TIMEOUT set o . other_config:pmd-cpu-mask=0x6
-    ovs-vsctl --timeout=$OVS_VSCTL_TIMEOUT set o . other_config:hw-offload-ct-size=4096
+    ovs-vsctl --timeout=$OVS_VSCTL_TIMEOUT set o . other_config:hw-offload-ct-size=$test_total_conns
     restart_openvswitch_nocheck
 }
 
@@ -40,7 +48,31 @@ function add_openflow_rules() {
     ovs_add_ct_rules br-phy tcp
 }
 
+function multi_iperf3_server() {
+    local i
+
+    for i in `seq 1 $(((test_total_conns/test_iperf_conns)))`; do
+        iperf3 -D -s -i 0 -p $((test_iperf_start_port+i-1))
+    done
+}
+
+function multi_iperf3_client() {
+    local i
+
+    for i in `seq 1 $(((test_total_conns/test_iperf_conns)))`; do
+         ip netns exec ns0 iperf3 -c $REMOTE_IP -i 0 -p $((test_iperf_start_port+i-1)) -P $((test_iperf_conns-1)) -b $test_iperf_conn_bandwitdh -t $test_iperf_run_time > /tmp/iperf3_c_$i &
+    done
+}
+
+function multi_iperf3() {
+    on_remote_exec multi_iperf3_server
+    multi_iperf3_client &
+}
+
 function run() {
+    local reached=false
+    local i
+
     config
     config_remote_nic
     add_openflow_rules
@@ -48,10 +80,21 @@ function run() {
     verify_ping
 
     title "Run traffic and try to fill ct table entirely"
-    set_iperf2
-    generate_traffic "remote" $LOCAL_IP none true ns0 local 30 4096
+    multi_iperf3
 
-    verify_ovs_readd_port br-phy
+    title "Wait for traffic"
+    for i in `seq 1 $((test_iperf_run_time+10))`; do
+        local conns=`ovs-appctl dpctl/offload-stats-show | grep -i -o "Total.*CT bi-dir Conn.*"`
+        echo $conns
+
+        $reached || { echo $conns | grep -q $test_total_conns && success "Reached $test_total_conns connections" && reached=true; }
+
+        $reached && echo $conns | grep -q -P "Connections:\s+0" && break
+
+        sleep 1
+    done
+
+    $reached || err "Failed to reach $test_total_conns connections"
 }
 
 run
