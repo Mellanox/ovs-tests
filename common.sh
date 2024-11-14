@@ -2664,9 +2664,12 @@ function coredump_info() {
     fi
 }
 
+__run_sos_collector_once=1
 function collect_sos_reports() {
     [ "$ENABLE_SOS_COLLECTOR" != 1 ] && return
     [ ! -f $SOS_REPORT_COLLECTOR ] && return
+    [ "$__run_sos_collector_once" = 0 ] && return
+    __run_sos_collector_once=0
 
     local run_cmd="which sos &>/dev/null && $SOS_REPORT_COLLECTOR $TESTNAME devtest"
 
