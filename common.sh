@@ -953,7 +953,7 @@ function title_test_name() {
 
 function title_box() {
     local title=${1:-$TESTNAME}
-    local color=${2:-$YELLOW}
+    local color=${2:-$CYAN}
     local tmp="## $title ##"
     local count=${#tmp}
     local sep=$(printf '%*s' $count | tr ' ' '#')
