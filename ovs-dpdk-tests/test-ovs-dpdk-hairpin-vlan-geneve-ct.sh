@@ -15,24 +15,20 @@ enable_switchdev
 require_interfaces REP NIC
 bind_vfs
 
-trap cleanup EXIT
+vlan=5
+vlan_dev=${REMOTE_NIC}.$vlan
 
-function cleanup() {
-    cleanup_test
-    on_remote "rm -rf $p_server
-               rm -rf $p_client
-               ip link delete ${REMOTE_NIC}_vlan 2>/dev/null"
-}
+trap 'cleanup_test $vlan_dev' EXIT
 
 function add_openflow_rules() {
     local bridge="br-phy"
     local pf0=`get_port_from_pci $pci`
 
     ovs-ofctl add-flow $bridge "in_port=$pf0, tcp action=${bridge}-patch"
-    ovs-ofctl add-flow $bridge "in_port=vtap-br-phy, action=push_vlan:0x8100,mod_vlan_vid:5,$pf0" -O OpenFlow11
+    ovs-ofctl add-flow $bridge "in_port=vtap-br-phy, action=push_vlan:0x8100,mod_vlan_vid:$vlan,$pf0" -O OpenFlow11
     ovs-ofctl add-flow $bridge "in_port=${bridge}-patch, action=$pf0"
-    ovs-ofctl add-flow $bridge "in_port=$pf0,udp,dl_vlan=5 action=pop_vlan,vtap-br-phy"
-    ovs-ofctl add-flow $bridge "in_port=$pf0,arp,dl_vlan=5 action=pop_vlan,vtap-br-phy"
+    ovs-ofctl add-flow $bridge "in_port=$pf0,udp,dl_vlan=$vlan action=pop_vlan,vtap-br-phy"
+    ovs-ofctl add-flow $bridge "in_port=$pf0,arp,dl_vlan=$vlan action=pop_vlan,vtap-br-phy"
 
     debug "$bridge openflow rules"
     ovs-ofctl dump-flows $bridge --color
@@ -71,18 +67,12 @@ function add_vtap_port() {
 }
 
 function config_remote() {
-    local vlan_id=5
-    local vlan_dev="${REMOTE_NIC}_vlan"
-
+    config_remote_vlan $vlan $vlan_dev $REMOTE_TUNNEL_IP
     config_remote_tunnel "geneve"
     on_remote "ip netns add ns0
                ip l set dev $TUNNEL_DEV netns ns0
                ip netns exec ns0 ifconfig $TUNNEL_DEV $REMOTE_IP/24 up
-               ip address flush dev $REMOTE_NIC
-               ip address add dev $REMOTE_NIC $LOCAL_IP/24
-               ip link add link $REMOTE_NIC name $vlan_dev type vlan id $vlan_id
-               ip address add dev $vlan_dev $REMOTE_TUNNEL_IP/24
-               ip link set dev $vlan_dev up"
+               ip address add dev $REMOTE_NIC $LOCAL_IP/24"
 }
 
 function config() {
@@ -133,12 +123,12 @@ function run_traffic() {
 }
 
 function run_test() {
-    cleanup
+    cleanup_test $vlan_dev
     config
     run_traffic $LOCAL_IP ns0
 }
 
 run_test
 trap - EXIT
-cleanup
+cleanup_test $vlan_dev
 test_done
