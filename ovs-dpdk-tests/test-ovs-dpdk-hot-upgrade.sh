@@ -12,6 +12,7 @@ PIDFILE_UPGRADING="$OVS_RUNDIR/ovs-vswitchd.upgrading.pid"
 
 config_sriov 2
 enable_switchdev
+start_clean_openvswitch
 
 function check_supported() {
     if [ ! -f $PIDFILE ]; then
