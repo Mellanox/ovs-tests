@@ -2673,17 +2673,21 @@ function collect_sos_reports() {
 
     local run_cmd="which sos &>/dev/null && $SOS_REPORT_COLLECTOR $TESTNAME devtest"
 
+    debug "Collect sos reports"
+
     if is_bf_host; then
-        title "Collect sos report from BF"
-        on_bf "$run_cmd"
-        title "Collect sos report from remote BF"
-        on_remote_bf "$run_cmd"
+        on_bf "$run_cmd" > /tmp/sos_output1 &
+        on_remote_bf "$run_cmd" > /tmp/sos_output2 &
     else
-        title "Collect sos report"
-        eval "$run_cmd"
-        title "Collect sos report from remote"
-        on_remote "$run_cmd"
+        eval "$run_cmd" > /tmp/sos_output1 &
+        on_remote "$run_cmd" > /tmp/sos_output2 &
     fi
+
+    wait
+    debug "Output of sos report"
+    cat /tmp/sos_output1
+    debug "Output of sos report remote"
+    cat /tmp/sos_output2
 }
 
 function __steps_end_of_test() {
