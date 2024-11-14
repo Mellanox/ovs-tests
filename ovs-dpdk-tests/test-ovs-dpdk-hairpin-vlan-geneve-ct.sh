@@ -19,7 +19,6 @@ trap cleanup EXIT
 
 function cleanup() {
     cleanup_test
-    on_remote_exec "cleanup_test"
     on_remote "rm -rf $p_server
                rm -rf $p_client
                ip link delete ${REMOTE_NIC}_vlan 2>/dev/null"
