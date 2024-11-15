@@ -16,6 +16,18 @@ function config() {
     start_clean_openvswitch
 }
 
+function is_file_exists() {
+    bf_wrap "test -e $1"
+}
+
+function cat_file() {
+    bf_wrap "cat $1"
+}
+
+function ovs_vswitchd_pids() {
+    bf_wrap "pidof ovs-vswitchd"
+}
+
 function case_without_bridge() {
     title "Case without a bridge."
     run
@@ -35,7 +47,7 @@ function case_with_bridge() {
 function run() {
     title "Hotupgrade ovs-vswitchd"
 
-    local pid1=`cat $PIDFILE`
+    local pid1=`cat_file $PIDFILE`
     log "Current pid: $pid1"
 
     reload_ovs_vswitchd || err "ovs-vswitchd hotupgrade failed."
@@ -45,15 +57,15 @@ function run() {
     # wait for the upgrade file.
     for i in `seq 10`; do
         sleep 1
-        [ -e $PIDFILE_UPGRADING ] && break
+        is_file_exists $PIDFILE_UPGRADING && break
     done
     # wait for the pid file.
     for i in `seq 10`; do
         sleep 1
-        [ -e $PIDFILE ] && [ ! -e $PIDFILE_UPGRADING ] && break
+        is_file_exists $PIDFILE && ! is_file_exists $PIDFILE_UPGRADING && break
     done
 
-    local pid2=`cat $PIDFILE`
+    local pid2=`cat_file $PIDFILE`
     log "pid after ovs-vswitchd reload: $pid2"
     if [ -z "$pid2" ] || [ "$pid1" == "$pid2" ]; then
         err "Expected a new pid. skip rest of the checks."
@@ -61,28 +73,28 @@ function run() {
     fi
 
     title "Wait for a single ovs-vswitchd process."
-    echo "ovs-vswitchd pids: $(pidof ovs-vswitchd)"
+    echo "ovs-vswitchd pids: $(ovs_vswitchd_pids)"
     for i in `seq 30`; do
         sleep 1
-        local count=$(pidof ovs-vswitchd | wc -w)
+        local count=$(ovs_vswitchd_pids | wc -w)
         [ $count -le 1 ] && break
     done
     [ $count -ne 1 ] && err "Expected a single ovs-vswitchd process."
 
     title "Check ovs pidfile."
-    [ -f $PIDFILE ] || err "Missing pidfile $PIDFILE."
+    is_file_exists $PIDFILE || err "Missing pidfile $PIDFILE."
 
     title "Check ovs ctl files."
     local ctl1="$OVS_RUNDIR/ovs-vswitchd.$pid1.ctl"
     local ctl2="$OVS_RUNDIR/ovs-vswitchd.$pid2.ctl"
-    [ -e $ctl1 ] && err "Expected $ctl1 to be removed."
-    [ -e $ctl2 ] || err "Expected $ctl2 to exists."
+    is_file_exists $ctl1 && err "Expected $ctl1 to be removed."
+    is_file_exists $ctl2 || err "Expected $ctl2 to exists."
 
     title "Check ndu-sock files."
     local ndu1="$OVS_RUNDIR/ndu-sock.$pid1"
     local ndu2="$OVS_RUNDIR/ndu-sock.$pid2"
-    [ -e $ndu1 ] && err "Expected $ndu1 to be removed."
-    [ -e $ndu2 ] || err "Expected $ndu2 to exists."
+    is_file_exists $ndu1 && err "Expected $ndu1 to be removed."
+    is_file_exists $ndu2 || err "Expected $ndu2 to exists."
 }
 
 function check_bridge() {
