@@ -14,15 +14,6 @@ config_sriov 2
 enable_switchdev
 start_clean_openvswitch
 
-function check_supported() {
-    if [ ! -f $PIDFILE ]; then
-        err "Cannot find $PIDFILE"
-        return 1
-    fi
-
-    return 0
-}
-
 function case_without_bridge() {
     title "Case without a bridge."
     run
@@ -106,8 +97,6 @@ function check_log() {
         err "openvswitch errors."
     fi
 }
-
-check_supported || test_done
 
 trap cleanup_test EXIT
 case_without_bridge
