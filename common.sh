@@ -1860,13 +1860,18 @@ function get_test_time_elapsed_human() {
 
 function journalctl_for_test() {
     local since=${1:-$_check_start_ts_full}
+    local filter
+
+    if [ -n "$__expected_error_msgs" ]; then
+        filter+="$__expected_error_msgs"
+    fi
 
     if is_bf_host; then
         # XXX not supporting user arg since.
         since=`get_test_time_elapsed`
-        on_bf journalctl --since=\"$since sec ago\"
+        on_bf journalctl --since=\"$since sec ago\" | grep -v -E -i "$filter"
     else
-        journalctl --since="$since"
+        journalctl --since="$since" | grep -v -E -i "$filter"
     fi
 }
 
@@ -2017,10 +2022,6 @@ Deprecated Driver is detected: iptables will not be maintained in a future major
 mlx5_pci_slot_reset Device state = 2 pci_status: 1. Exit, err = 0, result = 5, recovered|\
 engine_pipe_entry_query.*failed querying pipe entry - pipe is null|\
 Unmaintained driver is detected: ip_tables"
-
-    if [ -n "$__expected_error_msgs" ]; then
-        filter+="$__expected_error_msgs"
-    fi
 
     look="$look|$memtrack|$mlx5_errs|$br_errs|$fw_errs|$ovs_errs"
     local a=`journalctl_for_test $since | grep -E -i "$look" | grep -v -E -i "$filter" || true`
