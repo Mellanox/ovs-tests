@@ -10,9 +10,11 @@ OVS_RUNDIR='/var/run/openvswitch'
 PIDFILE="$OVS_RUNDIR/ovs-vswitchd.pid"
 PIDFILE_UPGRADING="$OVS_RUNDIR/ovs-vswitchd.upgrading.pid"
 
-config_sriov 2
-enable_switchdev
-start_clean_openvswitch
+function config() {
+    config_sriov 2
+    enable_switchdev
+    start_clean_openvswitch
+}
 
 function case_without_bridge() {
     title "Case without a bridge."
@@ -98,6 +100,7 @@ function check_log() {
     fi
 }
 
+config
 trap cleanup_test EXIT
 case_without_bridge
 case_with_bridge
